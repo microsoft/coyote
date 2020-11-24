@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Benchmarking
 
         public IEnumerable<List<ParamInfo>> EnumerateParamCombinations(int pos, Stack<ParamInfo> combinations)
         {
-            if (this.TestParams.Count == 0)
+            if (this.TestParams.Count is 0)
             {
                 yield return combinations.ToList();
             }

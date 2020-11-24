@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (exitCode != 0 || error.Length > 0)
             {
-                if (error.Length == 0)
+                if (error.Length is 0)
                 {
                     error = "<no error message returned>";
                 }

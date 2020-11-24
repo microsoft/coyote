@@ -59,7 +59,7 @@ namespace Microsoft.Coyote
             {
                 if (firstTime)
                 {
-                    string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+                    string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                     Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
                     Console.WriteLine("----------------------------{0}", new string('-', version.Length));
                     if (configuration.EnableTelemetry)
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote
                 {
                     // Load options from JSON file.
                     config = RewritingOptions.ParseFromJSON(configuration.RewritingOptionsPath);
-                    Console.WriteLine($". Rewriting the assemblies specified in {config}");
+                    Console.WriteLine($". Rewriting the assemblies specified in {configuration.RewritingOptionsPath}");
                     config.PlatformVersion = configuration.PlatformVersion;
 
                     // allow command line options to override the json file.
@@ -317,20 +317,20 @@ namespace Microsoft.Coyote
         {
             lock (ConsoleLock)
             {
+                string msg = string.Empty;
                 if (ex is ExecutionCanceledException)
                 {
-                    Error.Report("[CoyoteTester] unhandled exception: {0}: {1}", ex.GetType().ToString(),
-                        "This can mean you have a code path that is not controlled by the runtime that threw an unhandled exception. " +
-                        "This typically happens when you create a 'System.Threading.Tasks.Task' instead of 'Microsoft.Coyote.Tasks.Task' " +
-                        "or create a 'Task' inside a 'StateMachine' handler. One known issue that causes this is using 'async void' " +
-                        "methods, which is not supported.");
-                    StdOut.WriteLine(ex.StackTrace);
+                    msg = "[CoyoteTester] unhandled exception: ExecutionCanceledException: This can mean you have " +
+                        "a code path that is not controlled by the runtime that threw an unhandled exception: " +
+                        "mock this code path or rewrite its assembly.";
                 }
                 else
                 {
-                    Error.Report("[CoyoteTester] unhandled exception: {0}: {1}", ex.GetType().ToString(), ex.Message);
-                    StdOut.WriteLine(ex.StackTrace);
+                    msg = $"[CoyoteTester] unhandled exception: {ex}";
                 }
+
+                Error.Report(msg);
+                StdOut.WriteLine(ex.StackTrace);
             }
         }
 
@@ -384,8 +384,6 @@ namespace Microsoft.Coyote
             return "net5.0";
 #elif NET48
             return "net48";
-#elif NET47
-            return "net47";
 #elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0

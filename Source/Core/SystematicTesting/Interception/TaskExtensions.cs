@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>A Task that represents the asynchronous operation of the provided task.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Unwrap(this Task<Task> task) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
+            CoyoteRuntime.Current.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
 
         /// <summary>
         /// Creates a proxy <see cref="Task{TResult}"/> that represents the asynchronous operation of a task.
@@ -33,6 +33,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>A Task that represents the asynchronous operation of the provided task.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Unwrap<TResult>(this Task<Task<TResult>> task) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
+            CoyoteRuntime.Current.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
     }
 }

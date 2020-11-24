@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote
@@ -34,18 +35,6 @@ namespace Microsoft.Coyote
         internal string OutputFilePath;
 
         /// <summary>
-        /// Timeout in seconds.
-        /// </summary>
-        [DataMember]
-        internal int Timeout;
-
-        /// <summary>
-        /// The current runtime generation.
-        /// </summary>
-        [DataMember]
-        internal ulong RuntimeGeneration;
-
-        /// <summary>
         /// The assembly to be analyzed for bugs.
         /// </summary>
         [DataMember]
@@ -74,6 +63,15 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public uint TestingIterations { get; internal set; }
+
+        /// <summary>
+        /// Timeout in seconds after which no more testing iterations will run.
+        /// </summary>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        [DataMember]
+        internal int TestingTimeout;
 
         /// <summary>
         /// Custom seed to be used by the random value generator. By default,
@@ -130,11 +128,11 @@ namespace Microsoft.Coyote
         public int StrategyBound { get; internal set; }
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time a built-in timer
-        /// is scheduled during systematic testing. Decrease the value to increase the frequency of
-        /// timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to
-        /// decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default
-        /// this value is 10.
+        /// Value that controls the probability of triggering a timeout each time <see cref="Task.Delay(int)"/>
+        /// or a built-in timer is scheduled during systematic testing. Decrease the value to increase the
+        /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
+        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this
+        /// value is 10.
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
@@ -346,15 +344,13 @@ namespace Microsoft.Coyote
         {
             this.OutputFilePath = string.Empty;
 
-            this.Timeout = 0;
-            this.RuntimeGeneration = 0;
-
             this.AssemblyToBeAnalyzed = string.Empty;
             this.RewritingOptionsPath = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
+            this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
             this.PerformFullExploration = false;
@@ -399,7 +395,7 @@ namespace Microsoft.Coyote
             this.PlatformVersion = GetPlatformVersion();
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
-            if (optout == "1" || optout == "true")
+            if (optout is "1" || optout is "true")
             {
                 this.EnableTelemetry = false;
             }
@@ -481,6 +477,19 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with the specified systematic testing timeout in seconds.
+        /// </summary>
+        /// <param name="timeout">The timeout value in seconds.</param>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        public Configuration WithTestingTimeout(int timeout)
+        {
+            this.TestingTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the specified number of maximum scheduling steps to explore per
         /// iteration during systematic testing. The <see cref="MaxUnfairSchedulingSteps"/> is assigned the
         /// <paramref name="maxSteps"/> value, whereas the <see cref="MaxFairSchedulingSteps"/> is assigned
@@ -543,10 +552,13 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// Updates the <see cref="TimeoutDelay"/> value that controls the probability of triggering
-        /// a timeout each time a built-in timer is scheduled during systematic testing. This value
-        /// is not a unit of time.
+        /// a timeout each time <see cref="Task.Delay(int)"/> or a built-in timer is scheduled during
+        /// systematic testing.
         /// </summary>
         /// <param name="timeoutDelay">The timeout delay during testing.</param>
+        /// <remarks>
+        /// Increase the value to decrease the probability. This value is not a unit of time.
+        /// </remarks>
         public Configuration WithTimeoutDelay(uint timeoutDelay)
         {
             this.TimeoutDelay = timeoutDelay;
@@ -580,7 +592,7 @@ namespace Microsoft.Coyote
         /// </summary>
         /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = false)
+        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
         {
             this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
             return this;
@@ -643,8 +655,6 @@ namespace Microsoft.Coyote
             return "net5.0";
 #elif NET48
             return "net48";
-#elif NET47
-            return "net47";
 #elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0

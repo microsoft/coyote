@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
         /// <summary>
         /// Retrieves the difference between the maximum number of thread pool threads returned by the
-        /// <see cref="ThreadPool.GetMaxThreads"/> method, and the number currently active.
+        /// <see cref="GetMaxThreads"/> method, and the number currently active.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetAvailableThreads(out int workerThreads, out int completionPortThreads) =>
@@ -80,7 +80,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
                 return true;
             }
 
@@ -101,7 +102,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
                 return true;
             }
 
@@ -120,7 +122,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
                 return true;
             }
 
@@ -139,7 +142,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack.Execute(), null, false, true, default);
+                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack.Execute(), null, options);
                 return true;
             }
 
@@ -159,7 +163,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
                 return true;
             }
 
@@ -174,7 +179,18 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static bool BindHandle(SafeHandle osHandle)
         {
             ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.BindHandle));
+#if NET5_0
+            if (OperatingSystem.IsWindows())
+            {
+                return SystemThreading.ThreadPool.BindHandle(osHandle);
+            }
+            else
+            {
+                throw new NotSupportedException($"Invoking '{nameof(SystemThreading.ThreadPool.BindHandle)}' is only supported on Windows.");
+            }
+#else
             return SystemThreading.ThreadPool.BindHandle(osHandle);
+#endif
         }
 
         /// <summary>

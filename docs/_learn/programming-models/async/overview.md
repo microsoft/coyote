@@ -7,8 +7,6 @@ permalink: /learn/programming-models/async/overview
 
 ## Programming model: asynchronous tasks
 
-![Task programming model is currently in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview)
-
 The _asynchronous tasks_ programming model of Coyote is based on the [task-based asynchronous
 pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
 Coyote provides a drop in replacement for the native .NET `Task` type that works with the `async`
@@ -29,8 +27,6 @@ and scheduling during systematic testing, enabling `coyote test` to explore vari
 between controlled `Task` objects. In production, a controlled `Task` executes efficiently, as it a
 simple wrapper over a native `Task`, with operations being pass-through (Coyote takes control only
 during testing).
-
-[![image](../../../assets/images/channel9_tasks.png)](https://channel9.msdn.com/Shows/On-NET/Reliable-Async-Systems-with-Coyote-Part-1)
 
 ## Overview
 

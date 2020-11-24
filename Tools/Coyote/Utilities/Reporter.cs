@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.SystematicTesting
             else
             {
                 var subpath = Path.GetDirectoryName(assemblyPath);
-                if (subpath.Length == 0)
+                if (subpath.Length is 0)
                 {
                     subpath = ".";
                 }

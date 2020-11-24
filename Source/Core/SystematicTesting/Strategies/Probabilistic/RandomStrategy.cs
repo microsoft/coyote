@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
     /// <summary>
     /// A simple (but effective) randomized scheduling strategy.
     /// </summary>
-    internal class RandomStrategy : ISchedulingStrategy
+    internal class RandomStrategy : SchedulingStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -29,14 +29,14 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        public RandomStrategy(int maxSteps, IRandomValueGenerator random)
+        internal RandomStrategy(int maxSteps, IRandomValueGenerator random)
         {
             this.RandomValueGenerator = random;
             this.MaxScheduledSteps = maxSteps;
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             // The random strategy just needs to reset the number of scheduled steps during
             // the current iretation.
@@ -45,10 +45,11 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 next = null;
                 return false;
@@ -63,10 +64,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomValueGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) is 0)
             {
                 next = true;
             }
@@ -77,7 +78,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
@@ -85,12 +86,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetScheduledSteps() => this.ScheduledSteps;
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps()
+        internal override bool HasReachedMaxSchedulingSteps()
         {
-            if (this.MaxScheduledSteps == 0)
+            if (this.MaxScheduledSteps is 0)
             {
                 return false;
             }
@@ -99,13 +100,13 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool IsFair() => true;
+        internal override bool IsFair() => true;
 
         /// <inheritdoc/>
-        public virtual string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
 
         /// <inheritdoc/>
-        public virtual void Reset()
+        internal override void Reset()
         {
             this.ScheduledSteps = 0;
         }

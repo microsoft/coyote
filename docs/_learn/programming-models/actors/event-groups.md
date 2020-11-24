@@ -84,10 +84,10 @@ this.CurrentEventGroup = null;
 
 However, this could be overridden by any subsequent event that is dequeued from the event queue. If
 you do not want the `CurrentEventGroup` to be passed along to the target actor you can pass a
-special `NullEventGroup` like this:
+special `EventGroup.Null` event group like this:
 
 ```c#
-this.SendEvent(target, e, EventGroup.NullEventGroup);
+this.SendEvent(target, e, EventGroup.Null);
 ```
 
 This will put a `null` in the event queue of the target actor so that when this event is dequeued

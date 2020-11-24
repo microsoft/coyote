@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -42,8 +42,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.CheckExecutingOperationIsControlled();
-                this.TaskController?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
+                this.Runtime?.CheckExecutingOperationIsControlled();
+                this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
         }
@@ -51,9 +51,9 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskController)
+        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
         public static AsyncTaskMethodBuilder Create() =>
-            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
+            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
-            this.TaskController?.CheckExecutingOperationIsControlled();
+            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, Task.CurrentId);
-            this.TaskController?.CheckExecutingOperationIsControlled();
+            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult();
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         public void SetException(Exception exception)
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderSetException(exception);
+            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
             this.MethodBuilder.SetException(exception);
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -154,8 +154,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.CheckExecutingOperationIsControlled();
-                this.TaskController?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
+                this.Runtime?.CheckExecutingOperationIsControlled();
+                this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
         }
@@ -163,9 +163,9 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskController)
+        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         public static AsyncTaskMethodBuilder<TResult> Create() =>
-            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
+            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
-            this.TaskController?.CheckExecutingOperationIsControlled();
+            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
-            this.TaskController?.CheckExecutingOperationIsControlled();
+            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult(result);
         }
 
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         public void SetException(Exception exception)
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderSetException(exception);
+            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
             this.MethodBuilder.SetException(exception);
         }
 

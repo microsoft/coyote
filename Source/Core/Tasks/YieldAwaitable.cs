@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Tasks
@@ -19,19 +19,19 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
-        public YieldAwaiter GetAwaiter() => new YieldAwaiter(this.TaskController, default);
+        public YieldAwaiter GetAwaiter() => new YieldAwaiter(this.Runtime, default);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="YieldAwaitable"/> struct.
         /// </summary>
-        internal YieldAwaitable(TaskController taskController)
+        internal YieldAwaitable(CoyoteRuntime runtime)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Responsible for controlling the execution of tasks during systematic testing.
             /// </summary>
-            private readonly TaskController TaskController;
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// The internal yield awaiter.
@@ -61,9 +61,9 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="YieldAwaiter"/> struct.
             /// </summary>
-            internal YieldAwaiter(TaskController taskController, SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
+            internal YieldAwaiter(CoyoteRuntime runtime, SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
             {
-                this.TaskController = taskController;
+                this.Runtime = runtime;
                 this.Awaiter = awaiter;
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             public void GetResult()
             {
-                this.TaskController?.OnYieldAwaiterGetResult();
+                this.Runtime?.OnYieldAwaiterGetResult();
                 this.Awaiter.GetResult();
             }
 
@@ -81,13 +81,13 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             public void OnCompleted(Action continuation)
             {
-                if (this.TaskController is null)
+                if (this.Runtime is null)
                 {
                     this.Awaiter.OnCompleted(continuation);
                 }
                 else
                 {
-                    this.TaskController.ScheduleYieldAwaiterContinuation(continuation);
+                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
                 }
             }
 
@@ -96,13 +96,13 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             public void UnsafeOnCompleted(Action continuation)
             {
-                if (this.TaskController is null)
+                if (this.Runtime is null)
                 {
                     this.Awaiter.UnsafeOnCompleted(continuation);
                 }
                 else
                 {
-                    this.TaskController.ScheduleYieldAwaiterContinuation(continuation);
+                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
                 }
             }
         }

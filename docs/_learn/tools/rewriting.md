@@ -7,7 +7,7 @@ permalink: /learn/tools/rewriting
 
 ## Coyote rewriting tool
 
-![Experimental](https://img.shields.io/static/v1?style=flat&color=red&label=&message=experimental)
+![Rewriting is currently in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview)
 
 The `coyote` command line tool can be used to automatically rewrite any .NET binary to take over
 concurrency that is built using `System.Threading.Tasks.Task`. For details on what kinds of
@@ -38,8 +38,8 @@ types.
 However, using `coyote rewrite` we can make it testable under `coyote test` tool as follows:
 
 1. Build BoundedBuffer.sln
-2. coyote rewrite bin\netcoreapp3.1\BoundedBuffer.dll
-3. coyote test bin\netcoreapp3.1\BoundedBuffer.dll -m TestBoundedBufferMinimalDeadlock -i 100
+2. coyote rewrite bin\net5.0\BoundedBuffer.dll
+3. coyote test bin\net5.0\BoundedBuffer.dll -m TestBoundedBufferMinimalDeadlock -i 100
 
 Notice that the test runs, it finds a bug and the produced log file contains the error:
 
@@ -58,8 +58,8 @@ You can provide more rewriting options in a JSON file like this:
 
 ```json
 {
-  "AssembliesPath": "bin/netcoreapp3.1",
-  "OutputPath": "bin/netcoreapp3.1/rewritten",
+  "AssembliesPath": "bin/net5.0",
+  "OutputPath": "bin/net5.0/rewritten",
   "Assemblies": [
     "BoundedBuffer.dll",
     "MyOtherLibrary.dll",
@@ -91,7 +91,7 @@ original build. This can be done using the `--strong-name-key-file` command line
 For example, from your `coyote` repo:
 
 ```
-bin\net48\coyote rewrite d:\git\foundry99\Coyote\Tests\BinaryRewriting.Tests\bin\net48\BinaryRewritingTests.coyote.json --strong-name-key-file Common\Key.snk
+bin\net48\coyote rewrite d:\git\foundry99\Coyote\Tests\Tests.SystematicTesting\bin\net48\rewrite.coyote.json --strong-name-key-file Common\Key.snk
 ```
 
 You can also provide this key in the JSON file using the `StrongNameKeyFile` property.
@@ -101,6 +101,6 @@ You can also provide this key in the JSON file using the `StrongNameKeyFile` pro
 **Format of the executable (.exe) or library (.dll) is invalid.**
 
 If you are using a .NET Core target platform then on Windows you will get executable program with
-`.exe` file extension, like `coyote-samples\bin\netcoreapp3.1\BoundedBuffer.exe` These are not
+`.exe` file extension, like `coyote-samples\bin\net5.0\BoundedBuffer.exe` These are not
 rewritable assemblies. You must instead rewrite and test the associated library, in this case
 `BoundedBuffer.dll`.

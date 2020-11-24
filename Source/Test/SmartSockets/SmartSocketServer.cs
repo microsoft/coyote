@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.SmartSockets
             if (ipAddress.Contains(':'))
             {
                 string[] parts = ipAddress.Split(':');
-                if (parts.Length == 2 && int.TryParse(parts[1], out int port))
+                if (parts.Length is 2 && int.TryParse(parts[1], out int port))
                 {
                     this.IpAddress = new IPEndPoint(IPAddress.Parse(parts[0]), port);
                 }
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.SmartSockets
             {
                 var localHost = SmartSocketClient.FindLocalHostName();
                 List<string> addresses = SmartSocketClient.FindLocalIpAddresses();
-                if (localHost == null || addresses.Count == 0)
+                if (localHost is null || addresses.Count is 0)
                 {
                     return; // no network.
                 }
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.SmartSockets
         /// </summary>
         internal void Run()
         {
-            if (this.acceptArgs == null)
+            if (this.acceptArgs is null)
             {
                 this.acceptArgs = new SocketAsyncEventArgs();
                 this.acceptArgs.Completed += this.OnAcceptComplete;

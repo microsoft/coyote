@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var controller = ControlledRuntime.Current.TaskController;
+                var runtime = CoyoteRuntime.Current;
 
                 int numIterations = toExclusive - fromInclusive;
                 int numTasks = Math.Min(numIterations, parallelOptions.MaxDegreeOfParallelism);
@@ -96,19 +96,21 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 int index = 0;
                 Task[] tasks = new Task[numTasks];
+
+                var options = OperationContext.CreateOperationExecutionOptions();
                 foreach (var group in groups)
                 {
-                    tasks[index] = controller.ScheduleAction(() =>
+                    tasks[index] = runtime.ScheduleAction(() =>
                     {
                         foreach (var iteration in group)
                         {
                             body(iteration);
                         }
-                    }, null, false, false, parallelOptions.CancellationToken);
+                    }, null, options, false, parallelOptions.CancellationToken);
                     index++;
                 }
 
-                controller.WaitAllTasksComplete(tasks);
+                runtime.WaitAllTasksComplete(tasks);
                 return CompletedResult;
             }
 
@@ -264,7 +266,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var controller = ControlledRuntime.Current.TaskController;
+                var runtime = CoyoteRuntime.Current;
                 var sourceList = source.ToList();
 
                 int numIterations = sourceList.Count;
@@ -277,19 +279,21 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 int index = 0;
                 Task[] tasks = new Task[numTasks];
+
+                var options = OperationContext.CreateOperationExecutionOptions();
                 foreach (var group in groups)
                 {
-                    tasks[index] = controller.ScheduleAction(() =>
+                    tasks[index] = runtime.ScheduleAction(() =>
                     {
                         foreach (var iteration in group)
                         {
                             body(sourceList[iteration]);
                         }
-                    }, null, false, false, parallelOptions.CancellationToken);
+                    }, null, options, false, parallelOptions.CancellationToken);
                     index++;
                 }
 
-                controller.WaitAllTasksComplete(tasks);
+                runtime.WaitAllTasksComplete(tasks);
                 return CompletedResult;
             }
 

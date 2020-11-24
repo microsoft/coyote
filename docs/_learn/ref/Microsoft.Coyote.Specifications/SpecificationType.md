@@ -17,6 +17,7 @@ public static class Specification
 | name | description |
 | --- | --- |
 | static [Assert](Specification/Assert)(…) | Checks if the predicate holds, and if not, throws an AssertionFailureException exception. (4 methods) |
+| static [IsEventuallyCompletedSuccessfully](Specification/IsEventuallyCompletedSuccessfully)(…) | Creates a monitor that checks if the specified task eventually completes its execution successfully, and if not, fails with a liveness property violation. |
 | static [Monitor&lt;T&gt;](Specification/Monitor)(…) | Invokes the specified monitor with the given event. |
 | static [RegisterMonitor&lt;T&gt;](Specification/RegisterMonitor)() | Registers a new safety or liveness monitor. |
 

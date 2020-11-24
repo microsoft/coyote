@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 Debug.WriteLine($"............. [-] test method '{method.Name}'");
 
-                MethodDefinition newMethod = this.CloneMethod(method);
+                MethodDefinition newMethod = CloneMethod(method);
                 this.RewriteTestMethod(method, newMethod);
 
                 method.DeclaringType.Methods.Add(newMethod);
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Clones the test method.
         /// </summary>
-        internal MethodDefinition CloneMethod(MethodDefinition method)
+        internal static MethodDefinition CloneMethod(MethodDefinition method)
         {
             int index = 1;
             string newName = $"{method.Name}_{index}";
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             var method = FindMatchingMethod(typedef, methodName, typeRefs.ToArray());
-            if (method == null)
+            if (method is null)
             {
                 throw new Exception(string.Format("Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));
             }

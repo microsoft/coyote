@@ -18,8 +18,6 @@ public sealed class ActorId : IComparable<ActorId>, IEquatable<ActorId>
 | --- | --- |
 | [IsNameUsedForHashing](ActorId/IsNameUsedForHashing) { get; } | True if [`NameValue`](ActorId/NameValue) is used as the unique id, else false. |
 | [Runtime](ActorId/Runtime) { get; } | The runtime that executes the actor with this id. |
-| readonly [Endpoint](ActorId/Endpoint) | Endpoint. |
-| readonly [Generation](ActorId/Generation) | Generation of the runtime that created this actor id. |
 | readonly [Name](ActorId/Name) | Name used for logging. |
 | readonly [NameValue](ActorId/NameValue) | Unique id, when non-empty. |
 | readonly [Type](ActorId/Type) | The type of the actor associated with this id. |

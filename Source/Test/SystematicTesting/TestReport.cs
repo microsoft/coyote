@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MaxUnfairStepsHitInFairTests += testReport.MaxUnfairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInUnfairTests += testReport.MaxUnfairStepsHitInUnfairTests;
 
-                if (this.ThrownException == null)
+                if (this.ThrownException is null)
                 {
                     this.ThrownException = testReport.ThrownException;
                 }
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 "{0} Found {1} bug{2}.",
                 prefix.Equals("...") ? "....." : prefix,
                 this.NumOfFoundBugs,
-                this.NumOfFoundBugs == 1 ? string.Empty : "s");
+                this.NumOfFoundBugs is 1 ? string.Empty : "s");
 
             report.AppendLine();
             report.AppendFormat("{0} Scheduling statistics:", prefix);
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 "{0} Explored {1} schedule{2}: {3} fair and {4} unfair.",
                 prefix.Equals("...") ? "....." : prefix,
                 totalExploredSchedules,
-                totalExploredSchedules == 1 ? string.Empty : "s",
+                totalExploredSchedules is 1 ? string.Empty : "s",
                 this.NumOfExploredFairSchedules,
                 this.NumOfExploredUnfairSchedules);
 

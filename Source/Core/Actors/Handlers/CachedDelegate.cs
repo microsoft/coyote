@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors
         internal CachedDelegate(MethodInfo method, object caller)
         {
             ParameterInfo[] parameters = method.GetParameters();
-            if (parameters.Length == 1 && method.ReturnType == typeof(void))
+            if (parameters.Length is 1 && method.ReturnType == typeof(void))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Action<Event>), caller, method);
                 this.IsAsync = false;
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Actors
                 this.Handler = Delegate.CreateDelegate(typeof(Action), caller, method);
                 this.IsAsync = false;
             }
-            else if (parameters.Length == 1 && method.ReturnType == typeof(Task))
+            else if (parameters.Length is 1 && method.ReturnType == typeof(Task))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Task>), caller, method);
                 this.IsAsync = true;

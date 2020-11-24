@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
@@ -11,26 +10,14 @@ using CoyoteTasks = Microsoft.Coyote.Tasks;
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// Contains information about an asynchronous task operation
-    /// that can be controlled during testing.
+    /// Represents an asynchronous task operation that can be controlled during systematic testing.
     /// </summary>
-    [DebuggerStepThrough]
-    internal sealed class TaskOperation : AsyncOperation
+    internal class TaskOperation : AsyncOperation
     {
         /// <summary>
         /// The scheduler executing this operation.
         /// </summary>
-        private readonly OperationScheduler Scheduler;
-
-        /// <summary>
-        /// The unique id of the operation.
-        /// </summary>
-        internal override ulong Id { get; }
-
-        /// <summary>
-        /// The unique name of the operation.
-        /// </summary>
-        internal override string Name { get; }
+        protected readonly OperationScheduler Scheduler;
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -52,33 +39,43 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
-        internal TaskOperation(ulong operationId, OperationScheduler scheduler)
-            : base()
+        internal TaskOperation(ulong operationId, string name, OperationScheduler scheduler)
+            : base(operationId, name)
         {
             this.Scheduler = scheduler;
-            this.Id = operationId;
-            this.Name = $"Task({operationId})";
             this.JoinDependencies = new HashSet<Task>();
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified task.
+        /// Blocks the operation until the specified tasks completes.
         /// </summary>
-        internal void OnWaitTask(Task task)
+        internal void BlockUntilTaskCompletes(Task task)
         {
-            if (!task.IsCompleted)
-            {
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-                this.JoinDependencies.Add(task);
-                this.Status = AsyncOperationStatus.BlockedOnWaitAll;
-                this.Scheduler.ScheduleNextOperation();
-            }
+            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+            this.JoinDependencies.Add(task);
+            this.Status = AsyncOperationStatus.BlockedOnWaitAll;
+            this.Scheduler.ScheduleNextOperation();
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified tasks.
+        /// Tries to blocks the operation until the specified tasks completes,
+        /// if the task has not already completed.
         /// </summary>
-        internal void OnWaitTasks(Task[] tasks, bool waitAll)
+        internal bool TryBlockUntilTaskCompletes(Task task)
+        {
+            if (!task.IsCompleted)
+            {
+                this.BlockUntilTaskCompletes(task);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Blocks the operation until all or any of the specified tasks complete.
+        /// </summary>
+        internal void BlockUntilTasksComplete(Task[] tasks, bool waitAll)
         {
             // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
             // tasks are not completed. If that is the case, then we add all tasks to `JoinDependencies` and wait
@@ -104,9 +101,9 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified tasks.
+        /// Blocks the operation until all or any of the specified tasks complete.
         /// </summary>
-        internal void OnWaitTasks(CoyoteTasks.Task[] tasks, bool waitAll)
+        internal void BlockUntilTasksComplete(CoyoteTasks.Task[] tasks, bool waitAll)
         {
             if (waitAll || tasks.All(task => !task.IsCompleted))
             {
@@ -130,8 +127,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <inheritdoc/>
         internal override bool TryEnable()
         {
-            if ((this.Status == AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
-                (this.Status == AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
+            if ((this.Status is AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
+                (this.Status is AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
             {
                 this.JoinDependencies.Clear();
                 this.Status = AsyncOperationStatus.Enabled;
@@ -148,7 +145,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 foreach (var task in this.JoinDependencies)
                 {
-                    if (!(task.AsyncState is OperationContext))
+                    if (!OperationContext.IsInstance(task.AsyncState))
                     {
                         return true;
                     }

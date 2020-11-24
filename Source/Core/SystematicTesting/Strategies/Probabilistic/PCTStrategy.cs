@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
     /// This strategy is described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PCTStrategy : ISchedulingStrategy
+    internal sealed class PCTStrategy : SchedulingStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        public PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator random)
+        internal PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator random)
         {
             this.RandomValueGenerator = random;
             this.MaxScheduledSteps = maxSteps;
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             // The first iteration has no knowledge of the execution, so only initialize from the second
             // iteration and onwards. Note that although we could initialize the first length based on a
@@ -94,11 +94,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             next = null;
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 return false;
             }
@@ -118,7 +119,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// </summary>
         private void SetNewOperationPriorities(List<AsyncOperation> ops, AsyncOperation current)
         {
-            if (this.PrioritizedOperations.Count == 0)
+            if (this.PrioritizedOperations.Count is 0)
             {
                 this.PrioritizedOperations.Add(current);
             }
@@ -184,10 +185,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomValueGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) is 0)
             {
                 next = true;
             }
@@ -197,7 +198,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
@@ -205,12 +206,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetScheduledSteps() => this.ScheduledSteps;
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps()
+        internal override bool HasReachedMaxSchedulingSteps()
         {
-            if (this.MaxScheduledSteps == 0)
+            if (this.MaxScheduledSteps is 0)
             {
                 return false;
             }
@@ -219,10 +220,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool IsFair() => false;
+        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
-        public string GetDescription()
+        internal override string GetDescription()
         {
             var text = $"pct[seed '" + this.RandomValueGenerator.Seed + "']";
             return text;
@@ -249,7 +250,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public void Reset()
+        internal override void Reset()
         {
             this.ScheduleLength = 0;
             this.ScheduledSteps = 0;

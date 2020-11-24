@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.Tasks
                 // Pulse has a delay in the operating system, we can simulate that here
                 // by scheduling the pulse operation to be executed nondeterministically.
                 this.PulseQueue.Enqueue(pulseOperation);
-                if (this.PulseQueue.Count == 1)
+                if (this.PulseQueue.Count is 1)
                 {
                     // Create a task for draining the queue. To optimize the testing performance,
                     // we create and maintain a single task to perform this role.
@@ -419,7 +419,7 @@ namespace Microsoft.Coyote.Tasks
                 }
 
                 int useCount = Interlocked.Decrement(ref this.UseCount);
-                if (useCount == 0 && Cache[this.SyncObject].Value == this)
+                if (useCount is 0 && Cache[this.SyncObject].Value == this)
                 {
                     // It is safe to remove this instance from the cache.
                     Cache.TryRemove(this.SyncObject, out _);

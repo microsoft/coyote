@@ -611,7 +611,7 @@ namespace Microsoft.Coyote.Actors
         internal ILogger SetLogger(ILogger logger)
         {
             var prevLogger = this.Logger;
-            if (logger == null)
+            if (logger is null)
             {
                 this.Logger = new NullLogger();
 
@@ -636,9 +636,9 @@ namespace Microsoft.Coyote.Actors
         private ActorRuntimeLogTextFormatter GetOrCreateTextLog()
         {
             var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
-            if (textLog == null)
+            if (textLog is null)
             {
-                if (this.Logger == null)
+                if (this.Logger is null)
                 {
                     this.Logger = new ConsoleLogger() { LogLevel = this.LogLevel };
                 }
@@ -659,7 +659,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal void RegisterLog(IActorRuntimeLog log)
         {
-            if (log == null)
+            if (log is null)
             {
                 throw new InvalidOperationException("Cannot register a null log.");
             }

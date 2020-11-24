@@ -9,9 +9,9 @@ using Microsoft.Coyote.IO;
 namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
     /// <summary>
-    /// Class representing a replaying scheduling strategy.
+    /// A replaying scheduling strategy.
     /// </summary>
-    internal sealed class ReplayStrategy : ISchedulingStrategy
+    internal sealed class ReplayStrategy : SchedulingStrategy
     {
         /// <summary>
         /// The configuration.
@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// The suffix strategy.
         /// </summary>
-        private readonly ISchedulingStrategy SuffixStrategy;
+        private readonly SchedulingStrategy SuffixStrategy;
 
         /// <summary>
         /// True if the scheduler that produced the schedule trace is fair, else false.
@@ -51,13 +51,27 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        public ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair)
+        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair)
             : this(configuration, trace, isFair, null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
+        /// </summary>
+        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair, SchedulingStrategy suffixStrategy)
+        {
+            this.Configuration = configuration;
+            this.ScheduleTrace = trace;
+            this.ScheduledSteps = 0;
+            this.IsSchedulerFair = isFair;
+            this.IsReplaying = true;
+            this.SuffixStrategy = suffixStrategy;
+            this.ErrorText = string.Empty;
+        }
+
         /// <inheritdoc/>
-        public bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             this.ScheduledSteps = 0;
 
@@ -73,27 +87,14 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             return false;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
-        /// </summary>
-        public ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair, ISchedulingStrategy suffixStrategy)
-        {
-            this.Configuration = configuration;
-            this.ScheduleTrace = trace;
-            this.ScheduledSteps = 0;
-            this.IsSchedulerFair = isFair;
-            this.IsReplaying = true;
-            this.SuffixStrategy = suffixStrategy;
-            this.ErrorText = string.Empty;
-        }
-
         /// <inheritdoc/>
-        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             if (this.IsReplaying)
             {
                 var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-                if (enabledOps.Count == 0)
+                if (enabledOps.Count is 0)
                 {
                     next = null;
                     return false;
@@ -148,7 +149,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             if (this.IsReplaying)
             {
@@ -203,7 +204,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             if (this.IsReplaying)
             {
@@ -258,7 +259,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps()
+        internal override int GetScheduledSteps()
         {
             if (this.SuffixStrategy != null)
             {
@@ -271,7 +272,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps()
+        internal override bool HasReachedMaxSchedulingSteps()
         {
             if (this.SuffixStrategy != null)
             {
@@ -284,7 +285,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool IsFair()
+        internal override bool IsFair()
         {
             if (this.SuffixStrategy != null)
             {
@@ -297,7 +298,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public string GetDescription()
+        internal override string GetDescription()
         {
             if (this.SuffixStrategy != null)
             {
@@ -310,7 +311,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public void Reset()
+        internal override void Reset()
         {
             this.ScheduledSteps = 0;
             this.SuffixStrategy?.Reset();

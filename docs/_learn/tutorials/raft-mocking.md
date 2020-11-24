@@ -41,12 +41,12 @@ powershell -f build.ps1
 Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```
-coyote test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+coyote test ./bin/net5.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
 ```
 
 You should see the test succeed with output like this, including a coverage report and graph:
 ```
-. Testing ./bin/netcoreapp3.1/Raft.Mocking.dll
+. Testing ./bin/net5.0/Raft.Mocking.dll
 Starting TestingProcessScheduler in process 34068
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:1388735316).
@@ -57,9 +57,9 @@ Starting TestingProcessScheduler in process 34068
 ..... Iteration #900
 ..... Iteration #1000
 ... Emitting coverage reports:
-..... Writing .\bin\netcoreapp3.1\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
-..... Writing .\bin\netcoreapp3.1\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing .\bin\netcoreapp3.1\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
+..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:
@@ -136,7 +136,7 @@ scheduling strategies at once, this is used in combination with the `--parallel`
  for example, would run 5 parallel test processes using different scheduling strategies:
 
 ```
-coyote test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
+coyote test ./bin/net5.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

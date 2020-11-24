@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Benchmarking
                 count++;
             }
 
-            if (count == 0)
+            if (count is 0)
             {
                 return 0;
             }
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Benchmarking
                 totalSquares += diff * diff;
             }
 
-            if (count == 0)
+            if (count is 0)
             {
                 return 0;
             }
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.Benchmarking
                 count++;
             }
 
-            if (count == 0)
+            if (count is 0)
             {
                 return 0;
             }
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.Benchmarking
             double covariance = Covariance(pts);
             double a = 0;
             double b = 0;
-            if (xVariance == 0)
+            if (xVariance is 0)
             {
                 a = yMean;
                 b = 1;

@@ -29,7 +29,7 @@ public class Configuration
 | [SchedulingStrategy](Configuration/SchedulingStrategy) { get; } | The systematic testing strategy to use. |
 | [StrategyBound](Configuration/StrategyBound) { get; } | A strategy-specific bound. |
 | [TestingIterations](Configuration/TestingIterations) { get; } | Number of testing iterations. |
-| [TimeoutDelay](Configuration/TimeoutDelay) { get; } | Value that controls the probability of triggering a timeout each time a built-in timer is scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this value is 10. |
+| [TimeoutDelay](Configuration/TimeoutDelay) { get; } | Value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this value is 10. |
 | [WithActivityCoverageEnabled](Configuration/WithActivityCoverageEnabled)(…) | Updates the configuration with activity coverage enabled or disabled. |
 | [WithDgmlGraphEnabled](Configuration/WithDgmlGraphEnabled)(…) | Updates the configuration with DGML graph generation enabled or disabled. |
 | [WithLivenessTemperatureThreshold](Configuration/WithLivenessTemperatureThreshold)(…) | Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking. It is not recommended to explicitly set this value, instead use the default value which is assigned to [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps) / 2. |
@@ -42,7 +42,8 @@ public class Configuration
 | [WithReplayStrategy](Configuration/WithReplayStrategy)(…) | Updates the configuration to use the replay scheduling strategy during systematic testing. This strategy replays the specified schedule trace to reproduce the same execution. |
 | [WithTelemetryEnabled](Configuration/WithTelemetryEnabled)(…) | Updates the configuration with telemetry enabled or disabled. |
 | [WithTestingIterations](Configuration/WithTestingIterations)(…) | Updates the configuration with the specified number of iterations to run during systematic testing. |
-| [WithTimeoutDelay](Configuration/WithTimeoutDelay)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay) value that controls the probability of triggering a timeout each time a built-in timer is scheduled during systematic testing. This value is not a unit of time. |
+| [WithTestingTimeout](Configuration/WithTestingTimeout)(…) | Updates the configuration with the specified systematic testing timeout in seconds. |
+| [WithTimeoutDelay](Configuration/WithTimeoutDelay)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay) value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled)(…) | Updates the configuration with verbose output enabled or disabled. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled)(…) | Updates the configuration with XML log generation enabled or disabled. |
 

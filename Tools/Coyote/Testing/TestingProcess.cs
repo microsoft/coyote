@@ -7,7 +7,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.SmartSockets;
 using Microsoft.Coyote.SystematicTesting.Interfaces;
 
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private async Task ConnectToServer()
         {
             string serviceName = this.Configuration.TestingSchedulerEndPoint;
-            var source = new System.Threading.CancellationTokenSource();
+            var source = new CancellationTokenSource();
 
             var resolver = new SmartSocketTypeResolver(typeof(BugFoundMessage),
                                                        typeof(TestReportMessage),
@@ -191,10 +191,10 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!string.IsNullOrEmpty(this.Configuration.TestingSchedulerIpAddress))
             {
                 string[] parts = this.Configuration.TestingSchedulerIpAddress.Split(':');
-                if (parts.Length == 2)
+                if (parts.Length is 2)
                 {
                     var endPoint = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
-                    while (!source.IsCancellationRequested && client == null)
+                    while (!source.IsCancellationRequested && client is null)
                     {
                         client = await SmartSocketClient.ConnectAsync(endPoint, this.Name, resolver);
                     }
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, source.Token);
             }
 
-            if (client == null)
+            if (client is null)
             {
                 throw new Exception("Failed to connect to server");
             }

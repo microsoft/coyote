@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/OnException
 ---
 # Actor.OnException method
 
-User callback when the actor throws an exception. By default, the actor throws the exception causing the runtime to fail.
+Callback that is invoked when the actor throws an exception. By default, the actor throws the exception causing the runtime to fail.
 
 ```csharp
 protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e)

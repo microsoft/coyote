@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Rewriting
 
         private TypeDefinition GetOrImportControlledThread()
         {
-            if (this.ControlledThread == null)
+            if (this.ControlledThread is null)
             {
                 this.ControlledThread = this.Module.ImportReference(typeof(ControlledThread)).Resolve();
             }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -35,14 +36,14 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The controlled runtime.
+        /// Responsible for controlling the program execution during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The scheduling strategy used for program exploration.
         /// </summary>
-        internal readonly ISchedulingStrategy Strategy;
+        internal readonly SchedulingStrategy Strategy;
 
         /// <summary>
         /// Map from unique ids to asynchronous operations.
@@ -63,6 +64,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The scheduler completion source.
         /// </summary>
         private readonly TaskCompletionSource<bool> CompletionSource;
+
+        /// <summary>
+        /// True if the user program is executing, else false.
+        /// </summary>
+        internal volatile bool IsProgramExecuting;
 
         /// <summary>
         /// True if the scheduler is attached to the executing program, else false.
@@ -102,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal OperationScheduler(ControlledRuntime runtime, ISchedulingStrategy strategy,
+        internal OperationScheduler(CoyoteRuntime runtime, SchedulingStrategy strategy,
             ScheduleTrace trace, Configuration configuration)
         {
             this.Configuration = configuration;
@@ -112,6 +118,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.ScheduleTrace = trace;
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
+            this.IsProgramExecuting = true;
             this.IsAttached = true;
             this.BugFound = false;
             this.HasFullyExploredSchedule = false;
@@ -158,7 +165,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
                     // Checks if the current operation is controlled by the runtime.
-                    this.CheckExecutingOperationIsControlled();
+                    if (ExecutingOperation.Value is null)
+                    {
+                        ThrowUncontrolledTaskException();
+                    }
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -167,7 +177,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    current.HashedProgramState = this.Runtime.GetProgramState();
+                    current.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
@@ -206,7 +216,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
                 foreach (var op in ops)
                 {
-                    op.TryEnable();
+                    this.TryEnableOperation(op);
                     IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
                 }
 
@@ -239,7 +249,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (next is null)
             {
                 // Check if the execution has deadlocked.
-                this.CheckIfExecutionHasDeadlocked(ops);
+                this.Runtime.CheckIfExecutionHasDeadlocked(ops);
                 return false;
             }
 
@@ -256,7 +266,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
-                this.CheckExecutingOperationIsControlled();
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -264,7 +277,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 if (!this.Strategy.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
@@ -288,7 +301,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
-                this.CheckExecutingOperationIsControlled();
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -296,7 +312,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 if (!this.Strategy.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
@@ -319,7 +335,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (this.OperationMap.Count == 0)
+                if (this.OperationMap.Count is 0)
                 {
                     this.ScheduledOperation = op;
                 }
@@ -406,6 +422,27 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Tries to enable the specified operation.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// </remarks>
+        private void TryEnableOperation(AsyncOperation op)
+        {
+            if (op.Status is AsyncOperationStatus.Delayed && op is TaskDelayOperation delayOp)
+            {
+                if (!delayOp.TryEnable() && !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
+                {
+                    op.Status = AsyncOperationStatus.Enabled;
+                }
+            }
+            else if (op.Status != AsyncOperationStatus.Enabled)
+            {
+                op.TryEnable();
+            }
+        }
+
+        /// <summary>
         /// Gets the <see cref="AsyncOperation"/> associated with the specified
         /// unique id, or null if no such operation exists.
         /// </summary>
@@ -442,7 +479,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 var op = ExecutingOperation.Value;
-                return op != null && op == this.ScheduledOperation && op is TAsyncOperation expected ? expected : default;
+                if (op is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
+
+                return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
             }
         }
 
@@ -459,111 +501,6 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 return this.OperationMap.Values;
             }
-        }
-
-        /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckExecutingOperationIsControlled()
-        {
-            lock (this.SyncObject)
-            {
-                var op = ExecutingOperation.Value;
-                if (op is null)
-                {
-                    this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
-                        "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                        "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
-                        "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
-                        "you will need to mock them during testing.",
-                        Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
-        /// but there is one or more blocked operations that are waiting some resource to complete.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
-        {
-            var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
-            var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
-                op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
-            var blockedOnResourceSynchronization = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
-            if (blockedOnReceiveOperations.Count == 0 &&
-                blockedOnWaitOperations.Count == 0 &&
-                blockedOnResourceSynchronization.Count == 0)
-            {
-                return;
-            }
-
-            string message = "Deadlock detected.";
-            if (blockedOnReceiveOperations.Count > 0)
-            {
-                for (int i = 0; i < blockedOnReceiveOperations.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnReceiveOperations[i].Name);
-                    if (i == blockedOnReceiveOperations.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnReceiveOperations.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnReceiveOperations.Count == 1 ? " is " : " are ";
-                message += "waiting to receive an event, but no other controlled tasks are enabled.";
-            }
-
-            if (blockedOnWaitOperations.Count > 0)
-            {
-                for (int i = 0; i < blockedOnWaitOperations.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnWaitOperations[i].Name);
-                    if (i == blockedOnWaitOperations.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnWaitOperations.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnWaitOperations.Count == 1 ? " is " : " are ";
-                message += "waiting for a task to complete, but no other controlled tasks are enabled.";
-            }
-
-            if (blockedOnResourceSynchronization.Count > 0)
-            {
-                for (int i = 0; i < blockedOnResourceSynchronization.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnResourceSynchronization[i].Name);
-                    if (i == blockedOnResourceSynchronization.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnResourceSynchronization.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnResourceSynchronization.Count == 1 ? " is " : " are ";
-                message += "waiting to acquire a resource that is already acquired, ";
-                message += "but no other controlled tasks are enabled.";
-            }
-
-            this.NotifyAssertionFailure(message);
         }
 
         /// <summary>
@@ -591,6 +528,24 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Detach();
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if the currently executing operation is controlled by the runtime.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal static void ThrowUncontrolledTaskException()
+        {
+            // TODO: figure out if there is a way to get more information about the creator of the
+            // uncontrolled task to ease the user debugging experience.
+            // Report the invalid operation and then throw it to fail the uncontrolled task.
+            // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
+            string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+            throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
+                "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
+                "of the uncontrolled task, or rewrite its assembly.");
         }
 
         internal void NotifyUnhandledException(Exception ex, string message)
@@ -659,7 +614,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Waits until the scheduler terminates.
         /// </summary>
-        internal Task WaitAsync() => this.CompletionSource.Task;
+        internal async Task WaitAsync()
+        {
+            await this.CompletionSource.Task;
+            this.IsProgramExecuting = false;
+        }
 
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
@@ -691,6 +650,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 throw new ExecutionCanceledException();
             }
         }
+
+        /// <summary>
+        /// Forces the scheduler to terminate.
+        /// </summary>
+        public void ForceStop() => this.IsProgramExecuting = false;
 
         /// <summary>
         /// If scheduler is detached, throw exception to force terminate the caller.

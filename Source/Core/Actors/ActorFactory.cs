@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Actors
                 if (!ActorConstructorCache.TryGetValue(type, out constructor))
                 {
                     var constructorInfo = type.GetConstructor(Type.EmptyTypes);
-                    if (constructorInfo == null)
+                    if (constructorInfo is null)
                     {
                         throw new Exception("Could not find empty constructor for type " + type.FullName);
                     }

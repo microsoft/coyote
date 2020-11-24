@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The program exploration strategy.
         /// </summary>
-        internal readonly ISchedulingStrategy Strategy;
+        internal readonly SchedulingStrategy Strategy;
 
         /// <summary>
         /// Random value generator used by the scheduling strategies.
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (configuration.SchedulingStrategy is "fairpct")
             {
-                var prefixLength = configuration.SafetyPrefixBound == 0 ?
+                var prefixLength = configuration.SafetyPrefixBound is 0 ?
                     configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
                 var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, this.RandomValueGenerator);
                 var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Strategy = new ReplayStrategy(configuration, schedule, isFair, this.Strategy);
             }
 
-            if (TelemetryClient == null)
+            if (TelemetryClient is null)
             {
                 TelemetryClient = new CoyoteTelemetryClient(this.Configuration);
             }
@@ -365,10 +365,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 Task task = this.CreateTestingTask();
-                if (this.Configuration.Timeout > 0)
+                if (this.Configuration.TestingTimeout > 0)
                 {
                     this.CancellationTokenSource.CancelAfter(
-                        this.Configuration.Timeout * 1000);
+                        this.Configuration.TestingTimeout * 1000);
                 }
 
                 this.Profiler.StartMeasuringExecutionTime();
@@ -471,8 +471,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     this.TestMethodInfo.InitializeAllIterations();
 
-                    uint maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
-                    for (uint iteration = 0; iteration < maxIterations; iteration++)
+                    uint iteration = 0;
+                    while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
                         {
@@ -494,13 +494,7 @@ namespace Microsoft.Coyote.SystematicTesting
                             this.RandomValueGenerator.Seed += 1;
                         }
 
-                        // Increases iterations if there is a specified timeout
-                        // and the default iteration given.
-                        if (this.Configuration.TestingIterations == 1 &&
-                            this.Configuration.Timeout > 0)
-                        {
-                            maxIterations++;
-                        }
+                        iteration++;
                     }
 
                     // Invokes the user-specified test disposal method.
@@ -550,7 +544,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // Runtime used to serialize and test the program in this iteration.
-            ControlledRuntime runtime = null;
+            CoyoteRuntime runtime = null;
 
             // Logger used to intercept the program output if no custom logger
             // is installed and if verbosity is turned off.
@@ -563,7 +557,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 // Creates a new instance of the controlled runtime.
-                runtime = new ControlledRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
+                runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.
@@ -586,7 +580,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     runtime.Logger = this.Logger;
                 }
 
-                this.InitializeCustomLogging(runtime);
+                this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
@@ -601,11 +595,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                // Checks that no monitor is in a hot state at termination. Only
-                // checked if no safety property violations have been found.
                 if (!runtime.Scheduler.BugFound)
                 {
-                    runtime.CheckNoMonitorInHotStateAtTermination();
+                    // Checks for liveness errors. Only checked if no safety errors have been found.
+                    runtime.CheckLivenessErrors();
                 }
 
                 if (runtime.Scheduler.BugFound)
@@ -675,7 +668,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
-                    this.TestReport.NumOfFoundBugs == 1 ? string.Empty : "s",
+                    this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
                     this.Configuration.AttachDebugger ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 report.Append($"... Elapsed {this.Profiler.Results()} sec.");
@@ -782,9 +775,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
         /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.ReportActivityCoverage"/> by setting up the
-        /// LogWriters on the given <see cref="ControlledRuntime"/> object.
+        /// LogWriters on the given <see cref="IActorRuntime"/> object.
         /// </summary>
-        private void InitializeCustomLogging(ControlledRuntime runtime)
+        private void InitializeCustomActorLogging(IActorRuntime runtime)
         {
             if (!string.IsNullOrEmpty(this.Configuration.CustomActorRuntimeLogType))
             {
@@ -858,7 +851,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Gathers the exploration strategy statistics from the specified runtimne.
         /// </summary>
-        private void GatherTestingStatistics(ControlledRuntime runtime)
+        private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
             TestReport report = this.GetSchedulerReport(runtime.Scheduler);
             if (this.Configuration.ReportActivityCoverage)
@@ -866,7 +859,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 report.CoverageInfo.CoverageGraph = this.Graph;
             }
 
-            var coverageInfo = runtime.GetCoverageInfo();
+            var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
@@ -933,7 +926,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Constructs a reproducable trace.
         /// </summary>
-        private void ConstructReproducibleTrace(ControlledRuntime runtime)
+        private void ConstructReproducibleTrace(CoyoteRuntime runtime)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -1035,7 +1028,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.PrintGuard = int.Parse(guard);
             }
 
-            return iteration % this.PrintGuard == 0;
+            return iteration % this.PrintGuard is 0;
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.SmartSockets;
 using Microsoft.Coyote.SystematicTesting.Interfaces;
 using Microsoft.Coyote.Telemetry;
@@ -622,7 +622,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.TestReports.Count == 0)
+            if (this.TestReports.Count is 0)
             {
                 Environment.ExitCode = (int)ExitCode.InternalError;
                 return;

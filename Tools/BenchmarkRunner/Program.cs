@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
-using StateMachineTests = Microsoft.Coyote.Performance.Tests.Actors.StateMachines;
+using PerformanceTests = Microsoft.Coyote.Tests.Performance;
+using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
+using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 
@@ -35,14 +37,15 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static readonly List<BenchmarkTest> Benchmarks = new List<BenchmarkTest>()
         {
+            new BenchmarkTest("MathBenchmark", typeof(PerformanceTests.MathBenchmark)),
+            new BenchmarkTest("MemoryBenchmark", typeof(PerformanceTests.MemoryBenchmark)),
+            new BenchmarkTest("TaskInterleavingsBenchmark", typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new BenchmarkTest("CreationThroughputBenchmark", typeof(StateMachineTests.CreationThroughputBenchmark)),
             new BenchmarkTest("ExchangeEventLatencyBenchmark", typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new BenchmarkTest("SendEventThroughputBenchmark", typeof(StateMachineTests.SendEventThroughputBenchmark)),
             new BenchmarkTest("DequeueEventThroughputBenchmark", typeof(StateMachineTests.DequeueEventThroughputBenchmark)),
             new BenchmarkTest("GotoTransitionThroughputBenchmark", typeof(StateMachineTests.GotoTransitionThroughputBenchmark)),
-            new BenchmarkTest("PushTransitionThroughputBenchmark", typeof(StateMachineTests.PushTransitionThroughputBenchmark)),
-            new BenchmarkTest("MathBenchmark", typeof(StateMachineTests.MathBenchmark)),
-            new BenchmarkTest("MemoryBenchmark", typeof(StateMachineTests.MemoryBenchmark))
+            new BenchmarkTest("PushTransitionThroughputBenchmark", typeof(StateMachineTests.PushTransitionThroughputBenchmark))
         };
 
         private string CommitId;
@@ -194,7 +197,7 @@ namespace Microsoft.Coyote.Benchmarking
 
                     foreach (var summary in await storage.DownloadAsync(this.DownloadPartition, rowKeys))
                     {
-                        if (summary == null)
+                        if (summary is null)
                         {
                             Console.WriteLine("Summary missing for {0}", b.Name);
                         }
@@ -253,10 +256,10 @@ namespace Microsoft.Coyote.Benchmarking
                 }
             }
 
-            if (matching == 0)
+            if (matching is 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No benchmarks matching given filter: {0}", string.Join(",", this.Filters));
+                Console.WriteLine("No benchmarks matching filter: {0}", string.Join(",", this.Filters));
                 Console.ResetColor();
                 PrintUsage();
                 return 1;
@@ -358,19 +361,19 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Usage: BenchmarkRuner [-outdir name] [-commit id] [-cosmos] [filter] [-upload_commit_log");
-            Console.WriteLine("Runs all benchmarks matching optional filter");
+            Console.WriteLine("Usage: BenchmarkRunner [-outdir name] [-commit id] [-cosmos] [filter] [-upload_commit_log");
+            Console.WriteLine("Runs all benchmarks matching the optional filter");
             Console.WriteLine("Writing output csv files to the specified outdir folder");
             Console.WriteLine("Benchmark names are:");
             foreach (var item in Benchmarks)
             {
-                Console.WriteLine("    {0}", item.Name);
+                Console.WriteLine("  {0}", item.Name);
             }
         }
 
         private static bool FilterMatches(string name, List<string> filters)
         {
-            if (filters.Count == 0)
+            if (filters.Count is 0)
             {
                 return true;
             }
@@ -384,8 +387,6 @@ namespace Microsoft.Coyote.Benchmarking
             return "net5.0";
 #elif NET48
             return "net48";
-#elif NET47
-            return "net47";
 #elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0

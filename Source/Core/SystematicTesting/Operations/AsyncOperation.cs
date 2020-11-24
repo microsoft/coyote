@@ -1,29 +1,24 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if !DEBUG
-using System.Diagnostics;
-#endif
+using System;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// An abstract asynchronous operation that can be controlled during testing.
+    /// Represents an abstract asynchronous operation that can be controlled during systematic testing.
     /// </summary>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    internal abstract class AsyncOperation
+    internal abstract class AsyncOperation : IEquatable<AsyncOperation>
     {
         /// <summary>
         /// The unique id of the operation.
         /// </summary>
-        internal abstract ulong Id { get; }
+        internal ulong Id { get; }
 
         /// <summary>
         /// The unique name of the operation.
         /// </summary>
-        internal abstract string Name { get; }
+        internal string Name { get; }
 
         /// <summary>
         /// The status of the operation. An operation can be scheduled only
@@ -40,8 +35,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
         /// </summary>
-        internal AsyncOperation()
+        internal AsyncOperation(ulong operationId, string name)
         {
+            this.Id = operationId;
+            this.Name = name;
             this.Status = AsyncOperationStatus.None;
         }
 
@@ -79,6 +76,23 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
-        public override int GetHashCode() => (int)this.Id;
+        public override int GetHashCode() => this.Id.GetHashCode();
+
+        /// <summary>
+        /// Returns a string that represents the current actor id.
+        /// </summary>
+        public override string ToString() => this.Name;
+
+        /// <summary>
+        /// Indicates whether the specified <see cref="AsyncOperation"/> is equal
+        /// to the current <see cref="AsyncOperation"/>.
+        /// </summary>
+        public bool Equals(AsyncOperation other) => this.Equals((object)other);
+
+        /// <summary>
+        /// Indicates whether the specified <see cref="AsyncOperation"/> is equal
+        /// to the current <see cref="AsyncOperation"/>.
+        /// </summary>
+        bool IEquatable<AsyncOperation>.Equals(AsyncOperation other) => this.Equals(other);
     }
 }

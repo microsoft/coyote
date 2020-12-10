@@ -427,7 +427,7 @@ namespace Microsoft.Coyote
         /// <param name="probabilityLevel">The probability level.</param>
         public Configuration WithProbabilisticStrategy(uint probabilityLevel = 3)
         {
-            this.SchedulingStrategy = "fairpct";
+            this.SchedulingStrategy = "probabilistic";
             this.StrategyBound = (int)probabilityLevel;
             return this;
         }

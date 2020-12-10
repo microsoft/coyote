@@ -1,3 +1,7 @@
+## v1.2.3
+- Exposed the `TextWriterLogger` type.
+- Fixed a configuration bug where the `fairpct` strategy would be picked instead of `probabilistic`.
+
 ## v1.2.2
 - Added the `Specification.IsEventuallyCompletedSuccessfully` API for checking if a task eventually
   completes successfully.

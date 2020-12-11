@@ -13,20 +13,35 @@ class CometPath {
     pathStarts = [];
     pathEnd = 0.0;
     pathStep = 0.0;
+    pathChunk = 30;
     comets = null;
     svgNS = "http://www.w3.org/2000/svg";
     completed = null; // event callback.
     progress = null; // event callback (given progress between 0 and 1)
-    comet_color = "#409050";
+    comet_color = "#90EE90";
 
-    start_animate_path(svg, e, path) {
+    start_animate_path(svg, e, path, speed) {
         this.animatingEvent = e;
+        this.comet_speed = speed
         this.svg = svg;
+        var defs = svg.children[0];
+        if (defs.tagName != "defs"){
+            defs = document.createElementNS(xmlns, "defs");
+            svg.appendChild(defs);
+        }
+        if (defs.children.length == 0){
+            var svgfilter = document.getElementById("svgfilter");
+            var filterdefs = svgfilter.children[0];
+            var filter = filterdefs.children[0];
+            filter.remove();
+            defs.appendChild(filter);
+        }
         this.comets = new Array();
         this.animatingPath = path;
         this.pathLength = path.getTotalLength();
         this.pathPosition = 0.0;
-        this.pathStep = this.pathLength / 50;
+        this.pathStep = this.pathLength / this.pathChunk;
+        this.startTime = new Date();
         for (var i = 0; i < 8; i += 1)
         {
             var comet = document.createElementNS(this.svgNS, "path");
@@ -35,6 +50,7 @@ class CometPath {
             comet.style.strokeWidth = i + 1;
             comet.style.stroke = this.comet_color;
             comet.style.fill = "none";
+            comet.style.filter = "url(#green-glow)";
             comet.style.strokeDasharray =  [ 15 - i, this.pathLength + 15];
             this.pathEnd =  (this.pathLength + 15);
             this.pathStarts[i] = (15 - i);
@@ -60,6 +76,19 @@ class CometPath {
                 this.completed();
             }
         } else {
+            var now = new Date();
+            var difference = new Date();
+            difference.setTime(now.getTime() - this.startTime.getTime());
+            var milliseconds = difference.getMilliseconds();
+            var speed = Math.ceil(this.pathLength / milliseconds);
+            if (speed < this.comet_speed && this.pathChunk > 10) {
+                this.pathChunk -= 10;
+            }
+            else if (speed > this.comet_speed)
+            {
+                this.pathChunk += 10;
+            }
+
             if (this.progress != null)
             {
                 this.progress(this.pathPosition / this.pathEnd);
@@ -110,15 +139,6 @@ class AnimateTrace {
             this.progressBar.onpause = function (e) { foo.handle_start_stop(e); };
             this.progressBar.onfullscreen = function (e) { foo.handle_fullscreen(e); };
             this.progressBar.onnormalscreen = function (e) { foo.handle_normalscreen(e); };
-            var fs = $(parentDiv).attr("isfullscreen");
-            if (fs) {
-                this.progressBar.setFullscreen(true);
-            } else {
-                var url = $(this.parentDiv).attr("fullscreenhref");
-                if (!url){
-                    this.progressBar.hideFullScreenControls();
-                }
-            }
             document.addEventListener('keydown', function(e) { foo.handle_key_down(e); });
         }
     }
@@ -142,18 +162,11 @@ class AnimateTrace {
     }
 
     handle_fullscreen(e) {
-        var url = $(this.parentDiv).attr("fullscreenhref");
-        if (url) {
-            window.location.href = url;
-        }
-
+        $(".wm-page-content").css('max-width', 'unset');
     }
 
     handle_normalscreen(e) {
-        var url = $(this.parentDiv).attr("normalscreenhref");
-        if (url) {
-            window.location.href = url;
-        }
+        $(".wm-page-content").css('max-width', '800px');
     }
 
     handle_start_stop(e){
@@ -265,7 +278,7 @@ class AnimateTrace {
                 if (link) {
                     if (link.children[0]) {
                         var animatingPath = new CometPath();
-                        animatingPath.start_animate_path(this.svg, e, link.children[0]);
+                        animatingPath.start_animate_path(this.svg, e, link.children[0], this.comet_speed);
                         link.style.display = "";
                         if (!this.parallel) {
                             animatingLink = true;

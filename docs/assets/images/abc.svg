@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="236.2816666666663" height="152.96000000000004" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="236.2816666666663" height="152.96000000000004" fill="#1E1E1E" />
+  <g transform="translate(1192,777.02)">
+    <g id="A-&gt;C">
+      <path d="M -1122,-733.245150116053 L -1034.68289409908,-741.016935220983" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -1025.71833333333,-741.814838897618 L -1036.03358026267,-744.912528486134 C -1034.80110205118,-742.34501829739 -1034.56468614699,-739.688852144576 -1035.32433255011,-736.944030027691 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-1084.8920923110159" y="-744.14107380195958" fill="#A0A0A0">e1</text>
+    </g>
+    <g id="A-&gt;B">
+      <path d="M -1132.03708843308,-718.039989013672 L -1083.47971523734,-675.91752499577" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -1076.68124490025,-670.02 L -1081.61397861001,-679.594347922895 C -1082.60600783056,-676.92470578645 -1084.35342264412,-674.91034420509 -1086.85622305069,-673.551263178816 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-1106.44784072504" y="-701.49952819074042" fill="#A0A0A0">e2</text>
+    </g>
+    <g id="B-&gt;C">
+      <path d="M -1052.6174137931,-670.02 L -1014.9860971613,-723.690894212573" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -1009.81925287356,-731.06 L -1018.83534909879,-725.168479919631 C -1016.07781653721,-724.456352625571 -1013.89437778538,-722.925435799575 -1012.2850328433,-720.575729441643 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-1048.1860012077409" y="-701.01363472578328" fill="#A0A0A0">e2</text>
+    </g>
+    <g id="A">
+      <rect x="-1172" y="-744" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-1151" y="-726.05" fill="#3D3D3D">A</text>
+    </g>
+    <g id="C">
+      <rect x="-1025.7183333333337" y="-757.02" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-1004.7183333333337" y="-739.06999999999994" fill="#3D3D3D">C</text>
+    </g>
+    <g id="B">
+      <rect x="-1086.7183333333335" y="-670.02" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-1065.7183333333335" y="-652.06999999999994" fill="#3D3D3D">B</text>
+    </g>
+  </g>
+</svg>

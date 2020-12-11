@@ -1,0 +1,38 @@
+<!-- animating svg demo player controls -->
+<!-- goes with _player-controls.scss -->
+<div class="player-controls">
+<div class="player-progress-bar"><svg class="progress-bar-svg" version="1.1"><rect id="progress-rect" y="14" height="8" class="player-button-fill"/></svg></div>
+<button class="pause-button player-button" aria-label="Pause (k)" title="Pause (k)"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><path class="player-button-fill" d="M 12,26 16,26 16,10 12,10 z M 21,26 25,26 25,10 21,10 z" ></path></svg></button>
+<button class="play-button player-button" aria-label="Play (k)" title="Play (k)"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><path class="player-button-fill" d="M 12,26 18.5,22 18.5,14 12,10 z M 18.5,22 25,18 25,18 18.5,14 z"></path></svg></button>
+<button class="fullscreen-button hover-button-effect player-button" title="Full screen (f)"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><g class="hover-button-effect-corner-0"><path class="player-button-fill" d="m 10,16 2,0 0,-4 4,0 0,-2 L 10,10 l 0,6 0,0 z"></path></g><g class="hover-button-effect-corner-1"><path class="player-button-fill" d="m 20,10 0,2 4,0 0,4 2,0 L 26,10 l -6,0 0,0 z"></path></g><g class="hover-button-effect-corner-2"><path class="player-button-fill" d="m 24,24 -4,0 0,2 L 26,26 l 0,-6 -2,0 0,4 0,0 z"></path></g><g class="hover-button-effect-corner-3"><path class="player-button-fill" d="M 12,20 10,20 10,26 l 6,0 0,-2 -4,0 0,-4 0,0 z" ></path></g></svg></button>
+<button class="normal-screen-button  hover-button-effect player-button" title="Exit full screen (f)"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><g class="hover-button-effect-corner-2"><path class="player-button-fill" d="m 14,14 -4,0 0,2 6,0 0,-6 -2,0 0,4 0,0 z" ></path></g><g class="hover-button-effect-corner-3"><path class="player-button-fill" d="m 22,14 0,-4 -2,0 0,6 6,0 0,-2 -4,0 0,0 z" ></path></g><g class="hover-button-effect-corner-0"><path class="player-button-fill" d="m 20,26 2,0 0,-4 4,0 0,-2 -6,0 0,6 0,0 z"></path></g><g class="hover-button-effect-corner-1"><path class="player-button-fill" d="m 10,22 4,0 0,4 2,0 0,-6 -6,0 0,2 0,0 z"></path></g></svg></button>
+</div>
+<br clear="all" />
+
+<svg id="svgfilter" width="0" height="0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="green-glow" filterUnits="userSpaceOnUse"
+           x="-50%" y="-50%" width="200%" height="200%">
+            <!-- blur the text at different levels-->
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur5"/>
+            <!-- merge all the blurs except for the first one -->
+            <feMerge result="blur-merged">
+                <feMergeNode in="blur10"/>
+            </feMerge>
+            <!-- recolor the merged blurs green-->
+            <feColorMatrix result="green-blur" in="blur-merged" type="matrix"
+                           values="0.06 0 0 0 0
+                                   0 1 0 0 0
+                                   0 0 0.44 0 0
+                                   0 0 0 1 0" />
+            <feMerge>
+                <feMergeNode in="green-blur"/>
+                <!-- largest blurs coloured green -->
+                <feMergeNode in="blur5"/>
+                <!-- smallest blur left white -->
+                <feMergeNode in="SourceGraphic"/>
+                <!-- original white text -->
+            </feMerge>
+        </filter>
+    </defs>
+</svg>

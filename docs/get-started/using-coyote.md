@@ -81,7 +81,6 @@ You will see the following output:
 Open the DGML diagram using Visual Studio 2019 and you will see the following:
 
 ![monitors](../assets/images/Monitors.svg)
-</div>
 
 Download the [Monitors.dgml](../assets/images/Monitors.dgml) file to view it
 interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.

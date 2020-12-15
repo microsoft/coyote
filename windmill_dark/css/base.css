@@ -245,10 +245,16 @@ span.wm-toc-text {
 .wm-toc-lev1 > .wm-toc-text { padding-left: 14px; }
 .wm-toc-lev2 > .wm-toc-text { padding-left: 28px; }
 .wm-toc-lev3 > .wm-toc-text { padding-left: 42px; }
+.wm-toc-lev4 > .wm-toc-text { padding-left: 56px; }
+.wm-toc-lev5 > .wm-toc-text { padding-left: 70px; }
+.wm-toc-lev6 > .wm-toc-text { padding-left: 84px; }
 
 .wm-toc-lev1 + .wm-page-toc { margin-left: 14px; }
 .wm-toc-lev2 + .wm-page-toc { margin-left: 28px; }
 .wm-toc-lev3 + .wm-page-toc { margin-left: 42px; }
+.wm-toc-lev4 + .wm-page-toc { margin-left: 56px; }
+.wm-toc-lev5 + .wm-page-toc { margin-left: 70px; }
+.wm-toc-lev6 + .wm-page-toc { margin-left: 84px; }
 
 .wm-toc-li-nested {
 padding: 0px;
@@ -595,4 +601,80 @@ tbody > tr:nth-child(odd), tbody > tr:nth-child(odd) > td {
 }
 tbody > tr:nth-child(even), tbody > tr:nth-child(even) > td {
   background-color: #2C323C;
+}
+
+footer {
+  flex-shrink: 0;
+  display: block;
+  margin-bottom: 0px;
+  width: 100%;
+  background: #21252B;
+  color: #616161;
+  font-size: 12px;
+  padding: 10px 0px 20px 0px;
+  margin-top: 50px;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  max-width: unset !important;
+}
+
+.footer-content {
+  padding: 10px;
+}
+
+.footer-dark {
+  color: white;
+}
+
+.footer-dark a {
+    color: white;
+}
+    .footer-dark a:hover,
+    .footer-dark a:focus,
+    .footer-dark a:active {
+      color: white;
+      text-decoration: underline;
+    }
+
+.footer-dark-col {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.footer-dark-col .list-unstyled li {
+  line-height: 200%;
+}
+
+.logo-footer {
+  display: block;
+  width: 100px;
+}
+
+.logo-mark {
+  fill: none;
+  stroke: white;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.footnote a {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.footnote li {
+  margin-right: 20px;
+}
+
+.footnote-copy .list-unstyled li {
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  vertical-align: top;
+}
+
+.footnote-copy  img {
+  width: 120px;
+  margin: -5px 0 0 0;
 }

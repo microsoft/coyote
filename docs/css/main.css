@@ -145,22 +145,3 @@ body {
 .wrapper {
   flex: 1 0 auto;
 }
-
-footer {
-  flex-shrink: 0;
-  display: block;
-  margin-bottom: 0px;
-  width: 100%;
-  background: #21252B;
-  color: #616161;
-  font-size: 11px;
-  padding: 10px 0px 20px 0px;
-  margin-top: 50px;
-  grid-row-start: 2;
-  grid-row-end: 3;
-  max-width: unset !important;
-}
-
-.footer-content {
-  padding: 10px;
-}

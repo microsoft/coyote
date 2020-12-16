@@ -1,7 +1,62 @@
 # Coyote
 
-Can you find the deadlock bug in this [BoundedBuffer
-class](https://github.com/microsoft/coyote-samples/blob/main/BoundedBuffer/BoundedBuffer.cs) ?
+Can you find the deadlock bug in this BoundedBuffer class?
+
+```c#
+public class BoundedBuffer
+{
+    private readonly object SyncObject = new object();
+    private readonly object[] Buffer;
+    private int PutAt;
+    private int TakeAt;
+    private int Occupied;
+
+    public BoundedBuffer(int bufferSize)
+    {
+        this.PulseAll = pulseAll;
+        this.Buffer = new object[bufferSize];
+    }
+
+    public void Put(object x)
+    {
+        lock (this.SyncObject)
+        {
+            while (this.Occupied == this.Buffer.Length)
+            {
+                Monitor.Wait(this.SyncObject);
+            }
+
+            ++this.Occupied;
+            this.PutAt %= this.Buffer.Length;
+            this.Buffer[this.PutAt++] = x;
+            Monitor.Pulse(this.SyncObject);
+        }
+    }
+
+    public object Take()
+    {
+        object result = null;
+        lock (this.SyncObject)
+        {
+            while (this.Occupied == 0)
+            {
+                Monitor.Wait(this.SyncObject);
+            }
+
+            --this.Occupied;
+            this.TakeAt %= this.Buffer.Length;
+            result = this.Buffer[this.TakeAt++];
+            Monitor.Pulse(this.SyncObject);
+        }
+
+        return result;
+    }
+}
+```
+
+This is a producer consumer queue where the `Take` method blocks if the buffer is empty and the
+`Put` method blocks if the buffer has reached it's maximum allowed capacity and while the code
+looks correct it contains a nasty deadlock bug.
 
 Writing concurrent code is tricky and with the popular `async/await` feature in the C# Programming
 Language it is now extremely easy to write concurrent code.
@@ -45,9 +100,11 @@ These are some direct quotes from Azure Engineers that uses Coyote:
 
   * _Coyote added agility and allowed progress at a much faster pace._
 
-  * _Features were developed in a test environment to first pass the Coyote tester. When dropped in production, they simply worked from the start._
+  * _Features were developed in a test environment to first pass the Coyote tester. When dropped in
+  production, they simply worked from the start._
 
-  * _Coyote gave developers a significant confidence boost by providing full failover and concurrency testing at each check-in, right on their desktops as the code was written._
+  * _Coyote gave developers a significant confidence boost by providing full failover and
+  concurrency testing at each check-in, right on their desktops as the code was written._
 
 [Learn more about Coyote](overview/what-is-coyote.md)
 

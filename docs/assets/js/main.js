@@ -65,7 +65,7 @@ jQuery(document).ready(function ($) {
   });
 
   // make external links that start with http, and don't go to our own site, open in a new tab
-  $('a[href^="http"]').not('a[href*="lovettchris.github.io"]').not('a[href*="127.0.0.1"]').attr('target', '_blank');
+  $('a[href^="http"]').not('a[href*="microsoft.github.io"]').not('a[href*="127.0.0.1"]').attr('target', '_blank');
 
   //keep mobile menu from re-rendering on top of carousel
   $('#navbar').on('shown.bs.collapse', function () {

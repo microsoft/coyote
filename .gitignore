@@ -336,12 +336,8 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder
 .mfractor/
 
-# Jekyll
-_site
-.sass-cache
-.jekyll-cache/
-.jekyll-metadata
-Gemfile.lock
+# mkdocs
+site
 
 # Website
 docs/assets/images/Thumbs.db

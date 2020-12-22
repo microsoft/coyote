@@ -2,7 +2,7 @@ site_name: Coyote
 site_url: https://lovettchris.github.io/bobcat/
 theme:
   name: null
-  custom_dir: windmill_dark
+  custom_dir: docs/windmill_dark
   static_templates:
   - 404.html
   include_search_page: true

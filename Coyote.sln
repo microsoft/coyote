@@ -19,6 +19,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Source\Core\Core.csproj", "{E75DB9C9-7842-4AE4-A29D-624F6B49F607}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\BinaryRewriting.Tests\Threading\InterlockedTests.cs = Tests\BinaryRewriting.Tests\Threading\InterlockedTests.cs
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Actors", "Tests\Tests.Actors\Tests.Actors.csproj", "{911F1779-3558-4590-836C-C75112D65FD8}"
 EndProject
@@ -43,6 +46,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Tasks.SystematicTesting", "Tests\Tests.Tasks.SystematicTesting\Tests.Tasks.SystematicTesting.csproj", "{18EF40D2-CF9F-4B1E-BF76-9D09A5A9EEE6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.SystematicTesting", "Tests\Tests.SystematicTesting\Tests.SystematicTesting.csproj", "{130CC5A8-946C-4EB3-982C-F6A57EB65326}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C8980E7A-8218-4272-A191-65646F7628A4}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

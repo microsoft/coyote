@@ -10,6 +10,9 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.14.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.2" />
   </ItemGroup>

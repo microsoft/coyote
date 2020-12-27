@@ -123,6 +123,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 new TaskTransform(this.Logger),
                 new MonitorTransform(this.Logger),
+                new RaceDetectionTransform(this.Logger),
                 new ExceptionFilterTransform(this.Logger)
             };
 

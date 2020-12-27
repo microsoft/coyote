@@ -146,6 +146,8 @@ namespace Microsoft.Coyote.Rewriting
             if (match != null)
             {
                 result = module.ImportReference(match);
+                var result1 = module.ImportReference(resolvedMethod);
+
                 if (resolvedMethod.Parameters.Count != match.Parameters.Count)
                 {
                     // We are converting from an instance method to a static method, so store the instance parameter.

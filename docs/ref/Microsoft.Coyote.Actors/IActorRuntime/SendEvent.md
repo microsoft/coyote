@@ -3,7 +3,7 @@
 Sends an asynchronous [`Event`](../../Microsoft.Coyote/Event.md) to an actor.
 
 ```csharp
-public void SendEvent(ActorId targetId, Event e, EventGroup eventGroup = null,
+public void SendEvent(ActorId targetId, Event e, EventGroup eventGroup = null, 
     SendOptions options = null)
 ```
 

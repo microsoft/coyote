@@ -3,7 +3,7 @@
 Updates the configuration with verbose output enabled or disabled.
 
 ```csharp
-public Configuration WithVerbosityEnabled(bool isVerbose = true,
+public Configuration WithVerbosityEnabled(bool isVerbose = true, 
     LogSeverity logLevel = LogSeverity.Informational)
 ```
 

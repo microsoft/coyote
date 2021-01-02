@@ -3,7 +3,7 @@
 Invoked when the specified monitor enters or exits a state.
 
 ```csharp
-public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry,
+public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, 
     bool? isInHotState)
 ```
 

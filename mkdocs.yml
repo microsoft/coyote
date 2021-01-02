@@ -518,6 +518,13 @@ nav:
         - TextWriter: ref/Microsoft.Coyote.IO/InMemoryLogger/TextWriter.md
         - Encoding: ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding.md
       - LogSeverity: ref/Microsoft.Coyote.IO/LogSeverity.md
+      - TextWriterLogger:
+        - Overview: ref/Microsoft.Coyote.IO/TextWriterLogger.md
+        - Write: ref/Microsoft.Coyote.IO/TextWriterLogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.IO/TextWriterLogger/WriteLine.md
+        - TextWriterLogger: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriterLogger.md
+        - TextWriter: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriter.md
+        - Encoding: ref/Microsoft.Coyote.IO/TextWriterLogger/Encoding.md
     - Microsoft.Coyote.Random:
       - Namespace Overview: ref/Microsoft.Coyote.RandomNamespace.md
       - Generator:

@@ -3,7 +3,7 @@
 Starts a periodic timer that sends a [`TimerElapsedEvent`](../../Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) to this actor after the specified due time, and then repeats after each specified period. The timer accepts an optional payload to be used during timeout. The timer can be stopped by invoking the [`StopTimer`](StopTimer.md) method.
 
 ```csharp
-protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period,
+protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, 
     TimerElapsedEvent customEvent = null)
 ```
 
@@ -19,7 +19,7 @@ Handle that contains information about the timer.
 
 ## Remarks
 
-See [Using timers in actors](/coyote/learn/programming-models/actors/timers) for more information.
+See [Using timers in actors](/coyote/programming-models/actors/timers) for more information.
 
 ## See Also
 

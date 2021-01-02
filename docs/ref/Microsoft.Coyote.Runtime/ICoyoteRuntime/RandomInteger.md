@@ -16,7 +16,7 @@ The nondeterministic integer choice.
 
 ## Remarks
 
-See [Program non-determinism](/coyote/learn/core/non-determinism) for more information.
+See [Program non-determinism](/coyote/core/non-determinism) for more information.
 
 ## See Also
 

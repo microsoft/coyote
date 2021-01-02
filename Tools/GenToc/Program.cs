@@ -34,6 +34,9 @@ namespace GenToc
                 return 3;
             }
 
+            string dir = Path.GetDirectoryName(newtoc);
+            FixXmlDocs(dir);
+
             return MergeToc(original, newtoc);
         }
 
@@ -150,6 +153,31 @@ namespace GenToc
             }
 
             return count;
+        }
+
+        private static void FixXmlDocs(string dir)
+        {
+            // the xmldocmd.exe tool is putting ".md.md" on some links, this fixes that bug.
+            foreach (var file in Directory.GetFiles(dir, "*.md"))
+            {
+                FixXmlDoc(file);
+            }
+
+            foreach (var child in Directory.GetDirectories(dir))
+            {
+                FixXmlDocs(child);
+            }
+        }
+
+        private static void FixXmlDoc(string filename)
+        {
+            string text = File.ReadAllText(filename);
+            string correct = text.Replace(".md.md", ".md");
+            if (correct != text)
+            {
+                Console.WriteLine("Fixing " + filename);
+                File.WriteAllText(filename, correct);
+            }
         }
 
 #pragma warning disable SA1300 // Element should begin with upper-case letter

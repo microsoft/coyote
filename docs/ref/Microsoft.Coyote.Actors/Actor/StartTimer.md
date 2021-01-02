@@ -17,7 +17,7 @@ Handle that contains information about the timer.
 
 ## Remarks
 
-See [Using timers in actors](/coyote/learn/programming-models/actors/timers) for more information.
+See [Using timers in actors](/coyote/programming-models/actors/timers) for more information.
 
 ## See Also
 

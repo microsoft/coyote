@@ -102,7 +102,7 @@ The index of the completed task in the tasks array, or -1 if the timeout occurre
 Waits for any of the provided [`Task`](../Task.md) objects to complete execution within a specified number of milliseconds or until a cancellation token is cancelled.
 
 ```csharp
-public static int WaitAny(Task[] tasks, int millisecondsTimeout,
+public static int WaitAny(Task[] tasks, int millisecondsTimeout, 
     CancellationToken cancellationToken)
 ```
 

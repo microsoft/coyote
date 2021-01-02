@@ -3,7 +3,7 @@
 Invoked when the specified event is sent to a target actor.
 
 ```csharp
-public virtual void OnSendEvent(ActorId targetActorId, string senderName, string senderType,
+public virtual void OnSendEvent(ActorId targetActorId, string senderName, string senderType, 
     string senderStateName, Event e, Guid eventGroupId, bool isTargetHalted)
 ```
 

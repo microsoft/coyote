@@ -49,7 +49,7 @@ public class Task : IDisposable
 
 ## Remarks
 
-See [Programming model: asynchronous tasks](/coyote/learn/programming-models/async/overview) for more information.
+See [Programming model: asynchronous tasks](/coyote/programming-models/async/overview) for more information.
 
 ## See Also
 

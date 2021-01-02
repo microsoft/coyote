@@ -27,7 +27,7 @@ public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IActorRuntime 
 Creates a new shared dictionary.
 
 ```csharp
-public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer,
+public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer, 
     IActorRuntime runtime)
 ```
 

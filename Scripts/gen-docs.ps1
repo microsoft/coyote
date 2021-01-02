@@ -46,9 +46,9 @@ $installed = InstallToolVersion -name "xmldocmd" -version "2.3.0"
 
 $frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | Where-Object Name -ne "nuget" | Select-Object -expand Name
 foreach ($name in $frameworks) {
-    $target = "$CoyoteRoot\bin\$name"
-    Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow
-    & $inheritdoc --base "$target" -o
+    $framework_target = "$CoyoteRoot\bin\$name"
+    Write-Host "processing inherit docs under $framework_target ..." -ForegroundColor Yellow
+    & $inheritdoc --base "$framework_target" -o
 }
 
 # Completely clean the ref folder so we start fresh
@@ -59,10 +59,10 @@ if (Test-Path -Path $target) {
 Write-Host "Generating new markdown under $target"
 
 # --permalink pretty
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --visibility protected --toc --toc-prefix /ref --skip-unbrowsable --namespace-pages
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
 $coyotetoc = Get-Content -Path "$target\toc.yml"
 
-& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --visibility protected --toc --toc-prefix /ref --skip-unbrowsable --namespace-pages
+& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
 $newtoc = Get-Content -Path "$target\toc.yml"
 $newtoc = [System.Collections.ArrayList]$newtoc
 $newtoc.RemoveRange(0, 1); # remove -toc and assembly header

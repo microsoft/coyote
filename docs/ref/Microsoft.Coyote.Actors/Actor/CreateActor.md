@@ -32,7 +32,7 @@ The unique actor id.
 Creates a new actor of the specified type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/Event.md). This [`Event`](../../Microsoft.Coyote/Event.md) can only be used to access its payload, and cannot be handled.
 
 ```csharp
-protected ActorId CreateActor(Type type, string name, Event initialEvent = null,
+protected ActorId CreateActor(Type type, string name, Event initialEvent = null, 
     EventGroup eventGroup = null)
 ```
 
@@ -63,7 +63,7 @@ The unique actor id.
 Creates a new actor of the specified Type and name, using the specified unbound actor id, and passes the specified optional [`Event`](../../Microsoft.Coyote/Event.md). This event can only be used to access its payload, and cannot be handled.
 
 ```csharp
-protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null,
+protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, 
     EventGroup eventGroup = null)
 ```
 

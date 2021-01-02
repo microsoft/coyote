@@ -3,7 +3,7 @@
 Invoked when the specified OnException method is used to handle a thrown exception.
 
 ```csharp
-public virtual void OnExceptionHandled(ActorId id, string stateName, string actionName,
+public virtual void OnExceptionHandled(ActorId id, string stateName, string actionName, 
     Exception ex)
 ```
 

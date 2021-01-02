@@ -67,6 +67,7 @@
 | interface [ILogger](Microsoft.Coyote.IO/ILogger.md) | A logger is used to capture messages, warnings and errors. |
 | class [InMemoryLogger](Microsoft.Coyote.IO/InMemoryLogger.md) | Thread safe logger that writes text to an in-memory buffer. The buffered text can be extracted using the ToString() method. |
 | enum [LogSeverity](Microsoft.Coyote.IO/LogSeverity.md) | Flag indicating the type of logging information being provided to the [`ILogger`](Microsoft.Coyote.IO/ILogger.md). |
+| class [TextWriterLogger](Microsoft.Coyote.IO/TextWriterLogger.md) | Bridges custom user provided TextWriter logger so it can be passed into Coyote via the [`ILogger`](Microsoft.Coyote.IO/ILogger.md) interface. |
 
 ## Microsoft.Coyote.Random namespace
 

@@ -8,7 +8,7 @@ public ILogger Logger { get; set; }
 
 ## Remarks
 
-If you want Coyote to log to an existing TextWriter, then use the TextWriterLogger object but that will have a minor performance overhead, so it is better to use [`ILogger`](../../Microsoft.Coyote.IO/ILogger.md) directly.
+If you want Coyote to log to an existing TextWriter, then use the [`TextWriterLogger`](../../Microsoft.Coyote.IO/TextWriterLogger.md) object but that will have a minor performance overhead, so it is better to use [`ILogger`](../../Microsoft.Coyote.IO/ILogger.md) directly.
 
 ## See Also
 

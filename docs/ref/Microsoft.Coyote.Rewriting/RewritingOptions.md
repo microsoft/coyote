@@ -26,7 +26,7 @@ public class RewritingOptions
 
 ## Remarks
 
-See [Coyote rewriting tool](/coyote/learn/tools/rewriting) for more information.
+See [Coyote rewriting tool](/coyote/tools/rewriting) for more information.
 
 ## See Also
 

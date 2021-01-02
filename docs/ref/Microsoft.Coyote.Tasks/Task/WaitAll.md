@@ -94,7 +94,7 @@ True if all tasks completed execution within the allotted time; otherwise, false
 Waits for any of the provided [`Task`](../Task.md) objects to complete execution within a specified number of milliseconds or until a cancellation token is cancelled.
 
 ```csharp
-public static bool WaitAll(Task[] tasks, int millisecondsTimeout,
+public static bool WaitAll(Task[] tasks, int millisecondsTimeout, 
     CancellationToken cancellationToken)
 ```
 

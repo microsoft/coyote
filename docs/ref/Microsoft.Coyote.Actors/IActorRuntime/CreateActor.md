@@ -32,7 +32,7 @@ The result is the actor id.
 Creates a new actor of the specified type, using the specified [`ActorId`](../ActorId.md). This method optionally passes an [`Event`](../../Microsoft.Coyote/Event.md). This event is given to the InitializeAsync method on the new actor.
 
 ```csharp
-public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null,
+public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, 
     EventGroup eventGroup = null)
 ```
 
@@ -63,7 +63,7 @@ The result is the actor id.
 Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/Event.md). This event is given to the Event) method on the new actor.
 
 ```csharp
-public ActorId CreateActor(Type type, string name, Event initialEvent = null,
+public ActorId CreateActor(Type type, string name, Event initialEvent = null, 
     EventGroup eventGroup = null)
 ```
 

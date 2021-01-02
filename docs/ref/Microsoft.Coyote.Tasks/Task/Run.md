@@ -153,7 +153,7 @@ Task that represents the work to run asynchronously.
 Queues the specified work to run on the thread pool and returns a proxy for the [`Task`](../Task-1.md) returned by the function. A cancellation token allows the work to be cancelled.
 
 ```csharp
-public static Task<TResult> Run<TResult>(Func<Task<TResult>> function,
+public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, 
     CancellationToken cancellationToken)
 ```
 
@@ -181,7 +181,7 @@ Task that represents the work to run asynchronously.
 Queues the specified work to run on the thread pool and returns a [`Task`](../Task.md) object that represents that work. A cancellation token allows the work to be cancelled.
 
 ```csharp
-public static Task<TResult> Run<TResult>(Func<TResult> function,
+public static Task<TResult> Run<TResult>(Func<TResult> function, 
     CancellationToken cancellationToken)
 ```
 

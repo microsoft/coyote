@@ -3,7 +3,7 @@
 Invoked when the specified monitor is about to process an event.
 
 ```csharp
-public virtual void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
+public virtual void OnMonitorProcessEvent(string monitorType, string stateName, string senderName, 
     string senderType, string senderStateName, Event e)
 ```
 

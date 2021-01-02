@@ -783,6 +783,19 @@ toc:
           link: ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding
       - name: LogSeverity
         link: ref/Microsoft.Coyote.IO/LogSeverity
+      - name: TextWriterLogger
+        link: ref/Microsoft.Coyote.IO/TextWriterLogger
+        subfolderitems:
+        - name: Write
+          link: ref/Microsoft.Coyote.IO/TextWriterLogger/Write
+        - name: WriteLine
+          link: ref/Microsoft.Coyote.IO/TextWriterLogger/WriteLine
+        - name: TextWriterLogger
+          link: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriterLogger
+        - name: TextWriter
+          link: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriter
+        - name: Encoding
+          link: ref/Microsoft.Coyote.IO/TextWriterLogger/Encoding
     - name: Microsoft.Coyote.Random
       link: ref/Microsoft.Coyote.RandomNamespace
       subfolderitems:

@@ -4,6 +4,7 @@ $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 
 $CoyoteRoot = Split-Path $PSScriptRoot
 
+$gentoc = "$CoyoteRoot\bin\net5.0\GenToc.exe"
 $ToolPath = "$CoyoteRoot\packages"
 
 if (-Not (Test-Path -Path "$CoyoteRoot\bin")) {
@@ -35,7 +36,7 @@ function InstallToolVersion {
 
 $inheritdoc = "$ToolPath\InheritDoc.exe"
 $xmldoc = "$ToolPath\xmldocmd.exe"
-$target = "$CoyoteRoot\docs\_learn\ref"
+$target = "$CoyoteRoot\docs\ref"
 
 # install InheritDocTool
 $installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
@@ -45,12 +46,10 @@ $installed = InstallToolVersion -name "xmldocmd" -version "2.3.0"
 
 $frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | Where-Object Name -ne "nuget" | Select-Object -expand Name
 foreach ($name in $frameworks) {
-    $target = "$CoyoteRoot\bin\$name"
-    Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow
-    & $inheritdoc --base "$target" -o
+    $framework_target = "$CoyoteRoot\bin\$name"
+    Write-Host "processing inherit docs under $framework_target ..." -ForegroundColor Yellow
+    & $inheritdoc --base "$framework_target" -o
 }
-
-$target = "$CoyoteRoot\docs\_learn\ref"
 
 # Completely clean the ref folder so we start fresh
 if (Test-Path -Path $target) {
@@ -58,57 +57,21 @@ if (Test-Path -Path $target) {
 }
 
 Write-Host "Generating new markdown under $target"
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
-$coyotetoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
 
-& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
-$newtoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
+# --permalink pretty
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
+$coyotetoc = Get-Content -Path "$target\toc.yml"
+
+& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
+$newtoc = Get-Content -Path "$target\toc.yml"
 $newtoc = [System.Collections.ArrayList]$newtoc
-$newtoc.RemoveRange(0, 4); # remove -toc and assembly header
+$newtoc.RemoveRange(0, 1); # remove -toc and assembly header
 $newtoc.InsertRange(0, $coyotetoc)
 
-$toc = "$CoyoteRoot\docs\_data\sidebar-learn.yml"
+# save the merged toc containing both the contents of Microsoft.Coyote.dll and Microsoft.Coyote.Test.dll
+Set-Content -Path "$target\toc.yml" -Value $newtoc
 
 Write-Host "Merging $toc..."
 # Now merge the new toc
 
-$oldtoc = Get-Content -Path $toc
-
-$found = $False
-$start = "- title: API documentation"
-$stop = "- title: Resources"
-$merged = @()
-
-for ($i = 0; $i -lt $oldtoc.Length; $i++) {
-    $line = $oldtoc[$i]
-    if ($line -eq $start) {
-        $found = $True
-        $merged += $line
-        $merged += $oldtoc[$i + 1]
-        $i = $i + 2  # skip to "- name: Microsoft.Coyote"
-        for ($j = 4; $j -lt $newtoc.Count; $j++) {
-            $line = $newtoc[$j]
-            $merged += $line
-        }
-
-        # skip to the end of the api documentation
-
-        for (; $i -lt $oldtoc.Length; $i++) {
-            if ($oldtoc[$i] -eq $stop) {
-                $i = $i - 1;
-                break;
-            }
-        }
-    }
-    else {
-        $merged += $line
-    }
-}
-
-if (-Not $found) {
-    throw "Did not find start item: $start"
-}
-else {
-    Write-Host "Saving updated $toc  ..."
-    Set-Content -Path "$toc" -Value $merged
-}
+& $gentoc "$CoyoteRoot\mkdocs.yml" "$target\toc.yml"

@@ -44,6 +44,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Tasks.SystematicTesti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.SystematicTesting", "Tests\Tests.SystematicTesting\Tests.SystematicTesting.csproj", "{130CC5A8-946C-4EB3-982C-F6A57EB65326}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenToc", "Tools\GenToc\GenToc.csproj", "{FB0B62E9-A709-425D-9C4F-5F8015BFF331}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{130CC5A8-946C-4EB3-982C-F6A57EB65326}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{130CC5A8-946C-4EB3-982C-F6A57EB65326}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{130CC5A8-946C-4EB3-982C-F6A57EB65326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB0B62E9-A709-425D-9C4F-5F8015BFF331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB0B62E9-A709-425D-9C4F-5F8015BFF331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB0B62E9-A709-425D-9C4F-5F8015BFF331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB0B62E9-A709-425D-9C4F-5F8015BFF331}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -120,6 +126,7 @@ Global
 		{4D631E65-8048-4592-9708-BA4B67E9D752} = {2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}
 		{18EF40D2-CF9F-4B1E-BF76-9D09A5A9EEE6} = {2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}
 		{130CC5A8-946C-4EB3-982C-F6A57EB65326} = {2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}
+		{FB0B62E9-A709-425D-9C4F-5F8015BFF331} = {9BC0914F-3068-4148-B778-4CA27D828D39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9407046-CB24-4B07-8031-2749696EC7D8}

@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Rewriting
     /// Options for rewriting binaries.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/learn/tools/rewriting">Coyote rewriting tool</see> for more information.
+    /// See <see href="/coyote/tools/rewriting">Coyote rewriting tool</see> for more information.
     /// </remarks>
     public class RewritingOptions
     {

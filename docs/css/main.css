@@ -1,0 +1,147 @@
+code {
+   border: none !important;
+   color: #F6F6F6;
+   background: transparent !important;
+   font-size: 14px !important;
+}
+
+th, td {
+   padding: 5px;
+}
+
+table {
+   margin-bottom: 20px;
+}
+
+
+ /***********************************************************************
+ Top bar
+ ***********************************************************************/
+
+ .wm-top-brand {
+   color: #F6F6F6;
+ }
+
+ .wm-top-link, .wm-top-link:hover, .wm-top-link:active, .wm-top-link:visited, .wm-top-link:focus {
+   color: #F6F6F6;
+ }
+
+ .wm-top-version {
+   color: #F6F6F6;
+}
+
+ .wm-top-tool-expanded {
+ background-color: #4D4D4D;
+ }
+
+ /***********************************************************************
+ Table of contents (side pane)
+ ***********************************************************************/
+
+ .wm-toctree a, .wm-toctree a:visited, .wm-toctree a:hover, .wm-toctree a:focus {
+   color: #F6F6F6;
+ }
+
+ span.wm-toc-text {
+   color: #F6F6F6;
+ }
+
+ .wm-toc-li.wm-current, .wm-toc-li.wm-current:hover {
+   background-color: #4D4D4D;
+   color: #21252B;
+ }
+
+ .wm-toc-li-nested.wm-page-toc {
+   border-left: 1px solid #F6F6F6;
+ }
+
+ button, .btn, .btn-sm, .btn-xs, .btn-default, #hist-fwd, #hist-back, #wm-toc-button, #wm-search-go {
+   color: #F6F6F6;
+ }
+
+ button:focus, .btn:focus, .btn-sm:focus, .btn-xs:focus, .btn-default:focus, .btn-link:focus, #hist-fwd:focus, #hist-back:focus, #wm-toc-button:focus, #wm-search-go:focus {
+   color: #F6F6F6;
+   border-color: #F6F6F6;
+ }
+
+ button:hover, .btn:hover, .btn-sm:hover, .btn-xs:hover, .btn-default:hover, .btn-link:hover, #hist-fwd:hover, #hist-back:hover, #wm-toc-button:hover, #wm-search-go:hover {
+   color: #F6F6F6;
+   border-color:#F6F6F6;
+ }
+
+ .wm-article-nav {
+   color: #F6F6F6;
+ }
+
+ .wm-article-nav > a, .wm-article-nav > a:visited, .wm-article-nav > a:hover, .wm-article-nav > a:focus {
+   color: #F6F6F6;
+ }
+
+ /***********************************************************************
+ * Dropdown search results
+ ***********************************************************************/
+
+ .search-text > b {
+   color: #F6F6F6;
+ }
+
+
+ /***********************************************************************
+ * The rest is taken from base.css from mkdocs.
+ ***********************************************************************/
+
+ h1 {
+   color: #F6F6F6;
+ }
+
+ h2, h3, h4, h5, h6 {
+   color: #F6F6F6;
+ }
+
+ hr {
+   border-top: 1px solid #aaa;
+ }
+
+ /* Custom Additions */
+ input#mkdocs-search-query.form-control {
+   color: #F6F6F6;
+   border: 1px solid #F6F6F6;
+ }
+
+ a, a:visited, a:hover, a:focus {
+ color: rgb(152, 198, 255);
+ text-decoration: none;
+ outline: none;
+ }
+
+ .wm-top-title::before {
+  content:  url("https://microsoft.github.io/coyote/assets/images/logo_coyote.svg");
+}
+
+.wm-top-title   {
+  color: transparent;
+  overflow: hidden;
+}
+
+ .wm-page-content a {
+   color: rgb(152, 198, 255) !important;
+   text-decoration: none;
+   outline: none;
+ }
+
+ .search-title {
+   color: #F6F6F6;
+ }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.wrapper {
+  flex: 1 0 auto;
+}

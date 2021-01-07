@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="753.43000000000006" height="728.07000000000107" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="753.43000000000006" height="728.07000000000107" fill="#FFFFFF" />
   <g transform="translate(19,20)">
     <g id="CheckSensors-&gt;Error">
       <path d="M 382,97.8800000000001 L 382,134.84" fill="none" stroke="#A0A0A0" stroke-width="1" />

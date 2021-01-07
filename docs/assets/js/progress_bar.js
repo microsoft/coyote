@@ -13,7 +13,6 @@ class ProgressBar {
     fullScreenButton = null;
     normalScreenButton = null;
     playerContent = null;
-    fullScreenVisible = true;
 
     constructor(playerContent) {
         this.rect = $("#progress-rect")[0];
@@ -37,11 +36,6 @@ class ProgressBar {
             foo.handle_resize();
         });
         foo.handle_resize();
-    }
-
-    hideFullScreenControls(){
-        this.fullScreenVisible = false;
-        this.setFullscreen(0);
     }
 
     handle_resize() {
@@ -70,12 +64,16 @@ class ProgressBar {
     fullscreen(e) {
         if (this.onfullscreen) {
             this.onfullscreen(e);
+            this.handle_resize();
+            this.setFullscreen(true);
         }
     };
 
     normalscreen(e) {
         if (this.onnormalscreen) {
             this.onnormalscreen(e);
+            this.handle_resize();
+            this.setFullscreen(false);
         }
     };
 
@@ -92,11 +90,7 @@ class ProgressBar {
     }
 
     setFullscreen(state) {
-        if (!this.fullScreenVisible) {
-            this.normalScreenButton.style.display = "none";
-            this.fullScreenButton.style.display = "none";
-        }
-        else if (state) {
+        if (state) {
             // is full screen, so show normal screen button
             this.normalScreenButton.style.display = "inline";
             this.fullScreenButton.style.display = "none";

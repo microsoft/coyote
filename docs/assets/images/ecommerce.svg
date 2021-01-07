@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="881.02499999999986" height="181.25500000000022" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="881.02499999999986" height="181.25500000000022" fill="#FFFFFF" />
   <g transform="translate(20,20)">
     <g id="CartService-&gt;MockCheckoutService">
       <path d="M 360.713333333333,76.4715769017096 L 302.75,85.0393750000002 C 238.696796723239,94.5073417587106 184.030699769982,103.975308517421 138.751709140228,113.443275276131" fill="none" stroke="#A0A0A0" stroke-width="1" />

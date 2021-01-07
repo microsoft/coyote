@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="803.008333333333" height="552.99999999999955" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="803.008333333333" height="552.99999999999955" fill="#FFFFFF" />
   <g transform="translate(20,48.1049999999996)">
     <g id="CheckDoorOpenAsync-&gt;OnError">
       <path d="M 650.598333333333,155.5275 L 650.598333333333,192.4875" fill="none" stroke="#A0A0A0" stroke-width="1" />

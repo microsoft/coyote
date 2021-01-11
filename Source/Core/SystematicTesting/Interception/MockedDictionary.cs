@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 
@@ -15,163 +17,240 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class MockDictionary
     {
-        /*
-        public TValue this[Dictionary<TKey, TValue> a, TKey key]
+        internal class RWData : object
         {
-            get
-            {
-                return a[key];
-            }
-            set
-            {
-                a[key] = value;
-            }
-        }
-        */
+            public int ReaderCount { get; set; }
+            public int WriterCount { get; set; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Add(Dictionary<dynamic, dynamic> obj, dynamic key, dynamic value)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
+            public RWData()
             {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false, obj.ToString());
+                this.ReaderCount = 0;
+                this.WriterCount = 0;
             }
 
-            obj.Add(key, value);
+            public RWData(int rc, int wc)
+            {
+                this.ReaderCount = rc;
+                this.WriterCount = wc;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Clear(ref Dictionary<dynamic, dynamic> obj)
+        private static object DetectDataRace(object obj, bool isWrite)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            bool is_dictionary = obj is IDictionary && obj.GetType().IsGenericType &&
+                obj.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+
+            if (CoyoteRuntime.IsExecutionControlled && is_dictionary)
             {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
+                // If this object is already been tracked
+                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object rwCount))
+                {
+                    RWData rwCountKV = rwCount as RWData;
+
+                    Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
+
+                    if (isWrite)
+                    {
+                        // If I am a Writer
+                        if (rwCountKV.ReaderCount > 0 || rwCountKV.WriterCount > 0)
+                        {
+                            CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a writer and a reader/writer on object: {obj}");
+                        }
+                        else
+                        {
+                            rwCountKV.WriterCount++;
+                            CoyoteRuntime.Current.Cwt.Remove(obj);
+                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+
+                            CoyoteRuntime.Current.ScheduleNextOperation();
+
+                            // Re-retrive the count of readers and writers
+                            CoyoteRuntime.Current.Cwt.TryGetValue(obj, out rwCount);
+                            rwCountKV = rwCount as RWData;
+                            Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
+
+                            rwCountKV.WriterCount--;
+                            CoyoteRuntime.Current.Cwt.Remove(obj);
+                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+                        }
+                    }
+                    else
+                    {
+                        // If I am a Reader
+                        if (rwCountKV.WriterCount > 0)
+                        {
+                            CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a reader and a writer on object: {obj}");
+                        }
+                        else
+                        {
+                            rwCountKV.ReaderCount++;
+                            CoyoteRuntime.Current.Cwt.Remove(obj);
+                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+
+                            CoyoteRuntime.Current.ScheduleNextOperation();
+
+                            // Re-retrive the count of readers and writers
+                            CoyoteRuntime.Current.Cwt.TryGetValue(obj, out rwCount);
+                            rwCountKV = rwCount as RWData;
+                            Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
+
+                            rwCountKV.ReaderCount--;
+                            CoyoteRuntime.Current.Cwt.Remove(obj);
+                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+                        }
+                    }
+                }
+                else
+                {
+                    RWData newKV = null;
+                    newKV = isWrite ? new RWData(0, 1) : new RWData(1, 0);
+                    CoyoteRuntime.Current.Cwt.Add(obj, newKV);
+
+                    CoyoteRuntime.Current.ScheduleNextOperation();
+
+                    // Re-Retrieve the saved Reader/Writer Count values
+                    CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object rwCount_);
+                    newKV = rwCount_ as RWData;
+                    Debug.Assert(newKV.ReaderCount >= 0 && newKV.WriterCount >= 0, "Invariant failed");
+
+                    _ = isWrite ? newKV.WriterCount-- : newKV.ReaderCount--;
+                    CoyoteRuntime.Current.Cwt.Remove(obj);
+                    CoyoteRuntime.Current.Cwt.Add(obj, newKV);
+                }
             }
 
-            obj.Clear();
+            return obj;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ContainsValue(ref Dictionary<dynamic, dynamic> obj, dynamic value)
+        public static void Add<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, true);
 
-            return obj.ContainsValue(value);
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.Add(key, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Clear<TKey, TValue>(object obj)
+        {
+            DetectDataRace(obj, true);
+
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.Clear();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsValue<TKey, TValue>(object obj, TValue value)
+        {
+            DetectDataRace(obj, false);
+
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.ContainsValue(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsKey<TKey, TValue>(object obj, TKey key)
+        {
+            DetectDataRace(obj, false);
+
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.ContainsKey(key);
         }
 
 #if !NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void EnsureCapacity(ref Dictionary<dynamic, dynamic> obj, int size)
+        public static void EnsureCapacity<TKey, TValue>(object obj, int size)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            obj.EnsureCapacity(size);
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.EnsureCapacity(size);
         }
 #endif
 
         // Udit: Don't know what to do with enumerators. They will read the dictionary but we can't put context switches there.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerator<KeyValuePair<object, object>> GetEnumerator(ref Dictionary<dynamic, dynamic> obj)
+        public static IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator<TKey, TValue>(object obj)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, false);
 
-            return obj.GetEnumerator();
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.GetEnumerator();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Type GetType(ref Dictionary<dynamic, dynamic> obj)
+        public static Type GetType<TKey, TValue>(Dictionary<TKey, TValue> obj)
         {
             return obj.GetType();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void OnDeserialization(ref Dictionary<dynamic, dynamic> obj, dynamic sender)
+        public static void OnDeserialization<TKey, TValue>(object obj, object sender)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, true);
 
-            obj.OnDeserialization(sender);
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.OnDeserialization(sender);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Remove(ref Dictionary<dynamic, dynamic> obj, dynamic key)
+        public static bool Remove<TKey, TValue>(object obj, TKey key)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            return obj.Remove(key);
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.Remove(key);
         }
 
 #if !NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Remove(ref Dictionary<dynamic, dynamic> obj, dynamic key, out dynamic value)
+        public static bool Remove<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            return obj.Remove(key, out value);
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.Remove(key, out value);
         }
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToString(ref Dictionary<dynamic, dynamic> obj)
+        public static string ToString<TKey, TValue>(object obj)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, false);
 
+            var dict = obj as Dictionary<TKey, TValue>;
             return obj.ToString();
         }
 
 #if !NETSTANDARD2_0
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void TrimExcess(ref Dictionary<dynamic, dynamic> obj)
+        public static void TrimExcess<TKey, TValue>(object obj)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            obj.TrimExcess();
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.TrimExcess();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void TrimExcess(ref Dictionary<dynamic, dynamic> obj, int size)
+        public static void TrimExcess<TKey, TValue>(object obj, int size)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            obj.TrimExcess(size);
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict.TrimExcess(size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryAdd(ref Dictionary<dynamic, dynamic> obj, dynamic key, dynamic value)
+        public static bool TryAdd<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            return obj.TryAdd(key, value);
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.TryAdd(key, value);
         }
 #endif
 
@@ -180,16 +259,14 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         // name format.
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
-        public static int get_Count(Dictionary<dynamic, dynamic> obj)
+        public static int get_Count<TKey, TValue>(object obj)
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, false);
 
-            return obj.Count;
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -197,16 +274,14 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         // name format.
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
-        public static dynamic get_Item(Dictionary<dynamic, dynamic> obj, dynamic key)
+        public static TValue get_Item<TKey, TValue>(object obj, TKey key)
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, false);
 
-            return obj[key];
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict[key];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -214,27 +289,23 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         // name format.
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
-        public static void set_Item(Dictionary<dynamic, dynamic> obj, dynamic key, dynamic value)
+        public static void set_Item<TKey, TValue>(object obj, TKey key, TValue value)
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), false);
-            }
+            DetectDataRace(obj, true);
 
-            obj[key] = value;
+            var dict = obj as Dictionary<TKey, TValue>;
+            dict[key] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetValue(ref Dictionary<dynamic, dynamic> obj, dynamic key, out dynamic value)
+        public static bool TryGetValue<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.DetectRace(obj.GetHashCode(), true);
-            }
+            DetectDataRace(obj, false);
 
-            return obj.TryGetValue(key, out value);
+            var dict = obj as Dictionary<TKey, TValue>;
+            return dict.TryGetValue(key, out value);
         }
     }
 }

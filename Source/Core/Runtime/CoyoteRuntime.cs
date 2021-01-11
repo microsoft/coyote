@@ -145,7 +145,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// HashMap used for detecting data races in Systems.Collections.Generic.*.
         /// </summary>
-        private static Hashtable RaceMap;
+        public ConditionalWeakTable<object, object> Cwt = new ConditionalWeakTable<object, object>();
+        public static Hashtable RaceMap = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
@@ -1681,7 +1682,11 @@ namespace Microsoft.Coyote.Runtime
             GC.SuppressFinalize(this);
         }
 
+#pragma warning disable CA1801 // Review unused parameters
+#pragma warning disable CA1822 // Mark members as static
         internal void DetectRace(int hc, bool is_read, string object_signature = "")
+#pragma warning restore CA1822 // Mark members as static
+#pragma warning restore CA1801 // Review unused parameters
         {
             if (RaceMap == null)
             {

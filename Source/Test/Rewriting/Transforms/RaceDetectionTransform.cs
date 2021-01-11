@@ -63,6 +63,7 @@ namespace Microsoft.Coyote.Rewriting
                 this.Method = method;
                 this.Processor = method.Body.GetILProcessor();
                 this.VisitInstructions(method);
+                FixInstructionOffsets(method);
             }
         }
 
@@ -89,18 +90,45 @@ namespace Microsoft.Coyote.Rewriting
 
             if ( (instruction.OpCode == OpCodes.Callvirt || instruction.OpCode == OpCodes.Call) &&
                 instruction.Operand is MethodReference method &&
-                method.DeclaringType.FullName.Contains(this.CollectionClassName))
+                method.DeclaringType.FullName.Contains(this.CollectionClassName) &&
+                (!method.DeclaringType.FullName.Contains("Enumerator")))
             {
                 var newMethod = GetMockDictionaryMethod(method, method.Module);
+
+                if (newMethod == null)
+                {
+                    return instruction;
+                }
+
+                var genInst_2_Convert8 = new GenericInstanceMethod(newMethod);
+
+                if (method.DeclaringType.IsGenericInstance)
+                {
+                    GenericInstanceType instance = (GenericInstanceType)method.DeclaringType;
+                    IList<TypeReference> genericArguments = instance.GenericArguments;
+                    foreach (var arg in genericArguments)
+                    {
+                        genInst_2_Convert8.GenericArguments.Add(arg);
+                    }
+                }
 
                 if (newMethod != null)
                 {
                     // Since the method parameters match there's no need to modify the parameter setup code
                     // we can simply switch out the call.
                     Debug.WriteLine($"............. [-] call '{method}'");
-                    var newInstruction = Instruction.Create(OpCodes.Call, newMethod);
 
-                    Debug.WriteLine($"............. [+] call '{newMethod}'");
+                    // ParameterDefinition instance = method.Parameters[0];
+
+                    // newMethod.Parameters.Add(instance);
+                    var newInstruction = Instruction.Create(OpCodes.Call, genInst_2_Convert8);
+                    // var newInstruction2 = Instruction.Create(OpCodes.Ldarg_0);
+                    // var newInstruction1 = Instruction.Create(OpCodes.Ldc_I4, 0);
+
+                    // this.Processor.InsertAfter(instruction, newInstruction);
+                    // this.Processor.InsertAfter(instruction, newInstruction1);
+                    // this.Processor.InsertAfter(instruction, newInstruction2);
+                    // Debug.WriteLine($"............. [+] call '{newMethod}'");
                     this.Processor.Replace(instruction, newInstruction);
                     instruction = newInstruction;
                 }
@@ -109,11 +137,18 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
+#pragma warning disable CA1801 // Review unused parameters
         private static MethodReference GetMockDictionaryMethod(MethodReference method, ModuleDefinition mod)
+#pragma warning restore CA1801 // Review unused parameters
         {
             var tt = typeof(SystematicTesting.Interception.MockDictionary);
             // Type[] typeArgs = { typeof(int), typeof(int) };
             // tt = tt.MakeGenericType(typeArgs);
+
+            foreach (var ttypes in mod.Types)
+            {
+                _ = ttypes.Resolve();
+            }
 
             TypeReference declaringType = mod.ImportReference(tt);
 

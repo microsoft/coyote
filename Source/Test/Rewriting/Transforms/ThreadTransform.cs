@@ -31,6 +31,33 @@ namespace Microsoft.Coyote.Rewriting
         private TypeDefinition ControlledThread;
 
         /// <summary>
+        /// Imported type for MockedReaderWriterLock.
+        /// </summary>
+        private TypeDefinition MockedRWLock;
+
+        /// <summary>
+        /// Imported type for MockedManualResetEvent.
+        /// </summary>
+        private TypeDefinition MockedMRE;
+
+        /// <summary>
+        /// Imported type for MockedWaitHandle.
+        /// </summary>
+        private TypeDefinition MockedWaitHandle;
+
+        /// <summary>
+        /// Imported type for MockedEventWaitHandle.
+        /// </summary>
+        private TypeDefinition MockedEventWaitHandle;
+
+        /// <summary>
+        /// Types for WaitHandle and EventWaitHandle.
+        /// </summary>
+        private const string WaitHandleType = "System.Threading.WaitHandle";
+        private const string EventWaitHandleType = "System.Threading.EventWaitHandle";
+        private const string ReaderWriterLockType = "System.Threading.ReaderWriterLock";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ThreadTransform"/> class.
         /// </summary>
         internal ThreadTransform(ILogger logger)
@@ -89,6 +116,46 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
+        private TypeDefinition GetOrImportControlledRWLock()
+        {
+            if (this.MockedRWLock is null)
+            {
+                this.MockedRWLock = this.Module.ImportReference(typeof(ControlledReaderWriterLock)).Resolve();
+            }
+
+            return this.MockedRWLock;
+        }
+
+        private TypeDefinition GetOrImportControlledMRE()
+        {
+            if (this.MockedMRE is null)
+            {
+                this.MockedMRE = this.Module.ImportReference(typeof(MockedManualResetEvent)).Resolve();
+            }
+
+            return this.MockedMRE;
+        }
+
+        private TypeDefinition GetOrImportMockedWaitHandleType()
+        {
+            if (this.MockedWaitHandle is null)
+            {
+                this.MockedWaitHandle = this.Module.ImportReference(typeof(MockedWaitHandle)).Resolve();
+            }
+
+            return this.MockedWaitHandle;
+        }
+
+        private TypeDefinition GetOrImportMockedEventWaitHandleType()
+        {
+            if (this.MockedEventWaitHandle is null)
+            {
+                this.MockedEventWaitHandle = this.Module.ImportReference(typeof(MockedEventWaitHandle)).Resolve();
+            }
+
+            return this.MockedEventWaitHandle;
+        }
+
         private TypeDefinition GetOrImportControlledThread()
         {
             if (this.ControlledThread is null)
@@ -97,6 +164,115 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return this.ControlledThread;
+        }
+
+        private Instruction InitReaderWriterLock(Instruction instruction)
+        {
+            Instruction newInstruction = null;
+            MethodReference constructor = instruction.Operand as MethodReference;
+
+            // call "public static Thread ControlledManualResetEvent.Create(bool state)" instead.
+            TypeDefinition controlledMre = this.GetOrImportControlledRWLock();
+            var createMethod = FindMatchingMethod(controlledMre, "Create", constructor);
+
+            if (createMethod != null)
+            {
+                createMethod = this.Module.ImportReference(createMethod);
+                newInstruction = Instruction.Create(OpCodes.Call, createMethod);
+                newInstruction.Offset = instruction.Offset;
+                this.Processor.Replace(instruction, newInstruction);
+
+                return newInstruction;
+            }
+            else
+            {
+                // TODO: report unsupported thread construction error.
+                return instruction;
+            }
+        }
+
+        private Instruction InitManualResetEvent(Instruction instruction)
+        {
+            Instruction newInstruction = null;
+            MethodReference constructor = instruction.Operand as MethodReference;
+
+            // call "public static Thread ControlledManualResetEvent.Create(bool state)" instead.
+            TypeDefinition controlledMre = this.GetOrImportControlledMRE();
+            var createMethod = FindMatchingMethod(controlledMre, "Create", constructor);
+
+            if (createMethod != null)
+            {
+                createMethod = this.Module.ImportReference(createMethod);
+                newInstruction = Instruction.Create(OpCodes.Call, createMethod);
+                newInstruction.Offset = instruction.Offset;
+                this.Processor.Replace(instruction, newInstruction);
+
+                return newInstruction;
+            }
+            else
+            {
+                // TODO: report unsupported thread construction error.
+                return instruction;
+            }
+        }
+
+        private Instruction ReplaceWaitHandle(Instruction instruction)
+        {
+            Instruction newInstruction = null;
+            MethodReference method = instruction.Operand as MethodReference;
+            TypeDefinition t = null;
+
+            if (method.DeclaringType.FullName == WaitHandleType)
+            {
+                t = this.GetOrImportMockedWaitHandleType();
+            }
+            else if (method.DeclaringType.FullName == EventWaitHandleType)
+            {
+                t = this.GetOrImportMockedEventWaitHandleType();
+            }
+
+            System.Diagnostics.Debug.Assert(t != null, $"Type of {method.DeclaringType.FullName} not found");
+
+            var createMethod = FindMatchingStaticMethod(t, method.Resolve());
+
+            if (createMethod != null)
+            {
+                createMethod = this.Module.ImportReference(createMethod);
+                newInstruction = Instruction.Create(OpCodes.Call, createMethod);
+                newInstruction.Offset = instruction.Offset;
+                this.Processor.Replace(instruction, newInstruction);
+
+                return newInstruction;
+            }
+            else
+            {
+                return instruction;
+            }
+        }
+
+        private Instruction ReplaceRWLock(Instruction instruction)
+        {
+            Instruction newInstruction = null;
+            MethodReference method = instruction.Operand as MethodReference;
+            TypeDefinition t = this.GetOrImportControlledRWLock();
+
+            System.Diagnostics.Debug.Assert(t != null, $"Type of {method.DeclaringType.FullName} not found");
+
+            var createMethod = FindMatchingStaticMethod(t, method.Resolve());
+
+            if (createMethod != null)
+            {
+                createMethod = this.Module.ImportReference(createMethod);
+                newInstruction = Instruction.Create(OpCodes.Call, createMethod);
+                newInstruction.Offset = instruction.Offset;
+                this.Processor.Replace(instruction, newInstruction);
+
+                return newInstruction;
+            }
+            else
+            {
+                return instruction;
+            }
         }
 
         /// <summary>
@@ -128,6 +304,14 @@ namespace Microsoft.Coyote.Rewriting
                 Debug.WriteLine($"............. [-] {instruction}");
                 Debug.WriteLine($"............. [+] {newInstruction}");
                 instruction = newInstruction;
+            }
+            else if (constructor.DeclaringType.FullName == "System.Threading.ManualResetEvent")
+            {
+                instruction = this.InitManualResetEvent(instruction);
+            }
+            else if (constructor.DeclaringType.FullName == ReaderWriterLockType)
+            {
+                instruction = this.InitReaderWriterLock(instruction);
             }
 
             return instruction;
@@ -174,6 +358,15 @@ namespace Microsoft.Coyote.Rewriting
                 Debug.WriteLine($"............. [-] {instruction}");
                 Debug.WriteLine($"............. [+] {newInstruction}");
                 instruction = newInstruction;
+            }
+            else if (method.DeclaringType.FullName == EventWaitHandleType ||
+                     method.DeclaringType.FullName == WaitHandleType)
+            {
+                instruction = this.ReplaceWaitHandle(instruction);
+            }
+            else if (method.DeclaringType.FullName == ReaderWriterLockType)
+            {
+                instruction = this.ReplaceRWLock(instruction);
             }
 
             return instruction;

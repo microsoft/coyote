@@ -84,8 +84,8 @@ Concurrency bugs tend to be the kind of bugs that keep people up late at night p
 out because they are often not easily reproduced in any sort of predictable manner.
 
 Coyote solves this problem giving you an environment where concurrency bugs can be systematically
-found and reliably reproduced in a debugger -- allowing developers to fully understood and fix the
-core problem.
+found and reliably reproduced in a debugger -- allowing developers to fully understand them and fix
+the core problem.
 
 ## Fearless coding for concurrent software
 
@@ -111,4 +111,6 @@ These are some direct quotes from Azure Engineers that uses Coyote:
 [Get started now, it is super easy](get-started/install.md)
 
 [Read more about how Azure is using Coyote](case-studies/azure-batch-service.md)
+
+[State machine demo](programming-models/actors/state-machine-demo/)
 

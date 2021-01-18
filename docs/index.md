@@ -114,3 +114,5 @@ These are some direct quotes from Azure Engineers that uses Coyote:
 
 [State machine demo](programming-models/actors/state-machine-demo/)
 
+[Code on Github](https://github.com/microsoft/coyote/)
+

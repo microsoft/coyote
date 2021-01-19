@@ -10,6 +10,7 @@ class ProgressBar {
     onnormalscreen = null;
     pauseButton = null;
     playButton = null;
+    fastforwardButton = null;
     fullScreenButton = null;
     normalScreenButton = null;
     playerContent = null;
@@ -20,12 +21,14 @@ class ProgressBar {
 
         this.pauseButton = $(".pause-button")[0];
         this.playButton = $(".play-button")[0];
+        this.fastforwardButton = $(".fastforward-button")[0];
         this.fullScreenButton = $(".fullscreen-button")[0];
         this.normalScreenButton = $(".normal-screen-button")[0];
 
         var foo = this;
-        this.pauseButton.onclick = function(e) { foo.play(e); }
-        this.playButton.onclick = function(e) { foo.pause(e); }
+        this.pauseButton.onclick = function(e) { foo.pause(e); }
+        this.playButton.onclick = function(e) { foo.play(e); }
+        this.fastforwardButton.onclick = function(e) { foo.fast_forward(e);}
         this.fullScreenButton.onclick = function(e) { foo.fullscreen(e); }
         this.normalScreenButton.onclick = function(e) { foo.normalscreen(e); }
 
@@ -40,7 +43,7 @@ class ProgressBar {
 
     handle_resize() {
         if (this.playerContent != null) {
-            var w = this.playerContent.clientWidth - 100; // leave room for buttons
+            var w = this.playerContent.clientWidth - 150; // leave room for buttons
             this.rect.parentNode.setAttribute("width", w);
         }
     }
@@ -54,6 +57,12 @@ class ProgressBar {
             this.onplay(e);
         }
     };
+
+    fast_forward(e) {
+        if (this.onfast) {
+            this.onfast(e);
+        }
+    }
 
     pause(e) {
         if (this.onpause) {

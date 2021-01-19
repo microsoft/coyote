@@ -135,8 +135,9 @@ class AnimateTrace {
         if (!this.progressBar) {
             this.progressBar = new ProgressBar(parentDiv);
             var foo = this;
-            this.progressBar.onplay = function (e) { foo.handle_start_stop(e); };
-            this.progressBar.onpause = function (e) { foo.handle_start_stop(e); };
+            this.progressBar.onplay = function (e) { foo.handle_start(e, false); };
+            this.progressBar.onfast = function (e) { foo.handle_start(e, true); };
+            this.progressBar.onpause = function (e) { foo.handle_stop(e, false); };
             this.progressBar.onfullscreen = function (e) { foo.handle_fullscreen(e); };
             this.progressBar.onnormalscreen = function (e) { foo.handle_normalscreen(e); };
             document.addEventListener('keydown', function(e) { foo.handle_key_down(e); });
@@ -169,15 +170,13 @@ class AnimateTrace {
         $(".wm-page-content").css('max-width', '800px');
     }
 
-    handle_start_stop(e){
-        if (this.playing) {
-            this.stop_animation();
-        } else {
-            if (e.ctrlKey) {
-                this.parallel = !this.parallel;
-            }
-            this.start_animation(this.svg);
-        }
+    handle_start(e, parallel) {
+        this.parallel = parallel;
+        this.start_animation(this.svg);
+    }
+
+    handle_stop(e, parallel){
+        this.stop_animation();
     }
 
     start_animation(svg) {

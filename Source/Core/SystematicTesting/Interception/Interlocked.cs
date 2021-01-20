@@ -155,6 +155,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
+        /*
         /// <summary>
         /// Compares two values for equality and, if they are equal, replaces the first value.
         /// </summary>
@@ -169,6 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
+        */
 
         /// <summary>
         /// Adds two integers and replaces the first integer with the sum, as an atomic operation.

@@ -142,10 +142,12 @@ namespace Microsoft.Coyote.Rewriting
             method.Body.ExceptionHandlers.Clear();
 
             MethodReference launchMethod = null;
+            MethodReference attachMethod = null;
             if (this.Configuration.AttachDebugger)
             {
                 var debuggerType = this.Module.ImportReference(typeof(System.Diagnostics.Debugger)).Resolve();
                 launchMethod = FindMatchingMethod(debuggerType, "Launch");
+                attachMethod = FindMatchingMethod(debuggerType, "Break"); // Udit...
             }
 
             TypeReference actionType;
@@ -201,6 +203,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 processor.Emit(OpCodes.Call, this.Module.ImportReference(launchMethod));
                 processor.Emit(OpCodes.Pop);
+                processor.Emit(OpCodes.Call, this.Module.ImportReference(attachMethod));
             }
 
             var defaultConfig = Configuration.Create();

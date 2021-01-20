@@ -2,131 +2,84 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting.Interception
 {
-    /// <summary>
-    /// Provides methods for dictionary that can be controlled during testing.
-    /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class MockDictionary
+    public static class StaticMockDictionaryWrapper
     {
-        internal class RWData : object
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>()
         {
-            public int ReaderCount { get; set; }
-            public int WriterCount { get; set; }
-
-            public RWData()
-            {
-                this.ReaderCount = 0;
-                this.WriterCount = 0;
-            }
-
-            public RWData(int rc, int wc)
-            {
-                this.ReaderCount = rc;
-                this.WriterCount = wc;
-            }
+            return new MockDictionary<TKey, TValue>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static object DetectDataRace(object obj, bool isWrite)
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
         {
-            bool is_dictionary = obj is IDictionary && obj.GetType().IsGenericType &&
-                obj.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+            return new MockDictionary<TKey, TValue>(dictionary);
+        }
 
-            if (CoyoteRuntime.IsExecutionControlled && is_dictionary)
-            {
-                // If this object is already been tracked
-                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object rwCount))
-                {
-                    RWData rwCountKV = rwCount as RWData;
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey>? comparer)
+        {
+            return new MockDictionary<TKey, TValue>(comparer);
+        }
 
-                    Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(System.Collections.Generic.IDictionary<TKey, TValue> dictionary, System.Collections.Generic.IEqualityComparer<TKey>? comparer)
+        {
+            return new MockDictionary<TKey, TValue>(dictionary, comparer);
+        }
 
-                    if (isWrite)
-                    {
-                        // If I am a Writer
-                        if (rwCountKV.ReaderCount > 0 || rwCountKV.WriterCount > 0)
-                        {
-                            CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a writer and a reader/writer on object: {obj}");
-                        }
-                        else
-                        {
-                            rwCountKV.WriterCount++;
-                            CoyoteRuntime.Current.Cwt.Remove(obj);
-                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+        /*
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? collection, IEqualityComparer<TKey>? comparer)
+        {
+            return new MockDictionary<TKey, TValue>(collection, comparer);
+        }
+        */
 
-                            CoyoteRuntime.Current.ScheduleNextOperation();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity, IEqualityComparer<TKey>? comparer)
+        {
+            return new MockDictionary<TKey, TValue>(capacity, comparer);
+        }
 
-                            // Re-retrive the count of readers and writers
-                            CoyoteRuntime.Current.Cwt.TryGetValue(obj, out rwCount);
-                            rwCountKV = rwCount as RWData;
-                            Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
+        /*
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? collection)
+        {
+            return new MockDictionary<TKey, TValue>(collection);
+        }
+        */
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
-                            rwCountKV.WriterCount--;
-                            CoyoteRuntime.Current.Cwt.Remove(obj);
-                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
-                        }
-                    }
-                    else
-                    {
-                        // If I am a Reader
-                        if (rwCountKV.WriterCount > 0)
-                        {
-                            CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a reader and a writer on object: {obj}");
-                        }
-                        else
-                        {
-                            rwCountKV.ReaderCount++;
-                            CoyoteRuntime.Current.Cwt.Remove(obj);
-                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(SerializationInfo info, StreamingContext context)
+        {
+            return new MockDictionary<TKey, TValue>(info, context);
+        }
 
-                            CoyoteRuntime.Current.ScheduleNextOperation();
-
-                            // Re-retrive the count of readers and writers
-                            CoyoteRuntime.Current.Cwt.TryGetValue(obj, out rwCount);
-                            rwCountKV = rwCount as RWData;
-                            Debug.Assert(rwCountKV.ReaderCount >= 0 && rwCountKV.WriterCount >= 0, "Invariant failed");
-
-                            rwCountKV.ReaderCount--;
-                            CoyoteRuntime.Current.Cwt.Remove(obj);
-                            CoyoteRuntime.Current.Cwt.Add(obj, rwCountKV);
-                        }
-                    }
-                }
-                else
-                {
-                    RWData newKV = null;
-                    newKV = isWrite ? new RWData(0, 1) : new RWData(1, 0);
-                    CoyoteRuntime.Current.Cwt.Add(obj, newKV);
-
-                    CoyoteRuntime.Current.ScheduleNextOperation();
-
-                    // Re-Retrieve the saved Reader/Writer Count values
-                    CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object rwCount_);
-                    newKV = rwCount_ as RWData;
-                    Debug.Assert(newKV.ReaderCount >= 0 && newKV.WriterCount >= 0, "Invariant failed");
-
-                    _ = isWrite ? newKV.WriterCount-- : newKV.ReaderCount--;
-                    CoyoteRuntime.Current.Cwt.Remove(obj);
-                    CoyoteRuntime.Current.Cwt.Add(obj, newKV);
-                }
-            }
-
-            return obj;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity)
+        {
+            return new MockDictionary<TKey, TValue>(capacity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.Add(key, value);
@@ -135,7 +88,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<TKey, TValue>(object obj)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.Clear();
@@ -144,7 +100,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsValue<TKey, TValue>(object obj, TValue value)
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.ContainsValue(value);
@@ -153,7 +112,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsKey<TKey, TValue>(object obj, TKey key)
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.ContainsKey(key);
@@ -163,22 +125,15 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void EnsureCapacity<TKey, TValue>(object obj, int size)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.EnsureCapacity(size);
         }
 #endif
-
-        // Udit: Don't know what to do with enumerators. They will read the dictionary but we can't put context switches there.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator<TKey, TValue>(object obj)
-        {
-            DetectDataRace(obj, false);
-
-            var dict = obj as Dictionary<TKey, TValue>;
-            return dict.GetEnumerator();
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetType<TKey, TValue>(Dictionary<TKey, TValue> obj)
@@ -189,7 +144,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnDeserialization<TKey, TValue>(object obj, object sender)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.OnDeserialization(sender);
@@ -198,7 +156,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<TKey, TValue>(object obj, TKey key)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.Remove(key);
@@ -208,7 +169,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.Remove(key, out value);
@@ -218,7 +182,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString<TKey, TValue>(object obj)
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return obj.ToString();
@@ -229,7 +196,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<TKey, TValue>(object obj)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.TrimExcess();
@@ -238,7 +208,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<TKey, TValue>(object obj, int size)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict.TrimExcess(size);
@@ -247,7 +220,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryAdd<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.TryAdd(key, value);
@@ -263,7 +239,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.Count;
@@ -278,7 +257,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict[key];
@@ -293,7 +275,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            DetectDataRace(obj, true);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(true);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             dict[key] = value;
@@ -302,10 +287,123 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            DetectDataRace(obj, false);
+            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            {
+                mockDictObj.DetectDataRace(false);
+            }
 
             var dict = obj as Dictionary<TKey, TValue>;
             return dict.TryGetValue(key, out value);
+        }
+    }
+
+    /// <summary>
+    /// Provides methods for dictionary that can be controlled during testing.
+    /// </summary>
+    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public class MockDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+    {
+        internal class RWData : object
+        {
+            public int ReaderCount { get; set; }
+            public int WriterCount { get; set; }
+
+            public RWData(int rc = 0, int wc = 0)
+            {
+                this.ReaderCount = rc;
+                this.WriterCount = wc;
+            }
+
+            public void CheckInvariant()
+            {
+                Debug.Assert(this.ReaderCount >= 0 && this.WriterCount >= 0, "Invariant failed");
+            }
+        }
+
+        private RWData AuxInfo;
+
+        private void Init()
+        {
+            this.AuxInfo = new RWData(0, 0);
+        }
+
+        public MockDictionary()
+            : base() => this.Init();
+
+        public MockDictionary(IDictionary<TKey, TValue> dictionary)
+            : base(dictionary) => this.Init();
+
+        public MockDictionary(SerializationInfo info, StreamingContext context)
+            : base(info, context) => this.Init();
+
+        public MockDictionary(int capacity)
+            : base(capacity) => this.Init();
+
+        public MockDictionary(int capacity, IEqualityComparer<TKey> comparer)
+            : base(capacity, comparer) => this.Init();
+
+        /*
+        public MockDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
+            : base(collection, comparer) => this.Init();
+        */
+
+        public MockDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+            : base(dictionary, comparer) => this.Init();
+
+        public MockDictionary(IEqualityComparer<TKey> comparer)
+            : base(comparer) => this.Init();
+
+        /*
+        public MockDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
+            : base(collection) => this.Init();
+        */
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DetectDataRace(bool isWrite)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                this.AuxInfo.CheckInvariant();
+
+                // For a Writer
+                if (isWrite)
+                {
+                    // If I am a Writer
+                    if (this.AuxInfo.ReaderCount > 0 || this.AuxInfo.WriterCount > 0)
+                    {
+                        CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a writer and a reader/writer on object: {this}");
+                    }
+                    else
+                    {
+                        this.AuxInfo.WriterCount++;
+
+                        CoyoteRuntime.Current.ScheduleNextOperation();
+
+                        this.AuxInfo.CheckInvariant();
+                        this.AuxInfo.WriterCount--;
+                    }
+                }
+
+                // For a Reader
+                else
+                {
+                    // If I am a Reader
+                    if (this.AuxInfo.WriterCount > 0)
+                    {
+                        CoyoteRuntime.Current.NotifyAssertionFailure($"Race found between a reader and a writer on object: {this}");
+                    }
+                    else
+                    {
+                        this.AuxInfo.ReaderCount++;
+
+                        CoyoteRuntime.Current.ScheduleNextOperation();
+
+                        this.AuxInfo.CheckInvariant();
+                        this.AuxInfo.ReaderCount--;
+                    }
+                }
+            }
         }
     }
 }

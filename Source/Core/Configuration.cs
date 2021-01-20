@@ -349,7 +349,7 @@ namespace Microsoft.Coyote
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
-            this.TestingIterations = 1;
+            this.TestingIterations = 100;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
@@ -374,7 +374,7 @@ namespace Microsoft.Coyote
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledInInProduction = false;
-            this.AttachDebugger = false;
+            this.AttachDebugger = true;
 
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;
@@ -383,15 +383,15 @@ namespace Microsoft.Coyote
             this.ReportActivityCoverage = false;
             this.DebugActivityCoverage = false;
 
-            this.IsVerbose = false;
-            this.IsDebugVerbosityEnabled = false;
+            this.IsVerbose = true;
+            this.IsDebugVerbosityEnabled = true;
             this.LogLevel = LogSeverity.Informational;
 
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
             this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;
-            this.EnableTelemetry = true;
+            this.EnableTelemetry = false;
             this.PlatformVersion = GetPlatformVersion();
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");

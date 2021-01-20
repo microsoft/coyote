@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -80,6 +81,40 @@ namespace Microsoft.Coyote.Rewriting
             return null;
         }
 
+        protected Instruction VisitInitObjInstruction(Instruction instruction)
+        {
+            var method = instruction.Operand as MethodReference;
+
+            var newMethod = GetStaticMockDictionaryWrapperMethod(method.Resolve(), this.Module, "Create");
+
+            if (newMethod == null)
+            {
+                return instruction;
+            }
+
+            var genInst_2_Convert8 = new GenericInstanceMethod(newMethod);
+
+            if (method.DeclaringType.IsGenericInstance)
+            {
+                GenericInstanceType instance = (GenericInstanceType)method.DeclaringType;
+                IList<TypeReference> genericArguments = instance.GenericArguments;
+                foreach (var arg in genericArguments)
+                {
+                    genInst_2_Convert8.GenericArguments.Add(arg);
+                }
+            }
+
+            if (newMethod != null)
+            {
+                var newInstruction = Instruction.Create(OpCodes.Call, genInst_2_Convert8);
+
+                this.Processor.Replace(instruction, newInstruction);
+                instruction = newInstruction;
+            }
+
+            return instruction;
+        }
+
         /// <inheritdoc/>
         protected override Instruction VisitInstruction(Instruction instruction)
         {
@@ -88,12 +123,20 @@ namespace Microsoft.Coyote.Rewriting
                 return instruction;
             }
 
-            if ( (instruction.OpCode == OpCodes.Callvirt || instruction.OpCode == OpCodes.Call) &&
+            if ((instruction.OpCode == OpCodes.Newobj) &&
+                instruction.Operand is MethodReference meth &&
+                meth.DeclaringType.FullName.Contains(this.CollectionClassName) &&
+                (!meth.DeclaringType.FullName.Contains("Enumerator")))
+            {
+                return this.VisitInitObjInstruction(instruction);
+            }
+
+            if ( (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 instruction.Operand is MethodReference method &&
                 method.DeclaringType.FullName.Contains(this.CollectionClassName) &&
                 (!method.DeclaringType.FullName.Contains("Enumerator")))
             {
-                var newMethod = GetMockDictionaryMethod(method, method.Module);
+                var newMethod = GetMockDictionaryMethod(method, this.Module);
 
                 if (newMethod == null)
                 {
@@ -114,21 +157,8 @@ namespace Microsoft.Coyote.Rewriting
 
                 if (newMethod != null)
                 {
-                    // Since the method parameters match there's no need to modify the parameter setup code
-                    // we can simply switch out the call.
-                    Debug.WriteLine($"............. [-] call '{method}'");
-
-                    // ParameterDefinition instance = method.Parameters[0];
-
-                    // newMethod.Parameters.Add(instance);
                     var newInstruction = Instruction.Create(OpCodes.Call, genInst_2_Convert8);
-                    // var newInstruction2 = Instruction.Create(OpCodes.Ldarg_0);
-                    // var newInstruction1 = Instruction.Create(OpCodes.Ldc_I4, 0);
 
-                    // this.Processor.InsertAfter(instruction, newInstruction);
-                    // this.Processor.InsertAfter(instruction, newInstruction1);
-                    // this.Processor.InsertAfter(instruction, newInstruction2);
-                    // Debug.WriteLine($"............. [+] call '{newMethod}'");
                     this.Processor.Replace(instruction, newInstruction);
                     instruction = newInstruction;
                 }
@@ -137,18 +167,9 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
-#pragma warning disable CA1801 // Review unused parameters
         private static MethodReference GetMockDictionaryMethod(MethodReference method, ModuleDefinition mod)
-#pragma warning restore CA1801 // Review unused parameters
         {
-            var tt = typeof(SystematicTesting.Interception.MockDictionary);
-            // Type[] typeArgs = { typeof(int), typeof(int) };
-            // tt = tt.MakeGenericType(typeArgs);
-
-            foreach (var ttypes in mod.Types)
-            {
-                _ = ttypes.Resolve();
-            }
+            var tt = typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper);
 
             TypeReference declaringType = mod.ImportReference(tt);
 
@@ -163,6 +184,75 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return null;
+        }
+
+        private static MethodReference GetStaticMockDictionaryWrapperMethod(MethodDefinition meth, ModuleDefinition mod, string methName)
+        {
+            var tt = typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper);
+
+            TypeReference declaringType = mod.ImportReference(tt);
+
+            /*
+            Mono.Cecil.GenericInstanceType gi = null;
+
+            if (method.DeclaringType.IsGenericInstance)
+            {
+                GenericInstanceType instance = (GenericInstanceType)method.DeclaringType;
+                IList<TypeReference> genericArguments = instance.GenericArguments;
+
+                gi = declaringType.MakeGenericInstanceType(mod.ImportReference(genericArguments[0]), mod.ImportReference(genericArguments[1]));
+            }
+
+            this.Module.ImportReference(gi);
+
+            return DefaultCtorFor(gi);
+            */
+
+            TypeDefinition resolvedDeclaringType = declaringType.Resolve();
+
+            foreach (var match in resolvedDeclaringType.Methods)
+            {
+                if (match.Name.Contains(methName) && meth.Parameters.Count == match.Parameters.Count)
+                {
+                    bool isMatch = true;
+                    for (int idx = 0; idx < match.Parameters.Count; idx++)
+                    {
+                        var originalParam = meth.Parameters[idx];
+                        var replacementParam = match.Parameters[idx];
+                        if ((replacementParam.ParameterType.FullName != originalParam.ParameterType.FullName) ||
+                            (replacementParam.IsIn && !originalParam.IsIn) ||
+                            (replacementParam.IsOut && !originalParam.IsOut))
+                        {
+                            isMatch = false;
+                            break;
+                        }
+                    }
+
+                    if (isMatch)
+                    {
+                        return mod.ImportReference(match);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static MethodReference DefaultCtorFor(TypeReference type)
+        {
+            var resolved = type.Resolve();
+            if (resolved == null)
+            {
+                return null;
+            }
+
+            var ctor = resolved.Methods.SingleOrDefault(m => m.IsConstructor && m.Parameters.Count == 0 && !m.IsStatic);
+            if (ctor == null)
+            {
+                return DefaultCtorFor(resolved.BaseType);
+            }
+
+            return new MethodReference(".ctor", type.Module.TypeSystem.Void, type) { HasThis = true };
         }
     }
 }

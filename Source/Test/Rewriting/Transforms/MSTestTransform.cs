@@ -115,6 +115,31 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
             }
+
+            // Remove TestInitialize and TestCleanup attributes, because now Coyote runtime will call these methods.
+            if (this.TestInitMethod != null)
+            {
+                foreach (var attr in this.TestInitMethod.CustomAttributes)
+                {
+                    if (attr.AttributeType.FullName == TestInitAttribute)
+                    {
+                        this.TestInitMethod.CustomAttributes.Remove(attr);
+                        break;
+                    }
+                }
+            }
+
+            if (this.TestCleanupMethod != null)
+            {
+                foreach (var attr in this.TestCleanupMethod.CustomAttributes)
+                {
+                    if (attr.AttributeType.FullName == TestCleanupAttribute)
+                    {
+                        this.TestCleanupMethod.CustomAttributes.Remove(attr);
+                        break;
+                    }
+                }
+            }
         }
 
         /// <inheritdoc/>

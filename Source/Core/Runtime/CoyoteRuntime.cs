@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Runtime
 
                     this.Scheduler.StartOperation(op);
 
-                    // Invoke init methods for every iteration.
+                    // Invoke init methods before every iteration.
                     foreach (var callback in testInits)
                     {
                         callback();
@@ -269,7 +269,7 @@ namespace Microsoft.Coyote.Runtime
                             throw new TaskCanceledException(testMethodTask);
                         }
 
-                        // Invoke init methods for every iteration.
+                        // Invoke cleanup methods after every iteration.
                         foreach (var callback in testCallbacks)
                         {
                             callback();

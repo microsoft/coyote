@@ -374,7 +374,7 @@ namespace Microsoft.Coyote
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledInInProduction = false;
-            this.AttachDebugger = true;
+            this.AttachDebugger = false;
 
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;

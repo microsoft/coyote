@@ -164,8 +164,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                CoyoteRuntime.Current.ScheduleNextOperation();
-
                 var rwLock = new ReaderWriterLock();
                 AuxData data = new AuxData();
 

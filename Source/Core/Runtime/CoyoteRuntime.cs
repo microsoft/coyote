@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void RunTest(Delegate testMethod, string testName)
+        internal void RunTest(Delegate testMethod, string testName, ISet<Action> testInits = null, ISet<Action> testCallbacks = null)
         {
             testName = string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'";
             this.Logger.WriteLine($"<TestLog> Running test{testName}.");
@@ -218,6 +218,12 @@ namespace Microsoft.Coyote.Runtime
                     AssignAsyncControlFlowRuntime(this);
 
                     this.Scheduler.StartOperation(op);
+
+                    // Invoke init methods for every iteration.
+                    foreach (var callback in testInits)
+                    {
+                        callback();
+                    }
 
                     Task testMethodTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
@@ -261,6 +267,12 @@ namespace Microsoft.Coyote.Runtime
                         else if (testMethodTask.IsCanceled)
                         {
                             throw new TaskCanceledException(testMethodTask);
+                        }
+
+                        // Invoke init methods for every iteration.
+                        foreach (var callback in testCallbacks)
+                        {
+                            callback();
                         }
                     }
 

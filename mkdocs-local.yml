@@ -1,7 +1,6 @@
 site_name: Coyote
 site_url: https://microsoft.github.io/coyote/
 repo_url: https://github.com/microsoft/coyote/
-base_url: /
 theme:
   name: null
   custom_dir: docs/windmill_dark
@@ -40,6 +39,7 @@ extra:
   - icon: fontawesome/brands/github
     link: https://github.com/microsoft/coyote
   generator: false
+  base_url: /
 copyright: Copyright &copy; Microsoft 2020
 nav:
 - Home: index.md

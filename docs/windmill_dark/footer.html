@@ -1,3 +1,5 @@
+{% set base_url = config.extra.base_url or "." %}
+
 <section class="footer-join pt-40 pb-80">
   <div class="container-fluid">
     <div class="row text-center">
@@ -80,7 +82,7 @@
       </div>
       <div class="col-sm-6 text-right footnote-copy">
         <ul class="list-unstyled list-inline">
-          <li>© 2020 Microsoft</li>
+          <li><span id="copyright"></span></li>
           <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="{{ base_url }}assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
         </ul>
       </div>

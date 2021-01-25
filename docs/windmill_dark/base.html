@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   {% set is_top = (page and page.is_homepage) and not force_plain_page %}
-  {% set base_url = config.base_url or "." %}
+  {% set base_url = config.extra.base_url or "." %}
 
   {%- block site_meta %}
     <meta charset="utf-8">

@@ -1,3 +1,5 @@
+{% set base_url = config.extra.base_url or "." %}
+
 <section class="footer-join pt-40 pb-80">
   <div class="container-fluid">
     <div class="row text-center">
@@ -14,7 +16,7 @@
     <div class="row">
       <div class="hidden-xs col-sm-5 col-lg-6">
         <a href="" title="homepage" class="logo-footer">
-          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+          <img src="{{ base_url }}assets/images/icon.png" alt="Coyote">
         </a>
       </div>
 
@@ -23,9 +25,9 @@
           <h4>Coyote</h4>
           <ul class="list-unstyled">
 
-            <li><a href="/coyote/">Home</a></li>
+            <li><a href="{{ base_url }}">Home</a></li>
 
-            <li><a href="/coyote/overview/about">About</a></li>
+            <li><a href="{{ base_url }}overview/about">About</a></li>
 
           </ul>
         </nav>
@@ -36,11 +38,11 @@
           <h4>Resources</h4>
           <ul class="list-unstyled">
 
-            <li><a href="/coyote/overview/what-is-coyote">Overview</a></li>
+            <li><a href="{{ base_url }}overview/what-is-coyote">Overview</a></li>
 
-            <li><a href="/coyote/get-started/install">Install</a></li>
+            <li><a href="{{ base_url }}get-started/install">Install</a></li>
 
-            <li><a href="/coyote/get-started/using-coyote">Getting started</a></li>
+            <li><a href="{{ base_url }}get-started/using-coyote">Getting started</a></li>
 
           </ul>
         </nav>
@@ -80,8 +82,8 @@
       </div>
       <div class="col-sm-6 text-right footnote-copy">
         <ul class="list-unstyled list-inline">
-          <li>© 2020 Microsoft</li>
-          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="{{ base_url }}assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
         </ul>
       </div>
     </div>

@@ -9,7 +9,6 @@
 <script src="/coyote/assets/js/progress_bar.js"></script>
 <script src="/coyote/assets/js/animate_trace.js"></script>
 <script src="/coyote/assets/js/trace_model.js"></script>
-<script src="/coyote/assets/js/search.js"></script>
 <script type="text/javascript">
   $(document).ready(function () {
     $('h1,h2,h3,h4,h5,h6').filter('[id]').each(function () {
@@ -22,8 +21,6 @@
       $(this).addClass("table-striped");
       $(this).addClass("table-condensed");
     });
-
-    fetchJson("{{ "/assets/data/search.json" | relative_url }}", setupSearchJson);
   });
 </script>
 {% endif %}

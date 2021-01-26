@@ -72,4 +72,7 @@ jQuery(document).ready(function ($) {
     $('#carousel_home').carousel('pause');
   })
 
+  var year = (new Date()).getFullYear();
+  $("#copyright").append("&copy; " + year + " Microsoft");
+
 });

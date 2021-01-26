@@ -39,7 +39,7 @@ extra:
   - icon: fontawesome/brands/github
     link: https://github.com/microsoft/coyote
   generator: false
-  base_url: /coyote/
+  base_url: /
 copyright: Copyright &copy; Microsoft 2020
 nav:
 - Home: index.md

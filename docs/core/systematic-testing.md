@@ -36,7 +36,7 @@ int foo()
 When this method `foo` now executes as part of a test case, the Coyote tester will understand that
 it is spawning two tasks that can run concurrently. The tester will explore different ways of
 executing the tasks to systematically cover all possibilities. Coyote provides [multiple programming
-models](../overview/what-is-coyote.md). Just remember that whichever programming model you choose,
+models](../index.md). Just remember that whichever programming model you choose,
 you must express all the concurrency in that model itself.
 
 Coyote also offers APIs for expressing other forms of non-determinism. The `CoyoteRuntime.Random`

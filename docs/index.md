@@ -109,10 +109,7 @@ Coyote supports two main programming models:
 
 Note that you can only systematically test the above two programming models together using Coyote's
 [binary rewriting](programming-models/async/rewriting.md) to take control of
-`System.Threading.Tasks.Task` objects. Mixing the Coyote `Actor` type with the custom Coyote `Task`
-type is not supported.
-
-
+`System.Threading.Tasks.Task` objects.
 
 
 ## Fearless coding for concurrent software

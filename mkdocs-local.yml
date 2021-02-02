@@ -40,12 +40,10 @@ extra:
     link: https://github.com/microsoft/coyote
   generator: false
   base_url: /
-copyright: Copyright &copy; Microsoft 2020
 nav:
 - Home: index.md
 - Overview:
   - Vision: overview/about.md
-  - What is Coyote?: overview/what-is-coyote.md
   - Videos: overview/videos.md
   - Key benefits: overview/benefits.md
   - Frequently asked questions: overview/faq.md
@@ -93,6 +91,7 @@ nav:
   - Robot navigator failover (actors): tutorials/failover-robot-navigator-actors.md
   - Raft actor service (on Azure): tutorials/raft-azure.md
   - Raft actor service (mocked): tutorials/raft-mocking.md
+  - Bounded Buffer Example: tutorials/bounded-buffer.md
 - Tools:
   - Testing: tools/testing.md
   - Rewriting tool: tools/rewriting.md

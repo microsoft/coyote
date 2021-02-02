@@ -7,7 +7,7 @@ do its magic.
 
 The `coyote test` tool takes over the scheduling of a Coyote program. It is able to do this reliably
 because it deeply understands the required [Coyote programming
-models](what-is-coyote.md). Therefore, the tool knows all concurrent operations
+models](../index.md). Therefore, the tool knows all concurrent operations
 in a test as well as sources of synchronization between them. By controlling the scheduling, the
 tool can reliably explore different interleavings of operations. The tool will repeatedly run a
 test, each time exercising different scheduling choices. This methodology has proven to be very

@@ -1,6 +1,6 @@
 ## Using Coyote
 
-As shown in the [overview](../overview/what-is-coyote.md), there are two main ways to use Coyote.
+As shown in the [overview](../index.md), there are two main ways to use Coyote.
 The simplest is to use the [asynchronous tasks](../programming-models/async/overview.md) and the
 more advanced way is using the [asynchronous actors](../programming-models/actors/overview.md).
 

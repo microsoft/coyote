@@ -1,6 +1,4 @@
-# Coyote
-
-## What is Coyote?
+# Welcome to Coyote
 
 Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
 Too often developers are drowning in the complexity of their own code and many hours are wasted

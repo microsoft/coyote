@@ -7,10 +7,9 @@ various other sources of _non-determinism_ (like message ordering, failures, tim
 
 Coyote provides programming models to express concurrent systems. These programming models offer
 convenient ways to program at a high-level of abstraction. As mentioned below, Coyote currently
-supports two programming models: a familiar tasks-based programming model (currently in-preview) as
-well as a more advanced actor-based programming model. These programming models are built using
-asynchronous APIs, supported by a lightweight runtime, making it easy to program efficient
-non-blocking code.
+supports two programming models: the familiar tasks-based programming model as well as a more
+advanced actor-based programming model. These programming models are built using asynchronous
+APIs, supported by a lightweight runtime, making it easy to program efficient non-blocking code.
 
 <div class="embed-responsive embed-responsive-16by9">
     <video id="shortintro" class="embed-responsive-item" controls poster="assets/images/ShortIntro.png">

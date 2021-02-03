@@ -92,6 +92,7 @@ nav:
   - Raft actor service (on Azure): tutorials/raft-azure.md
   - Raft actor service (mocked): tutorials/raft-mocking.md
   - Bounded Buffer Example: tutorials/bounded-buffer.md
+  - ASP.NET Core Image Gallery: tutorials/image-gallery-aspnet.md
 - Tools:
   - Testing: tools/testing.md
   - Rewriting tool: tools/rewriting.md

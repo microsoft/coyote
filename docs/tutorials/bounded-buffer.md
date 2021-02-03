@@ -27,13 +27,13 @@ powershell -f build.ps1
 Now you can run the `BoundedBuffer` application in a mode that should trigger the deadlock most of the time:
 
 ```plain
-./bin/net5.0BoundedBuffer.exe -m
+./bin/net5.0/BoundedBuffer.exe -m
 ```
 
 And you can run it with a fix for the deadlock as follows:
 
 ```plain
-./bin/net5.0BoundedBuffer.exe -f
+./bin/net5.0/BoundedBuffer.exe -f
 ```
 
 ### Can you find the deadlock bug in BoundedBuffer class?

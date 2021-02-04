@@ -12,7 +12,8 @@ using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting.Interception
 {
-    public class ControlledSpinLock
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public static class ControlledSpinLock
     {
         internal class AuxData : object
         {
@@ -30,6 +31,10 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             /// Couote resource corresponding to this RWLock.
             /// </summary>
             private readonly Resource Res;
+
+            public bool ThreadIdTracking;
+
+            public int? ThreadId = 0;
 
             public AuxData()
             {
@@ -93,156 +98,293 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             }
         }
 
-        private readonly AuxData auxData;
-
-        private readonly bool threadIdTracking;
-
-        private int? threadId = 0;
-
-        public ControlledSpinLock()
-        {
-            this.auxData = new AuxData();
-            this.threadIdTracking = true;
-        }
-
-        public ControlledSpinLock(bool isThreadTrackingEnable)
-        {
-            this.auxData = new AuxData();
-            this.threadIdTracking = isThreadTrackingEnable;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Enter(ref bool lockTaken)
+        public static SpinLock Create()
         {
-            // lockTaken must be set to false before calling this function.
-            if (lockTaken)
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
-            }
-            else
-            {
-                if (this.threadIdTracking && (this.threadId == Task.CurrentId))
+                var sLock = default(SpinLock);
+                AuxData data = new AuxData();
+                data.ThreadIdTracking = true;
+
+                if (!CoyoteRuntime.Current.Cwt.TryGetValue(sLock, out object _))
                 {
-                    throw new LockRecursionException("spinlock recursion detected");
+                    // Associate the AuxData with the sLock object.
+                    CoyoteRuntime.Current.Cwt.Add(sLock, data);
                 }
                 else
                 {
-                    this.threadId = Task.CurrentId;
+                    Debug.Assert(false, "This object is already present in the Cwt. Weird.");
                 }
 
-                lockTaken = this.auxData.TakeWriterLock(true);
+                return sLock;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Exit()
-        {
-            if (this.threadIdTracking && (this.threadId != Task.CurrentId))
+            else
             {
-                throw new SynchronizationLockException("spinlock: this lock doesn't belong to the current thread");
+                return default;
             }
-
-            this.auxData.ReleaseWriterLock();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Exit(bool memoryFence)
+        public static SpinLock Create(bool enableThreadOwnerTracking)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var sLock = new SpinLock(enableThreadOwnerTracking);
+                AuxData data = new AuxData();
+                data.ThreadIdTracking = enableThreadOwnerTracking;
+
+                if (!CoyoteRuntime.Current.Cwt.TryGetValue(sLock, out object _))
+                {
+                    // Associate the AuxData with the sLock object.
+                    CoyoteRuntime.Current.Cwt.Add(sLock, data);
+                }
+                else
+                {
+                    Debug.Assert(false, "This object is already present in the Cwt. Weird.");
+                }
+
+                return sLock;
+            }
+            else
+            {
+                return new SpinLock(enableThreadOwnerTracking);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Enter(ref SpinLock obj, ref bool lockTaken)
+        {
+            _ = obj;
+            lockTaken = true;
+/*
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                CoyoteRuntime.Current.ScheduleNextOperation();
+
+                if (!CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object _))
+                {
+                    AuxData dat = new AuxData();
+                    dat.ThreadIdTracking = true;
+                    CoyoteRuntime.Current.Cwt.Add( obj, dat);
+                }
+
+                if (CoyoteRuntime.Current.Cwt.TryGetValue( obj, out object data))
+                {
+                    AuxData auxdata = data as AuxData;
+                    // lockTaken must be set to false before calling this function.
+                    if (lockTaken)
+                    {
+                        throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                    }
+                    else
+                    {
+                        if (auxdata.ThreadIdTracking && (auxdata.ThreadId == Task.CurrentId))
+                        {
+                            throw new LockRecursionException("spinlock recursion detected");
+                        }
+                        else
+                        {
+                            auxdata.ThreadId = Task.CurrentId;
+                        }
+
+                        lockTaken = auxdata.TakeWriterLock(true);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Object not found");
+                }
+            }
+            else
+            {
+                obj.Enter(ref lockTaken);
+            }
+*/
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Exit(ref SpinLock obj)
+        {
+            _ = obj;
+/*
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                CoyoteRuntime.Current.ScheduleNextOperation();
+
+                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object data))
+                {
+                    AuxData auxdata = data as AuxData;
+                    if (auxdata.ThreadIdTracking && (auxdata.ThreadId != Task.CurrentId))
+                    {
+                        throw new SynchronizationLockException("spinlock: this lock doesn't belong to the current thread");
+                    }
+
+                    auxdata.ReleaseWriterLock();
+                }
+                else
+                {
+                    throw new Exception("Object not found");
+                }
+            }
+            else
+            {
+                obj.Exit();
+            }
+*/
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Exit(ref SpinLock obj, bool useMemoryBarrier)
         {
             // Just ignoring the argument!!
-            _ = memoryFence;
-            this.Exit();
+            _ = useMemoryBarrier;
+            Exit(ref obj);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TryEnter(ref bool lockTaken)
+        public static void TryEnter(ref SpinLock obj, ref bool lockTaken)
         {
-            // lockTaken must be set to false before calling this function.
-            if (lockTaken)
+            _ = obj;
+            lockTaken = true;
+            /*
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                CoyoteRuntime.Current.ScheduleNextOperation();
+
+                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object data))
+                {
+                    AuxData auxdata = data as AuxData;
+                    // lockTaken must be set to false before calling this function.
+                    if (lockTaken)
+                    {
+                        throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                    }
+                    else
+                    {
+                        if (auxdata.ThreadIdTracking && (auxdata.ThreadId == Task.CurrentId))
+                        {
+                            throw new LockRecursionException("spinlock recursion detected");
+                        }
+                        else
+                        {
+                            auxdata.ThreadId = Task.CurrentId;
+                        }
+
+                        if (!auxdata.IsLockTaken())
+                        {
+                            lockTaken = auxdata.TakeWriterLock(true);
+                        }
+                    }
+                }
             }
             else
             {
-                if (this.threadIdTracking && (this.threadId == Task.CurrentId))
-                {
-                    throw new LockRecursionException("spinlock recursion detected");
-                }
-                else
-                {
-                    this.threadId = Task.CurrentId;
-                }
-
-                if (!this.auxData.IsLockTaken())
-                {
-                    lockTaken = this.auxData.TakeWriterLock(true);
-                }
+                obj.TryEnter(ref lockTaken);
             }
+            */
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TryEnter(int millisecondsTimeout, ref bool lockTaken)
+        public static void TryEnter(ref SpinLock obj, int millisecondsTimeout, ref bool lockTaken)
         {
-            // If timeout is a negative value other than -1, throw error.
-            if (millisecondsTimeout < -1)
+            _ = obj;
+            _ = millisecondsTimeout;
+            lockTaken = true;
+            /*
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new ArgumentOutOfRangeException($"SpinLock.TryEnter() wrong arguments {millisecondsTimeout}");
-            }
+                CoyoteRuntime.Current.ScheduleNextOperation();
 
-            // lockTaken must be set to false before calling this function.
-            if (lockTaken)
-            {
-                throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object data))
+                {
+                    AuxData auxdata = data as AuxData;
+                    // If timeout is a negative value other than -1, throw error.
+                    if (millisecondsTimeout < -1)
+                    {
+                        throw new ArgumentOutOfRangeException($"SpinLock.TryEnter() wrong arguments {millisecondsTimeout}");
+                    }
+
+                    // lockTaken must be set to false before calling this function.
+                    if (lockTaken)
+                    {
+                        throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                    }
+                    else
+                    {
+                        if (auxdata.ThreadIdTracking && (auxdata.ThreadId == Task.CurrentId))
+                        {
+                            throw new LockRecursionException("spinlock recursion detected");
+                        }
+                        else
+                        {
+                            auxdata.ThreadId = Task.CurrentId;
+                        }
+
+                        // If lock is already taken, wait for the specified timeout.
+                        if (!auxdata.IsLockTaken() || CoyoteRuntime.Current.GetNondeterministicBooleanChoice(15, null, null))
+                        {
+                            lockTaken = auxdata.TakeWriterLock(true);
+                        }
+                    }
+                }
             }
             else
             {
-                if (this.threadIdTracking && (this.threadId == Task.CurrentId))
-                {
-                    throw new LockRecursionException("spinlock recursion detected");
-                }
-                else
-                {
-                    this.threadId = Task.CurrentId;
-                }
-
-                // If lock is already taken, wait for the specified timeout.
-                if (!this.auxData.IsLockTaken() || CoyoteRuntime.Current.GetNondeterministicBooleanChoice(15, null, null))
-                {
-                    lockTaken = this.auxData.TakeWriterLock(true);
-                }
+                obj.TryEnter(millisecondsTimeout, ref lockTaken);
             }
+            */
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TryEnter(TimeSpan timeout, ref bool lockTaken)
+        public static void TryEnter(ref SpinLock obj, TimeSpan timeout, ref bool lockTaken)
         {
-            // If timeout is a negative value other than -1, throw error.
-            if (timeout.TotalMilliseconds < -1)
+            _ = obj;
+            _ = timeout;
+            lockTaken = true;
+            /*
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new ArgumentOutOfRangeException($"SpinLock.TryEnter() wrong arguments {timeout.TotalMilliseconds}");
-            }
+                CoyoteRuntime.Current.ScheduleNextOperation();
 
-            // lockTaken must be set to false before calling this function.
-            if (lockTaken)
-            {
-                throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                if (CoyoteRuntime.Current.Cwt.TryGetValue(obj, out object data))
+                {
+                    AuxData auxdata = data as AuxData;
+                    // If timeout is a negative value other than -1, throw error.
+                    if (timeout.TotalMilliseconds < -1)
+                    {
+                        throw new ArgumentOutOfRangeException($"SpinLock.TryEnter() wrong arguments {timeout.TotalMilliseconds}");
+                    }
+
+                    // lockTaken must be set to false before calling this function.
+                    if (lockTaken)
+                    {
+                        throw new ArgumentException("lockTaken must be set to false before caling SpinLock.Enter()");
+                    }
+                    else
+                    {
+                        if (auxdata.ThreadIdTracking && (auxdata.ThreadId == Task.CurrentId))
+                        {
+                            throw new LockRecursionException("spinlock recursion detected");
+                        }
+                        else
+                        {
+                            auxdata.ThreadId = Task.CurrentId;
+                        }
+
+                        // If lock is already taken, wait for the specified timeout.
+                        if (!auxdata.IsLockTaken() || CoyoteRuntime.Current.GetNondeterministicBooleanChoice(15, null, null))
+                        {
+                            lockTaken = auxdata.TakeWriterLock(true);
+                        }
+                    }
+                }
             }
             else
             {
-                if (this.threadIdTracking && (this.threadId == Task.CurrentId))
-                {
-                    throw new LockRecursionException("spinlock recursion detected");
-                }
-                else
-                {
-                    this.threadId = Task.CurrentId;
-                }
-
-                // If lock is already taken, wait for the specified timeout.
-                if (!this.auxData.IsLockTaken() || CoyoteRuntime.Current.GetNondeterministicBooleanChoice(15, null, null))
-                {
-                    lockTaken = this.auxData.TakeWriterLock(true);
-                }
+                obj.TryEnter(timeout, ref lockTaken);
             }
+            */
         }
     }
 }

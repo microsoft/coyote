@@ -55,12 +55,14 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
+#nullable enable
+        public static void ThrowIfReturnedTaskNotControlled(Task? task, string methodName)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            if (CoyoteRuntime.IsExecutionControlled && task != null)
             {
                 CoyoteRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
             }
         }
+#nullable disable
     }
 }

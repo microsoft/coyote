@@ -245,12 +245,13 @@ namespace Microsoft.Coyote.Rewriting
             method.Body.ExceptionHandlers.Clear();
 
             MethodReference launchMethod = null;
-            // MethodReference attachMethod = null;
+            MethodReference attachMethod = null;
+
             if (this.Configuration.AttachDebugger)
             {
                 var debuggerType = this.Module.ImportReference(typeof(System.Diagnostics.Debugger)).Resolve();
                 launchMethod = FindMatchingMethod(debuggerType, "Launch");
-                // attachMethod = FindMatchingMethod(debuggerType, "Break"); // Udit...
+                attachMethod = FindMatchingMethod(debuggerType, "Break"); // Udit...
             }
 
             TypeReference actionType;
@@ -270,9 +271,6 @@ namespace Microsoft.Coyote.Rewriting
             var resolvedActionType = actionType.Resolve(); // Func<>
             var resolvedConfigurationType = configurationType.Resolve();
             var resolvedEngineType = engineType.Resolve();
-
-            TypeReference actionIntType = this.Module.ImportReference(typeof(Action<>));
-            actionIntType = ImportGenericTypeInstance(this.Module, actionIntType, this.Module.ImportReference(typeof(uint)));
 
             MethodReference actionConstructor = this.Module.ImportReference(
                 resolvedActionType.Methods.FirstOrDefault(m => m.IsConstructor));
@@ -311,7 +309,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 processor.Emit(OpCodes.Call, this.Module.ImportReference(launchMethod));
                 processor.Emit(OpCodes.Pop);
-                // processor.Emit(OpCodes.Call, this.Module.ImportReference(attachMethod));
+                processor.Emit(OpCodes.Call, this.Module.ImportReference(attachMethod));
             }
 
             var defaultConfig = Configuration.Create();
@@ -384,7 +382,7 @@ namespace Microsoft.Coyote.Rewriting
                 processor.Emit(OpCodes.Newobj, actionConstructor);
 
                 MethodReference registerPerIterationInitMethod = this.Module.ImportReference(
-                FindMatchingMethod(resolvedEngineType, "RegisterPerIterationInitMethod", actionType));
+                FindMatchingMethod(resolvedEngineType, "RegisterPerIterationInitMethod", this.Module.ImportReference(typeof(Action))));
 
                 processor.Emit(OpCodes.Call, registerPerIterationInitMethod);
             }
@@ -397,7 +395,7 @@ namespace Microsoft.Coyote.Rewriting
                 processor.Emit(OpCodes.Newobj, actionConstructor);
 
                 MethodReference registerPerIterationCallBack = this.Module.ImportReference(
-                FindMatchingMethod(resolvedEngineType, "RegisterPerIterationCallBack", actionType));
+                FindMatchingMethod(resolvedEngineType, "RegisterPerIterationCallBack", this.Module.ImportReference(typeof(Action))));
 
                 processor.Emit(OpCodes.Call, registerPerIterationCallBack);
             }

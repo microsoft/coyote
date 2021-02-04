@@ -14,22 +14,16 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     public static class StaticMockListWrapper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<TKey> Create<TKey>()
-        {
-            return new MockListCollection<TKey>();
-        }
+        public static List<TKey> Create<TKey>() => CoyoteRuntime.IsExecutionControlled ?
+         new MockListCollection<TKey>() : new List<TKey>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<TKey> Create<TKey>(int capacity)
-        {
-            return new MockListCollection<TKey>(capacity);
-        }
+        public static List<TKey> Create<TKey>(int capacity) => CoyoteRuntime.IsExecutionControlled ?
+         new MockListCollection<TKey>(capacity) : new List<TKey>(capacity);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<TKey> Create<TKey>(IEnumerable<TKey> collection)
-        {
-            return new MockListCollection<TKey>(collection);
-        }
+        public static List<TKey> Create<TKey>(IEnumerable<TKey> collection) => CoyoteRuntime.IsExecutionControlled ?
+         new MockListCollection<TKey>(collection) : new List<TKey>(collection);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add<TKey>(object obj, TKey key)
@@ -163,6 +157,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             list.CopyTo(obj1);
         }
 
+        /*
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Exists<TKey>(object obj, Predicate<TKey> p)
         {
@@ -173,6 +168,61 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
             var list = obj as List<TKey>;
             list.Exists(p);
+        }
+        */
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // get_Count is a compiler emitted function for obj.Count, so can't change its
+        // name format.
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable SA1300 // Element should begin with upper-case letter
+        public static int get_Count<TKey>(object obj)
+#pragma warning restore SA1300 // Element should begin with upper-case letter
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+        {
+            if (obj is MockListCollection<TKey> mockListObj)
+            {
+                mockListObj.DetectDataRace(false);
+            }
+
+            var list = obj as List<TKey>;
+            return list.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // get_Item is a compiler emitted function for _ = obj[_], so can't change its
+        // name format.
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable SA1300 // Element should begin with upper-case letter
+        public static TKey get_Item<TKey>(object obj, int key)
+#pragma warning restore SA1300 // Element should begin with upper-case letter
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+        {
+            if (obj is MockListCollection<TKey> mockListObj)
+            {
+                mockListObj.DetectDataRace(false);
+            }
+
+            var list = obj as List<TKey>;
+            return list[key];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // set_Item is a compiler emitted function for obj[_] = _, so can't change its
+        // name format.
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable SA1300 // Element should begin with upper-case letter
+        public static void set_Item<TKey>(object obj, int key, TKey value)
+#pragma warning restore SA1300 // Element should begin with upper-case letter
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+        {
+            if (obj is MockListCollection<TKey> mockListObj)
+            {
+                mockListObj.DetectDataRace(true);
+            }
+
+            var list = obj as List<TKey>;
+            list[key] = value;
         }
     }
 

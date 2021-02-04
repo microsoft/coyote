@@ -349,7 +349,7 @@ namespace Microsoft.Coyote
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
-            this.TestingIterations = 100;
+            this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote
             this.ReportActivityCoverage = false;
             this.DebugActivityCoverage = false;
 
-            this.IsVerbose = true;
+            this.IsVerbose = false;
             this.IsDebugVerbosityEnabled = true;
             this.LogLevel = LogSeverity.Informational;
 

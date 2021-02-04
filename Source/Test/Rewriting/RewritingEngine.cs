@@ -121,9 +121,9 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Transforms = new List<AssemblyTransform>()
             {
+                // new RaceDetectionTransform(this.Logger),
                 new TaskTransform(this.Logger),
                 new MonitorTransform(this.Logger),
-                new RaceDetectionTransform(this.Logger),
                 new ExceptionFilterTransform(this.Logger)
             };
 

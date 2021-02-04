@@ -181,7 +181,9 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var runtime = CoyoteRuntime.Current;
+/*
                 runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsTimeout), CancellationToken.None).Wait();
+*/
             }
             else
             {
@@ -203,7 +205,9 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var runtime = CoyoteRuntime.Current;
+/*
                 runtime.ScheduleDelay(timeout, CancellationToken.None).Wait();
+*/
             }
             else
             {
@@ -379,5 +383,135 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 thread.Start();
             }
         }
+
+#nullable enable
+        public static Timer ControlledTimer(System.Threading.TimerCallback callback, object? state, long dueTime, long period)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return new Timer((e) =>
+                {
+                    TaskOperation op = CoyoteRuntime.Current.CreateTaskOperation();
+                    CoyoteRuntime.Current.Scheduler.StartOperation(op);
+
+                    callback(e);
+
+                    op.OnCompleted();
+                }, state, dueTime, period);
+            }
+            else
+            {
+                return new Timer(callback, state, dueTime, period);
+            }
+        }
+
+        public static Timer ControlledTimer(System.Threading.TimerCallback callback, object? state, int dueTime, int period)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                if (period != -1)
+                {
+                    throw new NotSupportedException($"ControlledTimer: perio != -1. Period={period}");
+                }
+
+                return new Timer((e) =>
+                {
+                    TaskOperation op = CoyoteRuntime.Current.CreateTaskOperation(true);
+                    CoyoteRuntime.Current.Scheduler.StartOperation(op);
+
+                    /*
+                    if (op is TaskDelayOperation delayOp)
+                    {
+                        // Try delay scheduling this operation.
+                        delayOp.DelayUntilTimeout();
+                    }
+                    */
+
+                    callback(e);
+
+                    op.OnCompleted();
+                }, state, dueTime, period);
+            }
+            else
+            {
+                return new Timer(callback, state, dueTime, period);
+            }
+        }
+
+        public static Timer ControlledTimer(System.Threading.TimerCallback callback)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                throw new NotSupportedException("ControlledTimer: Not supported!");
+                /*
+                return new Timer((e) =>
+                {
+                    TaskOperation op = CoyoteRuntime.Current.CreateTaskOperation();
+                    CoyoteRuntime.Current.Scheduler.StartOperation(op);
+
+                    callback(e);
+
+                    op.OnCompleted();
+                });
+                */
+            }
+            else
+            {
+                return new Timer(callback);
+            }
+        }
+
+        public static Timer ControlledTimer(System.Threading.TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                throw new NotSupportedException("ControlledTimer: Not supported!");
+                /*
+                return new Timer((e) =>
+                {
+                    TaskOperation op = CoyoteRuntime.Current.CreateTaskOperation();
+                    CoyoteRuntime.Current.Scheduler.StartOperation(op);
+
+                    callback(e);
+
+                    op.OnCompleted();
+                }, state, dueTime, period);
+                */
+            }
+            else
+            {
+                return new Timer(callback, state, dueTime, period);
+            }
+        }
+
+        public static Timer ControlledTimer(System.Threading.TimerCallback callback, object? state, uint dueTime, uint period)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                throw new NotSupportedException("ControlledTimer: Not supported!");
+                /*
+                return new Timer((e) =>
+                {
+                    TaskOperation op = CoyoteRuntime.Current.CreateTaskOperation(true);
+                    CoyoteRuntime.Current.Scheduler.StartOperation(op);
+
+                    if (op is TaskDelayOperation delayOp)
+                    {
+                        // Try delay scheduling this operation.
+                        delayOp.DelayUntilTimeout();
+                    }
+
+                    callback(e);
+
+                    op.OnCompleted();
+                }, state, dueTime, period);
+                */
+            }
+            else
+            {
+                return new Timer(callback, state, dueTime, period);
+            }
+        }
+#nullable disable
     }
 }

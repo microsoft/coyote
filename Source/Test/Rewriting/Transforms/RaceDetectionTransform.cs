@@ -36,7 +36,8 @@ namespace Microsoft.Coyote.Rewriting
         private ILProcessor Processor;
 #pragma warning restore IDE0052 // Remove unread private members
 
-        public string CollectionClassName = "System.Collections.Generic.Dictionary";
+        public static string DictionaryClassName = "System.Collections.Generic.Dictionary`2";
+        public static string ListClassName = "System.Collections.Generic.List`1";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RaceDetectionTransform"/> class.
@@ -84,8 +85,16 @@ namespace Microsoft.Coyote.Rewriting
         protected Instruction VisitInitObjInstruction(Instruction instruction)
         {
             var method = instruction.Operand as MethodReference;
+            MethodReference newMethod = null;
 
-            var newMethod = GetStaticMockDictionaryWrapperMethod(method.Resolve(), this.Module, "Create");
+            if (method.DeclaringType.GetElementType().FullName.Contains(DictionaryClassName))
+            {
+                newMethod = GetStaticMockCollectionWrapperMethod(method.Resolve(), typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper), this.Module, "Create");
+            }
+            else if ( method.Name == ".ctor" && method.DeclaringType.GetElementType().FullName.Contains(ListClassName))
+            {
+                newMethod = GetStaticMockCollectionWrapperMethod(method.Resolve(), typeof(SystematicTesting.Interception.StaticMockListWrapper), this.Module, "Create");
+            }
 
             if (newMethod == null)
             {
@@ -125,7 +134,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if ((instruction.OpCode == OpCodes.Newobj) &&
                 instruction.Operand is MethodReference meth &&
-                meth.DeclaringType.FullName.Contains(this.CollectionClassName) &&
+                (meth.DeclaringType.GetElementType().FullName.Contains(DictionaryClassName) || meth.DeclaringType.GetElementType().FullName.Contains(ListClassName)) &&
                 (!meth.DeclaringType.FullName.Contains("Enumerator")))
             {
                 return this.VisitInitObjInstruction(instruction);
@@ -133,10 +142,10 @@ namespace Microsoft.Coyote.Rewriting
 
             if ( (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 instruction.Operand is MethodReference method &&
-                method.DeclaringType.FullName.Contains(this.CollectionClassName) &&
+                (method.DeclaringType.GetElementType().FullName.Contains(DictionaryClassName) || method.DeclaringType.GetElementType().FullName.Contains(ListClassName)) &&
                 (!method.DeclaringType.FullName.Contains("Enumerator")))
             {
-                var newMethod = GetMockDictionaryMethod(method, this.Module);
+                var newMethod = GetMockCollectionMethod(method, this.Module);
 
                 if (newMethod == null)
                 {
@@ -167,47 +176,40 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
-        private static MethodReference GetMockDictionaryMethod(MethodReference method, ModuleDefinition mod)
+        private static MethodReference GetMockCollectionMethod(MethodReference method, ModuleDefinition mod)
         {
-            var tt = typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper);
+            Type tt = null;
 
-            TypeReference declaringType = mod.ImportReference(tt);
-
-            TypeDefinition resolvedDeclaringType = Resolve(declaringType);
-
-            foreach (var match in resolvedDeclaringType.Methods)
+            if (method.DeclaringType.FullName.Contains(DictionaryClassName))
             {
-                if (match.Name.Contains(method.Name))
+                tt = typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper);
+            }
+            else if (method.DeclaringType.FullName.Contains(ListClassName))
+            {
+                tt = typeof(SystematicTesting.Interception.StaticMockListWrapper);
+            }
+
+            if (tt != null)
+            {
+                TypeReference declaringType = mod.ImportReference(tt);
+
+                TypeDefinition resolvedDeclaringType = Resolve(declaringType);
+
+                foreach (var match in resolvedDeclaringType.Methods)
                 {
-                    return mod.ImportReference(match);
+                    if (match.Name.Contains(method.Name) && match.Parameters.Count == (method.Parameters.Count + 1))
+                    {
+                        return mod.ImportReference(match);
+                    }
                 }
             }
 
             return null;
         }
 
-        private static MethodReference GetStaticMockDictionaryWrapperMethod(MethodDefinition meth, ModuleDefinition mod, string methName)
+        private static MethodReference GetStaticMockCollectionWrapperMethod(MethodDefinition meth, Type tt, ModuleDefinition mod, string methName)
         {
-            var tt = typeof(SystematicTesting.Interception.StaticMockDictionaryWrapper);
-
             TypeReference declaringType = mod.ImportReference(tt);
-
-            /*
-            Mono.Cecil.GenericInstanceType gi = null;
-
-            if (method.DeclaringType.IsGenericInstance)
-            {
-                GenericInstanceType instance = (GenericInstanceType)method.DeclaringType;
-                IList<TypeReference> genericArguments = instance.GenericArguments;
-
-                gi = declaringType.MakeGenericInstanceType(mod.ImportReference(genericArguments[0]), mod.ImportReference(genericArguments[1]));
-            }
-
-            this.Module.ImportReference(gi);
-
-            return DefaultCtorFor(gi);
-            */
-
             TypeDefinition resolvedDeclaringType = declaringType.Resolve();
 
             foreach (var match in resolvedDeclaringType.Methods)

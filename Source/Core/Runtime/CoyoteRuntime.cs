@@ -220,6 +220,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Scheduler.StartOperation(op);
 
                     // Invoke init methods before every iteration.
+                    // Add a comment!
                     foreach (var callback in testInits)
                     {
                         callback();

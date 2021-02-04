@@ -56,6 +56,8 @@ namespace Microsoft.Coyote.Rewriting
         private const string WaitHandleType = "System.Threading.WaitHandle";
         private const string EventWaitHandleType = "System.Threading.EventWaitHandle";
         private const string ReaderWriterLockType = "System.Threading.ReaderWriterLock";
+        private const string SpinLockType = "System.Threading.SpinLock";
+        private const string SemaphoreSlimType = "System.Threading.SemaphoreSlim";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreadTransform"/> class.
@@ -112,6 +114,10 @@ namespace Microsoft.Coyote.Rewriting
             {
                 instruction = this.VisitCallInstruction(instruction, methodReference);
             }
+            else if (instruction.OpCode == OpCodes.Initobj)
+            {
+                instruction = VisitInitObjInstruction(instruction);
+            }
 
             return instruction;
         }
@@ -124,6 +130,11 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return this.MockedRWLock;
+        }
+
+        private TypeDefinition GetOrImportType(System.Type a)
+        {
+            return this.Module.ImportReference(a).Resolve();
         }
 
         private TypeDefinition GetOrImportControlledMRE()
@@ -166,13 +177,26 @@ namespace Microsoft.Coyote.Rewriting
             return this.ControlledThread;
         }
 
-        private Instruction InitReaderWriterLock(Instruction instruction)
+        private Instruction InitReaderWriterAndSpinLockAndSemaphoreSlim(Instruction instruction)
         {
             Instruction newInstruction = null;
             MethodReference constructor = instruction.Operand as MethodReference;
+            TypeDefinition controlledMre;
 
-            // call "public static Thread ControlledManualResetEvent.Create(bool state)" instead.
-            TypeDefinition controlledMre = this.GetOrImportControlledRWLock();
+            if (constructor.DeclaringType.FullName == SpinLockType)
+            {
+                controlledMre = this.GetOrImportType(typeof(ControlledSpinLock));
+            }
+            else if (constructor.DeclaringType.FullName == SemaphoreSlimType)
+            {
+                controlledMre = this.GetOrImportType(typeof(ControlledSemaphoreSlimStaticWrapper));
+            }
+            else
+            {
+                // call "public static Thread ControlledManualResetEvent.Create(bool state)" instead.
+                controlledMre = this.GetOrImportControlledRWLock();
+            }
+
             var createMethod = FindMatchingMethod(controlledMre, "Create", constructor);
 
             if (createMethod != null)
@@ -187,6 +211,30 @@ namespace Microsoft.Coyote.Rewriting
             else
             {
                 // TODO: report unsupported thread construction error.
+                return instruction;
+            }
+        }
+
+        private Instruction InitTimer(Instruction instruction)
+        {
+            Instruction newInstruction = null;
+            MethodReference constructor = instruction.Operand as MethodReference;
+
+            // call "public static Thread ControlledManualResetEvent.Create(bool state)" instead.
+            TypeDefinition controlledThread = this.GetOrImportControlledThread();
+            var createMethod = FindMatchingMethod(controlledThread, "ControlledTimer", constructor);
+
+            if (createMethod != null)
+            {
+                createMethod = this.Module.ImportReference(createMethod);
+                newInstruction = Instruction.Create(OpCodes.Call, createMethod);
+                newInstruction.Offset = instruction.Offset;
+                this.Processor.Replace(instruction, newInstruction);
+
+                return newInstruction;
+            }
+            else
+            {
                 return instruction;
             }
         }
@@ -250,11 +298,23 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
-        private Instruction ReplaceRWLock(Instruction instruction)
+        private Instruction ReplaceRWAndSpinLockAndSemaphore(Instruction instruction)
         {
             Instruction newInstruction = null;
             MethodReference method = instruction.Operand as MethodReference;
-            TypeDefinition t = this.GetOrImportControlledRWLock();
+            TypeDefinition t;
+            if (method.DeclaringType.FullName == SpinLockType)
+            {
+                t = this.GetOrImportType(typeof(ControlledSpinLock));
+            }
+            else if (method.DeclaringType.FullName == ReaderWriterLockType)
+            {
+                t = this.GetOrImportType(typeof(ControlledReaderWriterLock));
+            }
+            else
+            {
+                t = this.GetOrImportType(typeof(ControlledSemaphoreSlimStaticWrapper));
+            }
 
             System.Diagnostics.Debug.Assert(t != null, $"Type of {method.DeclaringType.FullName} not found");
 
@@ -309,11 +369,20 @@ namespace Microsoft.Coyote.Rewriting
             {
                 instruction = this.InitManualResetEvent(instruction);
             }
-            else if (constructor.DeclaringType.FullName == ReaderWriterLockType)
+            else if (constructor.DeclaringType.FullName == ReaderWriterLockType || constructor.DeclaringType.FullName == SemaphoreSlimType)
             {
-                instruction = this.InitReaderWriterLock(instruction);
+                instruction = this.InitReaderWriterAndSpinLockAndSemaphoreSlim(instruction);
+            }
+            else if (constructor.DeclaringType.FullName == "System.Threading.Timer")
+            {
+                instruction = this.InitTimer(instruction);
             }
 
+            return instruction;
+        }
+
+        private static Instruction VisitInitObjInstruction(Instruction instruction)
+        {
             return instruction;
         }
 
@@ -341,7 +410,17 @@ namespace Microsoft.Coyote.Rewriting
                 // Some thread method calls need to change to static methods on ControlledThread.
                 Instruction newInstruction = null;
                 TypeDefinition controlledThread = this.GetOrImportControlledThread();
-                var intercept = FindMatchingStaticMethod(controlledThread, method.Resolve());
+                MethodReference intercept = null;
+
+                if (!method.HasThis)
+                {
+                    intercept = FindMatchingMethodInDeclaringType(method.Resolve(), controlledThread);
+                }
+                else
+                {
+                    intercept = FindMatchingStaticMethod(controlledThread, method.Resolve());
+                }
+
                 if (intercept != null)
                 {
                     intercept = this.Module.ImportReference(intercept);
@@ -364,9 +443,9 @@ namespace Microsoft.Coyote.Rewriting
             {
                 instruction = this.ReplaceWaitHandle(instruction);
             }
-            else if (method.DeclaringType.FullName == ReaderWriterLockType)
+            else if (method.DeclaringType.FullName == ReaderWriterLockType || method.DeclaringType.FullName == SemaphoreSlimType)
             {
-                instruction = this.ReplaceRWLock(instruction);
+                instruction = this.ReplaceRWAndSpinLockAndSemaphore(instruction);
             }
 
             return instruction;
@@ -380,8 +459,8 @@ namespace Microsoft.Coyote.Rewriting
         {
             foreach (var method in newType.Methods)
             {
-                if (method.Name == right.Name && method.Parameters.Count == right.Parameters.Count + 1 &&
-                    method.Parameters[0].ParameterType.FullName == right.DeclaringType.FullName)
+                if (method.Name == right.Name && method.Parameters.Count == right.Parameters.Count + 1
+                    )
                 {
                     bool match = true;
                     for (int idx = 0; idx < right.Parameters.Count; idx++)

@@ -14,29 +14,22 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     public static class StaticMockDictionaryWrapper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TValue> Create<TKey, TValue>()
-        {
-            return new MockDictionary<TKey, TValue>();
-        }
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>() => CoyoteRuntime.IsExecutionControlled ?
+         new MockDictionary<TKey, TValue>() : new Dictionary<TKey, TValue>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
-        {
-            return new MockDictionary<TKey, TValue>(dictionary);
-        }
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IDictionary<TKey, TValue> dictionary) => CoyoteRuntime.IsExecutionControlled ?
+         new MockDictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary);
 
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey>? comparer)
-        {
-            return new MockDictionary<TKey, TValue>(comparer);
-        }
+        public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey>? comparer) => CoyoteRuntime.IsExecutionControlled ?
+         new MockDictionary<TKey, TValue>(comparer) : new Dictionary<TKey, TValue>(comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(System.Collections.Generic.IDictionary<TKey, TValue> dictionary, System.Collections.Generic.IEqualityComparer<TKey>? comparer)
-        {
-            return new MockDictionary<TKey, TValue>(dictionary, comparer);
-        }
+         => CoyoteRuntime.IsExecutionControlled ? new MockDictionary<TKey, TValue>(dictionary, comparer) :
+            new Dictionary<TKey, TValue>(dictionary, comparer);
 
         /*
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -275,6 +268,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Debug.Assert(false, "aa");
+
             if (obj is MockDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);

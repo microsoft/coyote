@@ -146,7 +146,9 @@ can help Coyote do better by using [ExploreContextSwitch](../interleavings).
 
 ## Samples
 
-To try out more samples built using the _asynchronous tasks_ programming model see the following:
+To try out more samples that show how to use Coyote to systematically test task-based programs see
+the following:
 
-- [Hello world tasks](../../../tutorials/tasks/hello-world)
-- [Coffee machine failover (tasks)](../../../tutorials/tasks/failover-coffee-machine)
+- [Account manager](../../../tutorials/tasks/account-manager)
+- [Bounded buffer](../../../tutorials/tasks/bounded-buffer)
+- [Coffee machine failover](../../../tutorials/tasks/failover-coffee-machine)

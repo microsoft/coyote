@@ -376,18 +376,26 @@ Build the sample by running the following command:
 powershell -f build.ps1
 ```
 
-You can now run it like this:
+You can now run the tests (without Coyote) like this:
 ```plain
 cd .\bin\net5.0
 .\AccountManager.exe
 ```
 
 We have added some command line arguments to make it easy select which test to run:
-```
+```plain
 Usage: AccountManager [option]
 Options:
   -s    Run sequential test without Coyote
   -c    Run concurrent test without Coyote
+```
+
+To test the sample with Coyote you can use the following commands (as explained in the tutorial
+above):
+```plain
+coyote rewrite .\AccountManager.dll
+coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
+coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
 ```
 
 Enjoy!

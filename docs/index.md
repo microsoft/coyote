@@ -138,7 +138,7 @@ These are some direct quotes from Azure Engineers that use Coyote:
 
 [Read how Azure teams are using Coyote](case-studies/azure-batch-service.md)
 
-[Dive into tutorials and samples](tutorials/tasks/hello-world.md)
+[Dive into tutorials and samples](tutorials/tasks/account-manager.md)
 
 [Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
 

@@ -84,7 +84,6 @@ nav:
     - Why Coyote actors?: programming-models/actors/why-actors.md
 - Tutorials and samples:
   - Asynchronous tasks:
-    - Hello world: tutorials/tasks/hello-world.md
     - Account manager: tutorials/tasks/account-manager.md
     - Deadlock in bounded-buffer: tutorials/tasks/bounded-buffer.md
     - Coffee machine failover: tutorials/tasks/failover-coffee-machine.md

@@ -58,7 +58,7 @@ nav:
   - Azure Blockchain Workbench: case-studies/azure-blockchain-workbench.md
 - Core concepts:
   - Program non-determinism: core/non-determinism.md
-  - Systematic testing: core/systematic-testing.md
+  - Concurrency unit testing: core/concurrency-unit-testing.md
   - Program specifications: core/specifications.md
   - Effective liveness checking: core/liveness-checking.md
   - Logging: core/logging.md

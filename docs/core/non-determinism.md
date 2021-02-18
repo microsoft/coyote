@@ -53,6 +53,5 @@ concurrent operations or when failures happen, your program must still work. Thi
 burden on your design and makes it harder to write correct code. Once the design and code are in
 place, even testing is hard because how do you get coverage of these non-deterministic activities?
 Stress testing techniques hope that with enough load on the system, the corner cases will get
-covered. Coyote offers a more principled approach, namely [systematic
-testing](systematic-testing.md) that has proven to be very effective in practice, and
-[widely adopted in Azure](../case-studies/azure-batch-service.md).
+covered. Coyote offers a more principled approach, namely [concurrency unit testing](concurrency-unit-testing.md)
+that has proven to be very effective in practice, and [widely adopted in Azure](../case-studies/azure-batch-service.md).

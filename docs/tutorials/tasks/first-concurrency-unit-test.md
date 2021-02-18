@@ -300,7 +300,7 @@ operating system scheduler). Coyote gives you _exactly_ this.
 To use Coyote on your task-based program is very easy in most cases. All you need to do is to invoke
 the `coyote rewrite` tool which [rewrites](../../tools/rewriting.md) your assembly (for testing only)
 so that Coyote can inject logic that allows it to take control of the schedule of C# tasks. Then,
-you can invoke the `coyote test` tool which [systematically explores](../../core/systematic-testing.md)
+you can invoke the `coyote test` tool which [systematically explores](../../core/concurrency-unit-testing.md)
 task interleavings to uncover bug. If a bug is uncovered, Coyote allows you to deterministically
 reproduce it every single time.
 

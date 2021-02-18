@@ -5,7 +5,7 @@ The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/Cloud
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
 machine demo](../../programming-models/actors/state-machine-demo.md) which shows the Coyote
-[systematic testing process](../../core/systematic-testing.md) in action on this application.
+[systematic testing process](../../core/concurrency-unit-testing.md) in action on this application.
 
 This example is organized into the following projects:
 

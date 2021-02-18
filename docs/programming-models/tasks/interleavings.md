@@ -6,7 +6,7 @@ Coyote cover a lot of scenarios already. However, if you find yourself working w
 potentially have data races, or you are modeling other forms of synchronization not covered by
 Coyote already, then you might have to help out the tester a bit more.
 
-During [systematic testing](../../core/systematic-testing.md), Coyote serializes the concurrent
+During [systematic testing](../../core/concurrency-unit-testing.md), Coyote serializes the concurrent
 execution of a program. Serialization means that only one task is running at any given time. This
 helps remove the randomness that happens when the operating system schedules parallel tasks and
 performs thread switching at unpredictable moments depending on your machine load. It also makes

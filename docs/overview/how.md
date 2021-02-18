@@ -39,5 +39,5 @@ studies](../case-studies/azure-batch-service.md).
 See [animating state machine demo](../programming-models/actors/state-machine-demo.md) for a
 visual explanation of what Coyote does when it is looking for bugs.
 
-For more information see [Systematic Testing](../core/systematic-testing.md) and dealing with
-[Nondeterminism](../core/non-determinism.md).
+For more information see dealing with [nondeterminism](../core/non-determinism.md) and
+[concurrency unit Testing](../core/concurrency-unit-testing.md).

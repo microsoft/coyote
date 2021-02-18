@@ -6,7 +6,7 @@ faults, etc, how do you test such systems? How do you know that you got the code
 questions were the motivation behind creating Coyote.
 
 Coyote focuses on writing [specifications](../../core/specifications.md) and providing
-high-coverage testing via [systematic testing](../../core/systematic-testing.md). The
+high-coverage testing via [systematic testing](../../core/concurrency-unit-testing.md). The
 capability of writing better tests, getting (much) better coverage, accelerates the development
 process.
 

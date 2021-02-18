@@ -1,4 +1,4 @@
-## Testing concurrent CRUD operations with Coyote
+## Test concurrent CRUD operations with Coyote
 
 In the previous [tutorial](first-concurrency-unit-test.md), we explored how to write our first
 _concurrency unit test_ for `AccountManager`, and reliably reproduce a race condition in the

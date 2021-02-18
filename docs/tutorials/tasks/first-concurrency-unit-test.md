@@ -378,14 +378,14 @@ time, if you don't use a tool like Coyote to systematically explore the interlea
 absence of such tools, these bugs can go undetected and occur sporadically in production, making
 them difficult to diagnose and debug. And who wants to stay awake at night debugging a live site!
 
-In the [next tutorial](testing-crud-operations.md), we will write few more concurrency unit tests
+In the [next tutorial](test-concurrent-operations.md), we will write few more concurrency unit tests
 for the `AccountManager` to increase our familiarity with Coyote.
 
 ## Get the sample source code
 
 To get the complete source code for the `AccountManager` tutorial, clone the
 [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-Note that the repo also contains the code from the [next tutorial](testing-crud-operations.md) which
+Note that the repo also contains the code from the [next tutorial](test-concurrent-operations.md) which
 builds upon this `AccountManager` sample.
 
 You can build the sample by running the following command:

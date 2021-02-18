@@ -1,10 +1,8 @@
 ## Coyote rewriting tool
 
-![Rewriting is currently in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview)
-
 The `coyote` command line tool can be used to automatically rewrite any .NET binary to take over
 concurrency that is built using `System.Threading.Tasks.Task`. For details on what kinds of
-rewriting is supported see [Rewriting binaries](../programming-models/async/rewriting.md).
+rewriting is supported see [Rewriting binaries](../programming-models/tasks/rewriting.md).
 
 To invoke the rewriter use the following command:
 

@@ -10,6 +10,6 @@ Studio Installer, select "Additional Components" tab and scroll down to "DGML Ed
 it is checked.
 
 The Enterprise version of Visual Studio can also produce `DGML` diagrams of your code, this is how
-the following diagrams were produced for the [Raft Mocking Example](../tutorials/raft-mocking.md):
+the following diagrams were produced for the [Raft Mocking Example](../tutorials/actors/raft-mocking.md):
 
 ![RaftMocking](../assets/images/RaftMocking.svg)

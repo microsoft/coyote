@@ -4,14 +4,14 @@
 The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/CloudMessaging) sample
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
-machine demo](../programming-models/actors/state-machine-demo.md) which shows the Coyote
-[systematic testing process](../core/systematic-testing.md) in action on this application.
+machine demo](../../programming-models/actors/state-machine-demo.md) which shows the Coyote
+[systematic testing process](../../core/systematic-testing.md) in action on this application.
 
 This example is organized into the following projects:
 
 - **Raft** - a .NET Core C# class library that implements the [Raft Consensus
   Algorithm](https://raft.github.io/) using the Coyote [Actor Programming
-  Model](../programming-models/actors/overview.md).
+  Model](../../programming-models/actors/overview.md).
 - **Raft.Azure** - a C# executable that shows how to run Coyote messages through an [Azure Service
   Bus](https://azure.microsoft.com/en-us/services/service-bus/).
 - **Raft.Mocking** - demonstrates how to use mocks to systematically test the CloudMessaging sample
@@ -31,9 +31,9 @@ is called the `Azure CLI`.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
 
 ## Setup Azure
 
@@ -76,11 +76,11 @@ complete the [mocking](raft-mocking.md) of the Azure Message Bus calls.
 ## Design
 
 The `Raft.dll` library contains a `Server` [state
-machine](../programming-models/actors/state-machines.md), and a `ClusterManager` state machine. It also
+machine](../../programming-models/actors/state-machines.md), and a `ClusterManager` state machine. It also
 contains an interface named `IServerManager` and some Coyote `Event` declarations which describe the
 message types that are sent between the Server instances and the Client.
 
-![cloudmessaging](../assets/images/cloudmessaging.svg)
+![cloudmessaging](../../assets/images/cloudmessaging.svg)
 
 The `ClusterManager` is an abstract state machine that models the concept of being able to broadcast
 messages to all `Servers` registered in a cluster. Sending an event to this cluster will result in
@@ -121,7 +121,7 @@ process is the `Client` process, then each subsequent one is a `Server` instance
 specified `--local-cluster-size` command line argument. The following diagram shows what this looks
 like when we have 2 servers in the cluster:
 
-![servers](../assets/images/RaftServers.svg)
+![servers](../../assets/images/RaftServers.svg)
 
 The startup sequence for all this can be found in `Program.cs` and goes like this:
 
@@ -208,7 +208,7 @@ protocol can also help make things even more clear.
 
 The overall `Server` state machine flow looks like this:
 
-![raft_server](../assets/images/RaftStateMachine.svg)
+![raft_server](../../assets/images/RaftStateMachine.svg)
 
 In a nutshell, each `Server` instance can be in one of three states, `Follower`, `Candidate` or
 `Leader`. Each `Server` starts in the `Follower` state. If these followers don't hear from a leader
@@ -242,7 +242,7 @@ In this tutorial you learned:
    machine design can be continually maintained in your code, and this way Coyote is ensuring design
    and implementation remain in sync over time.
 4. How to reserve an `ActorId` before creating an `Actor` using `CreateActorIdFromName`.
-5. How to great [DGML diagram](../tools/dgml.md) of production runs by registering the
+5. How to great [DGML diagram](../../tools/dgml.md) of production runs by registering the
    `ActorRuntimeLogGraphBuilder`.
 
 Now you need to be sure this `Server` protocol implementation is trustworthy, and for that you can

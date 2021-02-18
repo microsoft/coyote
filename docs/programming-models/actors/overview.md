@@ -268,6 +268,6 @@ invariants it is recommended that you use [Monitors](../../core/specifications.m
 ## Samples
 
 To see a full working example of an `Actor` based program see the [Hello World
-Actors](../../tutorials/hello-world-actors.md) tutorial.
+Actors](../../tutorials/actors/hello-world.md) tutorial.
 
 Seel also precise definition of [actor semantics](actor-semantics.md).

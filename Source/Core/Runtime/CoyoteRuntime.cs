@@ -1315,7 +1315,19 @@ namespace Microsoft.Coyote.Runtime
         {
             string message = null;
             Exception exception = UnwrapException(ex);
-            if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
+            if (exception is ExecutionCanceledException ece)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                    ece.GetType().Name, op.Name);
+                if (this.Scheduler.IsAttached)
+                {
+                    // TODO: add some tests for this, so that we check that a task (or lock) that
+                    // was cached and reused from prior iteration indeed cannot cause the runtime
+                    // to hang anymore.
+                    message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");
+                }
+            }
+            else if (exception is TaskSchedulerException)
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
                     exception.GetType().Name, op.Name);

@@ -1,7 +1,7 @@
 ## Using Coyote
 
 As shown in the [overview](../index.md), there are two main ways to use Coyote.
-The simplest is to use the [asynchronous tasks](../programming-models/async/overview.md) and the
+The simplest is to use the [asynchronous tasks](../programming-models/tasks/overview.md) and the
 more advanced way is using the [asynchronous actors](../programming-models/actors/overview.md).
 
 **Note:** If you are upgrading to Coyote from P#, see [upgrading from
@@ -10,7 +10,7 @@ P#](upgrade-from-psharp.md).
 Assuming you have [installed Coyote](install.md) and built the samples, you
 are ready to use the `coyote` command line tool. In your [Coyote
 samples](http://github.com/microsoft/coyote-samples) local repo you can find the compiled binaries
-in the `bin` folder.  Here we assume you are using the [.NET Core 5.0 version of the `coyote` tool](install.md#installing-the-net-core-31-coyote-tool).
+in the `bin` folder.  Here we assume you are using the [.NET 5.0 version of the `coyote` tool](install.md#installing-the-net-core-31-coyote-tool).
 
 You can use the `coyote` tool to automatically test these samples and find bugs. There is a
 particularly hard bug to find in the `coyote-samples/Monitors` sample application. If you run this
@@ -87,5 +87,5 @@ interactively using Visual Studio. Make sure the downloaded file keeps the file 
 Use CTRL+A to select everything and this will show you all the detailed links as well.
 
 You are now ready to dive into the core concepts for using Coyote to test [async
-tasks](../programming-models/async/overview.md) and the more advanced [async
+tasks](../programming-models/tasks/overview.md) and the more advanced [async
 actors](../programming-models/actors/overview.md).

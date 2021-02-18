@@ -1,15 +1,10 @@
 # Welcome to Coyote
 
 Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
+
 Too often developers are drowning in the complexity of their own code and many hours are wasted
 trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or
 various other sources of _non-determinism_ (like message ordering, failures, timeouts and so on).
-
-Coyote provides programming models to express concurrent systems. These programming models offer
-convenient ways to program at a high-level of abstraction. As mentioned below, Coyote currently
-supports two programming models: the familiar tasks-based programming model as well as a more
-advanced actor-based programming model. These programming models are built using asynchronous
-APIs, supported by a lightweight runtime, making it easy to program efficient non-blocking code.
 
 <div class="embed-responsive embed-responsive-16by9">
     <video id="shortintro" class="embed-responsive-item" controls poster="assets/images/ShortIntro.png">
@@ -74,6 +69,12 @@ expensive to start over. Instead Coyote can be adopted gradually, adding more an
 around your _Coyote-aware_ code. The more of this structure you add the more benefit you get from
 Coyote, but it is certainly not an all or nothing proposition.
 
+For advanced users, Coyote also provides a powerful in-memory actor and state machine programming
+model that allows you to build reliable concurrent systems. This programming models offers
+convenient ways to program at a high-level of abstraction. Coyote actors are built using
+asynchronous C# APIs, supported by a lightweight runtime, making it easy to program efficient
+non-blocking code.
+
 So Coyote brings together elements of design, development and testing into an integrated package
 that works really well in the real world. See our [case
 studies](case-studies/azure-batch-service.md) for some great customer testimonials.
@@ -82,7 +83,7 @@ studies](case-studies/azure-batch-service.md) for some great customer testimonia
 
 Coyote supports two main programming models:
 
-- [Asynchronous tasks](programming-models/async/overview.md), which follows the popular [task-based
+- [Asynchronous tasks](programming-models/tasks/overview.md), which follows the popular [task-based
   asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
   This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
@@ -92,7 +93,7 @@ Coyote supports two main programming models:
   executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
   native `Task` object. During testing, however, is where the magic happens. Coyote controls the
   execution of each Coyote `Task` so that it can explore various different interleavings to find
-  bugs. Alternatively, you can use the [binary rewriting](programming-models/async/rewriting.md)
+  bugs. Alternatively, you can use the [binary rewriting](programming-models/tasks/rewriting.md)
   feature of Coyote to automatically instrument your application, taking control of
   `System.Threading.Tasks.Task` objects and related concurrency types from the Task Parallel
   Library, without having to use Coyote's drop-in-replacement library.
@@ -107,9 +108,8 @@ Coyote supports two main programming models:
   simply an `Actor` with explicit `States` and event-driven state transitions.
 
 Note that you can only systematically test the above two programming models together using Coyote's
-[binary rewriting](programming-models/async/rewriting.md) to take control of
+[binary rewriting](programming-models/tasks/rewriting.md) to take control of
 `System.Threading.Tasks.Task` objects.
-
 
 ## Fearless coding for concurrent software
 
@@ -118,7 +118,7 @@ also push the limits on high concurrency, maximizing throughput and minimizing o
 
 With Coyote you can create highly reliable software in a way that is also highly productive.
 
-These are some direct quotes from Azure Engineers that uses Coyote:
+These are some direct quotes from Azure Engineers that use Coyote:
 
   * _We often found bugs with Coyote in a matter of minutes that would have taken days with stress testing._
 
@@ -130,13 +130,18 @@ These are some direct quotes from Azure Engineers that uses Coyote:
   * _Coyote gave developers a significant confidence boost by providing full failover and
   concurrency testing at each check-in, right on their desktops as the code was written._
 
-[Learn more about Coyote](overview/about.md)
+## Get started with Coyote
 
-[Get started now, it is super easy](get-started/install.md)
+[Learn about the key benefits](overview/benefits.md)
 
-[Read more about how Azure is using Coyote](case-studies/azure-batch-service.md)
+[Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
 
-[State machine demo](programming-models/actors/state-machine-demo/)
+[Read how Azure teams are using Coyote](case-studies/azure-batch-service.md)
 
-[Code on Github](https://github.com/microsoft/coyote/)
+[Dive into tutorials and samples](tutorials/tasks/account-manager.md)
 
+[Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
+
+[Say hi on Gitter](https://gitter.im/Microsoft/coyote)
+
+[Contribute on Github](https://github.com/microsoft/coyote/)

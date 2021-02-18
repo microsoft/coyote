@@ -6,7 +6,7 @@ This is an 1 hour Microsoft Research Webinar on Coyote. Sign up to watch the vid
 
 ## The async tasks programming model
 
-This Channel 9 On-NET show is a deeper dive into the [async tasks programming model](../programming-models/async/overview.md):
+This Channel 9 On-NET show is a deeper dive into the [async tasks programming model](../programming-models/tasks/overview.md):
 
 [![image](../assets/images/channel9_tasks.png)](https://channel9.msdn.com/Shows/On-NET/Reliable-Async-Systems-with-Coyote-Part-1)
 

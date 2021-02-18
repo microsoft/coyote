@@ -8,7 +8,7 @@ enterprise scale service bus, which limits our ability to fully test the state m
 
 Clearly a fault-tolerant server consensus protocol needs to be thoroughly tested, which is what you
 will do in this tutorial. First you will `mock` the Azure Service Bus which allows the [Coyote
-tester](../tools/testing.md) to perform thousands of tests per second and thereby find bugs
+tester](../../tools/testing.md) to perform thousands of tests per second and thereby find bugs
 in the application code more efficiently.
 
 Then you will use the `coyote test` tool to explore the code using different test strategies until
@@ -19,9 +19,9 @@ you achieve a high level of confidence that the code is rock solid.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
 
 ## Build the samples
 
@@ -103,11 +103,11 @@ every possible interleaving of asynchronous operations. This systematic approach
 doesn't just test the same happy paths over and over (like a stress test does) but instead it is
 more likely to find one bad path where a bug is hiding.
 
-The `--coverage` report also generates a [DGML diagram](../tools/dgml.md) of all the
+The `--coverage` report also generates a [DGML diagram](../../tools/dgml.md) of all the
 messages sent during the test. You can browse these graphs using Visual Studio. The file name in
 this case is `Raft.Mocking.dgml` and it will look something like this:
 
-![RaftMockCoverage](../assets/images/RaftMockCoverage.svg)
+![RaftMockCoverage](../../assets/images/RaftMockCoverage.svg)
 
 Here you see all the `Actor` objects in green, and `Monitor` in blue and `StateMachine` and
 `ExternalCode` objects in gray. You can see that all the states were explored in the `Server`,
@@ -183,7 +183,7 @@ in the [Raft actor service (on Azure)](raft-azure.md) tutorial.  You should now 
 cool**. You have switched the `Server` from running on Azure to running locally with a bunch of
 mocks and didn't have to change one line of `Server` code.
 
- ![RaftMocking](../assets/images/RaftMocking.svg)
+ ![RaftMocking](../../assets/images/RaftMocking.svg)
 
 For this test we also inject a `SafetyMonitor` into the process by simply registering it on the
 runtime like this:

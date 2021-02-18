@@ -38,4 +38,4 @@ to be sure an actor is fully terminated before creating it's replacement actor, 
 create a handshake callback event sent from `OnHaltAsync` telling the caller that the actor has
 officially halted, otherwise there will be a brief period of time where both actors are alive which
 may not be what you want when modeling a failover situation.  This is shown in the [Coffee machine
-failover](../../tutorials/failover-coffee-machine-actors.md) tutorial.
+failover](../../tutorials/actors/failover-coffee-machine.md) tutorial.

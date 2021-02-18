@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Tasks
     /// with other asynchronous operations to find bugs.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/programming-models/async/overview">Programming model: asynchronous tasks</see> for more information.
+    /// See <see href="/coyote/programming-models/tasks/overview">Programming model: asynchronous tasks</see> for more information.
     /// </remarks>
     [AsyncMethodBuilder(typeof(AsyncTaskMethodBuilder))]
     public class Task : IDisposable

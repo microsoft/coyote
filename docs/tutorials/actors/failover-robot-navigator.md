@@ -9,12 +9,12 @@ networks requiring near-continuous availability and a high degree of reliability
 
 This sample implements a failover scenario in a system where **an instance of a service is
 terminated and replaced by a new one**, unlike the [Failover Coffee Machine
-sample](../failover-coffee-machine-actors), which is about applying the
+sample](../../failover-coffee-machine), which is about applying the
 failover concept to the firmware of an automated espresso machine.
 
 In this scenario there is a `Robot` that must serve drinks to people in a room:
 
-![image](../assets/images/DrinksServingRobot.jpg)
+![image](../../assets/images/DrinksServingRobot.jpg)
 
  1. Before starting to serve the next client the `Robot` is always at an `InitialLocation` in the
     room.
@@ -46,7 +46,7 @@ lost, and the `Robot` will not stop doing its job.
 The following diagram depicts the Failover workflow in this sample:
 
 
-![DSR-Failover](../assets/images/DSR-Failover.svg)
+![DSR-Failover](../../assets/images/DSR-Failover.svg)
 
 Do note:
  1. This is a general diagram that can be used not only in this scenario, but for any other
@@ -62,7 +62,7 @@ Do note:
     needed to restart the newly-created instance without loss of state.
 
 The `Robot` and the `Navigator` are modeled as  [state
-machines](../programming-models/actors/state-machines.md) and they are started by another state machine
+machines](../../programming-models/actors/state-machines.md) and they are started by another state machine
 called `FailoverDriver`.
 
 The FailoverDriver lets the first `Navigator` instance run for a bit then it randomly kills it by
@@ -77,7 +77,7 @@ Navigator can restart successfully, but we are also testing that the Robot is al
 that failover condition.  The following diagram shows the overall plan where Navigator2 is able
 to complete the request started by Navigator1:
 
-![dsr-plan](../assets/images/DSR-Plan.svg)
+![dsr-plan](../../assets/images/DSR-Plan.svg)
 
 The `MockStorage` is an `Actor` that provides simple key-value storage for persisting data and its
 instance lives across all instances of the `Navigator`. MockStorage makes `Navigator` failover
@@ -99,9 +99,9 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 
 There is a `LivenessMonitor` that monitors the execution of the system to make sure it never gets
 stuck, i.e., the `Robot` always gets a valid response to any of its requests from the `Navigator`
-and serves the selected client. See [Liveness Checking](../core/liveness-checking.md).
+and serves the selected client. See [Liveness Checking](../../core/liveness-checking.md).
 
-A number of excellent bugs were found by [coyote test](../tools/testing.md) during the development of
+A number of excellent bugs were found by [coyote test](../../tools/testing.md) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to find bugs quickly, even in
 the design stage, before coding and pushing to production.
 
@@ -110,9 +110,9 @@ the design stage, before coding and pushing to production.
 To run the `DrinksServingRobotActors` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
 
 ## Build the samples
 
@@ -417,7 +417,7 @@ failover process.
 
 ### The Liveness monitor
 
-The `LivenessMonitor` (See [Liveness Checking](../core/liveness-checking.md)) monitors the `Robot` and
+The `LivenessMonitor` (See [Liveness Checking](../../core/liveness-checking.md)) monitors the `Robot` and
  the `Navigator` to make sure the `Robot` always finishes the job, by serving a `Drink`.
 
 This "liveness" property can be enforced using a very simple `LivenessMonitor` as shown below:

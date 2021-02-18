@@ -37,9 +37,9 @@ dotnet add <yourproject>.csproj package Microsoft.Coyote
 dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
 ```
 
-### Installing the .NET Core 5.0 coyote tool
+### Installing the .NET 5.0 coyote tool
 
-You can also install the `dotnet tool` named `coyote` for .NET Core 5.0 using the following command:
+You can also install the `dotnet tool` named `coyote` for .NET 5.0 using the following command:
 
 ```plain
 dotnet tool install --global Microsoft.Coyote.CLI

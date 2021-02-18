@@ -8,21 +8,21 @@ component, or network. Systems designers usually provide failover capability in 
 networks requiring near-continuous availability and a high degree of reliability."
 
 This sample applies the failover concept to the firmware of an automated espresso machine using the
-Coyote [asynchronous actors](../programming-models/actors/overview.md) programming model. Imagine what
+Coyote [asynchronous actors](../../programming-models/actors/overview.md) programming model. Imagine what
 would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
 bad things might happen? Can we design a state machine that can handle this scenario and provide a
 more fault tolerant coffee machine?
 
 An identical version of this tutorial is available that uses the coyote [asynchronous
-tasks](failover-coffee-machine-tasks.md) programming model.
+tasks](failover-coffee-machine.md) programming model.
 
 The following diagram shows how Coyote can be used to test this scenario and help you design more
 reliable software.
 
-![FailoverCoffeeMachine](../assets/images/FailoverCoffeeMachine.svg)
+![FailoverCoffeeMachine](../../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as an asynchronous [state
-machine](../programming-models/actors/state-machines.md). This example is not providing real firmware,
+machine](../../programming-models/actors/state-machines.md). This example is not providing real firmware,
 instead it `mocks` the hardware sensor platform built into the machine. This is done in
 `MockSensors.cs` where you will find three actors that model various hardware components:
 `MockDoorSensor`, `MockWaterTank` and `MockCoffeeGrinder`. This actor provides async ways of reading
@@ -53,9 +53,9 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of
 espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make
 sure it never gets stuck, i.e., it always finishes the job it was given or it goes to an error state
-if the machine needs to be fixed. See [Liveness Checking](../core/liveness-checking.md).
+if the machine needs to be fixed. See [Liveness Checking](../../core/liveness-checking.md).
 
-A number of excellent bugs were found by [coyote test](../tools/testing.md) during the development of
+A number of excellent bugs were found by [coyote test](../../tools/testing.md) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to any type of asynchronous
 software, not just cloud services. There is still one bug remaining in the code which you can find
 using `coyote test`, and it happens after failover just to prove the usefulness of this testing
@@ -66,9 +66,9 @@ methodology.
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
 
 ## Build the samples
 
@@ -92,12 +92,12 @@ There are many different types of coffee machines. This example is based on the 
 which can automatically heat water, grind beans, and make an espresso shot all with the press of a
 button:
 
-![image](../assets/images/GaggiaEspresso.png)
+![image](../../assets/images/GaggiaEspresso.png)
 
 The following diagram shows the states and actions in our example implementation in the
 `CoffeeMachine` class:
 
-![image](../assets/images/CoffeeMachine.svg)
+![image](../../assets/images/CoffeeMachine.svg)
 
 When you run the executable without using `coyote test` (this is called running in `production
 mode`), you will see the following console output. Notice in the output below that the
@@ -190,7 +190,7 @@ stop with an error message saying the machine needs to be manually refilled.
 
 ### Coyote testing
 
-You can now use [coyote test](../tools/testing.md) to exercise the code and see if any bugs
+You can now use [coyote test](../../tools/testing.md) to exercise the code and see if any bugs
 can be found. From the `coyote-samples` folder:
 
 ```plain
@@ -198,7 +198,7 @@ coyote test ./bin/net5.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-pct 10 --
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
-that a test output log and [DGML diagram](../tools/dgml.md) are produced, like this:
+that a test output log and [DGML diagram](../../tools/dgml.md) are produced, like this:
 
 ```plain
 .\bin\net5.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt
@@ -258,7 +258,7 @@ using the Coyote state machine programming model together with the `coyote test`
 This raises a bigger design question, how did the coffee level become negative?  In firmware it is
 common to poll sensor readings and do something based on that. In this case we are polling a
 `PortaFilterCoffeeLevelEvent` in a tight loop while in the `GrindingBeans` state. Meanwhile the
-`MockCoffeeGrinder` class has a [timer](../programming-models/actors/timers.md) running and when
+`MockCoffeeGrinder` class has a [timer](../../programming-models/actors/timers.md) running and when
 `HandleTimer` calls `MonitorGrinder` it decreases the coffee level by 10 percent during every time
 interval. So we have an asynchronous operation going on here. Coffee level is decreasing based on a
 timer, and the `CoffeeMachine` is monitoring that coffee level using async events. This all seems
@@ -285,7 +285,7 @@ hangs for a long time? This is the kind of thread scheduling that `coyote test` 
 machine can run way ahead of another.
 
 You need to take this into account when using this kind of [timer based async
-events](../programming-models/actors/timers.md). One way to improve the design in a firmware based
+events](../../programming-models/actors/timers.md). One way to improve the design in a firmware based
 system like a coffee machine is to switch from a polling based system to an interrupt based system
 where the `MockCoffeeGrinder` can send important events to the `CoffeeMachine`. This style of interrupt
 based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `WaterEmptyEvent` and
@@ -324,12 +324,12 @@ they are all terminated and the bug is reported. This can be useful when you wan
 full power of your computer to find those bugs that are particularly hard to find more quickly.
 
 You can find out how much testing was actually done during this parallel test operation by adding
-`--coverage activity`. The [coverage report](../tools/coverage.md) summarizes how many of the possible
+`--coverage activity`. The [coverage report](../../tools/coverage.md) summarizes how many of the possible
 events were covered.
 
 ### Liveness monitor
 
-As described in the documentation on [Liveness Checking](../core/liveness-checking.md) the
+As described in the documentation on [Liveness Checking](../../core/liveness-checking.md) the
 `CoffeeMachine` must also eventually `finish` what it is doing. It must either make a coffee when
 requested and return to the `Ready` state, or it must find a problem and go to the `Error` state or
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple

@@ -21,7 +21,7 @@ load-balancing, etc.
 
 Coyote embodies its ideas in programming models such as
 [actors](overview.md) and
-[tasks](../async/overview.md). Each of these only have in-memory
+[tasks](../tasks/overview.md). Each of these only have in-memory
 representations. Think of them in the same way as C# Tasks: they're just programming constructs.
 
 Coyote is complimentary to these other frameworks. Some Azure teams, for instance, use Service
@@ -33,7 +33,7 @@ and Service Fabric provides all the hosting capabilities.
 
 Coyote has minimal dependencies, so it should be easy to integrate.  There is also a tutorial on
 how to use Coyote Actors to implement a [Raft server
-cluster](../../tutorials/raft-azure.md) on top of Azure Service Bus.
+cluster](../../tutorials/actors/raft-azure.md) on top of Azure Service Bus.
 
 ## What scenarios to use Coyote as opposed to other systems?
 

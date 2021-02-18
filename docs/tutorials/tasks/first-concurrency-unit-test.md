@@ -294,7 +294,7 @@ you can invoke the `coyote test` tool which [systematically explores](../../core
 task interleavings to uncover bug. If a bug is uncovered, Coyote allows you to deterministically
 reproduce it every single time.
 
-Let's now run our test, without changing a single line of code, under the control of Coyote. First use
+Let's now run our test under the control of Coyote, _without changing a single line of code_. First use
 Coyote to rewrite the assembly:
 ```plain
 coyote rewrite .\AccountManager.dll

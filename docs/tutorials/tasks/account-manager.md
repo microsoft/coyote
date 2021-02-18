@@ -18,17 +18,8 @@ To run the `AccountManager` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 - Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
-
-## Build the samples
-
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
 
 ## Walkthrough
 
@@ -120,7 +111,10 @@ public class AccountManager
 ```
 
 Does the above implementation look reasonable to you? Can you find any bugs? And how can you
-convince yourself of the absence of any bugs in the above program? Let's write a unit test to test this code. In production, `IDbCollection` is implemented using a distributed NoSQL database. To keep things simple during testing, we can just replace it with a mock. The following code shows such a mock implementation:
+convince yourself of the absence of any bugs in the above program? Let's write a unit test to test
+this code. In production, `IDbCollection` is implemented using a distributed NoSQL database. To keep
+things simple during testing, we can just replace it with a mock. The following code shows such a
+mock implementation:
 ```c#
 public class InMemoryDbCollection : IDbCollection
 {
@@ -206,7 +200,8 @@ public static async Task TestAccountCreation()
 }
 ```
 
-The above unit test clearly tests that the same account cannot be created twice. Try run it and you
+The above unit test clearly tests that the same account cannot be created twice. Try run it (check
+below for instructions on how to build and run this tutorial from our samples repository) and you
 will see that it always passes. But is the behavior still true if two requests happen
 _concurrently_? How can we test this? What if we spawn two tasks to create the account,
 concurrently? And then assert that only one creation succeeds, while the other always fails? Hmm -
@@ -243,6 +238,7 @@ Try run this concurrent test. The assertion will _most likely_ fail. The reason 
 instead of a guaranteed failure is that there are some task interleavings where it passes, and
 others where it fails with the following exception:
 ```plain
+.\AccountManager.exe -c
 Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
 ...
 ```
@@ -301,7 +297,7 @@ reproduce it every single time.
 
 Let's now run our test, without changing a single line of code, under the control of Coyote. First use
 Coyote to rewrite the assembly:
-```none
+```plain
 coyote rewrite .\AccountManager.dll
 . Rewriting AccountManager.dll
 ... Rewriting the 'AccountManager.dll' assembly
@@ -310,7 +306,7 @@ coyote rewrite .\AccountManager.dll
 ```
 
 Awesome, now lets try use Coyote on the above concurrent test:
-```none
+```plain
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
 
@@ -320,7 +316,7 @@ read more about other Coyote tool options [here](../tools/testing.md).
 
 Let's see if Coyote finds the bug now that the concurrent program execution is under its control.
 Indeed after just 4 iterations and 0.22 seconds:
-```none
+```plain
 . Testing .\AccountManager.dll
 ... Method TestConcurrentAccountCreation
 ... Started the testing task scheduler (process:61212).
@@ -346,7 +342,7 @@ Indeed after just 4 iterations and 0.22 seconds:
 
 Cool, we found the bug! Let's see now how Coyote can help us reproduce it. You can simple run
 `coyote replay` giving the `.schedule` file that Coyote dumps upon finding a bug:
-```none
+```plain
 coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
 . Replaying .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.schedule
 ... Task 0 is using 'replay' strategy.
@@ -368,3 +364,30 @@ in a much more complex codebase. Such bugs have very low probability of being ca
 time, if you don't use a tool like Coyote to systematically explore the interleavings. In the
 absence of such tools, these bugs can go undetected and occur sporadically in production, making
 them difficult to diagnose and debug. And who wants to stay awake at night debugging a live site!
+
+## Get the sample source code
+
+To get the source code for the above tutorial, clone the
+[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+
+Build the sample by running the following command:
+
+```plain
+powershell -f build.ps1
+```
+
+You can now run it like this:
+```plain
+cd .\bin\net5.0
+.\AccountManager.exe
+```
+
+We have added some command line arguments to make it easy select which test to run:
+```
+Usage: AccountManager [option]
+Options:
+  -s    Run sequential test without Coyote
+  -c    Run concurrent test without Coyote
+```
+
+Enjoy!

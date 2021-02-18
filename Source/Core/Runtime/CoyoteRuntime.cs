@@ -1321,6 +1321,9 @@ namespace Microsoft.Coyote.Runtime
                     ece.GetType().Name, op.Name);
                 if (this.Scheduler.IsAttached)
                 {
+                    // TODO: add some tests for this, so that we check that a task (or lock) that
+                    // was cached and reused from prior iteration indeed cannot cause the runtime
+                    // to hang anymore.
                     message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");
                 }
             }

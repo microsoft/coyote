@@ -1,19 +1,20 @@
-## Helping Coyote cover fine-grained interleavings
+## Improving coverage of fine-grained interleavings
 
-This page covers an advanaced topic of programmtically controlling the interleavings that Coyote
+This page covers an advanced topic of programmatically controlling the interleavings that Coyote
 covers during testing. Typically, this should not be needed: the "Controlled" APIs provided by
 Coyote cover a lot of scenarios already. However, if you find yourself working with code that may
 potentially have data races, or you are modeling other forms of synchronization not covered by
 Coyote already, then you might have to help out the tester a bit more.
 
-During [systematic testing](../../concepts/concurrency-unit-testing.md), Coyote serializes the concurrent
-execution of a program. Serialization means that only one task is running at any given time. This
-helps remove the randomness that happens when the operating system schedules parallel tasks and
-performs thread switching at unpredictable moments depending on your machine load. It also makes
-executions reproducible because Coyote controls the scheduling. This is super useful for debugging.
-Coyote, however, does not cover all possible interleavings by default. The interleavings are
-complete (i.e., all possible behaviors can be covered by testing, given enough time) for race-free
-programs. For programs with racy accesses, you have to help Coyote find more interleavings.
+During [systematic testing](../concepts/concurrency-unit-testing.md), Coyote serializes the
+concurrent execution of a program. Serialization means that only one task is running at any given
+time. This helps remove the randomness that happens when the operating system schedules parallel
+tasks and performs thread switching at unpredictable moments depending on your machine load. It also
+makes executions reproducible because Coyote controls the scheduling. This is super useful for
+debugging. Coyote, however, does not cover all possible interleavings by default. The interleavings
+are complete (i.e., all possible behaviors can be covered by testing, given enough time) for
+race-free programs. For programs with racy accesses, you have to help Coyote find more
+interleavings.
 
 Consider the following code:
 

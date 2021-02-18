@@ -62,11 +62,8 @@ nav:
   - Binary rewriting for systematic testing: concepts/binary-rewriting.md
   - Program specifications: concepts/specifications.md
   - Effective liveness checking: concepts/liveness-checking.md
-  - Logging: concepts/logging.md
 - Advanced topics:
-  - Asynchronous tasks:
-    - Overview: advanced-topics/tasks/overview.md
-    - Improving coverage of fine-grained interleavings: advanced-topics/tasks/interleavings.md
+  - Improving coverage of interleavings: advanced-topics/interleavings.md
   - Actors and state machines:
     - Overview: advanced-topics/actors/overview.md
     - State machines: advanced-topics/actors/state-machines.md
@@ -76,6 +73,7 @@ nav:
     - Event groups: advanced-topics/actors/event-groups.md
     - Semantics of unhandled exceptions: advanced-topics/actors/uncaught-exceptions.md
     - Sharing objects: advanced-topics/actors/sharing-objects.md
+    - Logging: advanced-topics/actors/logging.md
     - State machine demo: advanced-topics/actors/state-machine-demo.md
     - Why Coyote actors?: advanced-topics/actors/why-actors.md
 - Tutorials and samples:

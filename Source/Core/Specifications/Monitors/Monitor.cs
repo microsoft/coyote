@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Specifications
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
         /// </remarks>
         protected ILogger Logger => this.LogWriter.Logger;
 

@@ -46,7 +46,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 
 ## Remarks
 
-See [Logging](/coyote/concepts/logging) for more information.
+See [Logging](/coyote/advanced-topics/actors/logging) for more information.
 
 ## See Also
 

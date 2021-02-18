@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Runtime
         /// Get or set the  <see cref="ILogger"/> used to log messages.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
         /// </remarks>
         ILogger Logger { get; set; }
 

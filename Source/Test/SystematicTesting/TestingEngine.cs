@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The installed logger.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
         /// </remarks>
         private ILogger InstalledLogger;
 
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Get or set the <see cref="ILogger"/> used to log messages during testing.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
         /// </remarks>
         public ILogger Logger
         {

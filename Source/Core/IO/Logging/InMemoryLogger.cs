@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.IO
     /// The buffered text can be extracted using the ToString() method.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
+    /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
     /// </remarks>
     public sealed class InMemoryLogger : TextWriter, ILogger
     {

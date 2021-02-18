@@ -1,15 +1,10 @@
 # Welcome to Coyote
 
 Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
+
 Too often developers are drowning in the complexity of their own code and many hours are wasted
 trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or
 various other sources of _non-determinism_ (like message ordering, failures, timeouts and so on).
-
-Coyote provides programming models to express concurrent systems. These programming models offer
-convenient ways to program at a high-level of abstraction. As mentioned below, Coyote currently
-supports two programming models: the familiar tasks-based programming model as well as a more
-advanced actor-based programming model. These programming models are built using asynchronous
-APIs, supported by a lightweight runtime, making it easy to program efficient non-blocking code.
 
 <div class="embed-responsive embed-responsive-16by9">
     <video id="shortintro" class="embed-responsive-item" controls poster="assets/images/ShortIntro.png">
@@ -73,6 +68,12 @@ Coyote does not require that a team starts from scratch and rebuild their system
 expensive to start over. Instead Coyote can be adopted gradually, adding more and more structure
 around your _Coyote-aware_ code. The more of this structure you add the more benefit you get from
 Coyote, but it is certainly not an all or nothing proposition.
+
+For advanced users, Coyote also provides a powerful in-memory actor and state machine programming
+model that allows you to build reliable concurrent systems. This programming models offers
+convenient ways to program at a high-level of abstraction. Coyote actors are built using
+asynchronous C# APIs, supported by a lightweight runtime, making it easy to program efficient
+non-blocking code.
 
 So Coyote brings together elements of design, development and testing into an integrated package
 that works really well in the real world. See our [case

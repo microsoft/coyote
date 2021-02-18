@@ -238,7 +238,6 @@ Try run this concurrent test. The assertion will _most likely_ fail. The reason 
 instead of a guaranteed failure is that there are some task interleavings where it passes, and
 others where it fails with the following exception:
 ```plain
-.\AccountManager.exe -c
 Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
 ...
 ```

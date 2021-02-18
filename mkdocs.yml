@@ -84,7 +84,7 @@ nav:
     - Why Coyote actors?: programming-models/actors/why-actors.md
 - Tutorials and samples:
   - Asynchronous tasks:
-    - Account manager: tutorials/tasks/account-manager.md
+    - Write your first concurrent unit test: tutorials/tasks/first-concurrent-unit-test.md
     - Deadlock in bounded-buffer: tutorials/tasks/bounded-buffer.md
     - Coffee machine failover: tutorials/tasks/failover-coffee-machine.md
     - ASP.NET Core image gallery: tutorials/tasks/image-gallery-aspnet.md

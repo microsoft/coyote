@@ -12,10 +12,10 @@ Coyote and you can run the web front end using the Azure storage emulators.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
-- Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote rewrite` tool. See [Rewriting](../../tools/rewriting.md).
 
 If you want to actually run the sample (rather than just running the unit tests) then you will also
 need the following:
@@ -174,7 +174,7 @@ testing concurrent code, right?
 ## Coyote is here to help
 
 You can learn more about the systematic testing capabilities of Coyote
-[here](../tools/testing.md), but lets give a brief summary here
+[here](../../tools/testing.md), but lets give a brief summary here
 to get quickly in action.
 
 Coyote serializes the execution of a concurrent program (i.e., only executes a single task at at
@@ -200,7 +200,7 @@ coyote rewrite rewrite.coyote.json
 dotnet test bin/coyote/ImageGalleryTests.Coyote.dll
 ```
 
-This will [rewrite](../tools/rewriting.md) the tests, and then run the tests inside the
+This will [rewrite](../../tools/rewriting.md) the tests, and then run the tests inside the
 Coyote testing engine, up to 1000 iterations each, and report any found bugs. The bug should be
 found most of the time after just a few iterations (as they are not too deep).
 

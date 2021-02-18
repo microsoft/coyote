@@ -3,16 +3,16 @@
 
 [HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
 started using the Coyote [actors programming
-model](../programming-models/actors/overview.md).
+model](../../programming-models/actors/overview.md).
 
 ## What you will need
 
 To run the Hello World Actors  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
 
 ## Build the samples
 
@@ -56,7 +56,7 @@ Too many greetings returned!
 
 ## Finding the bug using Coyote test tool
 
-See [Using Coyote](../get-started/using-coyote.md) for information on how to
+See [Using Coyote](../../get-started/using-coyote.md) for information on how to
 find the `coyote` test tool and setup your environment to use it.
 
 Enter the following from the command line:
@@ -96,12 +96,12 @@ huge! This will give you the ability to find and fix even the most difficult to 
 concurrency bugs **before pushing to production**.
 
 To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing
-bugs](../tools/testing.md).
+bugs](../../tools/testing.md).
 
 ## The Greeter
 
 Please read [Programming model: asynchronous
-actors](../programming-models/actors/overview.md) to gain a basic understanding of the
+actors](../../programming-models/actors/overview.md) to gain a basic understanding of the
 Actors programming model.
 
 The core of an `Actor` based Coyote program, is, well, an `Actor` class! The following `Actor` named
@@ -252,7 +252,7 @@ A special coyote `TestingEngine` was created, it invoked the `Execute` method 30
 those executions the test engine took over all concurrent activity and the non-determinism (like
 `RandomInteger`) to ensure the program covered lots of async non-deterministic choices, and recorded
 all this in a way that when a bug was found, it is able to reproduce that bug.  See also [Using
-Coyote](../get-started/using-coyote.md) for information on how to replay a test that found a bug
+Coyote](../../get-started/using-coyote.md) for information on how to replay a test that found a bug
 using `coyote replay`.
 
 ## Summary

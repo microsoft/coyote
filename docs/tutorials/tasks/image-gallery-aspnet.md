@@ -12,7 +12,7 @@ Coyote and you can run the web front end using the Azure storage emulators.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 - Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
@@ -167,8 +167,9 @@ Total tests: 2
  Total time: 1.2053 Seconds
 ```
 
-And even if you do get them to fail, if you try to debug them, the bugs may or may not
-manifest (as they are Heizenbugs). We surely want some better way of testing concurrent code, right?
+And even if you do get them to fail, if you try to debug them, the bugs may or may not manifest (as
+they are [Heizenbugs](https://en.wikipedia.org/wiki/Heisenbug)). We surely want some better way of
+testing concurrent code, right?
 
 ## Coyote is here to help
 

@@ -10,7 +10,7 @@ article](https://cloudblogs.microsoft.com/opensource/2020/07/14/extreme-programm
 To run the `BoundedBuffer` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 

@@ -10,7 +10,7 @@ model](../programming-models/tasks/overview.md) with Coyote.
 To run the Hello World Tasks  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 

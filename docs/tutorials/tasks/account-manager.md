@@ -1,18 +1,26 @@
-## Bounded Buffer Example
+## Write your first concurrency unit test with Coyote
 
-Concurrent programming can be tricky. This tutorial shows a classic example of a deadlock and how Coyote can help you
-find and understand that deadlock. More details about this program and how Coyote can find this deadlock is found in
-this [blog
-article](https://cloudblogs.microsoft.com/opensource/2020/07/14/extreme-programming-meets-systematic-testing-using-coyote/).
+Modern software systems are inherently concurrent in nature as they perform many different
+activities at the same time, across different threads, processes and machines. Concurrency is
+notoriously hard to test, and concurrent bugs can be hard to reproduce and understand. Coyote is a
+very effective tool in taming this complexity. By giving you the ability to easily test for
+concurrency bugs, Coyote helps you build more reliable applications and services.
+
+In this tutorial, we will write a simple `AccountManager` class to create, get and delete _account_
+records in a backend NoSQL database. We'll design our class to be used in a concurrent setting,
+where methods in multiple instances of the class can be called concurrently, either within the same
+process or across processes and machines. This latter condition means that using locks will not help
+us in writing correct concurrent code.
 
 ## What you will need
 
-To run the `BoundedBuffer` example, you will need to:
+To run the `AccountManager` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
 
 ## Build the samples
 
@@ -22,99 +30,27 @@ Build the `coyote-samples` repo by running the following command:
 powershell -f build.ps1
 ```
 
-## Run the failover coffee machine application
+## Walkthrough
 
-Now you can run the `BoundedBuffer` application in a mode that should trigger the deadlock most of the time:
-
-```plain
-./bin/net5.0/BoundedBuffer.exe -m
-```
-
-And you can run it with a fix for the deadlock as follows:
-
-```plain
-./bin/net5.0/BoundedBuffer.exe -f
-```
-
-### Can you find the deadlock bug in BoundedBuffer class?
-
-The BoundedBuffer is a producer consumer queue where the `Take` method blocks if the buffer is empty and the `Put`
-method blocks if the buffer has reached it's maximum allowed capacity and while the code looks correct it contains a
-nasty deadlock bug.
-
-Writing concurrent code is tricky and with the popular `async/await` feature in the C# Programming Language it is now
-extremely easy to write concurrent code.
-
-But how do we test concurrency in our code? Testing tools and frameworks have not kept up with the pace of language
-innovation and so this is where `Coyote` comes to the rescue. When you use Coyote to test your programs you will find
-concurrency bugs that are very hard to find any other way.
-
-Coyote rewrites your `async tasks` in a way that allows the [coyote test](../tools/testing.md) tool to control all the
-concurrency and locking in your program and this allows it to find bugs using intelligent [systematic
-testing](../core/systematic-testing.md).
-
-For example, if you take the `BoundedBuffer.dll` from the above sample you can do the following:
-
-```
-coyote rewrite BoundedBuffer.dll
-coyote test BoundedBuffer.dll -m TestBoundedBufferMinimalDeadlock --iterations 100
-```
-
-This will report a deadlock error because Coyote has deadlock detection during testing. You will get a log file
-explaining all this, and more importantly you will also get a trace file that can be used to replay the bug in your
-debugger in a way that is 100% reproducable.
-
-Concurrency bugs tend to be the kind of bugs that keep people up late at night pulling their hair out because they are
-often not easily reproduced in any sort of predictable manner.
-
-Coyote solves this problem giving you an environment where concurrency bugs can be systematically found and reliably
-reproduced in a debugger -- allowing developers to fully understand them and fix the core problem.
-
-
-
-
-
-
-
-
-
-
-## Bounded Buffer Example
-
-Welcome to the Coyote learning series.
-
-Coyote is a very effective tool to test your applications and services for concurrency bugs. Modern services and applications are inherently concurrent in nature as they perform many different activities at the same time, across different threads, processes and machines.
-
-Concurrency is notoriously is hard to test, and concurrency induced bugs are hard to reproduce and understand. Coyote is a very effective tool in taming this complexity and building reliable applications.
-
-We'll introduce Coyote through a series of examples, each one building on top of another. By the end of the learning series, you should be comfortable and familiar with the tools and techniques on how to apply Coyote in your projects.
-
-Let's begin the exercise through a simple example where we write a simple class to create, get and delete "user account" records in a backend NoSQL database. We'll design our class to be used in a concurrent setting, where methods in multiple instances of our class can be called concurrently, either within the same process or across processes and machines. This latter condition means that using locks will not help us in writing correct concurrent code.
-
-Without further ado, let's look at the signature of the class we've to implement.
-
-```csharp
-
-public class UserAccountManager
+Without further ado, let's look at the signature of the `AccountManager` class:
+```c#
+public class AccountManager
 {
-  private IDbCollection userCollection;
+  private IDbCollection AccountCollection;
 
-  // returns true if user is created, false otherwise
-  public async Task<bool> CreateUser(string userName, string userPayload) { ... }
+  // Returns true if the account is created, else false.
+  public async Task<bool> CreateAccount(string accountName, string accountPayload) { ... }
 
-  // returns the userPayload, null otherwise
-  public async Task<string> GetUser(string userName) { ... }
+  // Returns the accountPayload, else null.
+  public async Task<string> GetAccount(string accountName) { ... }
 
-  // return true if user is deleted, false otherwise
-  public async Task<bool> DeleteUser(string userName) { ... }
+  // Returns true if the account is deleted, else false.
+  public async Task<bool> DeleteAccount(string accountName) { ... }
 }
-
 ```
 
-Here are the methods available available in IDbColleciton
-
-```csharp
-
+Here are the methods available available in the `IDbCollection` interface:
+```c#
 public interface IDbCollection
 {
   Task CreateRow(string key, string value);
@@ -125,181 +61,310 @@ public interface IDbCollection
 
   Task DeleteRow(string key);
 }
-
 ```
 
-The `CreateRow` method creates the row with the given key, unless it already exists in which case it returns the `RowAlreadyExists` exception. The `GetRow` method returns the content of the given key and throws `RowNotFound` exception if it doesn't exist. Similarly, the `DeleteRow` method deletes the row if it exists and throws  `RowNotFound` exception if it doesn't exist.
+The `CreateRow` method creates the row with the given key, unless it already exists in which case it
+returns the `RowAlreadyExistsException` exception. The `DoesRowExist` method returns `true` if the
+row exists, otherwise it returns `false`. The `GetRow` method returns the content of the given key
+and throws `RowNotFoundException` exception if it doesn't exist. Finally, the `DeleteRow` method
+deletes the row if it exists and throws `RowNotFoundException` exception if it doesn't exist.
 
-Before reading on, we encourage you to open your editor and attempt to write out the code. You can check out the [github repo](https://github.com) and fill out the methods above.
+Before reading on, we encourage you to open your editor and attempt to write out the code.
 
-Here's one attempt to write out the methods.
-
-```csharp
-
-public class UserAccountManager
+Here's one attempt to implement the `AccountManager` methods:
+```c#
+public class AccountManager
 {
-  private IDbCollection userCollection;
+  private readonly IDbCollection AccountCollection;
 
-  // returns true if user is created, false otherwise
-  public async Task<bool> CreateUser(string userName, string userPayload)
+  public AccountManager(IDbCollection dbCollection)
   {
-    if (await userCollection.DoesRowExist(userName))
+    this.AccountCollection = dbCollection;
+  }
+
+  // Returns true if the account is created, else false.
+  public async Task<bool> CreateAccount(string accountName, string accountPayload)
+  {
+    if (await this.AccountCollection.DoesRowExist(accountName))
     {
       return false;
     }
 
-
-    await userCollection.CreateRow(userName, userPayload);
+    await this.AccountCollection.CreateRow(accountName, accountPayload);
     return true;
   }
 
-  // returns the userPayload, null otherwise
-  public async Task<string> GetUser(string userName)
+  // Returns the accountPayload, else null.
+  public async Task<string> GetAccount(string accountName)
   {
-     if (!await userCollection.DoesRowExist(userName))
-     {
-       return null;
-     }
+    if (!await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return null;
+    }
 
-     return userCollection.GetRow(userName);
+    return await this.AccountCollection.GetRow(accountName);
   }
 
-  // return true if user is deleted, false otherwise
-  public async Task<bool> DeleteUser(string userName)
+  // Returns true if the account is deleted, else false.
+  public async Task<bool> DeleteAccount(string accountName)
   {
-     if (!await userCollection.DoesRowExist(userName))
-     {
-       return false;
-     }
+    if (!await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return false;
+    }
 
-     return userCollection.DeleteRow(userName);
+    await this.AccountCollection.DeleteRow(accountName);
+    return true;
   }
 }
 ```
 
-Does the above implementation look reasonable to you? Can you find any bugs in the above? And how can you convince yourselves of the absence of any bugs in the above program?
-
-We typically write unit or integration tests to test our software. The repo contains an in-memory implementation of IDbCollection so we can write a unit test. Let's write a test which ensures that the
-
-```csharp
-
-[Test]
-public void TestUserAccounts()
+Does the above implementation look reasonable to you? Can you find any bugs? And how can you
+convince yourself of the absence of any bugs in the above program? Let's write a unit test to test this code. In production, `IDbCollection` is implemented using a distributed NoSQL database. To keep things simple during testing, we can just replace it with a mock. The following code shows such a mock implementation:
+```c#
+public class InMemoryDbCollection : IDbCollection
 {
-  var dbCollection = new InMemoryDbCollection();
-  var userAccountManager = new UserAccountManager(dbCollection);
+  private readonly ConcurrentDictionary<string, string> Collection;
 
-  var userName = "joe";
-  var userPayload = "...";
+  public InMemoryDbCollection()
+  {
+    this.Collection = new ConcurrentDictionary<string, string>();
+  }
 
-  var result = await userAccountManager.CreateUser(userName, userPayload);
-  Assert.IsTrue(result);
+  public Task CreateRow(string key, string value)
+  {
+    return Task.Run(() =>
+    {
+      var result = this.Collection.TryAdd(key, value);
+      if (!result)
+      {
+        throw new RowAlreadyExistsException();
+      }
+    });
+  }
 
-  // create the same user again; the method should return false this time
-  result = await userAccountManager.CreateUser(userName, userPayload);
-  Assert.IsFalse(result);
+  public Task DeleteRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      var removed = this.Collection.TryRemove(key, out string value);
+      if (!removed)
+      {
+        throw new RowNotFoundException();
+      }
+    });
+  }
+
+  public Task<bool> DoesRowExist(string key)
+  {
+    return Task.Run(() =>
+    {
+      return this.Collection.ContainsKey(key);
+    });
+  }
+
+  public Task<string> GetRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      var result = this.Collection.TryGetValue(key, out string value);
+      if (!result)
+      {
+        throw new RowNotFoundException();
+      }
+      return value;
+    });
+  }
 }
-
 ```
 
-The test above clearly tests that the same user cannot be created twice. But is the behavior still true if two requests are made _concurrently_? And how can we test it?
+The `InMemoryDbCollection` mock is very simple, it just maintains an in-memory
+`ConcurrentDictionary` to store the keys and values. Each method of the mock runs a new concurrent
+task (via `Task.Run`) to make the call execute asynchronously, modeling async I/O in a real database
+call.
 
-What if we spawn two tasks to create the user, concurrently? And then assert that only one succeeds while the other always fails? Hmm - that can possibly work. Let's write this test.
-
-```csharp
-
+Now that we have written this mock, lets write a simple test:
+```c#
 [Test]
-public void TestUserAccounts()
+public static async Task TestAccountCreation()
 {
+  // Initialize the mock in-memory DB and account manager.
   var dbCollection = new InMemoryDbCollection();
-  var userAccountManager = new UserAccountManager(dbCollection);
+  var accountManager = new AccountManager(dbCollection);
 
-  var userName = "joe";
-  var userPayload = "...";
+  // Create some dummy data.
+  string accountName = "MyAccount";
+  string accountPayload = "...";
 
-  // call CreateUser twice, but do not await thus making both of them run concurrently
-  var task1 = userAccountManager.CreateUser(userName, userPayload);
-  var task2 = userAccountManager.CreateUser(userName, userPayload);
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, accountPayload);
+  Assert.True(result);
 
+  // Create the same account again. The method should return false this time.
+  result = await accountManager.CreateAccount(accountName, accountPayload);
+  Assert.False(result);
+}
+```
+
+The above unit test clearly tests that the same account cannot be created twice. Try run it and you
+will see that it always passes. But is the behavior still true if two requests happen
+_concurrently_? How can we test this? What if we spawn two tasks to create the account,
+concurrently? And then assert that only one creation succeeds, while the other always fails? Hmm -
+that can possibly work. Let's write this test.
+
+```c#
+[Test]
+public static async Task TestConcurrentAccountCreation()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  // Create some dummy data.
+  string accountName = "MyAccount";
+  string accountPayload = "...";
+
+  // Call CreateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.CreateAccount(accountName, accountPayload);
+  var task2 = accountManager.CreateAccount(accountName, accountPayload);
+
+  // Then wait both requests to complete.
   await Task.WhenAll(task1, task2);
 
-  var result1 = task1.Result;
-  var result2 = task2.Result;
-
-  // one of them must have succceded, and the other one must have failed,
-  // but we do not which one as they ran concurrently so we check for both
-  // possibilities.
-  Assert.IsTrue(
-    (result1 && !result2) ||
-    (!result2 && result1));
-
-  // alternatively, we could have asserted for an Exclusive OR of the two boolean
-  // values which tests the same thing
-  // Assert.IsTrue(result1 ^ result2);
+  // Finally, assert that only one of the two requests succeeded and the other
+  // failed. Note that we do not know which one of the two succeeded as the
+  // requests ran concurrently (this is why we use an exclusive OR).
+  Assert.True(task1.Result ^ task2.Result);
 }
-
 ```
 
-When you run this test, it will most likely fail. The reason we say most likely instead of a guaranteed failure is that there are some task interleavings where it passes, and others where it fails.
-
-```
-Unhandled exception. System.AggregateException: One or more errors occurred. (Exception of type 'UserAccountManager.RowAlreadyExists' was thrown.)
- ---> UserAccountManager.RowAlreadyExists: Exception of type 'UserAccountManager.RowAlreadyExists' was thrown.
+Try run this concurrent test. The assertion will _most likely_ fail. The reason we say most likely
+instead of a guaranteed failure is that there are some task interleavings where it passes, and
+others where it fails with the following exception:
+```plain
+Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
 ...
 ```
 
-Let's dig into why this failed.
+Let's dig into why the concurrent test failed.
 
-We starterd two concurrent `CreateUser` calls, the first one checked whether the user existed through the `DoesRowExist` call which returned false. The control passed to the second task which made a similar call to `DoesRowExist` which returned false. Both the tasks resumed believing the user to not exist and tried to add the user. One of them succeeded while the other threw an exception, indicating a bug in our implementation.
+We started two asynchronous `CreateAccount` calls, the first one checked whether the user existed
+through the `DoesRowExist` method which returned `false`. Due to the underlying concurrency, control
+passed to the second task which made a similar call to `DoesRowExist` which also returned `false`.
+Both tasks then resumed believing that the account does not exist and tried to add the account. One
+of them succeeded while the other threw an exception, indicating a bug in our implementation.
 
-So writing out this test was useful and easily exposed a bug in our implementation. But why don't we write such tests a lot more often? The reason is they are often flaky and find bugs through "sheer luck" instead of a systematic exploration of the possible interleavings. The above test hits the bug fairly frequently due to the way .NET task scheduling works (on a reasonably fast machine with light CPU load).
+So writing out this test was useful and easily exposed this race condition. But why don't we
+write such tests a lot more often? The reason is they are often flaky and find bugs through _sheer
+luck_ instead of a _systematic_ exploration of the possible interleavings. The above test hits the bug
+fairly frequently due to the way .NET task scheduling works (on a reasonably fast machine with light
+CPU load).
 
-Let's tweak the test very slightly by adding a delay of a millisecond between the two `CreateUser` calls:
-
-```csharp
-// call CreateUser twice, but do not await thus making both of them run concurrently
-var task1 = userAccountManager.CreateUser(userName, userPayload);
-await Task.Delay(1);
-var task2 = userAccountManager.CreateUser(userName, userPayload);
+Let's tweak the test very slightly by adding a delay of a millisecond between the two `CreateAccount`
+calls:
+```c#
+var task1 = accountManager.CreateAccount(accountName, accountPayload);
+await Task.Delay(1); // Artificial delay.
+var task2 = accountManager.CreateAccount(accountName, accountPayload);
 ```
 
-If you run this test, chances are it will fail exceedingly rarely. We ran this test in a loop invoking it about a hundred times and it didn't fail once.
+If you run this test, chances are it will fail exceedingly rarely. We ran this test in a loop
+invoking it about a hundred times and it didn't fail once.
 
-```
+```plain
 Iteration 0 - Passed
 Iteration 1 - Passed
 ...
 Iteration 99 - Passed
 ```
 
-The concurrency bug is still there but our small test suddenly became ineffective at catching it. This explains why developers don't write such tests as they are very sensitive to timing issues. Developers often write stress tests, where the system may be bombarded with thousands of concurrent user creation requests in the hopes that an interleaving with the bug may be hit before the code is deployed in production.
+The race condition is still there but our concurrency unit test suddenly became ineffective at
+catching it. This explains why developers don't write such tests as they are very sensitive to
+timing issues. Instead, developers often write _stress_ tests, where the system is bombarded with
+thousands of concurrent requests in the hopes that some rare interleaving would expose these kind of
+nondeterministic bugs (known as [Heizenbugs](https://en.wikipedia.org/wiki/Heisenbug)) before the
+code is deployed in production. But stress testing can be complex to setup and it doesn't always
+find the most tricky bugs. Even if it did, it might produce such long traces (or logs) that might
+make it very time consuming to debug and fix.
 
-The above is clearly not a satisfactory solution. What we need is a tool which can systematically explore the various task interleavings in test mode as opposed to leaving that to the operating system scheduler.
+The above is clearly not a satisfactory solution. What we need is a tool which can systematically
+explore the various task interleavings in test mode as opposed to leaving that to luck (i.e. the
+operating system scheduler). Coyote gives you _exactly_ this.
 
-Coyote gives us _exactly_ the above.
+To use Coyote on your task-based program is very easy in most cases. All you need to do is to invoke
+the `coyote rewrite` tool which [rewrites](../tools/rewriting.md) your assembly (for testing only)
+so that Coyote can inject logic that allows it to take control of the schedule of C# tasks. Then,
+you can invoke the `coyote test` tool which [systematically explores](../core/systematic-testing.md)
+task interleavings to uncover bug. If a bug is uncovered, Coyote allows you to deterministically
+reproduce it every single time.
 
-Let's run our test, unchanged, under the control of the Coyote's runtime. Coyote rewrites assemblies during testing to take control of task schedudling from .NET's built-in task scheduler to a custom task scheduler which can systematically explore various interleavings. Coyote also runs the test multiple number of times, exploring different interleavings across different runs.
-
-We see that the bug is caught frequently when the test is run under Coyote's control.
-
+Let's now run our test, without changing a single line of code, under the control of Coyote. First use
+Coyote to rewrite the assembly:
+```none
+coyote rewrite .\AccountManager.dll
+. Rewriting AccountManager.dll
+... Rewriting the 'AccountManager.dll' assembly
+... Writing the modified 'AccountManager.dll' assembly to AccountManager.dll
+. Done rewriting in 0.6425808 sec
 ```
+
+Awesome, now lets try use Coyote on the above concurrent test:
+```none
+coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
+```
+
+The above command tells Coyote to execute the test method `TestConcurrentAccountCreation` for 100
+iterations. Each iteration will try explore different interleavings to try unearth the bug. You can
+read more about other Coyote tool options [here](../tools/testing.md).
+
+Let's see if Coyote finds the bug now that the concurrent program execution is under its control.
+Indeed after just 4 iterations and 0.22 seconds:
+```none
+. Testing .\AccountManager.dll
+... Method TestConcurrentAccountCreation
+... Started the testing task scheduler (process:61212).
+... Created '1' testing task (process:61212).
+... Task 0 is using 'random' strategy (seed:2183365473).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
-Unhandled exception. NUnit.Framework.AssertionException:    Testing statistics:
- Found 1 bug.
- Scheduling statistics:
- Explored 9 schedules: 9 fair and 0 unfair.
- Found 11.11% buggy schedules.
- Number of scheduling points in fair terminating schedules: 18 (min), 22 (avg), 27 (max).
- Random Generator Seed:
-
-Bug Report: Unhandled exception. UserAccountManager.RowAlreadyExists: Exception of type 'UserAccountManager.RowAlreadyExists' was thrown.
-...
+..... Iteration #4
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing AccountManager_0_0.txt
+..... Writing AccountManager_0_0.schedule
+... Elapsed 0.092809 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Scheduling statistics:
+..... Explored 4 schedules: 4 fair and 0 unfair.
+..... Found 25.00% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 8 (min), 11 (avg), 14 (max).
+... Elapsed 0.2256287 sec.
 ```
 
-We are able to reliably reproduce this race condition through a race between just two calls through Coyote. This was a simple example and it's easy to imagine the many non-trivial concurrency bugs which have very low probability of being caught if a tool like Coyote doesn't systematically explore the interleavings. In the absence of such tools, these bugs go undetected and occur sporadically in production and are difficult to diagnose and debug (due to their sporadic and hard-to-reproduce nature). We are able to fairly reilably trigger such bugs through the smallest possible input (just two tasks racing with each other) as opposed to overloading the system with thousands of concurrent tasks through stress testing.
+Cool, we found the bug! Let's see now how Coyote can help us reproduce it. You can simple run
+`coyote replay` giving the `.schedule` file that Coyote dumps upon finding a bug:
+```none
+coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
+. Replaying .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.schedule
+... Task 0 is using 'replay' strategy.
+... Reproduced 1 bug (use --break to attach the debugger).
+... Elapsed 0.0671654 sec.
+```
 
-Coyote also gives us a reproducible trace file through which we can run the exact set of interleavings which lead to the bug, over and over again through the debugger, which speaking from personal experience, is extremely useful when understanding tricky bug traces discovered by Coyote.
+Nice, the bug was reproduced. You can even use the `--break` option to attach the VS debugger and
+happily debug the deterministic trace to figure out what is causing the bug. You can repeat this as
+many times as you want!
 
-Having learned the basics of Coyote, we'll test the `UserAccountManager` more thoroughly and write further tests in the next article.
+In this tutorial, we saw that we were able to use Coyote to reliably reproduce the race condition in
+`AccountManager`. We did this with a tiny test (just two `CreateAccount` calls racing with each
+other), as opposed to overloading the system with thousands of concurrent tasks through stress
+testing.
+
+This of course was a simple example, but it's easy to imagine the many non-trivial concurrency bugs
+in a much more complex codebase. Such bugs have very low probability of being caught during test
+time, if you don't use a tool like Coyote to systematically explore the interleavings. In the
+absence of such tools, these bugs can go undetected and occur sporadically in production, making
+them difficult to diagnose and debug. And who wants to stay awake at night debugging a live site!

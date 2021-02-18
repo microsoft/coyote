@@ -1,4 +1,4 @@
-# Coyote &ndash; Concurrency Unit Testing for .NET
+# Coyote &ndash; Concurrency Unit Testing
 
 Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
 

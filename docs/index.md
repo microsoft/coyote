@@ -1,4 +1,4 @@
-# Welcome to Coyote
+# Coyote &ndash; Concurrency Unit Testing for .NET
 
 Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
 
@@ -50,13 +50,14 @@ various other sources of _non-determinism_ (like message ordering, failures, tim
 
 </script>
 
-Coyote helps write powerful, expressive tests for your code. You can declare sources of
-non-determinism (such as timers, failures, etc.) as part of your tests. The Coyote testing tool can
-_systematically_ explore a large number of interleavings of concurrent operations as well as
-non-deterministic choices so that it covers a large set of behaviors in a very short time. This is
-different from _stress testing_. Coyote takes control of the concurrency so that it can manipulate
-every possible scheduling. With appropriate _mocking_, Coyote can also do this in "developer" mode
-on a single laptop with little or no dependence on the bigger production environment.
+Coyote helps write powerful, expressive tests for your code. We call these _concurrency unit tests_.
+You can declare sources of non-determinism (such as timers, failures, etc.) as part of your Coyote
+tests. The Coyote testing tool can _systematically_ explore a large number of interleavings of
+concurrent operations as well as non-deterministic choices so that it covers a large set of
+behaviors in a very short time. This is different from _stress testing_. Coyote takes control of the
+concurrency so that it can manipulate every possible scheduling. With appropriate _mocking_, Coyote
+can also do this in "developer" mode on a single laptop with little or no dependence on the bigger
+production environment.
 
 Coyote is not a verification system. It does not use theorem proving to make correctness guarantees,
 instead it uses intelligent search strategies to drive systematic testing, based on deep

@@ -352,7 +352,7 @@ namespace Microsoft.Coyote
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
-            this.IncrementalSchedulingSeed = true;
+            this.IncrementalSchedulingSeed = false;
             this.PerformFullExploration = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.

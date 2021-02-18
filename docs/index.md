@@ -82,39 +82,33 @@ studies](case-studies/azure-batch-service.md) for some great customer testimonia
 
 ## Supported programming models
 
-Coyote supports two main programming models:
+Coyote supports the following two programming models:
 
-- [Asynchronous tasks](programming-models/tasks/overview.md), which follows the popular [task-based
-  asynchronous
+- [Asynchronous tasks](programming-models/tasks/overview.md), which implements the popular
+  [task-based asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
-  This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
-  native .NET `System.Threading.Tasks.Task`. As with the native `Task`, a Coyote `Task` represents
-  an asynchronous operation that the programmer can coordinate using the `async` and `await`
-  keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). In production, a Coyote `Task`
-  executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
-  native `Task` object. During testing, however, is where the magic happens. Coyote controls the
+  This programming model is centered around the `System.Threading.Tasks.Task` .NET type, which
+  represents an asynchronous operation that the programmer can coordinate using the `async` and
+  `await` keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). To use Coyote, you do
+  not need to change a single line in your production code! During testing, you can run Coyote
+  [binary rewriting](programming-models/tasks/rewriting.md) as a post-build task to automatically
+  instrument your tests and application, taking control of `Task` objects and related concurrency
+  types from the .NET Task Parallel Library. This is where the magic happens. Coyote controls the
   execution of each Coyote `Task` so that it can explore various different interleavings to find
-  bugs. Alternatively, you can use the [binary rewriting](programming-models/tasks/rewriting.md)
-  feature of Coyote to automatically instrument your application, taking control of
-  `System.Threading.Tasks.Task` objects and related concurrency types from the Task Parallel
-  Library, without having to use Coyote's drop-in-replacement library.
+  and deterministically reproduce concurrency bugs.
 
 - [Asynchronous actors](programming-models/actors/overview.md) is an [actor-based programming
-  model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your design and
-  concurrency at a higher-level of abstraction. This programming model starts with the `Actor` type
-  that represents a long-lived, interactive asynchronous object. An actor can create new actors,
-  send events to other actors, and handle received events. This more advanced programming model is
-  ideal for cases when asynchronous tasks get too unwieldy. This programming model also provides a
-  `StateMachine` type for easy development of event-driven state-machines. A `StateMachine` is
-  simply an `Actor` with explicit `States` and event-driven state transitions.
-
-Note that you can only systematically test the above two programming models together using Coyote's
-[binary rewriting](programming-models/tasks/rewriting.md) to take control of
-`System.Threading.Tasks.Task` objects.
+  model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your system design
+  and concurrency at a higher-level of abstraction. This programming model starts with the `Actor`
+  type that represents a long-lived, interactive asynchronous object. An actor can create new
+  actors, send events to other actors, and handle received events. This more advanced programming
+  model is ideal for cases when asynchronous tasks get too unwieldy. This programming model also
+  provides a `StateMachine` type for easy development of event-driven state-machines. A
+  `StateMachine` is simply an `Actor` with explicit `States` and event-driven state transitions.
 
 ## Fearless coding for concurrent software
 
-As a result Coyote gives your team much more confidence in building mission-critical services that
+Using Coyote gives your team much more confidence in building mission-critical services that
 also push the limits on high concurrency, maximizing throughput and minimizing operational costs.
 
 With Coyote you can create highly reliable software in a way that is also highly productive.

@@ -43,11 +43,10 @@ extra:
 nav:
 - Home: index.md
 - Overview:
-  - Vision: overview/about.md
-  - Videos: overview/videos.md
   - Key benefits: overview/benefits.md
-  - Frequently asked questions: overview/faq.md
   - How does it work: overview/how.md
+  - Frequently asked questions: overview/faq.md
+  - Videos: overview/videos.md
   - Publications: overview/publications.md
 - Get started with Coyote:
   - Installing Coyote: get-started/install.md
@@ -85,14 +84,15 @@ nav:
     - Why Coyote actors?: programming-models/actors/why-actors.md
 - Tutorials and samples:
   - Asynchronous tasks:
-    - Hello world tasks: tutorials/tasks/hello-world.md
-    - Bounded Buffer Example: tutorials/tasks/bounded-buffer.md
-    - Coffee machine failover (tasks): tutorials/tasks/failover-coffee-machine.md
-    - ASP.NET Core Image Gallery: tutorials/tasks/image-gallery-aspnet.md
+    - Hello world: tutorials/tasks/hello-world.md
+    - Account manager: tutorials/tasks/account-manager.md
+    - Deadlock in bounded-buffer: tutorials/tasks/bounded-buffer.md
+    - Coffee machine failover: tutorials/tasks/failover-coffee-machine.md
+    - ASP.NET Core image gallery: tutorials/tasks/image-gallery-aspnet.md
   - Actors and state machines:
-    - Hello world actors: tutorials/actors/hello-world.md
-    - Coffee machine failover (actors): tutorials/actors/failover-coffee-machine.md
-    - Robot navigator failover (actors): tutorials/actors/failover-robot-navigator.md
+    - Hello world: tutorials/actors/hello-world.md
+    - Coffee machine failover: tutorials/actors/failover-coffee-machine.md
+    - Robot navigator failover: tutorials/actors/failover-robot-navigator.md
     - Raft actor service (on Azure): tutorials/actors/raft-azure.md
     - Raft actor service (mocked): tutorials/actors/raft-mocking.md
 - Tools:

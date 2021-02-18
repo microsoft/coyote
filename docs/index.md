@@ -110,7 +110,6 @@ Note that you can only systematically test the above two programming models toge
 [binary rewriting](programming-models/tasks/rewriting.md) to take control of
 `System.Threading.Tasks.Task` objects.
 
-
 ## Fearless coding for concurrent software
 
 As a result Coyote gives your team much more confidence in building mission-critical services that
@@ -130,13 +129,14 @@ These are some direct quotes from Azure Engineers that uses Coyote:
   * _Coyote gave developers a significant confidence boost by providing full failover and
   concurrency testing at each check-in, right on their desktops as the code was written._
 
-[Learn more about Coyote](overview/about.md)
+[Learn more about Coyote](overview/benefits.md)
 
 [Get started now, it is super easy](get-started/install.md)
 
 [Read more about how Azure is using Coyote](case-studies/azure-batch-service.md)
 
-[State machine demo](programming-models/actors/state-machine-demo/)
+[Dive into our tutorials and samples](tutorials/tasks/hello-world.md)
 
-[Code on Github](https://github.com/microsoft/coyote/)
+[Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
 
+[Contribute on Github](https://github.com/microsoft/coyote/)

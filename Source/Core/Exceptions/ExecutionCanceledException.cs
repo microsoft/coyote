@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Microsoft.Coyote
 {
@@ -12,20 +11,11 @@ namespace Microsoft.Coyote
     [DebuggerStepThrough]
     public sealed class ExecutionCanceledException : RuntimeException
     {
-        internal uint Iteration;
-        internal ulong Operationid;
-        internal int? TaskId;
-        internal string Log;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionCanceledException"/> class.
         /// </summary>
-        internal ExecutionCanceledException(uint iteration, ulong opId)
+        internal ExecutionCanceledException()
         {
-            this.Iteration = iteration;
-            this.Operationid = opId;
-            this.TaskId = Task.CurrentId;
-            this.Log = new StackTrace().ToString();
         }
     }
 }

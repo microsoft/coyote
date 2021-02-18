@@ -85,6 +85,7 @@ nav:
 - Tutorials and samples:
   - Asynchronous tasks:
     - Write your first concurrency unit test: tutorials/tasks/first-concurrency-unit-test.md
+    - Test concurrent CRUD operations: tutorials/tasks/test-concurrent-operations.md
     - Deadlock in bounded-buffer: tutorials/tasks/bounded-buffer.md
     - Coffee machine failover: tutorials/tasks/failover-coffee-machine.md
     - ASP.NET Core image gallery: tutorials/tasks/image-gallery-aspnet.md

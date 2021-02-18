@@ -24,6 +24,7 @@ To run the `AccountManager` example, you will need to:
 ## Walkthrough
 
 Without further ado, let's look at the signature of the `AccountManager` class:
+
 ```c#
 public class AccountManager
 {
@@ -40,7 +41,8 @@ public class AccountManager
 }
 ```
 
-Here are the methods available available in the `IDbCollection` interface:
+Here are the methods available in the `IDbCollection` interface:
+
 ```c#
 public interface IDbCollection
 {
@@ -62,7 +64,8 @@ deletes the row if it exists and throws `RowNotFoundException` exception if it d
 
 Before reading on, we encourage you to open your editor and attempt to write out the code.
 
-Here's one attempt to implement the `AccountManager` methods:
+Here's one attempt to implement the `AccountManager` class:
+
 ```c#
 public class AccountManager
 {
@@ -111,10 +114,12 @@ public class AccountManager
 ```
 
 Does the above implementation look reasonable to you? Can you find any bugs? And how can you
-convince yourself of the absence of any bugs in the above program? Let's write a unit test to test
-this code. In production, `IDbCollection` is implemented using a distributed NoSQL database. To keep
-things simple during testing, we can just replace it with a mock. The following code shows such a
-mock implementation:
+convince yourself of the absence of any bugs in the above program?
+
+Let's write a unit test to test the `AccountManager` code. In production, `IDbCollection` is
+implemented using a distributed NoSQL database. To keep things simple during testing, we can just
+replace it with a mock. The following code shows such a mock implementation:
+
 ```c#
 public class InMemoryDbCollection : IDbCollection
 {
@@ -178,6 +183,7 @@ task (via `Task.Run`) to make the call execute asynchronously, modeling async I/
 call.
 
 Now that we have written this mock, lets write a simple test:
+
 ```c#
 [Test]
 public static async Task TestAccountCreation()
@@ -203,9 +209,11 @@ public static async Task TestAccountCreation()
 The above unit test clearly tests that the same account cannot be created twice. Try run it (check
 below for instructions on how to build and run this tutorial from our samples repository) and you
 will see that it always passes. But is the behavior still true if two requests happen
-_concurrently_? How can we test this? What if we spawn two tasks to create the account,
-concurrently? And then assert that only one creation succeeds, while the other always fails? Hmm -
-that can possibly work. Let's write this test.
+_concurrently_? How can we test this?
+
+Hmm - what if we spawn two tasks to create the same account, concurrently? And then assert that only
+one creation succeeds, while the other always fails? That can possibly work, right? Let's write this
+test.
 
 ```c#
 [Test]
@@ -237,6 +245,7 @@ public static async Task TestConcurrentAccountCreation()
 Try run this concurrent test. The assertion will _most likely_ fail. The reason we say most likely
 instead of a guaranteed failure is that there are some task interleavings where it passes, and
 others where it fails with the following exception:
+
 ```plain
 Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
 ...
@@ -258,6 +267,7 @@ CPU load).
 
 Let's tweak the test very slightly by adding a delay of a millisecond between the two `CreateAccount`
 calls:
+
 ```c#
 var task1 = accountManager.CreateAccount(accountName, accountPayload);
 await Task.Delay(1); // Artificial delay.
@@ -296,6 +306,7 @@ reproduce it every single time.
 
 Let's now run our test under the control of Coyote, _without changing a single line of code_. First use
 Coyote to rewrite the assembly:
+
 ```plain
 coyote rewrite .\AccountManager.dll
 . Rewriting AccountManager.dll
@@ -305,6 +316,7 @@ coyote rewrite .\AccountManager.dll
 ```
 
 Awesome, now lets try use Coyote on the above concurrent test:
+
 ```plain
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
@@ -315,6 +327,7 @@ read more about other Coyote tool options [here](../../tools/testing.md).
 
 Let's see if Coyote finds the bug now that the concurrent program execution is under its control.
 Indeed after just 4 iterations and 0.22 seconds:
+
 ```plain
 . Testing .\AccountManager.dll
 ... Method TestConcurrentAccountCreation
@@ -341,6 +354,7 @@ Indeed after just 4 iterations and 0.22 seconds:
 
 Cool, we found the bug! Let's see now how Coyote can help us reproduce it. You can simple run
 `coyote replay` giving the `.schedule` file that Coyote dumps upon finding a bug:
+
 ```plain
 coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
 . Replaying .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.schedule
@@ -364,24 +378,31 @@ time, if you don't use a tool like Coyote to systematically explore the interlea
 absence of such tools, these bugs can go undetected and occur sporadically in production, making
 them difficult to diagnose and debug. And who wants to stay awake at night debugging a live site!
 
+In the [next tutorial](test-concurrent-operations.md), we will write few more concurrency unit tests
+for the `AccountManager` to increase our familiarity with Coyote.
+
 ## Get the sample source code
 
-To get the source code for the above tutorial, clone the
+To get the complete source code for the `AccountManager` tutorial, clone the
 [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+Note that the repo also contains the code from the [next tutorial](test-concurrent-operations.md) which
+builds upon this `AccountManager` sample.
 
-Build the sample by running the following command:
+You can build the sample by running the following command:
 
 ```plain
 powershell -f build.ps1
 ```
 
 You can now run the tests (without Coyote) like this:
+
 ```plain
 cd .\bin\net5.0
 .\AccountManager.exe
 ```
 
 We have added some command line arguments to make it easy select which test to run:
+
 ```plain
 Usage: AccountManager [option]
 Options:
@@ -389,11 +410,15 @@ Options:
   -c    Run concurrent test without Coyote
 ```
 
-To test the sample with Coyote you can use the following commands (as explained in the tutorial
-above):
+To rewrite and test the sample with Coyote you can use the following commands (as discussed above):
+
 ```plain
 coyote rewrite .\AccountManager.dll
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
+```
+
+If you find a bug you can replay with the following command:
+```plain
 coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
 ```
 

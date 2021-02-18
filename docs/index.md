@@ -118,7 +118,7 @@ also push the limits on high concurrency, maximizing throughput and minimizing o
 
 With Coyote you can create highly reliable software in a way that is also highly productive.
 
-These are some direct quotes from Azure Engineers that uses Coyote:
+These are some direct quotes from Azure Engineers that use Coyote:
 
   * _We often found bugs with Coyote in a matter of minutes that would have taken days with stress testing._
 
@@ -130,14 +130,18 @@ These are some direct quotes from Azure Engineers that uses Coyote:
   * _Coyote gave developers a significant confidence boost by providing full failover and
   concurrency testing at each check-in, right on their desktops as the code was written._
 
-[Learn more about Coyote](overview/benefits.md)
+## Get started with Coyote
 
-[Get started now, it is super easy](get-started/install.md)
+[Learn about the key benefits](overview/benefits.md)
 
-[Read more about how Azure is using Coyote](case-studies/azure-batch-service.md)
+[Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
 
-[Dive into our tutorials and samples](tutorials/tasks/hello-world.md)
+[Read how Azure teams are using Coyote](case-studies/azure-batch-service.md)
+
+[Dive into tutorials and samples](tutorials/tasks/hello-world.md)
 
 [Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
+
+[Say hi on Gitter](https://gitter.im/Microsoft/coyote)
 
 [Contribute on Github](https://github.com/microsoft/coyote/)

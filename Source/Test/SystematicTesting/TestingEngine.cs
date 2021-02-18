@@ -532,15 +532,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 return false;
             }
 
-            if (!this.IsReplayModeEnabled && this.ShouldPrintIteration(iteration + 1))
-            {
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
+            this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} (seed:{this.RandomValueGenerator.Seed})");
 
-                // Flush when logging to console.
-                if (this.Logger is ConsoleLogger)
-                {
-                    Console.Out.Flush();
-                }
+            // Flush when logging to console.
+            if (this.Logger is ConsoleLogger)
+            {
+                Console.Out.Flush();
             }
 
             // Runtime used to serialize and test the program in this iteration.
@@ -557,7 +554,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 // Creates a new instance of the controlled runtime.
-                runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
+                runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator, iteration);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.

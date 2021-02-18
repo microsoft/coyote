@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test catch Exception
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test catch RuntimeException
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (RuntimeException ex)
             {
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test catch all
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch
             {
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test filter is unmodified if it is already correct!
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is ExecutionCanceledException))
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test more interesting filter is also unmodified if it is already correct!
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is NullReferenceException) && !(ex is ExecutionCanceledException))
             {
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // Test we can parse a slightly different order of expressions in the filter.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is ExecutionCanceledException) && !(ex is NullReferenceException))
             {
@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             bool debugging = true;
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is ExecutionCanceledException) || debugging)
             {
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             bool debugging = true;
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is NullReferenceException) && debugging)
             {
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         {
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (!(ex is NullReferenceException))
             {
@@ -225,7 +225,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             {
                 Task.Run(() =>
                 {
-                    throw new ExecutionCanceledException();
+                    throw new ExecutionCanceledException(0, 0);
                 }).Wait();
             }
             catch (Exception ex) when (ex.GetType().Name != (x > 10 ? "Foo" : "Bar" + suffix))
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // so this code should be unmodified.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception)
             {
@@ -270,7 +270,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
             // but it is ok because it does a rethrow, so this code should be unmodified.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ExecutionCanceledException(0, 0);
             }
             catch (Exception ex) when (ex is ExecutionCanceledException)
             {

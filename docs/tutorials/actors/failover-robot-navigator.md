@@ -9,7 +9,7 @@ networks requiring near-continuous availability and a high degree of reliability
 
 This sample implements a failover scenario in a system where **an instance of a service is
 terminated and replaced by a new one**, unlike the [Failover Coffee Machine
-sample](../failover-coffee-machine-actors), which is about applying the
+sample](../failover-coffee-machine), which is about applying the
 failover concept to the firmware of an automated espresso machine.
 
 In this scenario there is a `Robot` that must serve drinks to people in a room:

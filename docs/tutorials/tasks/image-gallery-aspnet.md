@@ -185,7 +185,7 @@ Debugger to go over the trace as many times as required to fix the bug.
 To be able to test this service, use Coyote's binary rewriting capabilities to instrument
 concurrency primitives (Coyote primarily supports common task-related types like `Task` and
 `TaskCompletionSource`, the `lock` statement, and some
-[more](./programming-models/async/rewriting.md)). This is
+[more](./programming-models/tasks/rewriting.md)). This is
 handled by the build script above.
 
 ## How to run the Coyote systematic tests

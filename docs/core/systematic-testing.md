@@ -12,7 +12,7 @@ take over the scheduling of the program. In fact, the tester will complain if it
 that is outside its control. Take the simple example that was used to explain concurrency
 [non-determinism](non-determinism.md). Notice the code below has replaced the .NET
 `System.Threading.Tasks.Task` type with Coyote's `Task` type, which is part of Coyote's
-[asynchronous Task programming model](../programming-models/async/overview.md), and is controlled
+[asynchronous Task programming model](../programming-models/tasks/overview.md), and is controlled
 during systematic testing.
 
 ```c#

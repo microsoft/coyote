@@ -14,7 +14,7 @@ bad things might happen? Can we design a state machine that can handle this scen
 more fault tolerant coffee machine?
 
 An identical version of this tutorial is available that uses the coyote [asynchronous
-tasks](failover-coffee-machine-tasks.md) programming model.
+tasks](failover-coffee-machine.md) programming model.
 
 The following diagram shows how Coyote can be used to test this scenario and help you design more
 reliable software.

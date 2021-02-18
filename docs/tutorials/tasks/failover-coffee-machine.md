@@ -7,13 +7,13 @@ component, or network. Systems designers usually provide failover capability in 
 networks requiring near-continuous availability and a high degree of reliability."
 
 This sample applies the failover concept to the firmware of an automated espresso machine using the
-Coyote [asynchronous tasks](../programming-models/async/overview.md) programming model. Imagine what
+Coyote [asynchronous tasks](../programming-models/tasks/overview.md) programming model. Imagine what
 would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
 bad things might happen? Can we design a code that can handle this scenario and provide a more fault
 tolerant coffee machine?
 
 An identical version of this tutorial is also available that uses the coyote [asynchronous
-actors](failover-coffee-machine-actors.md) programming model.
+actors](failover-coffee-machine.md) programming model.
 
 The following diagram shows how Coyote can be used to test this scenario and help you design more
 reliable software.
@@ -21,7 +21,7 @@ reliable software.
 ![FailoverCoffeeMachine](../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as an asynchronous interface using
-[controlled Tasks](../programming-models/async/overview.md). This example it not providing real
+[controlled Tasks](../programming-models/tasks/overview.md). This example it not providing real
 firmware, instead it `mocks` the hardware sensor platform built into the machine. This is done in
 the asynchronous `MockSensors` class. This class provides async ways of reading sensor values like
 the water temperature and setting things like the power button, or turning on and off the coffee

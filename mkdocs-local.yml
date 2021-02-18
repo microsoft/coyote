@@ -65,14 +65,14 @@ nav:
   - Logging: core/logging.md
 - Programming models:
   - Asynchronous tasks:
-    - Overview: programming-models/async/overview.md
-    - Controlled task completion source: programming-models/async/tcs.md
-    - Controlled asynchronous lock: programming-models/async/async-lock.md
-    - Controlled semaphore: programming-models/async/semaphore.md
-    - Controlled synchronized block: programming-models/async/synchronized-block.md
-    - Improving coverage of fine-grained interleavings: programming-models/async/interleavings.md
-    - Rewriting binaries: programming-models/async/rewriting.md
-  - Asynchronous actors:
+    - Overview: programming-models/tasks/overview.md
+    - Controlled task completion source: programming-models/tasks/tcs.md
+    - Controlled asynchronous lock: programming-models/tasks/async-lock.md
+    - Controlled semaphore: programming-models/tasks/semaphore.md
+    - Controlled synchronized block: programming-models/tasks/synchronized-block.md
+    - Improving coverage of fine-grained interleavings: programming-models/tasks/interleavings.md
+    - Rewriting binaries: programming-models/tasks/rewriting.md
+  - Actors and state machines:
     - Overview: programming-models/actors/overview.md
     - State machines: programming-models/actors/state-machines.md
     - Actor semantics: programming-models/actors/actor-semantics.md
@@ -84,15 +84,17 @@ nav:
     - State machine demo: programming-models/actors/state-machine-demo.md
     - Why Coyote actors?: programming-models/actors/why-actors.md
 - Tutorials and samples:
-  - Hello world tasks: tutorials/hello-world-tasks.md
-  - Hello world actors: tutorials/hello-world-actors.md
-  - Coffee machine failover (actors): tutorials/failover-coffee-machine-actors.md
-  - Coffee machine failover (tasks): tutorials/failover-coffee-machine-tasks.md
-  - Robot navigator failover (actors): tutorials/failover-robot-navigator-actors.md
-  - Raft actor service (on Azure): tutorials/raft-azure.md
-  - Raft actor service (mocked): tutorials/raft-mocking.md
-  - Bounded Buffer Example: tutorials/bounded-buffer.md
-  - ASP.NET Core Image Gallery: tutorials/image-gallery-aspnet.md
+  - Asynchronous tasks:
+    - Hello world tasks: tutorials/tasks/hello-world.md
+    - Bounded Buffer Example: tutorials/tasks/bounded-buffer.md
+    - Coffee machine failover (tasks): tutorials/tasks/failover-coffee-machine.md
+    - ASP.NET Core Image Gallery: tutorials/tasks/image-gallery-aspnet.md
+  - Actors and state machines:
+    - Hello world actors: tutorials/actors/hello-world.md
+    - Coffee machine failover (actors): tutorials/actors/failover-coffee-machine.md
+    - Robot navigator failover (actors): tutorials/actors/failover-robot-navigator.md
+    - Raft actor service (on Azure): tutorials/actors/raft-azure.md
+    - Raft actor service (mocked): tutorials/actors/raft-mocking.md
 - Tools:
   - Testing: tools/testing.md
   - Rewriting tool: tools/rewriting.md

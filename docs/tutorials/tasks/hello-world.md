@@ -3,7 +3,7 @@
 
 The [HelloWorldTasks](http://github.com/microsoft/coyote-samples/) is a simple program to get you
 started using the [asynchronous tasks programming
-model](../programming-models/async/overview.md) with Coyote.
+model](../programming-models/tasks/overview.md) with Coyote.
 
 ## What you will need
 
@@ -120,7 +120,7 @@ bugs](../tools/testing.md).
 ## The code
 
 This section shows how to write a program using the Coyote [asynchronous task programming
-model](../programming-models/async/overview.md). The Coyote controlled `Task` type is a
+model](../programming-models/tasks/overview.md). The Coyote controlled `Task` type is a
 drop-in replacement for the `System.Threading.Tasks.Task` type, and thus any prior experience
 writing asynchronous code using `async` and `await` is useful and relevant. If you are not already
 familiar with `async` and `await`, you can learn more in the C#
@@ -271,7 +271,7 @@ In this tutorial you learned:
 3. [How to run the HelloWorldTasks sample from the
    command-line](#run-the-helloworldtasks-application)
 4. [Using the controlled `Task` type to enable Coyote to control the scheduling of the
-   program](../programming-models/async/overview.md)
+   program](../programming-models/tasks/overview.md)
 5. How to write code that is Coyote-testable
 6. [How testing with Coyote results in finding even the trickiest concurrency bugs quickly even
    before pushing to production.](#how-to-reproduce-the-bug)

@@ -148,5 +148,5 @@ can help Coyote do better by using [ExploreContextSwitch](../interleavings).
 
 To try out more samples built using the _asynchronous tasks_ programming model see the following:
 
-- [Hello world tasks](../../../tutorials/hello-world-tasks)
-- [Coffee machine failover (tasks)](../../../tutorials/failover-coffee-machine-tasks)
+- [Hello world tasks](../../../tutorials/tasks/hello-world)
+- [Coffee machine failover (tasks)](../../../tutorials/tasks/failover-coffee-machine)

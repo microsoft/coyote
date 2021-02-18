@@ -48,7 +48,7 @@ Depends on what programming model and concurrency APIs you used for developing y
 because, for Coyote testing to work, it needs to understand the
 [non-determinism](../core/non-determinism.md) in your system. In some cases, this may be as simple as
 replacing the `System.Threading.Tasks.Task` type with
-[`Microsoft.Coyote.Tasks.Task`](../programming-models/async/overview.md). In other cases, you would
+[`Microsoft.Coyote.Tasks.Task`](../programming-models/tasks/overview.md). In other cases, you would
 also have to model additional non-determinism, such as timers and external services. In general, we
 recommend using Coyote in early stages of development.
 <br/><br/>
@@ -98,8 +98,8 @@ Fabric](https://azure.microsoft.com/en-us/services/service-fabric/)) and connect
 using your favorite communication/messaging mechanism (such as [gRPC](https://grpc.io/), [Apache
 Kafka](https://kafka.apache.org/) or [Azure Service
 Bus](https://azure.microsoft.com/en-us/services/service-bus/)). To help you, there is a [sample that
-shows how Coyote can be used with Azure Service Bus](../tutorials/raft-azure.md) and
-[a sample for ASP.NET Core](../tutorials/image-gallery-aspnet.md).
+shows how Coyote can be used with Azure Service Bus](../tutorials/actors/raft-azure.md) and
+[a sample for ASP.NET Core](../tutorials/tasks/image-gallery-aspnet.md).
 <br/><br/>
 
 #### Is it meaningful to use Coyote for a program that runs on a single machine only?

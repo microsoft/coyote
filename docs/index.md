@@ -82,7 +82,7 @@ studies](case-studies/azure-batch-service.md) for some great customer testimonia
 
 Coyote supports two main programming models:
 
-- [Asynchronous tasks](programming-models/async/overview.md), which follows the popular [task-based
+- [Asynchronous tasks](programming-models/tasks/overview.md), which follows the popular [task-based
   asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
   This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
@@ -92,7 +92,7 @@ Coyote supports two main programming models:
   executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
   native `Task` object. During testing, however, is where the magic happens. Coyote controls the
   execution of each Coyote `Task` so that it can explore various different interleavings to find
-  bugs. Alternatively, you can use the [binary rewriting](programming-models/async/rewriting.md)
+  bugs. Alternatively, you can use the [binary rewriting](programming-models/tasks/rewriting.md)
   feature of Coyote to automatically instrument your application, taking control of
   `System.Threading.Tasks.Task` objects and related concurrency types from the Task Parallel
   Library, without having to use Coyote's drop-in-replacement library.
@@ -107,7 +107,7 @@ Coyote supports two main programming models:
   simply an `Actor` with explicit `States` and event-driven state transitions.
 
 Note that you can only systematically test the above two programming models together using Coyote's
-[binary rewriting](programming-models/async/rewriting.md) to take control of
+[binary rewriting](programming-models/tasks/rewriting.md) to take control of
 `System.Threading.Tasks.Task` objects.
 
 

@@ -107,11 +107,6 @@ namespace Microsoft.Coyote.Runtime
         private long OperationIdCounter;
 
         /// <summary>
-        /// The currently executing iteration.
-        /// </summary>
-        internal uint Iteration { get; private set; }
-
-        /// <summary>
         /// Records if the runtime is running.
         /// </summary>
         internal bool IsRunning => this.Scheduler.IsProgramExecuting;
@@ -149,8 +144,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal CoyoteRuntime(Configuration configuration, IRandomValueGenerator valueGenerator, uint iteration = 0)
-            : this(configuration, null, valueGenerator, iteration)
+        internal CoyoteRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
+            : this(configuration, null, valueGenerator)
         {
         }
 
@@ -158,7 +153,7 @@ namespace Microsoft.Coyote.Runtime
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy,
-            IRandomValueGenerator valueGenerator, uint iteration = 0)
+            IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
 
@@ -169,7 +164,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             this.OperationIdCounter = 0;
-            this.Iteration = iteration;
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
 
@@ -1325,11 +1319,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
                     ece.GetType().Name, op.Name);
-                IO.Debug.WriteLine($"Current iteration: {this.Iteration} (tid: {Task.CurrentId})");
-                IO.Debug.WriteLine($"Ex iteration: {ece.Iteration}");
-                IO.Debug.WriteLine($"Ex operation id: {ece.Operationid}");
-                IO.Debug.WriteLine($"Ex task id: {ece.TaskId}");
-                IO.Debug.WriteLine($"Ex log: {ece.Log}");
                 if (this.Scheduler.IsAttached)
                 {
                     message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");

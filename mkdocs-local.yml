@@ -56,39 +56,34 @@ nav:
   - Azure Batch Service: case-studies/azure-batch-service.md
   - Azure Blockchain Service: case-studies/azure-blockchain-service.md
   - Azure Blockchain Workbench: case-studies/azure-blockchain-workbench.md
-- Core concepts:
-  - Program non-determinism: core/non-determinism.md
-  - Concurrency unit testing: core/concurrency-unit-testing.md
-  - Program specifications: core/specifications.md
-  - Effective liveness checking: core/liveness-checking.md
-  - Logging: core/logging.md
-- Programming models:
+- Concepts:
+  - Program non-determinism: concepts/non-determinism.md
+  - Concurrency unit testing: concepts/concurrency-unit-testing.md
+  - Binary rewriting for systematic testing: concepts/binary-rewriting.md
+  - Program specifications: concepts/specifications.md
+  - Effective liveness checking: concepts/liveness-checking.md
+  - Logging: concepts/logging.md
+- Advanced topics:
   - Asynchronous tasks:
-    - Overview: programming-models/tasks/overview.md
-    - Controlled task completion source: programming-models/tasks/tcs.md
-    - Controlled asynchronous lock: programming-models/tasks/async-lock.md
-    - Controlled semaphore: programming-models/tasks/semaphore.md
-    - Controlled synchronized block: programming-models/tasks/synchronized-block.md
-    - Improving coverage of fine-grained interleavings: programming-models/tasks/interleavings.md
-    - Rewriting binaries: programming-models/tasks/rewriting.md
+    - Overview: advanced-topics/tasks/overview.md
+    - Improving coverage of fine-grained interleavings: advanced-topics/tasks/interleavings.md
   - Actors and state machines:
-    - Overview: programming-models/actors/overview.md
-    - State machines: programming-models/actors/state-machines.md
-    - Actor semantics: programming-models/actors/actor-semantics.md
-    - Actor termination: programming-models/actors/termination.md
-    - Using timers in actors: programming-models/actors/timers.md
-    - Event groups: programming-models/actors/event-groups.md
-    - Semantics of unhandled exceptions: programming-models/actors/uncaught-exceptions.md
-    - Sharing objects: programming-models/actors/sharing-objects.md
-    - State machine demo: programming-models/actors/state-machine-demo.md
-    - Why Coyote actors?: programming-models/actors/why-actors.md
+    - Overview: advanced-topics/actors/overview.md
+    - State machines: advanced-topics/actors/state-machines.md
+    - Actor semantics: advanced-topics/actors/actor-semantics.md
+    - Actor termination: advanced-topics/actors/termination.md
+    - Using timers in actors: advanced-topics/actors/timers.md
+    - Event groups: advanced-topics/actors/event-groups.md
+    - Semantics of unhandled exceptions: advanced-topics/actors/uncaught-exceptions.md
+    - Sharing objects: advanced-topics/actors/sharing-objects.md
+    - State machine demo: advanced-topics/actors/state-machine-demo.md
+    - Why Coyote actors?: advanced-topics/actors/why-actors.md
 - Tutorials and samples:
-  - Asynchronous tasks:
-    - Write your first concurrency unit test: tutorials/tasks/first-concurrency-unit-test.md
-    - Test concurrent CRUD operations: tutorials/tasks/test-concurrent-operations.md
-    - Deadlock in bounded-buffer: tutorials/tasks/bounded-buffer.md
-    - Coffee machine failover: tutorials/tasks/failover-coffee-machine.md
-    - ASP.NET Core image gallery: tutorials/tasks/image-gallery-aspnet.md
+  - Write your first concurrency unit test: tutorials/first-concurrency-unit-test.md
+  - Test concurrent CRUD operations: tutorials/test-concurrent-operations.md
+  - Deadlock in bounded-buffer: tutorials/bounded-buffer.md
+  - Coffee machine failover: tutorials/failover-coffee-machine.md
+  - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
   - Actors and state machines:
     - Hello world: tutorials/actors/hello-world.md
     - Coffee machine failover: tutorials/actors/failover-coffee-machine.md

@@ -84,20 +84,20 @@ studies](case-studies/azure-batch-service.md) for some great customer testimonia
 
 Coyote supports the following two programming models:
 
-- [Asynchronous tasks](programming-models/tasks/overview.md), which implements the popular
+- [Asynchronous tasks](advanced-topics/tasks/overview.md), which implements the popular
   [task-based asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
   This programming model is centered around the `System.Threading.Tasks.Task` .NET type, which
   represents an asynchronous operation that the programmer can coordinate using the `async` and
   `await` keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). To use Coyote, you do
   not need to change a single line in your production code! During testing, you can run Coyote
-  [binary rewriting](programming-models/tasks/rewriting.md) as a post-build task to automatically
+  [binary rewriting](concepts/binary-rewriting.md) as a post-build task to automatically
   instrument your tests and application, taking control of `Task` objects and related concurrency
   types from the .NET Task Parallel Library. This is where the magic happens. Coyote controls the
   execution of each Coyote `Task` so that it can explore various different interleavings to find
   and deterministically reproduce concurrency bugs.
 
-- [Asynchronous actors](programming-models/actors/overview.md) is an [actor-based programming
+- [Asynchronous actors](advanced-topics/actors/overview.md) is an [actor-based programming
   model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your system design
   and concurrency at a higher-level of abstraction. This programming model starts with the `Actor`
   type that represents a long-lived, interactive asynchronous object. An actor can create new
@@ -127,15 +127,17 @@ These are some direct quotes from Azure Engineers that use Coyote:
 
 ## Get started with Coyote
 
-[Learn about the key benefits](overview/benefits.md)
+[Learn about the key benefits of using Coyote](overview/benefits.md)
 
 [Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
 
-[Read how Azure teams are using Coyote](case-studies/azure-batch-service.md)
+[Read how various Azure teams are using Coyote](case-studies/azure-batch-service.md)
 
-[Dive into tutorials and samples](tutorials/tasks/account-manager.md)
+[Learn the core concepts](concepts/non-determinism.md)
 
-[Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
+[Dive into tutorials and samples](tutorials/account-manager.md)
+
+[Check out this cool demo showing Coyote in practice](advanced-topics/actors/state-machine-demo/)
 
 [Say hi on Gitter](https://gitter.im/Microsoft/coyote)
 

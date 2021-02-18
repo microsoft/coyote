@@ -44,7 +44,7 @@ public interface IActorRuntimeLog
 
 ## Remarks
 
-See [Logging](/coyote/core/logging) for more information.
+See [Logging](/coyote/concepts/logging) for more information.
 
 ## See Also
 

@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors
     /// a custom actor with states, state transitions and event handlers.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/programming-models/actors/state-machines">State machines</see>
+    /// See <see href="/coyote/advanced-topics/actors/state-machines">State machines</see>
     /// for more information.
     /// </remarks>
     public abstract class StateMachine : Actor
@@ -1071,7 +1071,7 @@ namespace Microsoft.Coyote.Actors
         /// Transition.None to indicate no transition is to be performed.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/programming-models/actors/state-machines">State machines</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/state-machines">State machines</see> for more information.
         /// </remarks>
         internal readonly struct Transition
         {
@@ -1185,7 +1185,7 @@ namespace Microsoft.Coyote.Actors
         /// Abstract class representing a state.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/programming-models/actors/state-machines">State machines</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/state-machines">State machines</see> for more information.
         /// </remarks>
         public abstract class State
         {

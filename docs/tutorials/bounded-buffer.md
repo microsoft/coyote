@@ -52,7 +52,7 @@ to test your programs you will find concurrency bugs that are very hard to find 
 
 Coyote rewrites your `async tasks` in a way that allows the [coyote test](../../tools/testing.md) tool
 to control all the concurrency and locking in your program and this allows it to find bugs using
-intelligent [systematic testing](../../core/concurrency-unit-testing.md).
+intelligent [systematic testing](../../concepts/concurrency-unit-testing.md).
 
 For example, if you take the `BoundedBuffer.dll` from the above sample you can do the following:
 

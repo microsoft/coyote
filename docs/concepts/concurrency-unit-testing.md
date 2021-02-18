@@ -4,7 +4,7 @@ Coyote gives you the ability to write _concurrency unit tests_. These simple but
 look similar to traditional (sequential) tests, but allow (and encourage) the use of concurrency and
 [non-determinism](non-determinism.md), which you would normally avoid due to flakiness. By writing
 such a test, Coyote allows you to exercise what happens, for example, when [two requests execute
-concurrently](../tutorials/tasks/first-concurrency-unit-test.md) in your service, as if it was
+concurrently](../tutorials/first-concurrency-unit-test.md) in your service, as if it was
 deployed in production.
 
 Now the cool thing is that once a bug is found, Coyote allows you to fully reproduce the exact same
@@ -44,7 +44,7 @@ error if it detects a type it does not support.
 Take the simple example that was used to explain concurrency [non-determinism](non-determinism.md).
 Notice that the code below is using the C# `Task` type. Coyote understands this `Task` type and is
 able to control its schedule during systematic testing, as discussed above and
-[here](../programming-models/tasks/overview.md).
+[here](../advanced-topics/tasks/overview.md).
 
 ```c#
 using System.Threading.Tasks;
@@ -124,9 +124,10 @@ Besides the popular [task-based programming
 model](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap)
 of C#, which Coyote is able to support without you having to modify your code, the
 `Microsoft.Coyote` library also provides APIs for expressing in-memory [asynchronous actors and
-state machines](../programming-models/actors/overview.md). Programs written using these types can
-also be systematically tested with Coyote similar to unmodified task-based programs.
+state machines](../advanced-topics/actors/overview.md). Programs written using these more
+advanced types can also be systematically tested with Coyote similar to unmodified task-based
+programs.
 
-See this [demo](../programming-models/actors/state-machine-demo.md) which shows the systematic
+See this [demo](../advanced-topics/actors/state-machine-demo.md) which shows the systematic
 testing process in action on a test application that implements the [Raft consensus
 protocol](https://raft.github.io/) using Coyote state machines.

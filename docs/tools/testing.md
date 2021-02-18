@@ -2,7 +2,7 @@
 
 The `coyote` command line tool can be used to automatically test a Coyote program to find and
 deterministically reproduce bugs in your code while also enforcing your safety and liveness
-[specifications](../core/specifications.md).
+[specifications](../concepts/specifications.md).
 
 To invoke the tester use the following command:
 
@@ -94,7 +94,7 @@ test run on the iteration lengths that it saw. Use this output for calibrating t
 for your case. This flag is usually only needed when your test has the potential of generating
 non-terminating executions (like an infinite series of ping pong events, for example). In such
 cases, if you do not provide `max-steps` then the tester can appear to can get stuck running one
-iteration forever. This is related to [liveness checking](../core/liveness-checking.md).
+iteration forever. This is related to [liveness checking](../concepts/liveness-checking.md).
 
 ## Parallel and portfolio testing
 
@@ -138,7 +138,7 @@ coverage graph collapses all machine instances into one group, so you can more e
 coverage of that machine type. The `--graph` options are handy when you need to see the difference
 in state that happened in different machine instances.
 
-See [animating state machine demo](../programming-models/actors/state-machine-demo.md) for a
+See [animating state machine demo](../advanced-topics/actors/state-machine-demo.md) for a
 visual explanation of what `coyote test` does when it is looking for bugs. In the animation you will
 see why the test failed, two of the server nodes have taken on the `Leader` role, which is not
 allowed.

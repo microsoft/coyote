@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
     /// A thread-safe dictionary that can be shared in-memory by actors.
     /// </summary>
     /// <remarks>
-    /// See also <see href="/coyote/programming-models/actors/sharing-objects">Sharing Objects</see>.
+    /// See also <see href="/coyote/advanced-topics/actors/sharing-objects">Sharing Objects</see>.
     /// </remarks>
     public static class SharedDictionary
     {

@@ -17,7 +17,7 @@ public class Generator
 
 ## Remarks
 
-See [Program non-determinism](/coyote/core/non-determinism) for more information.
+See [Program non-determinism](/coyote/concepts/non-determinism) for more information.
 
 ## See Also
 

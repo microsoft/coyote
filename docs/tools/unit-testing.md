@@ -1,7 +1,7 @@
 ## Unit testing with the Coyote systematic tester
 
 Common unit testing frameworks like
-[MSTest](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-mstest),
+[MSTest](https://docs.microsoft.com/en-us/dotnet/concepts/testing/unit-testing-with-mstest),
 [xUnit.net](https://xunit.net/) and [nunit](https://nunit.org/) cannot easily call the `coyote`
 command line tool for testing. In this case you can use the Coyote `TestingEngine` directly.
 

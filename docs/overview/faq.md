@@ -46,9 +46,9 @@ do testing while developing, not after you are ready to ship :)
 
 Depends on what programming model and concurrency APIs you used for developing your existing system
 because, for Coyote testing to work, it needs to understand the
-[non-determinism](../core/non-determinism.md) in your system. In some cases, this may be as simple as
+[non-determinism](../concepts/non-determinism.md) in your system. In some cases, this may be as simple as
 replacing the `System.Threading.Tasks.Task` type with
-[`Microsoft.Coyote.Tasks.Task`](../programming-models/tasks/overview.md). In other cases, you would
+[`Microsoft.Coyote.Tasks.Task`](../advanced-topics/tasks/overview.md). In other cases, you would
 also have to model additional non-determinism, such as timers and external services. In general, we
 recommend using Coyote in early stages of development.
 <br/><br/>
@@ -62,7 +62,7 @@ resolved in a timely manner.
 
 #### How do Coyote actors compare against other actor frameworks?
 
-See [How are Coyote Actors different from existing Microsoft Actor frameworks?](../programming-models/actors/why-actors.md).
+See [How are Coyote Actors different from existing Microsoft Actor frameworks?](../advanced-topics/actors/why-actors.md).
 <br/><br/>
 
 #### How is Coyote different from other similar systems out there?
@@ -99,7 +99,7 @@ using your favorite communication/messaging mechanism (such as [gRPC](https://gr
 Kafka](https://kafka.apache.org/) or [Azure Service
 Bus](https://azure.microsoft.com/en-us/services/service-bus/)). To help you, there is a [sample that
 shows how Coyote can be used with Azure Service Bus](../tutorials/actors/raft-azure.md) and
-[a sample for ASP.NET Core](../tutorials/tasks/image-gallery-aspnet.md).
+[a sample for ASP.NET Core](../tutorials/testing-aspnet-service.md).
 <br/><br/>
 
 #### Is it meaningful to use Coyote for a program that runs on a single machine only?

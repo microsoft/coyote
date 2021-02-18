@@ -8,7 +8,7 @@ component, or network. Systems designers usually provide failover capability in 
 networks requiring near-continuous availability and a high degree of reliability."
 
 This sample applies the failover concept to the firmware of an automated espresso machine using the
-Coyote [asynchronous actors](../../programming-models/actors/overview.md) programming model. Imagine what
+Coyote [asynchronous actors](../../advanced-topics/actors/overview.md) programming model. Imagine what
 would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
 bad things might happen? Can we design a state machine that can handle this scenario and provide a
 more fault tolerant coffee machine?
@@ -22,7 +22,7 @@ reliable software.
 ![FailoverCoffeeMachine](../../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as an asynchronous [state
-machine](../../programming-models/actors/state-machines.md). This example is not providing real firmware,
+machine](../../advanced-topics/actors/state-machines.md). This example is not providing real firmware,
 instead it `mocks` the hardware sensor platform built into the machine. This is done in
 `MockSensors.cs` where you will find three actors that model various hardware components:
 `MockDoorSensor`, `MockWaterTank` and `MockCoffeeGrinder`. This actor provides async ways of reading
@@ -53,7 +53,7 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of
 espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make
 sure it never gets stuck, i.e., it always finishes the job it was given or it goes to an error state
-if the machine needs to be fixed. See [Liveness Checking](../../core/liveness-checking.md).
+if the machine needs to be fixed. See [Liveness Checking](../../concepts/liveness-checking.md).
 
 A number of excellent bugs were found by [coyote test](../../tools/testing.md) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to any type of asynchronous
@@ -258,7 +258,7 @@ using the Coyote state machine programming model together with the `coyote test`
 This raises a bigger design question, how did the coffee level become negative?  In firmware it is
 common to poll sensor readings and do something based on that. In this case we are polling a
 `PortaFilterCoffeeLevelEvent` in a tight loop while in the `GrindingBeans` state. Meanwhile the
-`MockCoffeeGrinder` class has a [timer](../../programming-models/actors/timers.md) running and when
+`MockCoffeeGrinder` class has a [timer](../../advanced-topics/actors/timers.md) running and when
 `HandleTimer` calls `MonitorGrinder` it decreases the coffee level by 10 percent during every time
 interval. So we have an asynchronous operation going on here. Coffee level is decreasing based on a
 timer, and the `CoffeeMachine` is monitoring that coffee level using async events. This all seems
@@ -285,7 +285,7 @@ hangs for a long time? This is the kind of thread scheduling that `coyote test` 
 machine can run way ahead of another.
 
 You need to take this into account when using this kind of [timer based async
-events](../../programming-models/actors/timers.md). One way to improve the design in a firmware based
+events](../../advanced-topics/actors/timers.md). One way to improve the design in a firmware based
 system like a coffee machine is to switch from a polling based system to an interrupt based system
 where the `MockCoffeeGrinder` can send important events to the `CoffeeMachine`. This style of interrupt
 based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `WaterEmptyEvent` and
@@ -329,7 +329,7 @@ events were covered.
 
 ### Liveness monitor
 
-As described in the documentation on [Liveness Checking](../../core/liveness-checking.md) the
+As described in the documentation on [Liveness Checking](../../concepts/liveness-checking.md) the
 `CoffeeMachine` must also eventually `finish` what it is doing. It must either make a coffee when
 requested and return to the `Ready` state, or it must find a problem and go to the `Error` state or
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple

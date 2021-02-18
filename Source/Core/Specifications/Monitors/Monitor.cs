@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Specifications
     /// Abstract class representing a specification monitor.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/core/specifications">Specifications Overview</see>
+    /// See <see href="/coyote/concepts/specifications">Specifications Overview</see>
     /// for more information.
     /// </remarks>
     public abstract class Monitor
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Specifications
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/core/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
         /// </remarks>
         protected ILogger Logger => this.LogWriter.Logger;
 

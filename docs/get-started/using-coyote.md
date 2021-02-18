@@ -1,8 +1,8 @@
 ## Using Coyote
 
 As shown in the [overview](../index.md), there are two main ways to use Coyote.
-The simplest is to use the [asynchronous tasks](../programming-models/tasks/overview.md) and the
-more advanced way is using the [asynchronous actors](../programming-models/actors/overview.md).
+The simplest is to use the [asynchronous tasks](../advanced-topics/tasks/overview.md) and the
+more advanced way is using the [asynchronous actors](../advanced-topics/actors/overview.md).
 
 **Note:** If you are upgrading to Coyote from P#, see [upgrading from
 P#](upgrade-from-psharp.md).
@@ -87,5 +87,5 @@ interactively using Visual Studio. Make sure the downloaded file keeps the file 
 Use CTRL+A to select everything and this will show you all the detailed links as well.
 
 You are now ready to dive into the core concepts for using Coyote to test [async
-tasks](../programming-models/tasks/overview.md) and the more advanced [async
-actors](../programming-models/actors/overview.md).
+tasks](../advanced-topics/tasks/overview.md) and the more advanced [async
+actors](../advanced-topics/actors/overview.md).

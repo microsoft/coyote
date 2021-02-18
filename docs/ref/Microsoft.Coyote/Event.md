@@ -14,7 +14,7 @@ public abstract class Event
 
 ## Remarks
 
-See [Programming model: asynchronous actors](/coyote/programming-models/actors/overview) for more information.
+See [Programming model: asynchronous actors](/coyote/advanced-topics/actors/overview) for more information.
 
 ## See Also
 

@@ -36,8 +36,8 @@ research. New scheduling strategies are being developed in Microsoft Research ba
 experience gathered from the Microsoft product groups that are using Coyote today. See [case
 studies](../case-studies/azure-batch-service.md).
 
-See [animating state machine demo](../programming-models/actors/state-machine-demo.md) for a
+See [animating state machine demo](../advanced-topics/actors/state-machine-demo.md) for a
 visual explanation of what Coyote does when it is looking for bugs.
 
-For more information see dealing with [nondeterminism](../core/non-determinism.md) and
-[concurrency unit Testing](../core/concurrency-unit-testing.md).
+For more information see dealing with [nondeterminism](../concepts/non-determinism.md) and
+[concurrency unit Testing](../concepts/concurrency-unit-testing.md).

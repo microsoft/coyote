@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Runtime
         /// Get or set the  <see cref="ILogger"/> used to log messages.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/core/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/logging" >Logging</see> for more information.
         /// </remarks>
         ILogger Logger { get; set; }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>The nondeterministic boolean choice.</returns>
         /// <remarks>
-        /// See <see href="/coyote/core/non-determinism" >Program non-determinism</see>
+        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
         /// for more information.
         /// </remarks>
         bool RandomBoolean();
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <returns>The nondeterministic boolean choice.</returns>
         /// <remarks>
-        /// See <see href="/coyote/core/non-determinism" >Program non-determinism</see>
+        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
         /// for more information.
         /// </remarks>
         bool RandomBoolean(int maxValue);
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <returns>The nondeterministic integer choice.</returns>
         /// <remarks>
-        /// See <see href="/coyote/core/non-determinism" >Program non-determinism</see>
+        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
         /// for more information.
         /// </remarks>
         int RandomInteger(int maxValue);

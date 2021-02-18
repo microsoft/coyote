@@ -30,7 +30,7 @@ public abstract class StateMachine : Actor
 
 ## Remarks
 
-See [State machines](/coyote/programming-models/actors/state-machines) for more information.
+See [State machines](/coyote/advanced-topics/actors/state-machines) for more information.
 
 ## See Also
 

@@ -3,7 +3,7 @@
 
 [HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
 started using the Coyote [actors programming
-model](../../programming-models/actors/overview.md).
+model](../../advanced-topics/actors/overview.md).
 
 ## What you will need
 
@@ -101,7 +101,7 @@ bugs](../../tools/testing.md).
 ## The Greeter
 
 Please read [Programming model: asynchronous
-actors](../../programming-models/actors/overview.md) to gain a basic understanding of the
+actors](../../advanced-topics/actors/overview.md) to gain a basic understanding of the
 Actors programming model.
 
 The core of an `Actor` based Coyote program, is, well, an `Actor` class! The following `Actor` named

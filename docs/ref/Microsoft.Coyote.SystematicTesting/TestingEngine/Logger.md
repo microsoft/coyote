@@ -8,7 +8,7 @@ public ILogger Logger { get; set; }
 
 ## Remarks
 
-See [Logging](/coyote/core/logging) for more information.
+See [Logging](/coyote/concepts/logging) for more information.
 
 ## See Also
 

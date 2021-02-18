@@ -4,14 +4,14 @@
 The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/CloudMessaging) sample
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
-machine demo](../../programming-models/actors/state-machine-demo.md) which shows the Coyote
-[systematic testing process](../../core/concurrency-unit-testing.md) in action on this application.
+machine demo](../../advanced-topics/actors/state-machine-demo.md) which shows the Coyote
+[systematic testing process](../../concepts/concurrency-unit-testing.md) in action on this application.
 
 This example is organized into the following projects:
 
 - **Raft** - a .NET Core C# class library that implements the [Raft Consensus
   Algorithm](https://raft.github.io/) using the Coyote [Actor Programming
-  Model](../../programming-models/actors/overview.md).
+  Model](../../advanced-topics/actors/overview.md).
 - **Raft.Azure** - a C# executable that shows how to run Coyote messages through an [Azure Service
   Bus](https://azure.microsoft.com/en-us/services/service-bus/).
 - **Raft.Mocking** - demonstrates how to use mocks to systematically test the CloudMessaging sample
@@ -76,7 +76,7 @@ complete the [mocking](raft-mocking.md) of the Azure Message Bus calls.
 ## Design
 
 The `Raft.dll` library contains a `Server` [state
-machine](../../programming-models/actors/state-machines.md), and a `ClusterManager` state machine. It also
+machine](../../advanced-topics/actors/state-machines.md), and a `ClusterManager` state machine. It also
 contains an interface named `IServerManager` and some Coyote `Event` declarations which describe the
 message types that are sent between the Server instances and the Client.
 

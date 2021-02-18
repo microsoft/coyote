@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 AsyncOperation current = this.ScheduledOperation;
-                this.ThrowExecutionCanceledExceptionIfDetached(current.Id);
+                this.ThrowExecutionCanceledExceptionIfDetached();
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
                     // Checks if the current operation is controlled by the runtime.
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.HasFullyExploredSchedule = true;
-                    this.Detach(current.Id);
+                    this.Detach();
                 }
 
                 IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached(this.ScheduledOperation.Id);
+                this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!this.Strategy.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                    this.Detach(this.ScheduledOperation.Id);
+                    this.Detach();
                 }
 
                 this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
@@ -298,7 +298,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached(this.ScheduledOperation.Id);
+                this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!this.Strategy.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                    this.Detach(this.ScheduledOperation.Id);
+                    this.Detach();
                 }
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
@@ -418,7 +418,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
             }
 
-            this.ThrowExecutionCanceledExceptionIfDetached(op.Id);
+            this.ThrowExecutionCanceledExceptionIfDetached();
         }
 
         /// <summary>
@@ -476,8 +476,9 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
                 var op = ExecutingOperation.Value;
-                this.ThrowExecutionCanceledExceptionIfDetached(op.Id);
                 if (op is null)
                 {
                     ThrowUncontrolledTaskException();
@@ -524,7 +525,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
-                    this.Detach(this.ScheduledOperation.Id);
+                    this.Detach();
                 }
             }
         }
@@ -590,7 +591,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (killTasks)
                 {
-                    this.Detach(this.ScheduledOperation.Id, cancelExecution);
+                    this.Detach(cancelExecution);
                 }
             }
         }
@@ -622,7 +623,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
         /// </summary>
-        private void Detach(ulong opId, bool cancelExecution = true)
+        private void Detach(bool cancelExecution = true)
         {
             this.IsAttached = false;
 
@@ -646,7 +647,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (cancelExecution)
             {
                 // Throw exception to force terminate the current operation.
-                throw new ExecutionCanceledException(this.Runtime.Iteration, opId);
+                throw new ExecutionCanceledException();
             }
         }
 
@@ -658,11 +659,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// If scheduler is detached, throw exception to force terminate the caller.
         /// </summary>
-        private void ThrowExecutionCanceledExceptionIfDetached(ulong opId)
+        private void ThrowExecutionCanceledExceptionIfDetached()
         {
             if (!this.IsAttached)
             {
-                throw new ExecutionCanceledException(this.Runtime.Iteration, opId);
+                throw new ExecutionCanceledException();
             }
         }
 

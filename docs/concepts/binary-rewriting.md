@@ -8,7 +8,7 @@ don't need to worry about false bugs), but has stubs and hooks injected that all
 control of concurrent execution and various sources of nondeterminism in a program.
 
 To learn how to run the binary rewriter of Coyote before testing your application read
-[here](../tools/rewriting.md) as well as check out our tutorial on [writing your first concurrency
+[here](../tools/rewriting.md), as well as check out our tutorial on [writing your first concurrency
 unit test](../tutorials/first-concurrency-unit-test.md).
 
 ## Supported APIs

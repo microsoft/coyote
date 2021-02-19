@@ -24,11 +24,13 @@ Coyote performs is known as _systematic testing_.
 
 This powerful testing ability, however, has one requirement: you must declare _all_ sources of
 non-determinism in your logic in a way that Coyote understands. Luckily, in most common cases you do
-not need to do much thanks to the awesome [binary rewriting](../tools/rewriting.md) that Coyote does
-to enable testing of unmodified programs. Out of the box, Coyote supports most common types and
-methods available in the .NET Task Parallel Library (such as `Task`, `Task<TResult>` and
-`TaskCompletionSource<TResult>`), as well as the `async`, `await` and `lock` C# keywords, and we are
-adding more types and APIs over time.
+not need to do much thanks to the awesome [binary rewriting](binary-rewriting.md) that Coyote does
+to enable testing of unmodified programs.
+
+Out of the box, Coyote supports most common types and methods available in the .NET Task Parallel
+Library (such as `Task`, `Task<TResult>` and `TaskCompletionSource<TResult>`), as well as the
+`async`, `await` and `lock` C# keywords, and we are adding more types and APIs over time. You can
+read more about binary rewriting in Coyote [here](binary-rewriting.md).
 
 Take the simple example that was used to explain concurrency [non-determinism](non-determinism.md).
 Notice that the code below is using the C# `Task` type. Coyote understands this `Task` type and is
@@ -56,8 +58,6 @@ int foo()
 When this method `foo` executes as part of a test case, the Coyote tester will understand that it is
 spawning two tasks that can run concurrently. The tester will explore different ways of executing
 the tasks to systematically cover all possibilities.
-
-You can read more about binary rewriting in Coyote [here](binary-rewriting.md).
 
 ## Expressing nondeterminism and mocking
 

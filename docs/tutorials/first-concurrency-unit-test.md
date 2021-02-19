@@ -275,7 +275,7 @@ var task2 = accountManager.CreateAccount(accountName, accountPayload);
 ```
 
 If you run this test, chances are it will fail very rarely. If you run this test in a loop
-invoking it a hundred times it probably won't didn't fail once.
+invoking it a hundred times it probably won't fail once.
 
 The race condition is still there but our concurrency unit test suddenly became ineffective at
 catching it. This explains why developers don't write such tests as they are very sensitive to
@@ -358,7 +358,7 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ```
 
 Cool, the flakey test is no longer flakey! Coyote can also help you reproduce and debug it. You can
-simple run `coyote replay` giving the `.schedule` file that Coyote outputs upon finding a bug:
+simply run `coyote replay` giving the `.schedule` file that Coyote outputs upon finding a bug:
 
 ```plain
 coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
@@ -380,9 +380,9 @@ testing.
 
 This of course was a simple example, but it's easy to imagine how Coyote can find many non-trivial
 concurrency bugs in a much more complex codebase. Such bugs have very low probability of being
-caught during test time, if you don't use a tool like Coyote to systematically explore the
-interleavings. In the absence of such tools, these bugs can go undetected and occur sporadically in
-production, making them difficult to diagnose and debug. No more late nights debugging a live site!
+caught during test time if you don't use a tool like Coyote. In the absence of such tools, these
+bugs can go undetected and occur sporadically in production, making them difficult to diagnose and
+debug. No more late nights debugging a live site!
 
 In the [next tutorial](test-concurrent-operations.md), you will write a few more concurrency unit
 tests for the `AccountManager` to increase our familiarity with Coyote.

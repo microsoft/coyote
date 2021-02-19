@@ -135,7 +135,7 @@ These are some direct quotes from Azure Engineers that use Coyote:
 
 [Learn the core concepts](concepts/non-determinism.md)
 
-[Dive into tutorials and samples](tutorials/account-manager.md)
+[Dive into tutorials and samples](tutorials/first-concurrency-unit-test.md)
 
 [Check out this cool demo showing Coyote in practice](advanced-topics/actors/state-machine-demo/)
 

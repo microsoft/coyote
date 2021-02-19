@@ -1,20 +1,35 @@
-## Rewriting binaries
+## Binary rewriting for systematic testing
 
-The [asynchronous tasks programming model](overview.md) shows how Coyote can control the concurrency
-of asynchronous operations using the special Coyote Task types. You can choose to use this
-programming model by modifying your code to use these Coyote Task types but this takes some effort
-on your part. Instead, you can use the [coyote rewriting tool](../tools/rewriting) which will
-automatically rewrite your binaries in a way that they can then be used in `coyote test` runs.
+To enable systematic testing of unmodified programs, Coyote performs _binary rewriting_ of managed
+.NET assemblies. This process loads one or more of your assemblies and rewrites them for systematic
+testing (for production just use the original unmodified assemblies). This can be easily done in a
+post-build task. The rewritten code maintains exact semantics with the production version (so you
+don't need to worry about false bugs), but has stubs and hooks injected that allow Coyote to take
+control of concurrent execution and various sources of nondeterminism in a program.
 
-This automatic rewriting currently supports rewriting the following constructs so they are testable
-with `coyote test`:
+To learn how to run the binary rewriter of Coyote before testing your application read
+[here](../tools/rewriting.md) as well as check out our tutorial on [writing your first concurrency
+unit test](../tutorials/first-concurrency-unit-test.md).
 
-- `Task`, all methods except `ConfigureAwait` and `ContinueWith`
-- C# lock statements and `Monitor` type.
-- Exception handlers
+## Supported APIs
 
-Note that during testing coyote needs to be able to terminate a test iteration at any time in order
-to support the `--max-steps` command line argument. This termination is done using a special coyote
+Out of the box, Coyote supports programs written using:
+
+- The `async`, `await` and `lock` C# keywords.
+- The most common `System.Threading.Tasks` types in the .NET Task Parallel Library:
+  - Including the `Task`, `Task<TResult>` and `TaskCompletionSource<TResult>` types.
+- The `Monitor` type in `System.Threading`.
+
+Coyote will let you know with an informative error if it detects a type it does not support. We are
+adding support for more APIs over time, but if something you need is missing please reach out on
+[GitHub](https://github.com/microsoft/coyote/issues)!
+
+## Quality of life improvements through rewriting
+
+Coyote will automatically rewrite certain parts of your test code (without changing the application semantics) to improve the testing experience. For example:
+
+During testing coyote needs to be able to terminate a test iteration at any time in order to support
+the `--max-steps` command line argument. This termination is done using a special coyote
 `ExecutionCancelledException`. The problem is when your code contains one of the following:
 
 ```c#
@@ -29,22 +44,3 @@ filter as shown in [tester requirements](../tools/tester-requirements.md).
 
 The good news is that `coyote rewrite` can take care of this for you automatically so you do not
 need to modify any of your exception handlers.
-
-## Not supported
-
-The following concurrency constructs are not supported by `coyote rewrite`:
-
-- `Parallel` helper class.
-- `System.Collections.Current.BlockingCollection`
-- `ThreadPool`
-- `Thread`
-- `ManualResetEvent`, `AutoResetEvent`, `SemaphoreSlim`, `Semaphore`, `SpinLock`, `SpinWait`, `ReaderWriterLock`, `Interlocked`, ...
-- Essentially any form of concurrency control that is not listed in the supported list above
-including native calls to Win32 API's that block the current thread or spawn new threads.
-- [Task-like types](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types.md)
-- Any .NET library that is a mixed-mode assembly.
-- Any .NET library type or method that uses any of the above, especially blocking IO like
-`System.IO.Pipelines`, `System.IO.Channels`, etc.
-
-As you can see this is currently a long list, that will hopefully get shorter over time
-as development continues on this feature.

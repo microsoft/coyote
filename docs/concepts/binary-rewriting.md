@@ -3,7 +3,7 @@
 The [asynchronous tasks programming model](overview.md) shows how Coyote can control the concurrency
 of asynchronous operations using the special Coyote Task types. You can choose to use this
 programming model by modifying your code to use these Coyote Task types but this takes some effort
-on your part. Instead, you can use the [coyote rewriting tool](../../../tools/rewriting) which will
+on your part. Instead, you can use the [coyote rewriting tool](../tools/rewriting) which will
 automatically rewrite your binaries in a way that they can then be used in `coyote test` runs.
 
 This automatic rewriting currently supports rewriting the following constructs so they are testable
@@ -25,7 +25,7 @@ to support the `--max-steps` command line argument. This termination is done usi
 
 these will inadvertently catch the special Coyote exception, which then stops `--max-steps` from
 working. The recommended fix is to add a `when (!(e is Microsoft.Coyote.RuntimeException))`
-filter as shown in [tester requirements](../../tools/tester-requirements.md).
+filter as shown in [tester requirements](../tools/tester-requirements.md).
 
 The good news is that `coyote rewrite` can take care of this for you automatically so you do not
 need to modify any of your exception handlers.

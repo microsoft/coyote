@@ -7,7 +7,7 @@ component, or network. Systems designers usually provide failover capability in 
 networks requiring near-continuous availability and a high degree of reliability."
 
 This sample applies the failover concept to the firmware of an automated espresso machine using the
-Coyote [asynchronous tasks](../../advanced-topics/tasks/overview.md) programming model. Imagine what
+Coyote [asynchronous tasks](../advanced-topics/tasks/overview.md) programming model. Imagine what
 would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
 bad things might happen? Can we design a code that can handle this scenario and provide a more fault
 tolerant coffee machine?
@@ -18,10 +18,10 @@ actors](failover-coffee-machine.md) programming model.
 The following diagram shows how Coyote can be used to test this scenario and help you design more
 reliable software.
 
-![FailoverCoffeeMachine](../../assets/images/FailoverCoffeeMachine.svg)
+![FailoverCoffeeMachine](../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as an asynchronous interface using
-[controlled Tasks](../../advanced-topics/tasks/overview.md). This example it not providing real
+[controlled Tasks](../advanced-topics/tasks/overview.md). This example it not providing real
 firmware, instead it `mocks` the hardware sensor platform built into the machine. This is done in
 the asynchronous `MockSensors` class. This class provides async ways of reading sensor values like
 the water temperature and setting things like the power button, or turning on and off the coffee
@@ -48,9 +48,9 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of
 espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make
 sure it never gets stuck, i.e., it always finishes the job it was given or it goes to an error state
-if the machine needs to be fixed. See [Liveness Checking](../../concepts/liveness-checking.md).
+if the machine needs to be fixed. See [Liveness Checking](../concepts/liveness-checking.md).
 
-A number of excellent bugs were found by [coyote test](../../tools/testing.md) during the development of
+A number of excellent bugs were found by [coyote test](../tools/testing.md) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to any type of asynchronous
 software, not just cloud services. There is still one bug remaining in the code which you can find
 using `coyote test`, and it happens after failover just to prove the usefulness of this testing
@@ -61,9 +61,9 @@ methodology.
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 
 ## Build the samples
 
@@ -87,11 +87,11 @@ There are many different types of coffee machines. This example is based on the 
 which can automatically heat water, grind beans, and make an espresso shot all with the press of a
 button:
 
-![image](../../assets/images/GaggiaEspresso.png)
+![image](../assets/images/GaggiaEspresso.png)
 
 The following diagram shows the abstract state machine that is implemented in C# code:
 
-![image](../../assets/images/CoffeeMachineTasks.svg)
+![image](../assets/images/CoffeeMachineTasks.svg)
 
 Run the executable without using `coyote test` (this is called running in `production mode`), you
 will see the following console output. Notice in the output below that the `FailoverDriver` forces
@@ -182,7 +182,7 @@ refilled.
 
 ## Coyote testing
 
-You can now use [coyote test](../../tools/testing.md) to exercise the code and see if any bugs
+You can now use [coyote test](../tools/testing.md) to exercise the code and see if any bugs
 can be found. From the `coyote-samples` folder:
 
 ```plain
@@ -306,7 +306,7 @@ computer to find those bugs that are particularly hard to find more quickly.
 
 ### Liveness monitor
 
-As described in the documentation on [Liveness Checking](../../concepts/liveness-checking.md) the
+As described in the documentation on [Liveness Checking](../concepts/liveness-checking.md) the
 `CoffeeMachine` must also eventually `finish` what it is doing. It must either make a coffee when
 requested and return to the `Ready` state, or it must find a problem and go to the `Error` state or
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple
@@ -333,7 +333,7 @@ internal class LivenessMonitor : Monitor
 ```
 
 This type of `Monitor` is also a special kind of limited [state
-machine](../../advanced-topics/actors/state-machines.md). The `CoffeeMachine` can send
+machine](../advanced-topics/actors/state-machines.md). The `CoffeeMachine` can send
 events to this monitor to tell it when it has switched into `Busy` state or `Idle` state. When the
 `CoffeeMachine` starts heating water, or making coffee it sends this event:
 

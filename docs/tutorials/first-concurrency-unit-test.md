@@ -17,9 +17,9 @@ us in writing correct concurrent code.
 To run the `AccountManager` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
-- Be familiar with the `coyote rewrite` tool. See [Rewriting](../../tools/rewriting.md).
+- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
 
 ## Walkthrough
 
@@ -298,9 +298,9 @@ explore the various task interleavings in test mode as opposed to leaving that t
 operating system scheduler). Coyote gives you _exactly_ this.
 
 To use Coyote on your task-based program is very easy in most cases. All you need to do is to invoke
-the `coyote rewrite` tool which [rewrites](../../tools/rewriting.md) your assembly (for testing only)
+the `coyote rewrite` tool which [rewrites](../tools/rewriting.md) your assembly (for testing only)
 so that Coyote can inject logic that allows it to take control of the schedule of C# tasks. Then,
-you can invoke the `coyote test` tool which [systematically explores](../../concepts/concurrency-unit-testing.md)
+you can invoke the `coyote test` tool which [systematically explores](../concepts/concurrency-unit-testing.md)
 task interleavings to uncover bug. If a bug is uncovered, Coyote allows you to deterministically
 reproduce it every single time.
 
@@ -323,7 +323,7 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 
 The above command tells Coyote to execute the test method `TestConcurrentAccountCreation` for 100
 iterations. Each iteration will try explore different interleavings to try unearth the bug. You can
-read more about other Coyote tool options [here](../../tools/testing.md).
+read more about other Coyote tool options [here](../tools/testing.md).
 
 Let's see if Coyote finds the bug now that the concurrent program execution is under its control.
 Indeed after just 4 iterations and 0.22 seconds:

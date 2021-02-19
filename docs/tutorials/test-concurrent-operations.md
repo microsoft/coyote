@@ -2,7 +2,7 @@
 
 In the previous [tutorial](first-concurrency-unit-test.md), we explored how to write our first
 _concurrency unit test_ for `AccountManager`, and reliably reproduce a race condition in the
-`CreateAccount` logic using Coyote. As a typical resource provider, `AccountManager` exposes an API
+`CreateAccount` logic using Coyote. As a typical resource controller, `AccountManager` exposes an API
 for creating, getting and deleting accounts. Such operations (including updating, which we skip here
 for simplicity) are commonly known as [CRUD](https://en.wikipedia.org/wiki/CRUD).
 

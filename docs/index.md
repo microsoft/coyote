@@ -68,8 +68,8 @@ barrier to entry with almost immediate benefits for those who adopt it.
 Coyote does not require that a team starts from scratch and rebuilds their system. Coyote uses
 binary rewriting during test time to take control of the concurrency in your _unmodified_ code. For
 advanced users, Coyote also provides a powerful in-memory actor and state machine programming model
-that allows you to build reliable concurrent systems from the ground up. This programming models
-offers convenient ways to program at a high-level of abstraction. Coyote actors are built using
+that allows you to build reliable concurrent systems from the ground up. This programming model
+allows you to program at a high-level of abstraction. Coyote actors are built using
 asynchronous C# APIs, supported by a lightweight runtime, making it easy to program efficient
 non-blocking code.
 

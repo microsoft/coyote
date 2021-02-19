@@ -1,9 +1,9 @@
 
 ## Tester requirements
 
-The Coyote tester is based on the idea of [systematic testing](../core/systematic-testing.md). This
-means that it must understand the concurrency and nondeterminism in your test code. For this reason,
-the following restrictions must be kept in mind when writing Coyote tests. Note that these
+The Coyote tester is based on the idea of [systematic testing](../concepts/concurrency-unit-testing.md).
+This means that it must understand the concurrency and nondeterminism in your test code. For this
+reason, the following restrictions must be kept in mind when writing Coyote tests. Note that these
 restrictions only apply to your test code (in order to run `coyote test`). There are no such
 restrictions when running in production. If you find that your test must call some code that
 potentially violates these restrictions, then you must mock the call for the purpose of the test.
@@ -40,7 +40,7 @@ to mock that external code.
 
 ### Declare all nondeterminism
 
-The tester needs to understand all [nondeterminism](../core/non-determinism.md) in a test. So the
+The tester needs to understand all [nondeterminism](../concepts/non-determinism.md) in a test. So the
 test should not invoke code that cannot be replayed by the tester. Consider the following code that
 performs a branch based on the current time of the day.
 

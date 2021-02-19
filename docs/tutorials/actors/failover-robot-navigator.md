@@ -62,7 +62,7 @@ Do note:
     needed to restart the newly-created instance without loss of state.
 
 The `Robot` and the `Navigator` are modeled as  [state
-machines](../../programming-models/actors/state-machines.md) and they are started by another state machine
+machines](../../advanced-topics/actors/state-machines.md) and they are started by another state machine
 called `FailoverDriver`.
 
 The FailoverDriver lets the first `Navigator` instance run for a bit then it randomly kills it by
@@ -99,7 +99,7 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 
 There is a `LivenessMonitor` that monitors the execution of the system to make sure it never gets
 stuck, i.e., the `Robot` always gets a valid response to any of its requests from the `Navigator`
-and serves the selected client. See [Liveness Checking](../../core/liveness-checking.md).
+and serves the selected client. See [Liveness Checking](../../concepts/liveness-checking.md).
 
 A number of excellent bugs were found by [coyote test](../../tools/testing.md) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to find bugs quickly, even in
@@ -417,7 +417,7 @@ failover process.
 
 ### The Liveness monitor
 
-The `LivenessMonitor` (See [Liveness Checking](../../core/liveness-checking.md)) monitors the `Robot` and
+The `LivenessMonitor` (See [Liveness Checking](../../concepts/liveness-checking.md)) monitors the `Robot` and
  the `Navigator` to make sure the `Robot` always finishes the job, by serving a `Drink`.
 
 This "liveness" property can be enforced using a very simple `LivenessMonitor` as shown below:

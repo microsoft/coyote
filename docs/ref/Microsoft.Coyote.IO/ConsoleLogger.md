@@ -21,7 +21,7 @@ public sealed class ConsoleLogger : TextWriter, ILogger
 
 ## Remarks
 
-See [Logging](/coyote/core/logging) for more information.
+See [Logging](/coyote/advanced-topics/actors/logging) for more information.
 
 ## See Also
 

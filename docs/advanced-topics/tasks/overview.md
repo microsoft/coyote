@@ -149,6 +149,6 @@ can help Coyote do better by using [ExploreContextSwitch](../interleavings).
 To try out more samples that show how to use Coyote to systematically test task-based programs see
 the following:
 
-- [Account manager](../../../tutorials/tasks/account-manager)
-- [Bounded buffer](../../../tutorials/tasks/bounded-buffer)
-- [Coffee machine failover](../../../tutorials/tasks/failover-coffee-machine)
+- [Account manager](../../../tutorials/account-manager)
+- [Bounded buffer](../../../tutorials/bounded-buffer)
+- [Coffee machine failover](../../../tutorials/failover-coffee-machine)

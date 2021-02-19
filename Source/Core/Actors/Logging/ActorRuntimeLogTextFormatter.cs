@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Actors
     /// This class implements IActorRuntimeLog and generates output in a a human readable text format.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/core/logging" >Logging</see> for more information.
+    /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
     /// </remarks>
     public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
     {

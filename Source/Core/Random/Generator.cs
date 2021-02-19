@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Random
     /// allows the runtime to explore combinations of choices to find bugs.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/core/non-determinism" >Program non-determinism</see>
+    /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
     /// for more information.
     /// </remarks>
     public class Generator

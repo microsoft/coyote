@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Actors
     /// Type that implements an actor. Inherit from this class to declare a custom actor.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/programming-models/actors/overview">Programming
+    /// See <see href="/coyote/advanced-topics/actors/overview">Programming
     /// model: asynchronous actors</see> for more information.
     /// </remarks>
     public abstract class Actor
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Actors
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/core/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
         /// </remarks>
         protected ILogger Logger => this.Context.Logger;
 
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Actors
         /// the timer, invoke the <see cref="StopTimer"/> method.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/timers">Using timers in actors</see> for more information.
         /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the timeout event.</param>
         /// <param name="customEvent">Optional custom event to raise instead of the default TimerElapsedEvent.</param>
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.Actors
         /// <see cref="StopTimer"/> method.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/timers">Using timers in actors</see> for more information.
         /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.Actors
         /// Stops and disposes the specified timer.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// See <see href="/coyote/advanced-topics/actors/timers">Using timers in actors</see> for more information.
         /// </remarks>
         /// <param name="info">Handle that contains information about the timer.</param>
         protected void StopTimer(TimerInfo info)

@@ -132,7 +132,7 @@ the `RegisterLog` method on `IActorRuntime`.  This is additive so you can have t
 `ActorRuntimeLogTextFormatter` and another logger running at the same time.  For example, see the
 `ActorRuntimeLogGraphBuilder` class which implements `IActorRuntimeLog` and generates a directed
 graph representing all activities that happened during the execution of your actors. See [activity
-coverage](../tools/coverage.md) for an example graph output. The `coyote` test tool sets this up for
+coverage](../../tools/coverage.md) for an example graph output. The `coyote` test tool sets this up for
 you when you specify `--graph` or `--coverage activity` command line options.
 
 The `--verbosity` command line option can also affect the default logging behavior. When
@@ -143,7 +143,7 @@ produce a lot of output especially if you run many testing iterations. It is usu
 only capture the output of the one failing iteration in a log file and this is done automatically
 by the testing runtime when `--verbosity` is not specified.
 
-See [IActorRuntimeLog API documentation](../ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md).
+See [IActorRuntimeLog API documentation](../../ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md).
 
 ## Example of a custom IActorRuntimeLog
 
@@ -215,5 +215,5 @@ runtime.RegisterLog(new CustomLogFormatter());
 The above method replaces the previously installed `ActorRuntimeLogTextFormatter` with the specified
 one.
 
-See [ActorRuntimeLogTextFormatter](../ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md)
+See [ActorRuntimeLogTextFormatter](../../ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md)
 documentation.

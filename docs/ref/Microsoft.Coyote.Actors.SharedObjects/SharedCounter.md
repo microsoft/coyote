@@ -20,7 +20,7 @@ public class SharedCounter
 
 ## Remarks
 
-See also [Sharing Objects](/coyote/programming-models/actors/sharing-objects).
+See also [Sharing Objects](/coyote/advanced-topics/actors/sharing-objects).
 
 ## See Also
 

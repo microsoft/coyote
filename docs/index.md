@@ -51,7 +51,7 @@ various other sources of _non-determinism_ (like message ordering, failures, tim
 </script>
 
 Coyote helps write powerful, expressive tests for your code. We call these _concurrency unit tests_.
-You can declare sources of non-determinism (such as timers, failures, etc.) as part of your Coyote
+You can declare sources of non-determinism (such as timeouts and failures) as part of your Coyote
 tests. The Coyote testing tool can _systematically_ explore a large number of interleavings of
 concurrent operations as well as non-deterministic choices so that it covers a large set of
 behaviors in a very short time. This is different from _stress testing_. Coyote takes control of the
@@ -65,14 +65,11 @@ understanding of concurrency primitives that you have used in your code. This ap
 work well for large production teams, including many teams in Microsoft Azure because it has a small
 barrier to entry with almost immediate benefits for those who adopt it.
 
-Coyote does not require that a team starts from scratch and rebuild their system. Often it is too
-expensive to start over. Instead Coyote can be adopted gradually, adding more and more structure
-around your _Coyote-aware_ code. The more of this structure you add the more benefit you get from
-Coyote, but it is certainly not an all or nothing proposition.
-
-For advanced users, Coyote also provides a powerful in-memory actor and state machine programming
-model that allows you to build reliable concurrent systems. This programming models offers
-convenient ways to program at a high-level of abstraction. Coyote actors are built using
+Coyote does not require that a team starts from scratch and rebuilds their system. Coyote uses
+binary rewriting during test time to take control of the concurrency in your _unmodified_ code. For
+advanced users, Coyote also provides a powerful in-memory actor and state machine programming model
+that allows you to build reliable concurrent systems from the ground up. This programming models
+offers convenient ways to program at a high-level of abstraction. Coyote actors are built using
 asynchronous C# APIs, supported by a lightweight runtime, making it easy to program efficient
 non-blocking code.
 
@@ -80,41 +77,9 @@ So Coyote brings together elements of design, development and testing into an in
 that works really well in the real world. See our [case
 studies](case-studies/azure-batch-service.md) for some great customer testimonials.
 
-## Supported programming models
-
-Coyote supports two main programming models:
-
-- [Asynchronous tasks](programming-models/tasks/overview.md), which follows the popular [task-based
-  asynchronous
-  pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
-  This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
-  native .NET `System.Threading.Tasks.Task`. As with the native `Task`, a Coyote `Task` represents
-  an asynchronous operation that the programmer can coordinate using the `async` and `await`
-  keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). In production, a Coyote `Task`
-  executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
-  native `Task` object. During testing, however, is where the magic happens. Coyote controls the
-  execution of each Coyote `Task` so that it can explore various different interleavings to find
-  bugs. Alternatively, you can use the [binary rewriting](programming-models/tasks/rewriting.md)
-  feature of Coyote to automatically instrument your application, taking control of
-  `System.Threading.Tasks.Task` objects and related concurrency types from the Task Parallel
-  Library, without having to use Coyote's drop-in-replacement library.
-
-- [Asynchronous actors](programming-models/actors/overview.md) is an [actor-based programming
-  model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your design and
-  concurrency at a higher-level of abstraction. This programming model starts with the `Actor` type
-  that represents a long-lived, interactive asynchronous object. An actor can create new actors,
-  send events to other actors, and handle received events. This more advanced programming model is
-  ideal for cases when asynchronous tasks get too unwieldy. This programming model also provides a
-  `StateMachine` type for easy development of event-driven state-machines. A `StateMachine` is
-  simply an `Actor` with explicit `States` and event-driven state transitions.
-
-Note that you can only systematically test the above two programming models together using Coyote's
-[binary rewriting](programming-models/tasks/rewriting.md) to take control of
-`System.Threading.Tasks.Task` objects.
-
 ## Fearless coding for concurrent software
 
-As a result Coyote gives your team much more confidence in building mission-critical services that
+Using Coyote gives your team much more confidence in building mission-critical services that
 also push the limits on high concurrency, maximizing throughput and minimizing operational costs.
 
 With Coyote you can create highly reliable software in a way that is also highly productive.
@@ -131,18 +96,22 @@ These are some direct quotes from Azure Engineers that use Coyote:
   * _Coyote gave developers a significant confidence boost by providing full failover and
   concurrency testing at each check-in, right on their desktops as the code was written._
 
-## Get started with Coyote
+## Explore Coyote
 
-[Learn about the key benefits](overview/benefits.md)
+Get started with the following links:
+
+[Learn about the key benefits of using Coyote](overview/benefits.md)
 
 [Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
 
-[Read how Azure teams are using Coyote](case-studies/azure-batch-service.md)
+[Read how various Azure teams are using Coyote](case-studies/azure-batch-service.md)
 
-[Dive into tutorials and samples](tutorials/tasks/account-manager.md)
+[Write your first concurrency unit test with Coyote](tutorials/first-concurrency-unit-test.md)
 
-[Check out this cool Coyote state machine demo](programming-models/actors/state-machine-demo/)
+[Check out this cool demo showing Coyote in practice](advanced-topics/actors/state-machine-demo/)
 
-[Say hi on Gitter](https://gitter.im/Microsoft/coyote)
+[Learn the core concepts behind Coyote](concepts/non-determinism.md)
+
+[Say hello on Gitter](https://gitter.im/Microsoft/coyote)
 
 [Contribute on Github](https://github.com/microsoft/coyote/)

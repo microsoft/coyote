@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Actors
     /// is happening in the <see cref="IActorRuntime"/>.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/core/logging" >Logging</see> for more information.
+    /// See <see href="/coyote/advanced-topics/actors/logging" >Logging</see> for more information.
     /// </remarks>
     public interface IActorRuntimeLog
     {

@@ -252,7 +252,7 @@ Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExi
 
 Let's dig into why the concurrent test failed.
 
-The test started two asynchronous `CreateAccount` calls, the first one checked whether the user
+The test started two asynchronous `CreateAccount` calls, the first one checked whether the account
 existed through the `DoesRowExist` method which returned `false`. Due to the underlying concurrency,
 control passed to the second task which made a similar call to `DoesRowExist` which also returned
 `false`. Both tasks then resumed believing that the account does not exist and tried to add the

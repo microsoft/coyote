@@ -298,8 +298,7 @@ explores](../concepts/concurrency-unit-testing.md) task interleavings to uncover
 better is that if a bug is uncovered, Coyote allows you to deterministically reproduce it every
 single time.
 
-Now run your test under the control of Coyote, _without changing a single line of code_. First use
-Coyote to rewrite the assembly:
+Now run your test under the control of Coyote. First use Coyote to rewrite the assembly:
 
 ```plain
 coyote rewrite .\AccountManager.dll

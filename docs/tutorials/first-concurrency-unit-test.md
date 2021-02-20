@@ -6,11 +6,11 @@ notoriously hard to test, and concurrent bugs can be hard to reproduce and under
 very effective tool in taming this complexity. By giving you the ability to easily test for
 concurrency bugs, Coyote helps you build more reliable applications and services.
 
-In this tutorial, we will write a simple `AccountManager` class to create, get and delete _account_
+In this tutorial, you will write a simple `AccountManager` class to create, get and delete _account_
 records in a backend NoSQL database. We'll design our class to be used in a concurrent setting,
 where methods in multiple instances of the class can be called concurrently, either within the same
 process or across processes and machines. This latter condition means that using locks will not help
-us in writing correct concurrent code.
+you in writing correct concurrent code.
 
 ## What you will need
 
@@ -62,9 +62,8 @@ row exists, otherwise it returns `false`. The `GetRow` method returns the conten
 and throws `RowNotFoundException` exception if it doesn't exist. Finally, the `DeleteRow` method
 deletes the row if it exists and throws `RowNotFoundException` exception if it doesn't exist.
 
-Before reading on, we encourage you to open your editor and attempt to write out the code.
-
-Here's one attempt to implement the `AccountManager` class:
+Before reading on, please open your editor and attempt to write an implementation of the
+`AccountManager` class.  You might write something like this:
 
 ```c#
 public class AccountManager
@@ -117,7 +116,7 @@ Does the above implementation look reasonable to you? Can you find any bugs? And
 convince yourself of the absence of any bugs in the above program?
 
 Let's write a unit test to test the `AccountManager` code. In production, `IDbCollection` is
-implemented using a distributed NoSQL database. To keep things simple during testing, we can just
+implemented using a distributed NoSQL database. To keep things simple during testing, you can just
 replace it with a mock. The following code shows such a mock implementation:
 
 ```c#
@@ -182,7 +181,7 @@ The `InMemoryDbCollection` mock is very simple, it just maintains an in-memory
 task (via `Task.Run`) to make the call execute asynchronously, modeling async I/O in a real database
 call.
 
-Now that we have written this mock, lets write a simple test:
+Now that you have written this mock, you can write a simple test:
 
 ```c#
 [Test]
@@ -209,11 +208,11 @@ public static async Task TestAccountCreation()
 The above unit test clearly tests that the same account cannot be created twice. Try run it (check
 below for instructions on how to build and run this tutorial from our samples repository) and you
 will see that it always passes. But is the behavior still true if two requests happen
-_concurrently_? How can we test this?
+_concurrently_? How can you test this?
 
-Hmm - what if we spawn two tasks to create the same account, concurrently? And then assert that only
-one creation succeeds, while the other always fails? That can possibly work, right? Let's write this
-test.
+What happens if you spawn two tasks that create the same account concurrently? What if you assert
+that only one creation succeeds, while the other always fails? That should work because the
+`InMemoryDbCollection` uses a `ConcurrentDictionary` right? 
 
 ```c#
 [Test]
@@ -242,9 +241,9 @@ public static async Task TestConcurrentAccountCreation()
 }
 ```
 
-Try run this concurrent test. The assertion will _most likely_ fail. The reason we say most likely
-instead of a guaranteed failure is that there are some task interleavings where it passes, and
-others where it fails with the following exception:
+Try run this concurrent test. The assertion will _most likely_ fail. The reason it is not a
+guaranteed failure is that there are some task interleavings where it passes, and others where it
+fails with the following exception:
 
 ```plain
 Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
@@ -253,11 +252,12 @@ Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExi
 
 Let's dig into why the concurrent test failed.
 
-We started two asynchronous `CreateAccount` calls, the first one checked whether the user existed
-through the `DoesRowExist` method which returned `false`. Due to the underlying concurrency, control
-passed to the second task which made a similar call to `DoesRowExist` which also returned `false`.
-Both tasks then resumed believing that the account does not exist and tried to add the account. One
-of them succeeded while the other threw an exception, indicating a bug in our implementation.
+The test started two asynchronous `CreateAccount` calls, the first one checked whether the account
+existed through the `DoesRowExist` method which returned `false`. Due to the underlying concurrency,
+control passed to the second task which made a similar call to `DoesRowExist` which also returned
+`false`. Both tasks then resumed believing that the account does not exist and tried to add the
+account. One of them succeeded while the other threw an exception, indicating a bug in your
+`AccountManager` implementation.
 
 So writing out this test was useful and easily exposed this race condition. But why don't we
 write such tests a lot more often? The reason is they are often flaky and find bugs through _sheer
@@ -274,15 +274,8 @@ await Task.Delay(1); // Artificial delay.
 var task2 = accountManager.CreateAccount(accountName, accountPayload);
 ```
 
-If you run this test, chances are it will fail exceedingly rarely. We ran this test in a loop
-invoking it about a hundred times and it didn't fail once.
-
-```plain
-Iteration 0 - Passed
-Iteration 1 - Passed
-...
-Iteration 99 - Passed
-```
+If you run this test, chances are it will fail very rarely. If you run this test in a loop
+invoking it a hundred times it probably won't fail once.
 
 The race condition is still there but our concurrency unit test suddenly became ineffective at
 catching it. This explains why developers don't write such tests as they are very sensitive to
@@ -290,22 +283,22 @@ timing issues. Instead, developers often write _stress_ tests, where the system 
 thousands of concurrent requests in the hopes that some rare interleaving would expose these kind of
 nondeterministic bugs (known as [Heizenbugs](https://en.wikipedia.org/wiki/Heisenbug)) before the
 code is deployed in production. But stress testing can be complex to setup and it doesn't always
-find the most tricky bugs. Even if it did, it might produce such long traces (or logs) that might
-make it very time consuming to debug and fix.
+find the most tricky bugs. Even if it does find a bug, it usually produces such long traces (or
+logs) that understanding the bug and fixing it becomes a very time consuming and frustrating task.
 
-The above is clearly not a satisfactory solution. What we need is a tool which can systematically
-explore the various task interleavings in test mode as opposed to leaving that to luck (i.e. the
-operating system scheduler). Coyote gives you _exactly_ this.
+Flakey tests is clearly not a satisfactory situation. What we need is a tool which can
+systematically explore the various task interleavings in test mode as opposed to leaving that to
+luck (i.e. the operating system scheduler). Coyote gives you _exactly_ this.
 
 To use Coyote on your task-based program is very easy in most cases. All you need to do is to invoke
 the `coyote rewrite` tool which [rewrites](../tools/rewriting.md) your assembly (for testing only)
 so that Coyote can inject logic that allows it to take control of the schedule of C# tasks. Then,
-you can invoke the `coyote test` tool which [systematically explores](../concepts/concurrency-unit-testing.md)
-task interleavings to uncover bug. If a bug is uncovered, Coyote allows you to deterministically
-reproduce it every single time.
+you can invoke the `coyote test` tool which [systematically
+explores](../concepts/concurrency-unit-testing.md) task interleavings to uncover bug. What is even
+better is that if a bug is uncovered, Coyote allows you to deterministically reproduce it every
+single time.
 
-Let's now run our test under the control of Coyote, _without changing a single line of code_. First use
-Coyote to rewrite the assembly:
+Now run your test under the control of Coyote. First use Coyote to rewrite the assembly:
 
 ```plain
 coyote rewrite .\AccountManager.dll
@@ -321,39 +314,50 @@ Awesome, now lets try use Coyote on the above concurrent test:
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
 
+Note: for this to work the unit test method needs to use the
+`[Microsoft.Coyote.SystematicTesting.Test]` custom attribute to declare the test method which 
+is what you will see if you have already downloaded the [Coyote Samples git
+repo](http://github.com/microsoft/coyote-samples).
+
 The above command tells Coyote to execute the test method `TestConcurrentAccountCreation` for 100
 iterations. Each iteration will try explore different interleavings to try unearth the bug. You can
 read more about other Coyote tool options [here](../tools/testing.md).
 
-Let's see if Coyote finds the bug now that the concurrent program execution is under its control.
-Indeed after just 4 iterations and 0.22 seconds:
+Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 
 ```plain
 . Testing .\AccountManager.dll
 ... Method TestConcurrentAccountCreation
-... Started the testing task scheduler (process:61212).
-... Created '1' testing task (process:61212).
-... Task 0 is using 'random' strategy (seed:2183365473).
+... Started the testing task scheduler (process:17368).
+... Created '1' testing task (process:17368).
+... Task 0 is using 'random' strategy (seed:1046544966).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
 ..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing AccountManager_0_0.txt
-..... Writing AccountManager_0_0.schedule
-... Elapsed 0.092809 sec.
+..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.txt
+..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.schedule
+... Elapsed 0.0743756 sec.
 ... Testing statistics:
 ..... Found 1 bug.
 ... Scheduling statistics:
-..... Explored 4 schedules: 4 fair and 0 unfair.
-..... Found 25.00% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 8 (min), 11 (avg), 14 (max).
-... Elapsed 0.2256287 sec.
+..... Explored 26 schedules: 26 fair and 0 unfair.
+..... Found 3.85% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
+... Elapsed 0.1574494 sec.
 ```
 
-Cool, we found the bug! Let's see now how Coyote can help us reproduce it. You can simple run
-`coyote replay` giving the `.schedule` file that Coyote dumps upon finding a bug:
+Cool, the flakey test is no longer flakey! Coyote can also help you reproduce and debug it. You can
+simply run `coyote replay` giving the `.schedule` file that Coyote outputs upon finding a bug:
 
 ```plain
 coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
@@ -363,32 +367,32 @@ coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m Test
 ... Elapsed 0.0671654 sec.
 ```
 
-Nice, the bug was reproduced. You can even use the `--break` option to attach the VS debugger and
-happily debug the deterministic trace to figure out what is causing the bug. You can repeat this as
-many times as you want!
+Nice, the bug was reproduced. You can use the `--break` option to attach the VS debugger and happily
+debug the deterministic trace to figure out what is causing the bug and take as long as you want,
+stepping through the code in the debug, and that will not change any timing conditions, the same bug
+will still happen. You can repeat this as many times as you want!
 
-In this tutorial, we saw that we were able to use Coyote to reliably reproduce the race condition in
-`AccountManager`. We did this with a tiny test (just two `CreateAccount` calls racing with each
+In this tutorial, you saw that you were able to use Coyote to reliably reproduce the race condition
+in `AccountManager`. You did this with a tiny test (just two `CreateAccount` calls racing with each
 other), as opposed to overloading the system with thousands of concurrent tasks through stress
 testing.
 
-This of course was a simple example, but it's easy to imagine the many non-trivial concurrency bugs
-in a much more complex codebase. Such bugs have very low probability of being caught during test
-time, if you don't use a tool like Coyote to systematically explore the interleavings. In the
-absence of such tools, these bugs can go undetected and occur sporadically in production, making
-them difficult to diagnose and debug. And who wants to stay awake at night debugging a live site!
+This of course was a simple example, but it's easy to imagine how Coyote can find many non-trivial
+concurrency bugs in a much more complex codebase. Such bugs have very low probability of being
+caught during test time if you don't use a tool like Coyote. In the absence of such tools, these
+bugs can go undetected and occur sporadically in production, making them difficult to diagnose and
+debug. No more late nights debugging a live site!
 
-In the [next tutorial](test-concurrent-operations.md), we will write few more concurrency unit tests
-for the `AccountManager` to increase our familiarity with Coyote.
+In the [next tutorial](test-concurrent-operations.md), you will write a few more concurrency unit
+tests for the `AccountManager` to increase our familiarity with Coyote.
 
 ## Get the sample source code
 
-To get the complete source code for the `AccountManager` tutorial, clone the
-[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-Note that the repo also contains the code from the [next tutorial](test-concurrent-operations.md) which
-builds upon this `AccountManager` sample.
+To get the complete source code for the `AccountManager` tutorial, clone the [Coyote Samples git
+repo](http://github.com/microsoft/coyote-samples). Note that the repo also contains the code from
+the [next tutorial](test-concurrent-operations.md) which builds upon this `AccountManager` sample.
 
-You can build the sample by running the following command:
+You can build the samples by running the following command:
 
 ```plain
 powershell -f build.ps1
@@ -401,7 +405,7 @@ cd .\bin\net5.0
 .\AccountManager.exe
 ```
 
-We have added some command line arguments to make it easy select which test to run:
+This version has some command line arguments to make it easy select which test to run:
 
 ```plain
 Usage: AccountManager [option]

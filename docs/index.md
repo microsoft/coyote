@@ -1,6 +1,6 @@
 # Concurrency Unit Testing with Coyote
 
-Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
+Coyote is .NET library and tool designed to help ensure that your code is free of bugs.
 
 Too often developers are drowning in the complexity of their own code and many hours are wasted
 trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or

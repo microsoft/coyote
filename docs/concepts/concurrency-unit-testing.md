@@ -113,12 +113,12 @@ tested in your system. Additionally, Coyote also offers ways of writing safety a
 
 Besides the popular [task-based programming
 model](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap)
-of C#, which Coyote is able to support without you having to modify your code, the
-`Microsoft.Coyote` library also provides APIs for expressing in-memory [asynchronous actors and
-state machines](../advanced-topics/actors/overview.md). Programs written using these more
-advanced types can also be systematically tested with Coyote similar to unmodified task-based
+of C#, you can also choose to use the `Microsoft.Coyote.Actor` library that provides APIs for
+expressing in-memory [asynchronous actors and state
+machines](../advanced-topics/actors/overview.md). Programs written using this more advanced
+programming model can also be systematically tested with Coyote similar to unmodified task-based
 programs.
 
-See this [demo](../advanced-topics/actors/state-machine-demo.md) which shows the systematic
-testing process in action on a test application that implements the [Raft consensus
+See this [demo](../advanced-topics/actors/state-machine-demo.md) which shows the systematic testing
+process in action on a test application that implements the [Raft consensus
 protocol](https://raft.github.io/) using Coyote state machines.

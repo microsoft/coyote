@@ -68,6 +68,7 @@ shows you what is happening behind the scenes.
 ## Sample structure
 
 The `ImageGallery.sln` solution consists of five projects (all will be discussed below):
+
 - `ImageGallery` - this is the web front end that uses the API service.
 - `ImageGalleryService` - this is the ASP.NET API service.
 - `ImageGalleryClient` - a helper API for talking to the service.

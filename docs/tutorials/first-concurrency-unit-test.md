@@ -21,6 +21,12 @@ To run the `AccountManager` example, you will need to:
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 - Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
 
+## Video
+
+You can also watch this tutorial on YouTube:
+
+[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t=32s)
+
 ## Walkthrough
 
 Without further ado, let's look at the signature of the `AccountManager` class:

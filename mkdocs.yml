@@ -52,10 +52,6 @@ nav:
   - Installing Coyote: get-started/install.md
   - Using Coyote: get-started/using-coyote.md
   - Building the source code: get-started/build-source.md
-- Case studies:
-  - Azure Batch Service: case-studies/azure-batch-service.md
-  - Azure Blockchain Service: case-studies/azure-blockchain-service.md
-  - Azure Blockchain Workbench: case-studies/azure-blockchain-workbench.md
 - Concepts:
   - Program non-determinism: concepts/non-determinism.md
   - Concurrency unit testing: concepts/concurrency-unit-testing.md
@@ -96,6 +92,10 @@ nav:
   - Code and activity coverage: tools/coverage.md
   - DGML diagrams: tools/dgml.md
   - Telemetry: tools/telemetry.md
+- Case studies:
+  - Azure Batch Service: case-studies/azure-batch-service.md
+  - Azure Blockchain Service: case-studies/azure-blockchain-service.md
+  - Azure Blockchain Workbench: case-studies/azure-blockchain-workbench.md
 - API documentation:
   - Microsoft.Coyote:
     - Overview: ref/Microsoft.Coyote.md

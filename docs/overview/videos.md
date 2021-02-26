@@ -2,7 +2,7 @@
 
 This YouTube video will show you how to write your first concurrency unit test and use Coyote to test your unmodified task-based C# code:
 
-[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t=32s)
+[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t)
 
 ## Webinar
 

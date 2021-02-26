@@ -14,7 +14,7 @@ you in writing correct concurrent code.
 
 Optionally, you can also watch this tutorial on YouTube:
 
-[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t=32s)
+[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t)
 
 ## What you will need
 

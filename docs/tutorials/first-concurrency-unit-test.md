@@ -12,6 +12,10 @@ where methods in multiple instances of the class can be called concurrently, eit
 process or across processes and machines. This latter condition means that using locks will not help
 you in writing correct concurrent code.
 
+Optionally, you can also watch this tutorial on YouTube:
+
+[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t=32s)
+
 ## What you will need
 
 To run the `AccountManager` example, you will need to:
@@ -20,12 +24,6 @@ To run the `AccountManager` example, you will need to:
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
 - Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
-
-## Video
-
-You can also watch this tutorial on YouTube:
-
-[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t=32s)
 
 ## Walkthrough
 

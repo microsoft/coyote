@@ -25,7 +25,7 @@ To run the `AccountManager` example, you will need to:
 
 Optionally, you can watch this tutorial on YouTube:
 
-[![image](../assets/images/coyote_tutorial_intro.png)](https://www.youtube.com/watch?v=TIrryFxNNWQ&t)
+[![image](../assets/images/coyote_tutorial_intro.png)](https://youtu.be/wuKo-9iRm6o)
 
 ## Walkthrough
 

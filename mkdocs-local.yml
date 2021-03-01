@@ -45,9 +45,9 @@ nav:
 - Overview:
   - Key benefits: overview/benefits.md
   - How does it work: overview/how.md
-  - Frequently asked questions: overview/faq.md
   - Videos: overview/videos.md
   - Publications: overview/publications.md
+  - FAQ: overview/faq.md
 - Get started with Coyote:
   - Installing Coyote: get-started/install.md
   - Using Coyote: get-started/using-coyote.md
@@ -86,8 +86,8 @@ nav:
     - Raft actor service (on Azure): tutorials/actors/raft-azure.md
     - Raft actor service (mocked): tutorials/actors/raft-mocking.md
 - Tools:
+  - Rewriting: tools/rewriting.md
   - Testing: tools/testing.md
-  - Rewriting tool: tools/rewriting.md
   - Unit testing: tools/unit-testing.md
   - Tester requirements: tools/tester-requirements.md
   - Code and activity coverage: tools/coverage.md

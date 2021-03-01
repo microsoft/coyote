@@ -1,4 +1,4 @@
-## Coyote rewriting tool
+## Rewriting binaries for testing with Coyote
 
 The `coyote` command line tool can be used to automatically rewrite any .NET binary to take over
 concurrency that is built using `System.Threading.Tasks.Task`. For details on what kinds of

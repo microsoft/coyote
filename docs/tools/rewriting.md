@@ -21,12 +21,11 @@ version of `coyote` then you simply run `dotnet coyote.dll ...` instead.
 
 ### Example usage
 
-The [BoundedBuffer example](https://github.com/microsoft/coyote-samples/tree/main/BoundedBuffer)
-is written with `System.Threading.Tasks.Task`. It does not start with `using
-Microsoft.Coyote.Tasks`. So `BoundedBuffer.cs` is pure .NET C# code that knows nothing about Coyote
+The [BoundedBuffer example](https://github.com/microsoft/coyote-samples/tree/main/BoundedBuffer) is
+written with `System.Threading.Tasks.Task`.It is is pure C# code that knows nothing about Coyote
 types.
 
-However, using `coyote rewrite` we can make it testable under `coyote test` tool as follows:
+Using `coyote rewrite` we can make it testable under the `coyote test` tool as follows:
 
 1. Build BoundedBuffer.sln
 2. coyote rewrite bin\net5.0\BoundedBuffer.dll

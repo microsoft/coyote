@@ -8,7 +8,7 @@ the github repo</a>
 
 ### Prerequisites
 
-- [.NET Core SDK 5.0](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet-core)
 
 **Optional:**
 

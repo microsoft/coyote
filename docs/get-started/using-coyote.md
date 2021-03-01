@@ -5,9 +5,9 @@ Assuming you have [installed Coyote](install.md), the best place to get started 
 concurrency unit test, which is also available as a [video on
 YouTube](https://youtu.be/wuKo-9iRm6o).
 
-Once you are ready to dive in, you can start by reading the [core
-concepts](../concepts/non-determinism.md) behind Coyote and how it can be used to [test the
-concurrency in your code](../concepts/concurrency-unit-testing.md).
+Once you are ready to dive in, you read the [core concepts](../concepts/non-determinism.md) behind
+Coyote and how it can be used to [test the concurrency in your
+code](../concepts/concurrency-unit-testing.md).
 
 There are many tutorials and samples available for you to explore Coyote further! To build the
 samples, clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), then use the

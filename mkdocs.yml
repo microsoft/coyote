@@ -51,7 +51,7 @@ nav:
 - Get started with Coyote:
   - Installing Coyote: get-started/install.md
   - Using Coyote: get-started/using-coyote.md
-  - Building the source code: get-started/build-source.md
+  - Building from source: get-started/build-source.md
 - Concepts:
   - Program non-determinism: concepts/non-determinism.md
   - Concurrency unit testing: concepts/concurrency-unit-testing.md
@@ -82,6 +82,7 @@ nav:
     - Hello world: tutorials/actors/hello-world.md
     - Coffee machine failover: tutorials/actors/failover-coffee-machine.md
     - Robot navigator failover: tutorials/actors/failover-robot-navigator.md
+    - Bug in failure detector: tutorials/actors/failure-detector.md
     - Raft actor service (on Azure): tutorials/actors/raft-azure.md
     - Raft actor service (mocked): tutorials/actors/raft-mocking.md
 - Tools:

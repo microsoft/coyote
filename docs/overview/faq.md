@@ -70,7 +70,7 @@ using Coyote in early stages of development.
 
 #### How do Coyote actors compare against other actor frameworks?
 
-See [How are Coyote Actors different from existing Microsoft Actor frameworks?](../advanced-topics/actors/why-actors.md).
+Read [how are Coyote Actors different from existing Microsoft Actor frameworks](../advanced-topics/actors/why-actors.md).
 <br/><br/>
 
 #### How is Coyote different from other similar systems out there?

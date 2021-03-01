@@ -9,9 +9,10 @@ Once you are ready to dive in, you read the [core concepts](../concepts/non-dete
 Coyote and how it can be used to [test the concurrency in your
 code](../concepts/concurrency-unit-testing.md).
 
-There are many tutorials and samples available for you to explore Coyote further! To build the
-samples, clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), then use the
-following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
+There are many tutorials and samples available for you to explore Coyote further!
+
+To build the samples, clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples),
+then use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 
 ```plain
 powershell -f build.ps1

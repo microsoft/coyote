@@ -13,7 +13,7 @@ if you are on Windows.
 
 - [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 
-- Add the [DGML editor](../tools/dgml.md) feature of Visual Studio 2019.
+- Add the [DGML editor](../how-to/generate-dgml.md) feature of Visual Studio 2019.
 
 ### Installing the NuGet package
 
@@ -37,7 +37,7 @@ dotnet add <yourproject>.csproj package Microsoft.Coyote
 dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
 ```
 
-### Installing the .NET 5.0 coyote tool
+### Installing the .NET 5.0 Coyote tool
 
 You can also install the `dotnet tool` named `coyote` for .NET 5.0 using the following command:
 
@@ -64,6 +64,10 @@ dotnet tool uninstall --global Microsoft.Coyote.CLI
 **Note:** this command line tool is only for .NET Core. If you need a version of `coyote.exe` that
 runs on .NET Framework, this is installed from the `Microsoft.Coyote.Test` package, and you can run
 it from the bin folder of your Coyote application.
+
+### Using the Coyote tool
+
+To learn how to use the Coyote tool read [here](using-coyote.md).
 
 ### Troubleshooting
 

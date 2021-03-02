@@ -16,7 +16,7 @@ Coyote controls the execution of each `Task` so that it can explore various diff
 to find and deterministically reproduce concurrency bugs.
 
 Although Coyote supports testing unmodified task-based programs, it also gives you the option to use
-the Coyote in-memory [actor and state machine types](advanced-topics/actors/overview.md) from the
+the Coyote in-memory [actor and state machine types](concepts/actors/overview.md) from the
 `Microsoft.Coyote.Actors` library. This is a more advanced asynchronous reactive programming model.
 This approach requires you to change the design of your application, but gives you powerful (and
 battle-tested inside Azure) constructs for building highly-reliable applications.
@@ -49,7 +49,7 @@ makes a bug reported by the tool significantly easier to debug than regular unit
 and logs from production or stress tests, which are typically nondeterministic. No more
 [Heisenbugs](https://en.wikipedia.org/wiki/Heisenbug)!
 
-See [animating state machine demo](../advanced-topics/actors/state-machine-demo.md) for a visual
+See [animating state machine demo](../concepts/actors/state-machine-demo.md) for a visual
 explanation of what Coyote does when it is looking for bugs.
 
 Follow this [tutorial](../tutorials/first-concurrency-unit-test.md) to to write your first

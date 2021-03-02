@@ -21,7 +21,7 @@ public interface IActorRuntime : ICoyoteRuntime
 
 ## Remarks
 
-See [Programming model: asynchronous actors](/coyote/advanced-topics/actors/overview) for more information.
+See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
 
 ## See Also
 

@@ -33,9 +33,9 @@ be restarted; it remains halted forever.
 The Coyote runtime implements actor termination efficiently by cleaning up resources allocated to a
 halted actor and recording that the actor has halted.
 
-Actor termination via `Halt` is an asynchronous operation.  So in failover scenarios where you need
+Actor termination via `Halt` is an asynchronous operation. So in failover scenarios where you need
 to be sure an actor is fully terminated before creating it's replacement actor, you will need to
 create a handshake callback event sent from `OnHaltAsync` telling the caller that the actor has
 officially halted, otherwise there will be a brief period of time where both actors are alive which
-may not be what you want when modeling a failover situation.  This is shown in the [Coffee machine
-failover](../../tutorials/actors/failover-coffee-machine.md) tutorial.
+may not be what you want when modeling a failover situation. This is shown in the [test
+failover](../../tutorials/actors/test-failover.md) tutorial.

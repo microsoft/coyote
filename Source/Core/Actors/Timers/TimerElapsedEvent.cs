@@ -7,7 +7,7 @@ namespace Microsoft.Coyote.Actors.Timers
     /// Defines a timer elapsed event that is sent from a timer to the actor that owns the timer.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/advanced-topics/actors/timers">Using timers in actors</see> for more information.
+    /// See <see href="/coyote/concepts/actors/timers">Using timers in actors</see> for more information.
     /// </remarks>
     public class TimerElapsedEvent : Event
     {

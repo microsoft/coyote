@@ -207,5 +207,5 @@ exactly when the progress will happen. In practice, of course, you cannot wait f
 executions: there is only a finite amount of time available to testing. The tester resorts to
 heuristics: it considers a sufficiently long and hot execution as a proxy for a liveness violation.
 You can configure a bound beyond which executions are considered infinite using the
-`--liveness-temperature-threshold` argument on the [coyote test](../tools/testing.md) tool.
+`--liveness-temperature-threshold` argument on the [coyote tool](../get-started/using-coyote.md).
 [Keep reading](liveness-checking.md) to learn more on how liveness checking all works.

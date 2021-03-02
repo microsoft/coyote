@@ -3,7 +3,7 @@
 
 [HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
 started using the Coyote [actors programming
-model](../../advanced-topics/actors/overview.md).
+model](../../concepts/actors/overview.md).
 
 ## What you will need
 
@@ -12,7 +12,7 @@ To run the Hello World Actors  example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote` tool. See [Testing](../../get-started/using-coyote.md).
 
 ## Build the samples
 
@@ -87,7 +87,6 @@ Starting TestingProcessScheduler in process 16432
 ..... Number of scheduling points in fair terminating schedules: 23 (min), 30 (avg), 37 (max).
 ... Elapsed 0.1819877 sec.
 . Done
-
 ```
 
 The Coyote tester has found the bug very quickly&mdash;something that takes much longer if testing
@@ -95,13 +94,12 @@ manually. When using Coyote for testing more complex, real-world systems the tim
 huge! This will give you the ability to find and fix even the most difficult to reproduce
 concurrency bugs **before pushing to production**.
 
-To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing
-bugs](../../tools/testing.md).
+To learn more about testing with Coyote read [here](../../get-started/using-coyote.md).
 
 ## The Greeter
 
 Please read [Programming model: asynchronous
-actors](../../advanced-topics/actors/overview.md) to gain a basic understanding of the
+actors](../../concepts/actors/overview.md) to gain a basic understanding of the
 Actors programming model.
 
 The core of an `Actor` based Coyote program, is, well, an `Actor` class! The following `Actor` named

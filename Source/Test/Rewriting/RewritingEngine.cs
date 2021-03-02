@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Rewriting
     /// Engine that can rewrite a set of assemblies for systematic testing.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/tools/rewriting">Coyote rewriting tool</see> for more information.
+    /// See <see href="/coyote/get-started/rewriting">rewriting</see> for more information.
     /// </remarks>
     public class RewritingEngine
     {

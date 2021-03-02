@@ -29,7 +29,7 @@ timeouts, failures and re-orderings).
 #### Will Coyote slow down my production code?
 
 No, Coyote testing works on [unmodified code](../concepts/binary-rewriting.md). If you decide to use
-the _optional_ Coyote [actors](../advanced-topics/actors/overview.md) API to build your system, then
+the _optional_ Coyote [actors](../concepts/actors/overview.md) API to build your system, then
 there is minimal production overhead as Coyote actors were designed to be lightweight (they are
 in-memory objects that execute on top of a C# task) and have been battle-tested by several teams
 inside Azure.
@@ -70,7 +70,7 @@ using Coyote in early stages of development.
 
 #### How do Coyote actors compare against other actor frameworks?
 
-Read [how are Coyote Actors different from existing Microsoft Actor frameworks](../advanced-topics/actors/why-actors.md).
+Read [how are Coyote Actors different from existing Microsoft Actor frameworks](../concepts/actors/why-actors.md).
 <br/><br/>
 
 #### How is Coyote different from other similar systems out there?

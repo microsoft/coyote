@@ -150,5 +150,5 @@ To try out more samples that show how to use Coyote to systematically test task-
 the following:
 
 - [Account manager](../../../tutorials/account-manager)
-- [Bounded buffer](../../../tutorials/bounded-buffer)
-- [Coffee machine failover](../../../tutorials/failover-coffee-machine)
+- [Bounded buffer](../../../samples/tasks/bounded-buffer)
+- [Coffee machine failover](../../../tutorials/test-failover)

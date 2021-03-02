@@ -12,7 +12,7 @@ To run the `BoundedBuffer` example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
+- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
 
 ## Build the samples
 
@@ -50,9 +50,9 @@ But how do we test concurrency in our code? Testing tools and frameworks have no
 pace of language innovation and so this is where `Coyote` comes to the rescue. When you use Coyote
 to test your programs you will find concurrency bugs that are very hard to find any other way.
 
-Coyote rewrites your `async tasks` in a way that allows the [coyote test](../tools/testing.md) tool
-to control all the concurrency and locking in your program and this allows it to find bugs using
-intelligent [systematic testing](../concepts/concurrency-unit-testing.md).
+Coyote rewrites your `async tasks` in a way that allows the [coyote tool](../get-started/using-coyote.md)
+to control all the concurrency and locking in your program and this allows it to find bugs
+using intelligent [systematic testing](../concepts/concurrency-unit-testing.md).
 
 For example, if you take the `BoundedBuffer.dll` from the above sample you can do the following:
 

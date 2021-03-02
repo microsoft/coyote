@@ -132,8 +132,8 @@ the `RegisterLog` method on `IActorRuntime`.  This is additive so you can have t
 `ActorRuntimeLogTextFormatter` and another logger running at the same time.  For example, see the
 `ActorRuntimeLogGraphBuilder` class which implements `IActorRuntimeLog` and generates a directed
 graph representing all activities that happened during the execution of your actors. See [activity
-coverage](../../tools/coverage.md) for an example graph output. The `coyote` test tool sets this up for
-you when you specify `--graph` or `--coverage activity` command line options.
+coverage](../../how-to/coverage.md) for an example graph output. The `coyote` test tool
+sets this up for you when you specify `--graph` or `--coverage activity` command line options.
 
 The `--verbosity` command line option can also affect the default logging behavior. When
 `--verbosity` is specified all log output is written to the `System.Console` by default, but you

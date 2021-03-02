@@ -1,5 +1,5 @@
 
-## DGML diagrams
+## Generate DGML diagrams
 
 Coyote generates Directed Graph Markup Language ([DGML](https://en.wikipedia.org/wiki/DGML))
 diagrams showing the states and events discovered during testing of a state machine. DGML diagrams

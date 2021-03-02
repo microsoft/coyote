@@ -108,8 +108,7 @@ would be very hard to discover using traditional testing techniques.
 During testing, the `coyote` tester executes a program from start to finish for a given number of
 testing iterations. During each iteration, the tester is exploring a potentially different
 serialized execution path. If a bug is discovered, the tester will terminate and dump a reproducible
-trace (including a human readable version of it). If you get unexpected errors, please check that
-your test code is adhering to the [Tester requirements](tester-requirements.md).
+trace (including a human readable version of it).
 
 See [below](#reproducing-and-debugging-traces) to learn how to reproduce traces and debug them using
 a supported version of Visual Studio.

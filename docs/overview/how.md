@@ -2,11 +2,11 @@
 ## How does it work?
 
 First, you need to write a [concurrency unit test](../concepts/concurrency-unit-testing.md). These
-tests allow (and encourage) the use of concurrency and [non-determinism](non-determinism.md), which
-you would normally avoid in traditional unit tests due to flakiness. By writing such a test, Coyote
-allows you to exercise what happens, for example, when [two requests execute
-concurrently](../tutorials/first-concurrency-unit-test.md) in your service, as if it was deployed in
-production.
+tests allow (and encourage) the use of concurrency and
+[non-determinism](../concepts/non-determinism.md), which you would normally avoid in traditional
+unit tests due to flakiness. By writing such a test, Coyote allows you to exercise what happens, for
+example, when [two requests execute concurrently](../tutorials/first-concurrency-unit-test.md) in
+your service, as if it was deployed in production.
 
 To use Coyote, you do not need to change a single line in your production code! Using [binary
 rewriting](../concepts/binary-rewriting.md), the `coyote rewrite` tool will instrument your
@@ -16,7 +16,7 @@ Coyote controls the execution of each `Task` so that it can explore various diff
 to find and deterministically reproduce concurrency bugs.
 
 Although Coyote supports testing unmodified task-based programs, it also gives you the option to use
-the Coyote in-memory [actor and state machine types](concepts/actors/overview.md) from the
+the Coyote in-memory [actor and state machine types](../concepts/actors/overview.md) from the
 `Microsoft.Coyote.Actors` library. This is a more advanced asynchronous reactive programming model.
 This approach requires you to change the design of your application, but gives you powerful (and
 battle-tested inside Azure) constructs for building highly-reliable applications.

@@ -233,7 +233,7 @@ class MyActor : Actor
 ```
 
 If you run this test setting `WithXmlLogEnabled(true)` on the `Configuration` you will get the
-following [DGML diagram](dgml.md) showing you what happened during this test:
+following [DGML diagram](generate-dgml.md) showing you what happened during this test:
 
 ![unittest](../assets/images/unittest.svg)
 

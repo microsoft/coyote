@@ -1,4 +1,4 @@
-## Program specifications
+## Writing program specifications
 
 Coyote makes it easy to design and express system-level specifications that can be asserted during
 testing. Specifications come in two forms. _Safety_ specifications assert that the system never
@@ -6,7 +6,7 @@ enters a _bad_ state. _Liveness_ specifications assert that the system eventuall
 _good_, that is, it asserts that the system is always able to make progress. These can be written
 using a `Monitor`.
 
-## Writing safety properties
+### Specifying safety properties
 
 Safety property specifications generalize the notion of source code assertions. A safety property
 violation is a finite execution that leads a system to an erroneous state. Coyote provides an API
@@ -120,7 +120,7 @@ You can use monitors with the tasks programming model as well. Simply use
 in `ICoyoteRuntime`.  A `Task` program can still use an `ICoyoteRuntime` if it wants to, the static
 methods are just provided as a convenience way to find the current `ICoyoteRuntime`.
 
-## Writing liveness properties
+### Specifying liveness properties
 
 Liveness property specifications generalize the notion of _non-termination_. A liveness property
 violation is an infinite trace that exhibits lack of progress. Let's explain this concept through an
@@ -208,4 +208,6 @@ executions: there is only a finite amount of time available to testing. The test
 heuristics: it considers a sufficiently long and hot execution as a proxy for a liveness violation.
 You can configure a bound beyond which executions are considered infinite using the
 `--liveness-temperature-threshold` argument on the [coyote tool](../get-started/using-coyote.md).
-[Keep reading](liveness-checking.md) to learn more on how liveness checking all works.
+
+Read this [how-to guide](../how-to/liveness-checking.md) to learn how to effectively test for
+liveness bugs using Coyote.

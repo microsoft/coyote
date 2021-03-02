@@ -13,7 +13,7 @@ bad things might happen? Can we design a code that can handle this scenario and 
 tolerant coffee machine?
 
 An identical version of this tutorial is also available that uses the coyote [asynchronous
-actors](actors/failover-coffee-machine.md) programming model.
+actors](actors/test-failover.md) programming model.
 
 The following diagram shows how Coyote can be used to test this scenario and help you design more
 reliable software.

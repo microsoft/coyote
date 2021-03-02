@@ -1,5 +1,8 @@
 ## Find liveness bugs effectively
 
+Now that you learned [how to write liveness specifications](../concepts/specifications.md) in
+Coyote, let's see how to effectively test for liveness bugs.
+
 The presence of monitors that have `Hot` and `Cold` states implicitly specifies two assertions.
 Monitor states that are marked neither `Hot` nor `Cold` are called _warm_ states. First, any
 terminated execution of the program must not have a monitor in a hot state. Second, the program

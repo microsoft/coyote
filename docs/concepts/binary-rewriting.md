@@ -26,7 +26,8 @@ adding support for more APIs over time, but if something you need is missing ple
 
 ## Quality of life improvements through rewriting
 
-Coyote will automatically rewrite certain parts of your test code (without changing the application semantics) to improve the testing experience. For example:
+Coyote will automatically rewrite certain parts of your test code (without changing the application
+semantics) to improve the testing experience. For example:
 
 During testing coyote needs to be able to terminate a test iteration at any time in order to support
 the `--max-steps` command line argument. This termination is done using a special coyote
@@ -38,9 +39,7 @@ the `--max-steps` command line argument. This termination is done using a specia
 } catch (RuntimeException) {
 ```
 
-these will inadvertently catch the special Coyote exception, which then stops `--max-steps` from
-working. The recommended fix is to add a `when (!(e is Microsoft.Coyote.RuntimeException))`
-filter as shown in [tester requirements](../tools/tester-requirements.md).
-
+These will inadvertently catch the special Coyote exception, which then stops `--max-steps` from
+working. The recommended fix is to add a `when (!(e is Microsoft.Coyote.RuntimeException))` filter.
 The good news is that `coyote rewrite` can take care of this for you automatically so you do not
 need to modify any of your exception handlers.

@@ -13,7 +13,7 @@ You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote` tool. See [Testing](../../get-started/using-coyote.md).
 
 ## Build the samples
 
@@ -73,7 +73,7 @@ Attach a debugger during replay and you can see what exactly is going wrong.
 
 You might be wondering what the `Monitors` sample app is really doing. The `coyote` command line
 tool can help you with that also. If you run the following command line it will produce a [DGML
-diagram](../../tools/dgml.md) of the state machines that are being tested:
+diagram](../../how-to/generate-dgml.md) of the state machines that are being tested:
 
 ```plain
 coyote test ./bin/net5.0/Monitors.dll --iterations 10 --max-steps 20 --graph

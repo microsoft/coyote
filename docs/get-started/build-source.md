@@ -1,7 +1,7 @@
 ## Build from source
 
-If you plan to contribute a Pull Request to the Coyote repo then you need to be able to build the
-Coyote source code and run the tests.
+If you plan to contribute a Pull Request to Coyote then you need to be able to build the source code
+and run the tests.
 
 <a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Clone
 the github repo</a>

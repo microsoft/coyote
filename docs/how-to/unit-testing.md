@@ -1,4 +1,4 @@
-## Unit testing with the Coyote systematic tester
+## Integrate Coyote with a unit testing framework
 
 Common unit testing frameworks like
 [MSTest](https://docs.microsoft.com/en-us/dotnet/concepts/testing/unit-testing-with-mstest),

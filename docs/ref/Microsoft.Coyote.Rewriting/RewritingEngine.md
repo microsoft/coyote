@@ -15,7 +15,7 @@ public class RewritingEngine
 
 ## Remarks
 
-See [Coyote rewriting tool](/coyote/tools/rewriting) for more information.
+See [Coyote rewriting tool](/coyote/get-started/rewriting) for more information.
 
 ## See Also
 

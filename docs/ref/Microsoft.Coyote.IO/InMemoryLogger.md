@@ -21,7 +21,7 @@ public sealed class InMemoryLogger : TextWriter, ILogger
 
 ## Remarks
 
-See [Logging](/coyote/advanced-topics/actors/logging) for more information.
+See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 

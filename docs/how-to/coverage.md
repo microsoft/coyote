@@ -1,12 +1,12 @@
 
-## Code and Actor activity coverage
+## Track code and actor activity coverage
 
 Standard code coverage tools record the percentage of code lines that are actually executed by test
 cases. Coyote additionally defines the higher-level metric _Actor Activity Coverage_ that reports
 state transitions and the percentage of possible events that are actually executed during a run of
 `coyote` tester.
 
-## Coyote coverage options
+### Coyote coverage options
 
 Running `coyote /?` displays a summary of command-line options. Here is the section describing
 options to report code and activity coverage:
@@ -42,7 +42,7 @@ Detailed descriptions are provided in subsequent sections. The following provide
   Coyote maintains the history of events and state transitions for reporting the coverage of the
   actors and state machines being tested.
 
-## Output file locations
+### Output file locations
 
 By default, at the end of testing the report files are written to a directory named
 `Output/[assemblyToTest]/CoyoteOutput` in the directory specified by the `path` argument. If
@@ -52,12 +52,12 @@ By default, at the end of testing the report files are written to a directory na
 Details of the report files that are created for the separate coverage types are provided in
 subsequent sections.
 
-## Actor activity coverage
+### Actor activity coverage
 
 Actor activity coverage includes event coverage, which is defined in the following section, as well
 as a summary of states that were entered and exited and which state transitions occurred.
 
-## Definition of event coverage
+### Definition of event coverage
 
 A tuple `(M, S, E)` is said to be _defined_ if state S of machine M is prepared to receive an event
 of type E, i.e., it has an action defined for the event.
@@ -70,7 +70,7 @@ program. The higher this metric, the better testing exercised all these combinat
 program. As with other coverage metrics, obtaining 100% coverage may be unrealistic as it depends
 on the particular test harness being used.
 
-## Activity coverage output files
+### Activity coverage output files
 
 If the option `--coverage`, `--coverage activity`, or `--coverage activity-debug` is passed to
 `coyote`, the following files will be written to the [output directory](#output-file-locations) (for
@@ -87,7 +87,7 @@ example, given `path` equal to `PingPong.exe`):
 Note that while `--coverage` is a shortcut for specifying both `--coverage code` and `--coverage
 activity`, you must specify `--coverage activity-debug` explicitly.
 
-## Activity coverage visualization example
+### Activity coverage visualization example
 
 The activity coverage can additionally be displayed in [DGML diagram](dgml.md) format. Run `coyote` as
 described in the [`coyote` examples](#coyote-test-examples) section below. This produces a file in
@@ -97,7 +97,7 @@ machines, states and transitions witnessed during the testing of the program. Th
 inter-machine transitions. These transitions are usually auto-hidden when opened in Visual Studio,
 but visible when you click on a state.
 
-## Code coverage
+### Code coverage
 
 For code coverage, `coyote` instruments the `path` assembly and the binaries it depends upon via
 `VSInstr.exe`. `VSPerfCmd.exe` is launched while the test runs, and is terminated when the test is
@@ -116,7 +116,7 @@ do by specifying the following build properties:
 `VSPerfCmd.exe` collects data from all running processes, so do not run multiple coverage tests at
 the same time.
 
-## Code coverage binary instrumentation
+### Code coverage binary instrumentation
 
 `coyote` instruments the following binaries (via `VSInstr.exe`):
 * `path`: this is the path to the assembly that is being tested.
@@ -132,7 +132,7 @@ names as the app settings:
 - `VSInstrToolPath`
 - `VSPerfCmdToolPath`
 
-## Code coverage output files
+### Code coverage output files
 
 If the option `--coverage` or `--coverage code` is passed to `coyote`, the following files will be
 written to the [output directory](#output-file-locations) (for example, if `path` is
@@ -148,7 +148,7 @@ able to load the `.coverage` file. If you want keep track of code-coverage impro
 you can use the `coyote test --outdir` option to collect multiple coverage files in different
 locations.
 
-## Coyote test examples
+### Coyote test examples
 
 First build the [coyote-samples](https://github.com/microsoft/coyote-samples) repo by running the
 following command:
@@ -180,7 +180,7 @@ coyote test ./bin/net5.0/Monitors.exe -i 10 --coverage code activity-debug
 
 This generates code and activity coverage, including debug activity output.
 
-## Troubleshooting
+### Troubleshooting
 
 #### Error VSP1394: Could not start profile monitor
 

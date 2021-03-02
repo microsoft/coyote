@@ -35,7 +35,7 @@ read more about binary rewriting in Coyote [here](binary-rewriting.md).
 Take the simple example that was used to explain concurrency [non-determinism](non-determinism.md).
 Notice that the code below is using the C# `Task` type. Coyote understands this `Task` type and is
 able to control its schedule during systematic testing, as discussed above and
-[here](../advanced-topics/tasks/overview.md).
+[here](../concepts/tasks/overview.md).
 
 ```c#
 using System.Threading.Tasks;
@@ -115,10 +115,10 @@ Besides the popular [task-based programming
 model](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap)
 of C#, you can also choose to use the `Microsoft.Coyote.Actor` library that provides APIs for
 expressing in-memory [asynchronous actors and state
-machines](../advanced-topics/actors/overview.md). Programs written using this more advanced
+machines](../concepts/actors/overview.md). Programs written using this more advanced
 programming model can also be systematically tested with Coyote similar to unmodified task-based
 programs.
 
-See this [demo](../advanced-topics/actors/state-machine-demo.md) which shows the systematic testing
+See this [demo](../concepts/actors/state-machine-demo.md) which shows the systematic testing
 process in action on a test application that implements the [Raft consensus
 protocol](https://raft.github.io/) using Coyote state machines.

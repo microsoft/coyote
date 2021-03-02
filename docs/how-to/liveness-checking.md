@@ -1,4 +1,4 @@
-## Effective liveness checking
+## Find liveness bugs effectively
 
 The presence of monitors that have `Hot` and `Cold` states implicitly specifies two assertions.
 Monitor states that are marked neither `Hot` nor `Cold` are called _warm_ states. First, any
@@ -19,9 +19,9 @@ The tester accepts a flag `--max-steps N`. Using this flag, you can say that the
 to execute around N steps per test iteration. Executions substantially longer than N are treated as
 potential infinite executions. But what is a step and how does one estimate N? This can be done
 using a few iterations of the tester. For example, consider the [failover coffee machine using
-actors](../tutorials/actors/failover-coffee-machine.md) sample program. Assuming you have
+actors](../tutorials/actors/test-failover.md) sample program. Assuming you have
 [built the samples](../get-started/install.md#building-the-samples) you can test it with
-the [coyote test](../tools/testing.md) tool as follows, setting N steps as 200.
+the [coyote tool](../get-started/using-coyote.md) as follows, setting N steps as 200.
 
 From the `coyote-samples` folder:
 

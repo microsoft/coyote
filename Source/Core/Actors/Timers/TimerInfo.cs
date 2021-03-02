@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Actors.Timers
     /// Stores information about a timer that can send timeout events to its owner actor.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/advanced-topics/actors/timers">Using timers in actors</see> for more information.
+    /// See <see href="/coyote/concepts/actors/timers">Using timers in actors</see> for more information.
     /// </remarks>
     public class TimerInfo : IEquatable<TimerInfo>
     {

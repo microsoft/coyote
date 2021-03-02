@@ -4,14 +4,14 @@
 The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/CloudMessaging) sample
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
-machine demo](../../advanced-topics/actors/state-machine-demo.md) which shows the Coyote
+machine demo](../../concepts/actors/state-machine-demo.md) which shows the Coyote
 [systematic testing process](../../concepts/concurrency-unit-testing.md) in action on this application.
 
 This example is organized into the following projects:
 
 - **Raft** - a .NET Core C# class library that implements the [Raft Consensus
   Algorithm](https://raft.github.io/) using the Coyote [Actor Programming
-  Model](../../advanced-topics/actors/overview.md).
+  Model](../../concepts/actors/overview.md).
 - **Raft.Azure** - a C# executable that shows how to run Coyote messages through an [Azure Service
   Bus](https://azure.microsoft.com/en-us/services/service-bus/).
 - **Raft.Mocking** - demonstrates how to use mocks to systematically test the CloudMessaging sample
@@ -33,7 +33,7 @@ You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote` tool. See [Testing](../../get-started/using-coyote.md).
 
 ## Setup Azure
 
@@ -76,7 +76,7 @@ complete the [mocking](raft-mocking.md) of the Azure Message Bus calls.
 ## Design
 
 The `Raft.dll` library contains a `Server` [state
-machine](../../advanced-topics/actors/state-machines.md), and a `ClusterManager` state machine. It also
+machine](../../concepts/actors/state-machines.md), and a `ClusterManager` state machine. It also
 contains an interface named `IServerManager` and some Coyote `Event` declarations which describe the
 message types that are sent between the Server instances and the Client.
 
@@ -242,7 +242,7 @@ In this tutorial you learned:
    machine design can be continually maintained in your code, and this way Coyote is ensuring design
    and implementation remain in sync over time.
 4. How to reserve an `ActorId` before creating an `Actor` using `CreateActorIdFromName`.
-5. How to great [DGML diagram](../../tools/dgml.md) of production runs by registering the
+5. How to great [DGML diagram](../../how-to/generate-dgml.md) of production runs by registering the
    `ActorRuntimeLogGraphBuilder`.
 
 Now you need to be sure this `Server` protocol implementation is trustworthy, and for that you can

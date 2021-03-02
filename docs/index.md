@@ -104,14 +104,10 @@ Get started with the following links:
 
 [Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
 
-[Write your first concurrency unit test with Coyote](tutorials/first-concurrency-unit-test.md)
+[Learn how to use Coyote in practice](tutorials/overview.md)
 
-[Check out this cool demo showing Coyote in practice](advanced-topics/actors/state-machine-demo/)
+[Read about core concepts behind Coyote](concepts/non-determinism.md)
 
-[Learn the core concepts behind Coyote](concepts/non-determinism.md)
-
-[Read how various Azure teams are using Coyote](case-studies/azure-batch-service.md)
-
-[Say hello on Gitter](https://gitter.im/Microsoft/coyote)
+[Learn how various Azure teams are using Coyote](case-studies/azure-batch-service.md)
 
 [Contribute on Github](https://github.com/microsoft/coyote/)

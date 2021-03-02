@@ -67,4 +67,4 @@ upgrade your applications and services. Contact us if you have any questions or 
   replay ...`. The command line options remain pretty much the same, but the way they are declared
   has changed from (for example) `-max-steps:100` to `--max-steps 100` (single character arguments
   are used with a single `-`, e.g. `-i 100`). Read more details in the documentation on using the
-  `coyote` command line tool [here](../tools/testing.md).
+  `coyote` command line tool [here](../get-started/using-coyote.md).

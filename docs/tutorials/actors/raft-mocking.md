@@ -8,8 +8,8 @@ enterprise scale service bus, which limits our ability to fully test the state m
 
 Clearly a fault-tolerant server consensus protocol needs to be thoroughly tested, which is what you
 will do in this tutorial. First you will `mock` the Azure Service Bus which allows the [Coyote
-tester](../../tools/testing.md) to perform thousands of tests per second and thereby find bugs
-in the application code more efficiently.
+tester](../../get-started/using-coyote.md) to perform thousands of tests per second and thereby find
+bugs in the application code more efficiently.
 
 Then you will use the `coyote test` tool to explore the code using different test strategies until
 you achieve a high level of confidence that the code is rock solid.
@@ -21,7 +21,7 @@ You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote test` tool. See [Testing](../../tools/testing.md).
+- Be familiar with the `coyote` tool. See [Testing](../../get-started/using-coyote.md).
 
 ## Build the samples
 
@@ -103,7 +103,7 @@ every possible interleaving of asynchronous operations. This systematic approach
 doesn't just test the same happy paths over and over (like a stress test does) but instead it is
 more likely to find one bad path where a bug is hiding.
 
-The `--coverage` report also generates a [DGML diagram](../../tools/dgml.md) of all the
+The `--coverage` report also generates a [DGML diagram](../../how-to/generate-dgml.md) of all the
 messages sent during the test. You can browse these graphs using Visual Studio. The file name in
 this case is `Raft.Mocking.dgml` and it will look something like this:
 

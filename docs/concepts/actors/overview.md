@@ -19,7 +19,7 @@ State machines are actors that have explicitly declared states and state transit
 oriented class that has member variables is really also just a state machine where that state is
 updated as methods are called, but sometimes this gets really complicated and hard to test. Formal
 state machines help you model your states more explicitly and [coyote
-tester](../../tools/testing.md) can help you find bugs by exploring different state transitions
+tester](../../get-started/using-coyote.md) can help you find bugs by exploring different state transitions
 using information you provide declaring how various types of events causes those state transitions.
 
 See also: [how are Coyote Actors different from existing Microsoft Actor frameworks?](why-actors.md).

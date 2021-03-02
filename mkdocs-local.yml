@@ -52,47 +52,47 @@ nav:
   - Installing Coyote: get-started/install.md
   - Using Coyote: get-started/using-coyote.md
   - Building from source: get-started/build-source.md
+  - Telemetry: get-started/telemetry.md
+- Tutorials:
+  - Overview: tutorials/overview.md
+  - Write your first concurrency unit test: tutorials/first-concurrency-unit-test.md
+  - Test concurrent CRUD operations: tutorials/test-concurrent-operations.md
+  - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
+  - Test failover and liveness: tutorials/test-failover.md
+  - Actors and state machines:
+    - Hello world with actors: tutorials/actors/hello-world.md
+    - Raft actor service (on Azure): tutorials/actors/raft-azure.md
+    - Raft actor service (mocked): tutorials/actors/raft-mocking.md
+    - Test failover and liveness: tutorials/actors/test-failover.md
 - Concepts:
   - Program non-determinism: concepts/non-determinism.md
   - Concurrency unit testing: concepts/concurrency-unit-testing.md
   - Binary rewriting for systematic testing: concepts/binary-rewriting.md
   - Program specifications: concepts/specifications.md
-  - Effective liveness checking: concepts/liveness-checking.md
-- Advanced topics:
-  - Improving coverage of interleavings: advanced-topics/interleavings.md
   - Actors and state machines:
-    - Overview: advanced-topics/actors/overview.md
-    - State machines: advanced-topics/actors/state-machines.md
-    - Actor semantics: advanced-topics/actors/actor-semantics.md
-    - Actor termination: advanced-topics/actors/termination.md
-    - Using timers in actors: advanced-topics/actors/timers.md
-    - Event groups: advanced-topics/actors/event-groups.md
-    - Semantics of unhandled exceptions: advanced-topics/actors/uncaught-exceptions.md
-    - Sharing objects: advanced-topics/actors/sharing-objects.md
-    - Logging: advanced-topics/actors/logging.md
-    - State machine demo: advanced-topics/actors/state-machine-demo.md
-    - Why Coyote actors?: advanced-topics/actors/why-actors.md
-- Tutorials and samples:
-  - Write your first concurrency unit test: tutorials/first-concurrency-unit-test.md
-  - Test concurrent CRUD operations: tutorials/test-concurrent-operations.md
-  - Deadlock in bounded-buffer: tutorials/bounded-buffer.md
-  - Coffee machine failover: tutorials/failover-coffee-machine.md
-  - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
+    - Overview: concepts/actors/overview.md
+    - State machines: concepts/actors/state-machines.md
+    - Actor semantics: concepts/actors/actor-semantics.md
+    - Actor termination: concepts/actors/termination.md
+    - Using timers in actors: concepts/actors/timers.md
+    - Event groups: concepts/actors/event-groups.md
+    - Semantics of unhandled exceptions: concepts/actors/uncaught-exceptions.md
+    - Sharing objects: concepts/actors/sharing-objects.md
+    - Logging: concepts/actors/logging.md
+    - State machine demo: concepts/actors/state-machine-demo.md
+    - Why Coyote actors?: concepts/actors/why-actors.md
+- How-to guides:
+  - Integrate with a unit testing framework: how-to/unit-testing.md
+  - Find liveness bugs effectively: how-to/liveness-checking.md
+  - Track code and actor activity coverage: how-to/coverage.md
+  - Generate DGML diagrams: how-to/generate-dgml.md
+- Samples:
+  - Overview: samples/overview.md
+  - Task-based C# programs:
+    - Deadlock in bounded-buffer: samples/tasks/bounded-buffer.md
   - Actors and state machines:
-    - Hello world: tutorials/actors/hello-world.md
-    - Coffee machine failover: tutorials/actors/failover-coffee-machine.md
-    - Robot navigator failover: tutorials/actors/failover-robot-navigator.md
-    - Bug in failure detector: tutorials/actors/failure-detector.md
-    - Raft actor service (on Azure): tutorials/actors/raft-azure.md
-    - Raft actor service (mocked): tutorials/actors/raft-mocking.md
-- Tools:
-  - Rewriting: tools/rewriting.md
-  - Testing: tools/testing.md
-  - Unit testing: tools/unit-testing.md
-  - Tester requirements: tools/tester-requirements.md
-  - Code and activity coverage: tools/coverage.md
-  - DGML diagrams: tools/dgml.md
-  - Telemetry: tools/telemetry.md
+    - Bug in failure detector: samples/actors/failure-detector.md
+    - Robot navigator failover: samples/actors/failover-robot-navigator.md
 - Case studies:
   - Azure Batch Service: case-studies/azure-batch-service.md
   - Azure Blockchain Service: case-studies/azure-blockchain-service.md

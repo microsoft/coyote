@@ -12,7 +12,7 @@ protected void StopTimer(TimerInfo info)
 
 ## Remarks
 
-See [Using timers in actors](/coyote/advanced-topics/actors/timers) for more information.
+See [Using timers in actors](/coyote/concepts/actors/timers) for more information.
 
 ## See Also
 

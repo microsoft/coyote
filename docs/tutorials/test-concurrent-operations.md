@@ -15,8 +15,7 @@ To run the `AccountManager` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
-- Be familiar with the `coyote test` tool. See [Testing](../tools/testing.md).
-- Be familiar with the `coyote rewrite` tool. See [Rewriting](../tools/rewriting.md).
+- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
 
 ## Walkthrough
 

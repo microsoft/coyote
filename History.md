@@ -1,3 +1,8 @@
+## v1.2.4
+- Improved how `coyote test` resolves ambiguous test method names.
+- Fixed a bug where awaiting a task from a previous test iteration that was canceled due to
+  `ExecutionCanceledException` would hang the tester.
+
 ## v1.2.3
 - Exposed the `TextWriterLogger` type.
 - Fixed a configuration bug where the `fairpct` strategy would be picked instead of `probabilistic`.

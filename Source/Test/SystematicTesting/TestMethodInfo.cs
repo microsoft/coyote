@@ -133,7 +133,8 @@ namespace Microsoft.Coyote.SystematicTesting
                             error = $"The method name '{methodName}' is ambiguous. Please specify the full test method name.";
                         }
                     }
-                    else if (filteredTestMethods.Count is 0)
+
+                    if (filteredTestMethods.Count is 0)
                     {
                         error = $"Cannot detect a Coyote test method name containing {methodName}.";
                     }

@@ -117,13 +117,25 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Filter by test method name.
                     filteredTestMethods = testMethods.FindAll(mi => string.Format("{0}.{1}",
                         mi.DeclaringType.FullName, mi.Name).Contains($"{methodName}"));
-                    if (filteredTestMethods.Count is 0)
+                    if (filteredTestMethods.Count > 1)
+                    {
+                        Dictionary<MethodInfo, int> methodEditDistanceMap = new Dictionary<MethodInfo, int>();
+                        foreach (var mi in filteredTestMethods)
+                        {
+                            int editDistance = GetEditDistance(string.Format("{0}.{1}", mi.DeclaringType.FullName, mi.Name), methodName);
+                            methodEditDistanceMap.Add(mi, editDistance);
+                        }
+
+                        int minEditDistance = methodEditDistanceMap.Min(kvp => kvp.Value);
+                        filteredTestMethods = filteredTestMethods.FindAll(mi => methodEditDistanceMap[mi] == minEditDistance);
+                        if (filteredTestMethods.Count > 1)
+                        {
+                            error = $"The method name '{methodName}' is ambiguous. Please specify the full test method name.";
+                        }
+                    }
+                    else if (filteredTestMethods.Count is 0)
                     {
                         error = $"Cannot detect a Coyote test method name containing {methodName}.";
-                    }
-                    else if (filteredTestMethods.Count > 1)
-                    {
-                        error = $"The method name '{methodName}' is ambiguous. Please specify the full test method name.";
                     }
                 }
                 else if (testMethods.Count > 1)
@@ -310,6 +322,51 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             return testMethods;
+        }
+
+        /// <summary>
+        /// Computes the Levenshtein distance between two strings.
+        /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Levenshtein_distance.
+        /// </remarks>
+        private static int GetEditDistance(string source, string target)
+        {
+            if (source.Length == 0)
+            {
+                return target.Length;
+            }
+
+            if (target.Length == 0)
+            {
+                return source.Length;
+            }
+
+            // Initialize the cost matrix.
+            int[,] costMatrix = new int[source.Length + 1, target.Length + 1];
+            for (int i = 0; i <= source.Length; i++)
+            {
+                costMatrix[i, 0] = i;
+            }
+
+            for (int j = 0; j <= target.Length; j++)
+            {
+                costMatrix[0, j] = j;
+            }
+
+            // Compute the cost matrix.
+            for (int i = 1; i <= source.Length; i++)
+            {
+                for (int j = 1; j <= target.Length; j++)
+                {
+                    int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+                    costMatrix[i, j] = Math.Min(
+                       Math.Min(costMatrix[i - 1, j] + 1, costMatrix[i, j - 1] + 1),
+                       costMatrix[i - 1, j - 1] + cost);
+                }
+            }
+
+            return costMatrix[source.Length, target.Length];
         }
     }
 }

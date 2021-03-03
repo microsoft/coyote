@@ -115,15 +115,15 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!string.IsNullOrEmpty(methodName))
                 {
                     // Filter by test method name.
-                    filteredTestMethods = testMethods.FindAll(mi => string.Format("{0}.{1}",
-                        mi.DeclaringType.FullName, mi.Name).Contains($"{methodName}"));
-                    if (filteredTestMethods.Count is 0)
-                    {
-                        error = $"Cannot detect a Coyote test method name containing {methodName}.";
-                    }
-                    else if (filteredTestMethods.Count > 1)
+                    filteredTestMethods = testMethods.FindAll(mi => mi.Name.Equals(methodName) ||
+                        string.Format("{0}.{1}", mi.DeclaringType.FullName, mi.Name).Equals(methodName));
+                    if (filteredTestMethods.Count > 1)
                     {
                         error = $"The method name '{methodName}' is ambiguous. Please specify the full test method name.";
+                    }
+                    else if (filteredTestMethods.Count is 0)
+                    {
+                        error = $"Cannot detect a Coyote test method name containing {methodName}.";
                     }
                 }
                 else if (testMethods.Count > 1)

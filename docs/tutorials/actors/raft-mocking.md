@@ -188,7 +188,7 @@ mocks and didn't have to change one line of `Server` code.
 For this test we also inject a `SafetyMonitor` into the process by simply registering it on the
 runtime like this:
 
-```c#
+```csharp
 runtime.RegisterMonitor<SafetyMonitor>();
 ```
 

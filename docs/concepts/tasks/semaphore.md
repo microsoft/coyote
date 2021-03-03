@@ -54,7 +54,7 @@ Then it is a good practice to dispose of this `Semaphore` object, invoking this 
 
 The code below demonstrates `Semaphore` in action:
 
- ```c#
+ ```csharp
 using Microsoft.Coyote.Tasks;
 
 public class SemaphoreExample
@@ -109,7 +109,7 @@ In the above example, the `RunTask` and  `RunTask2` methods use a `Semaphore` th
 2 test scenarios, and in the first of them invokes `RunTask()` to create 3 different tasks using
 the semaphore, specifying for the semaphore `initialCount` = 2, and `maxCount` = 2.
 
-```c#
+```csharp
 using Microsoft.Coyote.Tasks;
 public static class Program
 {

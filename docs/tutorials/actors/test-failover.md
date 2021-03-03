@@ -333,7 +333,7 @@ requested and return to the `Ready` state, or it must find a problem and go to t
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple
 `LivenessMonitor` as shown below:
 
-```c#
+```csharp
 internal class LivenessMonitor : Monitor
 {
     public class BusyEvent : Event { }
@@ -357,14 +357,14 @@ This type of `Monitor` is also a kind of state machine. The `CoffeeMachine` can 
 monitor to tell it when it has switched into `Busy` state or `Idle` state. When the `CoffeeMachine`
 starts heating water, or making coffee it sends this event:
 
-```c#
+```csharp
 this.Monitor<LivenessMonitor>(new LivenessMonitor.BusyEvent());
 ```
 
 and when the CoffeeMachine is done making coffee or it has moved to an error state it sends this
 event:
 
-```c#
+```csharp
 this.Monitor<LivenessMonitor>(new LivenessMonitor.IdleEvent());
 ```
 
@@ -389,7 +389,7 @@ Since the `TerminateEvent` could be sent to the `CoffeeMachine` at any time we n
 handle this event at any time in `CoffeeMachine`, hopefully without having to decorate every single
 state in the machine with the custom attribute:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(TerminateEvent), nameof(OnTerminate))]
 ```
 

@@ -4,7 +4,7 @@ For some applications, it is useful to know which actor is processing an event d
 user request. Coyote offers the notion of an _EventGroup_ that can be tracked automatically. The
 following `IActorRuntime` APIs take an optional `EventGroup` parameter.
 
-```c#
+```csharp
 ActorId CreateActor(Type type, Event e = null, EventGroup group = null);
 void SendEvent(ActorId target, Event e, EventGroup group = null);
 ```
@@ -19,13 +19,13 @@ The `EventGroup` argument on `SendEvent` is optional, the value `null` means pic
 The `Actor` class has a field that returns the current `EventGroup`. The `EventGroup` is stored
 with the event and `CurrentEventGroup` is set when the event is dequeued.
 
-```c#
+```csharp
 EventGroup CurrentEventGroup { get; set; }
 ```
 
 Additionally you may use the following `IActorRuntime` API to get the current group of any actor.
 
-```c#
+```csharp
 EventGroup GetCurrentEventGroup(ActorId actorId);
 ```
 
@@ -38,7 +38,7 @@ as shown below:
 
 The base `EventGroup` class contains the following:
 
-```c#
+```csharp
 public Guid Id { get; internal set; }
 public string Name { get; internal set; }
 ```
@@ -51,7 +51,7 @@ provide any friendly name you want there.
 As a convenience the following typed EventGroup is also provided that can also be used to wait for
 some result to be returned from the actors that share this group:
 
-```c#
+```csharp
 public class AwaitableEventGroup<T> : EventGroup
 {
     public bool IsCompleted { get; }
@@ -71,7 +71,7 @@ return a result from a collection of actors that are performing some job. `SetRe
 You might need to clear the current event group at some point in your `Actor`. To do this you can
 simply set the property to null:
 
-```c#
+```csharp
 this.CurrentEventGroup = null;
 ```
 
@@ -79,7 +79,7 @@ However, this could be overridden by any subsequent event that is dequeued from 
 you do not want the `CurrentEventGroup` to be passed along to the target actor you can pass a
 special `EventGroup.Null` event group like this:
 
-```c#
+```csharp
 this.SendEvent(target, e, EventGroup.Null);
 ```
 
@@ -93,7 +93,7 @@ The `EventGroup` class is unsealed so you can create any custom class that you n
 is an example that counts a certain number of steps before completing the boolean
 `AwaitableEventGroup`:
 
-```c#
+```csharp
 public class EventGroupCounter : AwaitableEventGroup<bool>
 {
     public int ExpectedCount;
@@ -119,7 +119,7 @@ released until the expected count is reached.
 
 Similarly you can create an `EventGroup` that gathers multiple results from various actors like this:
 
-```c#
+```csharp
 public class EventGroupList : AwaitableEventGroup<List<string>>
 {
     public List<string> Items = new List<string>();

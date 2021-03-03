@@ -55,7 +55,7 @@ lock (this.syncObject)
 
 with:
 
-```c#
+```csharp
 using (var monitor = SynchronizedBlock.Lock(this.syncObject))
 ```
 

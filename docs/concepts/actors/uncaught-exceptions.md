@@ -16,7 +16,7 @@ runtime intercepts any unhandled exception in an actor. The exception is then de
 appropriate action. For instance, you can cause the program to crash and create a dump (for
 debugging later) as follows:
 
-```c#
+```csharp
 runtime.OnFailure += delegate (Exception exception)
 {
    Environment.FailFast(exception.ToString(), exception);
@@ -32,7 +32,7 @@ rest of the program continue normal operation, then it is best to catch the exce
 itself using a usual `try { } catch { }` block, or override the actor's `OnException` method to
 handle exceptions in one place.  This override can return one of the following outcomes:
 
-```c#
+```csharp
 // The outcome when an Microsoft.Coyote.Actors.Actor throws an exception.
 public enum OnExceptionOutcome
 {

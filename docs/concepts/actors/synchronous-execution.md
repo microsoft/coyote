@@ -11,7 +11,7 @@ asynchronous completion of operations across your actors.
 Coyote offers the following APIs (and overloads) for synchronous execution of actor creation and
 event sending.
 
-```c#
+```csharp
 Task<ActorId> CreateActorAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
 Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
 ```
@@ -37,14 +37,14 @@ method allows an actor to wait for a given type of event to be received, and can
 predicate that conditionally receives the event. This means instead of declaring an event handler
 like this which means you can receive this event any time and call HandlePoing:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
 ```
 
 You can instead explicitly receive the event in a specific place in your actor like this so that the
 event is not generally handled at other times:
 
-```c#
+```csharp
 Event e = await this.ReceiveEventAsync(typeof(PongEvent));
 HandlePong(e);
 ```
@@ -91,14 +91,14 @@ incoming event, `M` decides to run one of the two actors; there is no need to ru
 In this case, you only need to code up the smaller actors `M1` and `M2`. The actor `M` can be a
 simple wrapper. On instantiation, `M` creates the two child actors as follows:
 
-```c#
+```csharp
 ActorId m1 = this.CreateActorAndExecuteAsync(typeof(M1), ...);
 ActorId m2 = this.CreateActorAndExecuteAsync(typeof(M2), ...);
 ```
 
 When `M` receives an event `e`, it will choose to run the appropriate actor as follows:
 
-```c#
+```csharp
 if (SomeCondition(e))
 {
    bool b1 = await this.SendEventAndExecuteAsync(m1, e);

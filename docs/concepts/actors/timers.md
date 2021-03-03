@@ -12,7 +12,7 @@ events on a user-defined interval until they are stopped.
 To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` namespace. You can
 start a non-periodic timer using the function `StartTimer`.
 
-```c#
+```csharp
 TimerInfo StartTimer(TimeSpan startDelay, TimerElapsedEvent customEvent)
 ```
 
@@ -31,7 +31,7 @@ object can be used to distinguish the sources of the different `TimerElapsedEven
 
 You can start a periodic timer using the function `StartPeriodicTimer`.
 
-```c#
+```csharp
 TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, TimerElapsedEvent customEvent)
 ```
 
@@ -54,7 +54,7 @@ explained in detail below.
 First you need to declare on your Actor that it is expecting to receive the `TimerElapsedEvent` so
 the class is defined like this:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
 internal class Client : Actor
 {
@@ -64,7 +64,7 @@ internal class Client : Actor
 
 To kick things off the initialization method starts a non-periodic timer:
 
-```c#
+```csharp
 protected override Task OnInitializeAsync(Event initialEvent)
 {
     Console.WriteLine("<Client> Starting a non-periodic timer");
@@ -75,7 +75,7 @@ protected override Task OnInitializeAsync(Event initialEvent)
 
 The `HandleTimeout` method then receives this timeout and starts a periodic timer as follows:
 
-```c#
+```csharp
 private void HandleTimeout(Event e)
 {
     TimerElapsedEvent te = (TimerElapsedEvent)e;
@@ -89,7 +89,7 @@ private void HandleTimeout(Event e)
 
 In this case we use a `CustomTimerEvent` instead of the default `TimerElapsedEvent`, this custom event is defined as follows:
 
-```c#
+```csharp
 internal class CustomTimerEvent : TimerElapsedEvent
 {
     /// <summary>
@@ -101,13 +101,13 @@ internal class CustomTimerEvent : TimerElapsedEvent
 
 This custom event makes it possible to route the period timeouts to a different handler using this on the actor class:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(CustomTimerEvent), nameof(HandlePeriodicTimeout))]
 ```
 
 In the HandlePeriodicTimeout method we count the number of timeouts and stop when we reach 3:
 
-```c#
+```csharp
 private void HandlePeriodicTimeout(Event e)
 {
     this.WriteMessage("<Client> Handling timeout from periodic timer");

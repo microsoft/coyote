@@ -224,7 +224,7 @@ The first `CoffeeMachine` instance left the grinder running a bit too long, and 
 confused thinking the coffee level is negative. The new `CoffeeMachine` instance never thought
 about this situation and checked only:
 
-```c#
+```csharp
 if ((int)this.HopperLevel.Value == 0)
 ...
 ```
@@ -311,7 +311,7 @@ requested and return to the `Ready` state, or it must find a problem and go to t
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple
 `LivenessMonitor` as shown below:
 
-```c#
+```csharp
 internal class LivenessMonitor : Monitor
 {
     public class BusyEvent : Event { }
@@ -336,14 +336,14 @@ machine](../concepts/actors/state-machines.md). The `CoffeeMachine` can send
 events to this monitor to tell it when it has switched into `Busy` state or `Idle` state. When the
 `CoffeeMachine` starts heating water, or making coffee it sends this event:
 
-```c#
+```csharp
 Specification.Monitor<LivenessMonitor>(new LivenessMonitor.BusyEvent());
 ```
 
 and when the `CoffeeMachine` is done making coffee or it has moved to an error state it sends this
 event:
 
-```c#
+```csharp
 Specification.Monitor<LivenessMonitor>(new LivenessMonitor.IdleEvent());
 ```
 

@@ -22,14 +22,14 @@ can receive events but cannot send events to other actors. So it can only observ
 a program but not influence it: a desirable property when writing specifications in code. A
 `Monitor` is declared as follows:
 
-```c#
+```csharp
 class GlobalSpec : Monitor { ... }
 ```
 
 The above code snippet declares a monitor named `GlobalSpec`. Unlike actors, monitors are not
 explicitly instantiated. Instead, they need to be registered with the Coyote runtime:
 
-```c#
+```csharp
 ICoyoteRuntime runtime;
 runtime.RegisterMonitor<GlobalSpec>();
 ```
@@ -37,7 +37,7 @@ runtime.RegisterMonitor<GlobalSpec>();
 There can only be one instance of a given monitor type. Communication with this monitor happens via
 events:
 
-```c#
+```csharp
 ICoyoteRuntime runtime;
 runtime.InvokeMonitor<GlobalSpec>(new CustomEvent(...));
 ```
@@ -50,7 +50,7 @@ is local to `A` or `B` because both `x` and `y` live in different places. So we 
 `Monitor` that accepts events as soon as a variable is updated. Then it keeps asserting their values
 are within the required bound.
 
-```c#
+```csharp
 public class UpdatedXEvent : Event
 {
    public int value { get; private set; }
@@ -143,7 +143,7 @@ enters the cold state when it is notified that the system has progressed enough.
 execution is erroneous if the liveness monitor stays in the hot state for an infinitely long period
 of time. Consider the following example.
 
-```c#
+```csharp
 
 class UpEvent : Event { }
 class DownEvent : Event { }

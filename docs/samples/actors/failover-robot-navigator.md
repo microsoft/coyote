@@ -305,7 +305,7 @@ You already know the main components of the Drinks Serving Robot sample. Now is 
 understand the details.   As with other tutorials the code that starts the program consists
 of a `[Test]` method that takes an `IActorRuntime`:
 
-```c#
+```csharp
 public static class Program
 {
     private static bool RunForever = false;
@@ -422,7 +422,7 @@ The `LivenessMonitor` (See [Liveness Checking](../../how-to/liveness-checking.md
 
 This "liveness" property can be enforced using a very simple `LivenessMonitor` as shown below:
 
-```c#
+```csharp
 internal class LivenessMonitor : Monitor
 {
     public class BusyEvent : Event { }
@@ -446,13 +446,13 @@ internal class LivenessMonitor : Monitor
  When the `Robot` requests a `DrinkOrder` or `DrivingInstructions` from the `Navigator`, it sends
  this event:
 
-```c#
+```csharp
 this.Monitor<LivenessMonitor>(new LivenessMonitor.BusyEvent());
 ```
 
  And when the `Robot` finishes an order it sends this event:
 
-```c#
+```csharp
 this.Monitor<LivenessMonitor>(new LivenessMonitor.IdleEvent());
 ```
 
@@ -506,7 +506,7 @@ from which the transition occurred.
 The state `MovingOnRoute` is very simple. It processes a single type of event
 (`MoveTimerElapsedEvent`) with the `NextMove()` action:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(MoveTimerElapsedEvent), nameof(NextMove))]
 [IgnoreEvents(typeof(Navigator.DrinkOrderProducedEvent))]
 internal class MovingOnRoute : State { }
@@ -563,7 +563,7 @@ But what happened to the `Robot` in state `Active`? Why it didn't send any reque
 
 This code fragment explains what happened:
 
-```c#
+```csharp
 [OnEntry(nameof(OnInitActive))]
 [OnEventGotoState(typeof(Navigator.DrinkOrderProducedEvent), typeof(ExecutingOrder))]
 [OnEventDoAction(typeof(Navigator.DrinkOrderConfirmedEvent), nameof(OnDrinkOrderConfirmed))]
@@ -592,7 +592,7 @@ Thus, the reason for the bug is the incorrect value of `this.DrinkOrderPending` 
 `this.DrinkOrderPending` is being modified. The only place where this is set to `false` is in the
 `NextMove()` method:
 
-```c#
+```csharp
 private void NextMove()
 {
     this.DrinkOrderPending = false;
@@ -610,7 +610,7 @@ Navigator considers the drink request complete (and clears the Storage of that r
 returns the DrivingInstructionsEvent. This event is handled by the robot in the method ReachClient.
 So this is where the Robot should be clearing its internal `DrinkOrderPending` state:
 
-```c#
+```csharp
 private void ReachClient(Event e)
 {
     var route = (e as DrivingInstructionsEvent)?.Route;

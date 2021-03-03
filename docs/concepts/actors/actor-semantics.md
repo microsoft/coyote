@@ -10,7 +10,7 @@ asynchronous guarantees of these methods.
 
 Suppose you create an `Actor` as follows:
 
-```c#
+```csharp
 ActorId clientId = this.CreateActor(typeof(Client));
 ```
 
@@ -27,7 +27,7 @@ before letting the actor process its inbox.
 Actors in Coyote have both in-order as well as causal-delivery semantics. Lets break down this
 guarantee into pieces. If one actor sends two messages to another actor as follows:
 
-```c#
+```csharp
 this.SendEvent(id, e1);
 this.SendEvent(id, e2);
 ```
@@ -58,7 +58,7 @@ than `SendEvent` for performance reasons. Closing this gap requires modeling. Fo
 network that can either lose a message, deliver it once, or deliver it twice can be modeled as
 follows:
 
-```c#
+```csharp
 if(this.Random())
 {
    this.SendEvent(destination, message);

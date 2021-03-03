@@ -7,7 +7,7 @@ explicit information about how `Events` can trigger `State` changes in a `StateM
 write a state machine version of the `Server` class shown in [Programming model: asynchronous
 actors](overview.md) like this:
 
-```c#
+```csharp
 class ReadyEvent : Event { }
 
 class Server : StateMachine
@@ -47,7 +47,7 @@ state that the machine will transition to upon initialization. In this example, 
 been declared as the initial state of `Server`. A state declaration can optionally be decorated with
 a number of state-specific attributes, as seen in the `[Init]` state:
 
-```c#
+```csharp
 [OnEntry(nameof(InitOnEntry))]
 [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
 ```
@@ -64,7 +64,7 @@ method on the `Server` Actor. The `RaiseEvent` call is used to trigger the state
 in the `OnEventGotoState` custom attribute, in this case it is ready to transition to the `Active`
 state:
 
-```c#
+```csharp
 this.RaiseEvent(new ReadyEvent());
 ```
 
@@ -122,7 +122,7 @@ Besides `RaiseEvent`, state machine event handlers can request a state change in
 depending on `OnEventGotoState` attributes. This allows _conditional_ goto operations as shown in
 the following example:
 
-```c#
+```csharp
 void InitOnEntry()
 {
     if (this.Random())
@@ -139,7 +139,7 @@ void InitOnEntry()
 State machines can also push and pop states, effectively creating a stack of active states. Use
 `[OnEventPushState(...)]` or `RaisePushStateEvent` in code to push a new state:
 
-```c#
+```csharp
 this.RaisePushStateEvent<Active>();
 ```
 
@@ -147,7 +147,7 @@ This will push the `Active` state on the stack, but it will also inherit some ac
 the `Init` state. The `Active` state can pop itself off the stack, returning to the `Init` state
 using a `RaisePopStateEvent` call:
 
-```c#
+```csharp
 void HandlePing()
 {
     Console.WriteLine("Server received ping event while in the {0} state", this.CurrentState.Name);
@@ -170,7 +170,7 @@ once in the stack, the one closest to the top of the stack is used.
 There is an important restriction on the use of the following. Only one of these operations can be
 queued up per event handling action:
 
-```c#
+```csharp
 RaiseEvent
 RaiseGotoStateEvent
 RaisePushStateEvent
@@ -182,7 +182,7 @@ A runtime `Assert` will be raised if you accidentally try and do two of these op
 action. For example, this would be an error because you are trying to do two `Raise` operations in
 the `InitOnEntry` action:
 
-```c#
+```csharp
 void InitOnEntry()
 {
     this.RaiseGotoStateEvent<Active>();
@@ -194,7 +194,7 @@ void InitOnEntry()
 
 Coyote also provides the capability to _defer_ and _ignore_ events while in a particular state:
 
-```c#
+```csharp
 [DeferEvents(typeof(PingEvent), typeof(PongEvent))]
 [IgnoreEvents(typeof(ReadyEvent))]
 class SomeState : State { }
@@ -218,7 +218,7 @@ the event will be ignored and dropped.
 State machines support an interesting concept called _default events_. A state can request that
 something be done by default when there is _nothing else_ to do.
 
-```c#
+```csharp
 [OnEventDoAction(typeof(DefaultEvent), nameof(OnIdle))]
 class Idle : State { }
 
@@ -237,7 +237,7 @@ will be called over and over until something else changes. It is more efficient 
 Default events can also invoke goto, and push state transitions, which brings up an interesting case
 where you can actually implement an infinite ping pong using the following:
 
-```c#
+```csharp
 internal class PingPongMachine : StateMachine
 {
     [Start]
@@ -274,7 +274,7 @@ result of receiving any event (except the `DefaultEvent`).
 
 The following example shows how the `WildcardEvent` can be used:
 
-```c#
+```csharp
 internal class WildMachine : StateMachine
 {
     [Start]
@@ -303,7 +303,7 @@ internal class WildMachine : StateMachine
 The client of this state machine can send any event it wants and it will cause a transition to the
 `CatchAll` state where it will be handled by the `OnCatchAll` method. For example:
 
-```c#
+```csharp
 class X : Event { };
 var actor = runtime.CreateActor(typeof(WildMachine));
 runtime.SendEvent(actor, new X());
@@ -326,7 +326,7 @@ The following gives the precise semantics of these operations with regards to pu
 First of all only one action per specific event type can be defined on a given `State`, so the
 following would be an error:
 
-```c#
+```csharp
 [DeferEvents(typeof(E1), typeof(E2))]
 [OnEventDoAction(typeof(E1), nameof(HandleE1))]
 class SomeState : State { }
@@ -341,7 +341,7 @@ previous states on the active state stack, but it **does not** inherit `OnEventG
 If multiple states on the stack of active states define an action for a specific event type then the
 action closest to the top of the stack takes precedence. For example:
 
-```c#
+```csharp
 [DeferEvents(typeof(E1))]
 [OnEventPushState(typeof(E1), typeof(S2))]
 class A : State { }

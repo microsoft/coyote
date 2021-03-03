@@ -22,7 +22,10 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
         [Test]
-        public static void VoidTest() => Assert.True(true);
+        public static void VoidTest1() => Assert.True(true);
+
+        [Test]
+        public static void VoidTest2() => Assert.True(true);
 
         [Test]
         public static void VoidTestWithNoRuntime() => Assert.True(true);
@@ -170,7 +173,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
             var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames();
-            string expected = $"System.InvalidOperationException: Found '16' test methods declared with the " +
+            string expected = $"System.InvalidOperationException: Found '17' test methods declared with the " +
                 $"'{typeof(TestAttribute).FullName}' attribute. Provide --method (-m) flag to qualify the test " +
                 $"method name you wish to use. {possibleNames}   at";
             string actual = exception.ToString();
@@ -221,7 +224,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
         {
             var testNames = new List<string>()
             {
-                nameof(VoidTest),
+                nameof(VoidTest1),
+                nameof(VoidTest2),
                 nameof(VoidTestWithNoRuntime),
                 nameof(VoidTestWithRuntime),
                 nameof(VoidTestWithActorRuntime),

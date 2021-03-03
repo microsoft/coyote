@@ -226,45 +226,44 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
             var testMethodInfo = TestMethodInfo.Create(config);
 
             Assert.Equal(Assembly.GetExecutingAssembly(), testMethodInfo.Assembly);
-            Assert.Equal(GetFullyQualifiedTestName(name), testMethodInfo.Name);
+            Assert.Equal($"{typeof(EntryPointTests).FullName}.{name}", testMethodInfo.Name);
         }
 
         private static string GetPossibleTestNames(string ambiguousName = null)
         {
-            var testNames = new List<string>()
+            var testNames = new List<(string qualifier, string name)>()
             {
-                nameof(VoidTest),
-                nameof(Foo.VoidTest),
-                nameof(Bar.VoidTest),
-                nameof(VoidTestWithNoRuntime),
-                nameof(VoidTestWithRuntime),
-                nameof(VoidTestWithActorRuntime),
-                nameof(SystemTaskTestWithNoRuntime),
-                nameof(SystemAsyncTaskTestWithNoRuntime),
-                nameof(SystemTaskTestWithRuntime),
-                nameof(SystemAsyncTaskTestWithRuntime),
-                nameof(SystemTaskTestWithActorRuntime),
-                nameof(SystemAsyncTaskTestWithActorRuntime),
-                nameof(CoyoteTaskTestWithNoRuntime),
-                nameof(CoyoteAsyncTaskTestWithNoRuntime),
-                nameof(CoyoteTaskTestWithRuntime),
-                nameof(CoyoteAsyncTaskTestWithRuntime),
-                nameof(CoyoteTaskTestWithActorRuntime),
-                nameof(CoyoteAsyncTaskTestWithActorRuntime)
+                (typeof(EntryPointTests).FullName, nameof(VoidTest)),
+                (typeof(EntryPointTests).FullName, nameof(VoidTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(VoidTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(VoidTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithActorRuntime)),
+                (typeof(Foo).FullName, nameof(Foo.VoidTest)),
+                (typeof(Bar).FullName, nameof(Bar.VoidTest))
             };
 
             string result = $"Possible methods are:{Environment.NewLine}";
             foreach (var testName in testNames)
             {
-                if (ambiguousName is null || testName.Contains(ambiguousName))
+                if (ambiguousName is null || testName.name.Equals(ambiguousName) ||
+                    $"{testName.qualifier}.{testName.name}".Equals(ambiguousName))
                 {
-                    result += $"  {GetFullyQualifiedTestName(testName)}{Environment.NewLine}";
+                    result += $"  {testName.qualifier}.{testName.name}{Environment.NewLine}";
                 }
             }
 
             return result;
         }
-
-        private static string GetFullyQualifiedTestName(string name) => $"{typeof(EntryPointTests).FullName}.{name}";
     }
 }

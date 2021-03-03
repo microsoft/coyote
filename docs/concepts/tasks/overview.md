@@ -56,7 +56,7 @@ During testing, using `await` allows the Coyote runtime to automatically inject 
 and thoroughly explore asynchronous interleavings to find concurrency bugs.
 
 You can choose to use the `Microsoft.Coyote.Tasks.Task` directly in your programs or you can use
-the automatic [rewriting](rewriting.md) feature which will rewrite your compiled binaries that use
+the automatic [rewriting](../binary-rewriting.md) feature which will rewrite your compiled binaries that use
 `System.Threading.Tasks.Task` and inject the required Coyote controls so you can run `coyote test`
 on the rewritten binaries.
 
@@ -142,13 +142,13 @@ not systematically explore thread switching in the middle of these operations, t
 will not always find all data race conditions related to concurrent access on these collections.
 For example, two tasks calling `TryAdd` with the same key, one task will succeed the other will
 not, but Coyote will not systematically explore all possible orderings around this operation. You
-can help Coyote do better by using [ExploreContextSwitch](../interleavings).
+can help Coyote do better by using [ExploreContextSwitch](../../ref/Microsoft.Coyote.Tasks/Task.md).
 
 ## Samples
 
 To try out more samples that show how to use Coyote to systematically test task-based programs see
 the following:
 
-- [Account manager](../../../tutorials/account-manager)
-- [Bounded buffer](../../../samples/tasks/bounded-buffer)
-- [Coffee machine failover](../../../tutorials/test-failover)
+- [Account manager](../../tutorials/test-concurrent-operations.md)
+- [Bounded buffer](../../samples/tasks/bounded-buffer.md)
+- [Coffee machine failover](../../tutorials/test-failover.md)

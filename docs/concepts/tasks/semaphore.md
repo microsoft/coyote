@@ -13,9 +13,8 @@ simultaneously. There are two semaphore types provided in C#:
 [`Semaphore`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.semaphore)
 and [`SemaphoreSlim`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim).
 
-However, you should not use these .NET semaphore types in a Coyote program because, as discussed in the
-[Testing Requirements](../../tools/tester-requirements.md), synchronization must be done via
-Coyote APIs.
+However, you should not use these .NET semaphore types in a Coyote program because synchronization
+must be done via Coyote APIs.
 
 Using the controlled `Semaphore` type of Coyote allows `coyote test` to fully control the scheduling
 of asynchronous operations.

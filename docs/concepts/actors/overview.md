@@ -30,7 +30,7 @@ An actor based program in Coyote is a normal .NET program that also uses the `Ac
 `StateMachine` base classes from the `Microsoft.Coyote.Actors` namespace, as well as the `Event`
 base class from the `Microsoft.Coyote` namespace. Actors can be declared in the following way:
 
-```c#
+```csharp
 using Microsoft.Coyote.Actors;
 
 class Client : Actor { ... }
@@ -44,7 +44,7 @@ declare fields, properties and methods.
 An actor can create an instance of another actor and send Events using the following `Actor`
 methods:
 
-```c#
+```csharp
   ActorId clientId = this.CreateActor(typeof(Client));
   this.SendEvent(this.ClientId, new PingEvent());
 ```
@@ -71,7 +71,7 @@ architectures.
 To create the first instance of an `Actor` you need to initialize the Coyote actor runtime inside
 your C# process (typically in the `Main` method). An example of this is the following:
 
-```c#
+```csharp
 using Microsoft.Coyote;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.SystematicTesting;
@@ -117,7 +117,7 @@ has a couple more advanced parameters which you don't need to worry about right 
 
 An event can be created by sub-classing from `Microsoft.Coyote.Event`:
 
-```c#
+```csharp
 class PingEvent : Event
 {
     public readonly ActorId Caller;
@@ -138,7 +138,7 @@ extract the information it needs.
 
 Now you can write a complete actor, declaring what type of events it can handle:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
 class Server : Actor
 {
@@ -161,7 +161,7 @@ events, updating some private state or invoking some 3rd party library.
 
 To complete this Coyote program, you can provide the following implementation of the `Client` actor:
 
-```c#
+```csharp
 using System.Threading.Tasks;
 
 class SetupEvent : Event
@@ -216,7 +216,7 @@ One last remaining bit of code is needed in your `Program` to complete this exam
 need to create the `Client` actor in the `Execute` method, in fact, you can create as many `Client`
 actors as you want to make this an interesting test:
 
-```c#
+```csharp
 public static void Execute(IActorRuntime runtime)
 {
     ActorId serverId = runtime.CreateActor(typeof(Server));

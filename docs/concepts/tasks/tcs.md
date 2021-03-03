@@ -46,7 +46,7 @@ The code below demonstrates a controlled `TaskCompletionSource<TResult>` in acti
 the most typical scenario in which programmers need and use a task completion source, namely to know
 when a long-running operation, that itself is not awaitable, has finished.
 
-```c#
+```csharp
 using Microsoft.Coyote.Tasks;
 
 public void StartLongOperation(TaskCompletionSource<bool> tcs)
@@ -67,7 +67,7 @@ the controlled `TaskCompletionSource<bool>` to `true`.
 A consumer of the task produced by this task completion source can await on its completion using the
 following code:
 
-```c#
+```csharp
 using Microsoft.Coyote.Tasks;
 
 // The input task is the task produced by the task completion source.
@@ -82,7 +82,7 @@ public async Task Consumer(Task<bool> task)
 You can now use a `TaskCompletionSource` to coordinate this long running operation with another
 async `Task` that needs to wait on the completion of that operation like this:
 
-```c#
+```csharp
 private async Task RunTest()
 {
     var completion = TaskCompletionSource.Create<bool>();
@@ -110,7 +110,7 @@ controlled `TaskCompletionSource<TResult>`, otherwise you could get the native .
 
 You might also be puzzled by a build error if you try and do this:
 
-```c#
+```csharp
 static async Task Main(string[] args)
 {
     Program p = new Program();
@@ -125,7 +125,7 @@ error CS5001: Program does not contain a static 'Main' method suitable for an en
 
 The reason is C# doesn't know about the coyote `Task`, so the fix is to fully qualify that Main entry point task like this:
 
-```c#
+```csharp
 static async System.Threading.Tasks.Task Main(string[] args)
 {
     Program p = new Program();

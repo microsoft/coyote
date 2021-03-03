@@ -24,7 +24,7 @@ exercised a race between two concurrent `CreateAccount` requests. A logical next
 create two `DeleteAccount` requests and see what happens when they execute concurrently (as if the
 system was running in production). Here is one such test:
 
-```c#
+```csharp
 [Test]
 public static async Task TestConcurrentAccountDeletion()
 {
@@ -120,7 +120,7 @@ nice HTTP status code to return to the client of the request!
 
 Here's one way to fix the `DeleteAccount` method:
 
-```c#
+```csharp
 // Returns true if the account is deleted, else false.
 public async Task<bool> DeleteAccount(string userName)
 {
@@ -176,7 +176,7 @@ can benefit of this kind of testing!
 Going back to our `AccountManager` example, let's write the test that exercises `CreateAccount` and
 `DeleteAccount` requests happening at the same time. The test is a bit more involved this time.
 
-```c#
+```csharp
 [Test]
 public static async Task TestConcurrentAccountMixedCreationAndDeletion()
 {

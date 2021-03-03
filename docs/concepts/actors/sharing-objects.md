@@ -19,7 +19,7 @@ structures. Currently three kinds of shared data structures are available: `Shar
 The following code snippet creates and initializes a `SharedRegister`. It then sends the register to
 a different actor `m` by stashing it as part of the payload of an event.
 
-```c#
+```csharp
 SharedRegister<int> register = SharedRegister.Create<int>(this.Id.Runtime);
 register.SetValue(100);
 this.SendEvent(m, new MyEvent(register, ...));

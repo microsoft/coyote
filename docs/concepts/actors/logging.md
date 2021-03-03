@@ -20,7 +20,7 @@ logging `Actor` and `StateMachine` activity.
 
 It is possible to replace the default logger with a custom one. The following example captures all log output in a `StringBuilder`:
 
-```c#
+```csharp
 public class CustomLogger : ILogger
 {
     private StringBuilder StringBuilder;
@@ -101,7 +101,7 @@ public class CustomLogger : ILogger
 
 To replace the default logger, call the following `IActorRuntime` method:
 
-```c#
+```csharp
 runtime.Logger = new CustomLogger();
 ```
 
@@ -111,7 +111,7 @@ previously installed logger.
 Note that the old `Logger` might be disposable, so if you care about disposing the old logger at
 the same time you may need to write this instead:
 
-```c#
+```csharp
 using (var oldLogger = runtime.Logger)
 {
    runtime.Logger = new CustomLogger();
@@ -149,7 +149,7 @@ See [IActorRuntimeLog API documentation](../../ref/Microsoft.Coyote.Actors/IActo
 
 You can also implement your own `IActorRuntimeLog`. The following is an example of how to do this:
 
-```c#
+```csharp
 internal class CustomLogWriter : IActorRuntimeLog
 {
   // Callbacks on runtime events
@@ -169,7 +169,7 @@ internal class CustomLogWriter : IActorRuntimeLog
 ```
 
 You can then register your new implementation using the following `IActorRuntime` method:
-```c#
+```csharp
 runtime.RegisterLog(new CustomLogWriter());
 ```
 You can register multiple `IActorRuntimeLog` objects in case you have loggers that are doing very
@@ -181,7 +181,7 @@ You can modify the format of text log messages by providing your own `ActorRunti
 You can subclass the default `ActorRuntimeLogTextFormatter` implementation to override its default behavior.
 The following is an example of how to do this:
 
-```c#
+```csharp
 internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
 {
   // Methods for formatting log messages
@@ -208,7 +208,7 @@ internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
 You can then replace the default `ActorRuntimeLogTextFormatter` with your new implementation using
 the following `IActorRuntime` method:
 
-```c#
+```csharp
 runtime.RegisterLog(new CustomLogFormatter());
 ```
 

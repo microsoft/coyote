@@ -87,7 +87,7 @@ messages to all `Servers` registered in a cluster. Sending an event to this clus
 all `Servers` getting that same event. So, as the raft protocol requires, broadcasting
 `VoteRequestEvents` can be done by a `Server` using this `SendEvent` instruction:
 
-```c#
+```csharp
     this.SendEvent(this.ClusterManager, new VoteRequestEvent(this.CurrentTerm, this.Manager.ServerId, lastLogIndex, lastLogTerm));
 ```
 
@@ -158,7 +158,7 @@ The `RunClient` method shows how you can use the `cluster`, namely, sending a `C
 and waiting for the async response that comes back from the service bus in the
 `ClientResponseEvent`. Sending a message to the cluster is done like this:
 
-```c#
+```csharp
 runtime.SendEvent(clusterManager, new ClientRequestEvent(command));
 ```
 
@@ -186,14 +186,14 @@ This is handy when you need to give that `ActorId` to another `Actor` as part of
 process. Then at a later time when everything is ready we can create the actual actor using this
 predetermined `id` as follows:
 
-```c#
+```csharp
 this.Runtime.CreateActor(id, typeof(Server), new Server.SetupServerEvent(this, this.ClusterManager));
 ```
 
 Notice the `Server` when it is in the start state (`Init`), it defers all events using a special
 wild card:
 
-```c#
+```csharp
 [DeferEvents(typeof(WildCardEvent))]
 ```
 

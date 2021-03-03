@@ -5,7 +5,7 @@ will mark an actor as idle if it has no work to do, but it will not reclaim any 
 actor unless it is terminated. An actor is terminated when it performs the `Halt` operation, as seen
 in the following example:
 
-```c#
+```csharp
 private class Example : Actor
 {
     private void SomeAction()

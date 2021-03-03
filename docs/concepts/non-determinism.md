@@ -7,7 +7,7 @@ developers more difficult.
 
 The most common form of non-determinism stems from concurrency. Consider the following procedure:
 
-```c#
+```csharp
 // Shared variable x.
 int x = 0;
 

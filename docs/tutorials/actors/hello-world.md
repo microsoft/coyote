@@ -105,7 +105,7 @@ Actors programming model.
 The core of an `Actor` based Coyote program, is, well, an `Actor` class! The following `Actor` named
 `Greeter` is able to receive a `RequestGreetingEvent` to which it responds with a `GreetingEvent`:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(RequestGreetingEvent), nameof(HandleGreeting))]
 public class Greeter : Actor
 {
@@ -135,7 +135,7 @@ an error if a different type of event is sent to the `Greeter`.
 The `HandleGreeting` method is called with an `Event` parameter, and you know in this case the
 event will be of type `RequestGreetingEvent`.  This event is defined in `Events.cs` like this:
 
-```c#
+```csharp
 internal class RequestGreetingEvent : Event
 {
     public readonly ActorId Caller;
@@ -168,7 +168,7 @@ objects, and can send events.
 Notice the `Greeter` gets an `ActorId` from the `RequestGreetingEvent` and uses that to send a
 greeting back to the caller using `SendEvent`:
 
-```c#
+```csharp
 this.SendEvent(ge.Caller, new GreetingEvent(greeting));
 ```
 
@@ -182,14 +182,14 @@ To test this `Greeter` you will need to setup a `TestActor` which is done in `Pr
 is declared in a way that tells the `Coyote` runtime it is expecting to receive `GreetingEvents` as
 follows:
 
-```c#
+```csharp
  [OnEventDoAction(typeof(GreetingEvent), nameof(HandleGreeting))]
  ```
 
  To make this a good test, the `TestActor` keeps track of how many greetings were sent and how many
  were received, and it writes an `Assert` to ensure it doesn't receive too many as follows:
 
- ```c#
+ ```csharp
 private void HandleGreeting(Event e)
 {
     // this is perfectly thread safe, because all message handling in actors is
@@ -204,7 +204,7 @@ private void HandleGreeting(Event e)
 Lastly, to test the `TestActor` you need to fire up the Coyote runtime which is done in the `HostProgram`
 `Main` entry point as follows:
 
-```c#
+```csharp
 public static void Main()
 {
     var config = Configuration.Create();
@@ -222,7 +222,7 @@ Notice that Coyote actors run in parallel, so you have to stop the program from 
 prematurely, which can be done with a `Console.ReadLine` call.  In order for this program to also be
 testable using the `coyote test` tool, you need to declare a test method as follows:
 
-```c#
+```csharp
 [Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute(IActorRuntime runtime)
 {

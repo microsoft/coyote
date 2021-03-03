@@ -30,7 +30,7 @@ Optionally, you can watch this tutorial on YouTube:
 
 Without further ado, let's look at the signature of the `AccountManager` class:
 
-```c#
+```csharp
 public class AccountManager
 {
   private IDbCollection AccountCollection;
@@ -48,7 +48,7 @@ public class AccountManager
 
 Here are the methods available in the `IDbCollection` interface:
 
-```c#
+```csharp
 public interface IDbCollection
 {
   Task CreateRow(string key, string value);
@@ -70,7 +70,7 @@ deletes the row if it exists and throws `RowNotFoundException` exception if it d
 Before reading on, please open your editor and attempt to write an implementation of the
 `AccountManager` class.  You might write something like this:
 
-```c#
+```csharp
 public class AccountManager
 {
   private readonly IDbCollection AccountCollection;
@@ -124,7 +124,7 @@ Let's write a unit test to test the `AccountManager` code. In production, `IDbCo
 implemented using a distributed NoSQL database. To keep things simple during testing, you can just
 replace it with a mock. The following code shows such a mock implementation:
 
-```c#
+```csharp
 public class InMemoryDbCollection : IDbCollection
 {
   private readonly ConcurrentDictionary<string, string> Collection;
@@ -188,7 +188,7 @@ call.
 
 Now that you have written this mock, you can write a simple test:
 
-```c#
+```csharp
 [Test]
 public static async Task TestAccountCreation()
 {
@@ -219,7 +219,7 @@ What happens if you spawn two tasks that create the same account concurrently? W
 that only one creation succeeds, while the other always fails? That should work because the
 `InMemoryDbCollection` uses a `ConcurrentDictionary` right? 
 
-```c#
+```csharp
 [Test]
 public static async Task TestConcurrentAccountCreation()
 {
@@ -273,7 +273,7 @@ CPU load).
 Let's tweak the test very slightly by adding a delay of a millisecond between the two `CreateAccount`
 calls:
 
-```c#
+```csharp
 var task1 = accountManager.CreateAccount(accountName, accountPayload);
 await Task.Delay(1); // Artificial delay.
 var task2 = accountManager.CreateAccount(accountName, accountPayload);

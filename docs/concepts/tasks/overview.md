@@ -84,7 +84,7 @@ you are not already familiar with `async` and `await`, you can learn more in the
 
 Say that you have the following simple C# program:
 
-```c#
+```csharp
 // Use the Coyote controlled task type.
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Specifications;

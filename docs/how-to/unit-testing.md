@@ -29,7 +29,7 @@ And then your `[Fact]` method which runs as an xUnit unit test can create a `Tes
 Coyote test method.  This test code can run in the Visual Studio Test Explorer or from a `dotnet
 test` command line:
 
-```c#
+```csharp
 public class Test
 {
     ITestOutputHelper Output;
@@ -71,7 +71,7 @@ Most of the command line options you see on `coyote test` are available in the `
 class. Use the `With*` helper methods to set the various configurations, for example, to specify
 `--sch-pct 10` use the following:
 
-```c#
+```csharp
 var config = Configuration.Create().WithPCTStrategy(false, 10);
 ```
 
@@ -82,7 +82,7 @@ The `--xml-trace` option becomes `WithXmlLogEnabled` and so on.
 If you want the rich Coyote log files, you can use the `TryEmitTraces` method on the `TestingEngine`
 to produce those log files in the folder of your choice like this:
 
-```c#
+```csharp
 List<string> filenames = new List<string>(engine.TryEmitTraces("d:\\temp\\test", "mytest"));
 foreach (var item in filenames)
 {
@@ -134,7 +134,7 @@ Boolean killTasks, Boolean cancelExecution)
 The `TestEngine.Create` method has overloads for supporting Coyote test methods with
 the following signatures:
 
-```c#
+```csharp
 Action
 Action<ICoyoteRuntime>
 Action<IActorRuntime>
@@ -150,7 +150,7 @@ will do that for you so it can provide the non-production systematic test versio
 
 You can also easily replay and debug a trace, similar to using `coyote replay` from the command line
 tool. To do this you need to configure the `TestingEngine` to run in replay mode:
-```c#
+```csharp
 var trace = ...
 var config = Configuration.Create().WithReplayStrategy(trace);
 ```
@@ -159,7 +159,7 @@ the `string` value of `TestingEngine.ReproducibleTrace` (from a previous run).
 
 Then you add breakpoints to debug and replay as follows:
 
-```c#
+```csharp
 var trace = ...
 var config = Configuration.Create().WithReplayStrategy(trace);
 TestingEngine engine = TestingEngine.Create(config, CoyoteTestMethod);
@@ -172,7 +172,7 @@ Actors run asynchronously, so you will need to design your actors in a way such 
 they have finished doing what they are supposed to do. One way to do that is to use the Coyote
 `TaskCompletionSource<bool>` as follows:
 
-```c#
+```csharp
 class TestConfigEvent : Event
 {
     public TaskCompletionSource<bool> Completed = TaskCompletionSource.Create<bool>();
@@ -190,7 +190,7 @@ private async Task CoyoteTestActors(IActorRuntime runtime)
 
 Where `MyTestActor` sets the result on the `TaskCompletionSource` as follows:
 
-```c#
+```csharp
 [OnEventDoAction(typeof(MyEvent), nameof(HandleEvent))]
 class MyTestActor : Actor
 {
@@ -215,7 +215,7 @@ class MyTestActor : Actor
 This test actor creates `MyActor`, sends an event to it, waits for a response, then sets
 the `TaskCompletionSource` result.  `MyActor` is a simple ping-pong style actor:
 
-```c#
+```csharp
 class MyEvent : Event
 {
     public ActorId Caller;

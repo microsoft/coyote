@@ -33,7 +33,7 @@ During testing coyote needs to be able to terminate a test iteration at any time
 the `--max-steps` command line argument. This termination is done using a special coyote
 `ExecutionCancelledException`. The problem is when your code contains one of the following:
 
-```c#
+```csharp
 } catch {
 } catch (Exception) {
 } catch (RuntimeException) {

@@ -46,7 +46,7 @@ lock, which allows it to explore interleavings and expose bugs (including deadlo
 
 The code below demonstrates `AsyncLock` in action:
 
-```c#
+```csharp
 using Microsoft.Coyote.Tasks;
 
 public class LockExample
@@ -92,7 +92,7 @@ In the above example, the `FirstOperationAsync` and `SecondOperationAsync` metho
 
 You can write a test for this code as follows:
 
-```c#
+```csharp
 using Microsoft.Coyote.Tasks;
 
 public static class Program

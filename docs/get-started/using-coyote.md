@@ -117,7 +117,7 @@ a supported version of Visual Studio.
 
 A Coyote test method can be declared as follows:
 
-```c#
+```csharp
 [Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute()
 {
@@ -129,7 +129,7 @@ The above method acts as the entry point to each testing iteration.
 
 The `coyote` test tool supports calling the following test method signatures:
 
-```c#
+```csharp
 [Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute();
 

@@ -37,7 +37,7 @@ Notice that the code below is using the C# `Task` type. Coyote understands this 
 able to control its schedule during systematic testing, as discussed above and
 [here](../concepts/tasks/overview.md).
 
-```c#
+```csharp
 using System.Threading.Tasks;
 
 // Shared variable x.
@@ -71,7 +71,7 @@ service. Either this call returns successfully and the external service does the
 requested, or it may timeout, or return an error code if the external service is unable to perform
 the work at the time. For testing your code, you will write a mock for it as follows:
 
-```c#
+```csharp
 Status CallExternalServiceMock(WorkItem work)
 {
    if (CoyoteRuntime.Random())

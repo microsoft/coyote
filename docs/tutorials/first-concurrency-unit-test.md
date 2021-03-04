@@ -51,13 +51,13 @@ Here are the methods available in the `IDbCollection` interface:
 ```csharp
 public interface IDbCollection
 {
-  Task CreateRow(string key, string value);
+  Task<bool> CreateRow(string key, string value);
 
   Task<bool> DoesRowExist(string key);
 
   Task<string> GetRow(string key);
 
-  Task DeleteRow(string key);
+  Task<bool> DeleteRow(string key);
 }
 ```
 
@@ -88,8 +88,7 @@ public class AccountManager
       return false;
     }
 
-    await this.AccountCollection.CreateRow(accountName, accountPayload);
-    return true;
+    return await this.AccountCollection.CreateRow(accountName, accountPayload);
   }
 
   // Returns the accountPayload, else null.
@@ -111,8 +110,7 @@ public class AccountManager
       return false;
     }
 
-    await this.AccountCollection.DeleteRow(accountName);
-    return true;
+    return await this.AccountCollection.DeleteRow(accountName);
   }
 }
 ```
@@ -134,27 +132,17 @@ public class InMemoryDbCollection : IDbCollection
     this.Collection = new ConcurrentDictionary<string, string>();
   }
 
-  public Task CreateRow(string key, string value)
+  public Task<bool> CreateRow(string key, string value)
   {
     return Task.Run(() =>
     {
-      var result = this.Collection.TryAdd(key, value);
-      if (!result)
+      bool success = this.Collection.TryAdd(key, value);
+      if (!success)
       {
         throw new RowAlreadyExistsException();
       }
-    });
-  }
 
-  public Task DeleteRow(string key)
-  {
-    return Task.Run(() =>
-    {
-      var removed = this.Collection.TryRemove(key, out string value);
-      if (!removed)
-      {
-        throw new RowNotFoundException();
-      }
+      return true;
     });
   }
 
@@ -170,12 +158,26 @@ public class InMemoryDbCollection : IDbCollection
   {
     return Task.Run(() =>
     {
-      var result = this.Collection.TryGetValue(key, out string value);
-      if (!result)
+      bool success = this.Collection.TryGetValue(key, out string value);
+      if (!success)
       {
         throw new RowNotFoundException();
       }
       return value;
+    });
+  }
+
+  public Task<bool> DeleteRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryRemove(key, out string value);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return true;
     });
   }
 }
@@ -184,7 +186,8 @@ public class InMemoryDbCollection : IDbCollection
 The `InMemoryDbCollection` mock is very simple, it just maintains an in-memory
 `ConcurrentDictionary` to store the keys and values. Each method of the mock runs a new concurrent
 task (via `Task.Run`) to make the call execute asynchronously, modeling async I/O in a real database
-call.
+call. You can read later this [follow-up tutorial](mock-dependencies.md) to delve into mock design
+for concurrency unit testing.
 
 Now that you have written this mock, you can write a simple test:
 
@@ -349,8 +352,8 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
 ... Elapsed 0.0743756 sec.
 ... Testing statistics:
 ..... Found 1 bug.

@@ -16,6 +16,7 @@ To run the `AccountManager` example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
+- Go through the [write your first concurrency unit test](first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
 
@@ -83,8 +84,8 @@ a bug very fast. This bug is caused due to a very similar race condition that ma
 ..... Iteration #3
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing AccountManager_0_5.txt
-..... Writing AccountManager_0_5.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
 ... Elapsed 0.1939681 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -108,8 +109,7 @@ public async Task<bool> DeleteAccount(string accountName)
     return false;
   }
 
-  await this.AccountCollection.DeleteRow(accountName);
-  return true;
+  return await this.AccountCollection.DeleteRow(accountName);
 }
 ```
 
@@ -126,8 +126,7 @@ public async Task<bool> DeleteAccount(string userName)
 {
   try
   {
-    await this.AccountCollection.DeleteRow(userName);
-    return true;
+    return await this.AccountCollection.DeleteRow(userName);
   }
   catch (RowNotFoundException)
   {
@@ -178,7 +177,7 @@ Going back to our `AccountManager` example, let's write the test that exercises 
 
 ```csharp
 [Test]
-public static async Task TestConcurrentAccountMixedCreationAndDeletion()
+public static async Task TestConcurrentAccountCreationAndDeletion()
 {
   // Initialize the mock in-memory DB and account manager.
   var dbCollection = new InMemoryDbCollection();
@@ -219,12 +218,12 @@ public static async Task TestConcurrentAccountMixedCreationAndDeletion()
 }
 ```
 
-Now run your `TestConcurrentAccountMixedCreationAndDeletion` test with Coyote (remember to rewrite
+Now run your `TestConcurrentAccountCreationAndDeletion` test with Coyote (remember to rewrite
 the assembly first!) and see if it passes.
 
 ```plain
 coyote rewrite .\AccountManager.dll
-coyote test .\AccountManager.dll -m TestConcurrentAccountMixedCreationAndDeletion -i 100
+coyote test .\AccountManager.dll -m TestConcurrentAccountCreationAndDeletion -i 100
 ```
 
 The test passed without reporting any bugs which gives you confidence in the correctness of your code.
@@ -237,7 +236,22 @@ The test passed without reporting any bugs which gives you confidence in the cor
 ... Task 0 is using 'random' strategy (seed:2968084874).
 ..... Iteration #1
 ..... Iteration #2
-...
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
+..... Iteration #30
+..... Iteration #40
+..... Iteration #50
+..... Iteration #60
+..... Iteration #70
+..... Iteration #80
+..... Iteration #90
 ..... Iteration #100
 ... Testing statistics:
 ..... Found 0 bugs.

@@ -1,4 +1,4 @@
-## Mocking dependencies for systematic testing
+## Mocking dependencies for concurrency unit testing
 
 Mocking dependencies is a common activity when writing unit tests. The code that you want to test
 often depends on other (complex) code, such as third-party libraries and external services (e.g.
@@ -9,31 +9,31 @@ popular way to replace real dependencies with mocks is via [dependency
 injection](https://en.wikipedia.org/wiki/Dependency_injection).
 
 Mocks play an even greater role when [writing concurrency unit
-tests](../concepts/concurrency-unit-testing.md). Coyote explores different interleavings during each
+tests](../../concepts/concurrency-unit-testing.md). Coyote explores different interleavings during each
 testing iteration, so you have to write mocks that simulate the behavior of the real dependency by
 returning the correct response no matter which interleaving is explored. This means that when
 testing with Coyote, you need to design mocks with concurrency in mind.
 
 In this tutorial, you will write a simple mock for the `IDbCollection` that was introduced in the
-[write your first concurrency unit test](first-concurrency-unit-test.md) tutorial. You will design
+[write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial. You will design
 this mock to be used in a concurrent setting, where methods in multiple instances of the class can
 be called concurrently, either within the same process or across processes and machines. This latter
 condition means that using locks will not help you in writing correct concurrent code.
 
 ## What you will need
 
-To run the `AccountManager` example, you will need to:
+To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
-- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
-- Go through the [write your first concurrency unit test](first-concurrency-unit-test.md) tutorial.
+- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Go through the [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
 
-Consider the following simple `InMemoryDbCollection` mock for the `IDbCollection` interface. Let's skip
-the `GetRow` and `DeleteRow` methods for now, but you can implement them in a similar way to the
-`CreateRow` and `DoesRowExist` methods.
+Consider the following simple `InMemoryDbCollection` mock for the `IDbCollection` interface. Let's
+skip the `GetRow` and `DeleteRow` methods for now, but you can implement them in a similar way to
+the `CreateRow` and `DoesRowExist` methods.
 
 ```csharp
 public class InMemoryDbCollection : IDbCollection
@@ -55,7 +55,7 @@ public class InMemoryDbCollection : IDbCollection
 
 Using this simple mock, let's write a unit test to exercise _sequential_ account creation in the
 `AccountManager` class (see the [write your first concurrency unit
-test](first-concurrency-unit-test.md) tutorial for the `AccountManager` code).
+test](../first-concurrency-unit-test.md) tutorial for the `AccountManager` code).
 
 ```csharp
 [Test]
@@ -233,7 +233,7 @@ more precisely. Build, rewrite and run the same test once again.
 ```
 
 The assertion will now pass, but the `CreateAccount` method is [actually
-buggy](first-concurrency-unit-test.md). Why does the assertion not fail?! The reason is that while
+buggy](../first-concurrency-unit-test.md). Why does the assertion not fail?! The reason is that while
 the two asynchronous `CreateAccount` methods are invoked at the same time, there is no _actual_
 concurrency in the test which means that the two methods effectively execute sequentially with each
 other. Let's see how we can inject some concurrency which will allow Coyote to ``shake'' the system
@@ -276,7 +276,8 @@ public class InMemoryDbCollection : IDbCollection
 }
 ```
 
-If you run the `TestConcurrentAccountCreation` test again using the above mock version, you will see that the bug in `CreateAccount` is now triggered and the assertion fails!
+If you run the `TestConcurrentAccountCreation` test again using the above mock version, you will see
+that the bug in `CreateAccount` is now triggered and the assertion fails!
 
 ```plain
 . Testing .\AccountManager.dll
@@ -358,7 +359,7 @@ in-memory database, you have now written a simple mock that not only simulates t
 _asynchronously_ adding rows and checking for their existence, but also can be used in many
 different concurrency unit tests for the `AccountManager` logic. For example, this mock can be used
 in the `TestConcurrentAccountCreationAndDeletion` test that exercises a race between a
-`CreateAccount` and `DeleteAccount` request in this [tutorial](test-concurrent-operations.md).
+`CreateAccount` and `DeleteAccount` request in this [tutorial](../test-concurrent-operations.md).
 
 Let's make the mock complete by implementing the `GetRow` and `DeleteRow` methods.
 
@@ -393,7 +394,7 @@ public Task<bool> DeleteRow(string key)
 ```
 
 The above is the complete implementation of the `InMemoryDbCollection` mock that you used in the
-[write your first concurrency unit test](first-concurrency-unit-test.md) tutorial.
+[write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 Mocks that can be used in concurrency unit tests are often surprisingly easy to write and have the
 benefit that they can be reused in multiple testing scenarios as they model more closely the
@@ -402,11 +403,11 @@ production behavior of the mocked dependency. Teams in Azure have
 mocks yielded large productivity gains through better concurrency testing coverage.
 
 The cool thing is that writing mocks for testing with Coyote can be done in a "pay-as-you-go"
-fashion where the initial mock implementation can be simple and more functionality can be added to
-cover increasingly more complex scenarios. Even simple mocks can help you write tests that can find
-tons of bugs in your code!
+fashion where the initial mock implementation can be as simple as you want, and more functionality
+can be added later to cover increasingly more complex testing scenarios. Even simple mocks can help
+you write interesting concurrency unit tests that can find tons of bugs in your code!
 
-In an upcoming tutorial, you will learn how to extend the above mock to add support for ETags for
-optimistic concurrency control. Adding support for ETags combined with the [systematic
-testing](../concepts/concurrency-unit-testing.md) of Coyote will allow you to test a scenario that
-is fairly hard to hit in production but can lead to data loss.
+In the [next tutorial](optimistic-concurrency-control.md), you will learn how to extend the above
+mock to simulate optimistic concurrency control using ETags. Adding support for ETags combined with
+the [systematic testing](../../concepts/concurrency-unit-testing.md) of Coyote will allow you to
+test a scenario that is fairly hard to hit in production but can lead to data loss.

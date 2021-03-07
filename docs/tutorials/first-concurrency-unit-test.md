@@ -14,11 +14,11 @@ you in writing correct concurrent code.
 
 ## What you will need
 
-To run the `AccountManager` example, you will need to:
+To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
-- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
+- Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
 ## Watch this tutorial
 
@@ -186,7 +186,7 @@ public class InMemoryDbCollection : IDbCollection
 The `InMemoryDbCollection` mock is very simple, it just maintains an in-memory
 `ConcurrentDictionary` to store the keys and values. Each method of the mock runs a new concurrent
 task (via `Task.Run`) to make the call execute asynchronously, modeling async I/O in a real database
-call. You can read later this [follow-up tutorial](mock-dependencies.md) to delve into mock design
+call. You can read later this [follow-up tutorial](mocks/mock-dependencies.md) to delve into mock design
 for concurrency unit testing.
 
 Now that you have written this mock, you can write a simple test:
@@ -316,13 +316,17 @@ coyote rewrite .\AccountManager.dll
 . Done rewriting in 0.6425808 sec
 ```
 
+**Note**: if your project contains multiple assemblies (which is usually the normal), then you need
+to rewrite all of them. This can be easily done by passing a JSON configuration file to `coyote
+rewrite` as discussed [here](../get-started/using-coyote.md#configuration).
+
 Awesome, now lets try use Coyote on the above concurrent test:
 
 ```plain
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
 
-Note: for this to work the unit test method needs to use the
+**Note**: for this to work the unit test method needs to use the
 `[Microsoft.Coyote.SystematicTesting.Test]` custom attribute to declare the test method which 
 is what you will see if you have already downloaded the [Coyote Samples git
 repo](http://github.com/microsoft/coyote-samples).

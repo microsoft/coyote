@@ -8,8 +8,14 @@ as a [video on YouTube](https://youtu.be/wuKo-9iRm6o).
 Next, we recommend you to read the following tutorials:
 
 - [Test concurrent CRUD operations](test-concurrent-operations.md)
+- [Mocking dependencies for testing](mocks/mock-dependencies.md)
 - [Test an ASP.NET service](testing-aspnet-service.md)
 - [Test failover and liveness](test-failover.md)
+- More on the way!
+
+If you are looking to hone your mock crafting skills, go through the following tutorials:
+
+- [Simulating optimistic concurrency control using ETags](mocks/optimistic-concurrency-control.md)
 - More on the way!
 
 If you are interested in the more advanced [actor programming

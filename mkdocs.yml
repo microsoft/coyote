@@ -57,6 +57,9 @@ nav:
   - Overview: tutorials/overview.md
   - Write your first concurrency unit test: tutorials/first-concurrency-unit-test.md
   - Test concurrent CRUD operations: tutorials/test-concurrent-operations.md
+  - Writing mocks:
+    - Mocking dependencies for testing: tutorials/mocks/mock-dependencies.md
+    - Simulating optimistic concurrency control: tutorials/mocks/optimistic-concurrency-control.md
   - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
   - Test failover and liveness: tutorials/test-failover.md
   - Actors and state machines:

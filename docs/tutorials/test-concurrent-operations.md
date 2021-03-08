@@ -26,7 +26,7 @@ create two `DeleteAccount` requests and see what happens when they execute concu
 system was running in production). Here is one such test:
 
 ```csharp
-[Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async Task TestConcurrentAccountDeletion()
 {
   // Initialize the mock in-memory DB and account manager.
@@ -176,7 +176,7 @@ Going back to our `AccountManager` example, let's write the test that exercises 
 `DeleteAccount` requests happening at the same time. The test is a bit more involved this time.
 
 ```csharp
-[Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async Task TestConcurrentAccountCreationAndDeletion()
 {
   // Initialize the mock in-memory DB and account manager.

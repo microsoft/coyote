@@ -38,7 +38,7 @@ public class AccountManager
   // Returns true if the account is created, else false.
   public async Task<bool> CreateAccount(string accountName, string accountPayload) { ... }
 
-  // Returns the accountPayload, else null.
+  // Returns the accountPayload if the account is found, else null.
   public async Task<string> GetAccount(string accountName) { ... }
 
   // Returns true if the account is deleted, else false.
@@ -91,7 +91,7 @@ public class AccountManager
     return await this.AccountCollection.CreateRow(accountName, accountPayload);
   }
 
-  // Returns the accountPayload, else null.
+  // Returns the accountPayload if the account is found, else null.
   public async Task<string> GetAccount(string accountName)
   {
     if (!await this.AccountCollection.DoesRowExist(accountName))
@@ -171,7 +171,7 @@ public class InMemoryDbCollection : IDbCollection
   {
     return Task.Run(() =>
     {
-      bool success = this.Collection.TryRemove(key, out string value);
+      bool success = this.Collection.TryRemove(key, out string _);
       if (!success)
       {
         throw new RowNotFoundException();

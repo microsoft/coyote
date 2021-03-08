@@ -58,7 +58,7 @@ Using this simple mock, let's write a unit test to exercise _sequential_ account
 test](../first-concurrency-unit-test.md) tutorial for the `AccountManager` code).
 
 ```csharp
-[Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async Task TestAccountCreation()
 {
   // Initialize the mock DB and account manager.
@@ -114,7 +114,7 @@ executing concurrently?
 Let's try it out on the following concurrency unit test.
 
 ```csharp
-[Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async Task TestConcurrentAccountCreation()
 {
   // Initialize the mock DB and account manager.
@@ -411,3 +411,14 @@ In the [next tutorial](optimistic-concurrency-control.md), you will learn how to
 mock to simulate optimistic concurrency control using ETags. Adding support for ETags combined with
 the [systematic testing](../../concepts/concurrency-unit-testing.md) of Coyote will allow you to
 test a scenario that is fairly hard to hit in production but can lead to data loss.
+
+## Get the sample source code
+
+To get the complete source code for the `AccountManager` tutorial, clone the
+[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+
+You can build the sample by running the following command:
+
+```plain
+powershell -f build.ps1
+```

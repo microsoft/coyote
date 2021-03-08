@@ -82,11 +82,41 @@ public class InMemoryDbCollection : IDbCollection
     this.Collection = new ConcurrentDictionary<string, string>();
   }
 
-  public Task<bool> CreateRow(string key, string value) { ... }
+  public Task<bool> CreateRow(string key, string value)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryAdd(key, value);
+      if (!success)
+      {
+        throw new RowAlreadyExistsException();
+      }
 
-  public Task<bool> DoesRowExist(string key) { ... }
+      return true;
+    });
+  }
 
-  public Task<string> GetRow(string key) { ... }
+  public Task<bool> DoesRowExist(string key)
+  {
+    return Task.Run(() =>
+    {
+      return this.Collection.ContainsKey(key);
+    });
+  }
+
+  public Task<string> GetRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryGetValue(key, out string value);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return value;
+    });
+  }
 
   public Task<bool> UpdateRow(string key, string value)
   {
@@ -103,12 +133,23 @@ public class InMemoryDbCollection : IDbCollection
     });
   }
 
-  public Task<bool> DeleteRow(string key) { ... }
+  public Task<bool> DeleteRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryRemove(key, out string _);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return true;
+    });
+  }
 }
 ```
 
-Let's implement next the `AccountManager` logic for updating accounts. For simplicity, let's only
-focus on the `CreateAccount` and `UpdateAccount` methods, which can be implemented like this:
+Next, let's implement the `AccountManager` logic.
 
 ```csharp
 public class AccountManager
@@ -176,15 +217,43 @@ public class AccountManager
       return false;
     }
   }
+
+  // Returns the account if found, else null.
+  public async Task<Account> GetAccount(string accountName)
+  {
+    try
+    {
+      string value = await this.AccountCollection.GetRow(accountName);
+      return JsonSerializer.Deserialize<Account>(value);
+    }
+    catch (RowNotFoundException)
+    {
+      return null;
+    }
+  }
+
+  // Returns true if the account is deleted, else false.
+  public async Task<bool> DeleteAccount(string accountName)
+  {
+    try
+    {
+      return await this.AccountCollection.DeleteRow(accountName);
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+  }
 }
 ```
 
-This was a lot of code. The `CreateAccount` is similar to the [previous
-tutorial](../first-concurrency-unit-test.md), but with a few differences. It creates an `Account`
-instance using the input account data, then uses `System.Text.Json` to serialize it to a `string`
-and tries to add it to the database by invoking `CreateRow`. If this operation fails with a
-`RowAlreadyExistsException`, the `AccountManager` catches the exception and returns `false`, else it
-returns `true`.
+This was a lot of code!
+
+The `CreateAccount` is similar to the [previous tutorial](../first-concurrency-unit-test.md), but
+with a few differences. It creates an `Account` instance using the input account data, then uses
+`System.Text.Json` to serialize it to a `string` and tries to add it to the database by invoking
+`CreateRow`. If this operation fails with a `RowAlreadyExistsException`, the `AccountManager`
+catches the exception and returns `false`, else it returns `true`.
 
 The `UpdateAccount` method is a bit more involved. The method first invokes the `GetRow` database
 method to get the value of the account with the name that we want to update (if such an account
@@ -194,186 +263,418 @@ equal than the new account, and if yes, the method fails with `false`. Else, it 
 `Account` instance, serializes it and tries to update the corresponding database entry by invoking
 `UpdateRow`.
 
-Let's first write a sequential unit test to exercise the above account updating logic.
+The `GetAccount` and `DeleteAccount` methods are also similar to the [previous
+tutorial](../first-concurrency-unit-test.md), but now use a `try { ... } catch { ... }` block to
+return `false` if the call to `IDbCollection` failed with a `RowNotFoundException`.
+ 
+Let's first write a sequential unit test to exercise the above `UpdateAccount` logic.
 
 ```csharp
-public async Task Test()
+[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestAccountUpdate()
 {
-   var dbCollection = new MockDbCollection();
-   var accountManager = new UserAccountManager(dbCollection);
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
 
-   var result = await accountManager.CreateUser("joe", "...", 1);
-   Assert.IsTrue(result);
+  string accountName = "MyAccount";
 
-   result = await accountManager.UpdateUser("joe", "secondVersion", 2);
-   Assert.IsTrue(result);
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, "first_version", 1);
+  Assert.True(result);
 
-   result = await accountManager.UpdateUser("joe", "secondVersionAlternate", 2);
-   Assert.IsFalse(result);
+  result = await accountManager.UpdateAccount(accountName, "second_version", 2);
+  Assert.True(result);
+
+  result = await accountManager.UpdateAccount(accountName, "second_version_alt", 2);
+  Assert.False(result);
 }
 ```
 
-The above test passes. Let's write a test where we update the user concurrently.
+Build the code, rewrite the assembly and run the test using Coyote for `10` iterations:
 
-```csharp
-
-public async Task Test()
-{
-   var dbCollection = new MockDbCollection();
-   var accountManager = new UserAccountManager(dbCollection);
-
-   var result = await accountManager.CreateUser("joe", "...", 1);
-   Assert.IsTrue(result);
-
-   var updateTask1 = accountManager.UpdateUser("joe", "secondVersion", 2);
-   var updateTask2 = accountManager.UpdateUser("joe", "secondVersionAlternate", 2);
-   await Task.WhenAll(updateTask1, updateTask2);
-
-   // Assert that only one of the updates above succeed and not both
-   Assert.IsTrue(updateTask1.Result ^ updateTask2.Result);
-}
-
+```plain
+coyote rewrite .\AccountManager.ETags.dll
+coyote test .\AccountManager.ETags.dll -m TestAccountUpdate -i 10
 ```
 
-When you run the test above, you'll realize it will fail in one of the iterations as Coyote will
-find an interleaving in which both calls succeed. That race condition happens when both the calls
-read the first version of the row, both independently think their version is greater than what is
-currently in the database and update the entry.
+The test succeeds.
 
-The problem in fact is worse than that. Consider the following snippet.
-
-```csharp
-
-var updateTask1 = accountManager.UpdateUser("joe", "secondVersion", 2);
-var updateTask2 = accountManager.UpdateUser("joe", "thirdVresion", 3);
-await Task.WhenAll(updateTask1, updateTask2);
-
-var user =  await accountManager.GetUser("joe");
-Assert.IsTrue(user.Version == 3);
-
+```plain
+. Testing .\AccountManager.ETags.dll
+... Method TestAccountUpdate
+... Started the testing task scheduler (process:37236).
+... Created '1' testing task (process:37236).
+... Task 0 is using 'random' strategy (seed:2049239085).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+... Testing statistics:
+..... Found 0 bugs.
+... Scheduling statistics:
+..... Explored 10 schedules: 10 fair and 0 unfair.
+..... Number of scheduling points in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
+... Elapsed 0.2354834 sec.
 ```
 
-The above test will also fail in some iterations with version 2 overwriting version 3! So we find
-out that this not just a benign failure but our code doesn't respect the semantics at all in the
-presence of concurrency.
-
-Cosmos DB provides ETags which we can use and only update the row if the ETags match. This ensures
-that we fail if another writer updates the row after we have read it, thus indicating that we made
-our decision operating on stale data.
-
-Let's take a look at the correct implementation of `UpdateUser`.
+This is cool, but will a test that exercises concurrent account updates also succeed? Let's find out
+by writing the following concurrency unit test.
 
 ```csharp
-
-public async Task<bool> UpdateUser(string username, string details, int version)
+[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestConcurrentAccountUpdate()
 {
-   string existingUserPayload;
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
 
-   ...
+  string accountName = "MyAccount";
 
-   var existingUser = Deserialize(existingUserPayload);
-   if (version <= existingUser.Version)
-   {
-     return false;
-   }
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, "first_version", 1);
+  Assert.True(result);
 
-   var updatedUser = new User() { Details = details, version = version };
+  // Call UpdateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.UpdateAccount(accountName, "second_version", 2);
+  var task2 = accountManager.UpdateAccount(accountName, "second_version_alt", 2);
 
-   try
-   {
-     // This call will fail if the ETags mismatch
-     await dbCollection.ReplaceRow(username, existingUser.ETag);
-   }
-   catch (Exception ex) when (ex is RowNotFound || ex is ETagMismatch)
-   {
-     return false;
-   }
+  // Then wait both requests to complete.
+  await Task.WhenAll(task1, task2);
 
-   return true;
+  // Finally, assert that only one of the two requests succeeded and the other
+  // failed. Note that we do not know which one of the two succeeded as the
+  // requests ran concurrently (this is why we use an exclusive OR).
+  Assert.True(task1.Result ^ task2.Result);
 }
-
 ```
 
-The above requires us to implement the ETag functionality in our simulator.
+Build the code, rewrite the assembly and run the test using Coyote for `10` iterations:
+
+```plain
+coyote rewrite .\AccountManager.ETags.dll
+coyote test .\AccountManager.ETags.dll -m TestConcurrentAccountUpdate -i 10
+```
+
+When you run the test above, you'll realize it will fail quite fast as Coyote will find an execution
+in which _both_ `UpdateAccount` requests succeed.
+
+```plain
+. Testing .\AccountManager.ETags.dll
+... Method TestConcurrentAccountUpdate
+... Started the testing task scheduler (process:35908).
+... Created '1' testing task (process:35908).
+... Task 0 is using 'random' strategy (seed:3363370498).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing AccountManager.ETags.dll\CoyoteOutput\AccountManager.ETags_0_0.txt
+..... Writing AccountManager.ETags.dll\CoyoteOutput\AccountManager.ETags_0_0.schedule
+... Elapsed 0.1426821 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Scheduling statistics:
+..... Explored 6 schedules: 6 fair and 0 unfair.
+..... Found 16.67% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 10 (min), 19 (avg), 28 (max).
+... Elapsed 0.2414493 sec.
+```
+
+This is a bug because only one of the two requests should succeed. This race condition happens when
+the two concurrently executing `UpdateAccount` methods both read the first `Version` of the row,
+independently think their account `Version` is greater than what is currently stored in the database
+and update the entry.
+
+In fact, the problem is worse than that. Consider the following test that first updates the accounts
+concurrently using two different versions, `2` and `3`, and then getting the account and asserting
+that the account version should always be the latest, which is `3`.
 
 ```csharp
-
-public class Payload
+[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestGetAccountAfterConcurrentUpdate()
 {
-  string Value;
-  string ETag;
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  string accountName = "MyAccount";
+
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, "first_version", 1);
+  Assert.True(result);
+
+  // Call UpdateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.UpdateAccount(accountName, "second_version", 2);
+  var task2 = accountManager.UpdateAccount(accountName, "third_version", 3);
+
+  // Then wait both requests to complete.
+  await Task.WhenAll(task1, task2);
+
+  // Finally, get the account and assert that the version is always 3,
+  // which is the latest updated version.
+  var account = await accountManager.GetAccount(accountName);
+  Assert.True(account.Version == 3);
+}
+```
+
+Build the code, rewrite the assembly and run the test using Coyote for `10` iterations:
+
+```plain
+coyote rewrite .\AccountManager.ETags.dll
+coyote test .\AccountManager.ETags.dll -m TestGetAccountAfterConcurrentUpdate -i 10
+```
+
+This test will fail in some iterations with account version `2` overwriting version `3`:
+
+```plain
+. Testing .\AccountManager.ETags.dll
+... Method TestGetAccountAfterConcurrentUpdate
+... Started the testing task scheduler (process:36036).
+... Created '1' testing task (process:36036).
+... Task 0 is using 'random' strategy (seed:2759716551).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing AccountManager.ETags.dll\CoyoteOutput\AccountManager.ETags_0_0.txt
+..... Writing AccountManager.ETags.dll\CoyoteOutput\AccountManager.ETags_0_0.schedule
+... Elapsed 0.1317799 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Scheduling statistics:
+..... Explored 4 schedules: 4 fair and 0 unfair.
+..... Found 25.00% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 20 (min), 26 (avg), 37 (max).
+... Elapsed 0.2468594 sec.
+```
+
+You can see that this is not just a benign failure! The code doesn't respect the `UpdateAccount`
+semantics in the presence of concurrency, which is a serious issue.
+
+A database system like [Cosmos DB](https://azure.microsoft.com/services/cosmos-db/) provides
+[ETags](https://en.wikipedia.org/wiki/HTTP_ETag) which you can use to only update the row if the
+ETags match. This ensures that `UpdateAccount` will fail if another (concurrent) request updates the
+row after `UpdateAccount` has read it, which indicates that `UpdateAccount` operated on stale data.
+
+Let's take a look at a correct implementation of `UpdateAccount` that uses ETags.
+
+```csharp
+// Returns true if the account is updated, else false.
+public async Task<bool> UpdateAccount(string accountName, string accountPayload, int accountVersion)
+{
+  Account existingAccount;
+  Guid existingAccountETag;
+
+  // Naive retry if ETags mismatch. In reality, you would use a proper retry policy.
+  while (true)
+  {
+    try
+    {
+      (string value, Guid etag) = await this.AccountCollection.GetRow(accountName);
+      existingAccount = JsonSerializer.Deserialize<Account>(value);
+      existingAccountETag = etag;
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+
+    if (accountVersion <= existingAccount.Version)
+    {
+      return false;
+    }
+
+    var updatedAccount = new Account()
+    {
+      Name = accountName,
+      Payload = accountPayload,
+      Version = accountVersion
+    };
+
+    try
+    {
+      return await this.AccountCollection.UpdateRow(accountName,
+        JsonSerializer.Serialize(updatedAccount), existingAccountETag);
+    }
+    catch (MismatchedETagException)
+    {
+      continue;
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+  }
+}
+```
+
+You will also need to update the `IDbCollection` interface and `InMemoryDbCollection` mock to
+support ETags, as well as create an `AccountEntity` type that is stored in the database and contains
+the serialized `Account` as well as the corresponding `ETag`.
+
+```csharp
+public class AccountEntity
+{
+    public string Account { get; set; }
+
+    public Guid ETag { get; set; }
 }
 
-public class MockDbCollection : IDbCollection
+public interface IDbCollection
 {
-   private ConcurrentDictionary<string, Payload> collection;
+  Task<bool> CreateRow(string key, string value);
 
-   public Task<bool> DoesRowExist(string key)
-   {
-     return Task.Run(() =>
-     {
-       return collection.ContainsKey(key);
-     });
-   }
+  Task<bool> DoesRowExist(string key);
 
-   public Task<bool> CreateRow(string key, string value)
-   {
-     return Task.Run(() =>
-     {
-        var payload = new Payload() { Value = value, ETag = Guid.NewGuid().ToString() }
-        var success = collection.TryAdd(key, payload);
+  Task<(string value, Guid etag)> GetRow(string key);
+
+  Task<bool> UpdateRow(string key, string value, Guid etag);
+
+  Task<bool> DeleteRow(string key);
+}
+
+public class InMemoryDbCollection : IDbCollection
+{
+  private readonly ConcurrentDictionary<string, AccountEntity> Collection;
+
+  public InMemoryDbCollection()
+  {
+    this.Collection = new ConcurrentDictionary<string, AccountEntity>();
+  }
+
+  public Task<bool> CreateRow(string key, string value)
+  {
+    return Task.Run(() =>
+    {
+      var entity = new AccountEntity()
+      {
+        Account = value,
+        ETag = Guid.NewGuid()
+      };
+
+      bool success = this.Collection.TryAdd(key, entity);
+      if (!success)
+      {
+        throw new RowAlreadyExistsException();
+      }
+
+      return true;
+    });
+  }
+
+  public Task<bool> DoesRowExist(string key)
+  {
+    return Task.Run(() =>
+    {
+      return this.Collection.ContainsKey(key);
+    });
+  }
+
+  public Task<(string value, Guid etag)> GetRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryGetValue(key, out AccountEntity entity);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return (entity.Account, entity.ETag);
+    });
+  }
+
+  public Task<bool> UpdateRow(string key, string value, Guid etag)
+  {
+    return Task.Run(() =>
+    {
+      lock (this.Collection)
+      {
+        bool success = this.Collection.TryGetValue(key, out AccountEntity existingEntity);
         if (!success)
         {
-          throw new RowAlreadyExists();
+          throw new RowNotFoundException();
         }
-
-        return true;
-     });
-   }
-
-   public Task<bool> UpdateRow(string key, string value, string etag)
-   {
-     return Task.Run(() =>
-     {
-        lock (collection)
+        else if (success && etag != existingEntity.ETag)
         {
-          var getSuccess = collection.TryGet(key, out Payload existingPayload);
-          if (getSuccess && etag != existingPayload.ETag)
-          {
-             throw new ETagMismatchException();
-          }
-
-          var success = collection.TryAdd(key, payload);
-          if (!success)
-          {
-            throw new RowAlreadyExists();
-          }
-
-          return true;
+          throw new MismatchedETagException();
         }
-     });
-   }
-}
 
+        var entity = new AccountEntity()
+        {
+          Account = value,
+          ETag = Guid.NewGuid()
+        };
+
+        this.Collection[key] = entity;
+        return true;
+      }
+    });
+  }
+
+  public Task<bool> DeleteRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryRemove(key, out AccountEntity _);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return true;
+    });
+  }
+}
 ```
 
-We take a `lock` during `UpateRow` to ensure no other task races with us while we checking the ETag
-for mismatch. We don't need to take a `lock` during operations which don't check the ETag as we're
-using a thread-safe concurrency dictionary.
+The reason you need to acquire a `lock` in the `UpateRow` method is to ensure that no other task
+races while the ETag is checked for mismatch. You don't need a `lock` in operations that don't check
+the ETag as you are using a thread-safe concurrency dictionary.
 
-If we run our test again, we'll see it passes! If we remove the ETag check, it will fail as
-expected.
+Build the code one last time, rewrite the assembly and run the test using Coyote for `10` iterations:
 
-You can find the complete implementation of the simulator using ETags over
-[here](https://github.com).
+```plain
+coyote rewrite .\AccountManager.ETags.dll
+coyote test .\AccountManager.ETags.dll -m TestGetAccountAfterConcurrentUpdate -i 10
+```
 
-One interesting observation above is that we took a lock in our simulator when simulating the ETag
-functionality but we didn't (and couldn't) take a lock in the `UserAccountManager`. This is because
-`UserAccountManager` can run across different processes and different machines and locks clearly
-don't work in that setting. We run the concurrency test in one process however so its perfectly fine
-for our _simulator_ to take a lock to simplify the simulation of the ETag functionality.
+Awesome, this time the test succeeds! If you try to remove the ETag check, it will fail as expected.
 
-As you can see above, it didn't take a lot of effort to simulate ETags in our simulator, as we are
-just simulating the semantics in-memory as opposed to implementing the _actual_ code which must
-function correctly when run in a distributed system context and has to worry about arbitrary faults
-and failures.
+One interesting observation is that you used a lock inside the `InMemoryDbCollection` mock but not
+inside the `AccountManager` code. The reason behind this choice is that in production
+`AccountManager` can run across different processes or machines, so intra-process locks would not
+work in that setting. With Coyote, however, you run the entire concurrency unit test in a single
+process, so it is perfectly fine for the mock itself to take a lock, which makes it easier to
+simulate the ETag functionality.
+
+As you can see, it didn't take much effort to simulate ETags in the mock, as you just simulated the
+semantics _in-memory_. This is significantly easier than if you had to implement the _real_ ETags
+functionality in a production distributed system, where you would have to worry about arbitrary
+failures.
+
+## Get the sample source code
+
+To get the complete source code for the `AccountManager.ETags` tutorial, clone the
+[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+
+You can build the sample by running the following command:
+
+```plain
+powershell -f build.ps1
+```

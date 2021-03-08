@@ -14,11 +14,11 @@ you in writing correct concurrent code.
 
 ## What you will need
 
-To run the `AccountManager` example, you will need to:
+To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
-- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
+- Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
 ## Watch this tutorial
 
@@ -38,7 +38,7 @@ public class AccountManager
   // Returns true if the account is created, else false.
   public async Task<bool> CreateAccount(string accountName, string accountPayload) { ... }
 
-  // Returns the accountPayload, else null.
+  // Returns the accountPayload if the account is found, else null.
   public async Task<string> GetAccount(string accountName) { ... }
 
   // Returns true if the account is deleted, else false.
@@ -51,13 +51,13 @@ Here are the methods available in the `IDbCollection` interface:
 ```csharp
 public interface IDbCollection
 {
-  Task CreateRow(string key, string value);
+  Task<bool> CreateRow(string key, string value);
 
   Task<bool> DoesRowExist(string key);
 
   Task<string> GetRow(string key);
 
-  Task DeleteRow(string key);
+  Task<bool> DeleteRow(string key);
 }
 ```
 
@@ -88,11 +88,10 @@ public class AccountManager
       return false;
     }
 
-    await this.AccountCollection.CreateRow(accountName, accountPayload);
-    return true;
+    return await this.AccountCollection.CreateRow(accountName, accountPayload);
   }
 
-  // Returns the accountPayload, else null.
+  // Returns the accountPayload if the account is found, else null.
   public async Task<string> GetAccount(string accountName)
   {
     if (!await this.AccountCollection.DoesRowExist(accountName))
@@ -111,8 +110,7 @@ public class AccountManager
       return false;
     }
 
-    await this.AccountCollection.DeleteRow(accountName);
-    return true;
+    return await this.AccountCollection.DeleteRow(accountName);
   }
 }
 ```
@@ -134,27 +132,17 @@ public class InMemoryDbCollection : IDbCollection
     this.Collection = new ConcurrentDictionary<string, string>();
   }
 
-  public Task CreateRow(string key, string value)
+  public Task<bool> CreateRow(string key, string value)
   {
     return Task.Run(() =>
     {
-      var result = this.Collection.TryAdd(key, value);
-      if (!result)
+      bool success = this.Collection.TryAdd(key, value);
+      if (!success)
       {
         throw new RowAlreadyExistsException();
       }
-    });
-  }
 
-  public Task DeleteRow(string key)
-  {
-    return Task.Run(() =>
-    {
-      var removed = this.Collection.TryRemove(key, out string value);
-      if (!removed)
-      {
-        throw new RowNotFoundException();
-      }
+      return true;
     });
   }
 
@@ -170,12 +158,26 @@ public class InMemoryDbCollection : IDbCollection
   {
     return Task.Run(() =>
     {
-      var result = this.Collection.TryGetValue(key, out string value);
-      if (!result)
+      bool success = this.Collection.TryGetValue(key, out string value);
+      if (!success)
       {
         throw new RowNotFoundException();
       }
       return value;
+    });
+  }
+
+  public Task<bool> DeleteRow(string key)
+  {
+    return Task.Run(() =>
+    {
+      bool success = this.Collection.TryRemove(key, out string _);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return true;
     });
   }
 }
@@ -184,7 +186,8 @@ public class InMemoryDbCollection : IDbCollection
 The `InMemoryDbCollection` mock is very simple, it just maintains an in-memory
 `ConcurrentDictionary` to store the keys and values. Each method of the mock runs a new concurrent
 task (via `Task.Run`) to make the call execute asynchronously, modeling async I/O in a real database
-call.
+call. You can read later this [follow-up tutorial](mocks/mock-dependencies.md) to delve into mock design
+for concurrency unit testing.
 
 Now that you have written this mock, you can write a simple test:
 
@@ -313,13 +316,17 @@ coyote rewrite .\AccountManager.dll
 . Done rewriting in 0.6425808 sec
 ```
 
+**Note**: if your project contains multiple assemblies (which is usually the normal), then you need
+to rewrite all of them. This can be easily done by passing a JSON configuration file to `coyote
+rewrite` as discussed [here](../get-started/using-coyote.md#configuration).
+
 Awesome, now lets try use Coyote on the above concurrent test:
 
 ```plain
 coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
 
-Note: for this to work the unit test method needs to use the
+**Note**: for this to work the unit test method needs to use the
 `[Microsoft.Coyote.SystematicTesting.Test]` custom attribute to declare the test method which 
 is what you will see if you have already downloaded the [Coyote Samples git
 repo](http://github.com/microsoft/coyote-samples).
@@ -349,8 +356,8 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManagerTutorial.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
 ... Elapsed 0.0743756 sec.
 ... Testing statistics:
 ..... Found 1 bug.

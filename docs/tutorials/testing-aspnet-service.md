@@ -14,7 +14,7 @@ You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
-- Be familiar with the `coyote` tool. See [Testing](../get-started/using-coyote.md).
+- Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
 If you want to actually run the sample (rather than just running the unit tests) then you will also
 need the following:

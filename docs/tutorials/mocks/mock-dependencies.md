@@ -18,7 +18,7 @@ In this tutorial, you will write a simple mock for the `IDbCollection` that was 
 [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial. You will design
 this mock to be used in a concurrent setting, where methods in multiple instances of the class can
 be called concurrently, either within the same process or across processes and machines. This latter
-condition means that using locks will not help you in writing correct concurrent code.
+condition means that using locks in your code will not help you in writing correct concurrent code.
 
 ## What you will need
 
@@ -31,9 +31,24 @@ To run the code in this tutorial, you will need to:
 
 ## Walkthrough
 
-Consider the following simple `InMemoryDbCollection` mock for the `IDbCollection` interface. Let's
-skip the `GetRow` and `DeleteRow` methods for now, but you can implement them in a similar way to
-the `CreateRow` and `DoesRowExist` methods.
+Consider the following (buggy) implementation of `AccountManager.CreateAccount`
+
+```csharp
+  // Returns true if the account is created, else false.
+  public async Task<bool> CreateAccount(string accountName, string accountPayload)
+  {
+    if (await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return false;
+    }
+
+    return await this.AccountCollection.CreateRow(accountName, accountPayload);
+  }
+```
+
+Now let's consider this simple `InMemoryDbCollection` mock for the `IDbCollection` interface which implements
+`CreateRow` and `DoesRowExist` methods used in the above test. Let's ignore the `GetRow` and `DeleteRow` 
+methods for now as they aren't used in the above method.
 
 ```csharp
 public class InMemoryDbCollection : IDbCollection
@@ -108,7 +123,7 @@ The test succeeds.
 ... Elapsed 0.1182 sec.
 ```
 
-This is cool, but can this same mock also be used to pass the test if it was
+This works, but can this same mock also be used to pass the test if it was
 executing concurrently?
 
 Let's try it out on the following concurrency unit test.
@@ -173,9 +188,10 @@ This time the test immediately (and always) fails!
 
 This is because the `dbCollection.DoesRowExist` mock method _always_ returns `false` and the
 `dbCollection.CreateRow` mock method _always_ returns `true` no matter what order the two
-`CreateAccount` requests execute. Instead, the `dbCollection.DoesRowExist` method should only return
-`false` if the account doesn't exist and the `dbCollection.CreateRow` method should only return
-`true` if a new row was created.
+`CreateAccount` requests execute. Our test asserts that one `CreateAccount` call must succeed
+and the other always fail but both calls succeed with our current mock. The `dbCollection.DoesRowExist`
+method should only return `false` if the account doesn't exist and the `dbCollection.CreateRow`
+method should only return `true` if a new row was created.
 
 Let's try to fix the mock.
 
@@ -205,8 +221,8 @@ public class InMemoryDbCollection : IDbCollection
 }
 ```
 
-The above mock is a bit more complicated but models the `DoesRowExist` and `CreateRow` behavior
-more precisely. Build, rewrite and run the same test once again.
+The above mock is a bit more complicated as it models the `DoesRowExist` and `CreateRow` behavior
+more precisely for our test. Build, rewrite and run the same test once again.
 
 ```plain
 . Testing .\AccountManager.dll
@@ -233,11 +249,12 @@ more precisely. Build, rewrite and run the same test once again.
 ```
 
 The assertion will now pass, but the `CreateAccount` method is [actually
-buggy](../first-concurrency-unit-test.md). Why does the assertion not fail?! The reason is that while
-the two asynchronous `CreateAccount` methods are invoked at the same time, there is no _actual_
-concurrency in the test which means that the two methods effectively execute sequentially with each
-other. Let's see how we can inject some concurrency which will allow Coyote to ``shake'' the system
-and uncover the bug!
+buggy](../first-concurrency-unit-test.md) (read the first tutorial to remind yourself why). Why does the assertion not fail?! 
+
+The reason is that while the two asynchronous `CreateAccount` methods are invoked concurrently, there is no _actual_
+concurrency in the test. While our code uses async/await methods, no code path introduces any asynchrony (through
+`Task.Run`, `Task.Yield` etc)  which means the two methods execute seqentially, one after another. Let's see how 
+we can inject some concurrency which will allow Coyote to ``shake'' the system and uncover the bug!
 
 There are a few ways to make the test truly concurrent. One simple way is to tweak the mock so that
 it uses `Task.Run` to [start a new
@@ -310,10 +327,10 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 Awesome! Using `Task.Run` in the mock methods introduces concurrency in the test, which allows the
 two `CreateAccount` methods to execute asynchronously and race with each other. This is similar to
 how invoking the production implementation of `IDbCollection` (i.e. the actual backend NoSQL
-database) typically happens asynchronously, so network calls do not block the rest of the system.
+database) typically happens asynchronously by spinning off a new task, so network calls do not block the rest of the system.
 
 Can you make the above mock a little more generally applicable, so you don't have to write custom
-mocks for each test case? What if you model it in a way that simulates more closely the behavior of
+mocks for each test case? What if you model it in a way that more closely simulates the behavior of
 the actual `IDbCollection`? Let's write such a mock that we can use in concurrency unit tests for
 the `AccountManager`.
 
@@ -397,7 +414,7 @@ The above is the complete implementation of the `InMemoryDbCollection` mock that
 [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 Mocks that can be used in concurrency unit tests are often surprisingly easy to write and have the
-benefit that they can be reused in multiple testing scenarios as they model more closely the
+benefit that they can be reused in multiple testing scenarios as they more closely model the
 production behavior of the mocked dependency. Teams in Azure have
 [reported](../case-studies/azure-blockchain-service.md) that spending a little effort to write such
 mocks yielded large productivity gains through better concurrency testing coverage.

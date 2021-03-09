@@ -1421,7 +1421,7 @@ namespace Microsoft.Coyote.Runtime
         internal void AssertIsAwaitedTaskControlled(Task task)
         {
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsPartiallyControlledTestingEnabled)
+                !this.Configuration.IsRelaxedTestingEnabled)
             {
                 this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
                     "either mock the method that created the task, or rewrite the method's assembly.");
@@ -1434,7 +1434,7 @@ namespace Microsoft.Coyote.Runtime
         internal void AssertIsReturnedTaskControlled(Task task, string methodName)
         {
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsPartiallyControlledTestingEnabled)
+                !this.Configuration.IsRelaxedTestingEnabled)
             {
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed: either mock the method, or rewrite the method's assembly.");

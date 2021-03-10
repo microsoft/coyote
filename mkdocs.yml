@@ -118,7 +118,7 @@ nav:
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
-        - WithPartiallyControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledTestingEnabled.md
+        - WithRelaxedTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedTestingEnabled.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
@@ -141,10 +141,6 @@ nav:
         - ReportActivityCoverage: ref/Microsoft.Coyote/Configuration/ReportActivityCoverage.md
         - IsDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled.md
         - IsXmlLogEnabled: ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled.md
-      - ExecutionCanceledException: ref/Microsoft.Coyote/ExecutionCanceledException.md
-      - RuntimeException:
-        - Overview: ref/Microsoft.Coyote/RuntimeException.md
-        - RuntimeException: ref/Microsoft.Coyote/RuntimeException/RuntimeException.md
     - Microsoft.Coyote.Actors:
       - Namespace Overview: ref/Microsoft.Coyote.ActorsNamespace.md
       - Actor:
@@ -535,6 +531,10 @@ nav:
         - NextInteger: ref/Microsoft.Coyote.Random/Generator/NextInteger.md
     - Microsoft.Coyote.Runtime:
       - Namespace Overview: ref/Microsoft.Coyote.RuntimeNamespace.md
+      - ExecutionCanceledException: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException.md
+      - RuntimeException:
+        - Overview: ref/Microsoft.Coyote.Runtime/RuntimeException.md
+        - RuntimeException: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException.md
       - ICoyoteRuntime:
         - Overview: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime.md
         - RegisterMonitor: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RegisterMonitor.md

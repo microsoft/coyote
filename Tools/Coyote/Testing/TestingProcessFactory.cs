@@ -84,9 +84,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (configuration.IsRelaxedTestingEnabled)
+            if (configuration.IsPartiallyControlledTestingEnabled )
             {
-                arguments.Append("--relax ");
+                arguments.Append("--partially-controlled-testing ");
             }
 
             if (configuration.RandomGeneratorSeed.HasValue)

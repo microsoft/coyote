@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.Strategy.GetNextOperation(ops, current, isYielding, out next) &&
-                    this.Configuration.IsRelaxedTestingEnabled &&
+                    this.Configuration.IsPartiallyControlledTestingEnabled &&
                     ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
                 {
                     // At least one operation is blocked due to uncontrolled concurrency. To try defend against

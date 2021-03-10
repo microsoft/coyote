@@ -1,6 +1,6 @@
 # ICoyoteRuntime.Assert method (1 of 5)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 public void Assert(bool predicate)
@@ -20,7 +20,7 @@ public void Assert(bool predicate)
 
 # ICoyoteRuntime.Assert method (2 of 5)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 public void Assert(bool predicate, string s, object arg0)
@@ -42,7 +42,7 @@ public void Assert(bool predicate, string s, object arg0)
 
 # ICoyoteRuntime.Assert method (3 of 5)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 public void Assert(bool predicate, string s, params object[] args)
@@ -64,7 +64,7 @@ public void Assert(bool predicate, string s, params object[] args)
 
 # ICoyoteRuntime.Assert method (4 of 5)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 public void Assert(bool predicate, string s, object arg0, object arg1)
@@ -87,7 +87,7 @@ public void Assert(bool predicate, string s, object arg0, object arg1)
 
 # ICoyoteRuntime.Assert method (5 of 5)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 public void Assert(bool predicate, string s, object arg0, object arg1, object arg2)

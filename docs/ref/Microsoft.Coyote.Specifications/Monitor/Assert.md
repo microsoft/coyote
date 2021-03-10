@@ -1,6 +1,6 @@
 # Monitor.Assert method (1 of 2)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 protected void Assert(bool predicate)
@@ -16,7 +16,7 @@ protected void Assert(bool predicate)
 
 # Monitor.Assert method (2 of 2)
 
-Checks if the assertion holds, and if not, throws an AssertionFailureException exception.
+Checks if the assertion holds, and if not, throws an exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, params object[] args)

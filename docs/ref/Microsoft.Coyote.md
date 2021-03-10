@@ -6,8 +6,6 @@
 | --- | --- |
 | class [Configuration](Microsoft.Coyote/Configuration.md) | The Coyote project configurations. |
 | abstract class [Event](Microsoft.Coyote/Event.md) | Abstract class representing an event. |
-| class [ExecutionCanceledException](Microsoft.Coyote/ExecutionCanceledException.md) | Exception that is thrown upon cancellation of testing execution by the runtime. |
-| class [RuntimeException](Microsoft.Coyote/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
 
 ## Microsoft.Coyote.Actors namespace
 
@@ -79,8 +77,10 @@
 
 | public type | description |
 | --- | --- |
+| class [ExecutionCanceledException](Microsoft.Coyote.Runtime/ExecutionCanceledException.md) | Exception that is thrown upon cancellation of testing execution by the runtime. |
 | interface [ICoyoteRuntime](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) | Interface that exposes base runtime methods for Coyote. |
 | delegate [OnFailureHandler](Microsoft.Coyote.Runtime/OnFailureHandler.md) | Handles the [`OnFailure`](Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md) event. |
+| class [RuntimeException](Microsoft.Coyote.Runtime/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
 | static class [RuntimeFactory](Microsoft.Coyote.Runtime/RuntimeFactory.md) | Provides methods for creating a [`ICoyoteRuntime`](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
 
 ## Microsoft.Coyote.Specifications namespace

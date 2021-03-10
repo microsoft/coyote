@@ -150,7 +150,7 @@ namespace Microsoft.Coyote
         /// This is an experimental feature.
         /// </remarks>
         [DataMember]
-        internal bool IsRelaxedTestingEnabled;
+        internal bool IsPartiallyControlledTestingEnabled;
 
         /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.SafetyPrefixBound = 0;
 
-            this.IsRelaxedTestingEnabled = false;
+            this.IsPartiallyControlledTestingEnabled = false;
             this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -524,8 +524,8 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with relaxed testing enabled or disabled. If this option is enabled,
-        /// systematic testing supports partially controlled executions.
+        /// Updates the configuration with partially controlled testing enabled or disabled.
+        /// If this option is enabled, systematic testing supports partially controlled executions.
         /// </summary>
         /// <param name="isEnabled">If true, then relaxed testing is enabled.</param>
         /// <remarks>
@@ -533,7 +533,7 @@ namespace Microsoft.Coyote
         /// </remarks>
         public Configuration WithRelaxedTestingEnabled(bool isEnabled = true)
         {
-            this.IsRelaxedTestingEnabled = isEnabled;
+            this.IsPartiallyControlledTestingEnabled = isEnabled;
             return this;
         }
 

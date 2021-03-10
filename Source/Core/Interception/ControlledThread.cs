@@ -7,7 +7,7 @@ using System.Threading;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides a controlled thread class that creates and controls a thread, sets its priority, and gets its status

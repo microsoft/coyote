@@ -8,8 +8,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
 #pragma warning disable CA1822 // Mark members as static
 #pragma warning disable CA1068 // CancellationToken parameters must come last

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Represents a builder for asynchronous methods that return a <see cref="Task"/>.

@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides methods for monitors that can be controlled during testing.

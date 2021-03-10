@@ -13,8 +13,8 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 

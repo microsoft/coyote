@@ -9,9 +9,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides methods for creating tasks that can be controlled during testing.

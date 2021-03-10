@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.Runtime
                 new ActorExecutionContext(configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
 
-            SystematicTesting.Interception.ControlledThread.ClearCache();
+            Interception.ControlledThread.ClearCache();
         }
 
         /// <summary>

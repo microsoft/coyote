@@ -7,7 +7,7 @@ using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides a set of static methods for working with specific kinds of <see cref="Task"/> instances.

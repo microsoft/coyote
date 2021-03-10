@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.SystematicTesting.Strategies

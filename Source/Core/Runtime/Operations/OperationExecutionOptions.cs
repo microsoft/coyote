@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Options for executing an operation.

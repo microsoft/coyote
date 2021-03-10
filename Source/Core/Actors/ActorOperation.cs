@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Actors

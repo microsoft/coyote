@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;

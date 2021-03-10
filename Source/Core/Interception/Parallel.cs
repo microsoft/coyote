@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Interception

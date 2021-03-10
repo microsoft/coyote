@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Represents an abstract asynchronous operation that can be controlled during systematic testing.

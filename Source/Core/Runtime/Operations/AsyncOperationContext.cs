@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// The context of a controlled asynchronous operation that is scheduled for execution.

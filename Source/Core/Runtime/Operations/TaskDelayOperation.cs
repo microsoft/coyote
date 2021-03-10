@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.SystematicTesting
+using Microsoft.Coyote.SystematicTesting;
+
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Represents an asynchronous task delay operation that can be controlled during systematic testing.

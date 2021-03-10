@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Resource that can be used to synchronize asynchronous operations.

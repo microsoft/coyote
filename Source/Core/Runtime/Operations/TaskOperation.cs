@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Coyote.SystematicTesting;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Represents an asynchronous task operation that can be controlled during systematic testing.

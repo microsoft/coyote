@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Tasks
 {

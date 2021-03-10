@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Rewriting
     {
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
-        internal static string SystematicTestingNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
+        internal static string InterceptionNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
 
         internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string ControlledTaskName { get; } = typeof(Interception.ControlledTask).Name;

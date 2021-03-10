@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Telemetry;
 using Microsoft.Coyote.Utilities;

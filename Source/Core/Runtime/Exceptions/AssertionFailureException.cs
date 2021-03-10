@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// The exception that is thrown by the Coyote runtime upon assertion failure.

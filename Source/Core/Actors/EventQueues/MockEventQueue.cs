@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             this.Owner.OnDropEvent(e, eventInfo);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>

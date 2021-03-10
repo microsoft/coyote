@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -211,7 +211,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]

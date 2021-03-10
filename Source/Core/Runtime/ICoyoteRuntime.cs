@@ -79,13 +79,13 @@ namespace Microsoft.Coyote.Runtime
         int RandomInteger(int maxValue);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         /// <param name="predicate">The predicate to check.</param>
         void Assert(bool predicate);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         /// <param name="predicate">The predicate to check.</param>
         /// <param name="s">The message to print if the assertion fails.</param>
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Runtime
         void Assert(bool predicate, string s, object arg0);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         /// <param name="predicate">The predicate to check.</param>
         /// <param name="s">The message to print if the assertion fails.</param>
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Runtime
         void Assert(bool predicate, string s, object arg0, object arg1);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         /// <param name="predicate">The predicate to check.</param>
         /// <param name="s">The message to print if the assertion fails.</param>
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Runtime
         void Assert(bool predicate, string s, object arg0, object arg1, object arg2);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         /// <param name="predicate">The predicate to check.</param>
         /// <param name="s">The message to print if the assertion fails.</param>

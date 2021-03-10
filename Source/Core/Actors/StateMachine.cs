@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {

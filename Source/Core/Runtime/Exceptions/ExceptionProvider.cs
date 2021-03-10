@@ -4,9 +4,8 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Provides a set of static methods for working with specific kinds of <see cref="Exception"/> instances.

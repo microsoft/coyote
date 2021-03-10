@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (configuration.IsPartiallyControlledTestingEnabled )
+            if (configuration.IsPartiallyControlledTestingEnabled)
             {
                 arguments.Append("--partially-controlled-testing ");
             }

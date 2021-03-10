@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting.Strategies
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// A simple (but effective) randomized scheduling strategy.

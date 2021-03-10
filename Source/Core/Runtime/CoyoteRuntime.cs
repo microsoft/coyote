@@ -16,8 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.SystematicTesting.Strategies;
+using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting.Strategies
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// This strategy combines two given strategies, using them to schedule

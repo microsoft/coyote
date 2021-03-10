@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Abstract scheduling strategy used during controlled testing.

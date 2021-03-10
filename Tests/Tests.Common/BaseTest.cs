@@ -11,7 +11,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.SystematicTesting.Strategies;
+using Microsoft.Coyote.Testing.Systematic;
 using Xunit;
 using Xunit.Abstractions;
 using CoyoteTasks = Microsoft.Coyote.Tasks;

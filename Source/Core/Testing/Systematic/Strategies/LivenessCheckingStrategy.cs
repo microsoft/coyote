@@ -3,7 +3,7 @@
 
 using Microsoft.Coyote.Specifications;
 
-namespace Microsoft.Coyote.SystematicTesting.Strategies
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Abstract strategy for detecting liveness property violations. It

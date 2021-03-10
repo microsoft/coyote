@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Class implementing a program schedule step.

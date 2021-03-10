@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting.Strategies
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// A depth-first search scheduling strategy.

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 
-namespace Microsoft.Coyote.SystematicTesting.Strategies
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Strategy for detecting liveness property violations using the "temperature"

@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Scheduler that controls the execution of asynchronous operations during systematic testing.

@@ -29,8 +29,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithMaxSchedulingSteps
           link: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
-        - name: WithRelaxedTestingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithRelaxedTestingEnabled
+        - name: WithPartiallyControlledTestingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledTestingEnabled
         - name: WithLivenessTemperatureThreshold
           link: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold
         - name: WithTimeoutDelay

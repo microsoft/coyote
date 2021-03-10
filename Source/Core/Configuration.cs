@@ -527,11 +527,11 @@ namespace Microsoft.Coyote
         /// Updates the configuration with partially controlled testing enabled or disabled.
         /// If this option is enabled, systematic testing supports partially controlled executions.
         /// </summary>
-        /// <param name="isEnabled">If true, then relaxed testing is enabled.</param>
+        /// <param name="isEnabled">If true, then partially controlled testing is enabled.</param>
         /// <remarks>
         /// This is an experimental feature.
         /// </remarks>
-        public Configuration WithRelaxedTestingEnabled(bool isEnabled = true)
+        public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)
         {
             this.IsPartiallyControlledTestingEnabled = isEnabled;
             return this;

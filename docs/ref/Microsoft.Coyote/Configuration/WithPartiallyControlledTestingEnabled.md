@@ -1,14 +1,14 @@
-# Configuration.WithRelaxedTestingEnabled method
+# Configuration.WithPartiallyControlledTestingEnabled method
 
 Updates the configuration with partially controlled testing enabled or disabled. If this option is enabled, systematic testing supports partially controlled executions.
 
 ```csharp
-public Configuration WithRelaxedTestingEnabled(bool isEnabled = true)
+public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)
 ```
 
 | parameter | description |
 | --- | --- |
-| isEnabled | If true, then relaxed testing is enabled. |
+| isEnabled | If true, then partially controlled testing is enabled. |
 
 ## Remarks
 

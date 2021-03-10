@@ -118,7 +118,7 @@ nav:
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
-        - WithRelaxedTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedTestingEnabled.md
+        - WithPartiallyControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledTestingEnabled.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md

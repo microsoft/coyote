@@ -12,7 +12,7 @@ public interface ICoyoteRuntime : IDisposable
 | --- | --- |
 | [Logger](ICoyoteRuntime/Logger.md) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILogger.md) used to log messages. |
 | event [OnFailure](ICoyoteRuntime/OnFailure.md) | Callback that is fired when an exception is thrown that includes failed assertions. |
-| [Assert](ICoyoteRuntime/Assert.md)(…) | Checks if the assertion holds, and if not, throws an exception. (5 methods) |
+| [Assert](ICoyoteRuntime/Assert.md)(…) | Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](AssertionFailureException.md) exception. (5 methods) |
 | [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor.md)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/Event.md). |
 | [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
 | [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |

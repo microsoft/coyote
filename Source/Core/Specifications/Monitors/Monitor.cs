@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate)
         {
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, params object[] args)
         {

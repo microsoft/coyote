@@ -361,29 +361,29 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate) => this.Context.Assert(predicate);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, object arg0) => this.Context.Assert(predicate, s, arg0);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, object arg0, object arg1) =>
             this.Context.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.Context.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, params object[] args) =>
             this.Context.Assert(predicate, s, args);

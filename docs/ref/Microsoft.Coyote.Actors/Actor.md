@@ -23,7 +23,7 @@ public abstract class Actor
 | virtual [HashedState](Actor/HashedState.md) { get; } | User-defined hashed state of the actor. Override to improve the accuracy of stateful techniques during testing. |
 | [Id](Actor/Id.md) { get; } | Unique id that identifies this actor. |
 | [Logger](Actor/Logger.md) { get; } | The logger installed to the runtime. |
-| [Assert](Actor/Assert.md)(…) | Checks if the assertion holds, and if not, throws an exception. (5 methods) |
+| [Assert](Actor/Assert.md)(…) | Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception. (5 methods) |
 | [CreateActor](Actor/CreateActor.md)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/Event.md). This [`Event`](../Microsoft.Coyote/Event.md) can only be used to access its payload, and cannot be handled. (3 methods) |
 | [Monitor](Actor/Monitor.md)(…) | Invokes the specified monitor with the specified event. |
 | [Monitor&lt;T&gt;](Actor/Monitor.md)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/Event.md). |

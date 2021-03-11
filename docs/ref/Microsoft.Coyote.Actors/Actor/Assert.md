@@ -1,6 +1,6 @@
 # Actor.Assert method (1 of 5)
 
-Checks if the assertion holds, and if not, throws an exception.
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate)
@@ -16,7 +16,7 @@ protected void Assert(bool predicate)
 
 # Actor.Assert method (2 of 5)
 
-Checks if the assertion holds, and if not, throws an exception.
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, object arg0)
@@ -32,7 +32,7 @@ protected void Assert(bool predicate, string s, object arg0)
 
 # Actor.Assert method (3 of 5)
 
-Checks if the assertion holds, and if not, throws an exception.
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, params object[] args)
@@ -48,7 +48,7 @@ protected void Assert(bool predicate, string s, params object[] args)
 
 # Actor.Assert method (4 of 5)
 
-Checks if the assertion holds, and if not, throws an exception.
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, object arg0, object arg1)
@@ -64,7 +64,7 @@ protected void Assert(bool predicate, string s, object arg0, object arg1)
 
 # Actor.Assert method (5 of 5)
 
-Checks if the assertion holds, and if not, throws an exception.
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2)

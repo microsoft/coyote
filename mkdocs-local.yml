@@ -531,6 +531,7 @@ nav:
         - NextInteger: ref/Microsoft.Coyote.Random/Generator/NextInteger.md
     - Microsoft.Coyote.Runtime:
       - Namespace Overview: ref/Microsoft.Coyote.RuntimeNamespace.md
+      - AssertionFailureException: ref/Microsoft.Coyote.Runtime/AssertionFailureException.md
       - ExecutionCanceledException: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException.md
       - RuntimeException:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeException.md

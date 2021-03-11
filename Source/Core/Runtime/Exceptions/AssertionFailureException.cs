@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// The exception that is thrown by the Coyote runtime upon assertion failure.
     /// </summary>
-    internal sealed class AssertionFailureException : RuntimeException
+    public sealed class AssertionFailureException : RuntimeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertionFailureException"/> class.

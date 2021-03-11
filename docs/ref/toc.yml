@@ -804,6 +804,8 @@ toc:
     - name: Microsoft.Coyote.Runtime
       link: ref/Microsoft.Coyote.RuntimeNamespace
       subfolderitems:
+      - name: AssertionFailureException
+        link: ref/Microsoft.Coyote.Runtime/AssertionFailureException
       - name: ExecutionCanceledException
         link: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException
       - name: RuntimeException

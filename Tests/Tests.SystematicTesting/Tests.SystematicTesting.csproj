@@ -32,11 +32,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)'=='Windows_NT'">
-    <None Update="DotnetToolSettings.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
     <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads" />
   </Target>

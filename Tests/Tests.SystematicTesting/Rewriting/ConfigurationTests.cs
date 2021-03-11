@@ -18,30 +18,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
         }
 
         [Fact(Timeout = 5000)]
-        public void TestJsonConfigurationReplacingBinaries()
-        {
-            string configDirectory = GetJsonConfigurationDirectory();
-            string configPath = Path.Combine(configDirectory, "rewrite.coyote.json");
-            Assert.True(File.Exists(configPath), "File not found: " + configPath);
-
-            var options = RewritingOptions.ParseFromJSON(configPath);
-            Assert.NotNull(options);
-            options.PlatformVersion = GetPlatformVersion();
-
-            Assert.Equal(configDirectory, options.AssembliesDirectory);
-            Assert.Equal(Path.Combine(configDirectory), options.OutputDirectory);
-            Assert.True(options.IsReplacingAssemblies);
-
-            Assert.Equal(2, options.AssemblyPaths.Count());
-            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Microsoft.Coyote.Tests.SystematicTesting.dll"),
-                options.AssemblyPaths.First());
-        }
-
-        [Fact(Timeout = 5000)]
         public void TestJsonConfigurationDifferentOutputDirectory()
         {
             string configDirectory = GetJsonConfigurationDirectory("Rewriting");
-            string configPath = Path.Combine(configDirectory, "test.coyote.json");
+            string configPath = Path.Combine(configDirectory, "test1.coyote.json");
             Assert.True(File.Exists(configPath));
 
             var options = RewritingOptions.ParseFromJSON(configPath);
@@ -54,6 +34,26 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
 
             Assert.Single(options.AssemblyPaths);
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonConfigurationReplacingBinaries()
+        {
+            string configDirectory = GetJsonConfigurationDirectory("Rewriting");
+            string configPath = Path.Combine(configDirectory, "test2.coyote.json");
+            Assert.True(File.Exists(configPath), "File not found: " + configPath);
+
+            var options = RewritingOptions.ParseFromJSON(configPath);
+            Assert.NotNull(options);
+            options.PlatformVersion = GetPlatformVersion();
+
+            Assert.Equal(configDirectory, options.AssembliesDirectory);
+            Assert.Equal(configDirectory, options.OutputDirectory);
+            Assert.True(options.IsReplacingAssemblies);
+
+            Assert.Equal(2, options.AssemblyPaths.Count());
+            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test1.dll"),
+                options.AssemblyPaths.First());
         }
 
         private static string GetJsonConfigurationDirectory(string subDirectory = null)

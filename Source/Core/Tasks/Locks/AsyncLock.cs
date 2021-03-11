@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 using TCS = System.Threading.Tasks.TaskCompletionSource<object>;
 
 namespace Microsoft.Coyote.Tasks

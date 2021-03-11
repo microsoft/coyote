@@ -20,7 +20,7 @@ using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Testing.Systematic;
 using IODebug = Microsoft.Coyote.IO.Debug;
 
 namespace Microsoft.Coyote.Actors

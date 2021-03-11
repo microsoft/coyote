@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -101,7 +102,8 @@ namespace Microsoft.Coyote.Actors.Tests
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M), new SetupEvent(tcs));
 
-                AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await this.WaitAsync(tcsFail.Task));
+                AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(
+                    async () => await this.WaitAsync(tcsFail.Task));
                 Assert.Equal(1, count);
             },
             handleFailures: false);

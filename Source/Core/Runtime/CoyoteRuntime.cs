@@ -16,8 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.SystematicTesting.Strategies;
+using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
@@ -185,7 +184,7 @@ namespace Microsoft.Coyote.Runtime
                 new ActorExecutionContext(configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
 
-            SystematicTesting.Interception.ControlledThread.ClearCache();
+            Interception.ControlledThread.ClearCache();
         }
 
         /// <summary>
@@ -1381,29 +1380,29 @@ namespace Microsoft.Coyote.Runtime
             where T : Monitor => this.DefaultActorExecutionContext.Monitor<T>(e);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         internal void Assert(bool predicate) => this.SpecificationEngine.Assert(predicate);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         internal void Assert(bool predicate, string s, object arg0) => this.SpecificationEngine.Assert(predicate, s, arg0);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         internal void Assert(bool predicate, string s, object arg0, object arg1) =>
             this.SpecificationEngine.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         internal void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.SpecificationEngine.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
         internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 

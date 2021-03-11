@@ -3,7 +3,7 @@
     <Description>Tests for systematic testing.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.SystematicTesting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.SystematicTesting.Tests</RootNamespace>
-    <OutputPath>..\bin\</OutputPath>
+    <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
@@ -17,6 +17,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+    <ProjectReference Include="..\..\Tools\Coyote\Coyote.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Update="Rewriting\test1.coyote.json">
@@ -35,9 +38,11 @@
     </None>
   </ItemGroup>
   <Target Name="CoyoteRewrite" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads" />
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll
+          --rewrite-threads -snk ..\..\Common\Key.snk" />
   </Target>
   <Target Name="CoyoteRewrite" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads" />
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll
+          --rewrite-threads -snk ../../Common/Key.snk" />
   </Target>
 </Project>

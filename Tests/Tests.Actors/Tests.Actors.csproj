@@ -3,7 +3,7 @@
     <Description>Tests for actor APIs.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests</RootNamespace>
-    <OutputPath>..\bin\</OutputPath>
+    <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>

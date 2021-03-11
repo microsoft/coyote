@@ -12,8 +12,6 @@ param(
 
 Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 
-$frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
-
 $targets = [ordered]@{
     "systematic" = "Tests.SystematicTesting"
     "tasks-systematic" = "Tests.Tasks.SystematicTesting"
@@ -22,17 +20,17 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
-$key_file = "$PSScriptRoot/../Common/Key.snk"
-
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 
 Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"
 
-# Run all enabled (rewritten) tests.
+# Run all enabled tests.
 foreach ($kvp in $targets.GetEnumerator()) {
     if (($test -ne "all") -and ($test -ne $($kvp.Name))) {
         continue
     }
+
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {

@@ -3,7 +3,7 @@
     <Description>Tests for task systematic testing.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Tasks.SystematicTesting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Tasks.SystematicTesting.Tests</RootNamespace>
-    <OutputPath>..\bin\</OutputPath>
+    <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>

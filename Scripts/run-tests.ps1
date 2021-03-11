@@ -28,30 +28,6 @@ $key_file = "$PSScriptRoot/../Common/Key.snk"
 
 Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"
 
-# Rewrite the systematic tests, if enabled.
-if (($test -eq "all") -or ($test -eq "systematic") -or ($test -eq "actors-systematic")) {
-    foreach ($f in $frameworks) {
-        if (($framework -ne "all") -and ($f -ne $framework)) {
-            continue
-        }
-    
-        $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/rewrite.coyote.json"
-        Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
-    }
-}
-
-# Rewrite the standalone test, if enabled.
-if (($test -eq "all") -or ($test -eq "standalone")) {
-    foreach ($f in $frameworks) {
-        if (($framework -ne "all") -and ($f -ne $framework)) {
-            continue
-        }
-    
-        $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Tests.Standalone.dll"
-        Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
-    }
-}
-
 # Run all enabled (rewritten) tests.
 foreach ($kvp in $targets.GetEnumerator()) {
     if (($test -ne "all") -and ($test -ne $($kvp.Name))) {

@@ -25,4 +25,7 @@
   <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
     <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite ./bin/$(TargetFramework)/Tests.Performance.dll" />
   </Target>
+  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)Tests.Performance.dll" />
+  </Target>
 </Project>

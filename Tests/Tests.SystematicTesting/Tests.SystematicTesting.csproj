@@ -37,12 +37,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll \
-          --rewrite-threads -snk ..\..\Common\Key.snk" />
+  <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads -snk ..\..\Common\Key.snk" />
   </Target>
-  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll \
-          --rewrite-threads -snk ../../Common/Key.snk" />
+  <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads -snk ../../Common/Key.snk" />
   </Target>
 </Project>

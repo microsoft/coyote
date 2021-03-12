@@ -69,11 +69,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly TaskCompletionSource<bool> CompletionSource;
 
         /// <summary>
-        /// True if the user program is executing, else false.
-        /// </summary>
-        internal volatile bool IsProgramExecuting;
-
-        /// <summary>
         /// True if the scheduler is attached to the executing program, else false.
         /// </summary>
         internal bool IsAttached { get; private set; }
@@ -125,7 +120,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.ScheduleTrace = new ScheduleTrace();
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
-            this.IsProgramExecuting = true;
             this.IsAttached = true;
             this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
@@ -642,11 +636,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Waits until the scheduler terminates.
         /// </summary>
-        internal async Task WaitAsync()
-        {
-            await this.CompletionSource.Task;
-            this.IsProgramExecuting = false;
-        }
+        internal Task WaitAsync() => this.CompletionSource.Task;
 
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
@@ -678,11 +668,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                 throw new ExecutionCanceledException();
             }
         }
-
-        /// <summary>
-        /// Forces the scheduler to terminate.
-        /// </summary>
-        internal void ForceStop() => this.IsProgramExecuting = false;
 
         /// <summary>
         /// If scheduler is detached, throw exception to force terminate the caller.

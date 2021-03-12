@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// True if the actor program is running, else false.
         /// </summary>
-        internal bool IsRunning => this.Scheduler.IsProgramExecuting;
+        internal bool IsRunning => this.Runtime.IsRunning;
 
         /// <summary>
         /// If true, the actor execution is controlled, else false.
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 catch (Exception ex)
                 {
-                    this.Scheduler.IsProgramExecuting = false;
+                    this.Runtime.ForceStop();
                     this.RaiseOnFailureEvent(ex);
                 }
                 finally
@@ -390,7 +390,7 @@ namespace Microsoft.Coyote.Actors
             }
             catch (Exception ex)
             {
-                this.Scheduler.IsProgramExecuting = false;
+                this.Runtime.ForceStop();
                 this.RaiseOnFailureEvent(ex);
                 return;
             }
@@ -769,7 +769,7 @@ namespace Microsoft.Coyote.Actors
         public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
         /// <inheritdoc/>
-        public void Stop() => this.Scheduler.ForceStop();
+        public void Stop() => this.Runtime.ForceStop();
 
         /// <summary>
         /// Disposes runtime resources.

@@ -117,9 +117,9 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsBugFound => this.Scheduler.IsBugFound;
 
         /// <summary>
-        /// Records if the runtime is running.
+        /// True if the program is executing, else false.
         /// </summary>
-        internal bool IsRunning => this.Scheduler.IsProgramExecuting;
+        internal bool IsRunning { get; private set; }
 
         /// <summary>
         /// Monotonically increasing operation id counter.
@@ -174,6 +174,7 @@ namespace Microsoft.Coyote.Runtime
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
+            this.IsRunning = true;
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
@@ -1676,7 +1677,16 @@ namespace Microsoft.Coyote.Runtime
         /// Waits until all actors have finished execution.
         /// </summary>
         [DebuggerStepThrough]
-        internal Task WaitAsync() => this.Scheduler.WaitAsync();
+        internal async Task WaitAsync()
+        {
+            await this.Scheduler.WaitAsync();
+            this.IsRunning = false;
+        }
+
+        /// <summary>
+        /// Forces the runtime to terminate.
+        /// </summary>
+        internal void ForceStop() => this.IsRunning = false;
 
         /// <summary>
         /// Disposes runtime resources.

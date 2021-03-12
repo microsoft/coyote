@@ -46,9 +46,9 @@ namespace Microsoft.Coyote.Actors
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// The asynchronous operation scheduler, if available.
+        /// The operation scheduler, if available.
         /// </summary>
-        internal readonly OperationScheduler Scheduler;
+        internal readonly TurnBasedScheduler Scheduler;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, TurnBasedScheduler scheduler,
             SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
         {
             this.Configuration = configuration;
@@ -813,7 +813,7 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
+            internal Mock(Configuration configuration, CoyoteRuntime runtime, TurnBasedScheduler scheduler,
                 SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
                 : base(configuration, runtime, scheduler, specificationEngine, valueGenerator, logWriter)
             {

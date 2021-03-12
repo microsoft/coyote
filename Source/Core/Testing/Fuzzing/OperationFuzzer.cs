@@ -13,7 +13,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
-    /// Scheduler that controls the execution of asynchronous operations during systematic testing.
+    /// Scheduler that fuzzes execution of operations during systematic testing.
     /// </summary>
     /// <remarks>
     /// Invoking the scheduler is thread-safe.
@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    internal sealed class OperationScheduler
+    internal sealed class OperationFuzzer
     {
         /// <summary>
         /// Provides access to the operation executing on each asynchronous control flow.
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal bool IsAttached { get; private set; }
 
         /// <summary>
-        /// The currently scheduled asynchronous operation.
+        /// The currently scheduled operation.
         /// </summary>
         private AsyncOperation ScheduledOperation;
 
@@ -105,9 +105,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal Exception UnhandledException { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
+        /// Initializes a new instance of the <see cref="OperationFuzzer"/> class.
         /// </summary>
-        internal OperationScheduler(CoyoteRuntime runtime, SchedulingStrategy strategy,
+        internal OperationFuzzer(CoyoteRuntime runtime, SchedulingStrategy strategy,
             ScheduleTrace trace, Configuration configuration)
         {
             this.Configuration = configuration;
@@ -326,7 +326,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Registers the specified asynchronous operation.
+        /// Registers the specified operation.
         /// </summary>
         /// <param name="op">The operation to register.</param>
         /// <returns>True if the operation was successfully registered, else false if it already exists.</returns>
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Starts the execution of the specified asynchronous operation.
+        /// Starts the execution of the specified operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
         /// <remarks>
@@ -374,7 +374,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Waits for the specified asynchronous operation to start executing.
+        /// Waits for the specified operation to start executing.
         /// </summary>
         /// <param name="op">The operation to wait.</param>
         /// <remarks>
@@ -653,7 +653,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Forces the scheduler to terminate.
         /// </summary>
-        public void ForceStop() => this.IsProgramExecuting = false;
+        internal void ForceStop() => this.IsProgramExecuting = false;
 
         /// <summary>
         /// If scheduler is detached, throw exception to force terminate the caller.

@@ -412,8 +412,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
                 else
                 {
-                    Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
-                    "possibly in a test method. Please use /debug /v:2 to print more information.");
+                    Error.ReportAndExit("Exception thrown during testing outside the Coyote test context. " +
+                    "Please use /debug /v:2 to print more information.");
                 }
             }
             catch (Exception ex)
@@ -595,15 +595,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                if (!runtime.Scheduler.BugFound)
+                if (!runtime.IsBugFound)
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
                     runtime.CheckLivenessErrors();
                 }
 
-                if (runtime.Scheduler.BugFound)
+                if (runtime.IsBugFound)
                 {
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.Scheduler.BugReport);
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 runtime.LogWriter.LogCompletion();
@@ -624,7 +624,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 
-                    this.ConstructReproducibleTrace(runtime);
+                    this.ReproducibleTrace = runtime.GetTrace();
                 }
             }
             finally
@@ -636,7 +636,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
-                if (!this.IsReplayModeEnabled && this.Configuration.PerformFullExploration && runtime.Scheduler.BugFound)
+                if (!this.IsReplayModeEnabled && this.Configuration.PerformFullExploration && runtime.IsBugFound)
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
@@ -853,7 +853,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
-            TestReport report = this.GetSchedulerReport(runtime.Scheduler);
+            runtime.GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
+                out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception thrownException);
+
+            TestReport report = TestReport.CreateTestReportFromStats(this.Configuration, isBugFound, bugReport,
+                scheduledSteps, isMaxScheduledStepsBoundReached, isScheduleFair, thrownException);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;
@@ -865,113 +869,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Also save the graph snapshot of the last iteration, if there is one.
             this.Graph = coverageInfo.CoverageGraph;
-        }
-
-        /// <summary>
-        /// Returns a test report with the scheduling statistics.
-        /// </summary>
-        internal TestReport GetSchedulerReport(OperationScheduler scheduler)
-        {
-            lock (scheduler.SyncObject)
-            {
-                TestReport report = new TestReport(this.Configuration);
-
-                if (scheduler.BugFound)
-                {
-                    report.NumOfFoundBugs++;
-                    report.ThrownException = scheduler.UnhandledException;
-                    report.BugReports.Add(scheduler.BugReport);
-                }
-
-                if (this.Strategy.IsFair())
-                {
-                    report.NumOfExploredFairSchedules++;
-                    report.TotalExploredFairSteps += scheduler.ScheduledSteps;
-
-                    if (report.MinExploredFairSteps < 0 ||
-                        report.MinExploredFairSteps > scheduler.ScheduledSteps)
-                    {
-                        report.MinExploredFairSteps = scheduler.ScheduledSteps;
-                    }
-
-                    if (report.MaxExploredFairSteps < scheduler.ScheduledSteps)
-                    {
-                        report.MaxExploredFairSteps = scheduler.ScheduledSteps;
-                    }
-
-                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
-                    {
-                        report.MaxFairStepsHitInFairTests++;
-                    }
-
-                    if (scheduler.ScheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
-                    {
-                        report.MaxUnfairStepsHitInFairTests++;
-                    }
-                }
-                else
-                {
-                    report.NumOfExploredUnfairSchedules++;
-
-                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
-                    {
-                        report.MaxUnfairStepsHitInUnfairTests++;
-                    }
-                }
-
-                return report;
-            }
-        }
-
-        /// <summary>
-        /// Constructs a reproducable trace.
-        /// </summary>
-        private void ConstructReproducibleTrace(CoyoteRuntime runtime)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            if (this.Strategy.IsFair())
-            {
-                stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
-            }
-
-            if (this.Configuration.IsLivenessCheckingEnabled)
-            {
-                stringBuilder.Append("--liveness-temperature-threshold:" +
-                    this.Configuration.LivenessTemperatureThreshold).
-                    Append(Environment.NewLine);
-            }
-
-            if (!string.IsNullOrEmpty(this.Configuration.TestMethodName))
-            {
-                stringBuilder.Append("--test-method:" +
-                    this.Configuration.TestMethodName).
-                    Append(Environment.NewLine);
-            }
-
-            for (int idx = 0; idx < runtime.Scheduler.ScheduleTrace.Count; idx++)
-            {
-                ScheduleStep step = runtime.Scheduler.ScheduleTrace[idx];
-                if (step.Type == ScheduleStepType.SchedulingChoice)
-                {
-                    stringBuilder.Append($"({step.ScheduledOperationId})");
-                }
-                else if (step.BooleanChoice != null)
-                {
-                    stringBuilder.Append(step.BooleanChoice.Value);
-                }
-                else
-                {
-                    stringBuilder.Append(step.IntegerChoice.Value);
-                }
-
-                if (idx < runtime.Scheduler.ScheduleTrace.Count - 1)
-                {
-                    stringBuilder.Append(Environment.NewLine);
-                }
-            }
-
-            this.ReproducibleTrace = stringBuilder.ToString();
         }
 
         /// <summary>

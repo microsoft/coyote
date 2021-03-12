@@ -93,6 +93,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
             hiddenGroup.AddArgument("partially-controlled-testing", null, "Enable partially controlled systematic testing", typeof(bool));
+            hiddenGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing", typeof(bool));
             hiddenGroup.AddArgument("sch-interactive", null, "Choose the interactive scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
@@ -246,6 +247,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "partially-controlled-testing":
                     configuration.IsPartiallyControlledTestingEnabled = true;
+                    break;
+                case "concurrency-fuzzing":
+                    configuration.IsConcurrencyFuzzingEnabled = true;
                     break;
                 case "schedule":
                     {

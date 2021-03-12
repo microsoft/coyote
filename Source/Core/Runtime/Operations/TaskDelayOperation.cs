@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskDelayOperation"/> class.
         /// </summary>
-        internal TaskDelayOperation(ulong operationId, string name, uint delay, OperationScheduler scheduler)
+        internal TaskDelayOperation(ulong operationId, string name, uint delay, TurnBasedScheduler scheduler)
             : base(operationId, name, scheduler)
         {
             this.Timeout = delay > int.MaxValue ? int.MaxValue : (int)delay;

@@ -1,14 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Class implementing a program schedule trace. A trace is a series
-    /// of transitions from some initial state to some end state.
+    /// of steps from some initial program state to some end state.
     /// </summary>
     internal sealed class ScheduleTrace : IEnumerable, IEnumerable<ScheduleStep>
     {
@@ -164,6 +166,57 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             this.Steps.Add(step);
+        }
+
+        /// <summary>
+        /// Returns the trace in text format.
+        /// </summary>
+        internal string GetText(Configuration configuration, bool isFair)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (isFair)
+            {
+                stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
+            }
+
+            if (configuration.IsLivenessCheckingEnabled)
+            {
+                stringBuilder.Append("--liveness-temperature-threshold:" +
+                    configuration.LivenessTemperatureThreshold).
+                    Append(Environment.NewLine);
+            }
+
+            if (!string.IsNullOrEmpty(configuration.TestMethodName))
+            {
+                stringBuilder.Append("--test-method:" +
+                    configuration.TestMethodName).
+                    Append(Environment.NewLine);
+            }
+
+            for (int idx = 0; idx < this.Count; idx++)
+            {
+                ScheduleStep step = this[idx];
+                if (step.Type == ScheduleStepType.SchedulingChoice)
+                {
+                    stringBuilder.Append($"({step.ScheduledOperationId})");
+                }
+                else if (step.BooleanChoice != null)
+                {
+                    stringBuilder.Append(step.BooleanChoice.Value);
+                }
+                else
+                {
+                    stringBuilder.Append(step.IntegerChoice.Value);
+                }
+
+                if (idx < this.Count - 1)
+                {
+                    stringBuilder.Append(Environment.NewLine);
+                }
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
@@ -23,7 +24,7 @@ using Monitor = Microsoft.Coyote.Specifications.Monitor;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for executing and controlling asynchronous operations.
+    /// Runtime for executing and testing asynchronous operations.
     /// </summary>
     internal sealed class CoyoteRuntime : IDisposable
     {
@@ -48,7 +49,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (IsExecutionControlled)
                     {
-                        OperationScheduler.ThrowUncontrolledTaskException();
+                        TurnBasedScheduler.ThrowUncontrolledTaskException();
                     }
 
                     runtime = RuntimeFactory.InstalledRuntime;
@@ -75,9 +76,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The asynchronous operation scheduler.
+        /// The installed operation scheduler.
         /// </summary>
-        internal readonly OperationScheduler Scheduler;
+        internal readonly TurnBasedScheduler Scheduler;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -101,9 +102,19 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
 
         /// <summary>
-        /// Monotonically increasing operation id counter.
+        /// The operations scheduling policy used by the runtime.
         /// </summary>
-        private long OperationIdCounter;
+        internal readonly OperationSchedulingPolicy SchedulingPolicy;
+
+        /// <summary>
+        /// The bug report, if a bug was found.
+        /// </summary>
+        internal string BugReport => this.Scheduler.BugReport;
+
+        /// <summary>
+        /// True if a bug was found, else false.
+        /// </summary>
+        internal bool IsBugFound => this.Scheduler.IsBugFound;
 
         /// <summary>
         /// Records if the runtime is running.
@@ -111,9 +122,9 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsRunning => this.Scheduler.IsProgramExecuting;
 
         /// <summary>
-        /// If true, the execution is controlled, else false.
+        /// Monotonically increasing operation id counter.
         /// </summary>
-        internal bool IsControlled { get; private set; }
+        private long OperationIdCounter;
 
         /// <summary>
         /// The root task id.
@@ -156,8 +167,9 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Configuration = configuration;
 
-            this.IsControlled = strategy != null;
-            if (this.IsControlled)
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
+                strategy != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
@@ -174,11 +186,10 @@ namespace Microsoft.Coyote.Runtime
                 strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
             }
 
-            var scheduleTrace = new ScheduleTrace();
-            this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, configuration);
+            this.Scheduler = new TurnBasedScheduler(this, strategy, configuration);
             this.ValueGenerator = valueGenerator;
 
-            this.DefaultActorExecutionContext = this.IsControlled ?
+            this.DefaultActorExecutionContext = this.SchedulingPolicy is OperationSchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.Scheduler,
@@ -663,7 +674,7 @@ namespace Microsoft.Coyote.Runtime
                 var callerOp = this.Scheduler?.GetExecutingOperation<TaskOperation>();
                 if (callerOp is null)
                 {
-                    OperationScheduler.ThrowUncontrolledTaskException();
+                    TurnBasedScheduler.ThrowUncontrolledTaskException();
                 }
 
                 if (IsCurrentOperationExecutingAsynchronously())
@@ -1295,7 +1306,7 @@ namespace Microsoft.Coyote.Runtime
                     break;
                 }
                 else if (method.Name is "MoveNext" &&
-                    method.DeclaringType.Namespace != typeof(OperationScheduler).Namespace &&
+                    method.DeclaringType.Namespace != typeof(TurnBasedScheduler).Namespace &&
                     typeof(IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
                 {
                     // The operation is executing the `MoveNext` of an asynchronous state machine.
@@ -1500,6 +1511,19 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns the schedule trace in text format.
+        /// </summary>
+        internal string GetTrace() => this.Scheduler.GetTrace();
+
+        /// <summary>
+        /// Returns scheduling statistics and results.
+        /// </summary>
+        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
+            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException) =>
+            this.Scheduler.GetSchedulingStatisticsAndResults(out isBugFound, out bugReport, out scheduledSteps,
+                out isMaxScheduledStepsBoundReached, out isScheduleFair, out unhandledException);
+
+        /// <summary>
         /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
         /// but there is one or more blocked operations that are waiting some resource to complete.
         /// </summary>
@@ -1531,7 +1555,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnReceiveOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1550,7 +1574,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnWaitOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1569,7 +1593,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnResources.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1626,7 +1650,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.IsControlled &&
+            if (this.SchedulingPolicy != OperationSchedulingPolicy.None &&
                 (exception is ExecutionCanceledException ||
                 (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException)))
             {
@@ -1665,7 +1689,7 @@ namespace Microsoft.Coyote.Runtime
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
-                if (this.IsControlled)
+                if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
                 {
                     // Note: this makes it possible to run a Controlled unit test followed by a production
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.

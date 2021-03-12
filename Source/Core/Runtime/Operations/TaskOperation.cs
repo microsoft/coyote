@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The scheduler executing this operation.
         /// </summary>
-        protected readonly OperationScheduler Scheduler;
+        protected readonly TurnBasedScheduler Scheduler;
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
-        internal TaskOperation(ulong operationId, string name, OperationScheduler scheduler)
+        internal TaskOperation(ulong operationId, string name, TurnBasedScheduler scheduler)
             : base(operationId, name)
         {
             this.Scheduler = scheduler;

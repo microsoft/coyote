@@ -10,8 +10,11 @@ using System.Threading.Tasks;
 namespace Microsoft.Coyote.Actors.Mocks
 {
     /// <summary>
-    /// Implements a queue of events that is used during testing.
+    /// Implements a queue of events that can be used during systematic testing.
     /// </summary>
+    /// <remarks>
+    /// This is not a thread-safe queue.
+    /// </remarks>
     internal class MockEventQueue : IEventQueue
     {
         /// <summary>
@@ -47,14 +50,10 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// </summary>
         private bool IsClosed;
 
-        /// <summary>
-        /// The size of the queue.
-        /// </summary>
+        //// <inheritdoc/>
         public int Size => this.Queue.Count;
 
-        /// <summary>
-        /// Checks if an event has been raised.
-        /// </summary>
+        //// <inheritdoc/>
         public bool IsEventRaised => this.RaisedEvent != default;
 
         /// <summary>

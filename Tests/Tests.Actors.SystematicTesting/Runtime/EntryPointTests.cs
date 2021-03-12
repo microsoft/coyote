@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
             string possibleNames = GetPossibleTestNames();
             string expected = $"System.InvalidOperationException: Found '18' test methods declared with the " +
                 $"'{typeof(TestAttribute).FullName}' attribute. Provide --method (-m) flag to qualify the test " +
-                $"method name you wish to use. {possibleNames}   at";
+                $"method that you want to run. {possibleNames}   at";
             string actual = exception.ToString();
 
             Assert.StartsWith(expected, actual);

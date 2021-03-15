@@ -21,8 +21,6 @@ extra_css:
 - css/player-controls.css
 - css/syntax.css
 extra_javascript:
-- https://www.googletagmanager.com/gtag/js?id=UA-89203408-1
-- https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js
 - assets/js/analytics.js
 - assets/js/plugins.js
 - assets/js/animate_trace.js

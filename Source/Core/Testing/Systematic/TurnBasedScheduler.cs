@@ -126,6 +126,88 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
+        /// Creates the specified operation.
+        /// </summary>
+        /// <param name="op">The operation to create.</param>
+        /// <returns>True if the operation was successfully created, else false if it already exists.</returns>
+        internal bool CreateOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.OperationMap.Count is 0)
+                {
+                    this.ScheduledOperation = op;
+                }
+
+#if NETSTANDARD2_0
+                if (!this.OperationMap.ContainsKey(op.Id))
+                {
+                    this.OperationMap.Add(op.Id, op);
+                    return true;
+                }
+
+                return false;
+#else
+                return this.OperationMap.TryAdd(op.Id, op);
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Starts the execution of the specified operation.
+        /// </summary>
+        /// <param name="op">The operation to start executing.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="WaitOperationStart"/>.
+        /// </remarks>
+        internal void StartOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
+
+                // Enable the operation and store it in the async local context.
+                op.Status = AsyncOperationStatus.Enabled;
+                ExecutingOperation.Value = op;
+                this.PauseOperation(op);
+            }
+        }
+
+        /// <summary>
+        /// Waits for the specified operation to start executing.
+        /// </summary>
+        /// <param name="op">The operation to wait.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="StartOperation"/>.
+        /// </remarks>
+        internal void WaitOperationStart(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.OperationMap.Count > 1)
+                {
+                    while (op.Status != AsyncOperationStatus.Enabled && this.IsAttached)
+                    {
+                        Monitor.Wait(this.SyncObject);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Completes the specified operation.
+        /// </summary>
+        /// <param name="op">The operation to complete.</param>
+        internal void CompleteOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                op.Status = AsyncOperationStatus.Completed;
+            }
+        }
+
+        /// <summary>
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
         /// <remarks>
@@ -189,7 +271,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     this.Detach();
                 }
 
-                IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
+                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -324,75 +406,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
                 return choice;
-            }
-        }
-
-        /// <summary>
-        /// Registers the specified operation.
-        /// </summary>
-        /// <param name="op">The operation to register.</param>
-        /// <returns>True if the operation was successfully registered, else false if it already exists.</returns>
-        internal bool RegisterOperation(AsyncOperation op)
-        {
-            lock (this.SyncObject)
-            {
-                if (this.OperationMap.Count is 0)
-                {
-                    this.ScheduledOperation = op;
-                }
-
-#if NETSTANDARD2_0
-                if (!this.OperationMap.ContainsKey(op.Id))
-                {
-                    this.OperationMap.Add(op.Id, op);
-                    return true;
-                }
-
-                return false;
-#else
-                return this.OperationMap.TryAdd(op.Id, op);
-#endif
-            }
-        }
-
-        /// <summary>
-        /// Starts the execution of the specified operation.
-        /// </summary>
-        /// <param name="op">The operation to start executing.</param>
-        /// <remarks>
-        /// This method performs a handshake with <see cref="WaitOperationStart"/>.
-        /// </remarks>
-        internal void StartOperation(AsyncOperation op)
-        {
-            lock (this.SyncObject)
-            {
-                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
-
-                // Enable the operation and store it in the async local context.
-                op.Status = AsyncOperationStatus.Enabled;
-                ExecutingOperation.Value = op;
-                this.PauseOperation(op);
-            }
-        }
-
-        /// <summary>
-        /// Waits for the specified operation to start executing.
-        /// </summary>
-        /// <param name="op">The operation to wait.</param>
-        /// <remarks>
-        /// This method performs a handshake with <see cref="StartOperation"/>.
-        /// </remarks>
-        internal void WaitOperationStart(AsyncOperation op)
-        {
-            lock (this.SyncObject)
-            {
-                if (this.OperationMap.Count > 1)
-                {
-                    while (op.Status != AsyncOperationStatus.Enabled && this.IsAttached)
-                    {
-                        Monitor.Wait(this.SyncObject);
-                    }
-                }
             }
         }
 

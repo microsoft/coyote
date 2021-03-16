@@ -17,6 +17,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
+using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
@@ -76,9 +77,14 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The installed operation scheduler.
+        /// The installed turn-based operation scheduler.
         /// </summary>
         internal readonly TurnBasedScheduler Scheduler;
+
+        /// <summary>
+        /// The installed operation fuzzer.
+        /// </summary>
+        internal readonly FuzzingScheduler Fuzzer;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -268,8 +274,7 @@ namespace Microsoft.Coyote.Runtime
                         }
                     }
 
-                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", op.Name, Task.CurrentId);
-                    op.OnCompleted();
+                    this.Scheduler.CompleteOperation(op);
 
                     // Task has completed, schedule the next enabled operation, which terminates exploration.
                     this.Scheduler.ScheduleNextOperation();
@@ -301,7 +306,7 @@ namespace Microsoft.Coyote.Runtime
                 op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
             }
 
-            this.Scheduler.RegisterOperation(op);
+            this.Scheduler.CreateOperation(op);
             return op;
         }
 
@@ -486,8 +491,7 @@ namespace Microsoft.Coyote.Runtime
             }
             finally
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                op.OnCompleted();
+                this.Scheduler.CompleteOperation(op);
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
@@ -610,8 +614,7 @@ namespace Microsoft.Coyote.Runtime
             }
             finally
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                op.OnCompleted();
+                this.Scheduler.CompleteOperation(op);
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.

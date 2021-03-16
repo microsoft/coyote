@@ -20,6 +20,7 @@ using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Systematic;
 using IODebug = Microsoft.Coyote.IO.Debug;
 
@@ -44,11 +45,6 @@ namespace Microsoft.Coyote.Actors
         /// The runtime associated with this context.
         /// </summary>
         internal readonly CoyoteRuntime Runtime;
-
-        /// <summary>
-        /// The operation scheduler, if available.
-        /// </summary>
-        internal readonly TurnBasedScheduler Scheduler;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -122,12 +118,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, TurnBasedScheduler scheduler,
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, FuzzingScheduler fuzzer,
             SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
-            this.Scheduler = scheduler;
+            this.Fuzzer = fuzzer;
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.CoverageInfo = new CoverageInfo();
@@ -790,10 +786,15 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// The mocked execution context of an actor program.
+        /// The execution context of an actor program that is controlled for systematic testing.
         /// </summary>
-        internal sealed class Mock : ActorExecutionContext
+        internal sealed class Controlled : ActorExecutionContext
         {
+            /// <summary>
+            /// The installed turn-based operation scheduler.
+            /// </summary>
+            internal readonly TurnBasedScheduler Scheduler;
+
             /// <summary>
             /// Map that stores all unique names and their corresponding actor ids.
             /// </summary>
@@ -811,12 +812,13 @@ namespace Microsoft.Coyote.Actors
             internal override bool IsExecutionControlled => true;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Mock"/> class.
+            /// Initializes a new instance of the <see cref="Controlled"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, TurnBasedScheduler scheduler,
+            internal Controlled(Configuration configuration, CoyoteRuntime runtime,TurnBasedScheduler scheduler,
                 SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
-                : base(configuration, runtime, scheduler, specificationEngine, valueGenerator, logWriter)
+                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
             {
+                this.Scheduler = scheduler;
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
                 this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
             }
@@ -955,7 +957,7 @@ namespace Microsoft.Coyote.Actors
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }
 
-                bool result = this.Scheduler.RegisterOperation(op);
+                bool result = this.Scheduler.CreateOperation(op);
                 this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
                 if (actor is StateMachine)
                 {
@@ -1155,8 +1157,7 @@ namespace Microsoft.Coyote.Actors
                             this.ResetProgramCounter(actor);
                         }
 
-                        IODebug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
-                        op.OnCompleted();
+                        this.Scheduler.CompleteOperation(op);
 
                         // The actor is inactive or halted, schedule the next enabled operation.
                         this.Scheduler.ScheduleNextOperation();
@@ -1478,6 +1479,29 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 base.Dispose(disposing);
+            }
+        }
+
+        /// <summary>
+        /// The execution context of an actor program that is fuzzed for testing.
+        /// </summary>
+        internal sealed class Fuzzed : ActorExecutionContext
+        {
+            /// <summary>
+            /// The installed operation fuzzer.
+            /// </summary>
+            internal readonly FuzzingScheduler Scheduler;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Fuzzed"/> class.
+            /// </summary>
+            internal Fuzzed(Configuration configuration, CoyoteRuntime runtime, FuzzingScheduler scheduler,
+                SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
+                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
+            {
+                this.Scheduler = scheduler;
+                this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
+                this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
             }
         }
     }

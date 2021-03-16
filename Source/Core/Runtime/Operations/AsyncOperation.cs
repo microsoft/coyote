@@ -43,14 +43,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Invoked when the operation completes.
-        /// </summary>
-        internal virtual void OnCompleted()
-        {
-            this.Status = AsyncOperationStatus.Completed;
-        }
-
-        /// <summary>
         /// Tries to enable the operation, if it is not already enabled.
         /// </summary>
         internal virtual bool TryEnable() => false;

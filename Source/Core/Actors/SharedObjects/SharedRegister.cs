@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         public static SharedRegister<T> Create<T>(IActorRuntime runtime, T value = default)
             where T : struct
         {
-            if (runtime is ActorExecutionContext.Mock executionContext)
+            if (runtime is ActorExecutionContext.Controlled executionContext)
             {
                 return new Mock<T>(executionContext, value);
             }
@@ -46,12 +46,12 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// <summary>
             /// The execution context associated with this shared register.
             /// </summary>
-            private readonly ActorExecutionContext.Mock Context;
+            private readonly ActorExecutionContext.Controlled Context;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock{T}"/> class.
             /// </summary>
-            internal Mock(ActorExecutionContext.Mock context, T value)
+            internal Mock(ActorExecutionContext.Controlled context, T value)
                 : base(value)
             {
                 this.Context = context;

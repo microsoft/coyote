@@ -8,36 +8,27 @@ $root = $ENV:SYSTEMROOT
 if ($null -ne $root -and $root.ToLower().Contains("windows")) {
     $coyote_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | Where-Object { Test-Path "$_/coyote.exe" }
 
-    if (-not $coyote_path -eq "") {
+    if (-not "$PSScriptRoot/../temp/coyote" -eq "") {
         Write-Comment -prefix "..." -text "Uninstalling the Microsoft.Coyote.CLI package" -color "white"
-        dotnet tool uninstall --global Microsoft.Coyote.CLI
+        dotnet tool uninstall Microsoft.Coyote.CLI --tool-path temp
     }
 
     Write-Comment -prefix "..." -text "Installing the Microsoft.Coyote.CLI package" -color "white"
-    dotnet tool install --global --add-source $PSScriptRoot/../bin/nuget Microsoft.Coyote.CLI --no-cache
-    if (!$?) {
-        Exit 1
-    }
-
-    $profile = $Env:USERPROFILE
-    $Env:Path += "$profile\.dotnet\tools"
+    dotnet tool install --add-source $PSScriptRoot/../bin/nuget Microsoft.Coyote.CLI --no-cache --tool-path temp
 }
 else {
     $coyote_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | Where-Object { Test-Path "$_/coyote" }
 
-    if (-not $coyote_path -eq "") {
+    if (-not "$PSScriptRoot/../temp/coyote" -eq "") {
         Write-Comment -prefix "..." -text "Uninstalling the coyote .NET tool" -color "white"
-        dotnet tool uninstall --global coyote
+        dotnet tool uninstall coyote --tool-path temp
     }
 
-    $profile = $Env:HOME
-    $Env:Path += "$profile\.dotnet\tools"
-
     Write-Comment -prefix "..." -text "Installing the coyote .NET tool" -color "white"
-    dotnet tool install --global --add-source $PSScriptRoot/../bin coyote --no-cache
+    dotnet tool install --add-source $PSScriptRoot/../bin coyote --no-cache --tool-path temp
 }
 
-$help = (coyote -?) -join '\n'
+$help = (& "$PSScriptRoot/../temp/coyote" -?) -join '\n'
 
 if (!$help.Contains("usage: Coyote command path")) {
     Write-Error "### Unexpected output from coyote command"

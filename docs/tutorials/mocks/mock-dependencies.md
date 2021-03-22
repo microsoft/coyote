@@ -417,7 +417,7 @@ The above is the complete implementation of the `InMemoryDbCollection` mock that
 Mocks that can be used in concurrency unit tests are often surprisingly easy to write and have the
 benefit that they can be reused in multiple testing scenarios as they more closely model the
 production behavior of the mocked dependency. Teams in Azure have
-[reported](../case-studies/azure-blockchain-service.md) that spending a little effort to write such
+[reported](../../case-studies/azure-blockchain-service.md) that spending a little effort to write such
 mocks yielded large productivity gains through better concurrency testing coverage.
 
 The cool thing is that writing mocks for testing with Coyote can be done in a "pay-as-you-go"

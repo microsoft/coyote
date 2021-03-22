@@ -1,6 +1,6 @@
 # Specification.Assert method (1 of 4)
 
-Checks if the predicate holds, and if not, throws an AssertionFailureException exception.
+Checks if the predicate holds, and if not, throws an exception.
 
 ```csharp
 public static void Assert(bool predicate, string s, object arg0)
@@ -16,7 +16,7 @@ public static void Assert(bool predicate, string s, object arg0)
 
 # Specification.Assert method (2 of 4)
 
-Checks if the predicate holds, and if not, throws an AssertionFailureException exception.
+Checks if the predicate holds, and if not, throws an exception.
 
 ```csharp
 public static void Assert(bool predicate, string s, params object[] args)
@@ -32,7 +32,7 @@ public static void Assert(bool predicate, string s, params object[] args)
 
 # Specification.Assert method (3 of 4)
 
-Checks if the predicate holds, and if not, throws an AssertionFailureException exception.
+Checks if the predicate holds, and if not, throws an exception.
 
 ```csharp
 public static void Assert(bool predicate, string s, object arg0, object arg1)
@@ -48,7 +48,7 @@ public static void Assert(bool predicate, string s, object arg0, object arg1)
 
 # Specification.Assert method (4 of 4)
 
-Checks if the predicate holds, and if not, throws an AssertionFailureException exception.
+Checks if the predicate holds, and if not, throws an exception.
 
 ```csharp
 public static void Assert(bool predicate, string s, object arg0, object arg1, object arg2)

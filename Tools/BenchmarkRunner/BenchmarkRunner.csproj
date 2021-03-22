@@ -13,16 +13,21 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <ProjectReference Include="..\Coyote\Coyote.csproj" />
     <ProjectReference Include="..\..\Tests\Tests.Performance\Tests.Performance.csproj" />
     <ProjectReference Include="..\..\Tests\Tests.Actors.Performance\Tests.Actors.Performance.csproj" />
+    <ProjectReference Include="..\Coyote\Coyote.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.10.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
-  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite ./bin/$(TargetFramework)/Tests.Performance.dll" />
+  <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)Tests.Performance.dll" />
+  </Target>
+  <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)Tests.Performance.dll" />
   </Target>
 </Project>

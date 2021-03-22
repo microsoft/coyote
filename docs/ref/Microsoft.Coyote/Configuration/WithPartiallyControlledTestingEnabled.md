@@ -1,6 +1,6 @@
 # Configuration.WithPartiallyControlledTestingEnabled method
 
-Updates the configuration with partially controlled testing enabled or disabled.
+Updates the configuration with partially controlled testing enabled or disabled. If this option is enabled, systematic testing supports partially controlled executions.
 
 ```csharp
 public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)

@@ -4,7 +4,7 @@
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using ControlledTasks = Microsoft.Coyote.SystematicTesting.Interception;
+using ControlledTasks = Microsoft.Coyote.Interception;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;

@@ -4,7 +4,7 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 

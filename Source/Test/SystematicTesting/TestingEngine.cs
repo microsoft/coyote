@@ -18,8 +18,8 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting.Strategies;
 using Microsoft.Coyote.Telemetry;
+using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting

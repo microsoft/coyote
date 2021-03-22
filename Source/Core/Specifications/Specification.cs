@@ -18,28 +18,28 @@ namespace Microsoft.Coyote.Specifications
     public static class Specification
     {
         /// <summary>
-        /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0);
 
         /// <summary>
-        /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
-        /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
-        /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, params object[] args) =>

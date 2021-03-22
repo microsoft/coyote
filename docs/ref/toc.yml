@@ -75,13 +75,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled
         - name: IsXmlLogEnabled
           link: ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled
-      - name: ExecutionCanceledException
-        link: ref/Microsoft.Coyote/ExecutionCanceledException
-      - name: RuntimeException
-        link: ref/Microsoft.Coyote/RuntimeException
-        subfolderitems:
-        - name: RuntimeException
-          link: ref/Microsoft.Coyote/RuntimeException/RuntimeException
     - name: Microsoft.Coyote.Actors
       link: ref/Microsoft.Coyote.ActorsNamespace
       subfolderitems:
@@ -811,6 +804,15 @@ toc:
     - name: Microsoft.Coyote.Runtime
       link: ref/Microsoft.Coyote.RuntimeNamespace
       subfolderitems:
+      - name: AssertionFailureException
+        link: ref/Microsoft.Coyote.Runtime/AssertionFailureException
+      - name: ExecutionCanceledException
+        link: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException
+      - name: RuntimeException
+        link: ref/Microsoft.Coyote.Runtime/RuntimeException
+        subfolderitems:
+        - name: RuntimeException
+          link: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException
       - name: ICoyoteRuntime
         link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime
         subfolderitems:

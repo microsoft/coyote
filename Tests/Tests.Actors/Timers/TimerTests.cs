@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;

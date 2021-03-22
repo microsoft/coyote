@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 using SystemMonitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.Tasks

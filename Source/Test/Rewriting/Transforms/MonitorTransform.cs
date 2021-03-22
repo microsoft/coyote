@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ControlledMonitorType is null)
             {
-                var tr = this.Module.ImportReference(typeof(SystematicTesting.Interception.ControlledMonitor));
+                var tr = this.Module.ImportReference(typeof(Interception.ControlledMonitor));
                 this.ControlledMonitorType = tr.Resolve();
                 if (this.ControlledMonitorType is null)
                 {

@@ -525,6 +525,7 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// Updates the configuration with partially controlled testing enabled or disabled.
+        /// If this option is enabled, systematic testing supports partially controlled executions.
         /// </summary>
         /// <param name="isEnabled">If true, then partially controlled testing is enabled.</param>
         /// <remarks>

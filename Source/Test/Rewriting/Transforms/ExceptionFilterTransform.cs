@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -97,7 +97,9 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 var name = handler.CatchType.FullName;
-                if (name is "System.Object" || name is "System.Exception" || name is "Microsoft.Coyote.RuntimeException")
+                if (name == typeof(object).FullName ||
+                    name == typeof(System.Exception).FullName ||
+                    name == typeof(RuntimeException).FullName)
                 {
                     this.AddThrowIfExecutionCanceledException(handler);
                 }
@@ -119,7 +121,7 @@ namespace Microsoft.Coyote.Rewriting
                 this.ModifiedHandlers = true;
             }
 
-            Debug.WriteLine($"............. [+] rewriting catch block to rethrow an ExecutionCanceledException");
+            Debug.WriteLine($"............. [+] rewriting catch block to rethrow an {nameof(ExecutionCanceledException)}");
 
             var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
             MethodReference providerMethod = providerType.Methods.FirstOrDefault(
@@ -203,7 +205,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is MethodReference method)
                 {
                     TypeReference type = method.DeclaringType;
-                    if ((type.Namespace == CachedNameProvider.SystematicTestingNamespace ||
+                    if ((type.Namespace == CachedNameProvider.InterceptionNamespace ||
                         type.Namespace == CachedNameProvider.SystemCompilerNamespace) &&
                         (type.Name == CachedNameProvider.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&

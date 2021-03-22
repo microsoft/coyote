@@ -4,7 +4,7 @@ Concurrency unit testing with Coyote often involves writing mocks that _simulate
 behavior of an external service or library. This is a "pay-as-you-go" effort, it is up to you to
 decide how simple or complex you want your mocks to be depending on what kind of logic you want to
 test! You can start with writing some very simple mocks and incrementally add behavior if you want
-to test more advanced scenarios. The only requirement is that the mocks must work on a concurrent
+to test more advanced scenarios. The only requirement is that the mocks must work in a concurrent
 setting, as Coyote [explores interleavings and other sources of
 nondeterminism](../../concepts/non-determinism.md).
 
@@ -12,9 +12,9 @@ For example, the simple `InMemoryDbCollection` mock described in this
 [tutorial](mock-dependencies.md) simulates asynchronous row manipulation in a backend NoSQL database
 to [test the logic](../first-concurrency-unit-test.md) of an `AccountManager` controller. A great
 benefit of designing such a mock is that it can be reused across [many different concurrency unit
-tests](../test-concurrent-operations.md), comparing comparing to the more traditional approach of
-writing very simple mock methods that return fixed results (like in the [first
-version](mock-dependencies.md) of the `InMemoryDbCollection` mock).
+tests](../test-concurrent-operations.md), comparing to the more traditional approach of writing very
+simple mock methods that return fixed results (like in the [first version](mock-dependencies.md) of
+the `InMemoryDbCollection` mock).
 
 In this tutorial, you will see that it is very easy to take this `InMemoryDbCollection` mock and
 extend it with [ETags](https://en.wikipedia.org/wiki/HTTP_ETag) to simulate [optimistic concurrency
@@ -73,81 +73,24 @@ You will also need to extend the `InMemoryDbCollection` mock with `UpdateRow`. L
 simple mock implementation for this method.
 
 ```csharp
-public class InMemoryDbCollection : IDbCollection
+public Task<bool> UpdateRow(string key, string value)
 {
-  private readonly ConcurrentDictionary<string, string> Collection;
-
-  public InMemoryDbCollection()
+  return Task.Run(() =>
   {
-    this.Collection = new ConcurrentDictionary<string, string>();
-  }
-
-  public Task<bool> CreateRow(string key, string value)
-  {
-    return Task.Run(() =>
+    bool success = this.Collection.ContainsKey(key);
+    if (!success)
     {
-      bool success = this.Collection.TryAdd(key, value);
-      if (!success)
-      {
-        throw new RowAlreadyExistsException();
-      }
+      throw new RowNotFoundException();
+    }
 
-      return true;
-    });
-  }
-
-  public Task<bool> DoesRowExist(string key)
-  {
-    return Task.Run(() =>
-    {
-      return this.Collection.ContainsKey(key);
-    });
-  }
-
-  public Task<string> GetRow(string key)
-  {
-    return Task.Run(() =>
-    {
-      bool success = this.Collection.TryGetValue(key, out string value);
-      if (!success)
-      {
-        throw new RowNotFoundException();
-      }
-
-      return value;
-    });
-  }
-
-  public Task<bool> UpdateRow(string key, string value)
-  {
-    return Task.Run(() =>
-    {
-      bool success = this.Collection.ContainsKey(key);
-      if (!success)
-      {
-        throw new RowNotFoundException();
-      }
-
-      this.Collection[key] = value;
-      return true;
-    });
-  }
-
-  public Task<bool> DeleteRow(string key)
-  {
-    return Task.Run(() =>
-    {
-      bool success = this.Collection.TryRemove(key, out string _);
-      if (!success)
-      {
-        throw new RowNotFoundException();
-      }
-
-      return true;
-    });
-  }
+    this.Collection[key] = value;
+    return true;
+  });
 }
 ```
+
+You can see how the rest of the `InMemoryDbCollection` methods are implemented in the [Coyote
+Samples git repo](http://github.com/microsoft/coyote-samples).
 
 Next, let's implement the `AccountManager` logic.
 
@@ -480,7 +423,8 @@ public async Task<bool> UpdateAccount(string accountName, string accountPayload,
   Account existingAccount;
   Guid existingAccountETag;
 
-  // Naive retry if ETags mismatch. In reality, you would use a proper retry policy.
+  // Naive retry if ETags mismatch. In production, you would either use a proper retry
+  // policy with delays or return a response to the caller requesting them to retry.
   while (true)
   {
     try
@@ -508,8 +452,10 @@ public async Task<bool> UpdateAccount(string accountName, string accountPayload,
 
     try
     {
-      return await this.AccountCollection.UpdateRow(accountName,
-        JsonSerializer.Serialize(updatedAccount), existingAccountETag);
+      return await this.AccountCollection.UpdateRow(
+        accountName,
+        JsonSerializer.Serialize(updatedAccount),
+        existingAccountETag);
     }
     catch (MismatchedETagException)
     {
@@ -523,14 +469,14 @@ public async Task<bool> UpdateAccount(string accountName, string accountPayload,
 }
 ```
 
-You will also need to update the `IDbCollection` interface and `InMemoryDbCollection` mock to
-support ETags, as well as create an `AccountEntity` type that is stored in the database and contains
-the serialized `Account` as well as the corresponding `ETag`.
+Let's extend the `IDbCollection` interface and `InMemoryDbCollection` mock to support ETags so that
+you can run the above test. We'll also define a helper `DbRow` class in our mock to store the
+database row value with its associated ETag.
 
 ```csharp
-public class AccountEntity
+public class DbRow
 {
-    public string Account { get; set; }
+    public string Value { get; set; }
 
     public Guid ETag { get; set; }
 }
@@ -550,24 +496,25 @@ public interface IDbCollection
 
 public class InMemoryDbCollection : IDbCollection
 {
-  private readonly ConcurrentDictionary<string, AccountEntity> Collection;
+  private readonly ConcurrentDictionary<string, DbRow> Collection;
 
   public InMemoryDbCollection()
   {
-    this.Collection = new ConcurrentDictionary<string, AccountEntity>();
+    this.Collection = new ConcurrentDictionary<string, DbRow>();
   }
 
   public Task<bool> CreateRow(string key, string value)
   {
     return Task.Run(() =>
     {
-      var entity = new AccountEntity()
+      // Generate a new ETag when creating a brand new row.
+      var dbRow = new DbRow()
       {
-        Account = value,
+        Value = value,
         ETag = Guid.NewGuid()
       };
 
-      bool success = this.Collection.TryAdd(key, entity);
+      bool success = this.Collection.TryAdd(key, dbRow);
       if (!success)
       {
         throw new RowAlreadyExistsException();
@@ -577,25 +524,17 @@ public class InMemoryDbCollection : IDbCollection
     });
   }
 
-  public Task<bool> DoesRowExist(string key)
-  {
-    return Task.Run(() =>
-    {
-      return this.Collection.ContainsKey(key);
-    });
-  }
-
   public Task<(string value, Guid etag)> GetRow(string key)
   {
     return Task.Run(() =>
     {
-      bool success = this.Collection.TryGetValue(key, out AccountEntity entity);
+      bool success = this.Collection.TryGetValue(key, out DbRow dbRow);
       if (!success)
       {
         throw new RowNotFoundException();
       }
 
-      return (entity.Account, entity.ETag);
+      return (dbRow.Value, dbRow.ETag);
     });
   }
 
@@ -605,49 +544,43 @@ public class InMemoryDbCollection : IDbCollection
     {
       lock (this.Collection)
       {
-        bool success = this.Collection.TryGetValue(key, out AccountEntity existingEntity);
+        bool success = this.Collection.TryGetValue(key, out DbRow existingDbRow);
         if (!success)
         {
           throw new RowNotFoundException();
         }
-        else if (success && etag != existingEntity.ETag)
+        else if (etag != existingDbRow.ETag)
         {
           throw new MismatchedETagException();
         }
 
-        var entity = new AccountEntity()
+        // Update the Etag value when updating the row.
+        var dbRow = new DbRow()
         {
-          Account = value,
+          Value = value,
           ETag = Guid.NewGuid()
         };
 
-        this.Collection[key] = entity;
+        this.Collection[key] = dbRow;
         return true;
       }
     });
   }
 
-  public Task<bool> DeleteRow(string key)
-  {
-    return Task.Run(() =>
-    {
-      bool success = this.Collection.TryRemove(key, out AccountEntity _);
-      if (!success)
-      {
-        throw new RowNotFoundException();
-      }
-
-      return true;
-    });
-  }
+  /* Rest of the methods not shown for simplicity */
 }
 ```
 
-The reason you need to acquire a `lock` in the `UpateRow` method is to ensure that no other task
-races while the ETag is checked for mismatch. You don't need a `lock` in operations that don't check
-the ETag as you are using a thread-safe concurrency dictionary.
+The above `InMemoryDbCollection` mock simulates the ETag semantics of Cosmos DB. You will also
+notice that the `UpdateRow` method acquires a `lock` to ensure that no other task races while the
+ETag is checked for mismatch. You don't need a `lock` in operations that don't check the ETag as you
+are using a thread-safe concurrency dictionary.
 
-Build the code one last time, rewrite the assembly and run the test using Coyote for `10` iterations:
+You can see how the rest of the `InMemoryDbCollection` methods are implemented in the [Coyote
+Samples git repo](http://github.com/microsoft/coyote-samples).
+
+Build the code one last time, rewrite the assembly and run the test using Coyote for `10`
+iterations:
 
 ```plain
 coyote rewrite .\AccountManager.ETags.dll
@@ -657,16 +590,19 @@ coyote test .\AccountManager.ETags.dll -m TestGetAccountAfterConcurrentUpdate -i
 Awesome, this time the test succeeds! If you try to remove the ETag check, it will fail as expected.
 
 One interesting observation is that you used a lock inside the `InMemoryDbCollection` mock but not
-inside the `AccountManager` code. The reason behind this choice is that in production
-`AccountManager` can run across different processes or machines, so intra-process locks would not
-work in that setting. With Coyote, however, you run the entire concurrency unit test in a single
-process, so it is perfectly fine for the mock itself to take a lock, which makes it easier to
-simulate the ETag functionality.
+inside the `AccountManager` code. You might be wondering why it was not okay to use a lock in
+`AccountManager`, but it was fine to use it in `InMemoryDbCollection`? The reason behind this choice
+is that `AccountManager` instances can run across different processes or machines in production, and
+locks do not work in such an intra-process setting. With Coyote, however, you run the entire
+concurrency unit test in a single process, so it is perfectly fine for the mock itself to take a
+lock, which makes it a lot easier to simulate the ETag functionality.
 
 As you can see, it didn't take much effort to simulate ETags in the mock, as you just simulated the
 semantics _in-memory_. This is significantly easier than if you had to implement the _real_ ETags
 functionality in a production distributed system, where you would have to worry about arbitrary
-failures.
+failures, coordination across machines and network delays. Mocks are often fairly easy to write and
+help ensure that _your_ distributed service works correctly in the presence of arbitrary concurrency
+across a fleet of machines.
 
 ## Get the sample source code
 

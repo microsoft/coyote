@@ -1,5 +1,5 @@
 site_name: Coyote
-site_url: https://microsoft.github.io/coyote/
+site_url: http://127.0.0.1:8000/
 repo_url: https://github.com/microsoft/coyote/
 theme:
   name: null
@@ -37,7 +37,7 @@ extra:
   - icon: fontawesome/brands/github
     link: https://github.com/microsoft/coyote
   generator: false
-  base_url: /coyote/
+  base_url: /
 nav:
 - Home: index.md
 - Overview:

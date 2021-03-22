@@ -5,7 +5,7 @@ ASP.NET service included here implements a simple **image gallery**. Please note
 service contains some interesting *bugs* on purpose. You can run the unit tests with and without
 Coyote and you can run the web front end using the Azure storage emulators.
 
-<img class="img-responsive" src="/coyote/assets/images/ImageGallery.png" alt="screenshot">
+![screenshot](../assets/images/ImageGallery.png)
 
 ## What you will need
 

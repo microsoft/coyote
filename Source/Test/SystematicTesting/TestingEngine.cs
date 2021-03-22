@@ -491,7 +491,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Creates a new instance of the controlled runtime.
                 runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
 
-                if (!this.Strategy.InitializeNextIteration(iteration))
+                if (!runtime.InitializeNextIteration(iteration))
                 {
                     // The next iteration cannot run, so stop exploring.
                     return false;
@@ -507,7 +507,6 @@ namespace Microsoft.Coyote.SystematicTesting
                         Console.Out.Flush();
                     }
                 }
-
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.
@@ -545,26 +544,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                Console.WriteLine($"2");
-
-                if (!runtime.IsBugFound)
+                if (runtime.IsBugFound)
+                {
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
+                }
+                else
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
                     runtime.CheckLivenessErrors();
                 }
 
-                if (runtime.IsBugFound)
-                {
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
-                }
-
-                Console.WriteLine($"3");
-
                 runtime.LogWriter.LogCompletion();
 
                 this.GatherTestingStatistics(runtime);
-
-                Console.WriteLine($"4");
 
                 if (!this.IsReplayModeEnabled && this.TestReport.NumOfFoundBugs > 0)
                 {

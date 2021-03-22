@@ -59,14 +59,25 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal volatile bool IsProgramExecuting;
 
         /// <summary>
-        /// True if the scheduler is attached to the executing program, else false.
-        /// </summary>
-        internal bool IsAttached { get; private set; }
-
-        /// <summary>
         /// Number of scheduled steps.
         /// </summary>
         internal int ScheduledSteps { get; private set; }
+
+        /// <summary>
+        /// True if the max scheduling steps bound has been reached in the current execution.
+        /// </summary>
+        private bool IsMaxScheduledStepsBoundReached
+        {
+            get
+            {
+                if (this.Configuration.MaxFairSchedulingSteps is 0)
+                {
+                    return false;
+                }
+
+                return this.ScheduledSteps >= this.Configuration.MaxFairSchedulingSteps;
+            }
+        }
 
         /// <summary>
         /// Checks if the schedule has been fully explored.
@@ -89,6 +100,26 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal Exception UnhandledException { get; private set; }
 
         /// <summary>
+        /// Timer implementing an activity monitor.
+        /// </summary>
+        private readonly Timer ActivityMonitor;
+
+        /// <summary>
+        /// The amount of time to wait before checking for activity.
+        /// </summary>
+        public readonly TimeSpan ActivityCheckDueTime;
+
+        /// <summary>
+        /// The time interval between checking for activity.
+        /// </summary>
+        public readonly TimeSpan ActivityCheckPeriod;
+
+        /// <summary>
+        /// True if the scheduler is attached to the executing program, else false.
+        /// </summary>
+        internal bool IsAttached { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FuzzingScheduler"/> class.
         /// </summary>
         internal FuzzingScheduler(CoyoteRuntime runtime, Configuration configuration)
@@ -103,6 +134,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.IsBugFound = false;
             this.ScheduledSteps = 0;
             this.HasFullyExploredSchedule = false;
+            this.ActivityMonitor = new Timer(this.CheckActivity, new ActivityInfo(),
+                Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            this.ActivityCheckDueTime = TimeSpan.FromMilliseconds(100);
+            this.ActivityCheckPeriod = TimeSpan.FromMilliseconds(100);
         }
 
         /// <summary>
@@ -113,10 +148,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
                 IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                 ExecutingOperation.Value = op;
-
-                this.ThrowExecutionCanceledExceptionIfDetached();
 
 #if NETSTANDARD2_0
                 if (!this.OperationMap.ContainsKey(op.Id))
@@ -126,6 +161,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 #else
                 this.OperationMap.TryAdd(op.Id, op);
 #endif
+
+                if (this.OperationMap.Count is 1)
+                {
+                    this.ActivityMonitor.Change(this.ActivityCheckDueTime, Timeout.InfiniteTimeSpan);
+                }
             }
         }
 
@@ -138,13 +178,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                this.OperationMap.Remove(op.Id);
-                if (this.OperationMap.Count is 0)
-                {
-                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                    this.HasFullyExploredSchedule = true;
-                    this.Detach();
-                }
             }
         }
 
@@ -155,6 +188,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
                 int delay = 0;
                 IO.Debug.WriteLine("<ScheduleDebug> Injecting delay of {0}ms on task '{1}'.", delay, Task.CurrentId);
                 Thread.Sleep(delay);
@@ -263,6 +298,23 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
         }
 
+        /// <summary>
+        /// Returns scheduling statistics and results.
+        /// </summary>
+        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
+            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException)
+        {
+            lock (this.SyncObject)
+            {
+                scheduledSteps = this.ScheduledSteps;
+                isMaxScheduledStepsBoundReached = this.IsMaxScheduledStepsBoundReached;
+                isScheduleFair = true;
+                isBugFound = this.IsBugFound;
+                bugReport = this.BugReport;
+                unhandledException = this.UnhandledException;
+            }
+        }
+
         private static string ConstructStackTrace()
         {
             StringBuilder sb = new StringBuilder();
@@ -279,6 +331,44 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <summary>
+        /// Checks for activity on each timeout.
+        /// </summary>
+        private void CheckActivity(object state)
+        {
+            lock (this.SyncObject)
+            {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+
+                ActivityInfo info = state as ActivityInfo;
+                if (info.OperationCount == this.OperationMap.Count &&
+                    info.StepCount == this.ScheduledSteps)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.HasFullyExploredSchedule = true;
+                    this.Detach(false);
+                }
+                else
+                {
+                    info.OperationCount = this.OperationMap.Count;
+                    info.StepCount = this.ScheduledSteps;
+
+                    try
+                    {
+                        // Start the next timeout period.
+                        this.ActivityMonitor.Change(this.ActivityCheckPeriod, Timeout.InfiniteTimeSpan);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Benign race condition while disposing the timer.
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Waits until the scheduler terminates.
         /// </summary>
         internal async Task WaitAsync()
@@ -292,7 +382,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         private void Detach(bool cancelExecution = true)
         {
-            this.IsAttached = false;
+            if (!this.IsAttached)
+            {
+                this.IsAttached = false;
+                this.ActivityMonitor.Dispose();
+            }
 
             // Check if the completion source is completed, else set its result.
             if (!this.CompletionSource.Task.IsCompleted)
@@ -331,6 +425,22 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 // but the previous and current value where not null.
                 ExecutingOperation.Value = args.PreviousValue;
             }
+        }
+
+        /// <summary>
+        /// Defines activity information that is used to check for termination.
+        /// </summary>
+        private class ActivityInfo
+        {
+            /// <summary>
+            /// Number of created operations since last activity check.
+            /// </summary>
+            public int OperationCount { get; set; }
+
+            /// <summary>
+            /// Number of scheduling steps since last activity check.
+            /// </summary>
+            public int StepCount { get; set; }
         }
     }
 }

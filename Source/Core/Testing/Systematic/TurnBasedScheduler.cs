@@ -69,11 +69,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly TaskCompletionSource<bool> CompletionSource;
 
         /// <summary>
-        /// True if the scheduler is attached to the executing program, else false.
-        /// </summary>
-        internal bool IsAttached { get; private set; }
-
-        /// <summary>
         /// The currently scheduled operation.
         /// </summary>
         private AsyncOperation ScheduledOperation;
@@ -109,6 +104,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal Exception UnhandledException { get; private set; }
 
         /// <summary>
+        /// True if the scheduler is attached to the executing program, else false.
+        /// </summary>
+        internal bool IsAttached { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TurnBasedScheduler"/> class.
         /// </summary>
         internal TurnBasedScheduler(CoyoteRuntime runtime, SchedulingStrategy strategy, Configuration configuration)
@@ -124,6 +124,11 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
         }
+
+        /// <summary>
+        /// Initializes the next testing iteration.
+        /// </summary>
+        internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
 
         /// <summary>
         /// Creates the specified operation.

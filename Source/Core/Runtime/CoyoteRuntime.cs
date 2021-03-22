@@ -212,7 +212,10 @@ namespace Microsoft.Coyote.Runtime
             Interception.ControlledThread.ClearCache();
         }
 
-        internal bool InitializeNextIteration() => this.Scheduler.InitializeNextIteration(iteration)
+        /// <summary>
+        /// Initializes the next testing iteration.
+        /// </summary>
+        internal bool InitializeNextIteration(uint iteration) => this.Scheduler?.InitializeNextIteration(iteration) ?? true;
 
         /// <summary>
         /// Runs the specified test method.
@@ -1546,9 +1549,19 @@ namespace Microsoft.Coyote.Runtime
         /// Returns scheduling statistics and results.
         /// </summary>
         internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
-            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException) =>
-            this.Scheduler.GetSchedulingStatisticsAndResults(out isBugFound, out bugReport, out scheduledSteps,
-                out isMaxScheduledStepsBoundReached, out isScheduleFair, out unhandledException);
+            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException)
+        {
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+            {
+                this.Scheduler.GetSchedulingStatisticsAndResults(out isBugFound, out bugReport, out scheduledSteps,
+                    out isMaxScheduledStepsBoundReached, out isScheduleFair, out unhandledException);
+            }
+            else
+            {
+                this.Fuzzer.GetSchedulingStatisticsAndResults(out isBugFound, out bugReport, out scheduledSteps,
+                    out isMaxScheduledStepsBoundReached, out isScheduleFair, out unhandledException);
+            }
+        }
 
         /// <summary>
         /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
@@ -1640,7 +1653,8 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void CheckLivenessErrors()
         {
-            if (this.Scheduler.HasFullyExploredSchedule)
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic &&
+                this.Scheduler.HasFullyExploredSchedule)
             {
                 this.SpecificationEngine.CheckLivenessErrors();
             }

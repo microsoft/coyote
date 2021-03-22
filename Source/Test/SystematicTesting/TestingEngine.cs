@@ -275,52 +275,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 IO.Debug.IsEnabled = true;
             }
 
-            if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
-                configuration.MaxFairSchedulingSteps > 0)
-            {
-                configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
-            }
-
-            if (configuration.SchedulingStrategy is "replay")
-            {
-                var scheduleDump = this.GetScheduleForReplay(out bool isFair);
-                ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
-                this.Strategy = new ReplayStrategy(configuration, schedule, isFair);
-            }
-            else if (configuration.SchedulingStrategy is "interactive")
-            {
-                configuration.TestingIterations = 1;
-                configuration.PerformFullExploration = false;
-                configuration.IsVerbose = true;
-                this.Strategy = new InteractiveStrategy(configuration, this.Logger);
-            }
-            else if (configuration.SchedulingStrategy is "random")
-            {
-                this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "pct")
-            {
-                this.Strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound,
-                    this.RandomValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "fairpct")
-            {
-                var prefixLength = configuration.SafetyPrefixBound is 0 ?
-                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, this.RandomValueGenerator);
-                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
-                this.Strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
-            }
-            else if (configuration.SchedulingStrategy is "probabilistic")
-            {
-                this.Strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
-                    configuration.StrategyBound, this.RandomValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "dfs")
-            {
-                this.Strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
-            }
-            else if (configuration.SchedulingStrategy is "portfolio")
+            if (configuration.SchedulingStrategy is "portfolio")
             {
                 var msg = "Portfolio testing strategy is only " +
                     "available in parallel testing.";
@@ -334,13 +289,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (configuration.SchedulingStrategy != "replay" &&
-                configuration.ScheduleFile.Length > 0)
-            {
-                var scheduleDump = this.GetScheduleForReplay(out bool isFair);
-                ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
-                this.Strategy = new ReplayStrategy(configuration, schedule, isFair, this.Strategy);
-            }
+            this.Strategy = SchedulingStrategy.Setup(configuration, this.RandomValueGenerator, this.Logger);
 
             if (TelemetryClient is null)
             {
@@ -526,23 +475,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private bool RunNextIteration(uint iteration)
         {
-            if (!this.Strategy.InitializeNextIteration(iteration))
-            {
-                // The next iteration cannot run, so stop exploring.
-                return false;
-            }
-
-            if (!this.IsReplayModeEnabled && this.ShouldPrintIteration(iteration + 1))
-            {
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
-
-                // Flush when logging to console.
-                if (this.Logger is ConsoleLogger)
-                {
-                    Console.Out.Flush();
-                }
-            }
-
             // Runtime used to serialize and test the program in this iteration.
             CoyoteRuntime runtime = null;
 
@@ -558,6 +490,24 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 // Creates a new instance of the controlled runtime.
                 runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
+
+                if (!this.Strategy.InitializeNextIteration(iteration))
+                {
+                    // The next iteration cannot run, so stop exploring.
+                    return false;
+                }
+
+                if (!this.IsReplayModeEnabled && this.ShouldPrintIteration(iteration + 1))
+                {
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
+
+                    // Flush when logging to console.
+                    if (this.Logger is ConsoleLogger)
+                    {
+                        Console.Out.Flush();
+                    }
+                }
+
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.
@@ -595,6 +545,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
+                Console.WriteLine($"2");
+
                 if (!runtime.IsBugFound)
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
@@ -606,9 +558,13 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
+                Console.WriteLine($"3");
+
                 runtime.LogWriter.LogCompletion();
 
                 this.GatherTestingStatistics(runtime);
+
+                Console.WriteLine($"4");
 
                 if (!this.IsReplayModeEnabled && this.TestReport.NumOfFoundBugs > 0)
                 {
@@ -869,48 +825,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Also save the graph snapshot of the last iteration, if there is one.
             this.Graph = coverageInfo.CoverageGraph;
-        }
-
-        /// <summary>
-        /// Returns the schedule to replay.
-        /// </summary>
-        private string[] GetScheduleForReplay(out bool isFair)
-        {
-            string[] scheduleDump;
-            if (this.Configuration.ScheduleTrace.Length > 0)
-            {
-                scheduleDump = this.Configuration.ScheduleTrace.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            }
-            else
-            {
-                scheduleDump = File.ReadAllLines(this.Configuration.ScheduleFile);
-            }
-
-            isFair = false;
-            foreach (var line in scheduleDump)
-            {
-                if (!line.StartsWith("--"))
-                {
-                    break;
-                }
-
-                if (line.Equals("--fair-scheduling"))
-                {
-                    isFair = true;
-                }
-                else if (line.StartsWith("--liveness-temperature-threshold:"))
-                {
-                    this.Configuration.LivenessTemperatureThreshold =
-                        int.Parse(line.Substring("--liveness-temperature-threshold:".Length));
-                }
-                else if (line.StartsWith("--test-method:"))
-                {
-                    this.Configuration.TestMethodName =
-                        line.Substring("--test-method:".Length);
-                }
-            }
-
-            return scheduleDump;
         }
 
         /// <summary>

@@ -115,12 +115,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The bug report, if a bug was found.
         /// </summary>
-        internal string BugReport => this.Scheduler.BugReport;
+        internal string BugReport => this.Scheduler?.BugReport ?? string.Empty;
 
         /// <summary>
         /// True if a bug was found, else false.
         /// </summary>
-        internal bool IsBugFound => this.Scheduler.IsBugFound;
+        internal bool IsBugFound => this.Scheduler?.IsBugFound ?? this.Fuzzer.IsBugFound;
 
         /// <summary>
         /// True if the program is executing, else false.
@@ -168,8 +168,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy,
-            IRandomValueGenerator valueGenerator)
+        internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
 
@@ -188,22 +187,32 @@ namespace Microsoft.Coyote.Runtime
             this.LogWriter = new LogWriter(configuration);
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
 
-            if (configuration.IsLivenessCheckingEnabled)
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
             {
-                strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
+                if (configuration.IsLivenessCheckingEnabled)
+                {
+                    strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
+                }
+
+                this.Scheduler = new TurnBasedScheduler(this, strategy, configuration);
+            }
+            else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            {
+                this.Fuzzer = new FuzzingScheduler(this, configuration);
             }
 
-            this.Scheduler = new TurnBasedScheduler(this, strategy, configuration);
             this.ValueGenerator = valueGenerator;
 
             this.DefaultActorExecutionContext = this.SchedulingPolicy is OperationSchedulingPolicy.Systematic ?
-                new ActorExecutionContext.Mock(configuration, this, this.Scheduler,
+                new ActorExecutionContext.Mock(configuration, this, this.Scheduler, this.Fuzzer,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
-                new ActorExecutionContext(configuration, this, this.Scheduler,
+                new ActorExecutionContext(configuration, this, this.Fuzzer,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
 
             Interception.ControlledThread.ClearCache();
         }
+
+        internal bool InitializeNextIteration() => this.Scheduler.InitializeNextIteration(iteration)
 
         /// <summary>
         /// Runs the specified test method.
@@ -227,7 +236,14 @@ namespace Microsoft.Coyote.Runtime
                     // allowing future retrieval in the same asynchronous call stack.
                     AssignAsyncControlFlowRuntime(this);
 
-                    this.Scheduler.StartOperation(op);
+                    if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+                    {
+                        this.Scheduler.StartOperation(op);
+                    }
+                    else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+                    {
+                        this.Fuzzer.StartOperation(op);
+                    }
 
                     Task testMethodTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
@@ -274,10 +290,17 @@ namespace Microsoft.Coyote.Runtime
                         }
                     }
 
-                    this.Scheduler.CompleteOperation(op);
+                    if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+                    {
+                        this.Scheduler.CompleteOperation(op);
+                    }
+                    else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+                    {
+                        this.Fuzzer.CompleteOperation(op);
+                    }
 
                     // Task has completed, schedule the next enabled operation, which terminates exploration.
-                    this.Scheduler.ScheduleNextOperation();
+                    this.Scheduler?.ScheduleNextOperation();
                 }
                 catch (Exception ex)
                 {
@@ -286,7 +309,7 @@ namespace Microsoft.Coyote.Runtime
             });
 
             task.Start();
-            this.Scheduler.WaitOperationStart(op);
+            this.Scheduler?.WaitOperationStart(op);
         }
 
         /// <summary>
@@ -306,7 +329,7 @@ namespace Microsoft.Coyote.Runtime
                 op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
             }
 
-            this.Scheduler.CreateOperation(op);
+            this.Scheduler?.CreateOperation(op);
             return op;
         }
 
@@ -1682,8 +1705,16 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
         internal async Task WaitAsync()
         {
-            await this.Scheduler.WaitAsync();
-            this.IsRunning = false;
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+            {
+                await this.Scheduler.WaitAsync();
+                this.IsRunning = false;
+            }
+            else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            {
+                await this.Fuzzer.WaitAsync();
+                this.IsRunning = false;
+            }
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Systematic
@@ -11,6 +12,63 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// </summary>
     internal abstract class SchedulingStrategy
     {
+        internal static SchedulingStrategy Setup(Configuration configuration, IRandomValueGenerator generator, ILogger logger)
+        {
+            SchedulingStrategy strategy = null;
+
+            if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
+                configuration.MaxFairSchedulingSteps > 0)
+            {
+                configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
+            }
+
+            if (configuration.SchedulingStrategy is "replay")
+            {
+                strategy = new ReplayStrategy(configuration);
+            }
+            else if (configuration.SchedulingStrategy is "interactive")
+            {
+                configuration.TestingIterations = 1;
+                configuration.PerformFullExploration = false;
+                configuration.IsVerbose = true;
+                strategy = new InteractiveStrategy(configuration, logger);
+            }
+            else if (configuration.SchedulingStrategy is "random")
+            {
+                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+            }
+            else if (configuration.SchedulingStrategy is "pct")
+            {
+                strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound,
+                    generator);
+            }
+            else if (configuration.SchedulingStrategy is "fairpct")
+            {
+                var prefixLength = configuration.SafetyPrefixBound is 0 ?
+                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
+                var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, generator);
+                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+                strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
+            }
+            else if (configuration.SchedulingStrategy is "probabilistic")
+            {
+                strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
+                    configuration.StrategyBound, generator);
+            }
+            else if (configuration.SchedulingStrategy is "dfs")
+            {
+                strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
+            }
+
+            if (configuration.SchedulingStrategy != "replay" &&
+                configuration.ScheduleFile.Length > 0)
+            {
+                strategy = new ReplayStrategy(configuration, strategy);
+            }
+
+            return strategy;
+        }
+
         /// <summary>
         /// Initializes the next iteration.
         /// </summary>

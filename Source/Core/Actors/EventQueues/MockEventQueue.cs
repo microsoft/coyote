@@ -319,7 +319,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             bool result = this.Owner.IsDefaultHandlerInstalled();
             if (result)
             {
-                this.Owner.Context.Scheduler.ScheduleNextOperation();
+                (this.Owner.Context as ActorExecutionContext.Mock).Scheduler.ScheduleNextOperation();
             }
 
             return result;

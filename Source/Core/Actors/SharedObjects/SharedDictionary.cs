@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IActorRuntime runtime)
         {
-            if (runtime is ActorExecutionContext.Controlled executionContext)
+            if (runtime is ActorExecutionContext.Mock executionContext)
             {
                 return new Mock<TKey, TValue>(executionContext, null);
             }
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer, IActorRuntime runtime)
         {
-            if (runtime is ActorExecutionContext.Controlled executionContext)
+            if (runtime is ActorExecutionContext.Mock executionContext)
             {
                 return new Mock<TKey, TValue>(executionContext, comparer);
             }
@@ -63,12 +63,12 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// <summary>
             /// The execution context associated with this shared dictionary.
             /// </summary>
-            private readonly ActorExecutionContext.Controlled Context;
+            private readonly ActorExecutionContext.Mock Context;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock{TKey, TValue}"/> class.
             /// </summary>
-            internal Mock(ActorExecutionContext.Controlled context, IEqualityComparer<TKey> comparer)
+            internal Mock(ActorExecutionContext.Mock context, IEqualityComparer<TKey> comparer)
                 : base(null)
             {
                 this.Context = context;

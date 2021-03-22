@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
+                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
@@ -515,7 +515,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <summary>
         /// Checks if the scheduling steps bound has been reached. If yes,
-        /// it stops the scheduler and kills all enabled machines.
+        /// it stops the scheduler and kills all enabled operations.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]

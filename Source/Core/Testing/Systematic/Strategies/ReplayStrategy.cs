@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
@@ -52,18 +53,18 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair)
-            : this(configuration, trace, isFair, null)
+        internal ReplayStrategy(Configuration configuration)
+            : this(configuration, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair, SchedulingStrategy suffixStrategy)
+        internal ReplayStrategy(Configuration configuration, SchedulingStrategy suffixStrategy)
         {
             this.Configuration = configuration;
-            this.ScheduleTrace = trace;
+            this.ScheduleTrace = GetScheduleForReplay(configuration, out bool isFair);
             this.ScheduledSteps = 0;
             this.IsSchedulerFair = isFair;
             this.IsReplaying = true;
@@ -316,6 +317,48 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             this.ScheduledSteps = 0;
             this.SuffixStrategy?.Reset();
+        }
+
+        /// <summary>
+        /// Returns the schedule to replay.
+        /// </summary>
+        private static ScheduleTrace GetScheduleForReplay(Configuration configuration, out bool isFair)
+        {
+            string[] scheduleDump;
+            if (configuration.ScheduleTrace.Length > 0)
+            {
+                scheduleDump = configuration.ScheduleTrace.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            }
+            else
+            {
+                scheduleDump = File.ReadAllLines(configuration.ScheduleFile);
+            }
+
+            isFair = false;
+            foreach (var line in scheduleDump)
+            {
+                if (!line.StartsWith("--"))
+                {
+                    break;
+                }
+
+                if (line.Equals("--fair-scheduling"))
+                {
+                    isFair = true;
+                }
+                else if (line.StartsWith("--liveness-temperature-threshold:"))
+                {
+                    configuration.LivenessTemperatureThreshold =
+                        int.Parse(line.Substring("--liveness-temperature-threshold:".Length));
+                }
+                else if (line.StartsWith("--test-method:"))
+                {
+                    configuration.TestMethodName =
+                        line.Substring("--test-method:".Length);
+                }
+            }
+
+            return new ScheduleTrace(scheduleDump);
         }
     }
 }

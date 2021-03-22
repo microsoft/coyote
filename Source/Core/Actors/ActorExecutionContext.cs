@@ -47,6 +47,11 @@ namespace Microsoft.Coyote.Actors
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
+        /// The installed operation fuzzer.
+        /// </summary>
+        internal readonly FuzzingScheduler Fuzzer;
+
+        /// <summary>
         /// Responsible for checking specifications.
         /// </summary>
         private readonly SpecificationEngine SpecificationEngine;
@@ -177,6 +182,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.RunActorEventHandler(actor, initialEvent, true);
+            this.Fuzzer?.InjectDelay();
             return actor.Id;
         }
 
@@ -199,6 +205,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             await this.RunActorEventHandlerAsync(actor, initialEvent, true);
+            this.Fuzzer?.InjectDelay();
             return actor.Id;
         }
 
@@ -237,8 +244,14 @@ namespace Microsoft.Coyote.Actors
             }
 
             Actor actor = ActorFactory.Create(type);
+            ActorOperation op = null;
+            if (this.Fuzzer != null)
+            {
+                op = new ActorOperation(id.Value, id.Name, actor, null);
+            }
+
             IEventQueue eventQueue = new EventQueue(actor);
-            actor.Configure(this, id, null, eventQueue, eventGroup);
+            actor.Configure(this, id, op, eventQueue, eventGroup);
             actor.SetupEventHandlers();
 
             if (!this.ActorMap.TryAdd(id, actor))
@@ -329,6 +342,8 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: false);
 
+            this.Fuzzer?.InjectDelay();
+
             EnqueueStatus enqueueStatus = target.Enqueue(e, eventGroup, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
@@ -348,6 +363,8 @@ namespace Microsoft.Coyote.Actors
             {
                 try
                 {
+                    this.Fuzzer?.StartOperation(actor.Operation);
+
                     if (isFresh)
                     {
                         await actor.InitializeAsync(initialEvent);
@@ -357,8 +374,11 @@ namespace Microsoft.Coyote.Actors
                 }
                 catch (Exception ex)
                 {
-                    this.Runtime.ForceStop();
-                    this.RaiseOnFailureEvent(ex);
+                    if (!(ex is ExecutionCanceledException))
+                    {
+                        this.Runtime.ForceStop();
+                        this.RaiseOnFailureEvent(ex);
+                    }
                 }
                 finally
                 {
@@ -366,6 +386,8 @@ namespace Microsoft.Coyote.Actors
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
                     }
+
+                    this.Fuzzer?.CompleteOperation(actor.Operation);
                 }
             });
         }
@@ -377,6 +399,8 @@ namespace Microsoft.Coyote.Actors
         {
             try
             {
+                this.Fuzzer?.StartOperation(actor.Operation);
+
                 if (isFresh)
                 {
                     await actor.InitializeAsync(initialEvent);
@@ -386,9 +410,15 @@ namespace Microsoft.Coyote.Actors
             }
             catch (Exception ex)
             {
-                this.Runtime.ForceStop();
-                this.RaiseOnFailureEvent(ex);
-                return;
+                if (!(ex is ExecutionCanceledException))
+                {
+                    this.Runtime.ForceStop();
+                    this.RaiseOnFailureEvent(ex);
+                }
+            }
+            finally
+            {
+                this.Fuzzer?.CompleteOperation(actor.Operation);
             }
         }
 
@@ -788,7 +818,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The execution context of an actor program that is controlled for systematic testing.
         /// </summary>
-        internal sealed class Controlled : ActorExecutionContext
+        internal sealed class Mock : ActorExecutionContext
         {
             /// <summary>
             /// The installed turn-based operation scheduler.
@@ -812,11 +842,11 @@ namespace Microsoft.Coyote.Actors
             internal override bool IsExecutionControlled => true;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Controlled"/> class.
+            /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Controlled(Configuration configuration, CoyoteRuntime runtime,TurnBasedScheduler scheduler,
+            internal Mock(Configuration configuration, CoyoteRuntime runtime, TurnBasedScheduler scheduler, FuzzingScheduler fuzzer,
                 SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
-                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
+                : base(configuration, runtime, fuzzer, specificationEngine, valueGenerator, logWriter)
             {
                 this.Scheduler = scheduler;
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
@@ -1479,29 +1509,6 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 base.Dispose(disposing);
-            }
-        }
-
-        /// <summary>
-        /// The execution context of an actor program that is fuzzed for testing.
-        /// </summary>
-        internal sealed class Fuzzed : ActorExecutionContext
-        {
-            /// <summary>
-            /// The installed operation fuzzer.
-            /// </summary>
-            internal readonly FuzzingScheduler Scheduler;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Fuzzed"/> class.
-            /// </summary>
-            internal Fuzzed(Configuration configuration, CoyoteRuntime runtime, FuzzingScheduler scheduler,
-                SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
-                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
-            {
-                this.Scheduler = scheduler;
-                this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
-                this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
             }
         }
     }

@@ -74,9 +74,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal bool HasFullyExploredSchedule { get; private set; }
 
         /// <summary>
-        /// True if a bug was found.
+        /// True if a bug was found, else false.
         /// </summary>
-        internal bool BugFound { get; private set; }
+        internal bool IsBugFound { get; private set; }
 
         /// <summary>
         /// Bug report.
@@ -100,7 +100,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.CompletionSource = new TaskCompletionSource<bool>();
             this.IsProgramExecuting = true;
             this.IsAttached = true;
-            this.BugFound = false;
+            this.IsBugFound = false;
+            this.ScheduledSteps = 0;
             this.HasFullyExploredSchedule = false;
         }
 
@@ -112,7 +113,19 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
+                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                ExecutingOperation.Value = op;
+
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
+#if NETSTANDARD2_0
+                if (!this.OperationMap.ContainsKey(op.Id))
+                {
+                    this.OperationMap.Add(op.Id, op);
+                }
+#else
+                this.OperationMap.TryAdd(op.Id, op);
+#endif
             }
         }
 
@@ -125,6 +138,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                this.OperationMap.Remove(op.Id);
+                if (this.OperationMap.Count is 0)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.HasFullyExploredSchedule = true;
+                    this.Detach();
+                }
             }
         }
 
@@ -135,6 +155,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
+                int delay = 0;
+                IO.Debug.WriteLine("<ScheduleDebug> Injecting delay of {0}ms on task '{1}'.", delay, Task.CurrentId);
+                Thread.Sleep(delay);
+
+                this.ScheduledSteps++;
+                this.CheckIfSchedulingStepsBoundIsReached();
             }
         }
 
@@ -162,7 +188,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         /// <summary>
         /// Checks if the scheduling steps bound has been reached. If yes,
-        /// it stops the scheduler and kills all enabled machines.
+        /// it stops the scheduler and kills all enabled operations.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -213,7 +239,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
-                if (!this.BugFound)
+                if (!this.IsBugFound)
                 {
                     this.BugReport = text;
 
@@ -222,7 +248,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                     this.Runtime.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.Runtime.LogWriter.LogStrategyDescription("Fuzzing", string.Empty);
 
-                    this.BugFound = true;
+                    this.IsBugFound = true;
 
                     if (this.Configuration.AttachDebugger)
                     {
@@ -267,17 +293,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         private void Detach(bool cancelExecution = true)
         {
             this.IsAttached = false;
-
-            // Cancel any remaining operations at the end of the schedule.
-            foreach (var op in this.OperationMap.Values)
-            {
-                if (op.Status != AsyncOperationStatus.Completed)
-                {
-                    op.Status = AsyncOperationStatus.Canceled;
-                }
-            }
-
-            Monitor.PulseAll(this.SyncObject);
 
             // Check if the completion source is completed, else set its result.
             if (!this.CompletionSource.Task.IsCompleted)

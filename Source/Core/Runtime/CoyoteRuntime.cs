@@ -162,9 +162,9 @@ namespace Microsoft.Coyote.Runtime
         private Exception UnhandledException;
 
         /// <summary>
-        /// If true, the execution is controlled, else false.
+        /// The operation scheduling policy used by the runtime.
         /// </summary>
-        internal bool IsControlled { get; private set; }
+        internal OperationSchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
         /// True if a bug was found, else false.
@@ -223,8 +223,9 @@ namespace Microsoft.Coyote.Runtime
             this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
 
-            this.IsControlled = schedulingContext != null;
-            if (this.IsControlled)
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
+                schedulingContext != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
@@ -244,7 +245,7 @@ namespace Microsoft.Coyote.Runtime
             this.SchedulingContext = schedulingContext;
             this.SchedulingContext?.SetSpecificationEngine(this.SpecificationEngine);
 
-            this.DefaultActorExecutionContext = this.IsControlled ?
+            this.DefaultActorExecutionContext = this.SchedulingPolicy is OperationSchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
 
@@ -2128,7 +2129,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.IsControlled &&
+            if (this.SchedulingPolicy != OperationSchedulingPolicy.None &&
                 (exception is ExecutionCanceledException ||
                 (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException)))
             {
@@ -2260,7 +2261,7 @@ namespace Microsoft.Coyote.Runtime
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
-                if (this.IsControlled)
+                if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
                 {
                     // Note: this makes it possible to run a Controlled unit test followed by a production
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.

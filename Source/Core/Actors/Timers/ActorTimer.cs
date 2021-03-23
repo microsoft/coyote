@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Actors.Timers
         private readonly TimerElapsedEvent TimeoutEvent;
 
         /// <summary>
-        /// Whether this timer is disposed.
+        /// True if this timer is disposed, else false.
         /// </summary>
         private bool IsDisposed;
 

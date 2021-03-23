@@ -156,6 +156,11 @@ namespace Microsoft.Coyote
                 Console.WriteLine("... Method {0}", configuration.TestMethodName);
             }
 
+            if (configuration.ParallelBugFindingTasks is 0)
+            {
+                configuration.DisableEnvironmentExit = false;
+            }
+
             // Creates and runs the testing process scheduler.
             TestingProcessScheduler.Create(configuration).Run();
         }

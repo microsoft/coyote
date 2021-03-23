@@ -24,6 +24,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
         internal class BoundedBuffer
         {
+            private readonly object syncObject = new object();
+            private readonly object[] buffer = new object[1];
+            private int putAt;
+            private int takeAt;
+            private int occupied;
             private readonly bool pulseAll;
 
             public BoundedBuffer(bool pulseAll)
@@ -81,12 +86,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 return result;
             }
-
-            private readonly object syncObject = new object();
-            private readonly object[] buffer = new object[1];
-            private int putAt;
-            private int takeAt;
-            private int occupied;
         }
 
         private static void Reader(BoundedBuffer buffer)

@@ -89,6 +89,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append("--partially-controlled-testing ");
             }
 
+            if (configuration.IsConcurrencyFuzzingEnabled)
+            {
+                arguments.Append("--concurrency-fuzzing ");
+            }
+
             if (configuration.RandomGeneratorSeed.HasValue)
             {
                 arguments.Append($"--seed {configuration.RandomGeneratorSeed.Value} ");

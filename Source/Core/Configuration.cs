@@ -153,6 +153,15 @@ namespace Microsoft.Coyote
         internal bool IsPartiallyControlledTestingEnabled;
 
         /// <summary>
+        /// If this option is enabled, the concurrency fuzzing policy is used during testing.
+        /// </summary>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        [DataMember]
+        internal bool IsConcurrencyFuzzingEnabled;
+
+        /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -369,6 +378,7 @@ namespace Microsoft.Coyote
             this.SafetyPrefixBound = 0;
 
             this.IsPartiallyControlledTestingEnabled = false;
+            this.IsConcurrencyFuzzingEnabled = false;
             this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -534,6 +544,19 @@ namespace Microsoft.Coyote
         public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)
         {
             this.IsPartiallyControlledTestingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with concurrency fuzzing enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
+        {
+            this.IsConcurrencyFuzzingEnabled = isEnabled;
             return this;
         }
 

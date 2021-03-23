@@ -23,12 +23,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
     internal sealed class FuzzingScheduler
     {
         /// <summary>
-        /// Provides access to the operation executing on each asynchronous control flow.
-        /// </summary>
-        private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
-            new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
-
-        /// <summary>
         /// The configuration used by the scheduler.
         /// </summary>
         private readonly Configuration Configuration;
@@ -149,9 +143,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             lock (this.SyncObject)
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
-
                 IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                ExecutingOperation.Value = op;
 
 #if NETSTANDARD2_0
                 if (!this.OperationMap.ContainsKey(op.Id))
@@ -177,7 +169,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             lock (this.SyncObject)
             {
+                this.ThrowExecutionCanceledExceptionIfDetached();
                 IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                this.OperationMap.Remove(op.Id);
             }
         }
 
@@ -343,7 +337,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 }
 
                 ActivityInfo info = state as ActivityInfo;
-                if (info.OperationCount == this.OperationMap.Count &&
+                if (info.OperationCount is 0 &&
                     info.StepCount == this.ScheduledSteps)
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
@@ -414,16 +408,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             if (!this.IsAttached)
             {
                 throw new ExecutionCanceledException();
-            }
-        }
-
-        private static void OnAsyncLocalExecutingOperationValueChanged(AsyncLocalValueChangedArgs<AsyncOperation> args)
-        {
-            if (args.ThreadContextChanged && args.PreviousValue != null && args.CurrentValue != null)
-            {
-                // Restore the value if it changed due to a change in the thread context,
-                // but the previous and current value where not null.
-                ExecutingOperation.Value = args.PreviousValue;
             }
         }
 

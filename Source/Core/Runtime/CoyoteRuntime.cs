@@ -171,13 +171,10 @@ namespace Microsoft.Coyote.Runtime
         internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
-
             this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
                 strategy != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
-            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
-            {
-                Interlocked.Increment(ref ExecutionControlledUseCount);
-            }
+
+            Interlocked.Increment(ref ExecutionControlledUseCount);
 
             this.IsRunning = true;
             this.OperationIdCounter = 0;
@@ -459,7 +456,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Execute the operation with the specified context.
         /// </summary>
-        internal void ExecuteOperation(object state)
+        private void ExecuteOperation(object state)
         {
             // Extract the expected operation context from the task state.
             var context = state as OperationContext<Action, object>;
@@ -1747,13 +1744,10 @@ namespace Microsoft.Coyote.Runtime
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
-                if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
-                {
-                    // Note: this makes it possible to run a Controlled unit test followed by a production
-                    // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
-                    // This does not solve mixing unit test type in parallel.
-                    Interlocked.Decrement(ref ExecutionControlledUseCount);
-                }
+                // Note: this makes it possible to run a Controlled unit test followed by a production
+                // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
+                // This does not solve mixing unit test type in parallel.
+                Interlocked.Decrement(ref ExecutionControlledUseCount);
 
                 AssignAsyncControlFlowRuntime(null);
             }

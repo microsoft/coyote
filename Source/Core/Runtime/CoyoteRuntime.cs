@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Runtime
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
-    /// Invoking scheduling methods, such as <see cref="ScheduleNext"/>, is thread-safe.
+    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(bool, bool)"/>, is thread-safe.
     /// </remarks>
     internal sealed class CoyoteRuntime : IDisposable
     {
@@ -1334,22 +1334,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
-        /// <remarks>
-        /// An enabled operation is one that is not blocked nor completed.
-        /// </remarks>
-        internal void ScheduleNext() => this.ScheduleNextOperation();
-
-        /// <summary>
-        /// Yields execution to the next enabled operation, which can include the currently executing operation.
-        /// </summary>
-        /// <remarks>
-        /// An enabled operation is one that is not blocked nor completed.
-        /// </remarks>
-        internal void Yield() => this.ScheduleNextOperation(true);
-
-        /// <summary>
-        /// Schedules the next enabled operation, which can include the currently executing operation.
-        /// </summary>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="checkCaller">If true, schedule only if the caller is an operation.</param>
         /// <remarks>
@@ -1747,7 +1731,7 @@ namespace Microsoft.Coyote.Runtime
         /// The hash is updated in each execution step.
         /// </remarks>
         [DebuggerStepThrough]
-        internal int GetHashedProgramState()
+        private int GetHashedProgramState()
         {
             unchecked
             {
@@ -1904,7 +1888,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
@@ -2050,7 +2034,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal static void ThrowUncontrolledTaskException()
+        private static void ThrowUncontrolledTaskException()
         {
             // TODO: figure out if there is a way to get more information about the creator of the
             // uncontrolled task to ease the user debugging experience.

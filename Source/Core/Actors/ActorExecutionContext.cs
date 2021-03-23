@@ -46,11 +46,6 @@ namespace Microsoft.Coyote.Actors
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// The asynchronous operation scheduler, if available.
-        /// </summary>
-        internal readonly OperationScheduler Scheduler;
-
-        /// <summary>
         /// Responsible for checking specifications.
         /// </summary>
         private readonly SpecificationEngine SpecificationEngine;
@@ -89,7 +84,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// True if the actor program is running, else false.
         /// </summary>
-        internal bool IsRunning => this.Scheduler.IsProgramExecuting;
+        internal bool IsRunning => this.Runtime.IsRunning;
 
         /// <summary>
         /// If true, the actor execution is controlled, else false.
@@ -122,12 +117,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
-            SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
+            IRandomValueGenerator valueGenerator, LogWriter logWriter)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
-            this.Scheduler = scheduler;
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.CoverageInfo = new CoverageInfo();
@@ -361,7 +355,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 catch (Exception ex)
                 {
-                    this.Scheduler.IsProgramExecuting = false;
+                    this.Runtime.IsRunning = false;
                     this.RaiseOnFailureEvent(ex);
                 }
                 finally
@@ -390,7 +384,7 @@ namespace Microsoft.Coyote.Actors
             }
             catch (Exception ex)
             {
-                this.Scheduler.IsProgramExecuting = false;
+                this.Runtime.IsRunning = false;
                 this.RaiseOnFailureEvent(ex);
                 return;
             }
@@ -769,7 +763,7 @@ namespace Microsoft.Coyote.Actors
         public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
         /// <inheritdoc/>
-        public void Stop() => this.Scheduler.ForceStop();
+        public void Stop() => this.Runtime.ForceStop();
 
         /// <summary>
         /// Disposes runtime resources.
@@ -813,9 +807,9 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
-                SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
-                : base(configuration, runtime, scheduler, specificationEngine, valueGenerator, logWriter)
+            internal Mock(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
+                IRandomValueGenerator valueGenerator, LogWriter logWriter)
+                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
             {
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
                 this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
@@ -866,7 +860,7 @@ namespace Microsoft.Coyote.Actors
             /// </summary>
             internal ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup eventGroup = null)
             {
-                var creatorOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var creatorOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 return this.CreateActor(id, type, name, initialEvent, creatorOp?.Actor, eventGroup);
             }
 
@@ -890,7 +884,7 @@ namespace Microsoft.Coyote.Actors
             internal Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent = null,
                 EventGroup eventGroup = null)
             {
-                var creatorOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var creatorOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 return this.CreateActorAndExecuteAsync(id, type, name, initialEvent, creatorOp?.Actor, eventGroup);
             }
 
@@ -923,7 +917,7 @@ namespace Microsoft.Coyote.Actors
 
                 // Using ulong.MaxValue because a Create operation cannot specify
                 // the id of its target, because the id does not exist yet.
-                this.Scheduler.ScheduleNextOperation();
+                this.Runtime.ScheduleNextOperation();
                 this.ResetProgramCounter(creator);
 
                 if (id is null)
@@ -945,7 +939,7 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 Actor actor = ActorFactory.Create(type);
-                ActorOperation op = new ActorOperation(id.Value, id.Name, actor, this.Scheduler);
+                ActorOperation op = new ActorOperation(id.Value, id.Name, actor, this.Runtime);
                 IEventQueue eventQueue = new MockEventQueue(actor);
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();
@@ -955,7 +949,7 @@ namespace Microsoft.Coyote.Actors
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }
 
-                bool result = this.Scheduler.RegisterOperation(op);
+                bool result = this.Runtime.RegisterOperation(op);
                 this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
                 if (actor is StateMachine)
                 {
@@ -972,7 +966,7 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             public override void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default, SendOptions options = null)
             {
-                var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var senderOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 this.SendEvent(targetId, initialEvent, senderOp?.Actor, eventGroup, options);
             }
 
@@ -980,7 +974,7 @@ namespace Microsoft.Coyote.Actors
             public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
                 EventGroup eventGroup = null, SendOptions options = null)
             {
-                var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var senderOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 return this.SendEventAndExecuteAsync(targetId, initialEvent, senderOp?.Actor, eventGroup, options);
             }
 
@@ -1048,12 +1042,12 @@ namespace Microsoft.Coyote.Actors
             private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup eventGroup,
                 SendOptions options, out Actor target)
             {
-                target = this.Scheduler.GetOperationWithId<ActorOperation>(targetId.Value)?.Actor;
+                target = this.Runtime.GetOperationWithId<ActorOperation>(targetId.Value)?.Actor;
                 this.Assert(target != null,
                     "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                     e.GetType().FullName, targetId.Value);
 
-                this.Scheduler.ScheduleNextOperation();
+                this.Runtime.ScheduleNextOperation();
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
@@ -1137,7 +1131,7 @@ namespace Microsoft.Coyote.Actors
                         // allowing future retrieval in the same asynchronous call stack.
                         CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
-                        this.Scheduler.StartOperation(op);
+                        this.Runtime.StartOperation(op);
 
                         if (isFresh)
                         {
@@ -1159,7 +1153,7 @@ namespace Microsoft.Coyote.Actors
                         op.OnCompleted();
 
                         // The actor is inactive or halted, schedule the next enabled operation.
-                        this.Scheduler.ScheduleNextOperation();
+                        this.Runtime.ScheduleNextOperation();
                     }
                     catch (Exception ex)
                     {
@@ -1168,7 +1162,7 @@ namespace Microsoft.Coyote.Actors
                 });
 
                 task.Start();
-                this.Scheduler.WaitOperationStart(op);
+                this.Runtime.WaitOperationStart(op);
             }
 
             /// <summary>
@@ -1178,13 +1172,13 @@ namespace Microsoft.Coyote.Actors
             {
                 var id = this.CreateActorId(typeof(MockStateMachineTimer));
                 this.CreateActor(id, typeof(MockStateMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
-                return this.Scheduler.GetOperationWithId<ActorOperation>(id.Value).Actor as MockStateMachineTimer;
+                return this.Runtime.GetOperationWithId<ActorOperation>(id.Value).Actor as MockStateMachineTimer;
             }
 
             /// <inheritdoc/>
             public override EventGroup GetCurrentEventGroup(ActorId currentActorId)
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var callerOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Assert(callerOp != null && currentActorId == callerOp.Actor.Id,
                     "Trying to access the event group id of {0}, which is not the currently executing actor.",
                     currentActorId);
@@ -1196,13 +1190,13 @@ namespace Microsoft.Coyote.Actors
             /// </summary>
             internal override bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
             {
-                var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
+                var caller = this.Runtime.GetExecutingOperation<ActorOperation>()?.Actor;
                 if (caller is Actor callerActor)
                 {
                     this.IncrementActorProgramCounter(callerActor.Id);
                 }
 
-                var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
+                var choice = this.Runtime.GetNextNondeterministicBooleanChoice(maxValue);
                 this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
                 return choice;
             }
@@ -1212,13 +1206,13 @@ namespace Microsoft.Coyote.Actors
             /// </summary>
             internal override int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
             {
-                var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
+                var caller = this.Runtime.GetExecutingOperation<ActorOperation>()?.Actor;
                 if (caller is Actor callerActor)
                 {
                     this.IncrementActorProgramCounter(callerActor.Id);
                 }
 
-                var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
+                var choice = this.Runtime.GetNextNondeterministicIntegerChoice(maxValue);
                 this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
                 return choice;
             }
@@ -1239,7 +1233,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     // Skip the scheduling point, as this is the first dequeue of the event handler,
                     // to avoid unecessery context switches.
-                    this.Scheduler.ScheduleNextOperation();
+                    this.Runtime.ScheduleNextOperation();
                     this.ResetProgramCounter(actor);
                 }
 
@@ -1250,13 +1244,13 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogDefaultEventDequeued(Actor actor)
             {
-                this.Scheduler.ScheduleNextOperation();
+                this.Runtime.ScheduleNextOperation();
                 this.ResetProgramCounter(actor);
             }
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override void LogDefaultEventHandlerCheck(Actor actor) => this.Scheduler.ScheduleNextOperation();
+            internal override void LogDefaultEventHandlerCheck(Actor actor) => this.Runtime.ScheduleNextOperation();
 
             /// <inheritdoc/>
             internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
@@ -1288,7 +1282,7 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
                 this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-                this.Scheduler.ScheduleNextOperation();
+                this.Runtime.ScheduleNextOperation();
                 this.ResetProgramCounter(actor);
             }
 
@@ -1306,7 +1300,7 @@ namespace Microsoft.Coyote.Actors
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 }
 
-                this.Scheduler.ScheduleNextOperation();
+                this.Runtime.ScheduleNextOperation();
                 this.ResetProgramCounter(actor);
             }
 
@@ -1356,7 +1350,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     int hash = 19;
 
-                    foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
+                    foreach (var operation in this.Runtime.GetRegisteredOperations().OrderBy(op => op.Id))
                     {
                         if (operation is ActorOperation actorOperation)
                         {
@@ -1402,7 +1396,7 @@ namespace Microsoft.Coyote.Actors
                     return;
                 }
 
-                var op = this.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Runtime.GetExecutingOperation<ActorOperation>();
                 if (op is null)
                 {
                     return;
@@ -1445,7 +1439,7 @@ namespace Microsoft.Coyote.Actors
                 if (message != null)
                 {
                     // Report the unhandled exception.
-                    this.Scheduler.NotifyUnhandledException(exception, message);
+                    this.Runtime.NotifyUnhandledException(exception, message);
                 }
             }
 

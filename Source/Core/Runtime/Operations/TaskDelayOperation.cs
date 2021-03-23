@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Testing.Systematic;
-
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -18,8 +16,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskDelayOperation"/> class.
         /// </summary>
-        internal TaskDelayOperation(ulong operationId, string name, uint delay, OperationScheduler scheduler)
-            : base(operationId, name, scheduler)
+        internal TaskDelayOperation(ulong operationId, string name, uint delay, CoyoteRuntime runtime)
+            : base(operationId, name, runtime)
         {
             this.Timeout = delay > int.MaxValue ? int.MaxValue : (int)delay;
         }
@@ -29,9 +27,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void DelayUntilTimeout()
         {
-            this.Timeout = this.Scheduler.GetNextNondeterministicIntegerChoice(this.Timeout);
+            this.Timeout = this.Runtime.GetNextNondeterministicIntegerChoice(this.Timeout);
             this.Status = AsyncOperationStatus.Delayed;
-            this.Scheduler.ScheduleNextOperation();
+            this.Runtime.ScheduleNextOperation();
         }
 
         /// <inheritdoc/>

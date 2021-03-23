@@ -595,15 +595,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                if (!runtime.Scheduler.BugFound)
+                if (!runtime.BugFound)
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
                     runtime.CheckLivenessErrors();
                 }
 
-                if (runtime.Scheduler.BugFound)
+                if (runtime.BugFound)
                 {
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.Scheduler.BugReport);
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 runtime.LogWriter.LogCompletion();
@@ -636,7 +636,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
-                if (!this.IsReplayModeEnabled && this.Configuration.PerformFullExploration && runtime.Scheduler.BugFound)
+                if (!this.IsReplayModeEnabled && this.Configuration.PerformFullExploration && runtime.BugFound)
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
@@ -853,7 +853,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
-            TestReport report = this.GetSchedulerReport(runtime.Scheduler);
+            TestReport report = this.GetSchedulerReport(runtime);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;
@@ -870,41 +870,41 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns a test report with the scheduling statistics.
         /// </summary>
-        internal TestReport GetSchedulerReport(OperationScheduler scheduler)
+        internal TestReport GetSchedulerReport(CoyoteRuntime runtime)
         {
-            lock (scheduler.SyncObject)
+            lock (runtime.SyncObject)
             {
                 TestReport report = new TestReport(this.Configuration);
 
-                if (scheduler.BugFound)
+                if (runtime.BugFound)
                 {
                     report.NumOfFoundBugs++;
-                    report.ThrownException = scheduler.UnhandledException;
-                    report.BugReports.Add(scheduler.BugReport);
+                    report.ThrownException = runtime.UnhandledException;
+                    report.BugReports.Add(runtime.BugReport);
                 }
 
                 if (this.Strategy.IsFair())
                 {
                     report.NumOfExploredFairSchedules++;
-                    report.TotalExploredFairSteps += scheduler.ScheduledSteps;
+                    report.TotalExploredFairSteps += runtime.ScheduledSteps;
 
                     if (report.MinExploredFairSteps < 0 ||
-                        report.MinExploredFairSteps > scheduler.ScheduledSteps)
+                        report.MinExploredFairSteps > runtime.ScheduledSteps)
                     {
-                        report.MinExploredFairSteps = scheduler.ScheduledSteps;
+                        report.MinExploredFairSteps = runtime.ScheduledSteps;
                     }
 
-                    if (report.MaxExploredFairSteps < scheduler.ScheduledSteps)
+                    if (report.MaxExploredFairSteps < runtime.ScheduledSteps)
                     {
-                        report.MaxExploredFairSteps = scheduler.ScheduledSteps;
+                        report.MaxExploredFairSteps = runtime.ScheduledSteps;
                     }
 
-                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
+                    if (runtime.Strategy.HasReachedMaxSchedulingSteps())
                     {
                         report.MaxFairStepsHitInFairTests++;
                     }
 
-                    if (scheduler.ScheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
+                    if (runtime.ScheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
                     {
                         report.MaxUnfairStepsHitInFairTests++;
                     }
@@ -913,7 +913,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     report.NumOfExploredUnfairSchedules++;
 
-                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
+                    if (runtime.Strategy.HasReachedMaxSchedulingSteps())
                     {
                         report.MaxUnfairStepsHitInUnfairTests++;
                     }
@@ -949,9 +949,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     Append(Environment.NewLine);
             }
 
-            for (int idx = 0; idx < runtime.Scheduler.ScheduleTrace.Count; idx++)
+            for (int idx = 0; idx < runtime.ScheduleTrace.Count; idx++)
             {
-                ScheduleStep step = runtime.Scheduler.ScheduleTrace[idx];
+                ScheduleStep step = runtime.ScheduleTrace[idx];
                 if (step.Type == ScheduleStepType.SchedulingChoice)
                 {
                     stringBuilder.Append($"({step.ScheduledOperationId})");
@@ -965,7 +965,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     stringBuilder.Append(step.IntegerChoice.Value);
                 }
 
-                if (idx < runtime.Scheduler.ScheduleTrace.Count - 1)
+                if (idx < runtime.ScheduleTrace.Count - 1)
                 {
                     stringBuilder.Append(Environment.NewLine);
                 }

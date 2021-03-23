@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             bool result = this.Owner.IsDefaultHandlerInstalled();
             if (result)
             {
-                this.Owner.Context.Scheduler.ScheduleNextOperation();
+                this.Owner.Context.Runtime.ScheduleNextOperation();
             }
 
             return result;

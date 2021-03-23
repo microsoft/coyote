@@ -11,7 +11,6 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.Testing.Systematic;
 using Xunit;
 using Xunit.Abstractions;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
@@ -290,7 +289,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     engine = RunTest(test, configuration, logger);
 
-                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    string replayError = engine.SchedulingContext.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, errorChecker);
                 }
@@ -383,7 +382,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     engine = RunTest(test, configuration, logger);
 
-                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    string replayError = engine.SchedulingContext.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, exceptionType);
                 }

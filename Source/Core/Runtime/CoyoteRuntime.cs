@@ -16,15 +16,19 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
-using Monitor = Microsoft.Coyote.Specifications.Monitor;
+using SyncMonitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for executing and controlling asynchronous operations.
+    /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
+    /// <remarks>
+    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(bool, bool)"/>, is thread-safe.
+    /// </remarks>
     internal sealed class CoyoteRuntime : IDisposable
     {
         /// <summary>
@@ -48,7 +52,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (IsExecutionControlled)
                     {
-                        OperationScheduler.ThrowUncontrolledTaskException();
+                        ThrowUncontrolledTaskException();
                     }
 
                     runtime = RuntimeFactory.InstalledRuntime;
@@ -57,6 +61,13 @@ namespace Microsoft.Coyote.Runtime
                 return runtime;
             }
         }
+
+        /// <summary>
+        /// Provides access to the operation executing on each asynchronous control flow
+        /// during systematic testing.
+        /// </summary>
+        private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
+            new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -75,9 +86,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The asynchronous operation scheduler.
+        /// The default actor execution context.
         /// </summary>
-        internal readonly OperationScheduler Scheduler;
+        internal readonly ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -85,20 +96,45 @@ namespace Microsoft.Coyote.Runtime
         private readonly SpecificationEngine SpecificationEngine;
 
         /// <summary>
-        /// The default actor execution context.
+        /// The scheduling context maintained during controlled testing.
         /// </summary>
-        internal readonly ActorExecutionContext DefaultActorExecutionContext;
+        private readonly SchedulingContext SchedulingContext;
 
         /// <summary>
-        /// Responsible for generating random values.
+        /// Map from unique ids to asynchronous operations.
         /// </summary>
-        private readonly IRandomValueGenerator ValueGenerator;
+        private readonly Dictionary<ulong, AsyncOperation> OperationMap;
 
         /// <summary>
         /// Map from controlled tasks to their corresponding operations,
         /// if such an operation exists.
         /// </summary>
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
+
+        /// <summary>
+        /// The program schedule trace.
+        /// </summary>
+        internal ScheduleTrace ScheduleTrace;
+
+        /// <summary>
+        /// The currently scheduled asynchronous operation during systematic testing.
+        /// </summary>
+        private AsyncOperation ScheduledOperation;
+
+        /// <summary>
+        /// The root task id.
+        /// </summary>
+        private readonly int? RootTaskId;
+
+        /// <summary>
+        /// The scheduler completion source.
+        /// </summary>
+        private readonly TaskCompletionSource<bool> CompletionSource;
+
+        /// <summary>
+        /// Object that is used to synchronize access to the scheduler.
+        /// </summary>
+        private readonly object SyncObject;
 
         /// <summary>
         /// Monotonically increasing operation id counter.
@@ -108,7 +144,22 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Records if the runtime is running.
         /// </summary>
-        internal bool IsRunning => this.Scheduler.IsProgramExecuting;
+        internal volatile bool IsRunning;
+
+        /// <summary>
+        /// True if the scheduler is attached to the executing program, else false.
+        /// </summary>
+        private bool IsAttached;
+
+        /// <summary>
+        /// Checks if the schedule has been fully explored.
+        /// </summary>
+        private bool HasFullyExploredSchedule;
+
+        /// <summary>
+        /// Associated with the bug report is an optional unhandled exception.
+        /// </summary>
+        private Exception UnhandledException;
 
         /// <summary>
         /// If true, the execution is controlled, else false.
@@ -116,9 +167,14 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsControlled { get; private set; }
 
         /// <summary>
-        /// The root task id.
+        /// True if a bug was found, else false.
         /// </summary>
-        internal readonly int? RootTaskId;
+        internal bool IsBugFound { get; private set; }
+
+        /// <summary>
+        /// Bug report.
+        /// </summary>
+        internal string BugReport { get; private set; }
 
         /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
@@ -151,38 +207,46 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy,
-            IRandomValueGenerator valueGenerator)
+        internal CoyoteRuntime(Configuration configuration, SchedulingContext schedulingContext)
+            : this(configuration, schedulingContext, schedulingContext.ValueGenerator)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
+        /// </summary>
+        private CoyoteRuntime(Configuration configuration, SchedulingContext schedulingContext, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
+            this.IsRunning = true;
+            this.IsAttached = true;
+            this.IsBugFound = false;
+            this.HasFullyExploredSchedule = false;
 
-            this.IsControlled = strategy != null;
+            this.IsControlled = schedulingContext != null;
             if (this.IsControlled)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
+            this.SyncObject = new object();
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
+
+            this.OperationMap = new Dictionary<ulong, AsyncOperation>();
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
+            this.CompletionSource = new TaskCompletionSource<bool>();
+            this.ScheduleTrace = new ScheduleTrace();
 
-            this.LogWriter = new LogWriter(configuration);
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
+            this.LogWriter = new LogWriter(configuration);
 
-            if (configuration.IsLivenessCheckingEnabled)
-            {
-                strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
-            }
-
-            var scheduleTrace = new ScheduleTrace();
-            this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, configuration);
-            this.ValueGenerator = valueGenerator;
+            this.SchedulingContext = schedulingContext;
+            this.SchedulingContext?.SetSpecificationEngine(this.SpecificationEngine);
 
             this.DefaultActorExecutionContext = this.IsControlled ?
-                new ActorExecutionContext.Mock(configuration, this, this.Scheduler,
-                this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
-                new ActorExecutionContext(configuration, this, this.Scheduler,
-                this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
+                new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
+                new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
 
             Interception.ControlledThread.ClearCache();
         }
@@ -209,7 +273,7 @@ namespace Microsoft.Coyote.Runtime
                     // allowing future retrieval in the same asynchronous call stack.
                     AssignAsyncControlFlowRuntime(this);
 
-                    this.Scheduler.StartOperation(op);
+                    this.StartOperation(op);
 
                     Task testMethodTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
@@ -260,7 +324,7 @@ namespace Microsoft.Coyote.Runtime
                     op.OnCompleted();
 
                     // Task has completed, schedule the next enabled operation, which terminates exploration.
-                    this.Scheduler.ScheduleNextOperation();
+                    this.ScheduleNextOperation();
                 }
                 catch (Exception ex)
                 {
@@ -269,7 +333,7 @@ namespace Microsoft.Coyote.Runtime
             });
 
             task.Start();
-            this.Scheduler.WaitOperationStart(op);
+            this.WaitOperationStart(op);
         }
 
         /// <summary>
@@ -281,15 +345,14 @@ namespace Microsoft.Coyote.Runtime
             TaskOperation op;
             if (isDelay)
             {
-                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay,
-                    this.Scheduler);
+                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay, this);
             }
             else
             {
-                op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
+                op = new TaskOperation(operationId, $"Task({operationId})", this);
             }
 
-            this.Scheduler.RegisterOperation(op);
+            this.RegisterOperation(op);
             return op;
         }
 
@@ -407,8 +470,8 @@ namespace Microsoft.Coyote.Runtime
         {
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             task.Start();
-            this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextOperation();
+            this.WaitOperationStart(op);
+            this.ScheduleNextOperation();
             this.TaskMap.TryAdd(tcs.Task, op);
             return tcs.Task;
         }
@@ -433,7 +496,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Notify the scheduler that the operation started. This will yield execution until
                 // the operation is ready to get scheduled.
-                this.Scheduler.StartOperation(op);
+                this.StartOperation(op);
                 if (context.Predecessor != null)
                 {
                     // If the predecessor task is asynchronous, then wait until it completes.
@@ -444,7 +507,7 @@ namespace Microsoft.Coyote.Runtime
                 if (context.Options.HasFlag(OperationExecutionOptions.YieldAtStart))
                 {
                     // Try yield execution to the next operation.
-                    this.Scheduler.ScheduleNextOperation(true);
+                    this.ScheduleNextOperation(true);
                 }
 
                 if (op is TaskDelayOperation delayOp)
@@ -480,7 +543,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, null, exception, default);
-                this.Scheduler.ScheduleNextOperation();
+                this.ScheduleNextOperation();
             }
         }
 
@@ -514,7 +577,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Notify the scheduler that the operation started. This will yield execution until
                 // the operation is ready to get scheduled.
-                this.Scheduler.StartOperation(op);
+                this.StartOperation(op);
                 if (context is AsyncOperationContext<TWork, TExecutor, TResult> asyncContext)
                 {
                     // If the operation is asynchronous, then set the executor task completion source, which
@@ -604,7 +667,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, result, exception, default);
-                this.Scheduler.ScheduleNextOperation();
+                this.ScheduleNextOperation();
             }
 
             return result;
@@ -660,10 +723,10 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                var callerOp = this.Scheduler?.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 if (callerOp is null)
                 {
-                    OperationScheduler.ThrowUncontrolledTaskException();
+                    ThrowUncontrolledTaskException();
                 }
 
                 if (IsCurrentOperationExecutingAsynchronously())
@@ -698,7 +761,7 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 IO.Debug.WriteLine("<Task> '{0}' is executing a yield operation.", callerOp.Id);
                 var options = OperationContext.CreateOperationExecutionOptions(yieldAtStart: true);
                 this.ScheduleAction(continuation, null, options);
@@ -729,7 +792,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleAction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -769,7 +832,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleAction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -809,7 +872,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -859,7 +922,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -909,7 +972,7 @@ namespace Microsoft.Coyote.Runtime
 
             var task = this.ScheduleFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task result = null;
@@ -948,7 +1011,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleAsyncFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task result = null;
@@ -985,7 +1048,7 @@ namespace Microsoft.Coyote.Runtime
 
             var task = this.ScheduleFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task<TResult> result = null;
@@ -1024,7 +1087,7 @@ namespace Microsoft.Coyote.Runtime
 
             return this.ScheduleAsyncFunction(() =>
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task<TResult> result = null;
@@ -1057,7 +1120,7 @@ namespace Microsoft.Coyote.Runtime
                 return true;
             }
 
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<TaskOperation>();
             callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -1080,7 +1143,7 @@ namespace Microsoft.Coyote.Runtime
                 return true;
             }
 
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<TaskOperation>();
             callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -1106,7 +1169,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<TaskOperation>();
             callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
@@ -1142,7 +1205,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<TaskOperation>();
             callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
@@ -1170,7 +1233,7 @@ namespace Microsoft.Coyote.Runtime
             // TODO: support timeouts and cancellation tokens.
             if (!task.IsCompleted)
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTaskCompletes(task);
             }
 
@@ -1193,7 +1256,7 @@ namespace Microsoft.Coyote.Runtime
             // TODO: support timeouts and cancellation tokens.
             if (!task.IsCompleted)
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTaskCompletes(task);
             }
 
@@ -1241,18 +1304,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void OnAsyncTaskMethodBuilderSetException(Exception exception)
         {
-            var op = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            var op = this.GetExecutingOperation<TaskOperation>();
             op?.SetException(exception);
         }
-
-        /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckExecutingOperationIsControlled() =>
-            this.Scheduler.GetExecutingOperation<AsyncOperation>();
 
         /// <summary>
         /// Callback invoked when the <see cref="CoyoteTasks.YieldAwaitable.YieldAwaiter.GetResult"/> is called.
@@ -1260,7 +1314,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal void OnYieldAwaiterGetResult() => this.Scheduler.ScheduleNextOperation();
+        internal void OnYieldAwaiterGetResult() => this.ScheduleNextOperation();
 
         /// <summary>
         /// Callback invoked when the executing operation is waiting for the specified task to complete.
@@ -1272,8 +1326,454 @@ namespace Microsoft.Coyote.Runtime
         {
             if (!task.IsCompleted)
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTaskCompletes(task);
+            }
+        }
+
+        /// <summary>
+        /// Schedules the next enabled operation, which can include the currently executing operation.
+        /// </summary>
+        /// <param name="isYielding">True if the current operation is yielding, else false.</param>
+        /// <param name="checkCaller">If true, schedule only if the caller is an operation.</param>
+        /// <remarks>
+        /// An enabled operation is one that is not blocked nor completed.
+        /// </remarks>
+        internal void ScheduleNextOperation(bool isYielding = false, bool checkCaller = false)
+        {
+            lock (this.SyncObject)
+            {
+                if (checkCaller)
+                {
+                    var callerOp = this.GetExecutingOperation<AsyncOperation>();
+                    if (callerOp is null)
+                    {
+                        return;
+                    }
+                }
+
+                int? taskId = Task.CurrentId;
+
+                // TODO: figure out if this check is still needed.
+                // If the caller is the root task, then return.
+                if (taskId != null && taskId == this.RootTaskId)
+                {
+                    return;
+                }
+
+                AsyncOperation current = this.ScheduledOperation;
+                this.ThrowExecutionCanceledExceptionIfDetached();
+                if (current.Status != AsyncOperationStatus.Completed)
+                {
+                    // Checks if the current operation is controlled by the runtime.
+                    if (ExecutingOperation.Value is null)
+                    {
+                        ThrowUncontrolledTaskException();
+                    }
+                }
+
+                // Checks if the scheduling steps bound has been reached.
+                this.CheckIfSchedulingStepsBoundIsReached();
+
+                if (this.Configuration.IsProgramStateHashingEnabled)
+                {
+                    // Update the current operation with the hashed program state.
+                    current.HashedProgramState = this.GetHashedProgramState();
+                }
+
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.HasFullyExploredSchedule = true;
+                    this.Detach();
+                }
+
+                IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
+                this.ScheduleTrace.AddSchedulingChoice(next.Id);
+                if (current != next)
+                {
+                    // Pause the currently scheduled operation, and enable the next one.
+                    this.ScheduledOperation = next;
+                    this.PauseOperation(current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to get the next enabled operation to schedule.
+        /// </summary>
+        private bool TryGetNextEnabledOperation(AsyncOperation current, bool isYielding, out AsyncOperation next)
+        {
+            // Get and order the operations by their id.
+            var ops = this.OperationMap.Values.OrderBy(op => op.Id);
+
+            // The scheduler might need to retry choosing a next operation in the presence of uncontrolled
+            // concurrency, as explained below. In this case, we implement a simple retry logic.
+            int retries = 0;
+            do
+            {
+                // Enable any blocked operation that has its dependencies already satisfied.
+                IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
+                foreach (var op in ops)
+                {
+                    this.TryEnableOperation(op);
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                }
+
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.SchedulingContext.GetNextOperation(ops, current, isYielding, out next) &&
+                    this.Configuration.IsPartiallyControlledTestingEnabled &&
+                    ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
+                {
+                    // At least one operation is blocked due to uncontrolled concurrency. To try defend against
+                    // this, retry after an asynchronous delay to give some time to the dependency to complete.
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(10);
+                        lock (this.SyncObject)
+                        {
+                            SyncMonitor.PulseAll(this.SyncObject);
+                        }
+                    });
+
+                    // Pause the current operation until the scheduler retries.
+                    SyncMonitor.Wait(this.SyncObject);
+                    retries++;
+                    continue;
+                }
+
+                break;
+            }
+            while (retries < 5);
+
+            if (next is null)
+            {
+                // Check if the execution has deadlocked.
+                this.CheckIfExecutionHasDeadlocked(ops);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns a controlled nondeterministic boolean choice.
+        /// </summary>
+        internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType) =>
+            this.DefaultActorExecutionContext.GetNondeterministicBooleanChoice(maxValue, callerName, callerType);
+
+        /// <summary>
+        /// Returns the next nondeterministic boolean choice.
+        /// </summary>
+        internal bool GetNextNondeterministicBooleanChoice(int maxValue)
+        {
+            lock (this.SyncObject)
+            {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
+                // Checks if the current operation is controlled by the runtime.
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
+
+                // Checks if the scheduling steps bound has been reached.
+                this.CheckIfSchedulingStepsBoundIsReached();
+
+                if (this.Configuration.IsProgramStateHashingEnabled)
+                {
+                    // Update the current operation with the hashed program state.
+                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                }
+
+                if (!this.SchedulingContext.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.Detach();
+                }
+
+                this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
+                return choice;
+            }
+        }
+
+        /// <summary>
+        /// Returns a controlled nondeterministic integer choice.
+        /// </summary>
+        internal int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType) =>
+            this.DefaultActorExecutionContext.GetNondeterministicIntegerChoice(maxValue, callerName, callerType);
+
+        /// <summary>
+        /// Returns the next nondeterministic integer choice.
+        /// </summary>
+        internal int GetNextNondeterministicIntegerChoice(int maxValue)
+        {
+            lock (this.SyncObject)
+            {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
+                // Checks if the current operation is controlled by the runtime.
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
+
+                // Checks if the scheduling steps bound has been reached.
+                this.CheckIfSchedulingStepsBoundIsReached();
+
+                if (this.Configuration.IsProgramStateHashingEnabled)
+                {
+                    // Update the current operation with the hashed program state.
+                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                }
+
+                if (!this.SchedulingContext.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.Detach();
+                }
+
+                this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
+                return choice;
+            }
+        }
+
+        /// <summary>
+        /// Registers the specified asynchronous operation.
+        /// </summary>
+        /// <param name="op">The operation to register.</param>
+        /// <returns>True if the operation was successfully registered, else false if it already exists.</returns>
+        internal bool RegisterOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.OperationMap.Count is 0)
+                {
+                    this.ScheduledOperation = op;
+                }
+
+#if NETSTANDARD2_0
+                if (!this.OperationMap.ContainsKey(op.Id))
+                {
+                    this.OperationMap.Add(op.Id, op);
+                    return true;
+                }
+
+                return false;
+#else
+                return this.OperationMap.TryAdd(op.Id, op);
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Starts the execution of the specified asynchronous operation.
+        /// </summary>
+        /// <param name="op">The operation to start executing.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="WaitOperationStart"/>.
+        /// </remarks>
+        internal void StartOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
+
+                // Enable the operation and store it in the async local context.
+                op.Status = AsyncOperationStatus.Enabled;
+                ExecutingOperation.Value = op;
+                this.PauseOperation(op);
+            }
+        }
+
+        /// <summary>
+        /// Waits for the specified asynchronous operation to start executing.
+        /// </summary>
+        /// <param name="op">The operation to wait.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="StartOperation"/>.
+        /// </remarks>
+        internal void WaitOperationStart(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.OperationMap.Count > 1)
+                {
+                    while (op.Status != AsyncOperationStatus.Enabled && this.IsAttached)
+                    {
+                        SyncMonitor.Wait(this.SyncObject);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Pauses the specified operation.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// </remarks>
+        private void PauseOperation(AsyncOperation op)
+        {
+            SyncMonitor.PulseAll(this.SyncObject);
+            if (op.Status is AsyncOperationStatus.Completed ||
+                op.Status is AsyncOperationStatus.Canceled)
+            {
+                // The operation is completed or canceled, so no need to wait.
+                return;
+            }
+
+            while (op != this.ScheduledOperation && this.IsAttached)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                SyncMonitor.Wait(this.SyncObject);
+                IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+            }
+
+            this.ThrowExecutionCanceledExceptionIfDetached();
+        }
+
+        /// <summary>
+        /// Tries to enable the specified operation.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// </remarks>
+        private void TryEnableOperation(AsyncOperation op)
+        {
+            if (op.Status is AsyncOperationStatus.Delayed && op is TaskDelayOperation delayOp)
+            {
+                if (!delayOp.TryEnable() && !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
+                {
+                    op.Status = AsyncOperationStatus.Enabled;
+                }
+            }
+            else if (op.Status != AsyncOperationStatus.Enabled)
+            {
+                op.TryEnable();
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="AsyncOperation"/> that is currently executing,
+        /// or null if no such operation is executing.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
+            where TAsyncOperation : AsyncOperation
+        {
+            lock (this.SyncObject)
+            {
+                this.ThrowExecutionCanceledExceptionIfDetached();
+
+                var op = ExecutingOperation.Value;
+                if (op is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
+
+                return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="AsyncOperation"/> associated with the specified
+        /// unique id, or null if no such operation exists.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal TAsyncOperation GetOperationWithId<TAsyncOperation>(ulong id)
+            where TAsyncOperation : AsyncOperation
+        {
+            lock (this.SyncObject)
+            {
+                if (this.OperationMap.TryGetValue(id, out AsyncOperation op) &&
+                    op is TAsyncOperation expected)
+                {
+                    return expected;
+                }
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Returns all registered operations.
+        /// </summary>
+        /// <remarks>
+        /// This operation is thread safe because the systematic testing
+        /// runtime serializes the execution.
+        /// </remarks>
+        internal IEnumerable<AsyncOperation> GetRegisteredOperations()
+        {
+            lock (this.SyncObject)
+            {
+                return this.OperationMap.Values;
+            }
+        }
+
+        /// <summary>
+        /// Returns the next available unique operation id.
+        /// </summary>
+        /// <returns>Value representing the next available unique operation id.</returns>
+        internal ulong GetNextOperationId() =>
+            // Atomically increments and safely wraps the value into an unsigned long.
+            (ulong)Interlocked.Increment(ref this.OperationIdCounter) - 1;
+
+        /// <summary>
+        /// Returns the current hashed state of the execution.
+        /// </summary>
+        /// <remarks>
+        /// The hash is updated in each execution step.
+        /// </remarks>
+        [DebuggerStepThrough]
+        private int GetHashedProgramState()
+        {
+            unchecked
+            {
+                int hash = 19;
+                hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
+                hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the currently executing operation is controlled by the runtime.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckExecutingOperationIsControlled() => this.GetExecutingOperation<AsyncOperation>();
+
+        /// <summary>
+        /// Checks if the scheduling steps bound has been reached. If yes,
+        /// it stops the scheduler and kills all enabled machines.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        private void CheckIfSchedulingStepsBoundIsReached()
+        {
+            if (this.SchedulingContext.IsMaxStepsReached)
+            {
+                int bound = this.SchedulingContext.IsScheduleFair ? this.Configuration.MaxFairSchedulingSteps :
+                    this.Configuration.MaxUnfairSchedulingSteps;
+                string message = $"Scheduling steps bound of {bound} reached.";
+
+                if (this.Configuration.ConsiderDepthBoundHitAsBug)
+                {
+                    this.NotifyAssertionFailure(message);
+                }
+                else
+                {
+                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                    this.Detach();
+                }
             }
         }
 
@@ -1295,7 +1795,8 @@ namespace Microsoft.Coyote.Runtime
                     break;
                 }
                 else if (method.Name is "MoveNext" &&
-                    method.DeclaringType.Namespace != typeof(OperationScheduler).Namespace &&
+                    method.DeclaringType.Namespace != typeof(CoyoteRuntime).Namespace &&
+                    method.DeclaringType.Namespace != typeof(Interception.ControlledTask).Namespace &&
                     typeof(IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
                 {
                     // The operation is executing the `MoveNext` of an asynchronous state machine.
@@ -1308,76 +1809,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Processes an unhandled exception in the specified asynchronous operation.
-        /// </summary>
-        private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
-        {
-            string message = null;
-            Exception exception = UnwrapException(ex);
-            if (exception is ExecutionCanceledException ece)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    ece.GetType().Name, op.Name);
-                if (this.Scheduler.IsAttached)
-                {
-                    // TODO: add some tests for this, so that we check that a task (or lock) that
-                    // was cached and reused from prior iteration indeed cannot cause the runtime
-                    // to hang anymore.
-                    message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");
-                }
-            }
-            else if (exception is TaskSchedulerException)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    exception.GetType().Name, op.Name);
-            }
-            else if (exception is ObjectDisposedException)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                    exception.GetType().Name, op.Name, ex.Message);
-            }
-            else
-            {
-                message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");
-            }
-
-            if (message != null)
-            {
-                // Report the unhandled exception.
-                this.Scheduler.NotifyUnhandledException(exception, message);
-            }
-        }
-
-        /// <summary>
-        /// Unwraps the specified exception.
-        /// </summary>
-        private static Exception UnwrapException(Exception ex)
-        {
-            Exception exception = ex;
-            while (exception is TargetInvocationException)
-            {
-                exception = exception.InnerException;
-            }
-
-            if (exception is AggregateException)
-            {
-                exception = exception.InnerException;
-            }
-
-            return exception;
-        }
-
-        /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
         internal void RegisterMonitor<T>()
-            where T : Monitor => this.DefaultActorExecutionContext.RegisterMonitor<T>();
+            where T : Specifications.Monitor => this.DefaultActorExecutionContext.RegisterMonitor<T>();
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
         internal void Monitor<T>(Event e)
-            where T : Monitor => this.DefaultActorExecutionContext.Monitor<T>(e);
+            where T : Specifications.Monitor => this.DefaultActorExecutionContext.Monitor<T>(e);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an exception.
@@ -1441,72 +1882,13 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns a controlled nondeterministic boolean choice.
-        /// </summary>
-        internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType) =>
-            this.DefaultActorExecutionContext.GetNondeterministicBooleanChoice(maxValue, callerName, callerType);
-
-        /// <summary>
-        /// Returns a controlled nondeterministic integer choice.
-        /// </summary>
-        internal int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType) =>
-            this.DefaultActorExecutionContext.GetNondeterministicIntegerChoice(maxValue, callerName, callerType);
-
-        /// <summary>
-        /// Returns the next available unique operation id.
-        /// </summary>
-        /// <returns>Value representing the next available unique operation id.</returns>
-        internal ulong GetNextOperationId() =>
-            // Atomically increments and safely wraps the value into an unsigned long.
-            (ulong)Interlocked.Increment(ref this.OperationIdCounter) - 1;
-
-        /// <summary>
-        /// Gets the <see cref="AsyncOperation"/> that is executing on the current
-        /// synchronization context, or null if no such operation is executing.
-        /// </summary>
-        internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
-            where TAsyncOperation : AsyncOperation =>
-            this.Scheduler.GetExecutingOperation<TAsyncOperation>();
-
-        /// <summary>
-        /// Schedules the next controlled asynchronous operation. This method
-        /// is only used during testing.
-        /// </summary>
-        internal void ScheduleNextOperation()
-        {
-            var callerOp = this.Scheduler.GetExecutingOperation<AsyncOperation>();
-            if (callerOp != null)
-            {
-                this.Scheduler.ScheduleNextOperation();
-            }
-        }
-
-        /// <summary>
-        /// Returns the current hashed state of the execution.
-        /// </summary>
-        /// <remarks>
-        /// The hash is updated in each execution step.
-        /// </remarks>
-        [DebuggerStepThrough]
-        internal int GetHashedProgramState()
-        {
-            unchecked
-            {
-                int hash = 19;
-                hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
-                hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
-                return hash;
-            }
-        }
-
-        /// <summary>
         /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
         /// but there is one or more blocked operations that are waiting some resource to complete.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
@@ -1531,7 +1913,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnReceiveOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1550,7 +1932,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnWaitOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1569,7 +1951,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnResources.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1589,9 +1971,25 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void CheckLivenessErrors()
         {
-            if (this.Scheduler.HasFullyExploredSchedule)
+            if (this.HasFullyExploredSchedule)
             {
                 this.SpecificationEngine.CheckLivenessErrors();
+            }
+        }
+
+        /// <summary>
+        /// Notify that an exception was not handled.
+        /// </summary>
+        internal void NotifyUnhandledException(Exception ex, string message)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.UnhandledException is null)
+                {
+                    this.UnhandledException = ex;
+                }
+
+                this.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
             }
         }
 
@@ -1601,8 +1999,112 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true) =>
-            this.Scheduler.NotifyAssertionFailure(text, killTasks, cancelExecution);
+        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true)
+        {
+            lock (this.SyncObject)
+            {
+                if (!this.IsBugFound)
+                {
+                    this.BugReport = text;
+
+                    this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
+                    this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
+                    this.RaiseOnFailureEvent(new AssertionFailureException(text));
+                    this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
+                        this.SchedulingContext.GetDescription());
+
+                    this.IsBugFound = true;
+
+                    if (this.Configuration.AttachDebugger)
+                    {
+                        Debugger.Break();
+                    }
+                }
+
+                if (killTasks)
+                {
+                    this.Detach(cancelExecution);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the currently executing operation is controlled by the runtime.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        private static void ThrowUncontrolledTaskException()
+        {
+            // TODO: figure out if there is a way to get more information about the creator of the
+            // uncontrolled task to ease the user debugging experience.
+            // Report the invalid operation and then throw it to fail the uncontrolled task.
+            // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
+            string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+            throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
+                "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
+                "of the uncontrolled task, or rewrite its assembly.");
+        }
+
+        /// <summary>
+        /// Processes an unhandled exception in the specified asynchronous operation.
+        /// </summary>
+        private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
+        {
+            string message = null;
+            Exception exception = UnwrapException(ex);
+            if (exception is ExecutionCanceledException ece)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                    ece.GetType().Name, op.Name);
+                if (this.IsAttached)
+                {
+                    // TODO: add some tests for this, so that we check that a task (or lock) that
+                    // was cached and reused from prior iteration indeed cannot cause the runtime
+                    // to hang anymore.
+                    message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");
+                }
+            }
+            else if (exception is TaskSchedulerException)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                    exception.GetType().Name, op.Name);
+            }
+            else if (exception is ObjectDisposedException)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
+                    exception.GetType().Name, op.Name, ex.Message);
+            }
+            else
+            {
+                message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");
+            }
+
+            if (message != null)
+            {
+                // Report the unhandled exception.
+                this.NotifyUnhandledException(exception, message);
+            }
+        }
+
+        /// <summary>
+        /// Unwraps the specified exception.
+        /// </summary>
+        private static Exception UnwrapException(Exception ex)
+        {
+            Exception exception = ex;
+            while (exception is TargetInvocationException)
+            {
+                exception = exception.InnerException;
+            }
+
+            if (exception is AggregateException)
+            {
+                exception = exception.InnerException;
+            }
+
+            return exception;
+        }
 
         /// <summary>
         /// Reports the specified thrown exception.
@@ -1644,15 +2146,108 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// If scheduler is detached, throw exception to force terminate the caller.
+        /// </summary>
+        private void ThrowExecutionCanceledExceptionIfDetached()
+        {
+            if (!this.IsAttached)
+            {
+                throw new ExecutionCanceledException();
+            }
+        }
+
+        private static string ConstructStackTrace()
+        {
+            StringBuilder sb = new StringBuilder();
+            string[] lines = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if (!line.Contains("at Microsoft.Coyote.SystematicTesting"))
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Returns scheduling statistics and results.
+        /// </summary>
+        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
+            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException)
+        {
+            lock (this.SyncObject)
+            {
+                scheduledSteps = this.SchedulingContext.StepCount;
+                isMaxScheduledStepsBoundReached = this.SchedulingContext.IsMaxStepsReached;
+                isScheduleFair = this.SchedulingContext.IsScheduleFair;
+                isBugFound = this.IsBugFound;
+                bugReport = this.BugReport;
+                unhandledException = this.UnhandledException;
+            }
+        }
+
+        /// <summary>
         /// Assigns the specified runtime as the default for the current asynchronous control flow.
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
 
+        private static void OnAsyncLocalExecutingOperationValueChanged(AsyncLocalValueChangedArgs<AsyncOperation> args)
+        {
+            if (args.ThreadContextChanged && args.PreviousValue != null && args.CurrentValue != null)
+            {
+                // Restore the value if it changed due to a change in the thread context,
+                // but the previous and current value where not null.
+                ExecutingOperation.Value = args.PreviousValue;
+            }
+        }
+
         /// <summary>
-        /// Waits until all actors have finished execution.
+        /// Waits until the execution terminates.
         /// </summary>
         [DebuggerStepThrough]
-        internal Task WaitAsync() => this.Scheduler.WaitAsync();
+        internal async Task WaitAsync()
+        {
+            await this.CompletionSource.Task;
+            this.IsRunning = false;
+        }
+
+        /// <summary>
+        /// Forces the scheduler to terminate.
+        /// </summary>
+        public void ForceStop() => this.IsRunning = false;
+
+        /// <summary>
+        /// Detaches the scheduler releasing all controlled operations.
+        /// </summary>
+        private void Detach(bool cancelExecution = true)
+        {
+            this.IsAttached = false;
+
+            // Cancel any remaining operations at the end of the schedule.
+            foreach (var op in this.OperationMap.Values)
+            {
+                if (op.Status != AsyncOperationStatus.Completed)
+                {
+                    op.Status = AsyncOperationStatus.Canceled;
+                }
+            }
+
+            SyncMonitor.PulseAll(this.SyncObject);
+
+            // Check if the completion source is completed, else set its result.
+            if (!this.CompletionSource.Task.IsCompleted)
+            {
+                this.CompletionSource.SetResult(true);
+            }
+
+            if (cancelExecution)
+            {
+                // Throw exception to force terminate the current operation.
+                throw new ExecutionCanceledException();
+            }
+        }
 
         /// <summary>
         /// Disposes runtime resources.

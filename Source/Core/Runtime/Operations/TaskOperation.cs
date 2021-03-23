@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Runtime
@@ -16,9 +15,9 @@ namespace Microsoft.Coyote.Runtime
     internal class TaskOperation : AsyncOperation
     {
         /// <summary>
-        /// The scheduler executing this operation.
+        /// The runtime executing this operation.
         /// </summary>
-        protected readonly OperationScheduler Scheduler;
+        protected readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -40,10 +39,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
-        internal TaskOperation(ulong operationId, string name, OperationScheduler scheduler)
+        internal TaskOperation(ulong operationId, string name, CoyoteRuntime runtime)
             : base(operationId, name)
         {
-            this.Scheduler = scheduler;
+            this.Runtime = runtime;
             this.JoinDependencies = new HashSet<Task>();
         }
 
@@ -55,7 +54,7 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
             this.JoinDependencies.Add(task);
             this.Status = AsyncOperationStatus.BlockedOnWaitAll;
-            this.Scheduler.ScheduleNextOperation();
+            this.Runtime.ScheduleNextOperation();
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.JoinDependencies.Count > 0)
                 {
                     this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                    this.Scheduler.ScheduleNextOperation();
+                    this.Runtime.ScheduleNextOperation();
                 }
             }
         }
@@ -120,7 +119,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.JoinDependencies.Count > 0)
                 {
                     this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                    this.Scheduler.ScheduleNextOperation();
+                    this.Runtime.ScheduleNextOperation();
                 }
             }
         }

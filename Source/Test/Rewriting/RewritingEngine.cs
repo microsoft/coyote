@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Rewriting
                 combined.Append(e);
             }
 
-            combined.Append(")");
+            combined.Append(')');
             try
             {
                 this.DisallowedAssemblies = new Regex(combined.ToString());

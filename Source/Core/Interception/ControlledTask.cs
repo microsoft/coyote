@@ -406,7 +406,7 @@ namespace Microsoft.Coyote.Interception
         /// Injects a context switch point that can be systematically explored during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation();
+        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation(false, true);
     }
 
     /// <summary>

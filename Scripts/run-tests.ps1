@@ -36,7 +36,11 @@ foreach ($kvp in $targets.GetEnumerator()) {
         if (($framework -ne "all") -and ($f -ne $framework)) {
             continue
         }
-        
+
+        if (($($kvp.Name) -eq "standalone") -and ($f -eq "net48")) {
+            continue
+        }
+
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
         Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
     }

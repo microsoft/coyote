@@ -52,18 +52,18 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair)
-            : this(configuration, trace, isFair, null)
+        internal ReplayStrategy(Configuration configuration)
+            : this(configuration, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration, ScheduleTrace trace, bool isFair, SchedulingStrategy suffixStrategy)
+        internal ReplayStrategy(Configuration configuration, SchedulingStrategy suffixStrategy)
         {
             this.Configuration = configuration;
-            this.ScheduleTrace = trace;
+            this.ScheduleTrace = ScheduleTrace.Deserialize(configuration, out bool isFair);
             this.ScheduledSteps = 0;
             this.IsSchedulerFair = isFair;
             this.IsReplaying = true;
@@ -273,11 +273,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool HasReachedMaxSchedulingSteps()
+        internal override bool IsMaxStepsReached()
         {
             if (this.SuffixStrategy != null)
             {
-                return this.SuffixStrategy.HasReachedMaxSchedulingSteps();
+                return this.SuffixStrategy.IsMaxStepsReached();
             }
             else
             {

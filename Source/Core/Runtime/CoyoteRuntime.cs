@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Systematic;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SyncMonitor = System.Threading.Monitor;
@@ -95,14 +96,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly SpecificationEngine SpecificationEngine;
 
         /// <summary>
-        /// The scheduling strategy used for program exploration.
+        /// The scheduling context maintained during controlled testing.
         /// </summary>
-        internal readonly SchedulingStrategy Strategy;
-
-        /// <summary>
-        /// Responsible for generating random values.
-        /// </summary>
-        private readonly IRandomValueGenerator ValueGenerator;
+        private readonly SchedulingContext SchedulingContext;
 
         /// <summary>
         /// Map from unique ids to asynchronous operations.
@@ -128,7 +124,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The root task id.
         /// </summary>
-        internal readonly int? RootTaskId;
+        private readonly int? RootTaskId;
 
         /// <summary>
         /// The scheduler completion source.
@@ -138,7 +134,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Object that is used to synchronize access to the scheduler.
         /// </summary>
-        internal readonly object SyncObject;
+        private readonly object SyncObject;
 
         /// <summary>
         /// Monotonically increasing operation id counter.
@@ -151,39 +147,34 @@ namespace Microsoft.Coyote.Runtime
         internal volatile bool IsRunning;
 
         /// <summary>
+        /// True if the scheduler is attached to the executing program, else false.
+        /// </summary>
+        private bool IsAttached;
+
+        /// <summary>
+        /// Checks if the schedule has been fully explored.
+        /// </summary>
+        private bool HasFullyExploredSchedule;
+
+        /// <summary>
+        /// Associated with the bug report is an optional unhandled exception.
+        /// </summary>
+        private Exception UnhandledException;
+
+        /// <summary>
         /// If true, the execution is controlled, else false.
         /// </summary>
         internal bool IsControlled { get; private set; }
 
         /// <summary>
-        /// True if the scheduler is attached to the executing program, else false.
+        /// True if a bug was found, else false.
         /// </summary>
-        internal bool IsAttached { get; private set; }
-
-        /// <summary>
-        /// Number of scheduled steps.
-        /// </summary>
-        internal int ScheduledSteps => this.Strategy.GetScheduledSteps();
-
-        /// <summary>
-        /// Checks if the schedule has been fully explored.
-        /// </summary>
-        internal bool HasFullyExploredSchedule { get; private set; }
-
-        /// <summary>
-        /// True if a bug was found.
-        /// </summary>
-        internal bool BugFound { get; private set; }
+        internal bool IsBugFound { get; private set; }
 
         /// <summary>
         /// Bug report.
         /// </summary>
         internal string BugReport { get; private set; }
-
-        /// <summary>
-        /// Associated with the bug report is an optional unhandled exception.
-        /// </summary>
-        internal Exception UnhandledException { get; private set; }
 
         /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
@@ -216,15 +207,23 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy, IRandomValueGenerator valueGenerator)
+        internal CoyoteRuntime(Configuration configuration, SchedulingContext schedulingContext)
+            : this(configuration, schedulingContext, schedulingContext.ValueGenerator)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
+        /// </summary>
+        private CoyoteRuntime(Configuration configuration, SchedulingContext schedulingContext, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
             this.IsRunning = true;
             this.IsAttached = true;
-            this.BugFound = false;
+            this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
 
-            this.IsControlled = strategy != null;
+            this.IsControlled = schedulingContext != null;
             if (this.IsControlled)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
@@ -240,19 +239,14 @@ namespace Microsoft.Coyote.Runtime
             this.ScheduleTrace = new ScheduleTrace();
 
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
-            this.ValueGenerator = valueGenerator;
             this.LogWriter = new LogWriter(configuration);
 
-            if (configuration.IsLivenessCheckingEnabled)
-            {
-                strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
-            }
-
-            this.Strategy = strategy;
+            this.SchedulingContext = schedulingContext;
+            this.SchedulingContext?.SetSpecificationEngine(this.SpecificationEngine);
 
             this.DefaultActorExecutionContext = this.IsControlled ?
-                new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
-                new ActorExecutionContext(configuration, this, this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
+                new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
+                new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
 
             Interception.ControlledThread.ClearCache();
         }
@@ -1444,7 +1438,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
-                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out next) &&
+                if (!this.SchedulingContext.GetNextOperation(ops, current, isYielding, out next) &&
                     this.Configuration.IsPartiallyControlledTestingEnabled &&
                     ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
                 {
@@ -1509,7 +1503,7 @@ namespace Microsoft.Coyote.Runtime
                     this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
                 }
 
-                if (!this.Strategy.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
+                if (!this.SchedulingContext.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.Detach();
@@ -1550,7 +1544,7 @@ namespace Microsoft.Coyote.Runtime
                     this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
                 }
 
-                if (!this.Strategy.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
+                if (!this.SchedulingContext.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.Detach();
@@ -1781,9 +1775,9 @@ namespace Microsoft.Coyote.Runtime
 #endif
         private void CheckIfSchedulingStepsBoundIsReached()
         {
-            if (this.Strategy.HasReachedMaxSchedulingSteps())
+            if (this.SchedulingContext.IsMaxStepsReached)
             {
-                int bound = this.Strategy.IsFair() ? this.Configuration.MaxFairSchedulingSteps :
+                int bound = this.SchedulingContext.IsScheduleFair ? this.Configuration.MaxFairSchedulingSteps :
                     this.Configuration.MaxUnfairSchedulingSteps;
                 string message = $"Scheduling steps bound of {bound} reached.";
 
@@ -1935,7 +1929,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnReceiveOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1954,7 +1948,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnWaitOperations.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -1973,7 +1967,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (idx < blockedOnResources.Count - 1)
                     {
-                        msg.Append(",");
+                        msg.Append(',');
                     }
                 }
 
@@ -2025,7 +2019,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.BugFound)
+                if (!this.IsBugFound)
                 {
                     this.BugReport = text;
 
@@ -2033,9 +2027,9 @@ namespace Microsoft.Coyote.Runtime
                     this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
-                        this.Strategy.GetDescription());
+                        this.SchedulingContext.GetDescription());
 
-                    this.BugFound = true;
+                    this.IsBugFound = true;
 
                     if (this.Configuration.AttachDebugger)
                     {
@@ -2191,6 +2185,23 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Returns scheduling statistics and results.
+        /// </summary>
+        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
+            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException)
+        {
+            lock (this.SyncObject)
+            {
+                scheduledSteps = this.SchedulingContext.StepCount;
+                isMaxScheduledStepsBoundReached = this.SchedulingContext.IsMaxStepsReached;
+                isScheduleFair = this.SchedulingContext.IsScheduleFair;
+                isBugFound = this.IsBugFound;
+                bugReport = this.BugReport;
+                unhandledException = this.UnhandledException;
+            }
         }
 
         /// <summary>

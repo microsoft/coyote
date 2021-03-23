@@ -137,6 +137,60 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Creates a test report using the specified statistics.
+        /// </summary>
+        internal static TestReport CreateTestReportFromStats(Configuration configuration, bool isBugFound, string bugReport,
+            int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair, Exception thrownException)
+        {
+            TestReport report = new TestReport(configuration);
+
+            if (isBugFound)
+            {
+                report.NumOfFoundBugs++;
+                report.ThrownException = thrownException;
+                report.BugReports.Add(bugReport);
+            }
+
+            if (isScheduleFair)
+            {
+                report.NumOfExploredFairSchedules++;
+                report.TotalExploredFairSteps += scheduledSteps;
+
+                if (report.MinExploredFairSteps < 0 ||
+                    report.MinExploredFairSteps > scheduledSteps)
+                {
+                    report.MinExploredFairSteps = scheduledSteps;
+                }
+
+                if (report.MaxExploredFairSteps < scheduledSteps)
+                {
+                    report.MaxExploredFairSteps = scheduledSteps;
+                }
+
+                if (isMaxScheduledStepsBoundReached)
+                {
+                    report.MaxFairStepsHitInFairTests++;
+                }
+
+                if (scheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
+                {
+                    report.MaxUnfairStepsHitInFairTests++;
+                }
+            }
+            else
+            {
+                report.NumOfExploredUnfairSchedules++;
+
+                if (isMaxScheduledStepsBoundReached)
+                {
+                    report.MaxUnfairStepsHitInUnfairTests++;
+                }
+            }
+
+            return report;
+        }
+
+        /// <summary>
         /// Merges the information from the specified test report.
         /// </summary>
         /// <returns>True if merged successfully.</returns>

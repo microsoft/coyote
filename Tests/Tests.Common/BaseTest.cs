@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     engine = RunTest(test, configuration, logger);
 
-                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    string replayError = engine.SchedulingContext.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, errorChecker);
                 }
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     engine = RunTest(test, configuration, logger);
 
-                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    string replayError = engine.SchedulingContext.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, exceptionType);
                 }

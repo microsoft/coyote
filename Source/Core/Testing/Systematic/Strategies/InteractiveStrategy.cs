@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool HasReachedMaxSchedulingSteps()
+        internal override bool IsMaxStepsReached()
         {
             var bound = this.IsFair() ? this.Configuration.MaxFairSchedulingSteps :
                 this.Configuration.MaxUnfairSchedulingSteps;

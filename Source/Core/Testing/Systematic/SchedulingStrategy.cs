@@ -53,10 +53,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal abstract int GetScheduledSteps();
 
         /// <summary>
-        /// True if the scheduling strategy has reached the max
-        /// scheduling steps for the given scheduling iteration.
+        /// True if the scheduling strategy has reached the max scheduling steps for the current iteration.
         /// </summary>
-        internal abstract bool HasReachedMaxSchedulingSteps();
+        internal abstract bool IsMaxStepsReached();
 
         /// <summary>
         /// Checks if this is a fair scheduling strategy.

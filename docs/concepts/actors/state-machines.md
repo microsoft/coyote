@@ -150,8 +150,10 @@ using a `RaisePopStateEvent` call:
 ```csharp
 void HandlePing()
 {
-    Console.WriteLine("Server received ping event while in the {0} state", this.CurrentState.Name);
-    this.RaisePopStateEvent();  // pop the current state off the stack of active states.
+    Console.WriteLine("Server received ping event while in the {0} state", 
+        this.CurrentState.Name);
+    // pop the current state off the stack of active states.
+    this.RaisePopStateEvent();  
 }
 ```
 

@@ -265,8 +265,8 @@ Starting TestingProcessScheduler in process 26236
 ..... Iteration #30
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
-..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.txt
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.schedule
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -283,7 +283,8 @@ pretty big, it contains the test iteration that failed, and towards the end of t
 see something like this:
 
 ```xml
-<ErrorLog> Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor detected liveness bug in hot state 'Busy' at the end of program execution.
+<ErrorLog> Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor detected liveness bug 
+           in hot state 'Busy' at the end of program execution.
 <StrategyLog> Found bug using 'PCT' strategy.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
@@ -323,7 +324,8 @@ public static class Program
     public static void Execute(IActorRuntime runtime)
     {
         runtime.RegisterMonitor<LivenessMonitor>();
-        ActorId driver = runtime.CreateActor(typeof(FailoverDriver), new FailoverDriver.ConfigEvent(RunForever));
+        ActorId driver = runtime.CreateActor(typeof(FailoverDriver), 
+            new FailoverDriver.ConfigEvent(RunForever));
     }
 }
 ```
@@ -466,7 +468,8 @@ the test.
 Remember the last lines of the coyote test execution log file:
 
 ```shell
-<ErrorLog> Monitor 'Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor' detected liveness bug in hot state 'Busy' at the end of program execution.
+<ErrorLog> Monitor 'Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor' detected 
+liveness bug in hot state 'Busy' at the end of program execution.
 ```
 
 If you add to the coyote test command line `--graph-bug`, and test again:
@@ -478,7 +481,7 @@ coyote test .\bin\net5.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct
 you'll see in the output of the tester that a DGML diagram has been produced:
 
 ```plain
-..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.dgml
 ```
 
 Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also
@@ -528,14 +531,16 @@ private void NextMove()
         this.WriteLine("<Robot> Reached Client.");
         Specification.Assert(
             this.Coordinates == this.CurrentOrder.ClientDetails.Coordinates,
-            "Having reached the Client the Robot's coordinates must be the same as the Client's, but they aren't");
+            "Having reached the Client the Robot's coordinates must be the same " +
+            "as the Client's, but they aren't");
     }
     else
     {
         var nextDestination = this.Route[0];
         this.Route.RemoveAt(0);
         this.MoveTo(nextDestination);
-        this.Timers["MoveTimer"] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration), new MoveTimerElapsedEvent());
+        this.Timers["MoveTimer"] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration), 
+            new MoveTimerElapsedEvent());
     }
 }
 ```
@@ -618,7 +623,8 @@ private void ReachClient(Event e)
     {
         this.Route = route;
         // this.DrinkOrderPending = false; // this is where it really belongs.
-        this.Timers["MoveTimer"] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration), new MoveTimerElapsedEvent());
+        this.Timers["MoveTimer"] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration), 
+            new MoveTimerElapsedEvent());
     }
 
     this.RaiseGotoStateEvent<MovingOnRoute>();

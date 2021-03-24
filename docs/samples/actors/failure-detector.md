@@ -63,7 +63,9 @@ Finding a hard to find bug is one thing, but if you can't reproduce this bug whi
 is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
 
 ```plain
-coyote replay ./bin/net5.0/Monitors.dll .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+coyote replay ./bin/net5.0/Monitors.dll 
+    .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+    
 . Reproducing trace in coyote-samples\./bin/net48/Monitors.exe
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.

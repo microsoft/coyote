@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -54,7 +53,7 @@ namespace Microsoft.Coyote.Specifications
             this.Runtime = runtime;
             this.LivenessMonitors = new List<TaskLivenessMonitor>();
             this.StateMachineMonitors = new List<Monitor>();
-            this.IsMonitoringEnabled = runtime.SchedulingPolicy != OperationSchedulingPolicy.None ||
+            this.IsMonitoringEnabled = runtime.SchedulingPolicy != SchedulingPolicy.None ||
                 configuration.IsMonitoringEnabledInInProduction;
         }
 
@@ -66,7 +65,7 @@ namespace Microsoft.Coyote.Specifications
 #endif
         internal void MonitorTaskCompletion(Task task)
         {
-            if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.Systematic &&
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic &&
                 task.Status != TaskStatus.RanToCompletion)
             {
                 var monitor = new TaskLivenessMonitor(task);
@@ -104,7 +103,7 @@ namespace Microsoft.Coyote.Specifications
                 this.StateMachineMonitors.Add(monitor);
             }
 
-            if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.Systematic
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic
                 && this.Configuration.ReportActivityCoverage)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
@@ -139,7 +138,7 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     lock (monitor)
                     {
@@ -165,7 +164,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 string msg = "Detected an assertion failure.";
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -185,7 +184,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -205,7 +204,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -225,7 +224,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -245,7 +244,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, args);
-                if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -269,7 +268,7 @@ namespace Microsoft.Coyote.Specifications
                 "The stack trace is:\n{4}",
                 exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
 
-            if (this.Runtime.SchedulingPolicy is OperationSchedulingPolicy.None)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
                 throw new AssertionFailureException(message, exception);
             }

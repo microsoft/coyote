@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.Testing
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Supported policies for scheduling the execution of operations.
     /// </summary>
-    internal enum OperationSchedulingPolicy
+    internal enum SchedulingPolicy
     {
         /// <summary>
         /// Policy that uses the default uncontrolled scheduler for executing operations.

@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The operation scheduling policy used by the runtime.
         /// </summary>
-        internal OperationSchedulingPolicy SchedulingPolicy { get; private set; }
+        internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
         /// True if a bug was found, else false.
@@ -236,13 +236,13 @@ namespace Microsoft.Coyote.Runtime
             this.CompletionSource = new TaskCompletionSource<bool>();
             this.ScheduleTrace = new ScheduleTrace();
 
-            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
-                schedulingContext != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
-            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing :
+                schedulingContext != null ? SchedulingPolicy.Systematic : SchedulingPolicy.None;
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
-            else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
                 this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
                     Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
@@ -254,7 +254,7 @@ namespace Microsoft.Coyote.Runtime
             this.SchedulingContext = schedulingContext;
             this.SchedulingContext?.SetSpecificationEngine(this.SpecificationEngine);
 
-            this.DefaultActorExecutionContext = this.SchedulingPolicy is OperationSchedulingPolicy.Systematic ?
+            this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
 
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Runtime
             this.Assert(testMethod != null, "Unable to execute a null test method.");
             this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
 
-            if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
                 this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
                     Timeout.InfiniteTimeSpan);
@@ -2183,7 +2183,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.SchedulingPolicy != OperationSchedulingPolicy.None &&
+            if (this.SchedulingPolicy != SchedulingPolicy.None &&
                 (exception is ExecutionCanceledException ||
                 (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException)))
             {
@@ -2289,7 +2289,7 @@ namespace Microsoft.Coyote.Runtime
             if (!this.IsAttached)
             {
                 this.IsAttached = false;
-                if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+                if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
                     this.DeadlockMonitor.Dispose();
                 }
@@ -2330,7 +2330,7 @@ namespace Microsoft.Coyote.Runtime
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
-                if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
                     // Note: this makes it possible to run a Controlled unit test followed by a production
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.

@@ -789,11 +789,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
-            runtime.GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
-                out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception thrownException);
+            runtime.GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int steps,
+                out bool isMaxStepsReached, out bool isScheduleFair, out Exception unhandledException);
 
             TestReport report = TestReport.CreateTestReportFromStats(this.Configuration, isBugFound, bugReport,
-                scheduledSteps, isMaxScheduledStepsBoundReached, isScheduleFair, thrownException);
+                steps, isMaxStepsReached, isScheduleFair, unhandledException);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;

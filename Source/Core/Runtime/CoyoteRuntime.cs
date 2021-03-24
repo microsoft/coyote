@@ -197,6 +197,16 @@ namespace Microsoft.Coyote.Runtime
         internal event OnFailureHandler OnFailure;
 
         /// <summary>
+        /// Timer implementing a deadlock monitor.
+        /// </summary>
+        private readonly Timer DeadlockMonitor;
+
+        /// <summary>
+        /// The time interval between checking for a deadlock.
+        /// </summary>
+        public readonly TimeSpan DeadlockCheckPeriod;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal CoyoteRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
@@ -222,14 +232,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsAttached = true;
             this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
-
-            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
-                schedulingContext != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
-            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
-            {
-                Interlocked.Increment(ref ExecutionControlledUseCount);
-            }
-
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
@@ -238,6 +240,19 @@ namespace Microsoft.Coyote.Runtime
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
             this.CompletionSource = new TaskCompletionSource<bool>();
             this.ScheduleTrace = new ScheduleTrace();
+
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? OperationSchedulingPolicy.Fuzzing :
+                schedulingContext != null ? OperationSchedulingPolicy.Systematic : OperationSchedulingPolicy.None;
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Systematic)
+            {
+                Interlocked.Increment(ref ExecutionControlledUseCount);
+            }
+            else if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            {
+                this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
+                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                this.DeadlockCheckPeriod = TimeSpan.FromMilliseconds(5000);
+            }
 
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
             this.LogWriter = new LogWriter(configuration);
@@ -264,6 +279,11 @@ namespace Microsoft.Coyote.Runtime
             this.Logger.WriteLine($"<TestLog> Running test{testName}.");
             this.Assert(testMethod != null, "Unable to execute a null test method.");
             this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
+
+            if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+            {
+                this.DeadlockMonitor.Change(this.DeadlockCheckPeriod, Timeout.InfiniteTimeSpan);
+            }
 
             TaskOperation op = this.CreateTaskOperation();
             Task task = new Task(() =>
@@ -1965,6 +1985,40 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Checks if the execution has deadlocked. This checks occurs periodically.
+        /// </summary>
+        private void CheckIfExecutionHasDeadlocked(object state)
+        {
+            lock (this.SyncObject)
+            {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+
+                SchedulingActivityInfo info = state as SchedulingActivityInfo;
+                if (info.StepCount == this.SchedulingContext.StepCount)
+                {
+                    this.NotifyAssertionFailure("Deadlock detected.", true, false, false);
+                }
+                else
+                {
+                    info.StepCount = this.SchedulingContext.StepCount;
+
+                    try
+                    {
+                        // Start the next timeout period.
+                        this.DeadlockMonitor.Change(this.DeadlockCheckPeriod, Timeout.InfiniteTimeSpan);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Benign race condition while disposing the timer.
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks for liveness errors.
         /// </summary>
 #if !DEBUG
@@ -2000,7 +2054,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true)
+        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true, bool logStackTrace = true)
         {
             lock (this.SyncObject)
             {
@@ -2009,7 +2063,11 @@ namespace Microsoft.Coyote.Runtime
                     this.BugReport = text;
 
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
-                    this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
+                    if (logStackTrace)
+                    {
+                        this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
+                    }
+
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
                         this.SchedulingContext.GetDescription());
@@ -2157,13 +2215,18 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        /// <summary>
+        /// Returns the stack trace without internal namespaces.
+        /// </summary>
         private static string ConstructStackTrace()
         {
             StringBuilder sb = new StringBuilder();
             string[] lines = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             foreach (var line in lines)
             {
-                if (!line.Contains("at Microsoft.Coyote.SystematicTesting"))
+                if (!line.Contains("at Microsoft.Coyote.Interception") &&
+                    !line.Contains("at Microsoft.Coyote.Runtime") &&
+                    !line.Contains("at Microsoft.Coyote.Testing"))
                 {
                     sb.AppendLine(line);
                 }
@@ -2175,13 +2238,13 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns scheduling statistics and results.
         /// </summary>
-        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int scheduledSteps,
-            out bool isMaxScheduledStepsBoundReached, out bool isScheduleFair, out Exception unhandledException)
+        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int steps,
+            out bool isMaxStepsReached, out bool isScheduleFair, out Exception unhandledException)
         {
             lock (this.SyncObject)
             {
-                scheduledSteps = this.SchedulingContext.StepCount;
-                isMaxScheduledStepsBoundReached = this.SchedulingContext.IsMaxStepsReached;
+                steps = this.SchedulingContext.StepCount;
+                isMaxStepsReached = this.SchedulingContext.IsMaxStepsReached;
                 isScheduleFair = this.SchedulingContext.IsScheduleFair;
                 isBugFound = this.IsBugFound;
                 bugReport = this.BugReport;
@@ -2194,6 +2257,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
 
+        /// <summary>
+        /// Invoked each time the <see cref="ExecutingOperation"/> async local value changes.
+        /// </summary>
         private static void OnAsyncLocalExecutingOperationValueChanged(AsyncLocalValueChangedArgs<AsyncOperation> args)
         {
             if (args.ThreadContextChanged && args.PreviousValue != null && args.CurrentValue != null)
@@ -2224,7 +2290,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void Detach(bool cancelExecution = true)
         {
-            this.IsAttached = false;
+            if (!this.IsAttached)
+            {
+                this.IsAttached = false;
+                if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
+                {
+                    this.DeadlockMonitor.Dispose();
+                }
+            }
 
             // Cancel any remaining operations at the end of the schedule.
             foreach (var op in this.OperationMap.Values)

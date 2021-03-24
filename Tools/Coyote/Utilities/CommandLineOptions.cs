@@ -46,6 +46,7 @@ namespace Microsoft.Coyote.Utilities
             testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
+            testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
@@ -230,6 +231,15 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
+                case "relaxed-testing":
+                    configuration.IsRelaxedControlledTestingEnabled = true;
+                    break;
+                case "concurrency-fuzzing":
+                    configuration.IsConcurrencyFuzzingEnabled = true;
+                    break;
+                case "explore":
+                    configuration.PerformFullExploration = true;
+                    break;
                 case "seed":
                     configuration.RandomGeneratorSeed = (uint)option.Value;
                     break;
@@ -244,12 +254,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-fairpct":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     configuration.StrategyBound = (int)(uint)option.Value;
-                    break;
-                case "relaxed-testing":
-                    configuration.IsRelaxedControlledTestingEnabled = true;
-                    break;
-                case "concurrency-fuzzing":
-                    configuration.IsConcurrencyFuzzingEnabled = true;
                     break;
                 case "schedule":
                     {
@@ -337,9 +341,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "actor-runtime-log":
                     configuration.CustomActorRuntimeLogType = (string)option.Value;
                     break;
-                case "explore":
-                    configuration.PerformFullExploration = true;
-                    break;
                 case "coverage":
                     if (option.Value is null)
                     {
@@ -389,6 +390,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;
+                    break;
+                case "deadlock-timeout":
+                    configuration.DeadlockTimeout = (uint)option.Value;
                     break;
                 case "max-steps":
                     {

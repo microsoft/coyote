@@ -202,11 +202,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly Timer DeadlockMonitor;
 
         /// <summary>
-        /// The time interval between checking for a deadlock.
-        /// </summary>
-        public readonly TimeSpan DeadlockCheckPeriod;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal CoyoteRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
@@ -251,7 +246,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
                     Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-                this.DeadlockCheckPeriod = TimeSpan.FromMilliseconds(5000);
             }
 
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
@@ -282,7 +276,8 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is OperationSchedulingPolicy.Fuzzing)
             {
-                this.DeadlockMonitor.Change(this.DeadlockCheckPeriod, Timeout.InfiniteTimeSpan);
+                this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
+                    Timeout.InfiniteTimeSpan);
             }
 
             TaskOperation op = this.CreateTaskOperation();
@@ -2008,7 +2003,8 @@ namespace Microsoft.Coyote.Runtime
                     try
                     {
                         // Start the next timeout period.
-                        this.DeadlockMonitor.Change(this.DeadlockCheckPeriod, Timeout.InfiniteTimeSpan);
+                        this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
+                            Timeout.InfiniteTimeSpan);
                     }
                     catch (ObjectDisposedException)
                     {

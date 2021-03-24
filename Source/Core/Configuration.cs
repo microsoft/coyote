@@ -88,6 +88,30 @@ namespace Microsoft.Coyote
         internal bool IncrementalSchedulingSeed;
 
         /// <summary>
+        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// </summary>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        [DataMember]
+        internal bool IsRelaxedControlledTestingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, the concurrency fuzzing policy is used during testing.
+        /// </summary>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        [DataMember]
+        internal bool IsConcurrencyFuzzingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, liveness checking is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsLivenessCheckingEnabled;
+
+        /// <summary>
         /// If true, the Coyote tester performs a full exploration,
         /// and does not stop when it finds a bug.
         /// </summary>
@@ -138,34 +162,17 @@ namespace Microsoft.Coyote
         public uint TimeoutDelay { get; internal set; }
 
         /// <summary>
+        /// Value that controls how much time the deadlock monitor should wait during concurrency fuzzing before
+        /// reporting a potential deadlock. This value is in milliseconds, and by default is 5000.
+        /// </summary>
+        [DataMember]
+        public uint DeadlockTimeout { get; internal set; }
+
+        /// <summary>
         /// Safety prefix bound. By default it is 0.
         /// </summary>
         [DataMember]
         internal int SafetyPrefixBound;
-
-        /// <summary>
-        /// If this option is enabled, systematic testing supports partially controlled executions.
-        /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        [DataMember]
-        internal bool IsRelaxedControlledTestingEnabled;
-
-        /// <summary>
-        /// If this option is enabled, the concurrency fuzzing policy is used during testing.
-        /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        [DataMember]
-        internal bool IsConcurrencyFuzzingEnabled;
-
-        /// <summary>
-        /// If this option is enabled, liveness checking is enabled during systematic testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
         /// The liveness temperature threshold. If it is 0 then it is disabled. By default
@@ -362,6 +369,9 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
+            this.IsRelaxedControlledTestingEnabled = false;
+            this.IsConcurrencyFuzzingEnabled = false;
+            this.IsLivenessCheckingEnabled = true;
             this.PerformFullExploration = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
@@ -375,11 +385,8 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
+            this.DeadlockTimeout = 5000;
             this.SafetyPrefixBound = 0;
-
-            this.IsRelaxedControlledTestingEnabled = false;
-            this.IsConcurrencyFuzzingEnabled = false;
-            this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
@@ -500,6 +507,33 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with relaxed controlled testing enabled or disabled.
+        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// </summary>
+        /// <param name="isEnabled">If true, then relaxed controlled testing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        public Configuration WithRelaxedControlledTestingEnabled(bool isEnabled = true)
+        {
+            this.IsRelaxedControlledTestingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with concurrency fuzzing enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
+        {
+            this.IsConcurrencyFuzzingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the specified number of maximum scheduling steps to explore per
         /// iteration during systematic testing. The <see cref="MaxUnfairSchedulingSteps"/> is assigned the
         /// <paramref name="maxSteps"/> value, whereas the <see cref="MaxFairSchedulingSteps"/> is assigned
@@ -534,33 +568,6 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with relaxed controlled testing enabled or disabled.
-        /// If this option is enabled, systematic testing supports partially controlled executions.
-        /// </summary>
-        /// <param name="isEnabled">If true, then relaxed controlled testing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        public Configuration WithRelaxedControlledTestingEnabled(bool isEnabled = true)
-        {
-            this.IsRelaxedControlledTestingEnabled = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with concurrency fuzzing enabled or disabled.
-        /// </summary>
-        /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
-        {
-            this.IsConcurrencyFuzzingEnabled = isEnabled;
-            return this;
-        }
-
-        /// <summary>
         /// Updates the configuration with the specified liveness temperature threshold during
         /// systematic testing. If this value is 0 it disables liveness checking. It is not
         /// recommended to explicitly set this value, instead use the default value which is
@@ -579,13 +586,27 @@ namespace Microsoft.Coyote
         /// a timeout each time <see cref="Task.Delay(int)"/> or a built-in timer is scheduled during
         /// systematic testing.
         /// </summary>
-        /// <param name="timeoutDelay">The timeout delay during testing.</param>
+        /// <param name="delay">The timeout delay during testing.</param>
         /// <remarks>
         /// Increase the value to decrease the probability. This value is not a unit of time.
         /// </remarks>
-        public Configuration WithTimeoutDelay(uint timeoutDelay)
+        public Configuration WithTimeoutDelay(uint delay)
         {
-            this.TimeoutDelay = timeoutDelay;
+            this.TimeoutDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the <see cref="DeadlockTimeout"/> value that controls how much time the deadlock monitor
+        /// should wait during concurrency fuzzing before reporting a potential deadlock.
+        /// </summary>
+        /// <param name="timeout">The deadlock timeout value in milliseconds.</param>
+        /// <remarks>
+        /// Increase the value to give more time to the test to resolve a potential deadlock.
+        /// </remarks>
+        public Configuration WithDeadlockTimeout(uint timeout)
+        {
+            this.DeadlockTimeout = timeout;
             return this;
         }
 

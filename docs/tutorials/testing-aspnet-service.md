@@ -229,15 +229,15 @@ You will also see that the trace output contains logs such as:
 ```text
 [0HM34OD7O65E5] Creating account with id '0' (name: 'alice', email: 'alice@coyote.com').
 [0HM34OD7O65E5] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
-[0HM34OD7O65E5] Checking if item with partition key '0' and id '0' exists in container 'Accounts'
-[0HM34OD7O65E5] Creating new item with partition key '0' and id '0' in container 'Accounts'
+[0HM34OD7O65E5] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E5] Creating new item with partition key '0' and id '0' in container 'Accounts'.
 [0HM34OD7O65E7] Storing image with name 'beach' and account id '0'.
 [0HM34OD7O65E6] Deleting account with id '0'.
 [0HM34OD7O65E6] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
 [0HM34OD7O65E7] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
-[0HM34OD7O65E7] Checking if item with partition key '0' and id '0' exists in container 'Accounts'
-[0HM34OD7O65E6] Checking if item with partition key '0' and id '0' exists in container 'Accounts'
-[0HM34OD7O65E6] Deleting item with partition key '0' and id '0' in container 'Accounts'
+[0HM34OD7O65E7] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E6] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E6] Deleting item with partition key '0' and id '0' in container 'Accounts'.
 [0HM34OD7O65E7] Creating container 'gallery-0' if it does not exist.
 [0HM34OD7O65E6] Deleting container 'gallery-0' if it exists.
 [0HM34OD7O65E7] Creating blob 'beach' in container 'gallery-0'.

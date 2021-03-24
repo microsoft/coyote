@@ -19,7 +19,6 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
-using Microsoft.Coyote.Testing;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
@@ -55,9 +54,9 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly ISet<Action<uint>> PerIterationCallbacks;
 
         /// <summary>
-        /// The context of the scheduler during controlled testing.
+        /// The scheduler used by the runtime during testing.
         /// </summary>
-        internal readonly SchedulingContext SchedulingContext;
+        internal readonly OperationScheduler Scheduler;
 
         /// <summary>
         /// The profiler.
@@ -276,7 +275,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            this.SchedulingContext = SchedulingContext.Setup(configuration, this.Logger);
+            this.Scheduler = OperationScheduler.Setup(configuration, this.Logger);
 
             if (TelemetryClient is null)
             {
@@ -289,7 +288,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Run()
         {
-            bool isReplaying = this.SchedulingContext.IsReplayingSchedule;
+            bool isReplaying = this.Scheduler.IsReplayingSchedule;
 
             try
             {
@@ -384,7 +383,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Configuration.SchedulingStrategy is "fairpct" ||
                 this.Configuration.SchedulingStrategy is "probabilistic")
             {
-                options = $" (seed:{this.SchedulingContext.ValueGenerator.Seed})";
+                options = $" (seed:{this.Scheduler.ValueGenerator.Seed})";
             }
 
             this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
@@ -418,16 +417,16 @@ namespace Microsoft.Coyote.SystematicTesting
                         // Runs the next iteration.
                         bool runNext = this.RunNextIteration(iteration);
                         if ((!this.Configuration.PerformFullExploration && this.TestReport.NumOfFoundBugs > 0) ||
-                            this.SchedulingContext.IsReplayingSchedule || !runNext)
+                            this.Scheduler.IsReplayingSchedule || !runNext)
                         {
                             break;
                         }
 
-                        if (this.SchedulingContext.ValueGenerator != null && this.Configuration.IncrementalSchedulingSeed)
+                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IncrementalSchedulingSeed)
                         {
                             // Increments the seed in the random number generator (if one is used), to
                             // capture the seed used by the scheduling strategy in the next iteration.
-                            this.SchedulingContext.ValueGenerator.Seed += 1;
+                            this.Scheduler.ValueGenerator.Seed += 1;
                         }
 
                         iteration++;
@@ -462,13 +461,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private bool RunNextIteration(uint iteration)
         {
-            if (!this.SchedulingContext.InitializeNextIteration(iteration))
+            if (!this.Scheduler.InitializeNextIteration(iteration))
             {
                 // The next iteration cannot run, so stop exploring.
                 return false;
             }
 
-            if (!this.SchedulingContext.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
+            if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
             {
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
 
@@ -493,7 +492,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 // Creates a new instance of the controlled runtime.
-                runtime = new CoyoteRuntime(this.Configuration, this.SchedulingContext);
+                runtime = new CoyoteRuntime(this.Configuration, this.Scheduler);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.
@@ -545,7 +544,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.GatherTestingStatistics(runtime);
 
-                if (!this.SchedulingContext.IsReplayingSchedule && this.TestReport.NumOfFoundBugs > 0)
+                if (!this.Scheduler.IsReplayingSchedule && this.TestReport.NumOfFoundBugs > 0)
                 {
                     if (runtimeLogger != null)
                     {
@@ -560,7 +559,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
 
                     this.ReproducibleTrace = runtime.ScheduleTrace.Serialize(
-                        this.Configuration, this.SchedulingContext.IsScheduleFair);
+                        this.Configuration, this.Scheduler.IsScheduleFair);
                 }
             }
             finally
@@ -572,7 +571,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
-                if (!this.SchedulingContext.IsReplayingSchedule && this.Configuration.PerformFullExploration && runtime.IsBugFound)
+                if (!this.Scheduler.IsReplayingSchedule && this.Configuration.PerformFullExploration && runtime.IsBugFound)
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
@@ -600,7 +599,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public string GetReport()
         {
-            if (this.SchedulingContext.IsReplayingSchedule)
+            if (this.Scheduler.IsReplayingSchedule)
             {
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,

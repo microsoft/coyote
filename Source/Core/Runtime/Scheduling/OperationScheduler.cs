@@ -3,16 +3,15 @@
 
 using System.Collections.Generic;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing.Systematic;
 
-namespace Microsoft.Coyote.Testing
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// The context of the scheduler during controlled testing.
+    /// Scheduler that controls the execution of operations during testing.
     /// </summary>
-    internal sealed class SchedulingContext
+    internal sealed class OperationScheduler
     {
         /// <summary>
         /// The configuration used by the runtime.
@@ -56,9 +55,9 @@ namespace Microsoft.Coyote.Testing
         internal bool IsReplayingSchedule { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SchedulingContext"/> class.
+        /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private SchedulingContext(Configuration configuration, ILogger logger)
+        private OperationScheduler(Configuration configuration, ILogger logger)
         {
             this.Configuration = configuration;
             this.ValueGenerator = new RandomValueGenerator(configuration);
@@ -122,10 +121,10 @@ namespace Microsoft.Coyote.Testing
         }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="SchedulingContext"/> class.
+        /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static SchedulingContext Setup(Configuration configuration, ILogger logger) =>
-            new SchedulingContext(configuration, logger);
+        internal static OperationScheduler Setup(Configuration configuration, ILogger logger) =>
+            new OperationScheduler(configuration, logger);
 
         /// <summary>
         /// Sets the specification engine.
@@ -144,6 +143,16 @@ namespace Microsoft.Coyote.Testing
         /// <param name="iteration">The id of the next iteration.</param>
         /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
         internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
+
+        /// <summary>
+        /// Delays the currently executing operation.
+        /// </summary>
+#pragma warning disable CA1822 // Mark members as static
+        internal void DelayOperation()
+#pragma warning restore CA1822 // Mark members as static
+        {
+            // Thread.Sleep(0);
+        }
 
         /// <summary>
         /// Returns the next asynchronous operation to schedule.

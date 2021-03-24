@@ -548,6 +548,10 @@ nav:
       - RuntimeFactory:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeFactory.md
         - Create: ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create.md
+      - SchedulingPoint:
+        - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
+        - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
+        - Deprioritize: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize.md
     - Microsoft.Coyote.Specifications:
       - Namespace Overview: ref/Microsoft.Coyote.SpecificationsNamespace.md
       - Monitor:

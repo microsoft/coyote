@@ -401,12 +401,6 @@ namespace Microsoft.Coyote.Interception
         /// </remarks>
         public static CoyoteTasks.YieldAwaitable Yield() =>
             new CoyoteTasks.YieldAwaitable(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
-
-        /// <summary>
-        /// Injects a context switch point that can be systematically explored during testing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation(false, true);
     }
 
     /// <summary>

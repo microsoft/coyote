@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 else if (testMethods.Count > 1)
                 {
                     error = $"Found '{testMethods.Count}' test methods declared with the '{typeof(TestAttribute).FullName}' " +
-                        $"attribute. Provide --method (-m) flag to qualify the test method name you wish to use.";
+                        $"attribute. Provide --method (-m) flag to qualify the test method that you want to run.";
                 }
 
                 if (!string.IsNullOrEmpty(error))

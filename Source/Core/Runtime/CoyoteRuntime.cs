@@ -1444,7 +1444,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.SchedulingContext.GetNextOperation(ops, current, isYielding, out next) &&
-                    this.Configuration.IsPartiallyControlledTestingEnabled &&
+                    this.Configuration.IsRelaxedControlledTestingEnabled &&
                     ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
                 {
                     // At least one operation is blocked due to uncontrolled concurrency. To try defend against
@@ -1882,7 +1882,7 @@ namespace Microsoft.Coyote.Runtime
         internal void AssertIsAwaitedTaskControlled(Task task)
         {
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsPartiallyControlledTestingEnabled)
+                !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
                 this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
                     "either mock the method that created the task, or rewrite the method's assembly.");
@@ -1895,7 +1895,7 @@ namespace Microsoft.Coyote.Runtime
         internal void AssertIsReturnedTaskControlled(Task task, string methodName)
         {
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsPartiallyControlledTestingEnabled)
+                !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed: either mock the method, or rewrite the method's assembly.");

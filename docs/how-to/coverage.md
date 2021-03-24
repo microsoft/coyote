@@ -14,19 +14,19 @@ options to report code and activity coverage:
 ```plain
 Code and activity coverage options:
 -----------------------------------
-  -c, --coverage string       : Generate code coverage statistics (via VS instrumentation) with zero
-                                or more values equal to:
-                                 code: Generate code coverage statistics (via VS instrumentation)
-                                 activity: Generate activity (state machine, event, etc.) coverage
-                                statistics
-                                 activity-debug: Print activity coverage statistics with debug info
+  -c, --coverage string       
+        : Generate code coverage statistics (via VS instrumentation) with zero
+          or more values equal to:
+            code: Generate code coverage statistics (via VS instrumentation)
+            activity: Generate activity (state machine, event, etc.) coverage statistics
+            activity-debug: Print activity coverage statistics with debug info
   -instr, --instrument string
-                              : Additional file spec(s) to instrument for code coverage (wildcards
-                                supported)
+        : Additional file spec(s) to instrument for code coverage (wildcards
+          supported)
   -instr-list, --instrument-list string
-                              : File containing the paths to additional file(s) to instrument for
-                                code coverage, one per line, wildcards supported, lines starting
-                                with '//' are skipped
+        : File containing the paths to additional file(s) to instrument for
+          code coverage, one per line, wildcards supported, lines starting
+          with '//' are skipped
 ```
 
 Detailed descriptions are provided in subsequent sections. The following provides a quick overview.

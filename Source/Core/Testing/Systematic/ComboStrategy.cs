@@ -10,22 +10,22 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// This strategy combines two given strategies, using them to schedule
     /// the prefix and suffix of an execution.
     /// </summary>
-    internal sealed class ComboStrategy : SchedulingStrategy
+    internal sealed class ComboStrategy : SystematicStrategy
     {
         /// <summary>
         /// The prefix strategy.
         /// </summary>
-        private readonly SchedulingStrategy PrefixStrategy;
+        private readonly SystematicStrategy PrefixStrategy;
 
         /// <summary>
         /// The suffix strategy.
         /// </summary>
-        private readonly SchedulingStrategy SuffixStrategy;
+        private readonly SystematicStrategy SuffixStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComboStrategy"/> class.
         /// </summary>
-        internal ComboStrategy(SchedulingStrategy prefixStrategy, SchedulingStrategy suffixStrategy)
+        internal ComboStrategy(SystematicStrategy prefixStrategy, SystematicStrategy suffixStrategy)
         {
             this.PrefixStrategy = prefixStrategy;
             this.SuffixStrategy = suffixStrategy;
@@ -80,15 +80,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps()
+        internal override int GetStepCount()
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
             {
-                return this.SuffixStrategy.GetScheduledSteps() + this.PrefixStrategy.GetScheduledSteps();
+                return this.SuffixStrategy.GetStepCount() + this.PrefixStrategy.GetStepCount();
             }
             else
             {
-                return this.PrefixStrategy.GetScheduledSteps();
+                return this.PrefixStrategy.GetStepCount();
             }
         }
 

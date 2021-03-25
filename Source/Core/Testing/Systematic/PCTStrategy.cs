@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// This strategy is described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PCTStrategy : SchedulingStrategy
+    internal sealed class PCTStrategy : SystematicStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -24,14 +24,14 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// The maximum number of steps to schedule.
+        /// The maximum number of steps to explore.
         /// </summary>
-        private readonly int MaxScheduledSteps;
+        private readonly int MaxSteps;
 
         /// <summary>
-        /// The number of scheduled steps.
+        /// The number of exploration steps.
         /// </summary>
-        private int ScheduledSteps;
+        private int StepCount;
 
         /// <summary>
         /// Max number of priority switch points.
@@ -56,11 +56,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator random)
+        internal PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator generator)
         {
-            this.RandomValueGenerator = random;
-            this.MaxScheduledSteps = maxSteps;
-            this.ScheduledSteps = 0;
+            this.RandomValueGenerator = generator;
+            this.MaxSteps = maxSteps;
+            this.StepCount = 0;
             this.ScheduleLength = 0;
             this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
             this.PrioritizedOperations = new List<AsyncOperation>();
@@ -76,8 +76,8 @@ namespace Microsoft.Coyote.Testing.Systematic
             // plus its also interesting to explore a schedule with no forced priority switch points.
             if (iteration > 0)
             {
-                this.ScheduleLength = Math.Max(this.ScheduleLength, this.ScheduledSteps);
-                this.ScheduledSteps = 0;
+                this.ScheduleLength = Math.Max(this.ScheduleLength, this.StepCount);
+                this.StepCount = 0;
 
                 this.PrioritizedOperations.Clear();
                 this.PriorityChangePoints.Clear();
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             AsyncOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
             next = enabledOps.First(op => op.Equals(highestEnabledOperation));
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             AsyncOperation deprioritizedOperation = null;
-            if (this.PriorityChangePoints.Contains(this.ScheduledSteps))
+            if (this.PriorityChangePoints.Contains(this.StepCount))
             {
                 // This scheduling step was chosen as a priority switch point.
                 deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 next = true;
             }
 
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
@@ -202,22 +202,22 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetStepCount() => this.StepCount;
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached()
         {
-            if (this.MaxScheduledSteps is 0)
+            if (this.MaxSteps is 0)
             {
                 return false;
             }
 
-            return this.ScheduledSteps >= this.MaxScheduledSteps;
+            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>
@@ -254,7 +254,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override void Reset()
         {
             this.ScheduleLength = 0;
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
             this.PrioritizedOperations.Clear();
             this.PriorityChangePoints.Clear();
         }

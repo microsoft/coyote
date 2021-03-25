@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing
 {
     /// <summary>
     /// Class implementing a program schedule trace. A trace is a series

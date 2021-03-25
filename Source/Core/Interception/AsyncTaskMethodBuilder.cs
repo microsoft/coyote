@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Interception
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
         public static AsyncTaskMethodBuilder Create() =>
-            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
+            new AsyncTaskMethodBuilder(CoyoteRuntime.Current);
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -73,6 +73,7 @@ namespace Microsoft.Coyote.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
             this.Runtime?.CheckExecutingOperationIsControlled();
+            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -174,7 +175,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         public static AsyncTaskMethodBuilder<TResult> Create() =>
-            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
+            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.Current);
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>
@@ -187,6 +188,7 @@ namespace Microsoft.Coyote.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
             this.Runtime?.CheckExecutingOperationIsControlled();
+            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 

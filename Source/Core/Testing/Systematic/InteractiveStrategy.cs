@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// An interactive scheduling strategy.
     /// </summary>
-    internal sealed class InteractiveStrategy : SchedulingStrategy
+    internal sealed class InteractiveStrategy : SystematicStrategy
     {
         /// <summary>
         /// The configuration.
@@ -30,9 +30,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly List<string> InputCache;
 
         /// <summary>
-        /// The number of explored steps.
+        /// The number of exploration steps.
         /// </summary>
-        private int ExploredSteps;
+        private int StepCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InteractiveStrategy"/> class.
@@ -42,13 +42,13 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.Logger = logger ?? new ConsoleLogger();
             this.Configuration = configuration;
             this.InputCache = new List<string>();
-            this.ExploredSteps = 0;
+            this.StepCount = 0;
         }
 
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            this.ExploredSteps = 0;
+            this.StepCount = 0;
             return true;
         }
 
@@ -70,14 +70,14 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            this.ExploredSteps++;
+            this.StepCount++;
 
             var parsed = false;
             while (!parsed)
             {
-                if (this.InputCache.Count >= this.ExploredSteps)
+                if (this.InputCache.Count >= this.StepCount)
                 {
-                    var step = this.InputCache[this.ExploredSteps - 1];
+                    var step = this.InputCache[this.StepCount - 1];
                     ulong operationId = 0;
                     if (step.Length > 0)
                     {
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     }
                     else
                     {
-                        this.InputCache[this.ExploredSteps - 1] = $"{operationId}";
+                        this.InputCache[this.StepCount - 1] = $"{operationId}";
                     }
 
                     next = enabledOps[operationId];
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     this.Logger.WriteLine($">> [{op.Key}] {op.Value.Name}");
                 }
 
-                this.Logger.WriteLine($">> Choose operation to schedule [step '{this.ExploredSteps}']");
+                this.Logger.WriteLine($">> Choose operation to schedule [step '{this.StepCount}']");
 
                 var input = Console.ReadLine();
                 if (input.Equals("replay"))
@@ -158,27 +158,27 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            this.ExploredSteps++;
+            this.StepCount++;
 
             var parsed = false;
             while (!parsed)
             {
-                if (this.InputCache.Count >= this.ExploredSteps)
+                if (this.InputCache.Count >= this.StepCount)
                 {
-                    var step = this.InputCache[this.ExploredSteps - 1];
+                    var step = this.InputCache[this.StepCount - 1];
                     if (step.Length > 0)
                     {
-                        next = Convert.ToBoolean(this.InputCache[this.ExploredSteps - 1]);
+                        next = Convert.ToBoolean(this.InputCache[this.StepCount - 1]);
                     }
                     else
                     {
-                        this.InputCache[this.ExploredSteps - 1] = "false";
+                        this.InputCache[this.StepCount - 1] = "false";
                     }
 
                     break;
                 }
 
-                this.Logger.WriteLine($">> Choose true or false [step '{this.ExploredSteps}']");
+                this.Logger.WriteLine($">> Choose true or false [step '{this.StepCount}']");
 
                 var input = Console.ReadLine();
                 if (input.Equals("replay"))
@@ -227,27 +227,27 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = 0;
-            this.ExploredSteps++;
+            this.StepCount++;
 
             var parsed = false;
             while (!parsed)
             {
-                if (this.InputCache.Count >= this.ExploredSteps)
+                if (this.InputCache.Count >= this.StepCount)
                 {
-                    var step = this.InputCache[this.ExploredSteps - 1];
+                    var step = this.InputCache[this.StepCount - 1];
                     if (step.Length > 0)
                     {
-                        next = Convert.ToInt32(this.InputCache[this.ExploredSteps - 1]);
+                        next = Convert.ToInt32(this.InputCache[this.StepCount - 1]);
                     }
                     else
                     {
-                        this.InputCache[this.ExploredSteps - 1] = "0";
+                        this.InputCache[this.StepCount - 1] = "0";
                     }
 
                     break;
                 }
 
-                this.Logger.WriteLine($">> Choose an integer (< {maxValue}) [step '{this.ExploredSteps}']");
+                this.Logger.WriteLine($">> Choose an integer (< {maxValue}) [step '{this.StepCount}']");
 
                 var input = Console.ReadLine();
                 if (input.Equals("replay"))
@@ -298,9 +298,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps()
+        internal override int GetStepCount()
         {
-            return this.ExploredSteps;
+            return this.StepCount;
         }
 
         /// <inheritdoc/>
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            return this.ExploredSteps >= bound;
+            return this.StepCount >= bound;
         }
 
         /// <inheritdoc/>
@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             var result = true;
 
-            this.Logger.WriteLine($">> Replay up to first ?? steps [step '{this.ExploredSteps}']");
+            this.Logger.WriteLine($">> Replay up to first ?? steps [step '{this.StepCount}']");
 
             try
             {
@@ -359,15 +359,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             var result = true;
 
-            this.Logger.WriteLine($">> Jump to ?? step [step '{this.ExploredSteps}']");
+            this.Logger.WriteLine($">> Jump to ?? step [step '{this.StepCount}']");
 
             try
             {
                 var steps = Convert.ToInt32(Console.ReadLine());
-                if (steps < this.ExploredSteps)
+                if (steps < this.StepCount)
                 {
                     this.Logger.WriteLine(LogSeverity.Warning, ">> Expected integer greater than " +
-                        $"{this.ExploredSteps}, please retry ...");
+                        $"{this.StepCount}, please retry ...");
                     result = false;
                 }
 
@@ -412,7 +412,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override void Reset()
         {
             this.InputCache.Clear();
-            this.ExploredSteps = 0;
+            this.StepCount = 0;
         }
     }
 }

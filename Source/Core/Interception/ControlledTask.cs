@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Interception
         public static Task Run(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
                 false, cancellationToken) :
-            Task.Run(action, cancellationToken);
+            Task.Run(FuzzingProvider.CreateAction(action), cancellationToken);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a proxy for
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Interception
                 return runtime.UnwrapTask(task);
             }
 
-            return Task.Run(function, cancellationToken);
+            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Interception
                 return runtime.UnwrapTask(task);
             }
 
-            return Task.Run(function, cancellationToken);
+            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Interception
         public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken) :
-            Task.Run(function, cancellationToken);
+            Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay) => CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
-            Task.Delay(millisecondsDelay);
+            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
@@ -124,21 +124,22 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken) :
-            Task.Delay(millisecondsDelay, cancellationToken);
+            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay), cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(delay);
+            CoyoteRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(FuzzingProvider.CreateDelay(delay));
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, cancellationToken) : Task.Delay(delay, cancellationToken);
+            CoyoteRuntime.Current.ScheduleDelay(delay, cancellationToken) :
+            Task.Delay(FuzzingProvider.CreateDelay(delay), cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -366,14 +367,9 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                var runtime = CoyoteRuntime.Current;
-                runtime.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.TaskAwaiter(runtime, task);
-            }
-
-            return new CoyoteTasks.TaskAwaiter(null, task);
+            var runtime = CoyoteRuntime.Current;
+            runtime?.AssertIsAwaitedTaskControlled(task);
+            return new CoyoteTasks.TaskAwaiter(runtime, task);
         }
 
         /// <summary>
@@ -381,14 +377,9 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static CoyoteTasks.ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                var runtime = CoyoteRuntime.Current;
-                runtime.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
-            }
-
-            return new CoyoteTasks.ConfiguredTaskAwaitable(null, task, continueOnCapturedContext);
+            var runtime = CoyoteRuntime.Current;
+            runtime?.AssertIsAwaitedTaskControlled(task);
+            return new CoyoteTasks.ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -435,14 +426,9 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                var runtime = CoyoteRuntime.Current;
-                runtime.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.TaskAwaiter<TResult>(runtime, task);
-            }
-
-            return new CoyoteTasks.TaskAwaiter<TResult>(null, task);
+            var runtime = CoyoteRuntime.Current;
+            runtime?.AssertIsAwaitedTaskControlled(task);
+            return new CoyoteTasks.TaskAwaiter<TResult>(runtime, task);
         }
 
         /// <summary>
@@ -450,14 +436,9 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static CoyoteTasks.ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                var runtime = CoyoteRuntime.Current;
-                runtime.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
-            }
-
-            return new CoyoteTasks.ConfiguredTaskAwaitable<TResult>(null, task, continueOnCapturedContext);
+            var runtime = CoyoteRuntime.Current;
+            runtime?.AssertIsAwaitedTaskControlled(task);
+            return new CoyoteTasks.ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }

@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
+using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Systematic;
 
 namespace Microsoft.Coyote.Runtime
@@ -19,9 +21,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The installed scheduling strategy.
+        /// The installed program exploration strategy.
         /// </summary>
-        private SchedulingStrategy Strategy;
+        private ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed replay strategy, if any.
@@ -34,12 +36,17 @@ namespace Microsoft.Coyote.Runtime
         internal IRandomValueGenerator ValueGenerator { get; private set; }
 
         /// <summary>
-        /// The count of steps scheduled in the current iteration.
+        /// The installed operation scheduling policy.
         /// </summary>
-        internal int StepCount => this.Strategy.GetScheduledSteps();
+        internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
-        /// True if the max number of steps that should be scheduled has been
+        /// The count of exploration steps in the current iteration.
+        /// </summary>
+        internal int StepCount => this.Strategy.GetStepCount();
+
+        /// <summary>
+        /// True if the max number of steps that should be explored has been
         /// reached in the current iteration, else false.
         /// </summary>
         internal bool IsMaxStepsReached => this.Strategy.IsMaxStepsReached();
@@ -60,6 +67,9 @@ namespace Microsoft.Coyote.Runtime
         private OperationScheduler(Configuration configuration, ILogger logger)
         {
             this.Configuration = configuration;
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ?
+                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic;
+
             this.ValueGenerator = new RandomValueGenerator(configuration);
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
@@ -68,56 +78,28 @@ namespace Microsoft.Coyote.Runtime
                 configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
             }
 
-            SchedulingStrategy strategy = null;
-            if (configuration.SchedulingStrategy is "replay")
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                this.ReplayStrategy = new ReplayStrategy(configuration);
-                strategy = this.ReplayStrategy;
-                this.IsReplayingSchedule = true;
-            }
-            else if (configuration.SchedulingStrategy is "interactive")
-            {
-                configuration.TestingIterations = 1;
-                configuration.PerformFullExploration = false;
-                configuration.IsVerbose = true;
-                strategy = new InteractiveStrategy(configuration, logger);
-            }
-            else if (configuration.SchedulingStrategy is "random")
-            {
-                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.ValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "pct")
-            {
-                strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound,
-                    this.ValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "fairpct")
-            {
-                var prefixLength = configuration.SafetyPrefixBound is 0 ?
-                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, this.ValueGenerator);
-                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.ValueGenerator);
-                strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
-            }
-            else if (configuration.SchedulingStrategy is "probabilistic")
-            {
-                strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
-                    configuration.StrategyBound, this.ValueGenerator);
-            }
-            else if (configuration.SchedulingStrategy is "dfs")
-            {
-                strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
-            }
+                if (configuration.SchedulingStrategy is "interactive")
+                {
+                    configuration.TestingIterations = 1;
+                    configuration.PerformFullExploration = false;
+                    configuration.IsVerbose = true;
+                    this.Strategy = new InteractiveStrategy(configuration, logger);
+                }
 
-            if (configuration.SchedulingStrategy != "replay" &&
-                configuration.ScheduleFile.Length > 0)
-            {
-                this.ReplayStrategy = new ReplayStrategy(configuration, strategy);
-                strategy = this.ReplayStrategy;
-                this.IsReplayingSchedule = true;
-            }
+                this.Strategy = SystematicStrategy.Create(configuration, this.ValueGenerator);
 
-            this.Strategy = strategy;
+                if (this.Strategy is ReplayStrategy replayStrategy)
+                {
+                    this.ReplayStrategy = replayStrategy;
+                    this.IsReplayingSchedule = true;
+                }
+            }
+            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Strategy = FuzzingStrategy.Create(configuration, this.ValueGenerator);
+            }
         }
 
         /// <summary>
@@ -131,9 +113,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void SetSpecificationEngine(SpecificationEngine specificationEngine)
         {
-            if (this.Configuration.IsLivenessCheckingEnabled)
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic &&
+                this.Configuration.IsLivenessCheckingEnabled)
             {
-                this.Strategy = new TemperatureCheckingStrategy(this.Configuration, specificationEngine, this.Strategy);
+                this.Strategy = new TemperatureCheckingStrategy(this.Configuration, specificationEngine,
+                    this.Strategy as SystematicStrategy);
             }
         }
 
@@ -145,16 +129,6 @@ namespace Microsoft.Coyote.Runtime
         internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
 
         /// <summary>
-        /// Delays the currently executing operation.
-        /// </summary>
-#pragma warning disable CA1822 // Mark members as static
-        internal void DelayOperation()
-#pragma warning restore CA1822 // Mark members as static
-        {
-            // Thread.Sleep(0);
-        }
-
-        /// <summary>
         /// Returns the next asynchronous operation to schedule.
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
@@ -164,7 +138,7 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             bool isYielding, out AsyncOperation next) =>
-            this.Strategy.GetNextOperation(ops, current, isYielding, out next);
+            (this.Strategy as SystematicStrategy).GetNextOperation(ops, current, isYielding, out next);
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -174,7 +148,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next) =>
-            this.Strategy.GetNextBooleanChoice(current, maxValue, out next);
+            (this.Strategy as SystematicStrategy).GetNextBooleanChoice(current, maxValue, out next);
 
         /// <summary>
         /// Returns the next integer choice.
@@ -184,7 +158,15 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next) =>
-            this.Strategy.GetNextIntegerChoice(current, maxValue, out next);
+            (this.Strategy as SystematicStrategy).GetNextIntegerChoice(current, maxValue, out next);
+
+        /// <summary>
+        /// Returns the next delay.
+        /// </summary>
+        /// <param name="next">The next delay.</param>
+        /// <returns>True if there is a next delay, else false.</returns>
+        internal bool GetNextDelay(out int next) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(out next);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

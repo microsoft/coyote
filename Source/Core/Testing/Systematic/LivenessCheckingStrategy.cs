@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// contains a nested <see cref="SchedulingStrategy"/> that is used
     /// for scheduling decisions.
     /// </summary>
-    internal abstract class LivenessCheckingStrategy : SchedulingStrategy
+    internal abstract class LivenessCheckingStrategy : SystematicStrategy
     {
         /// <summary>
         /// The configuration.
@@ -25,13 +25,13 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Strategy used for scheduling decisions.
         /// </summary>
-        protected SchedulingStrategy SchedulingStrategy;
+        protected SystematicStrategy SchedulingStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
         internal LivenessCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
-            SchedulingStrategy strategy)
+            SystematicStrategy strategy)
         {
             this.Configuration = configuration;
             this.SpecificationEngine = specificationEngine;
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.SchedulingStrategy.InitializeNextIteration(iteration);
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps() => this.SchedulingStrategy.GetScheduledSteps();
+        internal override int GetStepCount() => this.SchedulingStrategy.GetStepCount();
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached() =>

@@ -261,17 +261,33 @@ namespace Microsoft.Coyote.SystematicTesting
                 IO.Debug.IsEnabled = true;
             }
 
-            if (configuration.SchedulingStrategy is "portfolio")
+            // Do some sanity checking.
+            string error = string.Empty;
+            if (configuration.IsConcurrencyFuzzingEnabled &&
+                (configuration.SchedulingStrategy is "replay" ||
+                configuration.ScheduleFile.Length > 0))
             {
-                var msg = "Portfolio testing strategy is only " +
-                    "available in parallel testing.";
+                error = "Replaying a bug trace is not supported in concurrency fuzzing.";
+            }
+            else if (configuration.IsConcurrencyFuzzingEnabled &&
+                configuration.SchedulingStrategy is "interactive")
+            {
+                error = "Interactive scheduling is not supported in concurrency fuzzing.";
+            }
+            else if (configuration.SchedulingStrategy is "portfolio")
+            {
+                error = "Portfolio testing strategy is only available in parallel testing.";
+            }
+
+            if (!string.IsNullOrEmpty(error))
+            {
                 if (configuration.DisableEnvironmentExit)
                 {
-                    throw new Exception(msg);
+                    throw new Exception(error);
                 }
                 else
                 {
-                    Error.ReportAndExit(msg);
+                    Error.ReportAndExit(error);
                 }
             }
 

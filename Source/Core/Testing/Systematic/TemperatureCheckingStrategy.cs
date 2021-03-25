@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
     /// Strategy for detecting liveness property violations using the "temperature"
-    /// method. It contains a nested <see cref="SchedulingStrategy"/> that is used
+    /// method. It contains a nested <see cref="SystematicStrategy"/> that is used
     /// for scheduling decisions. Note that liveness property violations are checked
     /// only if the nested strategy is fair.
     /// </summary>
@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Initializes a new instance of the <see cref="TemperatureCheckingStrategy"/> class.
         /// </summary>
         internal TemperatureCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
-            SchedulingStrategy strategy)
+            SystematicStrategy strategy)
             : base(configuration, specificationEngine, strategy)
         {
         }

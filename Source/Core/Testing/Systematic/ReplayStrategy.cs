@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A replaying scheduling strategy.
     /// </summary>
-    internal sealed class ReplayStrategy : SchedulingStrategy
+    internal sealed class ReplayStrategy : SystematicStrategy
     {
         /// <summary>
         /// The configuration.
@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// The suffix strategy.
         /// </summary>
-        private readonly SchedulingStrategy SuffixStrategy;
+        private readonly SystematicStrategy SuffixStrategy;
 
         /// <summary>
         /// True if the scheduler that produced the schedule trace is fair, else false.
@@ -40,9 +40,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private bool IsReplaying;
 
         /// <summary>
-        /// The number of scheduled steps.
+        /// The number of exploration steps.
         /// </summary>
-        private int ScheduledSteps;
+        private int StepCount;
 
         /// <summary>
         /// Text describing a replay error.
@@ -60,11 +60,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration, SchedulingStrategy suffixStrategy)
+        internal ReplayStrategy(Configuration configuration, SystematicStrategy suffixStrategy)
         {
             this.Configuration = configuration;
             this.ScheduleTrace = ScheduleTrace.Deserialize(configuration, out bool isFair);
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
             this.IsSchedulerFair = isFair;
             this.IsReplaying = true;
             this.SuffixStrategy = suffixStrategy;
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
 
             if (iteration is 0)
             {
@@ -103,13 +103,13 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 try
                 {
-                    if (this.ScheduledSteps >= this.ScheduleTrace.Count)
+                    if (this.StepCount >= this.ScheduleTrace.Count)
                     {
                         this.ErrorText = "Trace is not reproducible: execution is longer than trace.";
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
-                    ScheduleStep nextStep = this.ScheduleTrace[this.ScheduledSteps];
+                    ScheduleStep nextStep = this.ScheduleTrace[this.StepCount];
                     if (nextStep.Type != ScheduleStepType.SchedulingChoice)
                     {
                         this.ErrorText = "Trace is not reproducible: next step is not a scheduling choice.";
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     }
                 }
 
-                this.ScheduledSteps++;
+                this.StepCount++;
                 return true;
             }
 
@@ -158,13 +158,13 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 try
                 {
-                    if (this.ScheduledSteps >= this.ScheduleTrace.Count)
+                    if (this.StepCount >= this.ScheduleTrace.Count)
                     {
                         this.ErrorText = "Trace is not reproducible: execution is longer than trace.";
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
-                    nextStep = this.ScheduleTrace[this.ScheduledSteps];
+                    nextStep = this.ScheduleTrace[this.StepCount];
                     if (nextStep.Type != ScheduleStepType.NondeterministicChoice)
                     {
                         this.ErrorText = "Trace is not reproducible: next step is not a nondeterministic choice.";
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 }
 
                 next = nextStep.BooleanChoice.Value;
-                this.ScheduledSteps++;
+                this.StepCount++;
                 return true;
             }
 
@@ -213,13 +213,13 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 try
                 {
-                    if (this.ScheduledSteps >= this.ScheduleTrace.Count)
+                    if (this.StepCount >= this.ScheduleTrace.Count)
                     {
                         this.ErrorText = "Trace is not reproducible: execution is longer than trace.";
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
-                    nextStep = this.ScheduleTrace[this.ScheduledSteps];
+                    nextStep = this.ScheduleTrace[this.StepCount];
                     if (nextStep.Type != ScheduleStepType.NondeterministicChoice)
                     {
                         this.ErrorText = "Trace is not reproducible: next step is not a nondeterministic choice.";
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 }
 
                 next = nextStep.IntegerChoice.Value;
-                this.ScheduledSteps++;
+                this.StepCount++;
                 return true;
             }
 
@@ -260,15 +260,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps()
+        internal override int GetStepCount()
         {
             if (this.SuffixStrategy != null)
             {
-                return this.ScheduledSteps + this.SuffixStrategy.GetScheduledSteps();
+                return this.StepCount + this.SuffixStrategy.GetStepCount();
             }
             else
             {
-                return this.ScheduledSteps;
+                return this.StepCount;
             }
         }
 
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
             this.SuffixStrategy?.Reset();
         }
     }

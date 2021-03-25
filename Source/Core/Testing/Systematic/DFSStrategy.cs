@@ -11,17 +11,17 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A depth-first search scheduling strategy.
     /// </summary>
-    internal class DFSStrategy : SchedulingStrategy
+    internal sealed class DFSStrategy : SystematicStrategy
     {
         /// <summary>
-        /// The maximum number of steps to schedule.
+        /// The maximum number of steps to explore.
         /// </summary>
-        protected int MaxScheduledSteps;
+        private readonly int MaxSteps;
 
         /// <summary>
-        /// The number of scheduled steps.
+        /// The number of exploration steps.
         /// </summary>
-        protected int ScheduledSteps;
+        private int StepCount;
 
         /// <summary>
         /// Stack of scheduling choices.
@@ -53,8 +53,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         internal DFSStrategy(int maxSteps)
         {
-            this.MaxScheduledSteps = maxSteps;
-            this.ScheduledSteps = 0;
+            this.MaxSteps = maxSteps;
+            this.StepCount = 0;
             this.SchIndex = 0;
             this.NondetIndex = 0;
             this.ScheduleStack = new List<List<SChoice>>();
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             // DebugPrintSchedule();
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
 
             this.SchIndex = 0;
             this.NondetIndex = 0;
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            this.ScheduledSteps++;
+            this.StepCount++;
 
             return true;
         }
@@ -242,7 +242,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             nextChoice.IsDone = true;
             this.NondetIndex++;
 
-            this.ScheduledSteps++;
+            this.StepCount++;
 
             return true;
         }
@@ -285,23 +285,23 @@ namespace Microsoft.Coyote.Testing.Systematic
             nextChoice.IsDone = true;
             this.NondetIndex++;
 
-            this.ScheduledSteps++;
+            this.StepCount++;
 
             return true;
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetStepCount() => this.StepCount;
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached()
         {
-            if (this.MaxScheduledSteps is 0)
+            if (this.MaxSteps is 0)
             {
                 return false;
             }
 
-            return this.ScheduledSteps >= this.MaxScheduledSteps;
+            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>
@@ -365,7 +365,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.IntNondetStack.Clear();
             this.SchIndex = 0;
             this.NondetIndex = 0;
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
         }
 
         /// <summary>

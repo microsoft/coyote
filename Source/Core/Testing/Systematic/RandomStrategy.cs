@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A simple (but effective) randomized scheduling strategy.
     /// </summary>
-    internal class RandomStrategy : SchedulingStrategy
+    internal class RandomStrategy : SystematicStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -18,22 +18,22 @@ namespace Microsoft.Coyote.Testing.Systematic
         protected IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// The maximum number of steps to schedule.
+        /// The maximum number of steps to explore.
         /// </summary>
-        protected int MaxScheduledSteps;
+        protected readonly int MaxSteps;
 
         /// <summary>
-        /// The number of scheduled steps.
+        /// The number of exploration steps.
         /// </summary>
-        protected int ScheduledSteps;
+        protected int StepCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(int maxSteps, IRandomValueGenerator random)
+        internal RandomStrategy(int maxSteps, IRandomValueGenerator generator)
         {
-            this.RandomValueGenerator = random;
-            this.MaxScheduledSteps = maxSteps;
+            this.RandomValueGenerator = generator;
+            this.MaxSteps = maxSteps;
         }
 
         /// <inheritdoc/>
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             // The random strategy just needs to reset the number of scheduled steps during
             // the current iretation.
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
             return true;
         }
 
@@ -59,8 +59,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            this.ScheduledSteps++;
-
+            this.StepCount++;
             return true;
         }
 
@@ -73,8 +72,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 next = true;
             }
 
-            this.ScheduledSteps++;
-
+            this.StepCount++;
             return true;
         }
 
@@ -82,22 +80,22 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetStepCount() => this.StepCount;
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached()
         {
-            if (this.MaxScheduledSteps is 0)
+            if (this.MaxSteps is 0)
             {
                 return false;
             }
 
-            return this.ScheduledSteps >= this.MaxScheduledSteps;
+            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>
@@ -109,7 +107,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.ScheduledSteps = 0;
+            this.StepCount = 0;
         }
     }
 }

@@ -2285,7 +2285,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void Detach(bool cancelExecution = true)
         {
-            if (!this.IsAttached)
+            if (this.IsAttached)
             {
                 this.IsAttached = false;
                 if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)

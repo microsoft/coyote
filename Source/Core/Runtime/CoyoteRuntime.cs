@@ -69,18 +69,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// The scheduling policy of the runtime executing the current operation.
-        /// </summary>
-        internal static SchedulingPolicy CurrentSchedulingPolicy
-        {
-            get
-            {
-                CoyoteRuntime runtime = AsyncLocalInstance.Value;
-                return runtime?.SchedulingPolicy ?? SchedulingPolicy.None;
-            }
-        }
-
-        /// <summary>
         /// If true, the program execution is controlled by the runtime to
         /// explore interleavings and sources of nondeterminism, else false.
         /// </summary>
@@ -175,7 +163,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The operation scheduling policy used by the runtime.
         /// </summary>
-        internal SchedulingPolicy SchedulingPolicy => this.Scheduler.SchedulingPolicy;
+        internal SchedulingPolicy SchedulingPolicy => this.Scheduler?.SchedulingPolicy ??
+            SchedulingPolicy.None;
 
         /// <summary>
         /// True if a bug was found, else false.

@@ -83,6 +83,7 @@
 | delegate [OnFailureHandler](Microsoft.Coyote.Runtime/OnFailureHandler.md) | Handles the [`OnFailure`](Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md) event. |
 | class [RuntimeException](Microsoft.Coyote.Runtime/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
 | static class [RuntimeFactory](Microsoft.Coyote.Runtime/RuntimeFactory.md) | Provides methods for creating a [`ICoyoteRuntime`](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
+| static class [SchedulingPoint](Microsoft.Coyote.Runtime/SchedulingPoint.md) | Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing. |
 
 ## Microsoft.Coyote.Specifications namespace
 

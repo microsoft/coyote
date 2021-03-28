@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             {
                 this.Context = context;
                 this.CounterActor = context.CreateActor(typeof(SharedCounterActor));
-                var op = context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = context.Runtime.GetExecutingOperation<ActorOperation>();
                 context.SendEvent(this.CounterActor, SharedCounterEvent.SetEvent(op.Actor.Id, value));
                 op.Actor.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Wait();
             }
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override int GetValue()
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.CounterActor, SharedCounterEvent.GetEvent(op.Actor.Id));
                 var response = op.Actor.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
                 return (response as SharedCounterResponseEvent).Value;
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override int Add(int value)
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.CounterActor, SharedCounterEvent.AddEvent(op.Actor.Id, value));
                 var response = op.Actor.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
                 return (response as SharedCounterResponseEvent).Value;
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override int Exchange(int value)
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.CounterActor, SharedCounterEvent.SetEvent(op.Actor.Id, value));
                 var response = op.Actor.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
                 return (response as SharedCounterResponseEvent).Value;
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override int CompareExchange(int value, int comparand)
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.CounterActor, SharedCounterEvent.CompareExchangeEvent(op.Actor.Id, value, comparand));
                 var response = op.Actor.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
                 return (response as SharedCounterResponseEvent).Value;

@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             bool isYielding, out AsyncOperation next)
         {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
+            if (this.PrefixStrategy.IsMaxStepsReached())
             {
                 return this.SuffixStrategy.GetNextOperation(ops, current, isYielding, out next);
             }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
+            if (this.PrefixStrategy.IsMaxStepsReached())
             {
                 return this.SuffixStrategy.GetNextBooleanChoice(current, maxValue, out next);
             }
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
+            if (this.PrefixStrategy.IsMaxStepsReached())
             {
                 return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
             }
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override int GetScheduledSteps()
         {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
+            if (this.PrefixStrategy.IsMaxStepsReached())
             {
                 return this.SuffixStrategy.GetScheduledSteps() + this.PrefixStrategy.GetScheduledSteps();
             }
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool HasReachedMaxSchedulingSteps() => this.SuffixStrategy.HasReachedMaxSchedulingSteps();
+        internal override bool IsMaxStepsReached() => this.SuffixStrategy.IsMaxStepsReached();
 
         /// <inheritdoc/>
         internal override bool IsFair() => this.SuffixStrategy.IsFair();

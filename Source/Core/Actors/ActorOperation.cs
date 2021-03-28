@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Testing.Systematic;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -19,8 +18,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorOperation"/> class.
         /// </summary>
-        internal ActorOperation(ulong operationId, string name, Actor actor, OperationScheduler scheduler)
-            : base(operationId, name, scheduler)
+        internal ActorOperation(ulong operationId, string name, Actor actor, CoyoteRuntime runtime)
+            : base(operationId, name, runtime)
         {
             this.Actor = actor;
         }

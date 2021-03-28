@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override T Update(Func<T, T> func)
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.RegisterActor, SharedRegisterEvent.UpdateEvent(func, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
                 return e.Value;
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override T GetValue()
             {
-                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                var op = this.Context.Runtime.GetExecutingOperation<ActorOperation>();
                 this.Context.SendEvent(this.RegisterActor, SharedRegisterEvent.GetEvent(op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
                 return e.Value;

@@ -839,6 +839,13 @@ toc:
         subfolderitems:
         - name: Create
           link: ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create
+      - name: SchedulingPoint
+        link: ref/Microsoft.Coyote.Runtime/SchedulingPoint
+        subfolderitems:
+        - name: Interleave
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave
+        - name: Deprioritize
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize
     - name: Microsoft.Coyote.Specifications
       link: ref/Microsoft.Coyote.SpecificationsNamespace
       subfolderitems:

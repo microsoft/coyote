@@ -19,7 +19,8 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; 
+                     buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 </Project>
@@ -103,20 +104,21 @@ And the log file contains the familiar output of `coyote test` as follows:
 ```xml
 <TestLog> Running test.
 <ErrorLog> This test failed!
-<StackTrace>    at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(String text,
-Boolean killTasks, Boolean cancelExecution)
-   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.Assert(Boolean predicate, String s, Object[] args)
+<StackTrace>
+at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
+    String text, Boolean killTasks, Boolean cancelExecution)
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.Assert(Boolean predicate, String s)
    at ConsoleApp14.Test.CoyoteTestMethod()
-   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine stateMachine)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine]()
    at ConsoleApp14.Test.CoyoteTestMethod()
-   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.c__DisplayClass21_0.RunTestb__0d.MoveNext()
-   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine stateMachine)
-   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.c__DisplayClass21_0.RunTestb__0()
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.RunTestb__0d.MoveNext()
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine]()
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.RunTestb__0()
    at System.Threading.Tasks.Task.InnerInvoke()
    at System.Threading.Tasks.Task.c.cctorb__274_0(Object obj)
-   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread,
-   ExecutionContext executionContext, ContextCallback callback, Object state)
-   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task currentTaskSlot, Thread threadPoolThread)
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(
+       Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task currentTaskSlot)
    at System.Threading.Tasks.Task.ExecuteEntryUnsafe(Thread threadPoolThread)
    at System.Threading.Tasks.Task.ExecuteFromThreadPool(Thread threadPoolThread)
    at System.Threading.ThreadPoolWorkQueue.Dispatch()
@@ -128,7 +130,8 @@ Boolean killTasks, Boolean cancelExecution)
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
-<StrategyLog> Number of scheduling points in fair terminating schedules: 3 (min), 3 (avg), 3 (max).
+<StrategyLog> Number of scheduling points in fair terminating schedules: 
+              3 (min), 3 (avg), 3 (max).
 ```
 
 The `TestEngine.Create` method has overloads for supporting Coyote test methods with

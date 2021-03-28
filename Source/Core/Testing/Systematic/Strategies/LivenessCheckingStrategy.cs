@@ -46,8 +46,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override int GetScheduledSteps() => this.SchedulingStrategy.GetScheduledSteps();
 
         /// <inheritdoc/>
-        internal override bool HasReachedMaxSchedulingSteps() =>
-            this.SchedulingStrategy.HasReachedMaxSchedulingSteps();
+        internal override bool IsMaxStepsReached() =>
+            this.SchedulingStrategy.IsMaxStepsReached();
 
         /// <inheritdoc/>
         internal override bool IsFair() => this.SchedulingStrategy.IsFair();

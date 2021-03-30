@@ -77,17 +77,26 @@ public Task<bool> UpdateRow(string key, string value)
 {
   return Task.Run(() =>
   {
-    bool success = this.Collection.ContainsKey(key);
-    if (!success)
+    lock (this.Collection)
     {
-      throw new RowNotFoundException();
+      bool success = this.Collection.ContainsKey(key);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      this.Collection[key] = value;
     }
 
-    this.Collection[key] = value;
     return true;
   });
 }
 ```
+
+You'll notice that we use the `lock` statement to ensure checking presence of the key in the
+dictionary and updating the row is done without interference from other concurrent requests. While
+it is not fine to use `lock` statements in `AccountManager`, it is perfectly fine to use them in
+our mocks to simplify their implementation as they are only ever run in a single process.
 
 You can see how the rest of the `InMemoryDbCollection` methods are implemented in the [Coyote
 Samples git repo](http://github.com/microsoft/coyote-samples).

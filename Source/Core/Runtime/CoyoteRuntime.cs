@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Runtime
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
-    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(bool, bool)"/>, is thread-safe.
+    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(AsyncOperationType, bool, bool, int[])"/>, is thread-safe.
     /// </remarks>
     internal sealed class CoyoteRuntime : IDisposable
     {
@@ -1765,7 +1765,7 @@ namespace Microsoft.Coyote.Runtime
                 if (abstractionLevel is "default" ||
                     abstractionLevel is "custom")
                 {
-                    foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
+                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                     {
                         if (operation is ActorOperation actorOperation)
                         {
@@ -1787,7 +1787,7 @@ namespace Microsoft.Coyote.Runtime
                 else if (abstractionLevel is "inbox-only" ||
                     abstractionLevel is "custom-only")
                 {
-                    foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
+                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                     {
                         if (operation is ActorOperation actorOperation)
                         {

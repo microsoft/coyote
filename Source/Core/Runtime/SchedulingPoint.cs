@@ -15,11 +15,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Explores a possible interleaving with another operation during testing.
         /// </summary>
-        public static void Interleave() => CoyoteRuntime.Current.ScheduleNextOperation(false, true);
+        public static void Interleave() => CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Default, false, true);
 
         /// <summary>
         /// Lowers the scheduling priority of the currently executing operation during testing.
         /// </summary>
-        public static void Deprioritize() => CoyoteRuntime.Current.ScheduleNextOperation(true, true);
+        public static void Deprioritize() => CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Default, true, true);
     }
 }

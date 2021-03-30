@@ -750,6 +750,52 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Returns the hashed state of this actor.
+        /// </summary>
+        internal virtual int GetHashedState(string abstractionLevel)
+        {
+            unchecked
+            {
+                int hash = 37;
+                if (abstractionLevel is "default")
+                {
+                    hash = (hash * 397) + this.GetType().GetHashCode();
+                    hash = (hash * 397) + this.IsHalted.GetHashCode();
+
+                    hash = (hash * 31) + this.Id.Value.GetHashCode();
+                    hash = (hash * 397) + this.IsEventHandlerRunning.GetHashCode();
+                    hash = (hash * 397) + this.Context.GetActorProgramCounter(this.Id);
+
+                    hash = (hash * 397) + this.Inbox.GetCachedState();
+                }
+                else if (abstractionLevel is "inboxonly")
+                {
+                    hash = (hash * 397) + this.Inbox.GetCachedState();
+                }
+                else if (abstractionLevel is "custom")
+                {
+                    hash = (hash * 397) + this.Inbox.GetCachedState();
+
+                    if (this.HashedState != 0)
+                    {
+                        // Adds the user-defined hashed machine state.
+                        hash = (hash * 397) + this.HashedState;
+                    }
+                }
+                else if (abstractionLevel is "custom-only")
+                {
+                    if (this.HashedState != 0)
+                    {
+                        // Adds the user-defined hashed machine state.
+                        hash = (hash * 397) + this.HashedState;
+                    }
+                }
+
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Registers a new timer using the specified configuration.
         /// </summary>
         private protected TimerInfo RegisterTimer(TimeSpan dueTime, TimeSpan period, TimerElapsedEvent customEvent)

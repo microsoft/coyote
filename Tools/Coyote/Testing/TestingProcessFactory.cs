@@ -74,7 +74,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (configuration.SchedulingStrategy is "pct" ||
                 configuration.SchedulingStrategy is "fairpct" ||
-                configuration.SchedulingStrategy is "probabilistic")
+                configuration.SchedulingStrategy is "probabilistic" ||
+                configuration.SchedulingStrategy is "rl")
             {
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} {configuration.StrategyBound} ");
             }

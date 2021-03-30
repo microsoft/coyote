@@ -50,11 +50,13 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
+            testingGroup.AddArgument("sch-rl", null, "Choose the QL scheduling strategy", typeof(bool));
             testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
+            testingGroup.AddArgument("abstraction-level", null, "Choose the portfolio scheduling strategy", typeof(string));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
@@ -233,6 +235,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.RandomGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
+                case "sch-rl":
                 case "sch-dfs":
                 case "sch-interactive":
                 case "sch-portfolio":
@@ -246,6 +249,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "partially-controlled-testing":
                     configuration.IsPartiallyControlledTestingEnabled = true;
+                    break;
+                case "abstraction-level":
+                    configuration.AbstractionLevel = (string)option.Value;
+                    configuration.IsProgramStateHashingEnabled = true;
                     break;
                 case "schedule":
                     {
@@ -449,12 +456,21 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             if (configuration.SchedulingStrategy != "portfolio" &&
                 configuration.SchedulingStrategy != "interactive" &&
                 configuration.SchedulingStrategy != "random" &&
+                configuration.SchedulingStrategy != "rl" &&
                 configuration.SchedulingStrategy != "pct" &&
                 configuration.SchedulingStrategy != "fairpct" &&
                 configuration.SchedulingStrategy != "probabilistic" &&
                 configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
+            }
+
+            if (configuration.AbstractionLevel != "default" &&
+                configuration.AbstractionLevel != "inboxonly" &&
+                configuration.AbstractionLevel != "custom" &&
+                configuration.AbstractionLevel != "custom-only")
+            {
+                Error.ReportAndExit("Please provide a supported abstraction level from default, inboxonly, custom or custom-only");
             }
 
             if (configuration.SafetyPrefixBound > 0 &&

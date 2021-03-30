@@ -109,6 +109,10 @@ namespace Microsoft.Coyote.Testing
             {
                 strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
+            else if (configuration.SchedulingStrategy is "rl")
+            {
+                this.Strategy = new QLearningStrategy(configuration.AbstractionLevel, configuration.MaxUnfairSchedulingSteps, this.ValueGenerator);
+            }
 
             if (configuration.SchedulingStrategy != "replay" &&
                 configuration.ScheduleFile.Length > 0)

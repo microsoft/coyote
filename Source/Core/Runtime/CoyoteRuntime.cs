@@ -2117,7 +2117,9 @@ namespace Microsoft.Coyote.Runtime
                 SchedulingActivityInfo info = state as SchedulingActivityInfo;
                 if (info.StepCount == this.Scheduler.StepCount)
                 {
-                    this.NotifyAssertionFailure("Deadlock detected.", true, false, false);
+                    string msg = "Potential deadlock detected. If you think this is not a deadlock, you can try " +
+                        "increase the dealock detection timeout (--deadlock-timeout).";
+                    this.NotifyAssertionFailure(msg, true, false, false);
                 }
                 else
                 {

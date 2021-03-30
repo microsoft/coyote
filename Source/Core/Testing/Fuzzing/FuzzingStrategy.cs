@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// Creates a <see cref="FuzzingStrategy"/> from the specified configuration.
         /// </summary>
         internal static FuzzingStrategy Create(Configuration configuration, IRandomValueGenerator generator) =>
-            new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+            new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
 
         /// <summary>
         /// Returns the next delay.

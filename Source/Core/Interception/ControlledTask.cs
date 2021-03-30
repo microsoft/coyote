@@ -390,8 +390,7 @@ namespace Microsoft.Coyote.Interception
         /// asynchronously. During systematic testing, the underlying scheduling strategy can use this
         /// as a hint on how to better prioritize this work relative to other work that may be pending.
         /// </remarks>
-        public static CoyoteTasks.YieldAwaitable Yield() =>
-            new CoyoteTasks.YieldAwaitable(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
+        public static CoyoteTasks.YieldAwaitable Yield() => new CoyoteTasks.YieldAwaitable(CoyoteRuntime.Current);
     }
 
     /// <summary>

@@ -1393,10 +1393,20 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal void OnYieldAwaiterGetResult() => this.ScheduleNextOperation();
+        internal void OnYieldAwaiterGetResult()
+        {
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                this.ScheduleNextOperation();
+            }
+            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.DelayOperation();
+            }
+        }
 
         /// <summary>
-        /// Callback invoked when the executing operation is waiting for the specified task to complete.
+        /// Callback invoked when the <see cref="CoyoteTasks.TaskAwaiter.GetResult"/> is called.
         /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
@@ -1557,7 +1567,7 @@ namespace Microsoft.Coyote.Runtime
                 AssignAsyncControlFlowRuntime(this);
 
                 // Choose the next delay to inject.
-                this.Scheduler.GetNextDelay(out int next);
+                int next = this.GetNondeterministicDelay();
 
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, next);
                 // Thread.Sleep(next);
@@ -1651,8 +1661,15 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
+                // Checks if the scheduling steps bound has been reached.
+                this.CheckIfSchedulingStepsBoundIsReached();
+
                 // Choose the next delay to inject.
-                this.Scheduler.GetNextDelay(out int next);
+                if (!this.Scheduler.GetNextDelay(out int next))
+                {
+                    this.Detach();
+                }
+
                 return next;
             }
         }
@@ -1885,10 +1902,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Scheduler.IsMaxStepsReached)
             {
-                int bound = this.Scheduler.IsScheduleFair ? this.Configuration.MaxFairSchedulingSteps :
-                    this.Configuration.MaxUnfairSchedulingSteps;
-                string message = $"Scheduling steps bound of {bound} reached.";
-
+                string message = $"Scheduling steps bound of {this.Scheduler.StepCount} reached.";
                 if (this.Configuration.ConsiderDepthBoundHitAsBug)
                 {
                     this.NotifyAssertionFailure(message);

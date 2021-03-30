@@ -69,6 +69,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             rewritingGroup.AddArgument("rewrite-threads", null, "Rewrite low-level threading APIs (experimental)", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
+            coverageGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
  code: Generate code coverage statistics (via VS instrumentation)
  activity: Generate activity (state machine, event, etc.) coverage statistics
@@ -80,26 +81,30 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 "coverage, one per line, wildcards supported, lines starting with '//' are skipped", typeof(string));
 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
+            advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
-            advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
-            advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
-            advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
             advancedGroup.AddArgument("xml-trace", null, "Specify a filename for XML runtime log output to be written to", typeof(bool));
             advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified name: 'fullclass,assembly'", typeof(string));
 
+            var experimentalGroup = this.Parser.GetOrCreateGroup("experimentalGroup", "Experimental options");
+            experimentalGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
+            experimentalGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
+            experimentalGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing", typeof(bool));
+
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
-            hiddenGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing", typeof(bool));
             hiddenGroup.AddArgument("sch-interactive", null, "Choose the interactive scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
+            hiddenGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
+            hiddenGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
+            hiddenGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 

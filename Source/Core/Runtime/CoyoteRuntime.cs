@@ -1761,7 +1761,6 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 14689;
-
                 if (abstractionLevel is "default" ||
                     abstractionLevel is "custom")
                 {

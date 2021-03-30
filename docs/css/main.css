@@ -54,7 +54,7 @@ table {
  .wm-toc-li-nested.wm-page-toc {
    border-left: 1px solid #F6F6F6 !important;
  }
-
+ 
  button, .btn, .btn-sm, .btn-xs, .btn-default, #hist-fwd, #hist-back, #wm-toc-button, #wm-search-go {
    color: #F6F6F6 !important;
  }

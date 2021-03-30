@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         public static string RemoveStackTrace(this string text,
-            string removeUntilContainsText = "Microsoft.Coyote.SystematicTesting.Tests")
+            string removeUntilContainsText = "Microsoft.Coyote.BugFinding.Tests")
         {
             StringBuilder result = new StringBuilder();
             bool strip = false;
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     result.AppendLine(trimmed);
                 }
-                else if (strip && trimmed.Contains("Microsoft.Coyote.SystematicTesting.Tests"))
+                else if (strip && trimmed.Contains("Microsoft.Coyote.BugFinding.Tests"))
                 {
                     result.AppendLine(trimmed);
                 }

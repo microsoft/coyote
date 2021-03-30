@@ -2,7 +2,7 @@ param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "net5.0", "net48")]
     [string]$framework = "all",
-    [ValidateSet("all", "systematic", "tasks-systematic", "actors", "actors-systematic", "standalone")]
+    [ValidateSet("all", "rewriting", "testing", "tasks-testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -13,10 +13,11 @@ param(
 Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 
 $targets = [ordered]@{
-    "systematic" = "Tests.SystematicTesting"
-    "tasks-systematic" = "Tests.Tasks.SystematicTesting"
+    "rewriting" = "Tests.Rewriting"
+    "testing" = "Tests.BugFinding"
+    "tasks-testing" = "Tests.Tasks.BugFinding"
     "actors" = "Tests.Actors"
-    "actors-systematic" = "Tests.Actors.SystematicTesting"
+    "actors-testing" = "Tests.Actors.BugFinding"
     "standalone" = "Tests.Standalone"
 }
 

@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
+namespace Microsoft.Coyote.BugFinding.Tests.Runtime
 {
     public class CustomActorRuntimeLogSubclass : ActorRuntimeLogTextFormatter
     {

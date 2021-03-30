@@ -83,7 +83,8 @@ private void HandleTimeout(Event e)
     this.WriteMessage("<Client> Handling timeout from timer");
 
     this.WriteMessage("<Client> Starting a period timer");
-    this.PeriodicTimer = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), new CustomTimerEvent());
+    this.PeriodicTimer = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), 
+        TimeSpan.FromSeconds(1), new CustomTimerEvent());
 }
 ```
 

@@ -254,7 +254,7 @@ guaranteed failure is that there are some task interleavings where it passes, an
 fails with the following exception:
 
 ```plain
-Unhandled exception. RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
+RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
 ...
 ```
 
@@ -372,7 +372,8 @@ Cool, the flakey test is no longer flakey! Coyote can also help you reproduce an
 simply run `coyote replay` giving the `.schedule` file that Coyote outputs upon finding a bug:
 
 ```plain
-coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
+coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule 
+    -m TestConcurrentAccountCreation
 . Replaying .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.schedule
 ... Task 0 is using 'replay' strategy.
 ... Reproduced 1 bug (use --break to attach the debugger).
@@ -435,7 +436,8 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 
 If you find a bug you can replay with the following command:
 ```plain
-coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule -m TestConcurrentAccountCreation
+coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule 
+    -m TestConcurrentAccountCreation
 ```
 
 Enjoy!

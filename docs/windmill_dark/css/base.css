@@ -159,7 +159,7 @@ border-bottom: 1px none black;
 }
 
 .wm-toc-hidden > .wm-toc-pane {
-margin-left: -250px;
+margin-left: -350px;
 }
 
 .wm-toc-hidden > .wm-content-pane {
@@ -318,10 +318,68 @@ height: 100%;
 border: none;
 }
 
-button, .btn, .btn-sm, .btn-xs, .btn-default, #hist-fwd, #hist-back, #wm-toc-button, #wm-search-go {
+.navbar-toggler {
+  display: inline;
+  padding: 0rem 0rem;
+  font-size: 1.25rem;
+  background: transparent;
+  border: 0 solid transparent;
+  cursor: pointer;
+  text-align:left;
+  vertical-align: top;
+  transition: all .2s;
+}
+.navbar-toggler:focus {
+  outline: none;
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:hover {
+  text-decoration: none;
+}
+.hamburger {
+  width: 30px;
+  height: 24px;
+}
+.navbar-toggler .hamburger span {
+  width: 30px;
+  height: 2px;
+  border-right: 5px;
+  background-color: #ffffff;
+}
+
+.navbar-toggler .hamburger span:nth-child(1) {
+  margin-top: 0;
+  padding:0px;
+  position:absolute;
+}
+
+.navbar-toggler .hamburger span:nth-child(2) {
+  margin-top: 8px;
+  position:absolute;
+}
+
+.navbar-toggler .hamburger span:nth-child(3) {
+  margin-top: 8px;
+  position:absolute;
+}
+
+.navbar-toggler .hamburger span:nth-child(4) {
+  margin-top: 16px;
+  position:absolute;
+}
+
+button, .btn, .btn-sm, .btn-xs, .btn-default, #hist-fwd, #hist-back, #wm-search-go {
   background-color: #21252B;
   color: #CC342D;
   border: 1px solid;
+}
+
+#wm-toc-button{
+  margin-right: 5px;
+  margin-top: 15px;
+  background-color: #21252B;
+  border: 0px solid;
 }
 
 .btn-link {
@@ -335,13 +393,13 @@ border: none;
 outline: none;
 }
 
-button:focus, .btn:focus, .btn-sm:focus, .btn-xs:focus, .btn-default:focus, .btn-link:focus, #hist-fwd:focus, #hist-back:focus, #wm-toc-button:focus, #wm-search-go:focus {
+button:focus, .btn:focus, .btn-sm:focus, .btn-xs:focus, .btn-default:focus, .btn-link:focus, #hist-fwd:focus, #hist-back:focus, #wm-search-go:focus {
 color: #CC342D;
 background-color: #2C313A;
 border-color: #CC342D;
 }
 
-button:hover, .btn:hover, .btn-sm:hover, .btn-xs:hover, .btn-default:hover, .btn-link:hover, #hist-fwd:hover, #hist-back:hover, #wm-toc-button:hover, #wm-search-go:hover {
+button:hover, .btn:hover, .btn-sm:hover, .btn-xs:hover, .btn-default:hover, .btn-link:hover, #hist-fwd:hover, #hist-back:hover, #wm-search-go:hover {
 color: #CC342D;
 background-color: #2C313A;
 border-color: #CC342D;

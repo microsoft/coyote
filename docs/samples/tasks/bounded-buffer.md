@@ -22,7 +22,7 @@ Build the `coyote-samples` repo by running the following command:
 powershell -f build.ps1
 ```
 
-## Run the failover coffee machine application
+## Run the bounded-buffer application
 
 Now you can run the `BoundedBuffer` application in a mode that should trigger the deadlock most of
 the time:

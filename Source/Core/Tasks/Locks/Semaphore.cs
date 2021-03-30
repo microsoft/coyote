@@ -24,6 +24,12 @@ namespace Microsoft.Coyote.Tasks
         public virtual int CurrentCount => this.Instance.CurrentCount;
 
         /// <summary>
+        /// User-defined hashed state of the Semaphore. Override to improve the
+        /// accuracy of stateful techniques during testing.
+        /// </summary>
+        internal virtual int HashedState => 0;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Semaphore"/> class.
         /// </summary>
         protected Semaphore(SemaphoreSlim semaphore)
@@ -274,7 +280,7 @@ namespace Microsoft.Coyote.Tasks
             public override bool Wait(int millisecondsTimeout, CancellationToken cancellationToken)
             {
                 // TODO: support cancellations during testing.
-                this.Resource.Runtime.ScheduleNextOperation(false, true);
+                this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Join, false, true, this.GetHashedState());
 
                 // We need this loop, because when a resource gets released it notifies all asynchronous
                 // operations waiting to acquire it, even if such an operation is still blocked.
@@ -325,7 +331,38 @@ namespace Microsoft.Coyote.Tasks
                 // This must be called outside the context of the semaphore, because it notifies
                 // the scheduler to try schedule another asynchronous operation that could in turn
                 // try to acquire this semaphore causing a deadlock.
-                this.Resource.Runtime.ScheduleNextOperation(false, true);
+                this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Release, false, true, this.GetHashedState());
+            }
+
+            /// <summary>
+            /// Returns the hashed state of this SP as an Array. [0] - "default", [1] - "custom", [2] - "custom-only".
+            /// </summary>
+            private int[] GetHashedState()
+            {
+                unchecked
+                {
+                    int[] hashArray = new int[3];
+
+                    // default hash state
+                    var hash = 19;
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+                    hashArray[0] = hash;
+
+                    // custom hash state
+                    hash = 19;
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                    hashArray[1] = hash;
+
+                    // custom-only hash state
+                    hash = 19;
+                    hash = (hash * 31) + this.HashedState;
+                    hashArray[2] = hash;
+
+                    return hashArray;
+                }
             }
         }
     }

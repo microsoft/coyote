@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
             this.JoinDependencies.Add(task);
             this.Status = AsyncOperationStatus.BlockedOnWaitAll;
-            this.Runtime.ScheduleNextOperation();
+            this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.JoinDependencies.Count > 0)
                 {
                     this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                    this.Runtime.ScheduleNextOperation();
+                    this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.JoinDependencies.Count > 0)
                 {
                     this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                    this.Runtime.ScheduleNextOperation();
+                    this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
                 }
             }
         }

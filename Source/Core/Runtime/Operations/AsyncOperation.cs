@@ -27,6 +27,31 @@ namespace Microsoft.Coyote.Runtime
         internal AsyncOperationStatus Status;
 
         /// <summary>
+        /// The type of the operation.
+        /// </summary>
+        public AsyncOperationType Type { get; private set; }
+
+        /// <summary>
+        /// The default hashed state of the operation.
+        /// </summary>
+        public int DefaultHashedState { get; internal set; }
+
+        /// <summary>
+        /// The Inbox hash state of the operation.
+        /// </summary>
+        public int InboxOnlyHashedState { get; internal set; }
+
+        /// <summary>
+        /// The custom hashed state of the operation.
+        /// </summary>
+        public int CustomHashedState { get; internal set; }
+
+        /// <summary>
+        /// The custom only hashed state of the operation.
+        /// </summary>
+        public int CustomOnlyHashedState { get; internal set; }
+
+        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>
@@ -40,6 +65,7 @@ namespace Microsoft.Coyote.Runtime
             this.Id = operationId;
             this.Name = name;
             this.Status = AsyncOperationStatus.None;
+            this.Type = AsyncOperationType.Start;
         }
 
         /// <summary>
@@ -54,6 +80,14 @@ namespace Microsoft.Coyote.Runtime
         /// Tries to enable the operation, if it is not already enabled.
         /// </summary>
         internal virtual bool TryEnable() => false;
+
+        /// <summary>
+        /// Sets the operation type.
+        /// </summary>
+        internal virtual void SetType(AsyncOperationType operationType)
+        {
+            this.Type = operationType;
+        }
 
         /// <summary>
         /// Checks if the operation is blocked on an uncontrolled dependency.

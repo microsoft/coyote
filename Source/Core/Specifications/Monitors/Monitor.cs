@@ -644,6 +644,38 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
+        /// Returns the hashed state of this monitor.
+        /// </summary>
+        internal int GetHashedState(string abstractionLevel)
+        {
+            unchecked
+            {
+                var hash = 19;
+
+                if (abstractionLevel is "default")
+                {
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+                    hash = (hash * 31) + this.CurrentState.GetHashCode();
+                }
+                else if (abstractionLevel is "custom")
+                {
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+                    hash = (hash * 31) + this.CurrentState.GetHashCode();
+
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                }
+                else if (abstractionLevel is "custom-only")
+                {
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                }
+
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Returns a string that represents the current monitor.
         /// </summary>
         public override string ToString() => this.Name;

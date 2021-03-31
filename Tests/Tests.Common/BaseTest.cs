@@ -280,7 +280,7 @@ namespace Microsoft.Coyote.Tests.Common
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
                 // Increase iterations during fuzzing as some bugs might be harder to be found.
-                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 10);
+                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 20);
             }
 
             ILogger logger = this.GetLogger(configuration);
@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.Tests.Common
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
                 // Increase iterations during fuzzing as some bugs might be harder to be found.
-                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 10);
+                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 20);
             }
 
             Type exceptionType = typeof(TException);

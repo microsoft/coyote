@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(Receiver));
             },
-            configuration: GetConfiguration().WithDFSStrategy().WithTestingIterations(600),
+            configuration: this.GetConfiguration().WithDFSStrategy().WithTestingIterations(600),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }

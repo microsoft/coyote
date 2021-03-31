@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private TestingEngine InternalTest(Delegate test, Configuration configuration)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
             ILogger logger = this.GetLogger(configuration);
 
             TestingEngine engine = null;
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
             ILogger logger = this.GetLogger(configuration);
 
             try
@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.Tests.Common
                 var engine = RunTest(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
-                if (replay)
+                if (replay && !configuration.IsConcurrencyFuzzingEnabled)
                 {
                     configuration.WithReplayStrategy(engine.ReproducibleTrace);
 
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.Tests.Common
         private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
@@ -375,7 +375,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                 CheckErrors(engine, exceptionType);
 
-                if (replay)
+                if (replay && !configuration.IsConcurrencyFuzzingEnabled)
                 {
                     configuration.SchedulingStrategy = "replay";
                     configuration.ScheduleTrace = engine.ReproducibleTrace;
@@ -399,7 +399,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void Run(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             ILogger logger = this.GetLogger(configuration);
 
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null, bool handleFailures = true)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
@@ -506,7 +506,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             string errorMessage = string.Empty;
             ILogger logger = this.GetLogger(configuration);
@@ -551,7 +551,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, TestErrorChecker errorChecker)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             string errorMessage = string.Empty;
             ILogger logger = this.GetLogger(configuration);
@@ -596,7 +596,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void RunWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -644,7 +644,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -692,7 +692,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -742,7 +742,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
         {
-            configuration ??= GetConfiguration();
+            configuration ??= this.GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -912,8 +912,7 @@ namespace Microsoft.Coyote.Tests.Common
         private static void CheckErrors(TestingEngine engine, Type exceptionType)
         {
             Assert.Equal(1, engine.TestReport.NumOfFoundBugs);
-            Assert.Contains(exceptionType.FullName,
-                engine.TestReport.BugReports.First().Split(new[] { '\r', '\n' }).FirstOrDefault());
+            Assert.IsType(exceptionType, engine.TestReport.ThrownException);
         }
 
         /// <summary>
@@ -924,7 +923,7 @@ namespace Microsoft.Coyote.Tests.Common
             where T : Exception, new() =>
             throw new T();
 
-        protected static Configuration GetConfiguration()
+        protected virtual Configuration GetConfiguration()
         {
             return Configuration.Create().WithTelemetryEnabled(false);
         }

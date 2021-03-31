@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int result = await tcs.Task;
                 Specification.Assert(result is 1, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
     }
 }

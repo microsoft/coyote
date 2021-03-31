@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 CancellationToken ct = new CancellationToken(true);
                 await Task.Run(() => { }, ct);
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                     await Task.Delay(1);
                 }, ct);
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 CancellationToken ct = new CancellationToken(true);
                 await Task.Run(() => 3, ct);
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                     return 3;
                 }, ct);
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
     }
 }

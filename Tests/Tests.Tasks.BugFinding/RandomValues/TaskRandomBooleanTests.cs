@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteAsync();
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteWithDelayAsync();
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

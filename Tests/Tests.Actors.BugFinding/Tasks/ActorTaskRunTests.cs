@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A1));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M1 : StateMachine
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M1));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class A2 : Actor
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A2));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M2 : StateMachine
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M2));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class A3 : Actor
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A3));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M3 : StateMachine
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M3));
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
     }
 }

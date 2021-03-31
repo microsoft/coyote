@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Task.WaitAll(tasks.ToArray());
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Deadlock detected.", e);
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Task.WaitAll(tasks.ToArray());
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
     }
 }

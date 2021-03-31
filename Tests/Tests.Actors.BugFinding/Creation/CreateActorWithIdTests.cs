@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 // Trying to bring up a halted actor.
                 r.CreateActor(id, typeof(M2));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Actor id '' is used by an existing or previously halted actor.");
         }
 

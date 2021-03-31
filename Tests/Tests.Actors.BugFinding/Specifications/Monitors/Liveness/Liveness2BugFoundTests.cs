@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         [Fact(Timeout = 5000)]
         public void TestLiveness2BugFound()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             configuration.SchedulingStrategy = "dfs";
 
             this.TestWithError(r =>

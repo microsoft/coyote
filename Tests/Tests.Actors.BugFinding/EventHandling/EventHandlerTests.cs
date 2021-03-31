@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(A3));
                 r.SendEvent(id, UnitEvent.Instance);
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -1116,7 +1116,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M21a));
             },
-            configuration: GetConfiguration().WithDFSStrategy(),
+            configuration: this.GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -1221,7 +1221,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M22a));
             },
-            configuration: GetConfiguration().WithDFSStrategy(),
+            configuration: this.GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -1318,7 +1318,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M23a));
             },
-            configuration: GetConfiguration().WithDFSStrategy(),
+            configuration: this.GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }

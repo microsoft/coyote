@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(ClientActor));
             },
-            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
                 WithLivenessTemperatureThreshold(150),
             expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(ClientStateMachine));
             },
-            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
                 WithLivenessTemperatureThreshold(150),
             expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",

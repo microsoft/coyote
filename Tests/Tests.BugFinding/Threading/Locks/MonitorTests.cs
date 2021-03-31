@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 var t2 = Task.Run(signal.Signal);
                 await Task.WhenAll(t1, t2);
             },
-            GetConfiguration().WithTestingIterations(100));
+            this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 SignalData signal = new SignalData();
                 signal.ReentrantLock();
             },
-            GetConfiguration().WithTestingIterations(100));
+            this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task t2 = Task.Run(signal.DoLock);
                 await Task.WhenAll(t1, t2);
             },
-            GetConfiguration().WithTestingIterations(100));
+            this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task t2 = Task.Run(signal.Signal);
                 await Task.WhenAll(t1, t2);
             },
-            GetConfiguration().WithTestingIterations(100));
+            this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 string actual = string.Join(", ", log);
                 Specification.Assert(expected == actual, "ControlledMonitor out of order, '{0}' instead of '{1}'", actual, expected);
             },
-            GetConfiguration());
+            this.GetConfiguration());
         }
 
         private class SignalData

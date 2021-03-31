@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M));
             },
-            configuration: GetConfiguration().WithDFSStrategy().WithMaxSchedulingSteps(6),
+            configuration: this.GetConfiguration().WithDFSStrategy().WithMaxSchedulingSteps(6),
             expectedError: "There are more than 1 instances of 'E1' in the input queue of N().",
             replay: true);
         }

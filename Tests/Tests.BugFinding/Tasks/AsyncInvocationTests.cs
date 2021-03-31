@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(result is 3, "Unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }

@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A1));
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private class M1 : StateMachine
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M1));
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private class A2 : Actor
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A2));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M2));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A3));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M3));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A4));
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private class M4 : StateMachine
@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M4));
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private class A5 : Actor
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A5));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -319,7 +319,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M5));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -353,7 +353,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A6));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -395,7 +395,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M6));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -429,7 +429,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A7));
             },
-            configuration: GetConfiguration().WithTestingIterations(500),
+            configuration: this.GetConfiguration().WithTestingIterations(500),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M7));
             },
-            configuration: GetConfiguration().WithTestingIterations(500),
+            configuration: this.GetConfiguration().WithTestingIterations(500),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

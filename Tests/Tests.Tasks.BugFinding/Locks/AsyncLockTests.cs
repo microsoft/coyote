@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 18;
                 Specification.Assert(value == expected, "Value is {0} instead of {expected}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 18;
                 Specification.Assert(value == expected, "Value is {0} instead of {expected}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
     }
 }

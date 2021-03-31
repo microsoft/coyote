@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(M1));
                 r.SendEvent(id, UnitEvent.Instance);
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Reached test assertion.",
             replay: true);
         }

@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(t1, t2);
                 Specification.Assert(this.a > 1 || this.b > 1, string.Format("A: {0}, B: {1}", this.a, this.b));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "A: 1, B: 1",
             replay: true);
         }
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(t1, t2);
                 Specification.Assert(this.a > 1 || this.b > 1, string.Format("A: {0}, B: {1}", this.a, this.b));
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "A: 1, B: 1",
             replay: true);
         }

@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.IsEventuallyCompletedSuccessfully(pollingTask);
                 await pollingTask;
             },
-            configuration: GetConfiguration().WithMaxSchedulingSteps(100),
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Found potential liveness bug at the end of program execution.", e);

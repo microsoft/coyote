@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Found deferred event of type E1.",
             replay: true);
         }

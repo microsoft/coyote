@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M1a));
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M2a));
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -294,7 +294,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M3a));
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M4a));
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -440,7 +440,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M5a));
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }

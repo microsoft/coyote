@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -294,7 +294,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -355,7 +355,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 CancellationToken ct = new CancellationToken(true);
                 await Task.Factory.StartNew(() => { }, ct);
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -369,7 +369,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 CancellationToken ct = new CancellationToken(true);
                 await Task.Factory.StartNew(async () => await Task.Delay(1), ct).Unwrap();
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             replay: true);
         }
 
@@ -395,7 +395,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 cts.Cancel();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
     }

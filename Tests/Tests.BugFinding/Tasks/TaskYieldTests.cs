@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await Task.Yield();
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 await Task.Yield();
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.Yield();
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.Yield();
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.Yield();
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value 5 after write.",
             replay: true);
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await task;
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(300),
+            configuration: this.GetConfiguration().WithTestingIterations(300),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await InvokeParallelWriteWithYieldAsync(entry);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

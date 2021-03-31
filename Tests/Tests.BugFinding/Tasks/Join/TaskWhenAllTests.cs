@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
                 Specification.Assert(results[0] == results[1], "Results are equal.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Results are equal.",
             replay: true);
         }
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(results[1] is 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(300),
+            configuration: this.GetConfiguration().WithTestingIterations(300),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 1);
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 1.",
             replay: true);
         }
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 AssertSharedEntryValue(entry, 1);
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 1.",
             replay: true);
         }
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "The second task exception is not of the expected type.");
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "The second task exception is not of the expected type.");
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }

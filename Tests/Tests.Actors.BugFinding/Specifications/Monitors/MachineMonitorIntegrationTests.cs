@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 r.RegisterMonitor<Spec1>();
                 r.CreateActor(typeof(M1<Spec1>));
             },
-            configuration: GetConfiguration().WithDFSStrategy(),
+            configuration: this.GetConfiguration().WithDFSStrategy(),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 r.RegisterMonitor<Spec2>();
                 r.CreateActor(typeof(M2));
             },
-            configuration: GetConfiguration().WithDFSStrategy());
+            configuration: this.GetConfiguration().WithDFSStrategy());
         }
 
         [Fact(Timeout = 5000)]
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 r.RegisterMonitor<Spec3>();
                 r.CreateActor(typeof(M1<Spec3>));
             },
-            configuration: GetConfiguration().WithDFSStrategy());
+            configuration: this.GetConfiguration().WithDFSStrategy());
         }
     }
 }

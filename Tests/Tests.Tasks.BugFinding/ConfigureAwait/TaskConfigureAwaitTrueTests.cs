@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteAsync(entry, 5).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteAsync(entry, 3).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteWithDelayAsync(entry, 5).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await WriteWithDelayAsync(entry, 3).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await NestedWriteAsync(entry, 5).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await NestedWriteAsync(entry, 3).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 await NestedWriteWithDelayAsync(entry, 3).ConfigureAwait(true);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await entry.GetWriteResultAsync(5).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await entry.GetWriteResultAsync(3).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await entry.GetWriteResultWithDelayAsync(5).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await entry.GetWriteResultWithDelayAsync(3).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await NestedGetWriteResultAsync(entry, 5).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await NestedGetWriteResultAsync(entry, 3).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await NestedGetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -253,7 +253,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 int value = await NestedGetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(true);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

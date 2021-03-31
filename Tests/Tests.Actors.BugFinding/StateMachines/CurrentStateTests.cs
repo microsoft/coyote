@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(Server));
             },
-            configuration: GetConfiguration().WithDFSStrategy());
+            configuration: this.GetConfiguration().WithDFSStrategy());
         }
     }
 }

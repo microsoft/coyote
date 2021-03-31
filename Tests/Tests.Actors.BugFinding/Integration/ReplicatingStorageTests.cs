@@ -858,7 +858,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         [InlineData(315)]
         public void TestReplicatingStorageLivenessBug(uint seed)
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 200;
             configuration.MaxFairSchedulingSteps = 2000;
             configuration.LivenessTemperatureThreshold = 1000;

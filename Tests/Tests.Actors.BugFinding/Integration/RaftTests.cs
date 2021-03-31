@@ -1219,7 +1219,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         [InlineData(361)]
         public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 100;
             configuration.MaxFairSchedulingSteps = 1000;
             configuration.LivenessTemperatureThreshold = 500;

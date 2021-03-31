@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 AssertCompleted(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 AssertCompleted(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
                 AssertCompleted(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
                 AssertCompleted(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
                 AssertCompleted(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 tcs.SetResult(true);
                 await tcs.Task;
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 tcs.SetResult(true);
                 await tcs.Task;
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private static void AssertCompleted(Task task1, Task task2) =>

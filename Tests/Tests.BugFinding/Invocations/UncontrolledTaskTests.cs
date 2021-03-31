@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await AsyncProvider.DelayAsync(100);
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
                 string expectedMethodName = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.DelayAsync)}";

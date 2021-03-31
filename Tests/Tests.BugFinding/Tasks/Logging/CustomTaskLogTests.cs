@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             InMemoryLogger log = new InMemoryLogger();
 
-            var config = GetConfiguration().WithVerbosityEnabled().WithTestingIterations(3);
+            var config = this.GetConfiguration().WithVerbosityEnabled().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hi mom!");
@@ -74,7 +74,7 @@ Hi mom!
         [Fact(Timeout = 5000)]
         public void TestCustomTaskRuntimeLog()
         {
-            var config = GetConfiguration().WithRandomGeneratorSeed(0);
+            var config = this.GetConfiguration().WithRandomGeneratorSeed(0);
             TestingEngine engine = TestingEngine.Create(config, this.RunAsync);
 
             try

@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int result = await tcs.Task;
                 Specification.Assert(result is 7, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int result = await tcs.Task;
                 Specification.Assert(result is 7, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 await Task.Delay(10);
             },
-            configuration: GetConfiguration().WithTestingIterations(10),
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task taskResult = await tcs.Task;
                 await taskResult;
             },
-            configuration: GetConfiguration().WithTestingIterations(10),
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             replay: true);
         }
 
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int result = await tcs.Task;
                 Specification.Assert(result is 7, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int result = await tcs.Task;
                 Specification.Assert(result is 7, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(10));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     ThrowException<InvalidOperationException>();
                 }, null);
             },
-            configuration: GetConfiguration().WithTestingIterations(10),
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task taskResult = await tcs.Task;
                 await taskResult;
             },
-            configuration: GetConfiguration().WithTestingIterations(10),
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             replay: true);
         }
     }

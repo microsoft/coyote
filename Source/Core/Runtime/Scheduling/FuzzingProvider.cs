@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                return runtime.GetNondeterministicDelay();
+                return runtime.GetNondeterministicDelay(millisecondsDelay);
             }
 
             return millisecondsDelay;
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                return TimeSpan.FromMilliseconds(runtime.GetNondeterministicDelay());
+                return TimeSpan.FromMilliseconds(runtime.GetNondeterministicDelay(Convert.ToInt32(delay.TotalMilliseconds)));
             }
 
             return delay;

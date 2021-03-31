@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(Client));
             },
-            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
                 WithLivenessTemperatureThreshold(150).WithTimeoutDelay(1));
         }
     }

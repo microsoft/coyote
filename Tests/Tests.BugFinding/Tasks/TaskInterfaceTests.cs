@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 bool result = await sender.SendEventAsync();
                 Specification.Assert(result, "Unexpected result.");
             },
-            configuration: GetConfiguration());
+            configuration: this.GetConfiguration());
         }
     }
 }

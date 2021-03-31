@@ -163,10 +163,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the next delay.
         /// </summary>
+        /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(out next);
+        internal bool GetNextDelay(int maxValue, out int next) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

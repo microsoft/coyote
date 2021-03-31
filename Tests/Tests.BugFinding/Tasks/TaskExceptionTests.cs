@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private static async Task WriteWithExceptionAsync(SharedEntry entry, int value)
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
     }
 }

@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(A2));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Spec detected liveness bug in hot state 'S1' at the end of program execution.",
             replay: true);
         }
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(M2));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Spec detected liveness bug in hot state 'S1' at the end of program execution.",
             replay: true);
         }
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(A3));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(M3));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            configuration: GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
     }

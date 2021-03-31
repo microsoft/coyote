@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(result1 is 3, "Found unexpected value {0}.", result1);
                 Specification.Assert(result2 is 3, "Found unexpected value {0}.", result2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]

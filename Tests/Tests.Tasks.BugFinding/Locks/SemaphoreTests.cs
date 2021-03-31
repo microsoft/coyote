@@ -188,7 +188,7 @@ Actual value was 2."
                 await Task.WhenAll(task1, task2);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -219,7 +219,7 @@ Actual value was 2."
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value is 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -245,7 +245,7 @@ Actual value was 2."
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]

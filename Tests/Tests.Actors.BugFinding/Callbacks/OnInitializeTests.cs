@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(A1));
                 r.SendEvent(id, UnitEvent.Instance);
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Value is 1.",
             replay: true);
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(M1));
                 r.SendEvent(id, UnitEvent.Instance);
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Value is 1.",
             replay: true);
         }
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A2), new SetupEvent(1));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Value is 1.",
             replay: true);
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M2), new SetupEvent(1));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Value is 1.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M3), new SetupEvent(1));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Value is 2.",
             replay: true);
         }

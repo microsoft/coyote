@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Specification.Assert(lockTaken, "lockTaken is false");
             },
-            GetConfiguration());
+            this.GetConfiguration());
         }
     }
 }

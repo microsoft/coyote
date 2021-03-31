@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(entry.Value == task.Id, "Unexpected task id.");
                 Specification.Assert(entry.Value != task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(task.Result == task.Id, "Unexpected task id.");
                 Specification.Assert(task.Result != task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(entry.Value != task.Id, "Unexpected task id.");
                 Specification.Assert(entry.Value == task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(task.Result != task.Id, "Unexpected task id.");
                 Specification.Assert(task.Result == task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }

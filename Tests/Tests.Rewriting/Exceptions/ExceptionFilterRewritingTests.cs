@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     throw;
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
 #pragma warning restore CA2200 // Rethrow to preserve stack details.
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     throw;
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     // Needs rewriting to not consume.
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     // Needs rewriting to not consume.
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     // Needs rewriting to not consume.
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
         [Fact(Timeout = 5000)]
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
+            configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
+            configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
         }
 
         private static async Task<int> DelayAsync()
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                     Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
                 }
             },
-            configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
+            configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
         }
 
         private static void CheckCatchBlockRewriting(MethodBase methodInfo, int expectedCount)

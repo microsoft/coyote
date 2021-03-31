@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Found ignored event of type UnitEvent.",
             replay: true);
         }
@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var id = r.CreateActor(typeof(M2));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
-            configuration: GetConfiguration(),
+            configuration: this.GetConfiguration(),
             expectedError: "Found ignored event of type E1.",
             replay: true);
         }

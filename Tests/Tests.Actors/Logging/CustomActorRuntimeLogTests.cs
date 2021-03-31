@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Actors.Tests
                     expected = expected.SortLines();
                     Assert.Equal(expected, actual);
                 }
-            }, GetConfiguration());
+            }, this.GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
@@ -222,7 +222,7 @@ namespace Microsoft.Coyote.Actors.Tests
                     expected = expected.RemoveNonDeterministicValues();
                     Assert.Equal(expected, actual);
                 }
-            }, GetConfiguration());
+            }, this.GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
@@ -284,7 +284,7 @@ StateTransition";
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
-            }, GetConfiguration());
+            }, this.GetConfiguration());
         }
 
         internal class PingEvent : Event
@@ -405,7 +405,7 @@ StateTransition";
                     Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
                     Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
                 }
-            }, GetConfiguration());
+            }, this.GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
@@ -441,7 +441,7 @@ StateTransition";
                     Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
                     Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
                 }
-            }, GetConfiguration());
+            }, this.GetConfiguration());
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 Specification.Assert(result is 7, "Result is {0} instead of 7.", result);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 Specification.Assert(result is 7, "Result is {0} instead of 7.", result);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 Specification.Assert(result is 7, "Result is {0} instead of 7.", result);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 Specification.Assert(result is 7, "Result is {0} instead of 7.", result);
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: this.GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
 
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             expectedError: "Reached test assertion.",
             replay: true);
         }

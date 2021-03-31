@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var result = await tcs.Task;
                 Assert.Equal(3, result);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M1 : StateMachine
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var result = await tcs.Task;
                 Assert.Equal(3, result);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [OnEventDoAction(typeof(SetupEvent), nameof(HandleSetupEvent))]
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var result = await tcs.Task;
                 Assert.Equal(3, result);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M2 : StateMachine
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var result = await tcs.Task;
                 Assert.Equal(3, result);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class A3 : Actor
@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(A3), new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M3 : StateMachine
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(M3), new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [OnEventDoAction(typeof(SetupEvent), nameof(HandleSetupEvent))]
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.SendEvent(id, new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M4 : StateMachine
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.SendEvent(id, new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
-            configuration: GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
     }
 }

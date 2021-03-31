@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 var task = new Task(() => { });
                 task.ContinueWith(_ => { }, null);
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
 #if !NETFRAMEWORK
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 var task = default(ValueTask);
                 await task;
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 #endif
 
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
             },
-            configuration: GetConfiguration().WithTestingIterations(1));
+            configuration: this.GetConfiguration().WithTestingIterations(1));
         }
     }
 }

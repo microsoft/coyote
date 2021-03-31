@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -70,6 +71,43 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task task2 = Task.Run(async () =>
                 {
                     await Task.Yield();
+                });
+
+                await Task.Yield();
+                await Task.WhenAll(task1, task2);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTwoParallelTasksWriteWithYield()
+        {
+            if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                // Fuzzing might discover a data race between `await Task.Yield();` and `entry = value;`,
+                // making the test flaky.
+                return;
+            }
+
+            this.Test(async () =>
+            {
+                int entry = 0;
+
+                async Task WriteAsync(int value)
+                {
+                    await Task.Yield();
+                    entry = value;
+                    Specification.Assert(entry == value, "Value is {0} instead of '{1}'.", entry, value);
+                }
+
+                Task task1 = Task.Run(async () =>
+                {
+                    await WriteAsync(3);
+                });
+
+                Task task2 = Task.Run(async () =>
+                {
+                    await WriteAsync(5);
                 });
 
                 await Task.Yield();

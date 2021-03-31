@@ -166,7 +166,7 @@ namespace Microsoft.Coyote
         /// reporting a potential deadlock. This value is in milliseconds, and by default is 5000.
         /// </summary>
         [DataMember]
-        public uint DeadlockTimeout { get; internal set; }
+        internal uint DeadlockTimeout;
 
         /// <summary>
         /// Safety prefix bound. By default it is 0.

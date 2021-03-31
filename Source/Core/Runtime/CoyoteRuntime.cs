@@ -2415,11 +2415,6 @@ namespace Microsoft.Coyote.Runtime
             if (this.IsAttached)
             {
                 this.IsAttached = false;
-
-                if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                {
-                    this.DeadlockMonitor.Dispose();
-                }
             }
 
             // Cancel any remaining operations at the end of the schedule.
@@ -2463,6 +2458,10 @@ namespace Microsoft.Coyote.Runtime
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
                     // This does not solve mixing unit test type in parallel.
                     Interlocked.Decrement(ref ExecutionControlledUseCount);
+                }
+                else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    this.DeadlockMonitor.Dispose();
                 }
 
                 AssignAsyncControlFlowRuntime(null);

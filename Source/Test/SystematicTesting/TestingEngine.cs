@@ -264,17 +264,12 @@ namespace Microsoft.Coyote.SystematicTesting
             // Do some sanity checking.
             string error = string.Empty;
             if (configuration.IsConcurrencyFuzzingEnabled &&
-                (configuration.SchedulingStrategy is "replay" ||
-                configuration.ScheduleFile.Length > 0))
+                (configuration.SchedulingStrategy is "replay" || configuration.ScheduleFile.Length > 0))
             {
                 error = "Replaying a bug trace is not supported in concurrency fuzzing.";
             }
-            else if (configuration.IsConcurrencyFuzzingEnabled &&
-                configuration.SchedulingStrategy is "interactive")
-            {
-                error = "Interactive scheduling is not supported in concurrency fuzzing.";
-            }
-            else if (configuration.SchedulingStrategy is "portfolio")
+
+            if (configuration.SchedulingStrategy is "portfolio")
             {
                 error = "Portfolio testing strategy is only available in parallel testing.";
             }
@@ -291,7 +286,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            this.Scheduler = OperationScheduler.Setup(configuration, this.Logger);
+            this.Scheduler = OperationScheduler.Setup(configuration);
 
             if (TelemetryClient is null)
             {
@@ -546,14 +541,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                if (runtime.IsBugFound)
-                {
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
-                }
-                else
+                if (!runtime.IsBugFound)
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
                     runtime.CheckLivenessErrors();
+                }
+
+                if (runtime.IsBugFound)
+                {
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 runtime.LogWriter.LogCompletion();

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -64,7 +63,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration, ILogger logger)
+        private OperationScheduler(Configuration configuration)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ?
@@ -80,16 +79,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                if (configuration.SchedulingStrategy is "interactive")
-                {
-                    configuration.TestingIterations = 1;
-                    configuration.PerformFullExploration = false;
-                    configuration.IsVerbose = true;
-                    this.Strategy = new InteractiveStrategy(configuration, logger);
-                }
-
                 this.Strategy = SystematicStrategy.Create(configuration, this.ValueGenerator);
-
                 if (this.Strategy is ReplayStrategy replayStrategy)
                 {
                     this.ReplayStrategy = replayStrategy;
@@ -105,8 +95,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration, ILogger logger) =>
-            new OperationScheduler(configuration, logger);
+        internal static OperationScheduler Setup(Configuration configuration) => new OperationScheduler(configuration);
 
         /// <summary>
         /// Sets the specification engine.

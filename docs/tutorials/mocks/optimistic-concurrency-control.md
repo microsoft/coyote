@@ -94,14 +94,15 @@ public Task<bool> UpdateRow(string key, string value)
 ```
 
 You'll notice that we use the `lock` statement to ensure that checking if the key exists in the
-dictionary and updating its value is done atomically (without interference from other concurrent
-requests). One interesting observation is that we are using a lock inside the `InMemoryDbCollection`
-mock but not inside the `AccountManager` code. You might be wondering why it is not okay to use a
-lock in `AccountManager`, but it is fine to use it in `InMemoryDbCollection`? The reason behind this
-choice is that `AccountManager` instances can run across different processes or machines in
-production, and locks do not work in such an intra-process setting. With Coyote, however, you run
-the entire concurrency unit test in a single process, so it is perfectly fine for the mock itself to
-take a lock, which makes it a lot easier to simulate the ETag functionality.
+dictionary (via `this.Collection.ContainsKey(key)`) and updating its value (via
+`this.Collection[key] = value`) is done atomically (without interference from other concurrent
+operations to the database). One interesting observation is that we are using a lock inside the
+`InMemoryDbCollection` mock but not inside the `AccountManager` code. You might be wondering why it
+is not okay to use a lock in `AccountManager`, but it is fine to use it in `InMemoryDbCollection`?
+The reason behind this choice is that `AccountManager` instances can run across different processes
+or machines in production, and locks do not work in such an intra-process setting. With Coyote,
+however, you run the entire concurrency unit test in a single process, so it is perfectly fine for
+the mock itself to take a lock, which makes it a lot easier to simulate the ETag functionality.
 
 You can see how the rest of the `InMemoryDbCollection` methods are implemented in the
 `AccountManager.ETags` sample, which is available in the [Coyote Samples git

@@ -115,10 +115,12 @@ nav:
         - WithReplayStrategy: ref/Microsoft.Coyote/Configuration/WithReplayStrategy.md
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
+        - WithRelaxedControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled.md
+        - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
-        - WithPartiallyControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledTestingEnabled.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
+        - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
         - WithActivityCoverageEnabled: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled.md

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for actor systematic testing.</Description>
+    <Description>Tests for actor bug finding.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors.BugFinding</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.BugFinding.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>

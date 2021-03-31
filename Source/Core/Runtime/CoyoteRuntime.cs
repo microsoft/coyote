@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.Runtime
                         if (!(ex is ExecutionCanceledException))
                         {
                             // Report the unhandled exception.
-                            this.NotifyUnhandledException(ex, ex.Message);
+                            this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
                         }
                     }
                 });
@@ -2157,7 +2157,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an exception was not handled.
         /// </summary>
-        internal void NotifyUnhandledException(Exception ex, string message)
+        internal void NotifyUnhandledException(Exception ex, string message, bool cancelExecution = true)
         {
             lock (this.SyncObject)
             {
@@ -2166,7 +2166,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UnhandledException = ex;
                 }
 
-                this.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
+                this.NotifyAssertionFailure(message, killTasks: true, cancelExecution);
             }
         }
 
@@ -2264,7 +2264,7 @@ namespace Microsoft.Coyote.Runtime
             if (message != null)
             {
                 // Report the unhandled exception.
-                this.NotifyUnhandledException(exception, message);
+                this.NotifyUnhandledException(exception, message, cancelExecution: false);
             }
         }
 

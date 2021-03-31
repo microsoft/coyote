@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for systematic testing.</Description>
+    <Description>Tests for bug finding.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.BugFinding</AssemblyName>
     <RootNamespace>Microsoft.Coyote.BugFinding.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
@@ -10,16 +10,15 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-    <PackageReference Include="Mono.Reflection" Version="2.0.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
     <ProjectReference Include="..\..\Tools\Coyote\Coyote.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2" />
   </ItemGroup>
   <ItemGroup>
     <None Update="xunit.runner.json">

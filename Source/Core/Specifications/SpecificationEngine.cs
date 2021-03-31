@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.Specifications
                 throw new AssertionFailureException(message, exception);
             }
 
-            this.Runtime.NotifyAssertionFailure(message);
+            this.Runtime.NotifyUnhandledException(exception, message);
         }
 
         /// <summary>

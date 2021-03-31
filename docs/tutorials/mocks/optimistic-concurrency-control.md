@@ -511,34 +511,31 @@ public interface IDbCollection
 
 public class InMemoryDbCollection : IDbCollection
 {
-  private readonly Dictionary<string, DbRow> Collection;
+  private readonly ConcurrentDictionary<string, DbRow> Collection;
 
   public InMemoryDbCollection()
   {
-    this.Collection = new Dictionary<string, DbRow>();
+    this.Collection = new ConcurrentDictionary<string, DbRow>();
   }
 
   public Task<bool> CreateRow(string key, string value)
   {
     return Task.Run(() =>
     {
-      lock (this.Collection)
+      // Generate a new ETag when creating a brand new row.
+      var dbRow = new DbRow()
       {
-        // Generate a new ETag when creating a brand new row.
-        var dbRow = new DbRow()
-        {
-          Value = value,
-          ETag = Guid.NewGuid()
-        };
+        Value = value,
+        ETag = Guid.NewGuid()
+      };
 
-        bool success = this.Collection.TryAdd(key, dbRow);
-        if (!success)
-        {
-          throw new RowAlreadyExistsException();
-        }
-
-        return true;
+      bool success = this.Collection.TryAdd(key, dbRow);
+      if (!success)
+      {
+        throw new RowAlreadyExistsException();
       }
+
+      return true;
     });
   }
 
@@ -546,16 +543,13 @@ public class InMemoryDbCollection : IDbCollection
   {
     return Task.Run(() =>
     {
-      lock (this.Collection)
+      bool success = this.Collection.TryGetValue(key, out DbRow dbRow);
+      if (!success)
       {
-        bool success = this.Collection.TryGetValue(key, out DbRow dbRow);
-        if (!success)
-        {
-          throw new RowNotFoundException();
-        }
-
-        return (dbRow.Value, dbRow.ETag);
+        throw new RowNotFoundException();
       }
+
+      return (dbRow.Value, dbRow.ETag);
     });
   }
 

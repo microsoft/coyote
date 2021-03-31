@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Events;
@@ -162,9 +163,9 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName6()
         {
-            if (!this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                // production runtime just drops the event, no errors are raised.
+                // Production runtime just drops the event, no errors are raised.
                 return;
             }
 
@@ -181,9 +182,9 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName7()
         {
-            if (!this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                // production runtime allows reuse of a machine id because it does not keep track
+                // Production runtime allows reuse of a machine id because it does not keep track
                 // of halted machines.
                 return;
             }
@@ -255,9 +256,9 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName8()
         {
-            if (!this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                // production runtime just drops the event, no errors are raised.
+                // Production runtime just drops the event, no errors are raised.
                 return;
             }
 

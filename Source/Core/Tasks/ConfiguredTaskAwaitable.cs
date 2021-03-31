@@ -89,13 +89,13 @@ namespace Microsoft.Coyote.Tasks
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void OnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.OnCompleted(continuation);
+                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                    this.Awaiter.OnCompleted(continuation);
                 }
             }
 
@@ -105,13 +105,13 @@ namespace Microsoft.Coyote.Tasks
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
+                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                    this.Awaiter.UnsafeOnCompleted(continuation);
                 }
             }
         }
@@ -197,13 +197,13 @@ namespace Microsoft.Coyote.Tasks
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void OnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.OnCompleted(continuation);
+                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                    this.Awaiter.OnCompleted(continuation);
                 }
             }
 
@@ -213,13 +213,13 @@ namespace Microsoft.Coyote.Tasks
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
+                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                    this.Awaiter.UnsafeOnCompleted(continuation);
                 }
             }
         }

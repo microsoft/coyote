@@ -1,0 +1,8 @@
+{
+  "AssembliesPath": "../../../bin/$(Platform)/Configurations",
+  "OutputPath": "../../../bin/$(Platform)/Configurations",
+  "Assemblies": [
+    "Test1.dll",
+    "Test2.dll"
+  ]
+}

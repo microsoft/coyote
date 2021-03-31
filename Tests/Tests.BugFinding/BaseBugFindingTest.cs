@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
@@ -17,14 +18,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
         }
 
-        protected override bool IsSystematicTest
+        private protected override SchedulingPolicy SchedulingPolicy
         {
             get
             {
                 var assembly = this.GetType().Assembly;
                 bool result = RewritingEngine.IsAssemblyRewritten(assembly);
                 Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
-                return result;
+                return SchedulingPolicy.Systematic;
             }
         }
 

@@ -4,15 +4,16 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Xunit;
 using Xunit.Abstractions;
+using ActorRuntimeFactory = Microsoft.Coyote.Actors.RuntimeFactory;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common
@@ -29,56 +30,56 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <summary>
-        /// Override to true to run a systematic test under the <see cref="TestingEngine"/>.
-        /// By default this value is false.
+        /// Override to change the test scheduling policy used by the <see cref="TestingEngine"/>.
+        /// By default this value is <see cref="SchedulingPolicy.None"/>.
         /// </summary>
-        protected virtual bool IsSystematicTest => false;
+        private protected virtual SchedulingPolicy SchedulingPolicy => SchedulingPolicy.None;
 
         protected void Test(Action test, Configuration configuration = null)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTest(test, configuration);
+                this.Run((r) => test(), configuration);
             }
             else
             {
-                this.Run((r) => test(), configuration);
+                this.InternalTest(test, configuration);
             }
         }
 
         protected void Test(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTest(test, configuration);
+                this.Run(test, configuration);
             }
             else
             {
-                this.Run(test, configuration);
+                this.InternalTest(test, configuration);
             }
         }
 
         protected void Test(Func<Task> test, Configuration configuration = null)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTest(test, configuration);
+                this.RunAsync(async (r) => await test(), configuration).Wait();
             }
             else
             {
-                this.RunAsync(async (r) => await test(), configuration).Wait();
+                this.InternalTest(test, configuration);
             }
         }
 
         protected void Test(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTest(test, configuration);
+                this.RunAsync(test, configuration).Wait();
             }
             else
             {
-                this.RunAsync(test, configuration).Wait();
+                this.InternalTest(test, configuration);
             }
         }
 
@@ -120,162 +121,168 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunWithErrors((r) => test(), configuration, (e) => { CheckSingleError(e, expectedError); });
             }
             else
             {
-                this.RunWithErrors((r) => test(), configuration, (e) => { CheckSingleError(e, expectedError); });
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
         protected void TestWithError(Action<IActorRuntime> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); });
             }
             else
             {
-                this.RunWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); });
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
         protected void TestWithError(Func<Task> test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
         protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunWithErrorsAsync(test, configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(test, configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
         protected void TestWithError(Action test, Configuration configuration = null, string[] expectedErrors = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunWithErrors((r) => test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
             }
             else
             {
-                this.RunWithErrors((r) => test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
         protected void TestWithError(Action<IActorRuntime> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
             }
             else
             {
-                this.RunWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
         protected void TestWithError(Func<Task> test, Configuration configuration = null, string[] expectedErrors = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
         protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunWithErrorsAsync(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
         protected void TestWithError(Action test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunWithErrors((r) => test(), configuration, errorChecker);
             }
             else
             {
-                this.RunWithErrors((r) => test(), configuration, errorChecker);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
         protected void TestWithError(Action<IActorRuntime> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunWithErrors(test, configuration, errorChecker);
             }
             else
             {
-                this.RunWithErrors(test, configuration, errorChecker);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
         protected void TestWithError(Func<Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, errorChecker).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(async (r) => await test(), configuration, errorChecker).Wait();
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
         protected void TestWithError(Func<IActorRuntime, Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunWithErrorsAsync(test, configuration, errorChecker).Wait();
             }
             else
             {
-                this.RunWithErrorsAsync(test, configuration, errorChecker).Wait();
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
         private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
             configuration ??= this.GetConfiguration();
+            if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                // Increase iterations during fuzzing as some bugs might be harder to be found.
+                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 10);
+            }
+
             ILogger logger = this.GetLogger(configuration);
 
             try
@@ -283,7 +290,7 @@ namespace Microsoft.Coyote.Tests.Common
                 var engine = RunTest(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
-                if (replay && !configuration.IsConcurrencyFuzzingEnabled)
+                if (replay && this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
                     configuration.WithReplayStrategy(engine.ReproducibleTrace);
 
@@ -307,13 +314,13 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithException<TException>(Action test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunWithException<TException>(test, configuration);
             }
             else
             {
-                this.RunWithException<TException>(test, configuration);
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -321,26 +328,26 @@ namespace Microsoft.Coyote.Tests.Common
             bool replay = false)
             where TException : Exception
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunWithException<TException>(test, configuration);
             }
             else
             {
-                this.RunWithException<TException>(test, configuration);
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
         }
 
         protected void TestWithException<TException>(Func<Task> test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
             }
             else
             {
-                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -348,13 +355,13 @@ namespace Microsoft.Coyote.Tests.Common
             bool replay = false)
             where TException : Exception
         {
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
             }
             else
             {
-                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -362,6 +369,11 @@ namespace Microsoft.Coyote.Tests.Common
             where TException : Exception
         {
             configuration ??= this.GetConfiguration();
+            if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                // Increase iterations during fuzzing as some bugs might be harder to be found.
+                configuration = configuration.WithTestingIterations(configuration.TestingIterations * 10);
+            }
 
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
@@ -375,7 +387,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                 CheckErrors(engine, exceptionType);
 
-                if (replay && !configuration.IsConcurrencyFuzzingEnabled)
+                if (replay && this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
                     configuration.SchedulingStrategy = "replay";
                     configuration.ScheduleTrace = engine.ReproducibleTrace;
@@ -406,7 +418,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
@@ -435,7 +447,7 @@ namespace Microsoft.Coyote.Tests.Common
                 try
                 {
                     configuration.IsMonitoringEnabledInInProduction = true;
-                    var runtime = RuntimeFactory.Create(configuration);
+                    var runtime = ActorRuntimeFactory.Create(configuration);
                     runtime.Logger = logger;
 
                     var errorTask = new TaskCompletionSource<Exception>();
@@ -514,7 +526,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorTask = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -559,7 +571,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -608,7 +620,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -656,7 +668,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -704,7 +716,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -754,7 +766,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
                 {
@@ -819,14 +831,14 @@ namespace Microsoft.Coyote.Tests.Common
         {
             millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
 
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
+                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
             }
             else
             {
-                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
             }
 
             if (task.IsFaulted)
@@ -848,14 +860,14 @@ namespace Microsoft.Coyote.Tests.Common
         {
             millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
 
-            if (this.IsSystematicTest)
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
+                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
             }
             else
             {
-                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
             }
 
             if (task.IsFaulted)

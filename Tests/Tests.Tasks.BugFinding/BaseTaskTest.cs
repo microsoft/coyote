@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
 using Xunit.Abstractions;
@@ -14,7 +15,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
         {
         }
 
-        protected override bool IsSystematicTest => true;
+        private protected override SchedulingPolicy SchedulingPolicy => SchedulingPolicy.Systematic;
 
         protected static void AssertSharedEntryValue(SharedEntry entry, int expected) =>
             Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);

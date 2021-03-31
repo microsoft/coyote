@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,14 +15,14 @@ namespace Microsoft.Coyote.Rewriting.Tests
         {
         }
 
-        protected override bool IsSystematicTest
+        private protected override SchedulingPolicy SchedulingPolicy
         {
             get
             {
                 var assembly = this.GetType().Assembly;
                 bool result = RewritingEngine.IsAssemblyRewritten(assembly);
                 Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
-                return result;
+                return SchedulingPolicy.Systematic;
             }
         }
     }

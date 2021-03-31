@@ -46,6 +46,7 @@ namespace Microsoft.Coyote.Utilities
             testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
+            testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
@@ -68,6 +69,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             rewritingGroup.AddArgument("rewrite-threads", null, "Rewrite low-level threading APIs (experimental)", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
+            coverageGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
  code: Generate code coverage statistics (via VS instrumentation)
  activity: Generate activity (state machine, event, etc.) coverage statistics
@@ -79,25 +81,29 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 "coverage, one per line, wildcards supported, lines starting with '//' are skipped", typeof(string));
 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
+            advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
-            advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
-            advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
-            advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
             advancedGroup.AddArgument("xml-trace", null, "Specify a filename for XML runtime log output to be written to", typeof(bool));
             advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified name: 'fullclass,assembly'", typeof(string));
 
+            var experimentalGroup = this.Parser.GetOrCreateGroup("experimentalGroup", "Experimental options");
+            experimentalGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
+            experimentalGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
+            experimentalGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing", typeof(bool));
+
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("partially-controlled-testing", null, "Enable partially controlled systematic testing", typeof(bool));
-            hiddenGroup.AddArgument("sch-interactive", null, "Choose the interactive scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
+            hiddenGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
+            hiddenGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
+            hiddenGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 
@@ -229,12 +235,20 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
+                case "relaxed-testing":
+                    configuration.IsRelaxedControlledTestingEnabled = true;
+                    break;
+                case "concurrency-fuzzing":
+                    configuration.IsConcurrencyFuzzingEnabled = true;
+                    break;
+                case "explore":
+                    configuration.PerformFullExploration = true;
+                    break;
                 case "seed":
                     configuration.RandomGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
                 case "sch-dfs":
-                case "sch-interactive":
                 case "sch-portfolio":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
@@ -243,9 +257,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-fairpct":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     configuration.StrategyBound = (int)(uint)option.Value;
-                    break;
-                case "partially-controlled-testing":
-                    configuration.IsPartiallyControlledTestingEnabled = true;
                     break;
                 case "schedule":
                     {
@@ -333,9 +344,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "actor-runtime-log":
                     configuration.CustomActorRuntimeLogType = (string)option.Value;
                     break;
-                case "explore":
-                    configuration.PerformFullExploration = true;
-                    break;
                 case "coverage":
                     if (option.Value is null)
                     {
@@ -385,6 +393,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;
+                    break;
+                case "deadlock-timeout":
+                    configuration.DeadlockTimeout = (uint)option.Value;
                     break;
                 case "max-steps":
                     {
@@ -447,7 +458,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             }
 
             if (configuration.SchedulingStrategy != "portfolio" &&
-                configuration.SchedulingStrategy != "interactive" &&
                 configuration.SchedulingStrategy != "random" &&
                 configuration.SchedulingStrategy != "pct" &&
                 configuration.SchedulingStrategy != "fairpct" &&

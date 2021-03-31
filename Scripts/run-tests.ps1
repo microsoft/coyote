@@ -1,8 +1,8 @@
 param(
     [string]$dotnet = "dotnet",
-    [ValidateSet("all", "netcoreapp3.1", "net48", "net5.0")]
+    [ValidateSet("all", "net5.0", "net48")]
     [string]$framework = "all",
-    [ValidateSet("all", "systematic", "tasks-systematic", "actors", "actors-systematic", "standalone")]
+    [ValidateSet("all", "rewriting", "testing", "tasks-testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -13,10 +13,11 @@ param(
 Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 
 $targets = [ordered]@{
-    "systematic" = "Tests.SystematicTesting"
-    "tasks-systematic" = "Tests.Tasks.SystematicTesting"
+    "rewriting" = "Tests.Rewriting"
+    "testing" = "Tests.BugFinding"
+    "tasks-testing" = "Tests.Tasks.BugFinding"
     "actors" = "Tests.Actors"
-    "actors-systematic" = "Tests.Actors.SystematicTesting"
+    "actors-testing" = "Tests.Actors.BugFinding"
     "standalone" = "Tests.Standalone"
 }
 
@@ -30,7 +31,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
         continue
     }
 
-    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {

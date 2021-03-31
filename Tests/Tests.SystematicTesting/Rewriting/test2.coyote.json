@@ -1,8 +1,0 @@
-{
-  "AssembliesPath": "../../../bin/$(Platform)/Rewriting",
-  "OutputPath": "../../../bin/$(Platform)/Rewriting",
-  "Assemblies": [
-    "Test1.dll",
-    "Test2.dll"
-  ]
-}

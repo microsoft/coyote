@@ -38,7 +38,6 @@ namespace Microsoft.Coyote.Actors.Tests
                 {
                     if (Interlocked.Decrement(ref this.RunningCount) is 0)
                     {
-                        // all known actors have halted so we are done!
                         this.SetResult(true);
                     }
                 }
@@ -87,7 +86,6 @@ namespace Microsoft.Coyote.Actors.Tests
                     }
                 }
 
-                // we're done!
                 this.SendEvent(this.Id, HaltEvent.Instance);
             }
         }
@@ -104,14 +102,14 @@ namespace Microsoft.Coyote.Actors.Tests
                 var id = r.CreateActor(typeof(NetworkActor), null, op);
                 op.AddActor(id);
 
-                // spawn 5 children, each child spawns 4 grand children and those spawn 3, etc.
-                // so we should get 1 + 5 + (5*4) + (5*4*3) + (5*4*3*2) actors in this network = 206
-                // actors before they are all halted.
-                r.SendEvent(id, new SpawnEvent() { Count = 5 }, op);
+                // Spawn 4 children, each child spawns 3 children and those spawn 2, etc.
+                // So we should get 41 (1 + 4 + (4*3) + (4*3*2)) actors in the network
+                // before they are all halted.
+                r.SendEvent(id, new SpawnEvent() { Count = 4 }, op);
                 var result = await this.GetResultAsync(op.Task);
 
                 string dgml = graphBuilder.Graph.ToString();
-                Assert.Equal(206, op.Count);
+                Assert.Equal(41, op.Count);
             },
             configuration: Configuration.Create().WithPCTStrategy(true));
         }

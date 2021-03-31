@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var id = r.CreateActor(typeof(A));
                 r.Assert(id != null, "The actor id is null.");
             },
-            configuration: GetConfiguration());
+            configuration: this.GetConfiguration());
         }
 
         private class M : StateMachine
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var id = r.CreateActor(typeof(M));
                 r.Assert(id != null, "The actor id is null.");
             },
-            configuration: GetConfiguration());
+            configuration: this.GetConfiguration());
         }
     }
 }

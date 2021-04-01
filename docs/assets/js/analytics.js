@@ -54,11 +54,11 @@ function onConsentChanged() {
         enableTelemetry();
     }
     else if (userConsent) {
+        enableTelemetry();
         var callback = window['telemetry-callback'];
         if (callback){
             callback();
         }
-        enableTelemetry();
     }
     else {
         disableTelemetry()

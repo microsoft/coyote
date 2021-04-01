@@ -4,13 +4,14 @@
 var siteConsent = null;
 var telemetryInitialized = false;
 
-function enableTelemetry() {
-    if (!telemetryInitialized) {
+function setupTelemetry() {
+    // this is called from within the .wm-article iframe.
+    if (!telemetryInitialized && window.top['ga-enable-UA-161403370-1']) {
         telemetryInitialized = true;
 
         // enable google analytics.
         window['ga-disable-UA-161403370-1'] = false;
-        
+
         // see https://developers.google.com/analytics/devguides/collection/analyticsjs/
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -28,11 +29,14 @@ function enableTelemetry() {
     }
 }
 
+function enableTelemetry() {
+    window['ga-disable-UA-161403370-1'] = false;
+    window['ga-enable-UA-161403370-1'] = true;
+}
+
 function disableTelemetry() {
-    if (telemetryInitialized) {
-        telemetryInitialized = false;
-        window['ga-disable-UA-161403370-1'] = true;
-    }
+    window['ga-disable-UA-161403370-1'] = true;
+    window['ga-enable-UA-161403370-1'] = false;
 }
 
 function wcp_ready(err, _siteConsent){
@@ -50,6 +54,10 @@ function onConsentChanged() {
         enableTelemetry();
     }
     else if (userConsent) {
+        var callback = window['telemetry-callback'];
+        if (callback){
+            callback();
+        }
         enableTelemetry();
     }
     else {
@@ -75,8 +83,13 @@ $(document).ready(function () {
     // We only want one pageview event so we trigger on iframe since it has the
     // correct href location and not the funky '#' page reference which the TOC produces
     // as that would record everything as hitting the home page.
-    if (window.top != window.self) {
+    if (window.top == window.self){
         telemetryInitialized = false;
+        // show cookie banner in top window so it uses the outer cookie-banner
         initAnalytics();
+    } else {
+        window.top['telemetry-callback'] = setupTelemetry;
+        // call it just in case consent was not required and telemetry is already enabled.
+        setupTelemetry();
     };
 });

@@ -6,14 +6,14 @@
     <div class="wm-top-tool pull-right wm-vcenter">
       <form class="dropdown wm-vcentered" id="wm-search-form" action="{{ base_url }}search.html">
         {# Button to show search-box on small screens #}
-        <button id="wm-search-show" class="btn btn-sm btn-default" type="submit"
+        <button id="wm-search-show" class="btn btn-sm btn-default" type="submit" aria-label="Show search"
           ><i class="fa fa-search" aria-hidden="true"></i></button>
 
         <div class="input-group input-group-sm wm-top-search">
           <input type="text" name="q" class="form-control" id="mkdocs-search-query" placeholder="Search" autocomplete="off">
           <span class="input-group-btn" role="search">
             {# This button is hidden, but exists because an element with data-toggle attr is relied on by bootstrap. #}
-            <button class="btn btn-default dropdown-toggle collapse" data-toggle="dropdown" type="button"><span class="caret"></span></button>
+            <button class="btn btn-default dropdown-toggle collapse" data-toggle="dropdown" type="button" aria-label="Search dropdown"><span class="caret"></span></button>
             <ul id="mkdocs-search-results" class="dropdown-menu dropdown-menu-right"></ul>
             <button id="wm-search-go" class="btn btn-default" type="submit" aria-label="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
           </span>
@@ -35,8 +35,8 @@
     {% if config.extra.history_buttons %}
     <div class="wm-top-tool pull-right wm-vcenter">
       <div class="btn-group wm-vcentered" role="group" aria-label="back">
-        <button id="hist-back" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
-        <button id="hist-fwd" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+        <button id="hist-back" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-left" aria-hidden="true" aria-label="Previous page"></i></button>
+        <button id="hist-fwd" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-right" aria-hidden="true" aria-label="Next page"></i></button>
       </div>
     </div>
     {% endif %}

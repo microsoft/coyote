@@ -332,8 +332,8 @@ database) typically happens asynchronously.
 
 Can you make the above mock a little more generally applicable, so you don't have to write custom
 mocks for each test case? What if you model it in a way that more closely simulates the behavior of
-the actual `IDbCollection`? You could a mock that you can use in all your concurrency unit tests for
-the `AccountManager` using a `ConcurrentDictionary`:
+the actual `IDbCollection`? You could write a mock that you can use in all your concurrency unit
+tests for the `AccountManager` using a `ConcurrentDictionary`:
 
 ```csharp
 public class InMemoryDbCollection : IDbCollection

@@ -1,24 +1,23 @@
 ## Mocking dependencies for concurrency unit testing
 
 Mocking dependencies is a common activity when writing unit tests. The code that you want to test
-often depends on other (complex) code, such as third-party libraries and external services (e.g.
+often depends on other more complex code, such as third-party libraries and external services (e.g.
 [Cosmos DB](https://azure.microsoft.com/services/cosmos-db/)). These dependencies might be
-impractical to include as part of the test the test (e.g. because they use storage or network), so
-you want to replace them with (much) simpler implementations that simulate the real behavior. One
-popular way to replace real dependencies with mocks is via [dependency
-injection](https://en.wikipedia.org/wiki/Dependency_injection).
+impractical to include as part of the test, so you want to replace them with much simpler
+implementations that simulate the real behavior. One popular way to replace real dependencies with
+mocks is via [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection).
 
 Mocks play an even greater role when [writing concurrency unit
-tests](../../concepts/concurrency-unit-testing.md). Coyote explores different interleavings during each
-testing iteration, so you have to write mocks that simulate the behavior of the real dependency by
-returning the correct response no matter which interleaving is explored. This means that when
+tests](../../concepts/concurrency-unit-testing.md). Coyote explores different interleavings during
+each testing iteration, so you have to write mocks that simulate the behavior of the real dependency
+by returning the correct response no matter which interleaving is explored. This means that when
 testing with Coyote, you need to design mocks with concurrency in mind.
 
-In this tutorial, you will write a simple mock for the `IDbCollection` that was introduced in the
-[write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial. You will design
-this mock to be used in a concurrent setting, where methods in multiple instances of the class can
-be called concurrently, either within the same process or across processes and machines. This latter
-condition means that using locks in your code will not help you in writing correct concurrent code.
+In this tutorial, you will write a simple mock for the `IDbCollection` that was introduced in [write
+your first concurrency unit test](../first-concurrency-unit-test.md). You will design this mock to
+be used in a concurrent setting, where methods in multiple instances of the class can be called
+concurrently, either within the same process or across processes and machines. This latter condition
+means that using locks in your code will not help you in writing correct concurrent code.
 
 ## What you will need
 
@@ -27,11 +26,12 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
-- Go through the [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
+- Go through the [Write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
 
-Consider the following (buggy) implementation of the `AccountManager.CreateAccount` method:
+Consider the following deliberately buggy implementation of the `AccountManager.CreateAccount`
+method:
 
 ```csharp
 // Returns true if the account is created, else false.
@@ -46,8 +46,8 @@ public async Task<bool> CreateAccount(string accountName, string accountPayload)
 }
 ```
 
-Now let's consider this simple `InMemoryDbCollection` mock for the `IDbCollection` interface, which
-implements the `CreateRow` and `DoesRowExist` methods used in the above method. Let's ignore the
+and consider this simple `InMemoryDbCollection` mock for the `IDbCollection` interface, which
+implements the `CreateRow` and `DoesRowExist` methods used in the above method. You can ignore the
 `GetRow` and `DeleteRow` methods for now as they aren't used in `CreateAccount`.
 
 ```csharp
@@ -68,9 +68,9 @@ public class InMemoryDbCollection : IDbCollection
 }
 ```
 
-Using this simple mock, let's write a unit test to exercise _sequential_ account creation in the
-`AccountManager` class (see the [write your first concurrency unit
-test](../first-concurrency-unit-test.md) tutorial for the `AccountManager` code).
+Using this simple mock, you can write a unit test to exercise _sequential_ account creation in the
+`AccountManager` class (see [write your first concurrency unit
+test](../first-concurrency-unit-test.md) for the `AccountManager` code).
 
 ```csharp
 [Microsoft.Coyote.SystematicTesting.Test]
@@ -125,7 +125,7 @@ The test succeeds.
 
 This works, but can this same mock also be used to pass the test if it was executing concurrently?
 
-Let's try it out on the following concurrency unit test.
+Go ahead and try it out on the following concurrency unit test.
 
 ```csharp
 [Microsoft.Coyote.SystematicTesting.Test]
@@ -185,14 +185,14 @@ This time the test immediately (and always) fails!
 ... Elapsed 0.1867838 sec.
 ```
 
-Our test asserts that one `CreateAccount` call must succeed and the other must fail, but both calls
-succeed with our current mock. This is because the `dbCollection.DoesRowExist` mock method _always_
+Your test asserts that one `CreateAccount` call must succeed and the other must fail, but both calls
+succeed with the current mock. This is because the `dbCollection.DoesRowExist` mock method _always_
 returns `false` and the `dbCollection.CreateRow` mock method _always_ returns `true` no matter what
 order the two `CreateAccount` requests execute. The `dbCollection.DoesRowExist` method should only
 return `false` if the account doesn't exist and the `dbCollection.CreateRow` method should only
 return `true` if a new row was created.
 
-Let's try to fix the mock.
+The mock needs to implement more of the stateful behavior of the database as follows:
 
 ```csharp
 public class InMemoryDbCollection : IDbCollection
@@ -221,7 +221,7 @@ public class InMemoryDbCollection : IDbCollection
 ```
 
 The above mock is a bit more complicated as it models the `DoesRowExist` and `CreateRow` behavior
-more precisely for our test. Build, rewrite and run the same test once again.
+more precisely for your test. Build, rewrite and run the same test once again.
 
 ```plain
 . Testing .\AccountManager.dll
@@ -248,14 +248,14 @@ more precisely for our test. Build, rewrite and run the same test once again.
 ```
 
 The assertion will now pass, but the `CreateAccount` method is actually buggy (read the [write your
-first concurrency unit test](../first-concurrency-unit-test.md) tutorial to remember why is that).
+first concurrency unit test](../first-concurrency-unit-test.md) tutorial to remember why that is).
 Why does the assertion not fail?!
 
 The reason is that while the two asynchronous `CreateAccount` methods are invoked concurrently,
-there is no _actual_ concurrency in the test. While our code uses async/await methods, no code path
+there is no _actual_ concurrency in the test. While your code uses async/await methods, no code path
 introduces any concurrency (through `Task.Run`, `Task.Yield` etc), which means that the two methods
-execute sequentially, one after another. Let's see how we can inject some concurrency which will
-allow Coyote to ``shake'' the system and uncover the bug!
+execute sequentially, one after another. Let's see how you can inject some concurrency which will
+allow Coyote to "shake" the system and uncover the bug!
 
 There are a few ways to make the test truly concurrent. One simple way is to tweak the mock so that
 it uses `Task.Run` to [start a new
@@ -328,12 +328,12 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 Awesome! Using `Task.Run` in the mock methods introduces concurrency in the test, which allows the
 two `CreateAccount` methods to execute asynchronously and race with each other. This is similar to
 how invoking the production implementation of `IDbCollection` (i.e. the actual backend NoSQL
-database) typically happens asynchronously, so network calls do not block the rest of the system.
+database) typically happens asynchronously.
 
 Can you make the above mock a little more generally applicable, so you don't have to write custom
 mocks for each test case? What if you model it in a way that more closely simulates the behavior of
-the actual `IDbCollection`? Let's write such a mock that we can use in concurrency unit tests for
-the `AccountManager`.
+the actual `IDbCollection`? You could a mock that you can use in all your concurrency unit tests for
+the `AccountManager` using a `ConcurrentDictionary`:
 
 ```csharp
 public class InMemoryDbCollection : IDbCollection
@@ -379,14 +379,14 @@ different concurrency unit tests for the `AccountManager` logic. For example, th
 in the `TestConcurrentAccountCreationAndDeletion` test that exercises a race between a
 `CreateAccount` and `DeleteAccount` request in this [tutorial](../test-concurrent-operations.md).
 
-Let's make the mock complete by implementing the `GetRow` and `DeleteRow` methods.
+You can now complete the mock by implementing the `GetRow` and `DeleteRow` methods.
 
 ```csharp
 public Task<string> GetRow(string key)
 {
   return Task.Run(() =>
   {
-    var success = collection.TryAdd(key, out string value);
+    var success = collection.TryGetValue(key, out string value);
     if (!success)
     {
       throw new RowNotFoundException();

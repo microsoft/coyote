@@ -32,22 +32,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly Dictionary<int, ulong> TransitionFrequencies;
 
         /// <summary>
-        /// Set of unique execution paths.
-        /// </summary>
-        /// // [Arun:] This is an extra field
-        private readonly HashSet<string> ExecutionPaths;
-
-        /// <summary>
-        /// Set of unique visited states.
-        /// </summary>
-        private readonly HashSet<int> UniqueStates;
-
-        /// <summary>
-        /// The set of default hashed states.
-        /// </summary>
-        private readonly HashSet<int> HashedStates;
-
-        /// <summary>
         /// The previously chosen operation.
         /// </summary>
         private ulong PreviousOperation;
@@ -77,8 +61,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private readonly ulong MinIntegerChoiceOpValue;
 
-        // [Arun:] No Bug State reward Field
-
         /// <summary>
         /// The failure injection reward.
         /// </summary>
@@ -98,23 +80,18 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
         /// </summary>
-        public QLearningStrategy(string abstractionLevel, int maxSteps, IRandomValueGenerator random)
+        public QLearningStrategy(int maxSteps, IRandomValueGenerator random)
             : base(maxSteps, random)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
             this.ExecutionPath = new LinkedList<(ulong, AsyncOperationType, int)>();
             this.TransitionFrequencies = new Dictionary<int, ulong>();
-            this.ExecutionPaths = new HashSet<string>(); // [Arun: ] new field
-            this.UniqueStates = new HashSet<int>();
-            this.HashedStates = new HashSet<int>();
-            this.InboxOnlyHashedStates = new HashSet<int>();
             this.PreviousOperation = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
             this.TrueChoiceOpValue = ulong.MaxValue;
             this.FalseChoiceOpValue = ulong.MaxValue - 1;
             this.MinIntegerChoiceOpValue = ulong.MaxValue - 2;
-            // no bug state reward
             this.FailureInjectionReward = -1000;
             this.BasicActionReward = -1;
             this.Epochs = 0;
@@ -137,7 +114,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             next = this.GetNextOperationByPolicy(state, ops);
             this.PreviousOperation = next.Id;
 
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
@@ -150,7 +127,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             next = this.GetNextBooleanChoiceByPolicy(state);
 
             this.PreviousOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
@@ -163,7 +140,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
 
             this.PreviousOperation = this.MinIntegerChoiceOpValue - (ulong)next;
-            this.ScheduledSteps++;
+            this.StepCount++;
             return true;
         }
 
@@ -283,10 +260,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private int CaptureExecutionStep(AsyncOperation current)
         {
-            int state = current.DefaultHashedState;
-
-            // Store states based on specified abstractions.
-            this.HashedStates.Add(current.DefaultHashedState);
+            int state = current.HashedProgramState;
 
             // Update the execution path with the current state.
             this.ExecutionPath.AddLast((this.PreviousOperation, current.Type, state));
@@ -298,8 +272,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             // Increment the state transition frequency.
             this.TransitionFrequencies[state]++;
-
-            this.UniqueStates.Add(state);
 
             return state;
         }
@@ -383,7 +355,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.PreviousOperation = 0;
             this.Epochs++;
 
-            // [Arun: ] code for the { When using the /explore flag, reset all learned data on finding a bug.} ignored.
             return base.InitializeNextIteration(iteration);
         }
 
@@ -413,10 +384,10 @@ namespace Microsoft.Coyote.Testing.Systematic
                     }
                 }
 
-                // [Arun: ] code for BugStateReward ignored
                 // Compute the reward. Program states that are visited with higher frequency result into lesser rewards.
                 var freq = this.TransitionFrequencies[nextState];
-                double reward = (nextType == AsyncOperationType.InjectFailure ? this.FailureInjectionReward : this.BasicActionReward) * freq;
+                double reward = (nextType == AsyncOperationType.InjectFailure ?
+                    this.FailureInjectionReward : this.BasicActionReward) * freq;
                 if (reward > 0)
                 {
                     // The reward has underflowed.
@@ -438,29 +409,9 @@ namespace Microsoft.Coyote.Testing.Systematic
                 node = node.Next;
                 idx++;
             }
-
-            this.ExecutionPaths.Add(pathBuilder.ToString());
-            /* if (this.Epochs % 100 is 0)
-            {
-                Console.WriteLine($"==================> #{this.Epochs} ExecutionPath (size: {this.ExecutionPath.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} ExecutionPaths (size: {this.ExecutionPaths.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} UniqueStates (size: {this.UniqueStates.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} Default States (size: {this.HashedStates.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} Inbox-Only States (size: {this.InboxOnlyHashedStates.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} Custom States (size: {this.CustomHashedStates.Count})");
-                Console.WriteLine($"==================> #{this.Epochs} Custom-Only States (size: {this.CustomOnlyHashedStates.Count})");
-
-                string path = @"C:\Users\pdeligia\workspace\papers\rl-testing-paper\oopsla20\experiments\data_ql.txt";
-                using (var file = new System.IO.StreamWriter(path, true))
-                {
-                    file.WriteLine(this.CustomOnlyHashedStates.Count);
-                }
-            } */
         }
 
-        // [Arun: ] No ResetQlearning Method
-
         /// <inheritdoc/>
-        internal override string GetDescription() => $"QLearning[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"RL[seed '{this.RandomValueGenerator.Seed}']";
     }
 }

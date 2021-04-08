@@ -1329,30 +1329,6 @@ namespace Microsoft.Coyote.Actors
                 this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
             }
 
-            /// <summary>
-            /// Returns the current hashed state of the actors.
-            /// </summary>
-            /// <remarks>
-            /// The hash is updated in each execution step.
-            /// </remarks>
-            internal override int GetHashedActorState()
-            {
-                unchecked
-                {
-                    int hash = 19;
-
-                    foreach (var operation in this.Runtime.GetRegisteredOperations().OrderBy(op => op.Id))
-                    {
-                        if (operation is ActorOperation actorOperation)
-                        {
-                            hash *= 31 + actorOperation.Actor.GetHashedState();
-                        }
-                    }
-
-                    return hash;
-                }
-            }
-
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal override int GetActorProgramCounter(ActorId actorId) =>

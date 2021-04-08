@@ -463,9 +463,10 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the RL scheduling strategy during systematic testing.
+        /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
+        /// during systematic testing.
         /// </summary>
-        public Configuration WithReinforcementLearningStrategy()
+        public Configuration WithRLStrategy()
         {
             this.SchedulingStrategy = "rl";
             this.IsProgramStateHashingEnabled = true;

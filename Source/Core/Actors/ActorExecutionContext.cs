@@ -1241,7 +1241,8 @@ namespace Microsoft.Coyote.Actors
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override void LogDefaultEventHandlerCheck(Actor actor) => this.Runtime.ScheduleNextOperation();
+            internal override void LogDefaultEventHandlerCheck(Actor actor) =>
+                this.Runtime.ScheduleNextOperation(AsyncOperationType.Default);
 
             /// <inheritdoc/>
             internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)

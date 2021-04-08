@@ -1436,8 +1436,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(AsyncOperationType type = AsyncOperationType.Default,
-            bool isYielding = false, bool checkCaller = false)
+        internal void ScheduleNextOperation(AsyncOperationType type, bool isYielding = false, bool checkCaller = false)
         {
             lock (this.SyncObject)
             {

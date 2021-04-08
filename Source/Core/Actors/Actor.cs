@@ -744,7 +744,7 @@ namespace Microsoft.Coyote.Actors
 
                 if (this.HashedState != 0)
                 {
-                    // Adds the user-defined hashed machine state.
+                    // Adds the user-defined hashed state.
                     hash = (hash * 31) + this.HashedState;
                 }
 

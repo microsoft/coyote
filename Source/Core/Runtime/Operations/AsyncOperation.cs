@@ -32,11 +32,6 @@ namespace Microsoft.Coyote.Runtime
         internal AsyncOperationType Type;
 
         /// <summary>
-        /// The default hashed state of the operation.
-        /// </summary>
-        internal int DefaultHashedState;
-
-        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>

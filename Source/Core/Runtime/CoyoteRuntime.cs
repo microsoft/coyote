@@ -1433,12 +1433,11 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="type">Type of the operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="checkCaller">If true, schedule only if the caller is an operation.</param>
-        /// <param name="hashArray">Hash of Locks.</param>
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
         internal void ScheduleNextOperation(AsyncOperationType type = AsyncOperationType.Default,
-            bool isYielding = false, bool checkCaller = false, int[] hashArray = null)
+            bool isYielding = false, bool checkCaller = false)
         {
             lock (this.SyncObject)
             {
@@ -1474,13 +1473,13 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
-                current.SetType(type);
+                // Update the operation type.
+                current.Type = type;
 
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
                     current.HashedProgramState = this.GetHashedProgramState();
-                    current.DefaultHashedState = this.GetHashedProgramState(hashArray);
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
@@ -1878,58 +1877,22 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
-                hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
-                return hash;
-            }
-        }
-
-        /// <summary>
-        /// Returns the current hashed state of the execution using the specified
-        /// level of abstraction. The hash is updated in each execution step.
-        /// </summary>
-        [DebuggerStepThrough]
-        private int GetHashedProgramState(int[] hashArray = null)
-        {
-            unchecked
-            {
-                int hash = 14689;
 
                 foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                 {
                     if (operation is ActorOperation actorOperation)
                     {
-                        int operationHash = 37;
-                        operationHash = (operationHash * 397) + actorOperation.Actor.GetHashedState(abstractionLevel);
-                        operationHash = (operationHash * 397) + actorOperation.Type.GetHashCode();
+                        int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                        operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
                         hash *= operationHash;
                     }
                     else if (operation is TaskOperation taskOperation)
                     {
-                        int operationHash = 37;
-                        operationHash = (operationHash * 397) + taskOperation.Type.GetHashCode();
-                        hash *= operationHash;
+                        hash *= 31 + taskOperation.Type.GetHashCode();
                     }
                 }
 
-                hash = hash + this.SpecificationEngine.GetHashedMonitorState();
-
-                if (hashArray != null)
-                {
-                    if (abstractionLevel is "default")
-                    {
-                        hash = (hash * 397) + hashArray[0];
-                    }
-                    else if (abstractionLevel is "custom")
-                    {
-                        hash = (hash * 397) + hashArray[1];
-                    }
-                    else if (abstractionLevel is "custom-only")
-                    {
-                        hash = (hash * 397) + hashArray[2];
-                    }
-                }
-
+                hash = (hash * 31) + this.SpecificationEngine.GetHashedMonitorState();
                 return hash;
             }
         }

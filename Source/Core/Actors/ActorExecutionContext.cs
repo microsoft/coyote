@@ -655,14 +655,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Returns the current hashed state of the actors.
-        /// </summary>
-        /// <remarks>
-        /// The hash is updated in each execution step.
-        /// </remarks>
-        internal virtual int GetHashedActorState() => 0;
-
-        /// <summary>
         /// Returns the program counter of the specified actor.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

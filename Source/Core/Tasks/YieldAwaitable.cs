@@ -81,13 +81,13 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             public void OnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.OnCompleted(continuation);
+                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
+                    this.Awaiter.OnCompleted(continuation);
                 }
             }
 
@@ -96,13 +96,13 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             public void UnsafeOnCompleted(Action continuation)
             {
-                if (this.Runtime is null)
+                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
+                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
                 }
                 else
                 {
-                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
+                    this.Awaiter.UnsafeOnCompleted(continuation);
                 }
             }
         }

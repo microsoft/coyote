@@ -53,7 +53,8 @@ namespace Microsoft.Coyote.Specifications
             this.Runtime = runtime;
             this.LivenessMonitors = new List<TaskLivenessMonitor>();
             this.StateMachineMonitors = new List<Monitor>();
-            this.IsMonitoringEnabled = runtime.IsControlled || configuration.IsMonitoringEnabledInInProduction;
+            this.IsMonitoringEnabled = runtime.SchedulingPolicy != SchedulingPolicy.None ||
+                configuration.IsMonitoringEnabledInInProduction;
         }
 
         /// <summary>
@@ -64,7 +65,8 @@ namespace Microsoft.Coyote.Specifications
 #endif
         internal void MonitorTaskCompletion(Task task)
         {
-            if (this.Runtime.IsControlled && task.Status != TaskStatus.RanToCompletion)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic &&
+                task.Status != TaskStatus.RanToCompletion)
             {
                 var monitor = new TaskLivenessMonitor(task);
                 this.LivenessMonitors.Add(monitor);
@@ -101,7 +103,8 @@ namespace Microsoft.Coyote.Specifications
                 this.StateMachineMonitors.Add(monitor);
             }
 
-            if (this.Runtime.IsControlled && this.Configuration.ReportActivityCoverage)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic
+                && this.Configuration.ReportActivityCoverage)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
             }
@@ -135,7 +138,7 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     lock (monitor)
                     {
@@ -161,7 +164,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 string msg = "Detected an assertion failure.";
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -181,7 +184,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -201,7 +204,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -221,7 +224,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -241,7 +244,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, s, args);
-                if (!this.Runtime.IsControlled)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
                     throw new AssertionFailureException(msg);
                 }
@@ -265,12 +268,12 @@ namespace Microsoft.Coyote.Specifications
                 "The stack trace is:\n{4}",
                 exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
 
-            if (!this.Runtime.IsControlled)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
                 throw new AssertionFailureException(message, exception);
             }
 
-            this.Runtime.NotifyAssertionFailure(message);
+            this.Runtime.NotifyUnhandledException(exception, message);
         }
 
         /// <summary>

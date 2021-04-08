@@ -1438,7 +1438,7 @@ namespace Microsoft.Coyote.Actors
                 if (message != null)
                 {
                     // Report the unhandled exception.
-                    this.Runtime.NotifyUnhandledException(exception, message);
+                    this.Runtime.NotifyUnhandledException(exception, message, cancelExecution: false);
                 }
             }
 

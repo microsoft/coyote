@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestProcessedOrDropped()
         {
-            var config = GetConfiguration();
+            var config = this.GetConfiguration();
             config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {

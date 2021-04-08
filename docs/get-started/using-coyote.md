@@ -71,7 +71,7 @@ original build. This can be done using the `--strong-name-key-file` command line
 For example, from your `coyote` repo:
 
 ```plain
-coyote rewrite d:\git\Coyote\Tests\Tests.SystematicTesting\bin\net48\rewrite.coyote.json
+coyote rewrite d:\git\Coyote\Tests\Tests.BugFinding\bin\net48\rewrite.coyote.json
     --strong-name-key-file Common\Key.snk
 ```
 

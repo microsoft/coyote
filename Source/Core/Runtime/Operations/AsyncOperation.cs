@@ -29,27 +29,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The type of the operation.
         /// </summary>
-        public AsyncOperationType Type { get; private set; }
+        internal AsyncOperationType Type;
 
         /// <summary>
         /// The default hashed state of the operation.
         /// </summary>
-        public int DefaultHashedState { get; internal set; }
-
-        /// <summary>
-        /// The Inbox hash state of the operation.
-        /// </summary>
-        public int InboxOnlyHashedState { get; internal set; }
-
-        /// <summary>
-        /// The custom hashed state of the operation.
-        /// </summary>
-        public int CustomHashedState { get; internal set; }
-
-        /// <summary>
-        /// The custom only hashed state of the operation.
-        /// </summary>
-        public int CustomOnlyHashedState { get; internal set; }
+        internal int DefaultHashedState;
 
         /// <summary>
         /// A value that represents the hashed program state when
@@ -80,14 +65,6 @@ namespace Microsoft.Coyote.Runtime
         /// Tries to enable the operation, if it is not already enabled.
         /// </summary>
         internal virtual bool TryEnable() => false;
-
-        /// <summary>
-        /// Sets the operation type.
-        /// </summary>
-        internal virtual void SetType(AsyncOperationType operationType)
-        {
-            this.Type = operationType;
-        }
 
         /// <summary>
         /// Checks if the operation is blocked on an uncontrolled dependency.

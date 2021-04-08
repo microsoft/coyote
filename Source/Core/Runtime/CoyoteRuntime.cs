@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Runtime
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
-    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(AsyncOperationType, bool, bool, int[])"/>, is thread-safe.
+    /// Invoking scheduling methods is thread-safe.
     /// </remarks>
     internal sealed class CoyoteRuntime : IDisposable
     {
@@ -569,7 +569,7 @@ namespace Microsoft.Coyote.Runtime
                 if (context.Options.HasFlag(OperationExecutionOptions.YieldAtStart))
                 {
                     // Try yield execution to the next operation.
-                    this.ScheduleNextOperation(AsyncOperationType.Default, true);
+                    this.ScheduleNextOperation(AsyncOperationType.Yield, true);
                 }
 
                 if (op is TaskDelayOperation delayOp)
@@ -605,7 +605,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, null, exception, default);
-                this.ScheduleNextOperation(AsyncOperationType.Join);
+                this.ScheduleNextOperation(AsyncOperationType.Stop);
             }
         }
 
@@ -729,7 +729,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, result, exception, default);
-                this.ScheduleNextOperation(AsyncOperationType.Join);
+                this.ScheduleNextOperation(AsyncOperationType.Stop);
             }
 
             return result;
@@ -1480,11 +1480,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Update the current operation with the hashed program state.
                     current.HashedProgramState = this.GetHashedProgramState();
-
-                    current.DefaultHashedState = this.GetProgramState("default", hashArray);
-                    current.InboxOnlyHashedState = this.GetProgramState("inboxonly", hashArray);
-                    current.CustomHashedState = this.GetProgramState("custom", hashArray);
-                    current.CustomOnlyHashedState = this.GetProgramState("custom-only", hashArray);
+                    current.DefaultHashedState = this.GetHashedProgramState(hashArray);
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
@@ -1893,48 +1889,30 @@ namespace Microsoft.Coyote.Runtime
         /// level of abstraction. The hash is updated in each execution step.
         /// </summary>
         [DebuggerStepThrough]
-        internal int GetProgramState(string abstractionLevel, int[] hashArray = null)
+        private int GetHashedProgramState(int[] hashArray = null)
         {
             unchecked
             {
                 int hash = 14689;
-                if (abstractionLevel is "default" ||
-                    abstractionLevel is "custom")
-                {
-                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
-                    {
-                        if (operation is ActorOperation actorOperation)
-                        {
-                            int operationHash = 37;
-                            operationHash = (operationHash * 397) + actorOperation.Actor.GetHashedState(abstractionLevel);
-                            operationHash = (operationHash * 397) + actorOperation.Type.GetHashCode();
-                            hash *= operationHash;
-                        }
-                        else if (operation is TaskOperation taskOperation)
-                        {
-                            int operationHash = 37;
-                            operationHash = (operationHash * 397) + taskOperation.Type.GetHashCode();
-                            hash *= operationHash;
-                        }
-                    }
 
-                    hash = hash + this.SpecificationEngine.GetHashedMonitorState();
-                }
-                else if (abstractionLevel is "inbox-only" ||
-                    abstractionLevel is "custom-only")
+                foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                 {
-                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
+                    if (operation is ActorOperation actorOperation)
                     {
-                        if (operation is ActorOperation actorOperation)
-                        {
-                            int operationHash = 37;
-                            operationHash = (operationHash * 397) + actorOperation.Actor.GetHashedState(abstractionLevel);
-                            hash *= operationHash;
-                        }
+                        int operationHash = 37;
+                        operationHash = (operationHash * 397) + actorOperation.Actor.GetHashedState(abstractionLevel);
+                        operationHash = (operationHash * 397) + actorOperation.Type.GetHashCode();
+                        hash *= operationHash;
                     }
-
-                    hash = hash + this.SpecificationEngine.GetHashedMonitorState();
+                    else if (operation is TaskOperation taskOperation)
+                    {
+                        int operationHash = 37;
+                        operationHash = (operationHash * 397) + taskOperation.Type.GetHashCode();
+                        hash *= operationHash;
+                    }
                 }
+
+                hash = hash + this.SpecificationEngine.GetHashedMonitorState();
 
                 if (hashArray != null)
                 {

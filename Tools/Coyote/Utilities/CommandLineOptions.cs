@@ -249,7 +249,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.RandomGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
-                case "sch-rl":
                 case "sch-dfs":
                 case "sch-portfolio":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
@@ -259,6 +258,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-fairpct":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     configuration.StrategyBound = (int)(uint)option.Value;
+                    break;
+                case "sch-rl":
+                    configuration.SchedulingStrategy = option.LongName.Substring(4);
+                    configuration.IsProgramStateHashingEnabled = true;
                     break;
                 case "schedule":
                     {
@@ -461,21 +464,13 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             if (configuration.SchedulingStrategy != "portfolio" &&
                 configuration.SchedulingStrategy != "random" &&
-                configuration.SchedulingStrategy != "rl" &&
                 configuration.SchedulingStrategy != "pct" &&
                 configuration.SchedulingStrategy != "fairpct" &&
                 configuration.SchedulingStrategy != "probabilistic" &&
+                configuration.SchedulingStrategy != "rl" &&
                 configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
-            }
-
-            if (configuration.AbstractionLevel != "default" &&
-                configuration.AbstractionLevel != "inboxonly" &&
-                configuration.AbstractionLevel != "custom" &&
-                configuration.AbstractionLevel != "custom-only")
-            {
-                Error.ReportAndExit("Please provide a supported abstraction level from default, inboxonly, custom or custom-only");
             }
 
             if (configuration.SafetyPrefixBound > 0 &&

@@ -44,7 +44,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
             else if (configuration.SchedulingStrategy is "rl")
             {
-                configuration.IsProgramStateHashingEnabled = true;
                 strategy = new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
             }
             else if (configuration.SchedulingStrategy is "dfs")

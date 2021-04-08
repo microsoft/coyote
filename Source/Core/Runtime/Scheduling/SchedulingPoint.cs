@@ -20,6 +20,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Lowers the scheduling priority of the currently executing operation during testing.
         /// </summary>
-        public static void Deprioritize() => CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Default, true, true);
+        public static void Deprioritize() => CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Yield, true, true);
     }
 }

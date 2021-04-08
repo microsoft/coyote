@@ -322,12 +322,6 @@ namespace Microsoft.Coyote
         internal uint TestingProcessId;
 
         /// <summary>
-        /// The level of abstraction used during systematic testing.
-        /// </summary>
-        [DataMember]
-        internal string AbstractionLevel;
-
-        /// <summary>
         /// Additional assembly specifications to instrument for code coverage, besides those in the
         /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
         /// Key is filename, value is whether it is a list file (true) or a single file (false).
@@ -469,21 +463,21 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the RL scheduling strategy during systematic testing.
+        /// </summary>
+        public Configuration WithReinforcementLearningStrategy()
+        {
+            this.SchedulingStrategy = "rl";
+            this.IsProgramStateHashingEnabled = true;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the dfs scheduling strategy during systematic testing.
         /// </summary>
         internal Configuration WithDFSStrategy()
         {
             this.SchedulingStrategy = "dfs";
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to use the QLearning scheduling strategy during systematic testing.
-        /// </summary>
-        public Configuration WithQLearningStrategy()
-        {
-            this.SchedulingStrategy = "rl";
-            this.IsProgramStateHashingEnabled = true;
             return this;
         }
 

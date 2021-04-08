@@ -6,7 +6,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// The type of an asynchronous operation.
     /// </summary>
-    public enum AsyncOperationType
+    internal enum AsyncOperationType
     {
         /// <summary>
         /// An asynchronous operation performs a default context switch.

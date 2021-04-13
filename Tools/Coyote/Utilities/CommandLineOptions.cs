@@ -55,6 +55,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
+            testingGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
@@ -257,6 +258,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-fairpct":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     configuration.StrategyBound = (int)(uint)option.Value;
+                    break;
+                case "sch-rl":
+                    configuration.SchedulingStrategy = option.LongName.Substring(4);
+                    configuration.IsProgramStateHashingEnabled = true;
                     break;
                 case "schedule":
                     {
@@ -462,6 +467,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 configuration.SchedulingStrategy != "pct" &&
                 configuration.SchedulingStrategy != "fairpct" &&
                 configuration.SchedulingStrategy != "probabilistic" &&
+                configuration.SchedulingStrategy != "rl" &&
                 configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");

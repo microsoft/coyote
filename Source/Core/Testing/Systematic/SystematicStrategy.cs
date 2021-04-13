@@ -42,6 +42,10 @@ namespace Microsoft.Coyote.Testing.Systematic
                 strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
                     configuration.StrategyBound, generator);
             }
+            else if (configuration.SchedulingStrategy is "rl")
+            {
+                strategy = new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+            }
             else if (configuration.SchedulingStrategy is "dfs")
             {
                 strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);

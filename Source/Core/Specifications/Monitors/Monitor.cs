@@ -636,8 +636,11 @@ namespace Microsoft.Coyote.Specifications
                 hash = (hash * 31) + this.GetType().GetHashCode();
                 hash = (hash * 31) + this.CurrentState.GetHashCode();
 
-                // Adds the user-defined hashed state.
-                hash = (hash * 31) + this.HashedState;
+                if (this.HashedState != 0)
+                {
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                }
 
                 return hash;
             }

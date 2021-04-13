@@ -27,6 +27,11 @@ namespace Microsoft.Coyote.Runtime
         internal AsyncOperationStatus Status;
 
         /// <summary>
+        /// The type of the operation.
+        /// </summary>
+        internal AsyncOperationType Type;
+
+        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>
@@ -40,6 +45,7 @@ namespace Microsoft.Coyote.Runtime
             this.Id = operationId;
             this.Name = name;
             this.Status = AsyncOperationStatus.None;
+            this.Type = AsyncOperationType.Start;
         }
 
         /// <summary>

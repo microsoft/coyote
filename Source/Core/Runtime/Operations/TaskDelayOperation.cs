@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Timeout = this.Runtime.GetNextNondeterministicIntegerChoice(this.Timeout);
             this.Status = AsyncOperationStatus.Delayed;
-            this.Runtime.ScheduleNextOperation();
+            this.Runtime.ScheduleNextOperation(AsyncOperationType.Yield);
         }
 
         /// <inheritdoc/>

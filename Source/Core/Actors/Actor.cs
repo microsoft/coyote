@@ -742,8 +742,11 @@ namespace Microsoft.Coyote.Actors
                 hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
                 hash = (hash * 31) + this.Inbox.GetCachedState();
 
-                // Adds the user-defined hashed state.
-                hash = (hash * 31) + this.HashedState;
+                if (this.HashedState != 0)
+                {
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                }
 
                 return hash;
             }

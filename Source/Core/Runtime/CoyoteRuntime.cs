@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Runtime
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
-    /// Invoking scheduling methods, such as <see cref="ScheduleNextOperation(bool, bool)"/>, is thread-safe.
+    /// Invoking scheduling methods is thread-safe.
     /// </remarks>
     internal sealed class CoyoteRuntime : IDisposable
     {
@@ -385,7 +385,7 @@ namespace Microsoft.Coyote.Runtime
                         op.OnCompleted();
 
                         // Task has completed, schedule the next enabled operation, which terminates exploration.
-                        this.ScheduleNextOperation();
+                        this.ScheduleNextOperation(AsyncOperationType.Stop);
                     }
                     catch (Exception ex)
                     {
@@ -533,7 +533,7 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             task.Start();
             this.WaitOperationStart(op);
-            this.ScheduleNextOperation();
+            this.ScheduleNextOperation(AsyncOperationType.Create);
             this.TaskMap.TryAdd(tcs.Task, op);
             return tcs.Task;
         }
@@ -569,7 +569,7 @@ namespace Microsoft.Coyote.Runtime
                 if (context.Options.HasFlag(OperationExecutionOptions.YieldAtStart))
                 {
                     // Try yield execution to the next operation.
-                    this.ScheduleNextOperation(true);
+                    this.ScheduleNextOperation(AsyncOperationType.Yield, true);
                 }
 
                 if (op is TaskDelayOperation delayOp)
@@ -605,7 +605,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, null, exception, default);
-                this.ScheduleNextOperation();
+                this.ScheduleNextOperation(AsyncOperationType.Stop);
             }
         }
 
@@ -729,7 +729,7 @@ namespace Microsoft.Coyote.Runtime
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
                 SetTaskCompletionSource(context.ResultSource, result, exception, default);
-                this.ScheduleNextOperation();
+                this.ScheduleNextOperation(AsyncOperationType.Stop);
             }
 
             return result;
@@ -1397,7 +1397,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                this.ScheduleNextOperation();
+                this.ScheduleNextOperation(AsyncOperationType.Yield);
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
@@ -1430,12 +1430,13 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
+        /// <param name="type">Type of the operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="checkCaller">If true, schedule only if the caller is an operation.</param>
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(bool isYielding = false, bool checkCaller = false)
+        internal void ScheduleNextOperation(AsyncOperationType type, bool isYielding = false, bool checkCaller = false)
         {
             lock (this.SyncObject)
             {
@@ -1470,6 +1471,9 @@ namespace Microsoft.Coyote.Runtime
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
+
+                // Update the operation type.
+                current.Type = type;
 
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
@@ -1872,8 +1876,22 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
-                hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
+
+                foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
+                {
+                    if (operation is ActorOperation actorOperation)
+                    {
+                        int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                        operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
+                        hash *= operationHash;
+                    }
+                    else if (operation is TaskOperation taskOperation)
+                    {
+                        hash *= 31 + taskOperation.Type.GetHashCode();
+                    }
+                }
+
+                hash = (hash * 31) + this.SpecificationEngine.GetHashedMonitorState();
                 return hash;
             }
         }

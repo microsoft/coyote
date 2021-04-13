@@ -142,6 +142,23 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Logs that the specified state machine handled a raised event.
+        /// </summary>
+        /// <param name="id">The id of the actor handling the event.</param>
+        /// <param name="stateName">The name of the current state.</param>
+        /// <param name="e">The event being handled.</param>
+        public void LogHandleRaisedEvent(ActorId id, string stateName, Event e)
+        {
+            if (this.Logs.Count > 0)
+            {
+                foreach (var log in this.Logs)
+                {
+                    log.OnHandleRaisedEvent(id, stateName, e);
+                }
+            }
+        }
+
+        /// <summary>
         /// Logs that the specified event is about to be enqueued to an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
@@ -341,23 +358,6 @@ namespace Microsoft.Coyote.Actors
                 foreach (var log in this.Logs)
                 {
                     log.OnDefaultEventHandler(id, stateName);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified state machine handled a raised event.
-        /// </summary>
-        /// <param name="id">The id of the actor handling the event.</param>
-        /// <param name="stateName">The name of the current state.</param>
-        /// <param name="e">The event being handled.</param>
-        public void LogHandleRaisedEvent(ActorId id, string stateName, Event e)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnHandleRaisedEvent(id, stateName, e);
                 }
             }
         }

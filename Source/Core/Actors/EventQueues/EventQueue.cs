@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     (Event e, EventGroup eventGroup) = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.RaisedEvent, e, eventGroup, null);
+                    return (DequeueStatus.Raised, e, eventGroup, null);
                 }
             }
 
@@ -176,13 +176,13 @@ namespace Microsoft.Coyote.Actors
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.IsEventHandlerRunning = false;
-                    return (DequeueStatus.UnavailableEvent, null, null, null);
+                    return (DequeueStatus.Unavailable, null, null, null);
                 }
             }
 
             // TODO: check op-id of default event.
             // A default event handler exists.
-            return (DequeueStatus.DefaultEvent, DefaultEvent.Instance, null, null);
+            return (DequeueStatus.Default, DefaultEvent.Instance, null, null);
         }
 
         /// <inheritdoc/>

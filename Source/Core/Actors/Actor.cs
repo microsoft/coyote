@@ -503,13 +503,13 @@ namespace Microsoft.Coyote.Actors
                         await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
                         lastDequeuedEvent = e;
                     }
-                    else if (status is DequeueStatus.RaisedEvent)
+                    else if (status is DequeueStatus.Raised)
                     {
                         // Only supported by types (e.g. StateMachine) that allow
                         // the user to explicitly raise events.
                         this.Context.LogHandleRaisedEvent(this, e);
                     }
-                    else if (status is DequeueStatus.DefaultEvent)
+                    else if (status is DequeueStatus.Default)
                     {
                         this.Context.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
@@ -518,7 +518,7 @@ namespace Microsoft.Coyote.Actors
                         // instrument a scheduling point between default event handlers.
                         this.Context.LogDefaultEventDequeued(this);
                     }
-                    else if (status is DequeueStatus.UnavailableEvent)
+                    else if (status is DequeueStatus.Unavailable)
                     {
                         // Terminate the handler as there is no event available.
                         break;

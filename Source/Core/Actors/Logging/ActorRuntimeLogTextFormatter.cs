@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
         {
-            if (dequeueStatus != DequeueStatus.UnavailableEvent)
+            if (dequeueStatus != DequeueStatus.Unavailable)
             {
                 string text;
                 if (stateName is null)

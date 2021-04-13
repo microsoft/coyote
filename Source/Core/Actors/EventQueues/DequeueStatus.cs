@@ -21,16 +21,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The raised event was dequeued.
         /// </summary>
-        RaisedEvent,
+        Raised,
 
         /// <summary>
         /// The default event was dequeued.
         /// </summary>
-        DefaultEvent,
+        Default,
 
         /// <summary>
         /// No event available to dequeue.
         /// </summary>
-        UnavailableEvent
+        Unavailable
     }
 }

@@ -12,9 +12,9 @@ public enum DequeueStatus
 | --- | --- | --- |
 | None | `0` | No dequeue has happened. |
 | Success | `1` | An event was successfully dequeued. |
-| RaisedEvent | `2` | The raised event was dequeued. |
-| DefaultEvent | `3` | The default event was dequeued. |
-| UnavailableEvent | `4` | No event available to dequeue. |
+| Raised | `2` | The raised event was dequeued. |
+| Default | `3` | The default event was dequeued. |
+| Unavailable | `4` | No event available to dequeue. |
 
 ## See Also
 

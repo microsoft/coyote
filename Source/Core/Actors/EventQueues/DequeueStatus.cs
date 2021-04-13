@@ -9,14 +9,9 @@ namespace Microsoft.Coyote.Actors
     public enum DequeueStatus
     {
         /// <summary>
-        /// No dequeue has happened.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
         /// An event was successfully dequeued.
         /// </summary>
-        Success,
+        Success = 0,
 
         /// <summary>
         /// The raised event was dequeued.
@@ -27,6 +22,11 @@ namespace Microsoft.Coyote.Actors
         /// The default event was dequeued.
         /// </summary>
         Default,
+
+        /// <summary>
+        /// No dequeue has happened.
+        /// </summary>
+        NoDequeue,
 
         /// <summary>
         /// No event available to dequeue.

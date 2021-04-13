@@ -480,7 +480,7 @@ namespace Microsoft.Coyote.Actors
         {
             bool isFreshDequeue = true;
             Event lastDequeuedEvent = null;
-            DequeueStatus lastDequeueStatus = DequeueStatus.None;
+            DequeueStatus lastDequeueStatus = DequeueStatus.NoDequeue;
 
             try
             {

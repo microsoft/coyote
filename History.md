@@ -1,3 +1,16 @@
+## v1.2.5
+- Added the `SchedulingPoint` static class that exposes methods for adding manual scheduling points
+  during systematic testing.
+- Added an experimental systematic testing strategy that uses reinforcement learning. This is
+  enabled using the `--sch-rl` command line option or the `Configuration.WithRLStrategy` method.
+- Added an experimental concurrency fuzzing testing mode that uses delay injection instead of
+  systematic testing to find bugs. This can be enabled using the `--concurrency-fuzzing` command
+  line option or the `Configuration.WithConcurrencyFuzzingEnabled` method.
+- Added the `IActorRuntimeLog.OnEventHandlerTerminated` actor log callback that is called when an
+  event handler terminates.
+- Fixed a bug where the `IActorRuntimeLog.OnHandleRaisedEvent` actor log callback was not invoked in
+  production.
+
 ## v1.2.4
 - Improved how `coyote test` resolves ambiguous test method names.
 - Fixed a bug where awaiting a task from a previous test iteration that was canceled due to

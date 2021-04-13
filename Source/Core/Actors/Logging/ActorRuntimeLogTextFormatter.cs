@@ -86,14 +86,33 @@ namespace Microsoft.Coyote.Actors
             string text;
             if (stateName is null)
             {
-                text = $"<DefaultLog> {id} is executing the default handler.";
+                text = $"<ActorLog> {id} is executing the default handler.";
             }
             else
             {
-                text = $"<DefaultLog> {id} is executing the default handler in state '{stateName}'.";
+                text = $"<ActorLog> {id} is executing the default handler in state '{stateName}'.";
             }
 
             this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
+        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+            if (dequeueStatus != DequeueStatus.Unavailable)
+            {
+                string text;
+                if (stateName is null)
+                {
+                    text = $"<ActorLog> The event handler of {id} terminated with '{dequeueStatus}' dequeue status.";
+                }
+                else
+                {
+                    text = $"<ActorLog> The event handler of {id} terminated in state '{stateName}' with '{dequeueStatus}' dequeue status.";
+                }
+
+                this.Logger.WriteLine(text);
+            }
         }
 
         /// <inheritdoc/>

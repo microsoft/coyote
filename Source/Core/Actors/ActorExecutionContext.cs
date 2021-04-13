@@ -581,6 +581,19 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Logs that the event handler of the specified actor terminated.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
+                this.LogWriter.LogEventHandlerTerminated(actor.Id, stateName, dequeueStatus);
+            }
+        }
+
+        /// <summary>
         /// Logs that the specified state machine entered a state.
         /// </summary>
         internal virtual void LogEnteredState(StateMachine stateMachine)
@@ -1299,6 +1312,13 @@ namespace Microsoft.Coyote.Actors
 
                 this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
                 this.ResetProgramCounter(actor);
+            }
+
+            /// <inheritdoc/>
+            internal override void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
+            {
+                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+                this.LogWriter.LogEventHandlerTerminated(actor.Id, stateName, dequeueStatus);
             }
 
             /// <inheritdoc/>

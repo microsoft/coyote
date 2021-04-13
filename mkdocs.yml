@@ -186,6 +186,7 @@ nav:
         - NameValue: ref/Microsoft.Coyote.Actors/ActorId/NameValue.md
         - Type: ref/Microsoft.Coyote.Actors/ActorId/Type.md
         - Name: ref/Microsoft.Coyote.Actors/ActorId/Name.md
+      - DequeueStatus: ref/Microsoft.Coyote.Actors/DequeueStatus.md
       - AwaitableEventGroup<T>:
         - Overview: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1.md
         - SetResult: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult.md
@@ -239,6 +240,7 @@ nav:
         - OnCreateMonitor: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateMonitor.md
         - OnCreateTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer.md
         - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler.md
+        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md
         - OnDequeueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent.md
         - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent.md
         - OnExceptionHandled: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled.md
@@ -246,7 +248,6 @@ nav:
         - OnExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction.md
         - OnGotoState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState.md
         - OnHalt: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt.md
-        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent.md
         - OnMonitorExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction.md
         - OnMonitorProcessEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent.md
         - OnMonitorRaiseEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent.md
@@ -256,6 +257,7 @@ nav:
         - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent.md
         - OnPushState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState.md
         - OnRaiseEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent.md
+        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent.md
         - OnReceiveEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent.md
         - OnSendEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent.md
         - OnStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition.md
@@ -273,6 +275,7 @@ nav:
         - OnExecuteAction: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction.md
         - OnSendEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent.md
         - OnRaiseEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent.md
+        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent.md
         - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent.md
         - OnDequeueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent.md
         - OnReceiveEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent.md
@@ -282,8 +285,8 @@ nav:
         - OnPushState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState.md
         - OnPopState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState.md
         - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler.md
+        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated.md
         - OnHalt: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt.md
-        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent.md
         - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent.md
         - OnExceptionThrown: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown.md
         - OnExceptionHandled: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled.md
@@ -366,6 +369,7 @@ nav:
         - OnCreateStateMachine: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnCreateStateMachine.md
         - OnSendEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnSendEvent.md
         - OnRaiseEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnRaiseEvent.md
+        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent.md
         - OnEnqueueEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnEnqueueEvent.md
         - OnDequeueEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnDequeueEvent.md
         - OnReceiveEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnReceiveEvent.md
@@ -377,7 +381,7 @@ nav:
         - OnPopState: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnPopState.md
         - OnHalt: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHalt.md
         - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnDefaultEventHandler.md
-        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent.md
+        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnEventHandlerTerminated.md
         - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnPopStateUnhandledEvent.md
         - OnExceptionThrown: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionThrown.md
         - OnExceptionHandled: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionHandled.md

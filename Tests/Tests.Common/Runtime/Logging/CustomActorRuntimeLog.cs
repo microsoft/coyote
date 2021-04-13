@@ -85,6 +85,10 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
+        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+        }
+
         public void OnHalt(ActorId id, int inboxSize)
         {
         }

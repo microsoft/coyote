@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Actors
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.IsEventHandlerRunning = false;
-                    return (DequeueStatus.NotAvailable, null, null, null);
+                    return (DequeueStatus.Unavailable, null, null, null);
                 }
             }
 

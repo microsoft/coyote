@@ -19,6 +19,7 @@ public interface IActorRuntimeLog
 | [OnDefaultEventHandler](IActorRuntimeLog/OnDefaultEventHandler.md)(…) | Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed. |
 | [OnDequeueEvent](IActorRuntimeLog/OnDequeueEvent.md)(…) | Invoked when the specified event is dequeued by an actor. |
 | [OnEnqueueEvent](IActorRuntimeLog/OnEnqueueEvent.md)(…) | Invoked when the specified event is about to be enqueued to an actor. |
+| [OnEventHandlerTerminated](IActorRuntimeLog/OnEventHandlerTerminated.md)(…) | Invoked when the event handler of the specified actor terminated. |
 | [OnExceptionHandled](IActorRuntimeLog/OnExceptionHandled.md)(…) | Invoked when the specified OnException method is used to handle a thrown exception. |
 | [OnExceptionThrown](IActorRuntimeLog/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception. |
 | [OnExecuteAction](IActorRuntimeLog/OnExecuteAction.md)(…) | Invoked when the specified actor executes an action. |

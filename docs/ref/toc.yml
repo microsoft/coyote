@@ -166,6 +166,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorId/Type
         - name: Name
           link: ref/Microsoft.Coyote.Actors/ActorId/Name
+      - name: DequeueStatus
+        link: ref/Microsoft.Coyote.Actors/DequeueStatus
       - name: AwaitableEventGroup<T>
         link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1
         subfolderitems:
@@ -264,6 +266,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer
         - name: OnDefaultEventHandler
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
+        - name: OnEventHandlerTerminated
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated
         - name: OnDequeueEvent
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent
         - name: OnEnqueueEvent
@@ -278,8 +282,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState
         - name: OnHalt
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt
-        - name: OnHandleRaisedEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
         - name: OnMonitorExecuteAction
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction
         - name: OnMonitorProcessEvent
@@ -298,6 +300,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState
         - name: OnRaiseEvent
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent
+        - name: OnHandleRaisedEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
         - name: OnReceiveEvent
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent
         - name: OnSendEvent
@@ -331,6 +335,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent
         - name: OnRaiseEvent
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent
+        - name: OnHandleRaisedEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent
         - name: OnEnqueueEvent
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent
         - name: OnDequeueEvent
@@ -349,10 +355,10 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState
         - name: OnDefaultEventHandler
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler
+        - name: OnEventHandlerTerminated
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated
         - name: OnHalt
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt
-        - name: OnHandleRaisedEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent
         - name: OnPopStateUnhandledEvent
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent
         - name: OnExceptionThrown
@@ -500,6 +506,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnSendEvent
         - name: OnRaiseEvent
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnRaiseEvent
+        - name: OnHandleRaisedEvent
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent
         - name: OnEnqueueEvent
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnEnqueueEvent
         - name: OnDequeueEvent
@@ -522,8 +530,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHalt
         - name: OnDefaultEventHandler
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnDefaultEventHandler
-        - name: OnHandleRaisedEvent
-          link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent
+        - name: OnEventHandlerTerminated
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnEventHandlerTerminated
         - name: OnPopStateUnhandledEvent
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnPopStateUnhandledEvent
         - name: OnExceptionThrown

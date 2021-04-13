@@ -4,7 +4,7 @@
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
-    /// The status returned as the result of a dequeue operation.
+    /// The status returned as the result of an <see cref="Actor"/> dequeue operation.
     /// </summary>
     public enum DequeueStatus
     {

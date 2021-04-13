@@ -519,6 +519,11 @@ namespace Microsoft.Coyote.Actors
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleRaisedEvent(Actor actor, Event e)
         {
+            if (this.Configuration.IsVerbose)
+            {
+                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
+                this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
+            }
         }
 
         /// <summary>

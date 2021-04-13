@@ -180,11 +180,6 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
         }
 
-        public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
-        {
-            this.Dequeued = e;
-        }
-
         public void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
         }
@@ -231,6 +226,11 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             string eventName = e.GetType().FullName;
             this.EventCoverage.AddEventSent(GetStateId(id.Type, stateName), eventName);
+        }
+
+        public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
+        {
+            this.Dequeued = e;
         }
 
         public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)

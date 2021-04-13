@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Actors.Tests
             var logger = new TestOutputLogger(this.TestOutput, false);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             var (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             queue.Enqueue(new E1(), null, null);
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Actors.Tests
             var logger = new TestOutputLogger(this.TestOutput, false);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             var (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             var enqueueStatus = queue.Enqueue(new E1(), null, null);
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             var (deqeueStatus, e, group, info) = queue.Dequeue();
             Assert.IsType<E1>(e);
-            Assert.Equal(DequeueStatus.Raised, deqeueStatus);
+            Assert.Equal(DequeueStatus.RaisedEvent, deqeueStatus);
             Assert.False(queue.IsEventRaised);
             Assert.Equal(0, queue.Size);
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             var (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             var (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -317,7 +317,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             var (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -417,7 +417,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(0, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
@@ -453,7 +453,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(1, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(0, queue.Size);
         }
 
@@ -495,7 +495,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(1, queue.Size);
 
             (deqeueStatus, e, group, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(DequeueStatus.UnavailableEvent, deqeueStatus);
             Assert.Equal(1, queue.Size);
         }
     }

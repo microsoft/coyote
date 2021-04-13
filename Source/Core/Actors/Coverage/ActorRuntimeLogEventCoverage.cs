@@ -140,6 +140,10 @@ namespace Microsoft.Coyote.Actors.Coverage
             this.Dequeued = DefaultEvent.Instance;
         }
 
+        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+        }
+
         public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             this.Dequeued = e;

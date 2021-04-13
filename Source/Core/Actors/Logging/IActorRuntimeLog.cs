@@ -151,6 +151,14 @@ namespace Microsoft.Coyote.Actors
         void OnDefaultEventHandler(ActorId id, string stateName);
 
         /// <summary>
+        /// Invoked when the event handler of the specified actor terminated.
+        /// </summary>
+        /// <param name="id">The id of the actor with the handler that terminated.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="dequeueStatus">The status returned as the result of the last dequeue operation.</param>
+        void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus);
+
+        /// <summary>
         /// Invoked when the specified actor has been halted.
         /// </summary>
         /// <param name="id">The id of the actor that has been halted.</param>

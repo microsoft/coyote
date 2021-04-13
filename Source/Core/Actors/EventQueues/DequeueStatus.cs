@@ -6,26 +6,31 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// The status returned as the result of a dequeue operation.
     /// </summary>
-    internal enum DequeueStatus
+    public enum DequeueStatus
     {
+        /// <summary>
+        /// No dequeue has happened.
+        /// </summary>
+        None = 0,
+
         /// <summary>
         /// An event was successfully dequeued.
         /// </summary>
-        Success = 0,
+        Success,
 
         /// <summary>
         /// The raised event was dequeued.
         /// </summary>
-        Raised,
+        RaisedEvent,
 
         /// <summary>
         /// The default event was dequeued.
         /// </summary>
-        Default,
+        DefaultEvent,
 
         /// <summary>
         /// No event available to dequeue.
         /// </summary>
-        NotAvailable
+        UnavailableEvent
     }
 }

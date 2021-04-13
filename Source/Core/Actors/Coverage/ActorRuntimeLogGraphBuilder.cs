@@ -338,6 +338,11 @@ namespace Microsoft.Coyote.Actors.Coverage
         }
 
         /// <inheritdoc/>
+        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+        }
+
+        /// <inheritdoc/>
         public void OnPopStateUnhandledEvent(ActorId actorId, string currentStateName, Event e)
         {
             lock (this.Inbox)

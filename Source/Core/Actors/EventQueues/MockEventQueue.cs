@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 {
                     (Event e, EventGroup eventGroup, EventInfo info) raisedEvent = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.eventGroup, raisedEvent.info);
+                    return (DequeueStatus.RaisedEvent, raisedEvent.e, raisedEvent.eventGroup, raisedEvent.info);
                 }
             }
 
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             {
                 // There is no default event handler installed, so do not return an event.
                 this.IsEventHandlerRunning = false;
-                return (DequeueStatus.NotAvailable, null, null, null);
+                return (DequeueStatus.UnavailableEvent, null, null, null);
             }
 
             // TODO: check op-id of default event.
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             string stateName = this.Owner is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
             var eventOrigin = new EventOriginInfo(this.Owner.Id, this.Owner.GetType().FullName, stateName);
-            return (DequeueStatus.Default, DefaultEvent.Instance, null, new EventInfo(DefaultEvent.Instance, eventOrigin));
+            return (DequeueStatus.DefaultEvent, DefaultEvent.Instance, null, new EventInfo(DefaultEvent.Instance, eventOrigin));
         }
 
         /// <summary>

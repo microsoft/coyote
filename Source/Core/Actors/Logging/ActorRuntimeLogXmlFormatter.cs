@@ -125,6 +125,10 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteEndElement();
         }
 
+        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+        }
+
         public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             if (this.Closed)

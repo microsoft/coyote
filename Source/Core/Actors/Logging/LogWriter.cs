@@ -363,6 +363,23 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Logs that the event handler of the specified actor terminated.
+        /// </summary>
+        /// <param name="id">The id of the actor that the state will execute in.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="dequeueStatus">The status returned as the result of the last dequeue operation.</param>
+        public void LogEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        {
+            if (this.Logs.Count > 0)
+            {
+                foreach (var log in this.Logs)
+                {
+                    log.OnEventHandlerTerminated(id, stateName, dequeueStatus);
+                }
+            }
+        }
+
+        /// <summary>
         /// Logs that the specified event cannot be handled in the current state, its exit
         /// handler is executed and then the state is popped and any previous "current state"
         /// is reentered. This handler is called when that pop has been done.

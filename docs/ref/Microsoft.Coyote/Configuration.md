@@ -36,6 +36,7 @@ public class Configuration
 | [WithRandomStrategy](Configuration/WithRandomStrategy.md)() | Updates the configuration to use the random scheduling strategy during systematic testing. |
 | [WithRelaxedControlledTestingEnabled](Configuration/WithRelaxedControlledTestingEnabled.md)(…) | Updates the configuration with relaxed controlled testing enabled or disabled. If this option is enabled, systematic testing supports partially controlled executions. |
 | [WithReplayStrategy](Configuration/WithReplayStrategy.md)(…) | Updates the configuration to use the replay scheduling strategy during systematic testing. This strategy replays the specified schedule trace to reproduce the same execution. |
+| [WithRLStrategy](Configuration/WithRLStrategy.md)() | Updates the configuration to use the reinforcement learning (RL) scheduling strategy during systematic testing. |
 | [WithTelemetryEnabled](Configuration/WithTelemetryEnabled.md)(…) | Updates the configuration with telemetry enabled or disabled. |
 | [WithTestingIterations](Configuration/WithTestingIterations.md)(…) | Updates the configuration with the specified number of iterations to run during systematic testing. |
 | [WithTestingTimeout](Configuration/WithTestingTimeout.md)(…) | Updates the configuration with the specified systematic testing timeout in seconds. |

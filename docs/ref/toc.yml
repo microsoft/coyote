@@ -21,6 +21,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy
         - name: WithPCTStrategy
           link: ref/Microsoft.Coyote/Configuration/WithPCTStrategy
+        - name: WithRLStrategy
+          link: ref/Microsoft.Coyote/Configuration/WithRLStrategy
         - name: WithReplayStrategy
           link: ref/Microsoft.Coyote/Configuration/WithReplayStrategy
         - name: WithTestingIterations

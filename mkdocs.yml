@@ -112,6 +112,7 @@ nav:
         - WithRandomStrategy: ref/Microsoft.Coyote/Configuration/WithRandomStrategy.md
         - WithProbabilisticStrategy: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy.md
         - WithPCTStrategy: ref/Microsoft.Coyote/Configuration/WithPCTStrategy.md
+        - WithRLStrategy: ref/Microsoft.Coyote/Configuration/WithRLStrategy.md
         - WithReplayStrategy: ref/Microsoft.Coyote/Configuration/WithReplayStrategy.md
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md

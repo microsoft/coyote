@@ -65,6 +65,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var rewritingGroup = this.Parser.GetOrCreateGroup("rewritingGroup", "Binary rewriting options");
             rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
             rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
+            rewritingGroup.AddArgument("assert-data-races", null, "Add assertions for read/write data races", typeof(bool));
             rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
             rewritingGroup.AddArgument("rewrite-unit-tests", null, "Rewrite unit tests to run in the scope of the Coyote testing engine", typeof(bool));
             rewritingGroup.AddArgument("rewrite-threads", null, "Rewrite low-level threading APIs (experimental)", typeof(bool));
@@ -386,6 +387,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "strong-name-key-file":
                     options.StrongNameKeyFile = (string)option.Value;
+                    break;
+                case "assert-data-races":
+                    options.IsDataRaceDetectionEnabled = true;
                     break;
                 case "rewrite-dependencies":
                     options.IsRewritingDependencies = true;

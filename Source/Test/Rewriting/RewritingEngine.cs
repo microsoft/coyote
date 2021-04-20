@@ -129,8 +129,10 @@ namespace Microsoft.Coyote.Rewriting
             if (this.Options.IsRewritingThreads)
             {
                 this.Transforms.Add(new ThreadTransform(this.Logger));
+            }
 
-                // Perhaps we should add a new CLI option to enable Race detection seperatly.
+            if (this.Options.IsDataRaceDetectionEnabled)
+            {
                 this.Transforms.Add(new RaceDetectionTransform(this.Logger));
             }
 

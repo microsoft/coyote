@@ -189,7 +189,7 @@ follows:
  To make this a good test, the `TestActor` keeps track of how many greetings were sent and how many
  were received, and it writes an `Assert` to ensure it doesn't receive too many as follows:
 
- ```csharp
+```csharp
 private void HandleGreeting(Event e)
 {
     // this is perfectly thread safe, because all message handling in actors is

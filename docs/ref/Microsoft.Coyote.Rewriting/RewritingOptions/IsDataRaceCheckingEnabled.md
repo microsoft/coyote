@@ -1,9 +1,9 @@
-# RewritingOptions.IsRewritingDependencies property
+# RewritingOptions.IsDataRaceCheckingEnabled property
 
-True if rewriting dependent assemblies that are found in the same location is enabled, else false.
+True if rewriting for data race checking is enabled, else false.
 
 ```csharp
-public bool IsRewritingDependencies { get; set; }
+public bool IsDataRaceCheckingEnabled { get; set; }
 ```
 
 ## See Also

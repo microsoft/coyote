@@ -183,11 +183,11 @@ is declared in a way that tells the `Coyote` runtime it is expecting to receive 
 follows:
 
 ```csharp
- [OnEventDoAction(typeof(GreetingEvent), nameof(HandleGreeting))]
- ```
+[OnEventDoAction(typeof(GreetingEvent), nameof(HandleGreeting))]
+```
 
- To make this a good test, the `TestActor` keeps track of how many greetings were sent and how many
- were received, and it writes an `Assert` to ensure it doesn't receive too many as follows:
+To make this a good test, the `TestActor` keeps track of how many greetings were sent and how many
+were received, and it writes an `Assert` to ensure it doesn't receive too many as follows:
 
 ```csharp
 private void HandleGreeting(Event e)

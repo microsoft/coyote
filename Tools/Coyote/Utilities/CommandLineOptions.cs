@@ -389,7 +389,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     options.StrongNameKeyFile = (string)option.Value;
                     break;
                 case "assert-data-races":
-                    options.IsDataRaceDetectionEnabled = true;
+                    options.IsDataRaceCheckingEnabled = true;
                     break;
                 case "rewrite-dependencies":
                     options.IsRewritingDependencies = true;

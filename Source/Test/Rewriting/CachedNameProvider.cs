@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using SystemCompiler = System.Runtime.CompilerServices;
+using SystemGenericCollections = System.Collections.Generic;
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
 
@@ -12,9 +13,10 @@ namespace Microsoft.Coyote.Rewriting
     /// </summary>
     internal static class CachedNameProvider
     {
+        internal static string InterceptionNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
-        internal static string InterceptionNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
+        internal static string SystemGenericCollectionsNamespace { get; } = typeof(SystemGenericCollections.List<>).Namespace;
 
         internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string ControlledTaskName { get; } = typeof(Interception.ControlledTask).Name;
@@ -44,5 +46,8 @@ namespace Microsoft.Coyote.Rewriting
         internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
         internal static string TaskParallelFullName { get; } = typeof(SystemTasks.Parallel).FullName;
         internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
+
+        internal static string GenericListFullName { get; } = typeof(SystemGenericCollections.List<>).FullName;
+        internal static string GenericDictionaryFullName { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;
     }
 }

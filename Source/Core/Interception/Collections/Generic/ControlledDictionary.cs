@@ -5,50 +5,52 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.SystematicTesting.Interception
+namespace Microsoft.Coyote.Interception
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
+    /// <summary>
+    /// Provides methods for creating generic dictionaries that can be controlled during testing.
+    /// </summary>
+    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class StaticMockDictionaryWrapper
+    public static class ControlledDictionary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>() => CoyoteRuntime.IsExecutionControlled ?
-         new MockDictionary<TKey, TValue>() : new Dictionary<TKey, TValue>();
+         new ControlledDictionary<TKey, TValue>() : new Dictionary<TKey, TValue>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(IDictionary<TKey, TValue> dictionary) => CoyoteRuntime.IsExecutionControlled ?
-         new MockDictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary);
+         new ControlledDictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary);
 
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey>? comparer) => CoyoteRuntime.IsExecutionControlled ?
-         new MockDictionary<TKey, TValue>(comparer) : new Dictionary<TKey, TValue>(comparer);
+         new ControlledDictionary<TKey, TValue>(comparer) : new Dictionary<TKey, TValue>(comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(System.Collections.Generic.IDictionary<TKey, TValue> dictionary, System.Collections.Generic.IEqualityComparer<TKey>? comparer)
-         => CoyoteRuntime.IsExecutionControlled ? new MockDictionary<TKey, TValue>(dictionary, comparer) :
+         => CoyoteRuntime.IsExecutionControlled ? new ControlledDictionary<TKey, TValue>(dictionary, comparer) :
             new Dictionary<TKey, TValue>(dictionary, comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity, IEqualityComparer<TKey>? comparer)
-        => CoyoteRuntime.IsExecutionControlled ? new MockDictionary<TKey, TValue>(capacity, comparer) :
+        => CoyoteRuntime.IsExecutionControlled ? new ControlledDictionary<TKey, TValue>(capacity, comparer) :
             new Dictionary<TKey, TValue>(capacity, comparer);
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity)
         {
-            return new MockDictionary<TKey, TValue>(capacity);
+            return new ControlledDictionary<TKey, TValue>(capacity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -60,7 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<TKey, TValue>(object obj)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -72,7 +74,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsValue<TKey, TValue>(object obj, TValue value)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -84,7 +86,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsKey<TKey, TValue>(object obj, TKey key)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -97,7 +99,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void EnsureCapacity<TKey, TValue>(object obj, int size)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -116,7 +118,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnDeserialization<TKey, TValue>(object obj, object sender)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -128,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<TKey, TValue>(object obj, TKey key)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -141,7 +143,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -154,7 +156,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString<TKey, TValue>(object obj)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -168,7 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<TKey, TValue>(object obj)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -180,7 +182,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<TKey, TValue>(object obj, int size)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -192,7 +194,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryAdd<TKey, TValue>(object obj, TKey key, TValue value)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -211,7 +213,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -229,7 +231,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -249,7 +251,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             Debug.Assert(false, "aa");
 
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(true);
             }
@@ -261,7 +263,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue<TKey, TValue>(object obj, TKey key, out TValue value)
         {
-            if (obj is MockDictionary<TKey, TValue> mockDictObj)
+            if (obj is ControlledDictionary<TKey, TValue> mockDictObj)
             {
                 mockDictObj.DetectDataRace(false);
             }
@@ -272,11 +274,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     }
 
     /// <summary>
-    /// Provides methods for dictionary that can be controlled during testing.
+    /// Implements a <see cref="Dictionary{TKey, TValue}"/> that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public class MockDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+    public class ControlledDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     {
         internal class RWData : object
         {
@@ -302,22 +304,22 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             this.AuxInfo = new RWData(0, 0);
         }
 
-        public MockDictionary()
+        public ControlledDictionary()
             : base() => this.Init();
 
-        public MockDictionary(IDictionary<TKey, TValue> dictionary)
+        public ControlledDictionary(IDictionary<TKey, TValue> dictionary)
             : base(dictionary) => this.Init();
 
-        public MockDictionary(int capacity)
+        public ControlledDictionary(int capacity)
             : base(capacity) => this.Init();
 
-        public MockDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        public ControlledDictionary(int capacity, IEqualityComparer<TKey> comparer)
             : base(capacity, comparer) => this.Init();
 
-        public MockDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+        public ControlledDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
             : base(dictionary, comparer) => this.Init();
 
-        public MockDictionary(IEqualityComparer<TKey> comparer)
+        public ControlledDictionary(IEqualityComparer<TKey> comparer)
             : base(comparer) => this.Init();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

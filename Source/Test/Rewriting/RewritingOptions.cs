@@ -73,9 +73,9 @@ namespace Microsoft.Coyote.Rewriting
         public string StrongNameKeyFile { get; set; }
 
         /// <summary>
-        /// True if data race detection rewriting is enabled, else false.
+        /// True if rewriting for data race checking is enabled, else false.
         /// </summary>
-        public bool IsDataRaceDetectionEnabled { get; set; }
+        public bool IsDataRaceCheckingEnabled { get; set; }
 
         /// <summary>
         /// True if rewriting dependent assemblies that are found in the same location is enabled, else false.
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.Rewriting
             IList<string> ignoredAssemblies = null;
             IList<string> dependencySearchPaths = null;
             string strongNameKeyFile = null;
-            bool isDataRaceDetectionEnabled = false;
+            bool isDataRaceCheckingEnabled = false;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
             bool isRewritingThreads = false;
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Rewriting
                 Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                 assembliesDirectory = resolvedUri.LocalPath;
                 strongNameKeyFile = configuration.StrongNameKeyFile;
-                isDataRaceDetectionEnabled = configuration.IsDataRaceDetectionEnabled;
+                isDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
                 isRewritingDependencies = configuration.IsRewritingDependencies;
                 isRewritingUnitTests = configuration.IsRewritingUnitTests;
                 isRewritingThreads = configuration.IsRewritingThreads;
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.Rewriting
                 IgnoredAssemblies = ignoredAssemblies,
                 DependencySearchPaths = dependencySearchPaths,
                 StrongNameKeyFile = strongNameKeyFile,
-                IsDataRaceDetectionEnabled = isDataRaceDetectionEnabled,
+                IsDataRaceCheckingEnabled = isDataRaceCheckingEnabled,
                 IsRewritingDependencies = isRewritingDependencies,
                 IsRewritingUnitTests = isRewritingUnitTests,
                 IsRewritingThreads = isRewritingThreads
@@ -217,9 +217,9 @@ namespace Microsoft.Coyote.Rewriting
                 this.StrongNameKeyFile = options.StrongNameKeyFile;
             }
 
-            if (options.IsDataRaceDetectionEnabled)
+            if (options.IsDataRaceCheckingEnabled)
             {
-                this.IsDataRaceDetectionEnabled = options.IsDataRaceDetectionEnabled;
+                this.IsDataRaceCheckingEnabled = options.IsDataRaceCheckingEnabled;
             }
 
             if (options.IsRewritingDependencies)
@@ -297,8 +297,8 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
 
-            [DataMember(Name = "IsDataRaceDetectionEnabled")]
-            public bool IsDataRaceDetectionEnabled { get; set; }
+            [DataMember(Name = "IsDataRaceCheckingEnabled")]
+            public bool IsDataRaceCheckingEnabled { get; set; }
 
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }

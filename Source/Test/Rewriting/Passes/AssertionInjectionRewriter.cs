@@ -13,35 +13,14 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewriting pass that injects assertions.
     /// </summary>
-    internal class AssertionInjectionTransform : AssemblyTransform
+    internal class AssertionInjectionRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// The current module being transformed.
+        /// Initializes a new instance of the <see cref="AssertionInjectionRewriter"/> class.
         /// </summary>
-        private ModuleDefinition Module;
-
-        /// <summary>
-        /// The current method being transformed.
-        /// </summary>
-        private MethodDefinition Method;
-
-        /// <summary>
-        /// A helper class for editing method body.
-        /// </summary>
-        private ILProcessor Processor;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AssertionInjectionTransform"/> class.
-        /// </summary>
-        internal AssertionInjectionTransform(ILogger log)
+        internal AssertionInjectionRewriter(ILogger log)
             : base(log)
         {
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
-        {
-            this.Module = module;
         }
 
         /// <inheritdoc/>

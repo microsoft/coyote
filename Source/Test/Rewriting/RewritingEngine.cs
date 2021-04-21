@@ -64,9 +64,9 @@ namespace Microsoft.Coyote.Rewriting
         };
 
         /// <summary>
-        /// List of transforms we are applying while rewriting.
+        /// List of passes applied while rewriting.
         /// </summary>
-        private readonly List<AssemblyTransform> Transforms;
+        private readonly List<AssemblyRewriter> RewritingPasses;
 
         /// <summary>
         /// Map from assembly name to full name definition of the rewritten assemblies.
@@ -119,32 +119,32 @@ namespace Microsoft.Coyote.Rewriting
                 throw new Exception("DisallowedAssemblies not a valid regular expression\n" + ex.Message);
             }
 
-            this.Transforms = new List<AssemblyTransform>()
+            this.RewritingPasses = new List<AssemblyRewriter>()
             {
-                new TaskTransform(this.Logger),
-                new MonitorTransform(this.Logger),
-                new ExceptionFilterTransform(this.Logger)
+                new TaskRewriter(this.Logger),
+                new MonitorRewriter(this.Logger),
+                new ExceptionFilterRewriter(this.Logger)
             };
 
             if (this.Options.IsRewritingThreads)
             {
-                this.Transforms.Add(new ThreadTransform(this.Logger));
+                this.RewritingPasses.Add(new ThreadingRewriter(this.Logger));
             }
 
-            if (this.Options.IsDataRaceDetectionEnabled)
+            if (this.Options.IsDataRaceCheckingEnabled)
             {
-                this.Transforms.Add(new RaceDetectionTransform(this.Logger));
+                this.RewritingPasses.Add(new DataRaceCheckingRewriter(this.Logger));
             }
 
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.Transforms.Add(new MSTestTransform(this.Configuration, this.Logger));
+                this.RewritingPasses.Add(new MSTestRewriter(this.Configuration, this.Logger));
             }
 
-            this.Transforms.Add(new AssertionInjectionTransform(this.Logger));
-            this.Transforms.Add(new NotSupportedInvocationTransform(this.Logger));
+            this.RewritingPasses.Add(new AssertionInjectionRewriter(this.Logger));
+            this.RewritingPasses.Add(new NotSupportedInvocationRewriter(this.Logger));
 
             // expand folder
             if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)
@@ -299,13 +299,13 @@ namespace Microsoft.Coyote.Rewriting
                 this.FixAssemblyReferences(assembly);
 
                 ApplyIsAssemblyRewrittenAttribute(assembly);
-                foreach (var transform in this.Transforms)
+                foreach (var pass in this.RewritingPasses)
                 {
-                    // Traverse the assembly to apply each transformation pass.
-                    Debug.WriteLine($"..... Applying the '{transform.GetType().Name}' transform");
+                    // Traverse the assembly to apply each rewriting pass.
+                    Debug.WriteLine($"..... Applying the '{pass.GetType().Name}' pass");
                     foreach (var module in assembly.Modules)
                     {
-                        RewriteModule(module, transform);
+                        RewriteModule(module, pass);
                     }
                 }
 
@@ -403,41 +403,41 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified module definition using the specified transform.
+        /// Rewrites the specified module definition using the specified pass.
         /// </summary>
-        private static void RewriteModule(ModuleDefinition module, AssemblyTransform transform)
+        private static void RewriteModule(ModuleDefinition module, AssemblyRewriter pass)
         {
             Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");
-            transform.VisitModule(module);
+            pass.VisitModule(module);
             foreach (var type in module.GetTypes())
             {
-                RewriteType(type, transform);
+                RewriteType(type, pass);
             }
         }
 
         /// <summary>
-        /// Rewrites the specified type definition using the specified transform.
+        /// Rewrites the specified type definition using the specified pass.
         /// </summary>
-        private static void RewriteType(TypeDefinition type, AssemblyTransform transform)
+        private static void RewriteType(TypeDefinition type, AssemblyRewriter pass)
         {
             Debug.WriteLine($"......... Type: {type.FullName}");
-            transform.VisitType(type);
+            pass.VisitType(type);
             foreach (var field in type.Fields.ToArray())
             {
                 Debug.WriteLine($"........... Field: {field.FullName}");
-                transform.VisitField(field);
+                pass.VisitField(field);
             }
 
             foreach (var method in type.Methods.ToArray())
             {
-                RewriteMethod(method, transform);
+                RewriteMethod(method, pass);
             }
         }
 
         /// <summary>
-        /// Rewrites the specified method definition using the specified transform.
+        /// Rewrites the specified method definition using the specified pass.
         /// </summary>
-        private static void RewriteMethod(MethodDefinition method, AssemblyTransform transform)
+        private static void RewriteMethod(MethodDefinition method, AssemblyRewriter pass)
         {
             if (method.Body is null)
             {
@@ -445,7 +445,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             Debug.WriteLine($"........... Method {method.FullName}");
-            transform.VisitMethod(method);
+            pass.VisitMethod(method);
         }
 
         /// <summary>

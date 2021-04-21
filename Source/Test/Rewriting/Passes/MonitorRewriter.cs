@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -13,34 +14,19 @@ namespace Microsoft.Coyote.Rewriting
     /// Coyote ControlledMonitor instead which allows systematic testing of code that
     /// uses monitors.
     /// </summary>
-    internal class MonitorTransform : AssemblyTransform
+    internal class MonitorRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// The current module being transformed.
-        /// </summary>
-        private ModuleDefinition Module;
-
-        /// <summary>
-        /// The current method being transformed.
-        /// </summary>
-        private MethodDefinition Method;
-
-        /// <summary>
-        /// A helper class for editing method body.
-        /// </summary>
-        private ILProcessor Processor;
-
-        /// <summary>
-        /// The cached imported TypeDefinition for the Microsoft.Coyote.SystematicTesting.Interception.ControlledMonitor.
+        /// The cached imported <see cref="ControlledMonitor"/> type.
         /// </summary>
         private TypeDefinition ControlledMonitorType;
 
         private const string MonitorClassName = "System.Threading.Monitor";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MonitorTransform"/> class.
+        /// Initializes a new instance of the <see cref="MonitorRewriter"/> class.
         /// </summary>
-        internal MonitorTransform(ILogger logger)
+        internal MonitorRewriter(ILogger logger)
             : base(logger)
         {
         }
@@ -48,8 +34,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitModule(ModuleDefinition module)
         {
-            this.Module = module;
             this.ControlledMonitorType = null;
+            base.VisitModule(module);
         }
 
         /// <inheritdoc/>
@@ -62,6 +48,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 this.Method = method;
                 this.Processor = method.Body.GetILProcessor();
+
+                // Rewrite the method body instructions.
                 this.VisitInstructions(method);
             }
         }

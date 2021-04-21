@@ -31,6 +31,10 @@
     <file src="..\..\bin\net5.0\Microsoft.Coyote.dll" target="lib\net5.0" />
     <file src="..\..\bin\net5.0\Microsoft.Coyote.xml" target="lib\net5.0" />
     <file src="..\..\bin\net5.0\Microsoft.Coyote.pdb" target="lib\net5.0" />
+    <!-- .NET Framework 4.6.2 -->
+    <file src="..\..\bin\net462\Microsoft.Coyote.dll" target="lib\net462" />
+    <file src="..\..\bin\net462\Microsoft.Coyote.xml" target="lib\net462" />
+    <file src="..\..\bin\net462\Microsoft.Coyote.pdb" target="lib\net462" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

@@ -20,6 +20,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />

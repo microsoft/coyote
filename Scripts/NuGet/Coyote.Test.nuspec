@@ -67,6 +67,12 @@
     <file src="..\..\bin\net48\*.xml" target="lib\net48" />
     <file src="..\..\bin\net48\*.pdb" target="lib\net48" />
     <file src="..\..\bin\net48\*.exe.config" target="lib\net48" />
+    <!-- .NET Framework 4.6.2 -->
+    <file src="..\..\bin\net462\*.exe" target="lib\net462" />
+    <file src="..\..\bin\net462\*.dll" target="lib\net462" />
+    <file src="..\..\bin\net462\*.xml" target="lib\net462" />
+    <file src="..\..\bin\net462\*.pdb" target="lib\net462" />
+    <file src="..\..\bin\net462\*.exe.config" target="lib\net462" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

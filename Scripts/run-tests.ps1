@@ -1,6 +1,6 @@
 param(
     [string]$dotnet = "dotnet",
-    [ValidateSet("all", "net5.0", "net48")]
+    [ValidateSet("all", "net5.0", "net462")]
     [string]$framework = "all",
     [ValidateSet("all", "rewriting", "testing", "tasks-testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
@@ -31,14 +31,14 @@ foreach ($kvp in $targets.GetEnumerator()) {
         continue
     }
 
-    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "net48", "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {
             continue
         }
 
-        if (($($kvp.Name) -eq "standalone") -and ($f -eq "net48")) {
+        if (($($kvp.Name) -eq "standalone") -and ($f -eq "net462")) {
             continue
         }
 

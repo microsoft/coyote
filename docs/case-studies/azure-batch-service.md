@@ -27,7 +27,7 @@ microservice be able to:
 
 Coding three of their core microservices with Coyote, the team used Coyote's state machines
 programming model for fully asynchronous, non-blocking computation. The team also wrote
-detailed functional specifications---;as well as models of external services---;to allow for
+detailed functional specifications---as well as models of external services---to allow for
 exhaustive testing of concurrent behaviors and failures. These services totalled to more than
 100,000 lines of code.
 

@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Rewriting
                 result = module.ImportReference(match);
             }
 
-            if (result != null && !result.HasThis && !declaringType.IsGenericInstance &&
+            if (match != null && !result.HasThis && !declaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
                 // We are converting from a generic type to a non generic static type, and from a non-generic
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.Rewriting
                 // This is an extra initial parameter that we have when converting an instance to a static method.
                 // For example, `task.GetAwaiter()` is converted to `ControlledTask.GetAwaiter(task)`.
                 ParameterDefinition instanceParameter = null;
-                if (result != null && resolvedMethod.Parameters.Count != match.Parameters.Count)
+                if (match != null && resolvedMethod.Parameters.Count != match.Parameters.Count)
                 {
                     // We are converting from an instance method to a static method, so store the instance parameter.
                     instanceParameter = result.Parameters[0];

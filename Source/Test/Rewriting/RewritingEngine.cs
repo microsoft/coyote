@@ -232,6 +232,11 @@ namespace Microsoft.Coyote.Rewriting
                         this.Logger.WriteLine(LogSeverity.Error, ex.Message);
                     }
 
+                    if (this.Configuration.IsDebugVerbosityEnabled)
+                    {
+                        this.Logger.WriteLine(LogSeverity.Error, ex.StackTrace);
+                    }
+
                     errors++;
                 }
             }

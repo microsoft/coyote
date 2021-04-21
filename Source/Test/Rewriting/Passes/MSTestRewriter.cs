@@ -12,7 +12,7 @@ using Mono.Cecil.Rocks;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class MSTestTransform : AssemblyTransform
+    internal class MSTestRewriter : AssemblyRewriter
     {
         /// <summary>
         /// The test configuration to use when rewriting unit tests.
@@ -20,23 +20,12 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The current module being transformed.
+        /// Initializes a new instance of the <see cref="MSTestRewriter"/> class.
         /// </summary>
-        private ModuleDefinition Module;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MSTestTransform"/> class.
-        /// </summary>
-        internal MSTestTransform(Configuration configuration, ILogger logger)
+        internal MSTestRewriter(Configuration configuration, ILogger logger)
             : base(logger)
         {
             this.Configuration = configuration;
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
-        {
-            this.Module = module;
         }
 
         /// <inheritdoc/>
@@ -145,7 +134,7 @@ namespace Microsoft.Coyote.Rewriting
             if (this.Configuration.AttachDebugger)
             {
                 var debuggerType = this.Module.ImportReference(typeof(System.Diagnostics.Debugger)).Resolve();
-                launchMethod = FindMatchingMethod(debuggerType, "Launch");
+                launchMethod = FindMatchingMethodInDeclaringType(debuggerType, "Launch");
             }
 
             TypeReference actionType;
@@ -176,7 +165,7 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference createConfigurationMethod = this.Module.ImportReference(
                 resolvedConfigurationType.Methods.FirstOrDefault(m => m.Name is "Create"));
             MethodReference createEngineMethod = this.Module.ImportReference(
-                FindMatchingMethod(resolvedEngineType, "Create", configurationType, actionType));
+                FindMatchingMethodInDeclaringType(resolvedEngineType, "Create", configurationType, actionType));
 
             // The emitted IL corresponds to a method body such as:
             //   Configuration configuration = Configuration.Create();
@@ -300,7 +289,7 @@ namespace Microsoft.Coyote.Rewriting
                 typeRefs.Add(this.Module.ImportReference(t));
             }
 
-            var method = FindMatchingMethod(typedef, methodName, typeRefs.ToArray());
+            var method = FindMatchingMethodInDeclaringType(typedef, methodName, typeRefs.ToArray());
             if (method is null)
             {
                 throw new Exception(string.Format("Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));

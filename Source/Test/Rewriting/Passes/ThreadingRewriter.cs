@@ -8,32 +8,17 @@ using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class ThreadTransform : AssemblyTransform
+    internal class ThreadingRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// The current module being transformed.
+        /// The cached imported <see cref="ControlledThread"/> type.
         /// </summary>
-        private ModuleDefinition Module;
+        private TypeDefinition ControlledThreadType;
 
         /// <summary>
-        /// The current method being transformed.
+        /// Initializes a new instance of the <see cref="ThreadingRewriter"/> class.
         /// </summary>
-        private MethodDefinition Method;
-
-        /// <summary>
-        /// A helper class for editing method body.
-        /// </summary>
-        private ILProcessor Processor;
-
-        /// <summary>
-        /// The imported type.
-        /// </summary>
-        private TypeDefinition ControlledThread;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ThreadTransform"/> class.
-        /// </summary>
-        internal ThreadTransform(ILogger logger)
+        internal ThreadingRewriter(ILogger logger)
             : base(logger)
         {
         }
@@ -41,8 +26,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitModule(ModuleDefinition module)
         {
-            this.Module = module;
-            this.ControlledThread = null;
+            this.ControlledThreadType = null;
+            base.VisitModule(module);
         }
 
         /// <inheritdoc/>
@@ -89,18 +74,8 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
-        private TypeDefinition GetOrImportControlledThread()
-        {
-            if (this.ControlledThread is null)
-            {
-                this.ControlledThread = this.Module.ImportReference(typeof(ControlledThread)).Resolve();
-            }
-
-            return this.ControlledThread;
-        }
-
         /// <summary>
-        /// Transforms the specified <see cref="OpCodes.Initobj"/> instruction.
+        /// Rewrites the specified <see cref="OpCodes.Initobj"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitNewobjInstruction(Instruction instruction)
@@ -108,10 +83,12 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference constructor = instruction.Operand as MethodReference;
             if (constructor.DeclaringType.FullName == "System.Threading.Thread")
             {
-                Instruction newInstruction = null;
-                // call "public static Thread ControlledThread.Create(ThreadStart start)" instead.
-                TypeDefinition controlledThread = this.GetOrImportControlledThread();
-                var createMethod = FindMatchingMethod(controlledThread, "Create", constructor);
+                Instruction newInstruction;
+
+                // Invoke "public static Thread ControlledThread.Create(ThreadStart start)" instead.
+                TypeDefinition controlledThread = this.GetOrImportControlledThreadType();
+                MethodDefinition resolvedConstructor = constructor.Resolve();
+                MethodReference createMethod = FindMatchingMethodInDeclaringType(controlledThread, resolvedConstructor, "Create");
                 if (createMethod != null)
                 {
                     createMethod = this.Module.ImportReference(createMethod);
@@ -133,21 +110,8 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
-        private static MethodReference FindMatchingMethod(TypeDefinition newType, string name, MethodReference constructor)
-        {
-            foreach (var method in newType.Methods)
-            {
-                if (method.Name == name && CheckMethodParametersMatch(method, constructor.Resolve()))
-                {
-                    return method;
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
-        /// Transforms the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
+        /// Rewrites the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
@@ -155,8 +119,8 @@ namespace Microsoft.Coyote.Rewriting
             if (method.DeclaringType.FullName == "System.Threading.Thread")
             {
                 // Some thread method calls need to change to static methods on ControlledThread.
-                Instruction newInstruction = null;
-                TypeDefinition controlledThread = this.GetOrImportControlledThread();
+                Instruction newInstruction;
+                TypeDefinition controlledThread = this.GetOrImportControlledThreadType();
                 var intercept = FindMatchingStaticMethod(controlledThread, method.Resolve());
                 if (intercept != null)
                 {
@@ -183,7 +147,7 @@ namespace Microsoft.Coyote.Rewriting
         /// Find a static method that matches the instance method, where the first parameter to the static
         /// is the instance parameter on the other method.
         /// </summary>
-        protected static MethodReference FindMatchingStaticMethod(TypeDefinition newType, MethodDefinition right)
+        private static MethodReference FindMatchingStaticMethod(TypeDefinition newType, MethodDefinition right)
         {
             foreach (var method in newType.Methods)
             {
@@ -212,6 +176,19 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns the imported <see cref="ControlledThread"/> type definition.
+        /// </summary>
+        private TypeDefinition GetOrImportControlledThreadType()
+        {
+            if (this.ControlledThreadType is null)
+            {
+                this.ControlledThreadType = this.Module.ImportReference(typeof(ControlledThread)).Resolve();
+            }
+
+            return this.ControlledThreadType;
         }
     }
 }

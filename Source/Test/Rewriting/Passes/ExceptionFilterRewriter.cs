@@ -13,18 +13,8 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewriting pass that ensures user defined try/catch blocks do not consume runtime exceptions.
     /// </summary>
-    internal class ExceptionFilterTransform : AssemblyTransform
+    internal class ExceptionFilterRewriter : AssemblyRewriter
     {
-        /// <summary>
-        /// The type being transformed.
-        /// </summary>
-        private TypeDefinition TypeDef;
-
-        /// <summary>
-        /// The current method being transformed.
-        /// </summary>
-        private MethodDefinition Method;
-
         /// <summary>
         /// True if the visited type is a generated async state machine.
         /// </summary>
@@ -36,19 +26,19 @@ namespace Microsoft.Coyote.Rewriting
         private bool ModifiedHandlers;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionFilterTransform"/> class.
+        /// Initializes a new instance of the <see cref="ExceptionFilterRewriter"/> class.
         /// </summary>
-        internal ExceptionFilterTransform(ILogger logger)
+        internal ExceptionFilterRewriter(ILogger logger)
             : base(logger)
         {
         }
 
         /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition typeDef)
+        internal override void VisitType(TypeDefinition type)
         {
-            this.TypeDef = typeDef;
-            this.IsAsyncStateMachineType = typeDef.Interfaces.Any(
+            this.IsAsyncStateMachineType = type.Interfaces.Any(
                 i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
+            base.VisitType(type);
         }
 
         /// <inheritdoc/>

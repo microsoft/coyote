@@ -1130,16 +1130,18 @@ toc:
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths
         - name: StrongNameKeyFile
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
+        - name: IsDataRaceCheckingEnabled
+          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled
         - name: IsRewritingDependencies
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
-        - name: Logger
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
-        - name: LogLevel
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
         - name: IsRewritingUnitTests
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests
         - name: IsRewritingThreads
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingThreads
+        - name: Logger
+          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
+        - name: LogLevel
+          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
     - name: Microsoft.Coyote.SystematicTesting
       link: ref/Microsoft.Coyote.SystematicTestingNamespace
       subfolderitems:

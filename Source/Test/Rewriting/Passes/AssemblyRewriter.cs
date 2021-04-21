@@ -12,12 +12,34 @@ using Mono.Cecil.Rocks;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// An abstract interface for transforming code using a visitor pattern.
-    /// This is used by the <see cref="RewritingEngine"/> to manage multiple different
-    /// transforms in a single pass over an assembly.
+    /// An abstract interface for rewriting code using a visitor pattern.
     /// </summary>
-    internal abstract class AssemblyTransform
+    /// <remarks>
+    /// Used by the <see cref="RewritingEngine"/> to manage multiple different
+    /// transforms in a single pass over an assembly.
+    /// </remarks>
+    internal abstract class AssemblyRewriter
     {
+        /// <summary>
+        /// The current module being transformed.
+        /// </summary>
+        protected ModuleDefinition Module { get; private set; }
+
+        /// <summary>
+        /// The type being transformed.
+        /// </summary>
+        protected TypeDefinition TypeDef { get; private set; }
+
+        /// <summary>
+        /// The current method being transformed.
+        /// </summary>
+        protected MethodDefinition Method;
+
+        /// <summary>
+        /// A helper class for editing method body.
+        /// </summary>
+        protected ILProcessor Processor;
+
         /// <summary>
         /// Cache of qualified names.
         /// </summary>
@@ -29,9 +51,9 @@ namespace Microsoft.Coyote.Rewriting
         protected readonly ILogger Logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssemblyTransform"/> class.
+        /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
-        protected AssemblyTransform(ILogger logger)
+        protected AssemblyRewriter(ILogger logger)
         {
             this.Logger = logger;
         }
@@ -43,6 +65,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="module">The module definition to visit.</param>
         internal virtual void VisitModule(ModuleDefinition module)
         {
+            this.Module = module;
         }
 
         /// <summary>
@@ -52,6 +75,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="type">The type definition to visit.</param>
         internal virtual void VisitType(TypeDefinition type)
         {
+            this.TypeDef = type;
         }
 
         /// <summary>
@@ -124,8 +148,9 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         /// <param name="method">The method reference to rewrite.</param>
         /// <param name="module">The module definition that is being visited.</param>
+        /// <param name="matchName">Optional method name to match.</param>
         /// <returns>The rewritten method, or the original if it was not changed.</returns>
-        protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module)
+        protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
 
@@ -137,81 +162,103 @@ namespace Microsoft.Coyote.Rewriting
                 return result;
             }
 
-            TypeDefinition resolvedDeclaringType = Resolve(declaringType);
-
-            // This is an extra initial parameter that we have when converting an instance to a static method.
-            // For example, `task.GetAwaiter()` is converted to `ControlledTask.GetAwaiter(task)`.
-            ParameterDefinition instanceParameter = null;
-            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedMethod, resolvedDeclaringType);
+            MethodDefinition match = FindMatchingMethodInDeclaringType(Resolve(declaringType), resolvedMethod, matchName);
             if (match != null)
             {
                 result = module.ImportReference(match);
-                if (resolvedMethod.Parameters.Count != match.Parameters.Count)
-                {
-                    // We are converting from an instance method to a static method, so store the instance parameter.
-                    instanceParameter = result.Parameters[0];
-                }
             }
 
-            TypeReference returnType = this.RewriteTypeReference(method.ReturnType);
-
-            // Instantiate the method reference to set its generic arguments and parameters, if any.
-            result = new MethodReference(result.Name, returnType, declaringType)
+            if (match != null && !result.HasThis && !declaringType.IsGenericInstance &&
+                method.HasThis && method.DeclaringType.IsGenericInstance)
             {
-                HasThis = result.HasThis,
-                ExplicitThis = result.ExplicitThis,
-                CallingConvention = result.CallingConvention
-            };
-
-            if (resolvedMethod.HasGenericParameters)
-            {
-                // We need to instantiate the generic method.
+                // We are converting from a generic type to a non generic static type, and from a non-generic
+                // method to a generic method, so we need to instantiate the generic method.
                 GenericInstanceMethod genericMethodInstance = new GenericInstanceMethod(result);
 
                 var genericArgs = new List<TypeReference>();
-                int genericArgOffset = 0;
-
-                if (declaringType is GenericInstanceType genericDeclaringType)
+                if (method.DeclaringType is GenericInstanceType genericDeclaringType)
                 {
                     // Populate the generic arguments with the generic declaring type arguments.
                     genericArgs.AddRange(genericDeclaringType.GenericArguments);
-                    genericArgOffset = genericDeclaringType.GenericArguments.Count;
-                }
-
-                if (method is GenericInstanceMethod genericInstanceMethod)
-                {
-                    // Populate the generic arguments with the generic instance method arguments.
-                    genericArgs.AddRange(genericInstanceMethod.GenericArguments);
-                }
-
-                for (int i = 0; i < resolvedMethod.GenericParameters.Count; i++)
-                {
-                    var p = resolvedMethod.GenericParameters[i];
-                    var j = p.Position + genericArgOffset;
-                    if (j > genericArgs.Count)
+                    foreach (var genericArg in genericArgs)
                     {
-                        throw new InvalidOperationException(string.Format("Not enough generic arguments to instantiate method {0}", method));
+                        genericMethodInstance.GenericArguments.Add(genericArg);
                     }
-
-                    GenericParameter parameter = new GenericParameter(p.Name, genericMethodInstance);
-                    result.GenericParameters.Add(parameter);
-                    genericMethodInstance.GenericParameters.Add(parameter);
-                    genericMethodInstance.GenericArguments.Add(this.RewriteTypeReference(genericArgs[j]));
                 }
 
                 result = genericMethodInstance;
             }
-
-            // Set the instance parameter of the method, if any.
-            if (instanceParameter != null)
+            else
             {
-                result.Parameters.Add(instanceParameter);
-            }
+                // This is an extra initial parameter that we have when converting an instance to a static method.
+                // For example, `task.GetAwaiter()` is converted to `ControlledTask.GetAwaiter(task)`.
+                ParameterDefinition instanceParameter = null;
+                if (match != null && resolvedMethod.Parameters.Count != match.Parameters.Count)
+                {
+                    // We are converting from an instance method to a static method, so store the instance parameter.
+                    instanceParameter = result.Parameters[0];
+                }
 
-            // Set the remaining parameters of the method, if any.
-            foreach (var parameter in method.Parameters)
-            {
-                result.Parameters.Add(this.RewriteParameterDefinition(parameter));
+                TypeReference returnType = this.RewriteTypeReference(method.ReturnType);
+
+                // Instantiate the method reference to set its generic arguments and parameters, if any.
+                result = new MethodReference(result.Name, returnType, declaringType)
+                {
+                    HasThis = result.HasThis,
+                    ExplicitThis = result.ExplicitThis,
+                    CallingConvention = result.CallingConvention
+                };
+
+                if (resolvedMethod.HasGenericParameters)
+                {
+                    // We need to instantiate the generic method.
+                    GenericInstanceMethod genericMethodInstance = new GenericInstanceMethod(result);
+
+                    var genericArgs = new List<TypeReference>();
+                    int genericArgOffset = 0;
+
+                    if (declaringType is GenericInstanceType genericDeclaringType)
+                    {
+                        // Populate the generic arguments with the generic declaring type arguments.
+                        genericArgs.AddRange(genericDeclaringType.GenericArguments);
+                        genericArgOffset = genericDeclaringType.GenericArguments.Count;
+                    }
+
+                    if (method is GenericInstanceMethod genericInstanceMethod)
+                    {
+                        // Populate the generic arguments with the generic instance method arguments.
+                        genericArgs.AddRange(genericInstanceMethod.GenericArguments);
+                    }
+
+                    for (int i = 0; i < resolvedMethod.GenericParameters.Count; i++)
+                    {
+                        var p = resolvedMethod.GenericParameters[i];
+                        var j = p.Position + genericArgOffset;
+                        if (j > genericArgs.Count)
+                        {
+                            throw new InvalidOperationException($"Not enough generic arguments to instantiate method {method}");
+                        }
+
+                        GenericParameter parameter = new GenericParameter(p.Name, genericMethodInstance);
+                        result.GenericParameters.Add(parameter);
+                        genericMethodInstance.GenericParameters.Add(parameter);
+                        genericMethodInstance.GenericArguments.Add(this.RewriteTypeReference(genericArgs[j]));
+                    }
+
+                    result = genericMethodInstance;
+                }
+
+                // Set the instance parameter of the method, if any.
+                if (instanceParameter != null)
+                {
+                    result.Parameters.Add(instanceParameter);
+                }
+
+                // Set the remaining parameters of the method, if any.
+                foreach (var parameter in method.Parameters)
+                {
+                    result.Parameters.Add(this.RewriteParameterDefinition(parameter));
+                }
             }
 
             return module.ImportReference(result);
@@ -241,16 +288,51 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Finds the matching method in the specified declaring type, if any.
         /// </summary>
-        protected static MethodDefinition FindMatchingMethodInDeclaringType(MethodDefinition method, TypeDefinition declaringType)
+        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
+            MethodDefinition method, string matchName = null)
         {
             foreach (var match in declaringType.Methods)
             {
-                if (!CheckMethodSignaturesMatch(method, match))
+                if (match.Name == matchName && CheckMethodParametersMatch(method, match))
                 {
-                    continue;
+                    return match;
                 }
+                else if (CheckMethodSignaturesMatch(method, match))
+                {
+                    return match;
+                }
+            }
 
-                return match;
+            return null;
+        }
+
+        /// <summary>
+        /// Finds the matching method in the specified declaring type, if any.
+        /// </summary>
+        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
+            string name, params TypeReference[] parameterTypes)
+        {
+            foreach (var match in declaringType.Methods)
+            {
+                if (match.Name == name && match.Parameters.Count == parameterTypes.Length)
+                {
+                    bool matches = true;
+                    // Check if the parameters match.
+                    for (int i = 0, n = match.Parameters.Count; matches && i < n; i++)
+                    {
+                        var p = match.Parameters[i];
+                        var q = parameterTypes[i];
+                        if (p.ParameterType.FullName != q.FullName)
+                        {
+                            matches = false;
+                        }
+                    }
+
+                    if (matches)
+                    {
+                        return match;
+                    }
+                }
             }
 
             return null;
@@ -307,6 +389,7 @@ namespace Microsoft.Coyote.Rewriting
                 // If we are converting to static, we have one extra parameter, so skip it.
                 var newParameter = newMethod.Parameters[isConvertedToStatic ? idx + 1 : idx];
                 var originalParameter = originalMethod.Parameters[idx];
+
                 // TODO: make sure all necessary checks are in place!
                 if ((newParameter.ParameterType.FullName != originalParameter.ParameterType.FullName) ||
                     (newParameter.Name != originalParameter.Name) ||
@@ -321,38 +404,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Find a matching method declaration in the given declaring type.
-        /// </summary>
-        /// <returns>The matching method or null if it is not found.</returns>
-        protected static MethodDefinition FindMatchingMethod(TypeDefinition declaringType, string name, params TypeReference[] parameterTypes)
-        {
-            foreach (var method in declaringType.Methods)
-            {
-                if (method.Name == name && method.Parameters.Count == parameterTypes.Length)
-                {
-                    bool matches = true;
-                    // Check if the parameters match.
-                    for (int i = 0, n = method.Parameters.Count; matches && i < n; i++)
-                    {
-                        var p = method.Parameters[i];
-                        var q = parameterTypes[i];
-                        if (p.ParameterType.FullName != q.FullName)
-                        {
-                            matches = false;
-                        }
-                    }
-
-                    if (matches)
-                    {
-                        return method;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Checks if the parameters of the two specified methods match.
         /// </summary>
         protected static bool CheckMethodParametersMatch(MethodDefinition left, MethodDefinition right)
@@ -364,13 +415,13 @@ namespace Microsoft.Coyote.Rewriting
 
             for (int idx = 0; idx < right.Parameters.Count; idx++)
             {
-                var originalParam = right.Parameters[idx];
-                var replacementParam = left.Parameters[idx];
+                var leftParam = left.Parameters[idx];
+                var rightParam = right.Parameters[idx];
                 // TODO: make sure all necessary checks are in place!
-                if ((replacementParam.ParameterType.FullName != originalParam.ParameterType.FullName) ||
-                    (replacementParam.Name != originalParam.Name) ||
-                    (replacementParam.IsIn && !originalParam.IsIn) ||
-                    (replacementParam.IsOut && !originalParam.IsOut))
+                if ((leftParam.ParameterType.FullName != rightParam.ParameterType.FullName) ||
+                    (leftParam.Name != rightParam.Name) ||
+                    (leftParam.IsIn && !rightParam.IsIn) ||
+                    (leftParam.IsOut && !rightParam.IsOut))
                 {
                     return false;
                 }

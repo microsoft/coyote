@@ -73,22 +73,14 @@ namespace Microsoft.Coyote.Rewriting
         public string StrongNameKeyFile { get; set; }
 
         /// <summary>
-        /// Whether to also rewrite dependent assemblies that are found in the same location.
+        /// True if rewriting for data race checking is enabled, else false.
+        /// </summary>
+        public bool IsDataRaceCheckingEnabled { get; set; }
+
+        /// <summary>
+        /// True if rewriting dependent assemblies that are found in the same location is enabled, else false.
         /// </summary>
         public bool IsRewritingDependencies { get; set; }
-
-        /// <summary>
-        /// The logger used for rewriting.
-        /// </summary>
-        /// <remarks>
-        /// By default the logger write to Console.
-        /// </remarks>
-        public ILogger Logger { get; set; }
-
-        /// <summary>
-        /// The amount of log output to produce.
-        /// </summary>
-        public LogSeverity LogLevel { get; set; }
 
         /// <summary>
         /// True if rewriting of unit test methods is enabled, else false.
@@ -110,6 +102,19 @@ namespace Microsoft.Coyote.Rewriting
         /// errors in some cases.
         /// </remarks>
         public bool IsRewritingThreads { get; internal set; }
+
+        /// <summary>
+        /// The logger used for rewriting.
+        /// </summary>
+        /// <remarks>
+        /// By default the logger write to Console.
+        /// </remarks>
+        public ILogger Logger { get; set; }
+
+        /// <summary>
+        /// The amount of log output to produce.
+        /// </summary>
+        public LogSeverity LogLevel { get; set; }
 
         /// <summary>
         /// The .NET platform version that Coyote was compiled for.
@@ -138,6 +143,7 @@ namespace Microsoft.Coyote.Rewriting
             IList<string> ignoredAssemblies = null;
             IList<string> dependencySearchPaths = null;
             string strongNameKeyFile = null;
+            bool isDataRaceCheckingEnabled = false;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
             bool isRewritingThreads = false;
@@ -154,6 +160,7 @@ namespace Microsoft.Coyote.Rewriting
                 Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                 assembliesDirectory = resolvedUri.LocalPath;
                 strongNameKeyFile = configuration.StrongNameKeyFile;
+                isDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
                 isRewritingDependencies = configuration.IsRewritingDependencies;
                 isRewritingUnitTests = configuration.IsRewritingUnitTests;
                 isRewritingThreads = configuration.IsRewritingThreads;
@@ -193,10 +200,42 @@ namespace Microsoft.Coyote.Rewriting
                 IgnoredAssemblies = ignoredAssemblies,
                 DependencySearchPaths = dependencySearchPaths,
                 StrongNameKeyFile = strongNameKeyFile,
+                IsDataRaceCheckingEnabled = isDataRaceCheckingEnabled,
                 IsRewritingDependencies = isRewritingDependencies,
                 IsRewritingUnitTests = isRewritingUnitTests,
                 IsRewritingThreads = isRewritingThreads
             };
+        }
+
+        /// <summary>
+        /// Override the current options with the specified options.
+        /// </summary>
+        internal void Merge(RewritingOptions options)
+        {
+            if (!string.IsNullOrEmpty(options.StrongNameKeyFile))
+            {
+                this.StrongNameKeyFile = options.StrongNameKeyFile;
+            }
+
+            if (options.IsDataRaceCheckingEnabled)
+            {
+                this.IsDataRaceCheckingEnabled = options.IsDataRaceCheckingEnabled;
+            }
+
+            if (options.IsRewritingDependencies)
+            {
+                this.IsRewritingDependencies = options.IsRewritingDependencies;
+            }
+
+            if (options.IsRewritingThreads)
+            {
+                this.IsRewritingThreads = options.IsRewritingThreads;
+            }
+
+            if (options.IsRewritingUnitTests)
+            {
+                this.IsRewritingUnitTests = options.IsRewritingUnitTests;
+            }
         }
 
         internal void ResolveVariables()
@@ -257,6 +296,9 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
+
+            [DataMember(Name = "IsDataRaceCheckingEnabled")]
+            public bool IsDataRaceCheckingEnabled { get; set; }
 
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }

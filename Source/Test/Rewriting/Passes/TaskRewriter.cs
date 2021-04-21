@@ -11,48 +11,22 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class TaskTransform : AssemblyTransform
+    internal class TaskRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// The current module being transformed.
+        /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
         /// </summary>
-        private ModuleDefinition Module;
-
-        /// <summary>
-        /// The current type being transformed.
-        /// </summary>
-        private TypeDefinition TypeDef;
-
-        /// <summary>
-        /// The current method being transformed.
-        /// </summary>
-        private MethodDefinition Method;
-
-        /// <summary>
-        /// A helper class for editing method body.
-        /// </summary>
-        private ILProcessor Processor;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TaskTransform"/> class.
-        /// </summary>
-        internal TaskTransform(ILogger logger)
+        internal TaskRewriter(ILogger logger)
             : base(logger)
         {
         }
 
         /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
-        {
-            this.Module = module;
-        }
-
-        /// <inheritdoc/>
         internal override void VisitType(TypeDefinition type)
         {
-            this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
+            base.VisitType(type);
         }
 
         /// <inheritdoc/>
@@ -77,17 +51,17 @@ namespace Microsoft.Coyote.Rewriting
                 this.Method = method;
                 this.Processor = method.Body.GetILProcessor();
 
-                // rewrite the variable declarations.
+                // Rewrite the variable declarations.
                 this.VisitVariables(method);
 
                 // Rewrite the method body instructions.
                 this.VisitInstructions(method);
             }
 
-            // bugbug: what if this is an override of an inherited virtual method?  For example, what if there
+            // TODO: what if this is an override of an inherited virtual method?  For example, what if there
             // is an external base class that is a Task like type that implements a virtual GetAwaiter() that
             // is overridden by this method?
-            // answer: I don't think we can really support task-like types, as their semantics can be arbitrary,
+            // I don't think we can really support task-like types, as their semantics can be arbitrary,
             // but good to understand what that entails and give warnings/errors perhaps: work item #4678
             if (this.TryRewriteCompilerType(method.ReturnType, out TypeReference newReturnType))
             {
@@ -155,7 +129,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Transforms the specified <see cref="OpCodes.Initobj"/> instruction.
+        /// Rewrites the specified <see cref="OpCodes.Initobj"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitInitobjInstruction(Instruction instruction)
@@ -176,7 +150,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Transforms the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
+        /// Rewrites the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)

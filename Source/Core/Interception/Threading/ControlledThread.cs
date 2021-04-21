@@ -10,8 +10,7 @@ using Microsoft.Coyote.Tasks;
 namespace Microsoft.Coyote.Interception
 {
     /// <summary>
-    /// Provides a controlled thread class that creates and controls a thread, sets its priority, and gets its status
-    /// and provides other helper methods like SpinWait and Yield that Coyote needs to intercept.
+    /// Provides methods for creating threads that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

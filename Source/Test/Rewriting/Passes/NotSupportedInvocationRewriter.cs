@@ -13,22 +13,12 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewriting pass that fails invocations of not supported types.
     /// </summary>
-    internal class NotSupportedInvocationTransform : AssemblyTransform
+    internal class NotSupportedInvocationRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// The current method being transformed.
+        /// Initializes a new instance of the <see cref="NotSupportedInvocationRewriter"/> class.
         /// </summary>
-        private MethodDefinition Method;
-
-        /// <summary>
-        /// A helper class for editing method body.
-        /// </summary>
-        private ILProcessor Processor;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NotSupportedInvocationTransform"/> class.
-        /// </summary>
-        internal NotSupportedInvocationTransform(ILogger log)
+        internal NotSupportedInvocationRewriter(ILogger log)
             : base(log)
         {
         }

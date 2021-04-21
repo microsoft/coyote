@@ -14,30 +14,26 @@ namespace Microsoft.Coyote.Interception
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    // TODO: Add support for all the methods of List.
     public static class ControlledList
     {
         /// <summary>
         /// Creates a new instance of the <see cref="List{T}"/> clas that is empty and has the default initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>() => CoyoteRuntime.IsExecutionControlled ?
-         new Mock<T>() : new List<T>();
+        public static List<T> Create<T>() => new Mock<T>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="List{T}"/> clas that is empty and has the specified initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>(int capacity) => CoyoteRuntime.IsExecutionControlled ?
-         new Mock<T>(capacity) : new List<T>(capacity);
+        public static List<T> Create<T>(int capacity) => new Mock<T>(capacity);
 
         /// <summary>
         /// Creates a new instance of the <see cref="List{T}"/> class that contains elements copied from the specified
         /// collection and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>(IEnumerable<T> collection) => CoyoteRuntime.IsExecutionControlled ?
-         new Mock<T>(collection) : new List<T>(collection);
+        public static List<T> Create<T>(IEnumerable<T> collection) => new Mock<T>(collection);
 
         /// <summary>
         /// Gets the element at the specified index.
@@ -652,6 +648,9 @@ namespace Microsoft.Coyote.Interception
                 this.WriterCount = 0;
             }
 
+            /// <summary>
+            /// Checks for a data race.
+            /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal void CheckDataRace(bool isWriteAccess)
             {

@@ -383,8 +383,8 @@ namespace Microsoft.Coyote.Interception
                 var runtime = CoyoteRuntime.Current;
                 if (isWriteAccess)
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found write/write data race on '{typeof(Mock<TKey, TValue>)}'.");
-                    runtime.Assert(this.ReaderCount is 0, $"Found read/write data race on '{typeof(Mock<TKey, TValue>)}'.");
+                    runtime.Assert(this.WriterCount is 0, $"Found write/write data race on '{typeof(Dictionary<TKey, TValue>)}'.");
+                    runtime.Assert(this.ReaderCount is 0, $"Found read/write data race on '{typeof(Dictionary<TKey, TValue>)}'.");
                     Interlocked.Increment(ref this.WriterCount);
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
@@ -400,7 +400,7 @@ namespace Microsoft.Coyote.Interception
                 }
                 else
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found read/write data race on '{typeof(Mock<TKey, TValue>)}'.");
+                    runtime.Assert(this.WriterCount is 0, $"Found read/write data race on '{typeof(Dictionary<TKey, TValue>)}'.");
                     Interlocked.Increment(ref this.ReaderCount);
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)

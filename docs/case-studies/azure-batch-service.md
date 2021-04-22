@@ -10,7 +10,7 @@ of thousands of VMs on Azure.
 
 Integrating scheduling with virtual machine (VM) management, Azure Batch Service supports
 auto-scaling the number of VMs created, spinning up or down according to the needs of the job.
-This differs from many other schedulers---;like Yarn or Mesos, for example---;that must be installed
+This differs from many other schedulers---like Yarn or Mesos, for example---that must be installed
 on a pre-created set of VMs.
 
 ## Challenge

@@ -1,16 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <AssemblyName>GenToc</AssemblyName>
-        <OutputType>Exe</OutputType>
-        <OutputPath>..\..\bin\</OutputPath>
-        <CoyoteTargetType>Application</CoyoteTargetType>
-    </PropertyGroup>
-
-    <Import Project="..\..\Common\build.props" />
-    <Import Project="..\..\Common\key.props" />
-    <ItemGroup>
-      <PackageReference Include="YamlDotNet" Version="9.1.0" />
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>GenToc</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\..\bin\</OutputPath>
+    <CoyoteTargetType>Application</CoyoteTargetType>
+    <Framework462Supported>false</Framework462Supported>
+    <Framework48Supported>false</Framework48Supported>
+    <NetCore31Supported>false</NetCore31Supported>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="9.1.0" />
+  </ItemGroup>
 </Project>

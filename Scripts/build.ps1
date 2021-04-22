@@ -19,7 +19,7 @@ if ($host.Version.Major -lt 7)
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
 $dotnet_path = FindDotNet($dotnet)
-$version_net48 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
+$version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
 $version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major "3.1" -minor 0
 $sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
 
@@ -36,9 +36,9 @@ $solution = $ScriptDir + "\..\Coyote.sln"
 $command = "build -c $configuration $solution"
 
 if ($local) {
-    if ($version_net48) {
-        # Build .NET Framework 4.8 as well as the new version.
-        $command = $command + " /p:BUILD_NET48=yes"
+    if ($version_net4) {
+        # Build .NET Framework 4.x as well as the new version.
+        $command = $command + " /p:BUILD_NET462=yes /p:BUILD_NET48=yes"
     }
     
     if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {

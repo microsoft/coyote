@@ -1,3 +1,9 @@
+## v1.2.6
+- Added an experimental rewriting pass that adds assertion checks to find data races in uses of the
+  `System.Collections.Generic.List<T>` and `System.Collections.Generic.Dictionary<TKey, TValue>`
+  collections.
+- Added support for the `net462` target.
+
 ## v1.2.5
 - Added the `SchedulingPoint` static class that exposes methods for adding manual scheduling points
   during systematic testing.

@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// True if a bug was found, else false.
         /// </summary>
-        internal bool IsBugFound { get; private set; }
+        internal bool IsBugFound { get; set; }
 
         /// <summary>
         /// Bug report.
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Timer implementing a deadlock monitor.
         /// </summary>
-        private readonly Timer DeadlockMonitor;
+        private Timer DeadlockMonitor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
@@ -243,8 +243,15 @@ namespace Microsoft.Coyote.Runtime
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
-                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                if (this.Configuration.DeadlockTimeout != 0)
+                {
+                    this.InitDeadlockTimer();
+                }
+
+                if (this.Configuration.IsConcurrencyFuzzingEnabled == false)
+                {
+                    this.Configuration.WithConcurrencyFuzzingEnabled();
+                }
             }
 
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
@@ -257,6 +264,13 @@ namespace Microsoft.Coyote.Runtime
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
 
             Interception.ControlledThread.ClearCache();
+        }
+
+        internal void InitDeadlockTimer(bool immediatelyThrowError = false)
+        {
+            this.DeadlockMonitor = immediatelyThrowError ? new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(true),
+                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan) : new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
+                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -274,7 +288,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
+                this.DeadlockMonitor?.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
                     Timeout.InfiniteTimeSpan);
 
                 Task.Run(async () =>
@@ -683,7 +697,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else
                 {
-                    throw new NotSupportedException($"Unable to execute work with unsupported type {context.Work.GetType()}.");
+                    ExceptionProvider.ThrowNotSupportedInvocationException($"Unable to execute work with unsupported type {context.Work.GetType()}.");
                 }
 
                 if (executor != null)
@@ -1549,8 +1563,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (next is null)
             {
-                // Check if the execution has deadlocked.
-                this.CheckIfExecutionHasDeadlocked(ops);
+                this.CheckIfExecutionHasDeadlocked(ops, retries);
                 return false;
             }
 
@@ -1574,7 +1587,7 @@ namespace Microsoft.Coyote.Runtime
                 int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
 
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, next);
-                // Thread.Sleep(next);
+                Thread.Sleep(next);
             }
         }
 
@@ -2018,9 +2031,13 @@ namespace Microsoft.Coyote.Runtime
         internal void AssertIsAwaitedTaskControlled(Task task)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic &&
-                !task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsRelaxedControlledTestingEnabled)
+                !task.IsCompleted && !this.TaskMap.ContainsKey(task))
             {
+                if (this.Configuration.IsRelaxedControlledTestingEnabled)
+                {
+                    CheckAndSetSchedulerStrategyToDelayFuzzing();
+                }
+
                 this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
                     "either mock the method that created the task, or rewrite the method's assembly.");
             }
@@ -2031,11 +2048,18 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void AssertIsReturnedTaskControlled(Task task, string methodName)
         {
-            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsRelaxedControlledTestingEnabled)
+            if (task != null && !task.IsCompleted && !this.TaskMap.ContainsKey(task))
             {
-                this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
-                    "which is not allowed: either mock the method, or rewrite the method's assembly.");
+                // If Relaxed CCT is enabled, we should switch the Scheduling Policy to Delay fuzzing.
+                if (!IsRelaxedTestingEnabled())
+                {
+                    this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
+                        "which is not allowed: either mock the method, or rewrite the method's assembly.");
+                }
+                else
+                {
+                    CheckAndSetSchedulerStrategyToDelayFuzzing();
+                }
             }
         }
 
@@ -2046,7 +2070,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops, int retries)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
@@ -2057,6 +2081,13 @@ namespace Microsoft.Coyote.Runtime
                 blockedOnResources.Count is 0)
             {
                 return;
+            }
+
+            // Instead of throwing a deadlock exeception, we will start
+            // the next iteration with delay fuzzing.
+            if (this.Configuration.IsRelaxedControlledTestingEnabled && retries == 5)
+            {
+                ThrowUncontrolledTaskException();
             }
 
             var msg = new StringBuilder("Deadlock detected.");
@@ -2134,7 +2165,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 SchedulingActivityInfo info = state as SchedulingActivityInfo;
-                if (info.StepCount == this.Scheduler.StepCount)
+                if (info.StepCount == this.Scheduler.StepCount || info.ThrowError)
                 {
                     string msg = "Potential deadlock detected. If you think this is not a deadlock, you can try " +
                         "increase the dealock detection timeout (--deadlock-timeout).";
@@ -2147,7 +2178,7 @@ namespace Microsoft.Coyote.Runtime
                     try
                     {
                         // Start the next timeout period.
-                        this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
+                        this.DeadlockMonitor?.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
                             Timeout.InfiniteTimeSpan);
                     }
                     catch (ObjectDisposedException)
@@ -2191,9 +2222,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an assertion has failed.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true, bool logStackTrace = true)
         {
             lock (this.SyncObject)
@@ -2349,7 +2377,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void ThrowExecutionCanceledExceptionIfDetached()
         {
-            if (!this.IsAttached)
+            // Temporary fix: Don't throw this error when delay fuzzing.
+            if (!this.IsAttached && this.Scheduler.SchedulingPolicy != SchedulingPolicy.Fuzzing)
             {
                 throw new ExecutionCanceledException();
             }
@@ -2479,7 +2508,13 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
-                    this.DeadlockMonitor.Dispose();
+                    // This can happen when we chaneg the Scheduling policy from Systematic Testing to Delay Fuzzing.
+                    if (ExecutionControlledUseCount > 0)
+                    {
+                        Interlocked.Decrement(ref ExecutionControlledUseCount);
+                    }
+
+                    this.DeadlockMonitor?.Dispose();
                 }
 
                 AssignAsyncControlFlowRuntime(null);
@@ -2493,6 +2528,33 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Check if RelaxedCCT is enabled and switch the scheduling policy
+        /// to Delay Fuzzing.
+        /// </summary>
+        public static void CheckAndSetSchedulerStrategyToDelayFuzzing()
+        {
+            CoyoteRuntime runtime = AsyncLocalInstance.Value;
+            if (runtime != null && runtime.Configuration.IsRelaxedControlledTestingEnabled &&
+                runtime.Scheduler.NewSchedulingPolicy != SchedulingPolicy.Fuzzing)
+            {
+                // Change policy to DelayFuzzing.
+                runtime.Scheduler.SetSchedulerStrategyToDelayFuzzing();
+                // Immediately throw deadlock error in a separate task.
+                runtime.InitDeadlockTimer(true);
+
+                // Trigger the time!
+                runtime.DeadlockMonitor?.Change(TimeSpan.FromMilliseconds(10),
+                    Timeout.InfiniteTimeSpan);
+            }
+        }
+
+        public static bool IsRelaxedTestingEnabled()
+        {
+            CoyoteRuntime runtime = AsyncLocalInstance.Value;
+            return runtime.Configuration.IsRelaxedControlledTestingEnabled;
         }
     }
 }

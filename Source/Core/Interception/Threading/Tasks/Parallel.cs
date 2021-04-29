@@ -191,10 +191,6 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-            }
-
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
         }
 
@@ -205,10 +201,6 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-            }
-
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
         }
 
@@ -538,7 +530,7 @@ namespace Microsoft.Coyote.Interception
         {
             if (options.TaskScheduler != null && options.TaskScheduler != TaskScheduler.Default)
             {
-                throw new NotSupportedException($"using a custom task scheduler is not supported during systematic testing.");
+                ExceptionProvider.ThrowNotSupportedInvocationException($"using a custom task scheduler is not supported during systematic testing.");
             }
         }
     }

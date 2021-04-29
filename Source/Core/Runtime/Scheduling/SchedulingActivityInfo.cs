@@ -17,5 +17,12 @@ namespace Microsoft.Coyote.Runtime
         /// Number of scheduling steps since last activity check.
         /// </summary>
         public int StepCount { get; set; }
+
+        public bool ThrowError { get; private set; }
+
+        public SchedulingActivityInfo(bool throwError = false)
+        {
+            this.ThrowError = throwError;
+        }
     }
 }

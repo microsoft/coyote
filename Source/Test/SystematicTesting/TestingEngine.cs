@@ -500,6 +500,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // Gets a handle to the standard output and error streams.
             var stdOut = Console.Out;
             var stdErr = Console.Error;
+            var currentSchedulingPolicy = this.Scheduler.SchedulingPolicy;
 
             try
             {
@@ -546,6 +547,13 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.
                     runtime.CheckLivenessErrors();
+                }
+
+                // Check if policy has changed and set IsBugFound to false.
+                if (this.Scheduler.NewSchedulingPolicy != this.Scheduler.SchedulingPolicy && runtime.IsBugFound)
+                {
+                    runtime.IsBugFound = false;
+                    this.Scheduler.UpdateSchedulingPolicy();
                 }
 
                 if (runtime.IsBugFound)

@@ -186,7 +186,8 @@ namespace Microsoft.Coyote.Interception
             }
             else
             {
-                throw new NotSupportedException($"Invoking '{nameof(SystemThreading.ThreadPool.BindHandle)}' is only supported on Windows.");
+                ExceptionProvider.ThrowNotSupportedInvocationException($"Invoking '{nameof(SystemThreading.ThreadPool.BindHandle)}' is only supported on Windows.");
+                return false;
             }
 #else
             return SystemThreading.ThreadPool.BindHandle(osHandle);

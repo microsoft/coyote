@@ -346,7 +346,7 @@ namespace Microsoft.Coyote.Interception
                 thread.Start(parameter);
 
                 // for Join to work we need to wait for thread to really start.
-                while (!ThreadTasks.ContainsKey(thread))
+                while (!ThreadTasks.ContainsKey(thread) && CoyoteRuntime.Current.SchedulingPolicy != SchedulingPolicy.Fuzzing)
                 {
                     Thread.Sleep(1);
                 }
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote.Interception
                 thread.Start();
 
                 // for Join to work we need to wait for thread to really start.
-                while (!ThreadTasks.ContainsKey(thread))
+                while (!ThreadTasks.ContainsKey(thread) && CoyoteRuntime.Current.SchedulingPolicy != SchedulingPolicy.Fuzzing)
                 {
                     Thread.Sleep(1);
                 }

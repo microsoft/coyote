@@ -243,6 +243,11 @@ namespace Microsoft.Coyote.Rewriting
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled", this.Configuration.IsVerbose, this.Configuration.LogLevel);
             }
 
+            if (this.Configuration.IsRelaxedControlledTestingEnabled)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithRelaxedControlledTestingEnabled", this.Configuration.IsRelaxedControlledTestingEnabled);
+            }
+
             if (!this.Configuration.EnableTelemetry)
             {
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled", this.Configuration.EnableTelemetry);

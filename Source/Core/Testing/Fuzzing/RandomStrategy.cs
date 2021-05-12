@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// A simple random fuzzing strategy.
+    /// Random strategy. (Delay prob - 0.05; random delay range - [0, 100]; upper bound: 5000 per task).
     /// </summary>
     internal class RandomStrategy : FuzzingStrategy
     {
@@ -24,28 +27,66 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected int StepCount;
 
         /// <summary>
+        /// Dictionary to keep a track of delay per thread.
+        /// </summary>
+        private readonly Dictionary<int, int> PerTaskTotalDelay;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
         internal RandomStrategy(int maxDelays, IRandomValueGenerator random)
         {
             this.RandomValueGenerator = random;
             this.MaxSteps = maxDelays;
+            this.PerTaskTotalDelay = new Dictionary<int, int>();
         }
 
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            // The random strategy just needs to reset the number of scheduled steps during
-            // the current iretation.
             this.StepCount = 0;
+            this.PerTaskTotalDelay.Clear();
             return true;
         }
 
         /// <inheritdoc/>
         internal override bool GetNextDelay(int maxValue, out int next)
         {
-            next = this.RandomValueGenerator.Next(maxValue);
+            int? currentTaskId = Task.CurrentId;
+            if (currentTaskId == null)
+            {
+                next = 0;
+                return true;
+            }
+
             this.StepCount++;
+
+            int retval = 0;
+            // 0.05 probability of 1-100ms delay
+            if (this.RandomValueGenerator.NextDouble() < 0.05)
+            {
+                retval = this.RandomValueGenerator.Next(100);
+            }
+
+            // Make sure that the max delay per Task is less than 5s.
+            if (this.PerTaskTotalDelay.TryGetValue((int)currentTaskId, out int delay))
+            {
+                // Max delay per thread.
+                if (delay > 5000)
+                {
+                    retval = 0;
+                }
+
+                // Update the total delay per thread.
+                this.PerTaskTotalDelay.Remove((int)currentTaskId);
+                this.PerTaskTotalDelay.Add((int)currentTaskId, delay + retval);
+            }
+            else
+            {
+                this.PerTaskTotalDelay.Add((int)currentTaskId, retval);
+            }
+
+            next = retval;
             return true;
         }
 
@@ -67,6 +108,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool IsFair() => true;
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"Random[seed '{this.RandomValueGenerator.Seed}']";
     }
 }

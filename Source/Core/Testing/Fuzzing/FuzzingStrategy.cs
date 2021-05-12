@@ -11,8 +11,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Creates a <see cref="FuzzingStrategy"/> from the specified configuration.
         /// </summary>
-        internal static FuzzingStrategy Create(Configuration configuration, IRandomValueGenerator generator) =>
-            new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+        internal static FuzzingStrategy Create(Configuration configuration, IRandomValueGenerator generator)
+        {
+            switch (configuration.SchedulingStrategy)
+            {
+                case "pct":
+                    return new PPCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
+                case "portfolio":
+                    return new PortfolioStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
+                case "random":
+                    return new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                default:
+                    return new PortfolioStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
+            }
+        }
 
         /// <summary>
         /// Returns the next delay.

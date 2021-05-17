@@ -248,8 +248,8 @@ if ((int)this.HopperLevel.Value == 0)
 ```
 
 And so it missed the fact it might be negative. The fix is easy, just change this condition to `<=`
-and the bug goes away. The fact that such a tricky bug was found so quickly shows the power of
-using the Coyote state machine programming model together with the `coyote test` tool.
+and the bug goes away. The fact that such a bug was found shows the usefulness of the failover
+testing strategy.
 
 ### Testing the scheduling of highly asynchronous operations
 

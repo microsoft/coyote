@@ -11,7 +11,7 @@
 
 Coyote is a set of libraries and tools for building reliable asynchronous software. Coyote ensures
 design and code remain in sync, dramatically simplifying the addition of new features. Coyote comes
-with with a systematic testing engine that allows finding and deterministically reproducing
+with a systematic testing engine that allows finding and deterministically reproducing
 hard-to-find safety and liveness bugs.
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design, implement and

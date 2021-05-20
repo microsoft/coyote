@@ -58,7 +58,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
             testingGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing instead of systematic exploration", typeof(bool));
-            testingGroup.AddArgument("no-repro", null, "Disable bug repro to ignore uncontrolled concurrency errors", typeof(bool));
+            testingGroup.AddArgument("no-repro", null, "Disable bug trace repro to ignore uncontrolled concurrency errors", typeof(bool));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };

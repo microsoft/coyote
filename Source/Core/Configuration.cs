@@ -542,12 +542,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with bug trace repro fuzzing enabled or disabled. Disabling
-        /// bug trace repro allows skipping errors due to uncontrolled concurrency, for example
-        /// when the program is only partially rewritten, or there is external concurrency that
-        /// is not mocked, or when the program uses an API that is not yet supported.
+        /// Updates the configuration with the ability to reproduce bug traces enabled or disabled.
+        /// Disabling reproducibility allows skipping errors due to uncontrolled concurrency, for
+        /// example when the program is only partially rewritten, or there is external concurrency
+        /// that is not mocked, or when the program uses an API that is not yet supported.
         /// </summary>
-        /// <param name="isDisabled">If true, then bug trace repro is disabled.</param>
+        /// <param name="isDisabled">If true, then reproducing bug traces is disabled.</param>
         public Configuration WithNoBugTraceRepro(bool isDisabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isDisabled;

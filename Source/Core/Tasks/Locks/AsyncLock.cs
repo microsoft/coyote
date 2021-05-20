@@ -88,10 +88,7 @@ namespace Microsoft.Coyote.Tasks
                 }
             }
 
-            if (awaiter != null)
-            {
-                awaiter.SetResult(null);
-            }
+            awaiter?.SetResult(null);
         }
 
         /// <summary>

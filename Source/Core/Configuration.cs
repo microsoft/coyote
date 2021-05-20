@@ -535,6 +535,9 @@ namespace Microsoft.Coyote
         /// Updates the configuration with concurrency fuzzing enabled or disabled.
         /// </summary>
         /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
         public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isEnabled;

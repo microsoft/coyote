@@ -95,10 +95,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // wait for any pending progress
             var task = this.ProgressTask;
-            if (task != null)
-            {
-                task.Wait(30000);
-            }
+            task?.Wait(30000);
 
             if (this.Configuration.RunAsParallelBugFindingTask)
             {

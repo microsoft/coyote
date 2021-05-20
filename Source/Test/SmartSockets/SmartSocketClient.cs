@@ -302,8 +302,7 @@ namespace Microsoft.Coyote.SmartSockets
             Exception inner = ex;
             while (inner != null)
             {
-                SocketException se = inner as SocketException;
-                if (se != null && se.SocketErrorCode == SocketError.ConnectionReset)
+                if (inner is SocketException se && se.SocketErrorCode == SocketError.ConnectionReset)
                 {
                     // we're toast!
                     if (this.Server != null)
@@ -467,8 +466,7 @@ namespace Microsoft.Coyote.SmartSockets
                         }
                     }
 
-                    var wrapper = result as MessageWrapper;
-                    if (wrapper != null && wrapper.Message is SocketMessage)
+                    if (result is MessageWrapper wrapper && wrapper.Message is SocketMessage)
                     {
                         msg = (SocketMessage)wrapper.Message;
                         if (msg.Id == DisconnectMessageId)

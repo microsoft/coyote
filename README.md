@@ -11,11 +11,11 @@
 
 Coyote is .NET library and tool designed to help ensure that your code is free of concurrency bugs.
 
-It gives you the ability to reliably unit test the concurrency and other sources of nondeterminism
+It gives you the ability to reliably *unit test the concurrency* and other sources of nondeterminism
 (such as message re-orderings, timeouts and failures) in your C# code. In the heart of Coyote is a
 scheduler that takes control (via binary rewriting) of your program's execution during testing and
 is able to systematically explore the concurrency and nondeterminism to find safety and liveness
-bugs. The awesome thing is that once Coyote finds a bug it gives you the ability to fully reproduce
+bugs. The awesome thing is that once Coyote finds a bug it gives you the ability to fully *reproduce*
 it as many times as you want, making debugging and fixing the issue much easier.
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to systematically test

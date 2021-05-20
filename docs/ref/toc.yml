@@ -33,6 +33,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled
         - name: WithConcurrencyFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
+        - name: WithNoBugTraceRepro
+          link: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro
         - name: WithMaxSchedulingSteps
           link: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
         - name: WithLivenessTemperatureThreshold

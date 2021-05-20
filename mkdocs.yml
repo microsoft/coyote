@@ -118,6 +118,7 @@ nav:
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithRelaxedControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled.md
         - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
+        - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md

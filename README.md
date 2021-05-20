@@ -9,22 +9,24 @@
 ![macOS CI](https://github.com/microsoft/coyote/workflows/macOS%20CI/badge.svg)
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Coyote is a set of libraries and tools for building reliable asynchronous software. Coyote ensures
-design and code remain in sync, dramatically simplifying the addition of new features. Coyote comes
-with a systematic testing engine that allows finding and deterministically reproducing
-hard-to-find safety and liveness bugs.
+Coyote is .NET library and tool designed to help ensure that your code is free of concurrency bugs.
+It gives you the ability to unit test the concurrency and other sources of nondeterminism (such as
+message re-orderings, timeouts and failures) in your C# code. In the heart of Coyote is a scheduler
+that takes control (via binary rewriting) of your program's execution during testing and is able to
+systematically explore the concurrency and nondeterminism to find safety and liveness bugs. The
+awesome thing is that once Coyote finds a bug it gives you the ability to fully reproduce it as many
+times as you want, making debugging and fixing the issue much easier.
 
-Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design, implement and
-systematically test production distributed systems and services. In the words of an Azure service
-architect:
+Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to systematically test
+their distributed systems and services, findings hundreds of bugs before they manifest in
+production. In the words of an Azure service architect:
 > Coyote found several issues early in the dev process, this sort of issues that would usually bleed
 > through into production and become very expensive to fix later.
 
 See our [documentation](https://microsoft.github.io/coyote/) for more information about the project,
 case studies, tutorials and reference documentation.
 
-Coyote is made with :heart: by Microsoft Research and is the evolution of the [P#
-project](https://github.com/p-org/PSharp).
+Coyote is made with :heart: by Microsoft Research.
 
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

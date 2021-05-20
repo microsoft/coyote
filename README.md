@@ -19,7 +19,7 @@ bugs. The awesome thing is that once Coyote finds a bug it gives you the ability
 it as many times as you want, making debugging and fixing the issue much easier.
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to systematically test
-their distributed systems and services, findings hundreds of bugs before they manifest in
+their distributed systems and services, finding hundreds of bugs before they manifest in
 production. In the words of an Azure service architect:
 > Coyote found several issues early in the dev process, this sort of issues that would usually bleed
 > through into production and become very expensive to fix later.

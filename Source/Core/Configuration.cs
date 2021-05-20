@@ -535,12 +535,22 @@ namespace Microsoft.Coyote
         /// Updates the configuration with concurrency fuzzing enabled or disabled.
         /// </summary>
         /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with bug trace repro fuzzing enabled or disabled. Disabling
+        /// bug trace repro allows skipping errors due to uncontrolled concurrency, for example
+        /// when the program is only partially rewritten, or there is external concurrency that
+        /// is not mocked, or when the program uses an API that is not yet supported.
+        /// </summary>
+        /// <param name="isDisabled">If true, then bug trace repro is disabled.</param>
+        public Configuration WithNoBugTraceRepro(bool isDisabled = true)
+        {
+            this.IsConcurrencyFuzzingEnabled = isDisabled;
             return this;
         }
 

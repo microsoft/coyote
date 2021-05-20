@@ -57,6 +57,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
+            testingGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing instead of systematic exploration", typeof(bool));
+            testingGroup.AddArgument("no-repro", null, "Disable bug repro to ignore uncontrolled concurrency errors", typeof(bool));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
@@ -94,7 +96,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var experimentalGroup = this.Parser.GetOrCreateGroup("experimentalGroup", "Experimental options");
             experimentalGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             experimentalGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
-            experimentalGroup.AddArgument("concurrency-fuzzing", null, "Enable concurrency fuzzing", typeof(bool));
 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
@@ -241,6 +242,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.IsRelaxedControlledTestingEnabled = true;
                     break;
                 case "concurrency-fuzzing":
+                case "no-repro":
                     configuration.IsConcurrencyFuzzingEnabled = true;
                     break;
                 case "explore":

@@ -2021,8 +2021,11 @@ namespace Microsoft.Coyote.Runtime
                 !task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
-                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
-                    "either mock the method that created the task, or rewrite the method's assembly.");
+                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}'is not allowed by default " +
+                    "as it can interfere with the ability to reproduce bug traces: either mock the method " +
+                    "spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the '--no-repro'" +
+                    "command line option to ignore this error by disabling bug trace repro. " +
+                    "Learn more at http://aka.ms/coyote-no-repro.");
             }
         }
 
@@ -2035,7 +2038,10 @@ namespace Microsoft.Coyote.Runtime
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
-                    "which is not allowed: either mock the method, or rewrite the method's assembly.");
+                    "which is not allowed by default as it can interfere with the ability to reproduce bug traces: " +
+                    "either mock the method returning the uncontrolled task, or rewrite its assembly. Alternatively, " +
+                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
+                    "Learn more at http://aka.ms/coyote-no-repro.");
             }
         }
 
@@ -2241,8 +2247,10 @@ namespace Microsoft.Coyote.Runtime
             // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
             string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
             throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
-                "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
-                "of the uncontrolled task, or rewrite its assembly.");
+                "which is not allowed by default as it can interfere with the ability to reproduce bug traces: either " +
+                "mock the method spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the " +
+                "'--no-repro' command line option to disable bug trace repro and ignore this error. " +
+                "Learn more at http://aka.ms/coyote-no-repro.");
         }
 
         /// <summary>

@@ -44,7 +44,10 @@ namespace Microsoft.Coyote.Runtime
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new NotSupportedException($"Invoking '{methodName}' is not supported during systematic testing.");
+                throw new NotSupportedException($"Invoking '{methodName}' is not intercepted and controlled during " +
+                    "testing, so it can interfere with the ability to reproduce bug traces. As a workaround, you can " +
+                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
+                    "Learn more at http://aka.ms/coyote-no-repro.");
             }
         }
 

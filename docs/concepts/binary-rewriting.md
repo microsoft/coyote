@@ -11,19 +11,6 @@ To learn how to run the binary rewriter of Coyote before testing your applicatio
 [here](../get-started/using-coyote.md), as well as check out our tutorial on [writing your first
 concurrency unit test](../tutorials/first-concurrency-unit-test.md).
 
-## Supported APIs
-
-Out of the box, Coyote supports programs written using:
-
-- The `async`, `await` and `lock` C# keywords.
-- The most common `System.Threading.Tasks` types in the .NET Task Parallel Library:
-  - Including the `Task`, `Task<TResult>` and `TaskCompletionSource<TResult>` types.
-- The `Monitor` type in `System.Threading`.
-
-Coyote will let you know with an informative error if it detects a type it does not support. We are
-adding support for more APIs over time, but if something you need is missing please reach out on
-[GitHub](https://github.com/microsoft/coyote/issues)!
-
 ## Quality of life improvements through rewriting
 
 Coyote will automatically rewrite certain parts of your test code (without changing the application

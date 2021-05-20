@@ -10,6 +10,7 @@
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Coyote is .NET library and tool designed to help ensure that your code is free of concurrency bugs.
+
 It gives you the ability to unit test the concurrency and other sources of nondeterminism (such as
 message re-orderings, timeouts and failures) in your C# code. In the heart of Coyote is a scheduler
 that takes control (via binary rewriting) of your program's execution during testing and is able to

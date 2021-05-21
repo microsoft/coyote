@@ -249,26 +249,6 @@ interleaving during testing and debugging. In this example you can see it bounci
 tasks `[0HM34OD7O65E5]`, `[0HM34OD7O65E6]` and `[0HM34OD7O65E7]` and this controlled interleaving
 of tasks can help find lots of bugs.
 
-## Rewriting unit tests
-
-The `Test.Coyote` project is included to show you how to run a Coyote test, but `coyote rewrite`
-can also wrap your unit tests in a coyote `TestEngine` automatically. To demonstrate this, run the
-following:
-
-```
-coyote rewrite rewrite.coyote.json --rewrite-unit-tests --iterations 100
-dotnet test bin/coyote/ImageGalleryTests.dll
-```
-
-This changes the non-Coyote unit tests so that they first create a Coyote `TestEngine` then run the
-original unit test.  You will find that this also finds the same bugs, you should see output like this:
-
-```
-  X TestConcurrentAccountAndImageRequestsAsync [252ms]
-  Error Message:
-   The image was not deleted from Azure Blob Storage.
-```
-
 ## Troubleshooting
 
 **Login fails with an unhandled exception has occurred while executing the request.**

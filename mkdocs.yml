@@ -58,7 +58,6 @@ nav:
   - Writing mocks:
     - Mocking dependencies for testing: tutorials/mocks/mock-dependencies.md
     - Simulating optimistic concurrency control: tutorials/mocks/optimistic-concurrency-control.md
-  - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
   - Test failover and liveness: tutorials/test-failover.md
   - Actors and state machines:
     - Hello world with actors: tutorials/actors/hello-world.md

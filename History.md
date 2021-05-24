@@ -1,3 +1,11 @@
+## v1.2.7
+- Added the `--no-repro` command line option (also enabled via `Configuration.WithNoBugTraceRepro`),
+  which disables the ability to reproduce buggy traces to allow skipping errors due to uncontrolled
+  concurrency, for example when the program is only partially rewritten, or there is external
+  concurrency that is not mocked, or when the program uses an API that is not yet supported.
+- The uncontrolled concurrency errors have been updated to be more informative and point to the
+  documentation for further reading.
+
 ## v1.2.6
 - Added an experimental rewriting pass that adds assertion checks to find data races in uses of the
   `System.Collections.Generic.List<T>` and `System.Collections.Generic.Dictionary<TKey, TValue>`

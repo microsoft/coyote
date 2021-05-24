@@ -1,5 +1,5 @@
 ## v1.2.7
-- Added the `--no-repro` command line option (also enabled via `Configuration.WithNoBugTraceRepro`),
+- Added the `--no-repro` command line option (enabled also via `Configuration.WithNoBugTraceRepro`),
   which disables the ability to reproduce buggy traces to allow skipping errors due to uncontrolled
   concurrency, for example when the program is only partially rewritten, or there is external
   concurrency that is not mocked, or when the program uses an API that is not yet supported.

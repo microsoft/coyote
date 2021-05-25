@@ -54,6 +54,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static int CreateDelay(int millisecondsDelay)
         {
+            if (millisecondsDelay == 0)
+            {
+                return 0;
+            }
+
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
@@ -68,6 +73,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static TimeSpan CreateDelay(TimeSpan delay)
         {
+            if (delay.TotalMilliseconds == 0)
+            {
+                return TimeSpan.Zero;
+            }
+
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {

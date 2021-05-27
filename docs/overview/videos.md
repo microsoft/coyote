@@ -1,3 +1,10 @@
+## Overview of Coyote on the Microsoft Developer Tech Minutes Series
+
+This YouTube video will give you a high-level overview of Coyote (together with some cool
+animations) and explain how it can help you exercise the concurrency in your code:
+
+[![image](../assets/images/tech_minutes.png)](https://youtu.be/JGGOB6fNEpI)
+
 ## Introductory tutorial on Coyote
 
 This YouTube video will show you how to write your first concurrency unit test and use Coyote to test your unmodified task-based C# code:

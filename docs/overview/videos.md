@@ -1,4 +1,4 @@
-## Overview of Coyote on the Microsoft Developer Tech Minutes Series
+## Overview on the Microsoft Developer Tech Minutes Series
 
 Learn how Coyote can automatically find and reproduce deep concurrency bugs in your code, helping
 increase the reliability of your service, in this high-level overview of Coyote:

@@ -100,6 +100,8 @@ These are some direct quotes from Azure Engineers that use Coyote:
 
 Get started with the following links:
 
+[Watch a video overview of Coyote](https://innovation.microsoft.com/en-us/tech-minutes-project-coyote)
+
 [Learn about the key benefits of using Coyote](overview/benefits.md)
 
 [Install the NuGet package and CLI tool, it is super easy](get-started/install.md)
@@ -107,6 +109,8 @@ Get started with the following links:
 [Learn how to use Coyote in practice](tutorials/overview.md)
 
 [Read about core concepts behind Coyote](concepts/non-determinism.md)
+
+[Try to find concurrency bugs in this interactive demo](https://innovation.microsoft.com/en-us/exploring-project-coyote)
 
 [Learn how various Azure teams are using Coyote](case-studies/azure-batch-service.md)
 

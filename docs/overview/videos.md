@@ -1,7 +1,7 @@
 ## Overview of Coyote on the Microsoft Developer Tech Minutes Series
 
-This YouTube video will give you a high-level overview of Coyote (together with some cool
-animations) and explain how it can help you exercise the concurrency in your code:
+Learn how Coyote can automatically find and reproduce deep concurrency bugs in your code, helping
+increase the reliability of your service, in this high-level overview of Coyote:
 
 [![image](../assets/images/tech_minutes.png)](https://youtu.be/JGGOB6fNEpI)
 

@@ -545,6 +545,19 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with the ability to reproduce bug traces enabled or disabled.
+        /// Disabling reproducibility allows skipping errors due to uncontrolled concurrency, for
+        /// example when the program is only partially rewritten, or there is external concurrency
+        /// that is not mocked, or when the program uses an API that is not yet supported.
+        /// </summary>
+        /// <param name="isDisabled">If true, then reproducing bug traces is disabled.</param>
+        public Configuration WithNoBugTraceRepro(bool isDisabled = true)
+        {
+            this.IsConcurrencyFuzzingEnabled = isDisabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the specified number of maximum scheduling steps to explore per
         /// iteration during systematic testing. The <see cref="MaxUnfairSchedulingSteps"/> is assigned the
         /// <paramref name="maxSteps"/> value, whereas the <see cref="MaxFairSchedulingSteps"/> is assigned

@@ -98,10 +98,11 @@ Type `coyote test -?` to see the full command line options.
 ### Controlled and reproducible testing
 
 In its essence, the Coyote tester:
- 1. **serializes** the execution of an asynchronous program,
- 2. **takes control** of the underlying task scheduler and any declared sources of
-    non-determinism in the program,
- 3. **explores** scheduling decisions and non-deterministic choices to trigger bugs.
+
+1. **serializes** the execution of an asynchronous program,
+2. **takes control** of the underlying task scheduler and any declared sources of
+  non-determinism in the program,
+3. **explores** scheduling decisions and non-deterministic choices to trigger bugs.
 
 Because of the above capabilities, the `coyote` tester is capable of quickly discovering bugs that
 would be very hard to discover using traditional testing techniques.
@@ -198,6 +199,29 @@ own breakpoints in the source code as usual.
 see troubleshooting below for an alternate way of debugging replay schedules.
 
 See the replay options section of the help output from invoking `coyote -?`.
+
+### Supported scenarios
+
+Out of the box, Coyote supports finding and reproducing bugs in programs written using:
+
+- The `async`, `await` and `lock` C# keywords.
+- The most common `System.Threading.Tasks` types in the .NET Task Parallel Library:
+  - Including the `Task`, `Task<TResult>` and `TaskCompletionSource<TResult>` types.
+- The `Monitor` type in `System.Threading`.
+
+Coyote will let you know with an informative error if it detects a type that it does not support, or
+if the test invokes an external concurrent API that you have not mocked or rewritten its assembly.
+For these scenarios, Coyote provides the `--no-repro` command line option, which allows you to
+ignore these errors by *disabling the ability to reproduce* bug traces (i.e., no `.schedule` file
+will be produced when a bug is found). Alternatively, if you are using the Coyote test runner from
+inside another [unit testing framework](../how-to/unit-testing.md), you can run Coyote in this mode
+by enabling the `Configuration.WithNoBugTraceRepro()` option.
+
+In the `--no-repro` mode, you can continue using Coyote to expose tricky concurrency (and other
+nondeterministic) bugs. As Coyote adds supports for more .NET APIs, you will be able to reproduce
+bugs in increasingly more scenarios. We are adding support for more APIs over time, but if something
+you need is missing please open an issue on [GitHub](https://github.com/microsoft/coyote/issues) or
+contribute a [PR](https://github.com/microsoft/coyote/compare)!
 
 ### Graphing the results
 

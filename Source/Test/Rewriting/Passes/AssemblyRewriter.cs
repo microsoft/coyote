@@ -501,13 +501,15 @@ namespace Microsoft.Coyote.Rewriting
 
         /// <summary>
         /// Create a GenericInstanceMethod from the given generic method and the given generic arguments.
-        /// Note: this can also handle the case where the DeclaringType is also generic.  Simply pass the combined
-        /// generic args for the declaring type and the method.
         /// </summary>
         /// <param name="module">The module we are operating on.</param>
         /// <param name="genericMethod">A generic method to instantiate.</param>
         /// <param name="genericArgs">The combined generic arguments for the declaring type (if it is generic) and for the method.</param>
         /// <returns>The new method reference.</returns>
+        /// <remarks>
+        /// This method can also handle the case where the DeclaringType is also generic.
+        /// Simply pass the combined generic args for the declaring type and the method.
+        /// </remarks>
         protected static MethodReference ImportGenericMethodInstance(ModuleDefinition module, MethodReference genericMethod,
             params TypeReference[] genericArgs)
         {
@@ -562,8 +564,7 @@ namespace Microsoft.Coyote.Rewriting
             foreach (var arg in genericMethod.Parameters)
             {
                 ParameterDefinition p = new ParameterDefinition(arg.Name, arg.Attributes,
-                           module.ImportReference(arg.ParameterType, typeDef));
-
+                    module.ImportReference(arg.ParameterType, typeDef));
                 if (arg.ParameterType is GenericParameter gp)
                 {
                     if (gp.DeclaringType != null)

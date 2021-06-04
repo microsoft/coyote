@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.Rewriting
                 this.RewritingPasses.Add(new MSTestRewriter(this.Configuration, this.Logger));
             }
 
-            this.RewritingPasses.Add(new AssertionInjectionRewriter(this.Logger));
+            this.RewritingPasses.Add(new InterAssemblyInvocationRewriter(this.Logger));
             this.RewritingPasses.Add(new NotSupportedInvocationRewriter(this.Logger));
 
             // expand folder

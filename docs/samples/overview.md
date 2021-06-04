@@ -11,9 +11,6 @@ The first set shows how you can use Coyote to systematically test unmodified C# 
   find a race condition. Read the accompanying two-parts tutorial available
   [here](../tutorials/first-concurrency-unit-test.md) and
   [here](../tutorials/test-concurrent-operations.md).
-- [ImageGalleryAspNet](http://github.com/microsoft/coyote-samples/tree/main/ImageGalleryAspNet):
-  demonstrates how to use Coyote to test an ASP.NET Core service. Read the accompanying tutorial
-  available [here](../tutorials/testing-aspnet-service.md).
 - [Coffee Machine Failover](http://github.com/microsoft/coyote-samples/tree/main/CoffeeMachineTasks): demonstrates
   how to systematically test the failover logic in your task-based applications. Read the
   accompanying tutorial available [here](../tutorials/test-failover.md).

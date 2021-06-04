@@ -1,24 +1,26 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewriting pass that injects assertions.
+    /// Rewriting pass for invocations between assemblies.
     /// </summary>
-    internal class AssertionInjectionRewriter : AssemblyRewriter
+    internal class InterAssemblyInvocationRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssertionInjectionRewriter"/> class.
+        /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewriter"/> class.
         /// </summary>
-        internal AssertionInjectionRewriter(ILogger log)
+        internal InterAssemblyInvocationRewriter(ILogger log)
             : base(log)
         {
         }
@@ -59,22 +61,38 @@ namespace Microsoft.Coyote.Rewriting
             try
             {
                 if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
-                    instruction.Operand is MethodReference methodReference)
+                    instruction.Operand is MethodReference methodReference &&
+                    this.IsForeignType(methodReference.DeclaringType.Resolve()))
                 {
-                    if (this.IsForeignType(methodReference.DeclaringType.Resolve()) &&
-                        IsTaskType(methodReference.ReturnType.Resolve()))
+                    if (IsTaskType(methodReference.ReturnType.Resolve()))
                     {
                         string methodName = GetFullyQualifiedMethodName(methodReference);
                         Debug.WriteLine($"............. [+] injected returned uncontrolled task assertion for method '{methodName}'");
 
-                        var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                        var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                         MethodReference providerMethod = providerType.Methods.FirstOrDefault(
                             m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedTaskNotControlled));
-                        providerMethod = this.Method.Module.ImportReference(providerMethod);
+                        providerMethod = this.Module.ImportReference(providerMethod);
 
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
+
+                        FixInstructionOffsets(this.Method);
+                    }
+                    else if (methodReference.Name is "GetAwaiter" &&
+                        IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
+                    {
+                        var declaringType = methodReference.DeclaringType;
+                        TypeDefinition providerType = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter)).Resolve();
+                        MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                            m => m.Name is nameof(CoyoteTasks.TaskAwaiter.Wrap));
+                        providerMethod = this.Module.ImportReference(providerMethod);
+
+                        Instruction newInstruction = Instruction.Create(OpCodes.Call, providerMethod);
+                        Debug.WriteLine($"............. [+] {newInstruction}");
+
+                        this.Processor.InsertAfter(instruction, newInstruction);
 
                         FixInstructionOffsets(this.Method);
                     }
@@ -108,7 +126,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is a supported task type.
+        /// Checks if the specified type is a task type.
         /// </summary>
         private static bool IsTaskType(TypeReference type)
         {
@@ -125,6 +143,57 @@ namespace Microsoft.Coyote.Rewriting
 
             if (type.Namespace == CachedNameProvider.SystemTasksNamespace &&
                 (type.Name == CachedNameProvider.TaskName || type.Name.StartsWith("Task`")))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a task type.
+        /// </summary>
+        private static bool IsTaskAwaiterType(TypeReference type)
+        {
+            if (type is null)
+            {
+                return false;
+            }
+
+            string module = Path.GetFileName(type.Module.FileName);
+            if (!(module is "System.Private.CoreLib.dll" || module is "mscorlib.dll"))
+            {
+                return false;
+            }
+
+            if (type.Namespace == CachedNameProvider.SystemCompilerNamespace &&
+                (type.Name == CachedNameProvider.TaskAwaiterName || type.Name.StartsWith("TaskAwaiter`")))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a task-like type.
+        /// </summary>
+        private static bool IsTaskLikeType(TypeDefinition type)
+        {
+            if (type is null)
+            {
+                return false;
+            }
+
+            var interfaceTypes = type.Interfaces.Select(i => i.InterfaceType);
+            if (!interfaceTypes.Any(
+                i => i.FullName is "System.Runtime.CompilerServices.INotifyCompletion" ||
+                i.FullName is "System.Runtime.CompilerServices.INotifyCompletion"))
+            {
+                return false;
+            }
+
+            if (type.Methods.Any(m => m.Name is "get_IsCompleted"))
             {
                 return true;
             }

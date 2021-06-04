@@ -571,8 +571,11 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 
-                    this.ReproducibleTrace = runtime.ScheduleTrace.Serialize(
-                        this.Configuration, this.Scheduler.IsScheduleFair);
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    {
+                        this.ReproducibleTrace = runtime.ScheduleTrace.Serialize(
+                            this.Configuration, this.Scheduler.IsScheduleFair);
+                    }
                 }
             }
             finally

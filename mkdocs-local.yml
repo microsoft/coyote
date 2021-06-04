@@ -58,7 +58,6 @@ nav:
   - Writing mocks:
     - Mocking dependencies for testing: tutorials/mocks/mock-dependencies.md
     - Simulating optimistic concurrency control: tutorials/mocks/optimistic-concurrency-control.md
-  - Testing an ASP.NET service: tutorials/testing-aspnet-service.md
   - Test failover and liveness: tutorials/test-failover.md
   - Actors and state machines:
     - Hello world with actors: tutorials/actors/hello-world.md
@@ -118,6 +117,7 @@ nav:
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithRelaxedControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled.md
         - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
+        - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md

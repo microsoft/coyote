@@ -367,7 +367,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             int idx = 0;
             var node = this.ExecutionPath.First;
-            while (node != null && node.Next != null)
+            while (node?.Next != null)
             {
                 pathBuilder.Append($"{node.Value.op},");
 

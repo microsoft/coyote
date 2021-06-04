@@ -26,12 +26,23 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         protected readonly int PriorityChangePoints;
 
-        // Tasks in Low priority set will experience more delay.
-        private readonly List<int> LowPrioritySet = new List<int>();
-        private readonly List<int> HighPrioritySet = new List<int>();
+        /// <summary>
+        /// Set of low priority tasks.
+        /// </summary>
+        /// <remarks>
+        /// Tasks in this set will experience more delay.
+        /// </remarks>
+        private readonly List<int> LowPrioritySet;
 
-        // Probability with which tasks should be alloted to the low priority Set.
-        private double lowPriortityProbability;
+        /// <summary>
+        /// Set of high priority tasks.
+        /// </summary>
+        private readonly List<int> HighPrioritySet;
+
+        /// <summary>
+        /// Probability with which tasks should be alloted to the low priority set.
+        /// </summary>
+        private double LowPriortityProbability;
 
         /// <summary>
         /// The number of exploration steps.
@@ -46,7 +57,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.RandomValueGenerator = random;
             this.MaxSteps = maxDelays;
             this.PriorityChangePoints = priorityChangePoints;
-            this.lowPriortityProbability = 0;
+            this.HighPrioritySet = new List<int>();
+            this.LowPrioritySet = new List<int>();
+            this.LowPriortityProbability = 0;
         }
 
         /// <inheritdoc/>
@@ -56,8 +69,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.LowPrioritySet.Clear();
             this.HighPrioritySet.Clear();
 
-            // Change the probability of a task to be assigned to the LowPrioritySet after every iteration.
-            this.lowPriortityProbability = (this.lowPriortityProbability >= 0.8) ? 0 : this.lowPriortityProbability + 0.1;
+            // Change the probability of a task to be assigned to the low priority set after each iteration.
+            this.LowPriortityProbability = this.LowPriortityProbability >= 0.8 ? 0 : this.LowPriortityProbability + 0.1;
 
             return true;
         }
@@ -72,6 +85,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 return true;
             }
 
+            this.StepCount++;
+
             // Reshuffle the probabilities after every (this.MaxSteps / this.PriorityChangePoints) steps.
             if (this.StepCount % (this.MaxSteps / this.PriorityChangePoints) == 0)
             {
@@ -79,11 +94,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.HighPrioritySet.Clear();
             }
 
-            // If this task is not assigned to any Low/High priority group.
+            // If this task is not assigned to any priority set, then randomly assign it to one of the two sets.
             if (!this.LowPrioritySet.Contains((int)currentTaskId) && !this.HighPrioritySet.Contains((int)currentTaskId))
             {
-                // Randomly assign a Task to long/short delay group.
-                if (this.RandomValueGenerator.NextDouble() < this.lowPriortityProbability)
+                if (this.RandomValueGenerator.NextDouble() < this.LowPriortityProbability)
                 {
                     this.LowPrioritySet.Add((int)currentTaskId);
                 }
@@ -93,17 +107,16 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 }
             }
 
-            // If this Task lies in the HighPrioritySet, we will return a delay of 1ms else 10ms.
-            if (this.HighPrioritySet.Contains((int)currentTaskId))
-            {
-                next = 0;
-            }
-            else
+            // Choose a random delay if this task is in the low priority set.
+            if (this.LowPrioritySet.Contains((int)currentTaskId))
             {
                 next = this.RandomValueGenerator.Next(10) * 5;
             }
+            else
+            {
+                next = 0;
+            }
 
-            this.StepCount++;
             return true;
         }
 
@@ -125,6 +138,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool IsFair() => true;
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"PPCT";
+        internal override string GetDescription() => $"pct[seed '{this.RandomValueGenerator.Seed}']";
     }
 }

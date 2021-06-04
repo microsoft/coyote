@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
@@ -27,20 +27,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected readonly int PriorityChangePoints;
 
         /// <summary>
-        /// Set of low priority tasks.
+        /// Set of low priority operations.
         /// </summary>
         /// <remarks>
         /// Tasks in this set will experience more delay.
         /// </remarks>
-        private readonly List<int> LowPrioritySet;
+        private readonly List<Guid> LowPrioritySet;
 
         /// <summary>
-        /// Set of high priority tasks.
+        /// Set of high priority operations.
         /// </summary>
-        private readonly List<int> HighPrioritySet;
+        private readonly List<Guid> HighPrioritySet;
 
         /// <summary>
-        /// Probability with which tasks should be alloted to the low priority set.
+        /// Probability with which operations should be alloted to the low priority set.
         /// </summary>
         private double LowPriortityProbability;
 
@@ -57,8 +57,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.RandomValueGenerator = random;
             this.MaxSteps = maxDelays;
             this.PriorityChangePoints = priorityChangePoints;
-            this.HighPrioritySet = new List<int>();
-            this.LowPrioritySet = new List<int>();
+            this.HighPrioritySet = new List<Guid>();
+            this.LowPrioritySet = new List<Guid>();
             this.LowPriortityProbability = 0;
         }
 
@@ -78,12 +78,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <inheritdoc/>
         internal override bool GetNextDelay(int maxValue, out int next)
         {
-            int? currentTaskId = Task.CurrentId;
-            if (currentTaskId is null)
-            {
-                next = 0;
-                return true;
-            }
+            Guid id = this.GetOperationId();
 
             this.StepCount++;
 
@@ -95,20 +90,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
 
             // If this task is not assigned to any priority set, then randomly assign it to one of the two sets.
-            if (!this.LowPrioritySet.Contains((int)currentTaskId) && !this.HighPrioritySet.Contains((int)currentTaskId))
+            if (!this.LowPrioritySet.Contains(id) && !this.HighPrioritySet.Contains(id))
             {
                 if (this.RandomValueGenerator.NextDouble() < this.LowPriortityProbability)
                 {
-                    this.LowPrioritySet.Add((int)currentTaskId);
+                    this.LowPrioritySet.Add(id);
                 }
                 else
                 {
-                    this.HighPrioritySet.Add((int)currentTaskId);
+                    this.HighPrioritySet.Add(id);
                 }
             }
 
             // Choose a random delay if this task is in the low priority set.
-            if (this.LowPrioritySet.Contains((int)currentTaskId))
+            if (this.LowPrioritySet.Contains(id))
             {
                 next = this.RandomValueGenerator.Next(10) * 5;
             }

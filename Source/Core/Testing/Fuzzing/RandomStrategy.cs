@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// Random strategy. (Delay prob - 0.05; random delay range - [0, 100]; upper bound: 5000 per task).
+    /// A randomized fuzzing strategy.
     /// </summary>
     internal class RandomStrategy : FuzzingStrategy
     {
@@ -27,9 +27,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected int StepCount;
 
         /// <summary>
-        /// Dictionary to keep a track of delay per thread.
+        /// Map from tasks to total delays.
         /// </summary>
-        private readonly Dictionary<int, int> PerTaskTotalDelay;
+        private readonly ConcurrentDictionary<int, int> TotalTaskDelayMap;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
@@ -38,55 +38,54 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             this.RandomValueGenerator = random;
             this.MaxSteps = maxDelays;
-            this.PerTaskTotalDelay = new Dictionary<int, int>();
+            this.TotalTaskDelayMap = new ConcurrentDictionary<int, int>();
         }
 
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
             this.StepCount = 0;
-            this.PerTaskTotalDelay.Clear();
+            this.TotalTaskDelayMap.Clear();
             return true;
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// The delay has an injection probability of 0.05 and is in the range
+        /// of [1, 100] with an upper bound of 5000ms per task.
+        /// </remarks>
         internal override bool GetNextDelay(int maxValue, out int next)
         {
             int? currentTaskId = Task.CurrentId;
-            if (currentTaskId == null)
+            if (currentTaskId is null)
             {
                 next = 0;
                 return true;
             }
 
-            this.StepCount++;
-
-            int retval = 0;
-            // 0.05 probability of 1-100ms delay
-            if (this.RandomValueGenerator.NextDouble() < 0.05)
+            // Ensure that the max delay per task is less than 5000ms.
+            int maxDelay = this.TotalTaskDelayMap.GetOrAdd((int)currentTaskId, 0);
+            if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
             {
-                retval = this.RandomValueGenerator.Next(100);
-            }
-
-            // Make sure that the max delay per Task is less than 5s.
-            if (this.PerTaskTotalDelay.TryGetValue((int)currentTaskId, out int delay))
-            {
-                // Max delay per thread.
-                if (delay > 5000)
-                {
-                    retval = 0;
-                }
-
-                // Update the total delay per thread.
-                this.PerTaskTotalDelay.Remove((int)currentTaskId);
-                this.PerTaskTotalDelay.Add((int)currentTaskId, delay + retval);
+                // There is a 0.05 probability for a 1-100ms delay.
+                next = this.RandomValueGenerator.Next(100) + 1;
             }
             else
             {
-                this.PerTaskTotalDelay.Add((int)currentTaskId, retval);
+                next = 0;
             }
 
-            next = retval;
+            if (next > 0)
+            {
+                // Update the total delay per task.
+                this.TotalTaskDelayMap.TryUpdate((int)currentTaskId, maxDelay + next, maxDelay);
+            }
+
+            IO.Debug.WriteLine($">>>> NEXT: {next}");
+            IO.Debug.WriteLine($">>>> maxDelay: {maxDelay}");
+            IO.Debug.WriteLine($">>>> totalDelay: {this.TotalTaskDelayMap[(int)currentTaskId]}");
+
+            this.StepCount++;
             return true;
         }
 
@@ -108,6 +107,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool IsFair() => true;
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"Random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
     }
 }

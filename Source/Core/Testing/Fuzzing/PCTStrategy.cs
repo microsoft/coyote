@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
     /// <summary>
     /// A probabilistic fuzzing strategy.
     /// </summary>
-    internal class PPCTStrategy : FuzzingStrategy
+    internal class PCTStrategy : FuzzingStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected int StepCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PPCTStrategy"/> class.
+        /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        internal PPCTStrategy(int maxDelays, IRandomValueGenerator random, int priorityChangePoints)
+        internal PCTStrategy(int maxDelays, IRandomValueGenerator random, int priorityChangePoints)
         {
             this.RandomValueGenerator = random;
             this.MaxSteps = maxDelays;
@@ -66,13 +66,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool GetNextDelay(int maxValue, out int next)
         {
             int? currentTaskId = Task.CurrentId;
-            if (currentTaskId == null)
+            if (currentTaskId is null)
             {
                 next = 0;
                 return true;
             }
-
-            this.StepCount++;
 
             // Reshuffle the probabilities after every (this.MaxSteps / this.PriorityChangePoints) steps.
             if (this.StepCount % (this.MaxSteps / this.PriorityChangePoints) == 0)
@@ -105,6 +103,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 next = this.RandomValueGenerator.Next(10) * 5;
             }
 
+            this.StepCount++;
             return true;
         }
 

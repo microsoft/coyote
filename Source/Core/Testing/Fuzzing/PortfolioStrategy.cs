@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                     this.CurrentStrategy = new RandomStrategy(this.MaxSteps, this.RandomValueGenerator);
                     break;
                 case Strategy.PPCT:
-                    this.CurrentStrategy = new PPCTStrategy(this.MaxSteps, this.RandomValueGenerator, this.PriorityChangePoints);
+                    this.CurrentStrategy = new PCTStrategy(this.MaxSteps, this.RandomValueGenerator, this.PriorityChangePoints);
                     break;
                 default:
                     this.CurrentStrategy = new RandomStrategy(this.MaxSteps, this.RandomValueGenerator);

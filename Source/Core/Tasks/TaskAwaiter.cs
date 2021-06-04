@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
-        public bool IsCompleted => this.AwaitedTask.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
@@ -47,6 +47,16 @@ namespace Microsoft.Coyote.Tasks
             this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
+        /// </summary>
+        internal TaskAwaiter(CoyoteRuntime runtime, SystemCompiler.TaskAwaiter awaiter)
+        {
+            this.Runtime = runtime;
+            this.AwaitedTask = null;
+            this.Awaiter = awaiter;
         }
 
         /// <summary>
@@ -90,6 +100,11 @@ namespace Microsoft.Coyote.Tasks
                 this.Awaiter.UnsafeOnCompleted(continuation);
             }
         }
+
+        /// <summary>
+        /// Wraps the specified task awaiter.
+        /// </summary>
+        public static TaskAwaiter Wrap(SystemCompiler.TaskAwaiter awaiter) => new TaskAwaiter(null, awaiter);
     }
 
     /// <summary>
@@ -121,7 +136,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
-        public bool IsCompleted => this.AwaitedTask.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.

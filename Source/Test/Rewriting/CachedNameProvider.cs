@@ -28,6 +28,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string AsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
         internal static string GenericAsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
 
+        internal static string TaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter).Name;
         internal static string TaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
         internal static string GenericTaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
         internal static string ConfiguredTaskAwaitableFullName { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;

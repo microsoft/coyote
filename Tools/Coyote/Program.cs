@@ -309,8 +309,11 @@ namespace Microsoft.Coyote
                 if (ex is ExecutionCanceledException)
                 {
                     msg = "[CoyoteTester] unhandled exception: ExecutionCanceledException: This can mean you have " +
-                        "a code path that is not controlled by the runtime that threw an unhandled exception: " +
-                        "mock this code path or rewrite its assembly.";
+                        "a code path that is not controlled by the runtime, which is not allowed by default as it " +
+                        "can interfere with the ability to reproduce bug traces: either mock the method returning " +
+                        "the uncontrolled task, or rewrite its assembly. Alternatively, use the '--no-repro' " +
+                        "command line option to ignore this error by disabling bug trace repro. " +
+                        "Learn more at http://aka.ms/coyote-no-repro.";
                 }
                 else
                 {

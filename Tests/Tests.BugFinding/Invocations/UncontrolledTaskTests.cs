@@ -29,5 +29,25 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             replay: true);
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestDetectedUncontrolledAwaiter()
+        {
+            this.Test(async () =>
+            {
+                await new UncontrolledTaskAwaiter();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDetectedUncontrolledGenericAwaiter()
+        {
+            this.Test(async () =>
+            {
+                await new UncontrolledTaskAwaiter<int>();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
     }
 }

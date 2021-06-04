@@ -1574,7 +1574,7 @@ namespace Microsoft.Coyote.Runtime
                 int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
 
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, next);
-                // Thread.Sleep(next);
+                Thread.Sleep(next);
             }
         }
 

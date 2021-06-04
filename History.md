@@ -1,3 +1,7 @@
+## v1.2.8
+- Improved the strategies used for concurrency fuzzing.
+- Fixed a rewriting bug related to the `TaskAwaiter` type.
+
 ## v1.2.7
 - Added the `--no-repro` command line option (enabled also via `Configuration.WithNoBugTraceRepro`),
   which disables the ability to reproduce buggy traces to allow skipping errors due to uncontrolled

@@ -15,12 +15,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             switch (configuration.SchedulingStrategy)
             {
-                case "random":
-                    return new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
                 case "pct":
                     return new PCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
                 default:
-                    return new PortfolioStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
+                    return new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
             }
         }
 

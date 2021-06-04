@@ -81,10 +81,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.TotalTaskDelayMap.TryUpdate((int)currentTaskId, maxDelay + next, maxDelay);
             }
 
-            IO.Debug.WriteLine($">>>> NEXT: {next}");
-            IO.Debug.WriteLine($">>>> maxDelay: {maxDelay}");
-            IO.Debug.WriteLine($">>>> totalDelay: {this.TotalTaskDelayMap[(int)currentTaskId]}");
-
             this.StepCount++;
             return true;
         }

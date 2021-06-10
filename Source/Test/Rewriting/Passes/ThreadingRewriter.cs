@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Rewriting
                     createMethod = this.Module.ImportReference(createMethod);
                     newInstruction = Instruction.Create(OpCodes.Call, createMethod);
                     newInstruction.Offset = instruction.Offset;
-                    this.Processor.Replace(instruction, newInstruction);
+                    this.Replace(instruction, newInstruction);
                 }
                 else
                 {
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.Rewriting
                     intercept = this.Module.ImportReference(intercept);
                     newInstruction = Instruction.Create(OpCodes.Call, intercept);
                     newInstruction.Offset = instruction.Offset;
-                    this.Processor.Replace(instruction, newInstruction);
+                    this.Replace(instruction, newInstruction);
                 }
                 else
                 {

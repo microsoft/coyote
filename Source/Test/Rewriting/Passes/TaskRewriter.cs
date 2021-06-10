@@ -105,6 +105,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fd.FieldType = newFieldType;
+                    this.ModifiedMethodBody = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
@@ -112,6 +113,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fr.FieldType = newFieldType;
+                    this.ModifiedMethodBody = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
             }
@@ -141,7 +143,7 @@ namespace Microsoft.Coyote.Rewriting
                 newInstruction.Offset = instruction.Offset;
 
                 Debug.WriteLine($"............. [-] {instruction}");
-                this.Processor.Replace(instruction, newInstruction);
+                this.Replace(instruction, newInstruction);
                 Debug.WriteLine($"............. [+] {newInstruction}");
                 instruction = newInstruction;
             }
@@ -168,7 +170,7 @@ namespace Microsoft.Coyote.Rewriting
             newInstruction.Offset = instruction.Offset;
 
             Debug.WriteLine($"............. [-] {instruction}");
-            this.Processor.Replace(instruction, newInstruction);
+            this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
             return newInstruction;
         }

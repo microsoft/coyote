@@ -51,6 +51,11 @@ namespace Microsoft.Coyote.Rewriting
         protected readonly ILogger Logger;
 
         /// <summary>
+        /// True if the current method body has been modified.
+        /// </summary>
+        internal bool ModifiedMethodBody;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
         protected AssemblyRewriter(ILogger logger)
@@ -586,7 +591,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Fixes the instruction offsets of the specified method.
         /// </summary>
-        protected static void FixInstructionOffsets(MethodDefinition method)
+        internal static void FixInstructionOffsets(MethodDefinition method)
         {
             // By inserting new code into the visited method, it is possible some short branch
             // instructions are now out of range, and need to be switch to long branches. This
@@ -631,6 +636,25 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return name;
+        }
+
+        /// <summary>
+        /// Replaces the existing instruction with a new instruction and fixes up any
+        /// branch references to the old instruction so they point to the new instruction.
+        /// </summary>
+        /// <param name="instruction">The instruction to be replaced.</param>
+        /// <param name="newInstruction">The new instruction to be inserted.</param>
+        protected void Replace(Instruction instruction, Instruction newInstruction)
+        {
+            this.ModifiedMethodBody = true;
+            this.Processor.Replace(instruction, newInstruction);
+            foreach (var i in this.Processor.Body.Instructions)
+            {
+                if (i.Operand is Instruction j && j == instruction)
+                {
+                    i.Operand = newInstruction;
+                }
+            }
         }
     }
 }

@@ -31,9 +31,6 @@ namespace Microsoft.Coyote.Rewriting
 
                 // Rewrite the method body instructions.
                 this.VisitInstructions(method);
-
-                // TODO: is this required?
-                FixInstructionOffsets(method);
             }
         }
 
@@ -78,8 +75,9 @@ namespace Microsoft.Coyote.Rewriting
             newInstruction.Offset = instruction.Offset;
 
             Debug.WriteLine($"............. [-] {instruction}");
-            this.Processor.Replace(instruction, newInstruction);
+            this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
+
             return newInstruction;
         }
 
@@ -102,8 +100,9 @@ namespace Microsoft.Coyote.Rewriting
             newInstruction.Offset = instruction.Offset;
 
             Debug.WriteLine($"............. [-] {instruction}");
-            this.Processor.Replace(instruction, newInstruction);
+            this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
+
             return newInstruction;
         }
 

@@ -436,6 +436,11 @@ namespace Microsoft.Coyote.Rewriting
             foreach (var method in type.Methods.ToArray())
             {
                 RewriteMethod(method, pass);
+                if (pass.ModifiedMethodBody)
+                {
+                    AssemblyRewriter.FixInstructionOffsets(method);
+                    pass.ModifiedMethodBody = false;
+                }
             }
         }
 

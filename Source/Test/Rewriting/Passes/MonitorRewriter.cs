@@ -74,8 +74,9 @@ namespace Microsoft.Coyote.Rewriting
                     Debug.WriteLine($"............. [-] call '{method}'");
                     var newInstruction = Instruction.Create(OpCodes.Call, newMethod);
                     Debug.WriteLine($"............. [+] call '{newMethod}'");
-                    this.Processor.Replace(instruction, newInstruction);
+                    this.Replace(instruction, newInstruction);
                     instruction = newInstruction;
+                    this.ModifiedMethodBody = true;
                 }
             }
 

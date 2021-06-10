@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Rewriting
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
 
-                        FixInstructionOffsets(this.Method);
+                        this.ModifiedMethodBody = true;
                     }
                     else if (methodReference.Name is "GetAwaiter" &&
                         IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Rewriting
 
                         this.Processor.InsertAfter(instruction, newInstruction);
 
-                        FixInstructionOffsets(this.Method);
+                        this.ModifiedMethodBody = true;
                     }
                 }
             }

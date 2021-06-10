@@ -21,11 +21,6 @@ namespace Microsoft.Coyote.Rewriting
         private bool IsAsyncStateMachineType;
 
         /// <summary>
-        /// True if the current method has modified handlers.
-        /// </summary>
-        private bool ModifiedHandlers;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionFilterRewriter"/> class.
         /// </summary>
         internal ExceptionFilterRewriter(ILogger logger)
@@ -45,7 +40,6 @@ namespace Microsoft.Coyote.Rewriting
         internal override void VisitMethod(MethodDefinition method)
         {
             this.Method = method;
-            this.ModifiedHandlers = false;
 
             if (method.Body.HasExceptionHandlers)
             {
@@ -53,11 +47,6 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     this.VisitExceptionHandler(handler);
                 }
-            }
-
-            if (this.ModifiedHandlers)
-            {
-                FixInstructionOffsets(method);
             }
         }
 
@@ -103,12 +92,12 @@ namespace Microsoft.Coyote.Rewriting
 
         private void AddThrowIfExecutionCanceledException(ExceptionHandler handler)
         {
-            if (!this.ModifiedHandlers)
+            if (!this.ModifiedMethodBody)
             {
                 // A previous transform may have replaced some instructions, and if so, we need to recompute
                 // the instruction indexes before we operate on the try catch.
                 FixInstructionOffsets(this.Method);
-                this.ModifiedHandlers = true;
+                this.ModifiedMethodBody = true;
             }
 
             Debug.WriteLine($"............. [+] rewriting catch block to rethrow an {nameof(ExecutionCanceledException)}");

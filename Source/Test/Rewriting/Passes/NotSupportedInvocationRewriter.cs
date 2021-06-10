@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Rewriting
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
 
-                    FixInstructionOffsets(this.Method);
+                    this.ModifiedMethodBody = true;
                 }
             }
             catch (AssemblyResolutionException)

@@ -14,7 +14,7 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
     }
-    
+
     Write-Comment -prefix "..." -text "$tool" -color "white"
     $error_msg = "Failed to $cmd '$target'"
     Invoke-ToolCommand -tool $tool -cmd $command -error_msg $error_msg
@@ -85,6 +85,24 @@ function GetMinorVersion($version) {
         return [int]::Parse($number)
     }
     return 0
+}
+
+function FindProgram($name) {
+    $result = $null
+    $path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | ForEach-Object {
+        if (Test-Path -Path "$_\$name") {
+            $result = "$_\$name"
+        }
+    }
+    return $result
+}
+
+function GetAssemblyName($path){
+    $AssemblyName = $null;
+    $doc = [System.Xml.Linq.XDocument]::Load($path);
+    $name = [System.Xml.Linq.XName]::Get("AssemblyName", $r.Name.Namespace);
+    $doc.Root.Descendants($name) | ForEach-Object { $AssemblyName = $_.Value };
+    return $AssemblyName
 }
 
 function FindDotNet($dotnet) {

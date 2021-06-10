@@ -95,7 +95,6 @@ namespace Microsoft.Coyote.Rewriting
                     newInstruction = Instruction.Create(OpCodes.Call, createMethod);
                     newInstruction.Offset = instruction.Offset;
                     this.Replace(instruction, newInstruction);
-                    this.ModifiedMethodBody = true;
                 }
                 else
                 {
@@ -129,7 +128,6 @@ namespace Microsoft.Coyote.Rewriting
                     newInstruction = Instruction.Create(OpCodes.Call, intercept);
                     newInstruction.Offset = instruction.Offset;
                     this.Replace(instruction, newInstruction);
-                    this.ModifiedMethodBody = true;
                 }
                 else
                 {

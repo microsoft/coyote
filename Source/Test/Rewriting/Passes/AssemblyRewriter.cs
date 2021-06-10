@@ -646,6 +646,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="newInstruction">The new instruction to be inserted.</param>
         protected void Replace(Instruction instruction, Instruction newInstruction)
         {
+            this.ModifiedMethodBody = true;
             this.Processor.Replace(instruction, newInstruction);
             foreach (var i in this.Processor.Body.Instructions)
             {

@@ -146,7 +146,6 @@ namespace Microsoft.Coyote.Rewriting
                 this.Replace(instruction, newInstruction);
                 Debug.WriteLine($"............. [+] {newInstruction}");
                 instruction = newInstruction;
-                this.ModifiedMethodBody = true;
             }
 
             return instruction;
@@ -173,7 +172,6 @@ namespace Microsoft.Coyote.Rewriting
             Debug.WriteLine($"............. [-] {instruction}");
             this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
-            this.ModifiedMethodBody = true;
             return newInstruction;
         }
 

@@ -78,7 +78,6 @@ namespace Microsoft.Coyote.Rewriting
             this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
 
-            this.ModifiedMethodBody = true;
             return newInstruction;
         }
 
@@ -104,7 +103,6 @@ namespace Microsoft.Coyote.Rewriting
             this.Replace(instruction, newInstruction);
             Debug.WriteLine($"............. [+] {newInstruction}");
 
-            this.ModifiedMethodBody = true;
             return newInstruction;
         }
 

@@ -76,7 +76,6 @@ namespace Microsoft.Coyote.Rewriting
                     Debug.WriteLine($"............. [+] call '{newMethod}'");
                     this.Replace(instruction, newInstruction);
                     instruction = newInstruction;
-                    this.ModifiedMethodBody = true;
                 }
             }
 

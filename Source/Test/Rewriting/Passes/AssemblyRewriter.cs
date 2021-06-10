@@ -650,9 +650,51 @@ namespace Microsoft.Coyote.Rewriting
             this.Processor.Replace(instruction, newInstruction);
             foreach (var i in this.Processor.Body.Instructions)
             {
-                if (i.Operand is Instruction j && j == instruction)
+                if (this.Processor.Body.HasExceptionHandlers)
+                {
+                    foreach (var handler in this.Processor.Body.ExceptionHandlers)
+                    {
+                        if (handler.TryStart == instruction)
+                        {
+                            handler.TryStart = newInstruction;
+                        }
+
+                        if (handler.TryEnd == instruction)
+                        {
+                            handler.TryEnd = newInstruction;
+                        }
+
+                        if (handler.FilterStart == instruction)
+                        {
+                            handler.FilterStart = newInstruction;
+                        }
+
+                        if (handler.HandlerStart == instruction)
+                        {
+                            handler.HandlerStart = newInstruction;
+                        }
+
+                        if (handler.HandlerEnd == instruction)
+                        {
+                            handler.HandlerEnd = newInstruction;
+                        }
+                    }
+                }
+
+                // fix up branch instructions so they branch to the new instruction instead.
+                if (i.Operand is Instruction target && target == instruction)
                 {
                     i.Operand = newInstruction;
+                }
+                else if (i.Operand is Instruction[] targets)
+                {
+                    for (var j = 0; j < targets.Length; ++j)
+                    {
+                        if (targets[j] == instruction)
+                        {
+                            targets[j] = newInstruction;
+                        }
+                    }
                 }
             }
         }

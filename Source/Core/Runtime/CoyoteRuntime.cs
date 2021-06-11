@@ -2260,6 +2260,7 @@ namespace Microsoft.Coyote.Runtime
         {
             string message = null;
             Exception exception = UnwrapException(ex);
+
             if (exception is ExecutionCanceledException ece)
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
@@ -2284,7 +2285,10 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");
+                message = string.Format(CultureInfo.InvariantCulture,
+                    $"Unhandled exception '{exception.GetType()}' from '{exception.Source}':\n" +
+                    $"   {exception.Message}\n" +
+                    $"The stack trace is:\n{exception.StackTrace}");
             }
 
             if (message != null)
@@ -2305,9 +2309,9 @@ namespace Microsoft.Coyote.Runtime
                 exception = exception.InnerException;
             }
 
-            if (exception is AggregateException)
+            if (exception is AggregateException aex)
             {
-                exception = exception.InnerException;
+                exception = aex.InnerException;
             }
 
             return exception;

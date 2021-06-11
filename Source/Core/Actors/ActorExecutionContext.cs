@@ -1426,7 +1426,10 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");
+                    message = string.Format(CultureInfo.InvariantCulture,
+                        $"Unhandled exception '{exception.GetType()}' from '{exception.Source}':\n" +
+                        $"   {exception.Message}\n" +
+                        $"The stack trace is:\n{exception.StackTrace}");
                 }
 
                 if (message != null)

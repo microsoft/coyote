@@ -2260,7 +2260,6 @@ namespace Microsoft.Coyote.Runtime
         {
             string message = null;
             Exception exception = UnwrapException(ex);
-
             if (exception is ExecutionCanceledException ece)
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",

@@ -2316,7 +2316,7 @@ namespace Microsoft.Coyote.Runtime
         /// Formats the specified unhandled exception.
         /// </summary>
         internal static string FormatUnhandledException(Exception ex) => string.Format(CultureInfo.InvariantCulture,
-            $"Unhandled exception '{ex.GetType()}' from '{ex.Source}':\n" +
+            $"Unhandled exception '{ex.GetType()}' thrown from '{ex.Source}':\n" +
             $"   {ex.Message}\nThe stack trace is:\n{ex.StackTrace}");
 
         /// <summary>

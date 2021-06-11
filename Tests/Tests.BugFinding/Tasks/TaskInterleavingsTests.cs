@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await task1;
                 AssertSharedEntryValue(entry, 5);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(500),
+            configuration: this.GetConfiguration().WithTestingIterations(1000),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

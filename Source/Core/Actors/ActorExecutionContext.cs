@@ -1419,17 +1419,14 @@ namespace Microsoft.Coyote.Actors
                 else if (op is ActorOperation actorOp)
                 {
                     message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception. {exception.GetType()} was thrown in actor {actorOp.Name}, " +
+                        $"Unhandled exception '{exception.GetType()}' was thrown in actor '{actorOp.Name}', " +
                         $"'{exception.Source}':\n" +
                         $"   {exception.Message}\n" +
                         $"The stack trace is:\n{exception.StackTrace}");
                 }
                 else
                 {
-                    message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception '{exception.GetType()}' from '{exception.Source}':\n" +
-                        $"   {exception.Message}\n" +
-                        $"The stack trace is:\n{exception.StackTrace}");
+                    message = CoyoteRuntime.FormatUnhandledException(exception);
                 }
 
                 if (message != null)

@@ -588,11 +588,10 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (context.Options.HasFlag(OperationExecutionOptions.FailOnException))
                 {
-                    this.Assert(false, "Unhandled exception. {0}", ex);
+                    this.Assert(false, FormatUnhandledException(ex));
                 }
                 else
                 {
-                    // Unwrap and cache the exception to propagate it.
                     exception = UnwrapException(ex);
                     this.ReportThrownException(exception);
                 }
@@ -2269,7 +2268,7 @@ namespace Microsoft.Coyote.Runtime
                     // TODO: add some tests for this, so that we check that a task (or lock) that
                     // was cached and reused from prior iteration indeed cannot cause the runtime
                     // to hang anymore.
-                    message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {ece}");
+                    message = string.Format(CultureInfo.InvariantCulture, $"Handled benign exception: {ece}");
                 }
             }
             else if (exception is TaskSchedulerException)
@@ -2284,10 +2283,7 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                message = string.Format(CultureInfo.InvariantCulture,
-                    $"Unhandled exception '{exception.GetType()}' from '{exception.Source}':\n" +
-                    $"   {exception.Message}\n" +
-                    $"The stack trace is:\n{exception.StackTrace}");
+                message = FormatUnhandledException(exception);
             }
 
             if (message != null)
@@ -2315,6 +2311,13 @@ namespace Microsoft.Coyote.Runtime
 
             return exception;
         }
+
+        /// <summary>
+        /// Formats the specified unhandled exception.
+        /// </summary>
+        internal static string FormatUnhandledException(Exception ex) => string.Format(CultureInfo.InvariantCulture,
+            $"Unhandled exception '{ex.GetType()}' from '{ex.Source}':\n" +
+            $"   {ex.Message}\nThe stack trace is:\n{ex.StackTrace}");
 
         /// <summary>
         /// Reports the specified thrown exception.

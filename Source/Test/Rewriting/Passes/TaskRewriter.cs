@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
             if (method.FullName == newMethod.FullName ||
-                !this.TryResolve(method, out MethodDefinition resolvedMethod))
+                !this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;

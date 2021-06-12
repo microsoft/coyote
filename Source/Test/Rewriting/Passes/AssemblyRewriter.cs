@@ -158,16 +158,48 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
-
+            MethodDefinition resolvedMethod = method.Resolve();
             TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            if (method.DeclaringType == declaringType ||
-                !this.TryResolve(method, out MethodDefinition resolvedMethod))
+            var resolvedType = Resolve(declaringType);
+
+            if (resolvedMethod == null)
+            {
+                // Check if this method signature has been rewritten, find the method by same name,
+                // but with newly rewritten parameter types (note: signature does not include return type
+                // according to C# rules, but the return type may have also been rewritten which is why
+                // it is imperative here that we find the correct new MethodDefinition.
+                List<TypeReference> parameterTypes = new List<TypeReference>();
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    var p = method.Parameters[i];
+                    parameterTypes.Add(this.RewriteTypeReference(p.ParameterType));
+                }
+
+                var newMethod = FindMatchingMethodInDeclaringType(resolvedType, method.Name, parameterTypes.ToArray());
+                if (newMethod != null)
+                {
+                    if (!this.TryResolve(newMethod, out resolvedMethod))
+                    {
+                        return newMethod;
+                    }
+                }
+            }
+
+            if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
             {
                 // We are not rewriting this method.
                 return result;
             }
 
-            MethodDefinition match = FindMatchingMethodInDeclaringType(Resolve(declaringType), resolvedMethod, matchName);
+            if (resolvedMethod == null)
+            {
+                // print warning
+                this.TryResolve(method, out resolvedMethod);
+                // try and continue...
+                return method;
+            }
+
+            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedType, resolvedMethod, matchName);
             if (match != null)
             {
                 result = module.ImportReference(match);

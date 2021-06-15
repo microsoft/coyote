@@ -21,7 +21,7 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
-$ilverify = FindProgram("ilverify.exe")
+$ilverify = FindProgram("ilverify")
 if ($null -eq $ilverify) {
     &dotnet tool install --global dotnet-ilverify
     $ilverify = FindProgram("ilverify.exe");

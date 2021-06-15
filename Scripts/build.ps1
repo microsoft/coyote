@@ -6,7 +6,7 @@ param(
 
 $ScriptDir = $PSScriptRoot
 
-Import-Module $ScriptDir\powershell\common.psm1 -Force
+Import-Module $ScriptDir/powershell/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 
@@ -32,7 +32,7 @@ if ($null -eq $sdk_version) {
 Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
-$solution = $ScriptDir + "\..\Coyote.sln"
+$solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution"
 
 if ($local) {
@@ -40,7 +40,7 @@ if ($local) {
         # Build .NET Framework 4.x as well as the new version.
         $command = $command + " /p:BUILD_NET462=yes /p:BUILD_NET48=yes"
     }
-    
+
     if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {
         # Build .NET Core 3.1 as well as the new version.
         $command = $command + " /p:BUILD_NETCORE31=yes"

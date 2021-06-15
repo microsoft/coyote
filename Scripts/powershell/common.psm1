@@ -2,15 +2,16 @@
 function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [String]$target, [String]$key) {
     Write-Comment -prefix "..." -text "Rewriting '$target' ($framework)" -color "white"
 
-    $tool = "./bin/$framework/coyote.exe"
+    $tool = Join-Path -Path "." -ChildPath "bin" -AdditionalChildPath @($framework, "coyote.exe")
     $command = "$cmd $target"
 
     if (-not (Test-Path $tool)) {
         $tool = $dotnet
-        $command = "./bin/$framework/coyote.dll $cmd $target"
+        $coyote = Join-Path -Path "." -ChildPath "bin" -AdditionalChildPath @($framework, "coyote.dll")
+        $command = "$coyote $cmd $target"
     }
 
-    if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and $framework -ne "net5.0" -and [System.Environment]::OSVersion.Platform -eq "Win32NT") {
+    if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and $framework -ne "net5.0" -and $IsWindows) {
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
     }
@@ -90,8 +91,12 @@ function GetMinorVersion($version) {
 function FindProgram($name) {
     $result = $null
     $path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | ForEach-Object {
-        if (Test-Path -Path "$_\$name") {
-            $result = "$_\$name"
+        $test = Join-Path -Path $_ -ChildPath $name
+        if ($IsWindows) {
+            $test = $test + ".exe"
+        }
+        if (Test-Path -Path $test) {
+            $result = "$_/$name"
         }
     }
     return $result
@@ -107,7 +112,11 @@ function GetAssemblyName($path){
 
 function FindDotNet($dotnet) {
     $dotnet_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | ForEach-Object {
-        if (Test-Path -Path "$_\$dotnet.exe") {
+        $test = Join-Path -Path $_ -ChildPath $dotnet
+        if ($IsWindows) {
+            $test = $test + ".exe"
+        }
+        if (Test-Path -Path $test) {
             return $_
         }
         $candidate = [System.IO.Path]::Combine($_, "dotnet")
@@ -174,7 +183,7 @@ function FindInstalledDotNetSdk($dotnet_path, $major, $minor) {
 
 function FindDotNetSdk($dotnet_path) {
     $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
-    $globalJson = "$PSScriptRoot/../../global.json"
+    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
     Write-Host "Searching SDK path $sdkpath for version matching global.json: $global_version"

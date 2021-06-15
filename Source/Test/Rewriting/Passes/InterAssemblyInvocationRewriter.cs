@@ -88,15 +88,9 @@ namespace Microsoft.Coyote.Rewriting
                         MethodReference wrapMethod = null;
                         if (declaringType is GenericInstanceType gt)
                         {
-                            List<TypeReference> types = new List<TypeReference>();
-                            foreach (var arg in gt.GenericArguments)
-                            {
-                                var t = arg.GetElementType();
-                                types.Add(t);
-                            }
-
+                            TypeReference argType = gt.GenericArguments.FirstOrDefault().GetElementType();
                             MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(m => m.Name == "Wrap" && m.HasGenericParameters);
-                            wrapMethod = ImportGenericMethodInstance(this.Module, genericMethod, types.ToArray());
+                            wrapMethod = ImportGenericMethodInstance(this.Module, genericMethod, argType);
                         }
                         else
                         {

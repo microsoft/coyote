@@ -600,8 +600,17 @@ namespace Microsoft.Coyote.Rewriting
 
             foreach (var arg in genericMethod.Parameters)
             {
-                ParameterDefinition p = new ParameterDefinition(arg.Name, arg.Attributes,
-                    module.ImportReference(arg.ParameterType, typeDef));
+                TypeReference parameterType = null;
+                if (arg.ParameterType is GenericInstanceType genericType)
+                {
+                    parameterType = ImportGenericTypeInstance(module, genericType, genericArgs);
+                }
+                else
+                {
+                    parameterType = module.ImportReference(arg.ParameterType, typeDef);
+                }
+
+                ParameterDefinition p = new ParameterDefinition(arg.Name, arg.Attributes, parameterType);
                 if (arg.ParameterType is GenericParameter gp)
                 {
                     if (gp.DeclaringType != null)

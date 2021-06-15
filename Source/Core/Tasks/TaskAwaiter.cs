@@ -105,6 +105,11 @@ namespace Microsoft.Coyote.Tasks
         /// Wraps the specified task awaiter.
         /// </summary>
         public static TaskAwaiter Wrap(SystemCompiler.TaskAwaiter awaiter) => new TaskAwaiter(null, awaiter);
+
+        /// <summary>
+        /// Wraps the specified task awaiter.
+        /// </summary>
+        public static TaskAwaiter<TResult> Wrap<TResult>(SystemCompiler.TaskAwaiter<TResult> awaiter) => new TaskAwaiter<TResult>(null, awaiter);
     }
 
     /// <summary>
@@ -146,6 +151,16 @@ namespace Microsoft.Coyote.Tasks
             this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
+        /// </summary>
+        internal TaskAwaiter(CoyoteRuntime runtime, SystemCompiler.TaskAwaiter<TResult> awaiter)
+        {
+            this.Runtime = runtime;
+            this.AwaitedTask = null;
+            this.Awaiter = awaiter;
         }
 
         /// <summary>

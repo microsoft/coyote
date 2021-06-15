@@ -20,7 +20,8 @@ if ($host.Version.Major -lt 7)
 $dotnet = "dotnet"
 $dotnet_path = FindDotNet($dotnet)
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
-$version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major "3.1" -minor 0
+$v31 = [version] "3.1.0"
+$version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version $v31
 $sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
 
 if ($null -eq $sdk_version) {

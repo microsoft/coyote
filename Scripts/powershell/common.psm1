@@ -70,24 +70,6 @@ function TraverseLink($path) {
     return $path
 }
 
-function GetMajorVersion($version) {
-    $parts = $version.Split('.')
-    if ($parts.Length -gt 1) {
-        return  $parts[0] + "." + $parts[1]
-    }
-    return $version
-}
-
-function GetMinorVersion($version) {
-    $parts = $version.Split('.')
-    $len = $parts.Length
-    if ($len -gt 2) {
-        $number = $parts[2].Split('-')[0]
-        return [int]::Parse($number)
-    }
-    return 0
-}
-
 function FindProgram($name) {
     $result = $null
     $path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | ForEach-Object {
@@ -137,10 +119,11 @@ function FindDotNet($dotnet) {
     }
     return $dotnet_path
 }
-# find the closest match for installed dotnet SDK, for example:
-# FindInstalledDotNetSdk -dotnet_path "c:\program files\dotnet" -major "3.1" -minor 0
+
+# find the closest match for installed dotnet SDK build, for example:
+# FindInstalledDotNetSdk -dotnet_path "c:\program files\dotnet" -version "3.1.0"
 # returns "3.1.401" assuming that is the newest 3.1 version installed.
-function FindInstalledDotNetSdk($dotnet_path, $major, $minor) {
+function FindInstalledDotNetSdk($dotnet_path, $version) {
     $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
     $matching_version = $null
     $best_match = $null
@@ -157,27 +140,26 @@ function FindInstalledDotNetSdk($dotnet_path, $major, $minor) {
                 $name = $name.Split("-preview")[0]
                 $global_version = "$name-preview"
             }
-            $found_major = GetMajorVersion($name)
-            $found_version = GetMinorVersion($name)
-            if ($major -eq $found_major) {
+            $v = [version] $name
+            if ($v.Major -eq $version.Major -and $v.Minor -eq $version.Minor ) {
                 if ($null -eq $best_match) {
-                    $best_match = $found_version
+                    $best_match = $v
                     $matching_version = $global_version
                 }
-                elseif ($found_version -eq $minor) {
+                elseif ($v.Build -eq $version.Build) {
                     $exact_match = $true
-                    $best_match = $found_version
+                    $best_match = $v
                     $matching_version = $global_version
                 }
-                elseif ($found_version -gt $best_match -and $exact_match -eq $false) {
+                elseif ($v -gt $best_match -and $exact_match -eq $false) {
                     # use the newest version then.
-                    $best_match = $found_version
+                    $best_match = $v
                     $matching_version = $global_version
                 }
             }
         }
 
-        return $matching_version
+        return [string] $matching_version
     }
 }
 
@@ -187,10 +169,9 @@ function FindDotNetSdk($dotnet_path) {
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
     Write-Host "Searching SDK path $sdkpath for version matching global.json: $global_version"
-    $major = GetMajorVersion($global_version)
-    $minor = GetMinorVersion($global_version)
+    $v = [version] $global_version
 
-    $matching_version = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major $major -minor $minor
+    $matching_version = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version $v
 
     if ($null -ne $matching_version) {
         if ($global_version -eq $matching_version) {
@@ -204,4 +185,25 @@ function FindDotNetSdk($dotnet_path) {
         }
     }
     return $matching_version
+}
+
+function FindNetCoreApp($version) {
+    # find the matching version in c:\Program Files\dotnet\shared\Microsoft.NETCore.App\*
+    $result = $null
+    $latest = $null
+    $path = Join-Path -Path $ENV:ProgramFiles -ChildPath "dotnet" -AdditionalChildPath @("shared", "Microsoft.NETCore.App")
+    foreach ($item in Get-ChildItem -Path $path -Directory) {
+        if ($item.Name.StartsWith($version)) {
+            $v = [version] $item.Name
+            if ($null -eq $latest -or $v -gt $latest) {
+                $latest = $v
+                $result = $item.FullName
+            }
+        }
+    }
+    if ($null -eq $result) {
+        Write-Error("Microsoft.NETCore.App folder matching $version not found")
+        exit 1
+    }
+    return $result
 }

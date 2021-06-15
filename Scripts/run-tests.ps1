@@ -54,10 +54,12 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
         if ($f -eq "net5.0") {
             $AssemblyName = GetAssemblyName($target)
+            $NetCoreApp = FindNetCoreApp("5.0")
             $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/$AssemblyName.dll"
             $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/*.dll" + '"'
             $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/5.0.0/ref/net5.0/*.dll" + '"'
             $command = $command + ' -r "' + "$PSScriptRoot/../bin/net5.0/*.dll" + '"'
+            $command = $command + ' -r "' + $NetCoreApp + '/*.dll"'
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "Verifying assembly failed"
         }
 

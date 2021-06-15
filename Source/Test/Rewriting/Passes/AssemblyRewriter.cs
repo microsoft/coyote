@@ -564,6 +564,10 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             TypeReference returnType = methodDef.ReturnType;
+            if (returnType is GenericInstanceType)
+            {
+                returnType = ImportGenericTypeInstance(module, returnType, genericArgs);
+            }
 
             // create a new MethodReference with the instantiated generic type as the DeclaringType.
             MethodReference result = new MethodReference(genericMethod.Name, returnType, typeDef)

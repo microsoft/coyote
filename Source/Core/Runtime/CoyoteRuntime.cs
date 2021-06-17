@@ -2020,7 +2020,7 @@ namespace Microsoft.Coyote.Runtime
                 !task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
-                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}'is not allowed by default " +
+                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed by default " +
                     "as it can interfere with the ability to reproduce bug traces: either mock the method " +
                     "spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the '--no-repro'" +
                     "command line option to ignore this error by disabling bug trace repro. " +

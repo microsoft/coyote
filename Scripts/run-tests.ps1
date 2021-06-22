@@ -24,7 +24,7 @@ $targets = [ordered]@{
 $ilverify = FindProgram("ilverify")
 if ($null -eq $ilverify) {
     &dotnet tool install --global dotnet-ilverify
-    $ilverify = FindProgram("ilverify.exe");
+    $ilverify = FindProgram("ilverify");
 }
 
 $dotnet_path = FindDotNet("dotnet");

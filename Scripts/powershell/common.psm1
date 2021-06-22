@@ -78,7 +78,7 @@ function FindProgram($name) {
             $test = $test + ".exe"
         }
         if (Test-Path -Path $test) {
-            $result = "$_/$name"
+            $result = $test
         }
     }
     return $result

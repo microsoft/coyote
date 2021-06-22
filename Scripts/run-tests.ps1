@@ -54,7 +54,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
         if ($f -eq "net5.0") {
             $AssemblyName = GetAssemblyName($target)
-            $NetCoreApp = FindNetCoreApp("5.0")
+            $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "5.0"
             $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/$AssemblyName.dll"
             $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/*.dll" + '"'
             $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/5.0.0/ref/net5.0/*.dll" + '"'

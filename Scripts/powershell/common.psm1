@@ -187,11 +187,11 @@ function FindDotNetSdk($dotnet_path) {
     return $matching_version
 }
 
-function FindNetCoreApp($version) {
+function FindNetCoreApp($dotnet_path, $version) {
     # find the matching version in c:\Program Files\dotnet\shared\Microsoft.NETCore.App\*
     $result = $null
     $latest = $null
-    $path = Join-Path -Path $ENV:ProgramFiles -ChildPath "dotnet" -AdditionalChildPath @("shared", "Microsoft.NETCore.App")
+    $path = Join-Path -Path $dotnet_path -ChildPath "shared" -AdditionalChildPath "Microsoft.NETCore.App"
     foreach ($item in Get-ChildItem -Path $path -Directory) {
         if ($item.Name.StartsWith($version)) {
             $v = [version] $item.Name

@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             // When this test is running in ConcurrencyFuzzing mode via the
             // Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing.TaskInterleavingsTests subclass
-            // it's passing is entirely dependent on real Task.Run scheduling, which even with 1000
+            // it is entirely dependent on real Task.Run scheduling, which even with 1000
             // iterations is never guaranteed to hit the assert.  So in order to stop this from being
             // a flakey test we introduce some random delays to "help" the two tasks discover the
             // interleaving we need for the test to pass.

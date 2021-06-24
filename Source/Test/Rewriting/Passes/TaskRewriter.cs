@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskRewriter : AssemblyRewriter
     {
-        private readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>()
+        private static readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>()
         {
             { CachedNameProvider.AsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder) },
             { CachedNameProvider.GenericAsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder<>) },
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
-                if (this.RewritableTypes.TryGetValue(fullName, out Type coyoteType))
+                if (RewritableTypes.TryGetValue(fullName, out Type coyoteType))
                 {
                     if (coyoteType.IsGenericType)
                     {
@@ -355,24 +355,5 @@ namespace Microsoft.Coyote.Rewriting
             methodName == nameof(ControlledTasks.ControlledTask.Yield) ||
             methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter) ||
             methodName == nameof(ControlledTasks.ControlledTask.ConfigureAwait));
-
-        private bool IsRewritableType(TypeReference type)
-        {
-            string fullName = type.FullName;
-            if (type is GenericInstanceType genericType)
-            {
-                if (this.IsRewritableType(genericType.ElementType))
-                {
-                    return true;
-                }
-            }
-
-            if (this.RewritableTypes.ContainsKey(fullName))
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 }

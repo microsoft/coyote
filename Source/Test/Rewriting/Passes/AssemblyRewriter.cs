@@ -41,8 +41,7 @@ namespace Microsoft.Coyote.Rewriting
         protected ILProcessor Processor;
 
         /// <summary>
-        /// List of assembly strong names that we are going to rewrite so we can check if a method
-        /// reference is within this scope.
+        /// List of assembly strong names that we are going to rewrite.
         /// </summary>
         public HashSet<string> AssemblyNameScope;
 
@@ -165,14 +164,6 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference result = method;
             MethodDefinition resolvedMethod = null;
-            if (!this.IsInScope(method))
-            {
-                // out of scope.
-                // NotSupportedInvocationRewriter should catch this if it is using a type that needs to be
-                // rewritten.
-                return method;
-            }
-
             try
             {
                 // can fail if external assembly is not resolvable.
@@ -324,20 +315,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return module.ImportReference(result);
-        }
-
-        /// <summary>
-        /// Returns true if the given method belongs to an assembly in our list of assemblies to be rewritten.
-        /// </summary>
-        /// <param name="method">method to check.</param>
-        protected virtual bool IsInScope(MethodReference method)
-        {
-            if (method.DeclaringType.Scope is AssemblyNameReference ar)
-            {
-                return this.AssemblyNameScope.Contains(ar.FullName);
-            }
-
-            return false;
         }
 
         /// <summary>

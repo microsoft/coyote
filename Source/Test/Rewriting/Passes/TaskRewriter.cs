@@ -354,31 +354,6 @@ namespace Microsoft.Coyote.Rewriting
             methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter) ||
             methodName == nameof(ControlledTasks.ControlledTask.ConfigureAwait));
 
-        /// <summary>
-        /// Returns true if the given method belongs to an assembly in our list of assemblies to be rewritten.
-        /// </summary>
-        /// <param name="method">method to check.</param>
-        protected override bool IsInScope(MethodReference method)
-        {
-            if (base.IsInScope(method))
-            {
-                return true;
-            }
-
-            var typeName = method.DeclaringType.Name;
-            if (IsSupportedTaskMethod(typeName, method.Name))
-            {
-                return true;
-            }
-
-            if (typeName.StartsWith(CachedNameProvider.GenericTaskCompletionSourceName))
-            {
-                return true;
-            }
-
-            return this.IsRewritableType(method.DeclaringType);
-        }
-
         private bool IsRewritableType(TypeReference type)
         {
             string fullName = type.FullName;

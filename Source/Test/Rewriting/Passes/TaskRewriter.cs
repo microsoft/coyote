@@ -380,5 +380,32 @@ namespace Microsoft.Coyote.Rewriting
             methodName == nameof(ControlledTasks.ControlledTask.Yield) ||
             methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter) ||
             methodName == nameof(ControlledTasks.ControlledTask.ConfigureAwait));
+
+        /// <summary>
+        /// Returns true if the given method belongs to an assembly in our list of assemblies to be rewritten.
+        /// </summary>
+        /// <param name="method">method to check.</param>
+        protected override bool IsInScope(MethodReference method)
+        {
+            if (base.IsInScope(method))
+            {
+                return true;
+            }
+
+            if (method.DeclaringType.Scope is AssemblyNameReference ar)
+            {
+                // We do need to rewrite method references to the Task types that we are rewriting
+                // and those belong in these assemblies.
+                switch (ar.Name)
+                {
+                    case "System.Runtime":
+                    case "System.Private.CoreLib":
+                    case "mscorlib":
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

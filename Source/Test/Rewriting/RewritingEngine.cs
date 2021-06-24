@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Simple cache to reduce redundant warnings.
         /// </summary>
-        private readonly HashSet<string> resolveWarnings = new HashSet<string>();
+        private readonly HashSet<string> ResolveWarnings = new HashSet<string>();
 
         private readonly string[] DefaultDisallowedList = new string[]
         {
@@ -701,10 +701,10 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            if (!this.resolveWarnings.Contains(reference.FullName))
+            if (!this.ResolveWarnings.Contains(reference.FullName))
             {
                 this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: " + reference.FullName);
-                this.resolveWarnings.Add(reference.FullName);
+                this.ResolveWarnings.Add(reference.FullName);
             }
 
             return null;

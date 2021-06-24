@@ -165,10 +165,11 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference result = method;
             MethodDefinition resolvedMethod = null;
-            if (method.DeclaringType.Scope is AssemblyNameReference ar && !this.IsInScope(ar.FullName))
+            if (!this.IsInScope(method))
             {
                 // out of scope.
-                // todo: check if this method returns something indicating uncontrollable concurrency is going on...
+                // NotSupportedInvocationRewriter should catch this if it is using a type that needs to be
+                // rewritten.
                 return method;
             }
 
@@ -325,9 +326,18 @@ namespace Microsoft.Coyote.Rewriting
             return module.ImportReference(result);
         }
 
-        protected bool IsInScope(string assemblyName)
+        /// <summary>
+        /// Returns true if the given method belongs to an assembly in our list of assemblies to be rewritten.
+        /// </summary>
+        /// <param name="method">method to check.</param>
+        protected virtual bool IsInScope(MethodReference method)
         {
-            return this.AssemblyNameScope.Contains(assemblyName);
+            if (method.DeclaringType.Scope is AssemblyNameReference ar)
+            {
+                return this.AssemblyNameScope.Contains(ar.FullName);
+            }
+
+            return false;
         }
 
         /// <summary>

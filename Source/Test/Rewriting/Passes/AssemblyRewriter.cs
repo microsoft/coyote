@@ -41,6 +41,12 @@ namespace Microsoft.Coyote.Rewriting
         protected ILProcessor Processor;
 
         /// <summary>
+        /// List of assembly strong names that we are going to rewrite so we can check if a method
+        /// reference is within this scope.
+        /// </summary>
+        public HashSet<string> AssemblyNameScope;
+
+        /// <summary>
         /// Cache of qualified names.
         /// </summary>
         private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();
@@ -159,6 +165,13 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference result = method;
             MethodDefinition resolvedMethod = null;
+            if (method.DeclaringType.Scope is AssemblyNameReference ar && !this.IsInScope(ar.FullName))
+            {
+                // out of scope.
+                // todo: check if this method returns something indicating uncontrollable concurrency is going on...
+                return method;
+            }
+
             try
             {
                 // can fail if external assembly is not resolvable.
@@ -310,6 +323,11 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return module.ImportReference(result);
+        }
+
+        protected bool IsInScope(string assemblyName)
+        {
+            return this.AssemblyNameScope.Contains(assemblyName);
         }
 
         /// <summary>

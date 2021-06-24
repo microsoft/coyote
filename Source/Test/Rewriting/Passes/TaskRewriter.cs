@@ -15,7 +15,24 @@ namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskRewriter : AssemblyRewriter
     {
-        private readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>()
+        {
+            { CachedNameProvider.AsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder) },
+            { CachedNameProvider.GenericAsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder<>) },
+            { CachedNameProvider.TaskAwaiterFullName, typeof(CoyoteTasks.TaskAwaiter) },
+            { CachedNameProvider.GenericTaskAwaiterFullName, typeof(CoyoteTasks.TaskAwaiter<>) },
+            { CachedNameProvider.ConfiguredTaskAwaitableFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable) },
+            { CachedNameProvider.GenericConfiguredTaskAwaitableFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable<>) },
+            { CachedNameProvider.ConfiguredTaskAwaiterFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.GenericConfiguredTaskAwaiterFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.YieldAwaitableFullName, typeof(CoyoteTasks.YieldAwaitable) },
+            { CachedNameProvider.YieldAwaiterFullName, typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter) },
+            { CachedNameProvider.TaskExtensionsFullName, typeof(ControlledTasks.TaskExtensions) },
+            { CachedNameProvider.TaskFactoryFullName, typeof(ControlledTasks.TaskFactory) },
+            { CachedNameProvider.GenericTaskFactoryFullName, typeof(ControlledTasks.TaskFactory<>) },
+            { CachedNameProvider.TaskParallelFullName, typeof(ControlledTasks.Parallel) },
+            { CachedNameProvider.ThreadPoolFullName, typeof(ControlledTasks.ThreadPool) },
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
@@ -23,21 +40,6 @@ namespace Microsoft.Coyote.Rewriting
         internal TaskRewriter(ILogger logger)
             : base(logger)
         {
-            this.RewritableTypes[CachedNameProvider.AsyncTaskMethodBuilderFullName] = typeof(ControlledTasks.AsyncTaskMethodBuilder);
-            this.RewritableTypes[CachedNameProvider.GenericAsyncTaskMethodBuilderFullName] = typeof(ControlledTasks.AsyncTaskMethodBuilder<>);
-            this.RewritableTypes[CachedNameProvider.TaskAwaiterFullName] = typeof(CoyoteTasks.TaskAwaiter);
-            this.RewritableTypes[CachedNameProvider.GenericTaskAwaiterFullName] = typeof(CoyoteTasks.TaskAwaiter<>);
-            this.RewritableTypes[CachedNameProvider.ConfiguredTaskAwaitableFullName] = typeof(CoyoteTasks.ConfiguredTaskAwaitable);
-            this.RewritableTypes[CachedNameProvider.GenericConfiguredTaskAwaitableFullName] = typeof(CoyoteTasks.ConfiguredTaskAwaitable<>);
-            this.RewritableTypes[CachedNameProvider.ConfiguredTaskAwaiterFullName] = typeof(CoyoteTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter);
-            this.RewritableTypes[CachedNameProvider.GenericConfiguredTaskAwaiterFullName] = typeof(CoyoteTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter);
-            this.RewritableTypes[CachedNameProvider.YieldAwaitableFullName] = typeof(CoyoteTasks.YieldAwaitable);
-            this.RewritableTypes[CachedNameProvider.YieldAwaiterFullName] = typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter);
-            this.RewritableTypes[CachedNameProvider.TaskExtensionsFullName] = typeof(ControlledTasks.TaskExtensions);
-            this.RewritableTypes[CachedNameProvider.TaskFactoryFullName] = typeof(ControlledTasks.TaskFactory);
-            this.RewritableTypes[CachedNameProvider.GenericTaskFactoryFullName] = typeof(ControlledTasks.TaskFactory<>);
-            this.RewritableTypes[CachedNameProvider.TaskParallelFullName] = typeof(ControlledTasks.Parallel);
-            this.RewritableTypes[CachedNameProvider.ThreadPoolFullName] = typeof(ControlledTasks.ThreadPool);
         }
 
         /// <inheritdoc/>

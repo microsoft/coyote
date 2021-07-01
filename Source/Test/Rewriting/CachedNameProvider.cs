@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using SystemCompiler = System.Runtime.CompilerServices;
+using SystemConcurrentCollections = System.Collections.Concurrent;
 using SystemGenericCollections = System.Collections.Generic;
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
@@ -48,5 +49,7 @@ namespace Microsoft.Coyote.Rewriting
 
         internal static string GenericListFullName { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionaryFullName { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;
+
+        internal static string ConcurrentDictonaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
     }
 }

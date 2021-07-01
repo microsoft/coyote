@@ -75,8 +75,7 @@ namespace Microsoft.Coyote
                 Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
                     typeof(CommandLineOptions).Assembly.GetName().Version,
                     GetDotNetVersion());
-                Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.");
-                Console.WriteLine();
+                Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
             }
 
             SetEnvironment(configuration);

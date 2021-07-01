@@ -182,7 +182,7 @@ refilled.
 ## Coyote testing
 
 You can now use [coyote test](../get-started/using-coyote.md) to exercise the code and see if any
-bugs can be found. From the `coyote-samples` folder.  First you need to rewrite the assembly:
+bugs can be found. First you need to rewrite the assembly, from the `coyote-samples` folder:
 
 ```plain
 coyote rewrite ./bin/net5.0/CoffeeMachineTasks.dll

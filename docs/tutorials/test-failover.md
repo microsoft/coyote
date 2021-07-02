@@ -182,10 +182,17 @@ refilled.
 ## Coyote testing
 
 You can now use [coyote test](../get-started/using-coyote.md) to exercise the code and see if any
-bugs can be found. From the `coyote-samples` folder:
+bugs can be found. First you need to rewrite the assembly, from the `coyote-samples` folder:
 
 ```plain
-coyote test ./bin/net5.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-pct 10
+coyote rewrite ./bin/net5.0/CoffeeMachineTasks.dll
+```
+
+Then you can run the test:
+
+```plain
+
+coyote test ./bin/net5.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fairpct 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see

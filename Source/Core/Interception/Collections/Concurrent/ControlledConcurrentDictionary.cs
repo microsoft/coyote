@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Interception
@@ -106,13 +105,47 @@ namespace Microsoft.Coyote.Interception
             return concurrentDictionary.Values;
         }
 
+        private static void Interleave()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.ScheduleNextOperation(AsyncOperationType.Default);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
+            }
+        }
+
         /// <summary>
         /// Removes all keys and values from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
         {
+            Interleave();
             concurrentDictionary.Clear();
+        }
+
+        /// <summary>
+        /// Determines whether the <see cref="ConcurrentDictionary{TKey, TValue}"/> contains the specified key.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsKey<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key)
+        {
+            Interleave();
+            return concurrentDictionary.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+        {
+            Interleave();
+            return concurrentDictionary.GetEnumerator();
         }
 
         /// <summary>
@@ -122,7 +155,7 @@ namespace Microsoft.Coyote.Interception
         public static bool TryAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
         {
             bool result = concurrentDictionary.TryAdd(key, value);
-            SchedulingPoint.Interleave();
+            Interleave();
             return result;
         }
 
@@ -132,6 +165,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, out TValue value)
         {
+            Interleave();
             return concurrentDictionary.TryRemove(key, out value);
         }
     }

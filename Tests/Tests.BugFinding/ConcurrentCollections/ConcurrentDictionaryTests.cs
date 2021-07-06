@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 concurrentDictionary[0] = false;
                 Assert.True(concurrentDictionary[0] == false);
-                Assert.True(concurrentDictionary.Count == 1);
+                Assert.Single(concurrentDictionary);
 
                 concurrentDictionary.Clear();
                 Assert.Empty(concurrentDictionary);

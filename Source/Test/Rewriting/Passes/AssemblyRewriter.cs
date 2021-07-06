@@ -47,11 +47,6 @@ namespace Microsoft.Coyote.Rewriting
         protected ILProcessor Processor;
 
         /// <summary>
-        /// List of assembly strong names that we are going to rewrite.
-        /// </summary>
-        public HashSet<string> AssemblyNameScope;
-
-        /// <summary>
         /// Cache of qualified names.
         /// </summary>
         private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();

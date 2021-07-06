@@ -74,9 +74,10 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Dictionary<string, AssemblyNameDefinition> RewrittenAssemblies;
 
         /// <summary>
-        /// List of assemblies to be rewritten.
+        /// List of assembly names to be rewritten, these are strong names like:
+        /// "Microsoft.AspNetCore.Mvc.Core, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60".
         /// </summary>
-        private Queue<string> Pending = new Queue<string>();
+        private HashSet<string> AssemblyNameScope = new HashSet<string>();
 
         /// <summary>
         /// The installed logger.
@@ -198,19 +199,19 @@ namespace Microsoft.Coyote.Rewriting
             // Create the output directory and copy any necessary files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
-            this.Pending = new Queue<string>();
-
-            int errors = 0;
-            // Rewrite the assembly files to the output directory.
-            foreach (string assemblyPath in this.Options.AssemblyPaths)
+            // Create list of all assemblies we need to transform.
+            this.AssemblyNameScope = new HashSet<string>();
+            var list = new List<string>();
+            foreach (var pair in this.FindUniqueAssemblies())
             {
-                this.Pending.Enqueue(assemblyPath);
+                list.Add(pair.Item1);
+                this.AssemblyNameScope.Add(pair.Item2);
             }
 
-            while (this.Pending.Count > 0)
-            {
-                var assemblyPath = this.Pending.Dequeue();
+            int errors = 0;
 
+            foreach (var assemblyPath in list)
+            {
                 try
                 {
                     this.RewriteAssembly(assemblyPath, outputDirectory);
@@ -252,6 +253,67 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Recursively find all assemblies that need to be rewritten as defined in the options.
+        /// If the options IsRewritingDependencies is true then find all dependent assemblies also.
+        /// </summary>
+        /// <returns>All discovered assemblies and their strong names.</returns>
+        private IEnumerable<Tuple<string, string>> FindUniqueAssemblies()
+        {
+            HashSet<string> unique = new HashSet<string>();
+            // Rewrite the assembly files to the output directory.
+            foreach (string assemblyPath in this.Options.AssemblyPaths)
+            {
+                foreach (var pair in this.FindAllDependencies(assemblyPath, unique))
+                {
+                    yield return pair;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recursively find all unique dependent assemblies in local assembly path.
+        /// </summary>
+        /// <param name="assemblyPath">The assembly to analyze.</param>
+        /// <param name="visited">Set of assemblies already visited.</param>
+        /// <returns>The newly discovered dependent assemblies.</returns>
+        private IEnumerable<Tuple<string, string>> FindAllDependencies(string assemblyPath, HashSet<string> visited)
+        {
+            using var assemblyResolver = this.GetAssemblyResolver();
+            var readParams = new ReaderParameters()
+            {
+                AssemblyResolver = assemblyResolver,
+                ReadSymbols = IsSymbolFileAvailable(assemblyPath)
+            };
+
+            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
+            {
+                if (!visited.Contains(assemblyPath))
+                {
+                    visited.Add(assemblyPath);
+                    yield return new Tuple<string, string>(assemblyPath, assembly.FullName);
+                }
+
+                if (this.Options.IsRewritingDependencies)
+                {
+                    foreach (var pair in this.FindLocalDependencies(assemblyPath, assembly))
+                    {
+                        if (!visited.Contains(pair.Item1))
+                        {
+                            visited.Add(pair.Item1);
+                            yield return pair;
+
+                            // recurrse!
+                            foreach (var child in this.FindAllDependencies(pair.Item1, visited))
+                            {
+                                yield return child;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Rewrites the specified assembly definition.
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
@@ -279,12 +341,6 @@ namespace Microsoft.Coyote.Rewriting
             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
             {
                 this.Logger.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
-                if (this.Options.IsRewritingDependencies)
-                {
-                    // Check for dependencies and if those are found in the same folder then rewrite them also,
-                    // and fix up the version numbers so the rewritten assemblies are bound to these versions.
-                    this.AddLocalDependencies(assemblyPath, assembly);
-                }
 
                 this.RewrittenAssemblies[assembly.Name.Name] = assembly.Name;
 
@@ -308,6 +364,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     // Traverse the assembly to apply each rewriting pass.
                     Debug.WriteLine($"..... Applying the '{pass.GetType().Name}' pass");
+                    pass.AssemblyNameScope = this.AssemblyNameScope;
                     foreach (var module in assembly.Modules)
                     {
                         RewriteModule(module, pass);
@@ -389,7 +446,7 @@ namespace Microsoft.Coyote.Rewriting
         /// Enqueue any dependent assemblies that also exist in the assemblyPath and have not
         /// already been rewritten.
         /// </summary>
-        private void AddLocalDependencies(string assemblyPath, AssemblyDefinition assembly)
+        private IEnumerable<Tuple<string, string>> FindLocalDependencies(string assemblyPath, AssemblyDefinition assembly)
         {
             var assemblyDir = Path.GetDirectoryName(assemblyPath);
             foreach (var module in assembly.Modules)
@@ -399,9 +456,9 @@ namespace Microsoft.Coyote.Rewriting
                     var name = ar.Name + ".dll";
                     var localName = Path.Combine(assemblyDir, name);
                     if (!this.IsDisallowed(name) &&
-                        File.Exists(localName) && !this.Pending.Contains(localName))
+                        File.Exists(localName))
                     {
-                        this.Pending.Enqueue(localName);
+                        yield return new Tuple<string, string>(localName, ar.FullName);
                     }
                 }
             }

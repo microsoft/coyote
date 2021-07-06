@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestInterleavingsWithNestedParallelTasks()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(async (runtime) =>
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -156,9 +156,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     Task task2 = Task.Run(async () =>
                     {
+                        await Task.Delay(runtime.RandomInteger(2));
                         await WriteAsync(entry, 5);
                     });
 
+                    await Task.Delay(runtime.RandomInteger(2));
                     await WriteAsync(entry, 3);
                     await task2;
                 });

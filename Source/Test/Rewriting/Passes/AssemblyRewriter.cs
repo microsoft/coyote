@@ -31,6 +31,12 @@ namespace Microsoft.Coyote.Rewriting
         protected TypeDefinition TypeDef { get; private set; }
 
         /// <summary>
+        /// List of assembly strong names of the assemblies that we are going to rewrite
+        /// so we know what the scope of the rewrite operation is.
+        /// </summary>
+        public HashSet<string> AssemblyNameScope { get; internal set; }
+
+        /// <summary>
         /// The current method being transformed.
         /// </summary>
         protected MethodDefinition Method;

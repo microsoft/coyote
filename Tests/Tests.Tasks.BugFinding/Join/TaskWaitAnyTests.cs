@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.Tasks.BugFinding.Tests
                 tcs.SetResult(true);
                 await tcs.Task;
             },
-            configuration: this.GetConfiguration().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(500));
         }
 
         private static void AssertCompleted(Task task1, Task task2) =>

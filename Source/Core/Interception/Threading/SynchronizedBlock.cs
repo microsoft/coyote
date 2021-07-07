@@ -8,7 +8,7 @@ using System.Threading;
 using Microsoft.Coyote.Runtime;
 using SystemMonitor = System.Threading.Monitor;
 
-namespace Microsoft.Coyote.Tasks
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides a mechanism that synchronizes access to objects. It is implemented as a thin wrapper
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.Tasks
                 {
                     // Create a task for draining the queue. To optimize the testing performance,
                     // we create and maintain a single task to perform this role.
-                    Task.Run(this.DrainPulseQueue);
+                    ControlledTask.Run(this.DrainPulseQueue);
                 }
             }
 

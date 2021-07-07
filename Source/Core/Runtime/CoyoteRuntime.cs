@@ -17,7 +17,6 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SyncMonitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.Runtime
@@ -353,14 +352,6 @@ namespace Microsoft.Coyote.Runtime
                         {
                             testMethodTask = function();
                         }
-                        else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)
-                        {
-                            testMethodTask = functionWithRuntime2(this.DefaultActorExecutionContext).UncontrolledTask;
-                        }
-                        else if (testMethod is Func<CoyoteTasks.Task> function2)
-                        {
-                            testMethodTask = function2().UncontrolledTask;
-                        }
                         else
                         {
                             throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
@@ -469,43 +460,6 @@ namespace Microsoft.Coyote.Runtime
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
             return this.ScheduleTaskOperation(op, task, context.ExecutorSource);
-        }
-
-        /// <summary>
-        /// Schedules the specified function to be executed asynchronously.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal CoyoteTasks.Task ScheduleAsyncFunction(Func<CoyoteTasks.Task> function, Task predecessor, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            Task<Task> task = null;
-            TaskOperation op = this.CreateTaskOperation();
-            var context = new AsyncOperationContext<Func<CoyoteTasks.Task>, Task, Task>(op, function, task, predecessor,
-                OperationExecutionOptions.None, cancellationToken);
-            task = new Task<Task>(this.ExecuteOperation<Func<CoyoteTasks.Task>, Task, Task>, context, cancellationToken);
-            return new CoyoteTasks.Task(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
-        }
-
-        /// <summary>
-        /// Schedules the specified function to be executed asynchronously.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal CoyoteTasks.Task<TResult> ScheduleAsyncFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
-            CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            Task<TResult> task = null;
-            TaskOperation op = this.CreateTaskOperation();
-            var context = new AsyncOperationContext<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
-                OperationExecutionOptions.None, cancellationToken);
-            task = new Task<TResult>(this.ExecuteOperation<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-            return new CoyoteTasks.Task<TResult>(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
         }
 
         /// <summary>

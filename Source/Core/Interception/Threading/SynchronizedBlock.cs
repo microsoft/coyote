@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemMonitor = System.Threading.Monitor;
 
@@ -16,7 +17,7 @@ namespace Microsoft.Coyote.Interception
     /// with a controlled mocked version. It can be used as a replacement of the lock keyword to allow
     /// systematic testing.
     /// </summary>
-    public class SynchronizedBlock : IDisposable
+    internal class SynchronizedBlock : IDisposable
     {
         /// <summary>
         /// The object used for synchronization.
@@ -42,7 +43,7 @@ namespace Microsoft.Coyote.Interception
         /// to the specified object and enters the lock.
         /// </summary>
         /// <returns>The synchronized block.</returns>
-        public static SynchronizedBlock Lock(object syncObject) => CoyoteRuntime.IsExecutionControlled ?
+        internal static SynchronizedBlock Lock(object syncObject) => CoyoteRuntime.IsExecutionControlled ?
             Mock.Create(syncObject).EnterLock() : new SynchronizedBlock(syncObject).EnterLock();
 
         /// <summary>
@@ -58,12 +59,12 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Notifies a thread in the waiting queue of a change in the locked object's state.
         /// </summary>
-        public virtual void Pulse() => SystemMonitor.Pulse(this.SyncObject);
+        internal virtual void Pulse() => SystemMonitor.Pulse(this.SyncObject);
 
         /// <summary>
         /// Notifies all waiting threads of a change in the object's state.
         /// </summary>
-        public virtual void PulseAll() => SystemMonitor.PulseAll(this.SyncObject);
+        internal virtual void PulseAll() => SystemMonitor.PulseAll(this.SyncObject);
 
         /// <summary>
         /// Releases the lock on an object and blocks the current thread until it reacquires
@@ -71,7 +72,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         /// <returns>True if the call returned because the caller reacquired the lock for the specified
         /// object. This method does not return if the lock is not reacquired.</returns>
-        public virtual bool Wait() => SystemMonitor.Wait(this.SyncObject);
+        internal virtual bool Wait() => SystemMonitor.Wait(this.SyncObject);
 
         /// <summary>
         /// Releases the lock on an object and blocks the current thread until it reacquires
@@ -82,7 +83,7 @@ namespace Microsoft.Coyote.Interception
         /// <returns>True if the lock was reacquired before the specified time elapsed; false if the
         /// lock was reacquired after the specified time elapsed. The method does not return
         /// until the lock is reacquired.</returns>
-        public virtual bool Wait(int millisecondsTimeout) => SystemMonitor.Wait(this.SyncObject, millisecondsTimeout);
+        internal virtual bool Wait(int millisecondsTimeout) => SystemMonitor.Wait(this.SyncObject, millisecondsTimeout);
 
         /// <summary>
         /// Releases the lock on an object and blocks the current thread until it reacquires
@@ -94,7 +95,7 @@ namespace Microsoft.Coyote.Interception
         /// <returns>True if the lock was reacquired before the specified time elapsed; false if the
         /// lock was reacquired after the specified time elapsed. The method does not return
         /// until the lock is reacquired.</returns>
-        public virtual bool Wait(TimeSpan timeout) => SystemMonitor.Wait(this.SyncObject, timeout);
+        internal virtual bool Wait(TimeSpan timeout) => SystemMonitor.Wait(this.SyncObject, timeout);
 
         /// <summary>
         /// Releases resources used by the synchronized block.
@@ -260,10 +261,10 @@ namespace Microsoft.Coyote.Interception
             }
 
             /// <inheritdoc/>
-            public override void Pulse() => this.SchedulePulse(PulseOperation.Next);
+            internal override void Pulse() => this.SchedulePulse(PulseOperation.Next);
 
             /// <inheritdoc/>
-            public override void PulseAll() => this.SchedulePulse(PulseOperation.All);
+            internal override void PulseAll() => this.SchedulePulse(PulseOperation.All);
 
             /// <summary>
             /// Schedules a pulse operation that will either execute immediately or be scheduled
@@ -340,7 +341,7 @@ namespace Microsoft.Coyote.Interception
             }
 
             /// <inheritdoc/>
-            public override bool Wait()
+            internal override bool Wait()
             {
                 var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
                 if (this.Owner != op)
@@ -363,7 +364,7 @@ namespace Microsoft.Coyote.Interception
             }
 
             /// <inheritdoc/>
-            public override bool Wait(int millisecondsTimeout)
+            internal override bool Wait(int millisecondsTimeout)
             {
                 // TODO: how to implement mock timeout?
                 // This is a bit more tricky to model, one way is to have a loop that checks
@@ -379,7 +380,7 @@ namespace Microsoft.Coyote.Interception
             }
 
             /// <inheritdoc/>
-            public override bool Wait(TimeSpan timeout)
+            internal override bool Wait(TimeSpan timeout)
             {
                 // TODO: how to implement mock timeout?
                 return this.Wait();

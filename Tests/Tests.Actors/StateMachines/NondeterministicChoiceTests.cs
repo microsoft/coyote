@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -47,7 +46,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestNondeterministicBooleanChoiceInMachineHandler()
+        public async Task TestNondeterministicBooleanChoiceInMachineHandler()
         {
             await this.RunAsync(async r =>
             {
@@ -86,7 +85,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestNondeterministicIntegerChoiceInMachineHandler()
+        public async Task TestNondeterministicIntegerChoiceInMachineHandler()
         {
             await this.RunAsync(async r =>
             {

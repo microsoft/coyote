@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames();
-            string expected = $"System.InvalidOperationException: Found '18' test methods declared with the " +
+            string expected = $"System.InvalidOperationException: Found '12' test methods declared with the " +
                 $"'{typeof(TestAttribute).FullName}' attribute. Provide --method (-m) flag to qualify the test " +
                 $"method that you want to run. {possibleNames}   at";
             string actual = exception.ToString();

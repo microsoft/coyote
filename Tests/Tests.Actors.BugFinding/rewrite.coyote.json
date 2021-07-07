@@ -1,0 +1,7 @@
+{
+  "AssembliesPath": "./bin/$(Platform)",
+  "Assemblies": [
+    "Microsoft.Coyote.Tests.Actors.dll",
+    "Microsoft.Coyote.Tests.Actors.BugFinding.dll"
+  ]
+}

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -53,7 +52,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var setup = (SetupEvent)e;
                 var tcs = setup.Tcs;

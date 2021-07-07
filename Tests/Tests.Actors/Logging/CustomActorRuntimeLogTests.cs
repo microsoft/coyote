@@ -9,7 +9,6 @@ using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -36,7 +35,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         internal class TestMonitor : Monitor
         {
-            private TaskCompletionSource<bool> Completed;
+            private TaskCompletionSource<bool> Tcs;
 
             [Start]
             [OnEventDoAction(typeof(SetupEvent), nameof(OnSetup))]
@@ -47,12 +46,12 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void OnSetup(Event e)
             {
-                this.Completed = ((SetupEvent)e).Tcs;
+                this.Tcs = ((SetupEvent)e).Tcs;
             }
 
             private void OnCompleted()
             {
-                this.Completed.TrySetResult(true);
+                this.Tcs.TrySetResult(true);
             }
         }
 
@@ -69,7 +68,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [OnEventDoAction(typeof(E), nameof(Act))]
         internal class M : Actor
         {
-            protected override async SystemTasks.Task OnInitializeAsync(Event e)
+            protected override async Task OnInitializeAsync(Event e)
             {
                 await base.OnInitializeAsync(e);
                 var n = this.CreateActor(typeof(N));
@@ -284,7 +283,7 @@ StateTransition";
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
-            }, this.GetConfiguration());
+            }, this.GetConfiguration().WithVerbosityEnabled());
         }
 
         internal class PingEvent : Event
@@ -316,7 +315,7 @@ StateTransition";
         {
             public ActorId ServerId;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.Logger.WriteLine("{0} initializing", this.Id);
                 this.ServerId = ((ClientSetupEvent)initialEvent).ServerId;

@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -77,7 +76,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupTcsEvent).Tcs;
                 var numMessages = (e as SetupTcsEvent).NumMessages;
@@ -152,7 +151,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
                 this.Counter = 0;
             }
 
-            private async SystemTasks.Task HandleMessage()
+            private async Task HandleMessage()
             {
                 await this.ReceiveEventAsync(typeof(Message));
                 this.Counter += 2; // +2 because we are handling a message and receiving another.
@@ -185,7 +184,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupTcsEvent).Tcs;
                 var numMessages = (e as SetupTcsEvent).NumMessages;
@@ -212,7 +211,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var id = (e as SetupIdEvent).Id;
                 var numMessages = (e as SetupIdEvent).NumMessages;

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -74,7 +73,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAssertFailureNoEventHandler()
+        public async Task TestAssertFailureNoEventHandler()
         {
             var runtime = RuntimeFactory.Create();
             var tcs = new TaskCompletionSource<bool>();
@@ -83,7 +82,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAssertFailureEventHandler()
+        public async Task TestAssertFailureEventHandler()
         {
             await this.RunAsync(async r =>
             {
@@ -110,7 +109,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestUnhandledExceptionEventHandler()
+        public async Task TestUnhandledExceptionEventHandler()
         {
             await this.RunAsync(async r =>
             {

@@ -748,6 +748,26 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
+    - name: Microsoft.Coyote.Interception
+      link: ref/Microsoft.Coyote.InterceptionNamespace
+      subfolderitems:
+      - name: ControlledSemaphoreSlim
+        link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create
+        - name: Wait
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait
+        - name: WaitAsync
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync
+        - name: Release
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose
+        - name: ControlledSemaphoreSlim
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim
+        - name: CurrentCount
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount
     - name: Microsoft.Coyote.IO
       link: ref/Microsoft.Coyote.IONamespace
       subfolderitems:
@@ -948,57 +968,6 @@ toc:
     - name: Microsoft.Coyote.Tasks
       link: ref/Microsoft.Coyote.TasksNamespace
       subfolderitems:
-      - name: AsyncLock
-        link: ref/Microsoft.Coyote.Tasks/AsyncLock
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Create
-        - name: AcquireAsync
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Release
-        - name: AsyncLock
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/AsyncLock
-        - name: IsAcquired
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/IsAcquired
-        - name: Awaiters
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Awaiters
-      - name: Semaphore
-        link: ref/Microsoft.Coyote.Tasks/Semaphore
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Create
-        - name: Wait
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Wait
-        - name: WaitAsync
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Release
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Dispose
-        - name: Semaphore
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
-        - name: CurrentCount
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
-      - name: SynchronizedBlock
-        link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock
-        subfolderitems:
-        - name: Lock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Lock
-        - name: EnterLock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/EnterLock
-        - name: Pulse
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Pulse
-        - name: PulseAll
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/PulseAll
-        - name: Wait
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Wait
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Dispose
-        - name: SynchronizedBlock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock
-        - name: SyncObject
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject
       - name: Task
         link: ref/Microsoft.Coyote.Tasks/Task
         subfolderitems:
@@ -1083,16 +1052,6 @@ toc:
           link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException
         - name: Task
           link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task
-      - name: TaskExtensions
-        link: ref/Microsoft.Coyote.Tasks/TaskExtensions
-        subfolderitems:
-        - name: WrapInControlledTask
-          link: ref/Microsoft.Coyote.Tasks/TaskExtensions/WrapInControlledTask
-      - name: AsyncLock.Releaser
-        link: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser
-        subfolderitems:
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
   - name: Microsoft.Coyote.Test
     link: ref/Microsoft.Coyote.Test
     subfolderitems:

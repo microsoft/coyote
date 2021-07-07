@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Interception
 {
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Interception
         /// <param name="action">The action to schedule.</param>
         private static void ScheduleAction(Action action)
         {
-            var task = Task.Run(action);
+            var task = ControlledTask.Run(action);
             ThreadTasks.TryAdd(Thread.CurrentThread, task);
         }
 
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                Task.Yield().GetAwaiter().GetResult();
+                ControlledTask.Yield().GetAwaiter().GetResult();
                 return true;
             }
             else

@@ -666,16 +666,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     executor = funcWithTask();
                 }
-                else if (context.Work is Func<CoyoteTasks.Task<TResult>> funcWithCoyoteTaskResult)
-                {
-                    // TODO: temporary until we remove the custom task type.
-                    executor = funcWithCoyoteTaskResult().UncontrolledTask;
-                }
-                else if (context.Work is Func<CoyoteTasks.Task> funcWithCoyoteTask)
-                {
-                    // TODO: temporary until we remove the custom task type.
-                    executor = funcWithCoyoteTask().UncontrolledTask;
-                }
                 else if (context.Work is Func<TResult> func)
                 {
                     result = func();
@@ -880,97 +870,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task WhenAllTasksCompleteAsync(CoyoteTasks.Task[] tasks)
-        {
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                return Task.CompletedTask;
-            }
-
-            return this.ScheduleAction(() =>
-            {
-                var callerOp = this.GetExecutingOperation<TaskOperation>();
-                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
-
-                List<Exception> exceptions = null;
-                foreach (var task in tasks)
-                {
-                    if (task.IsFaulted)
-                    {
-                        exceptions ??= new List<Exception>();
-                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
-                    }
-                }
-
-                if (exceptions != null)
-                {
-                    throw new AggregateException(exceptions);
-                }
-            }, null, OperationContext.CreateOperationExecutionOptions());
-        }
-
-        /// <summary>
-        /// Creates a controlled task that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
         internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(Task<TResult>[] tasks)
-        {
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                return Task.FromResult(Array.Empty<TResult>());
-            }
-
-            return this.ScheduleFunction(() =>
-            {
-                var callerOp = this.GetExecutingOperation<TaskOperation>();
-                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
-
-                List<Exception> exceptions = null;
-                foreach (var task in tasks)
-                {
-                    if (task.IsFaulted)
-                    {
-                        exceptions ??= new List<Exception>();
-                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
-                    }
-                }
-
-                if (exceptions != null)
-                {
-                    throw new AggregateException(exceptions);
-                }
-
-                int idx = 0;
-                TResult[] result = new TResult[tasks.Length];
-                foreach (var task in tasks)
-                {
-                    result[idx] = task.Result;
-                    idx++;
-                }
-
-                return result;
-            }, null, default);
-        }
-
-        /// <summary>
-        /// Creates a controlled task that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(CoyoteTasks.Task<TResult>[] tasks)
         {
             if (tasks is null)
             {
@@ -1059,43 +959,6 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<CoyoteTasks.Task> WhenAnyTaskCompletesAsync(CoyoteTasks.Task[] tasks)
-        {
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                throw new ArgumentException("The tasks argument contains no tasks.");
-            }
-
-            return this.ScheduleAsyncFunction(() =>
-            {
-                var callerOp = this.GetExecutingOperation<TaskOperation>();
-                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
-
-                CoyoteTasks.Task result = null;
-                foreach (var task in tasks)
-                {
-                    if (task.IsCompleted)
-                    {
-                        result = task;
-                        break;
-                    }
-                }
-
-                return CoyoteTasks.Task.FromResult(result);
-            }, null, default);
-        }
-
-        /// <summary>
-        /// Creates a controlled task that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
         internal Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(Task<TResult>[] tasks)
         {
             if (tasks is null)
@@ -1129,70 +992,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a controlled task that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal CoyoteTasks.Task<CoyoteTasks.Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(CoyoteTasks.Task<TResult>[] tasks)
-        {
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                throw new ArgumentException("The tasks argument contains no tasks.");
-            }
-
-            return this.ScheduleAsyncFunction(() =>
-            {
-                var callerOp = this.GetExecutingOperation<TaskOperation>();
-                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
-
-                CoyoteTasks.Task<TResult> result = null;
-                foreach (var task in tasks)
-                {
-                    if (task.IsCompleted)
-                    {
-                        result = task;
-                        break;
-                    }
-                }
-
-                return CoyoteTasks.Task.FromResult(result);
-            }, null, default);
-        }
-
-        /// <summary>
         /// Waits for all of the provided controlled task objects to complete execution within
         /// a specified number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
         internal bool WaitAllTasksComplete(Task[] tasks)
-        {
-            // TODO: support cancellations during testing.
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                return true;
-            }
-
-            var callerOp = this.GetExecutingOperation<TaskOperation>();
-            callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return true;
-        }
-
-        /// <summary>
-        /// Waits for all of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
-        internal bool WaitAllTasksComplete(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
             if (tasks is null)
@@ -1219,42 +1022,6 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
 #endif
         internal int WaitAnyTaskCompletes(Task[] tasks)
-        {
-            // TODO: support cancellations during testing.
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                throw new ArgumentException("The tasks argument contains no tasks.");
-            }
-
-            var callerOp = this.GetExecutingOperation<TaskOperation>();
-            callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
-
-            int result = -1;
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                if (tasks[i].IsCompleted)
-                {
-                    result = i;
-                    break;
-                }
-            }
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return result;
-        }
-
-        /// <summary>
-        /// Waits for any of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal int WaitAnyTaskCompletes(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
             if (tasks is null)
@@ -1387,7 +1154,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="CoyoteTasks.YieldAwaitable.YieldAwaiter.GetResult"/> is called.
+        /// Callback invoked when the <see cref="YieldAwaitable.YieldAwaiter.GetResult"/> is called.
         /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
@@ -1405,7 +1172,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="CoyoteTasks.TaskAwaiter.GetResult"/> is called.
+        /// Callback invoked when the <see cref="TaskAwaiter.GetResult"/> is called.
         /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]

@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.Runtime;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -108,7 +107,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
-        public CoyoteTasks.TaskAwaiter<T> GetAwaiter()
+        public TaskAwaiter<T> GetAwaiter()
         {
             return ControlledTask<T>.GetAwaiter(this.Tcs.Task);
         }

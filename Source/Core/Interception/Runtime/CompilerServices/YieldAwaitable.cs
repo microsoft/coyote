@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 
-namespace Microsoft.Coyote.Tasks
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Implements an awaitable that asynchronously yields back to the current context when awaited.

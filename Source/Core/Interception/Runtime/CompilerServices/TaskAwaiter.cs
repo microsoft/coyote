@@ -3,11 +3,12 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Tasks
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Implements a <see cref="Task"/> awaiter. This type is intended for compiler use only.

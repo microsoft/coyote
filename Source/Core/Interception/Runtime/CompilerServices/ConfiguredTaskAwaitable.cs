@@ -3,11 +3,12 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Tasks
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// Provides an awaitable object that is the outcome of invoking <see cref="Task.ConfigureAwait"/>.

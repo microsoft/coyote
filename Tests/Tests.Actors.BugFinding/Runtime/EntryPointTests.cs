@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Xunit;
 using Xunit.Abstractions;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
 {
@@ -34,87 +33,45 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
         public static void VoidTestWithActorRuntime(IActorRuntime runtime) => Assert.NotNull(runtime);
 
         [Test]
-        public static SystemTasks.Task SystemTaskTestWithNoRuntime()
+        public static Task TaskTestWithNoRuntime()
         {
             Assert.True(true);
-            return SystemTasks.Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         [Test]
-        public static async SystemTasks.Task SystemAsyncTaskTestWithNoRuntime()
+        public static async Task AsyncTaskTestWithNoRuntime()
         {
             Assert.True(true);
-            await SystemTasks.Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         [Test]
-        public static SystemTasks.Task SystemTaskTestWithRuntime(ICoyoteRuntime runtime)
+        public static Task TaskTestWithRuntime(ICoyoteRuntime runtime)
         {
             Assert.NotNull(runtime);
-            return SystemTasks.Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         [Test]
-        public static async SystemTasks.Task SystemAsyncTaskTestWithRuntime(ICoyoteRuntime runtime)
+        public static async Task AsyncTaskTestWithRuntime(ICoyoteRuntime runtime)
         {
             Assert.NotNull(runtime);
-            await SystemTasks.Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         [Test]
-        public static SystemTasks.Task SystemTaskTestWithActorRuntime(IActorRuntime runtime)
+        public static Task TaskTestWithActorRuntime(IActorRuntime runtime)
         {
             Assert.NotNull(runtime);
-            return SystemTasks.Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         [Test]
-        public static async SystemTasks.Task SystemAsyncTaskTestWithActorRuntime(IActorRuntime runtime)
+        public static async Task AsyncTaskTestWithActorRuntime(IActorRuntime runtime)
         {
             Assert.NotNull(runtime);
-            await SystemTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static CoyoteTasks.Task CoyoteTaskTestWithNoRuntime()
-        {
-            Assert.True(true);
-            return CoyoteTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static async CoyoteTasks.Task CoyoteAsyncTaskTestWithNoRuntime()
-        {
-            Assert.True(true);
-            await CoyoteTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static CoyoteTasks.Task CoyoteTaskTestWithRuntime(ICoyoteRuntime runtime)
-        {
-            Assert.NotNull(runtime);
-            return CoyoteTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static async CoyoteTasks.Task CoyoteAsyncTaskTestWithRuntime(ICoyoteRuntime runtime)
-        {
-            Assert.NotNull(runtime);
-            await CoyoteTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static CoyoteTasks.Task CoyoteTaskTestWithActorRuntime(IActorRuntime runtime)
-        {
-            Assert.NotNull(runtime);
-            return CoyoteTasks.Task.CompletedTask;
-        }
-
-        [Test]
-        public static async CoyoteTasks.Task CoyoteAsyncTaskTestWithActorRuntime(IActorRuntime runtime)
-        {
-            Assert.NotNull(runtime);
-            await CoyoteTasks.Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public static class Foo
@@ -140,40 +97,22 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
         public void TestVoidEntryPointWithActorRuntime() => CheckTestMethod(nameof(VoidTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemTaskEntryPoint() => CheckTestMethod(nameof(SystemTaskTestWithNoRuntime));
+        public void TestTaskEntryPoint() => CheckTestMethod(nameof(TaskTestWithNoRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemTaskEntryPointWithRuntime() => CheckTestMethod(nameof(SystemTaskTestWithRuntime));
+        public void TestTaskEntryPointWithRuntime() => CheckTestMethod(nameof(TaskTestWithRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(SystemTaskTestWithActorRuntime));
+        public void TestTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(TaskTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemAsyncTaskEntryPoint() => CheckTestMethod(nameof(SystemAsyncTaskTestWithNoRuntime));
+        public void TestAsyncTaskEntryPoint() => CheckTestMethod(nameof(AsyncTaskTestWithNoRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemAsyncTaskEntryPointWithRuntime() => CheckTestMethod(nameof(SystemAsyncTaskTestWithRuntime));
+        public void TestAsyncTaskEntryPointWithRuntime() => CheckTestMethod(nameof(AsyncTaskTestWithRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestSystemAsyncTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(SystemAsyncTaskTestWithActorRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteTaskEntryPoint() => CheckTestMethod(nameof(CoyoteTaskTestWithNoRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteTaskEntryPointWithRuntime() => CheckTestMethod(nameof(CoyoteTaskTestWithRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(CoyoteTaskTestWithActorRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteAsyncTaskEntryPoint() => CheckTestMethod(nameof(CoyoteAsyncTaskTestWithNoRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteAsyncTaskEntryPointWithRuntime() => CheckTestMethod(nameof(CoyoteAsyncTaskTestWithRuntime));
-
-        [Fact(Timeout = 5000)]
-        public void TestCoyoteAsyncTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(CoyoteAsyncTaskTestWithActorRuntime));
+        public void TestAsyncTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(AsyncTaskTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
         public void TestUnspecifiedEntryPoint()
@@ -182,7 +121,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames();
-            string expected = $"System.InvalidOperationException: Found '18' test methods declared with the " +
+            string expected = $"System.InvalidOperationException: Found '12' test methods declared with the " +
                 $"'{typeof(TestAttribute).FullName}' attribute. Provide --method (-m) flag to qualify the test " +
                 $"method that you want to run. {possibleNames}   at";
             string actual = exception.ToString();
@@ -237,18 +176,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
                 (typeof(EntryPointTests).FullName, nameof(VoidTestWithNoRuntime)),
                 (typeof(EntryPointTests).FullName, nameof(VoidTestWithRuntime)),
                 (typeof(EntryPointTests).FullName, nameof(VoidTestWithActorRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithNoRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithNoRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemTaskTestWithActorRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(SystemAsyncTaskTestWithActorRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithNoRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithNoRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteTaskTestWithActorRuntime)),
-                (typeof(EntryPointTests).FullName, nameof(CoyoteAsyncTaskTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(TaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(AsyncTaskTestWithNoRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(TaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(AsyncTaskTestWithRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(TaskTestWithActorRuntime)),
+                (typeof(EntryPointTests).FullName, nameof(AsyncTaskTestWithActorRuntime)),
                 (typeof(Foo).FullName, nameof(Foo.VoidTest)),
                 (typeof(Bar).FullName, nameof(Bar.VoidTest))
             };

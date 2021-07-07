@@ -7,7 +7,6 @@ using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using ControlledTasks = Microsoft.Coyote.Interception;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
@@ -19,14 +18,14 @@ namespace Microsoft.Coyote.Rewriting
         {
             { CachedNameProvider.AsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder) },
             { CachedNameProvider.GenericAsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder<>) },
-            { CachedNameProvider.TaskAwaiterFullName, typeof(CoyoteTasks.TaskAwaiter) },
-            { CachedNameProvider.GenericTaskAwaiterFullName, typeof(CoyoteTasks.TaskAwaiter<>) },
-            { CachedNameProvider.ConfiguredTaskAwaitableFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable) },
-            { CachedNameProvider.GenericConfiguredTaskAwaitableFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable<>) },
-            { CachedNameProvider.ConfiguredTaskAwaiterFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) },
-            { CachedNameProvider.GenericConfiguredTaskAwaiterFullName, typeof(CoyoteTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter) },
-            { CachedNameProvider.YieldAwaitableFullName, typeof(CoyoteTasks.YieldAwaitable) },
-            { CachedNameProvider.YieldAwaiterFullName, typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter) },
+            { CachedNameProvider.TaskAwaiterFullName, typeof(ControlledTasks.TaskAwaiter) },
+            { CachedNameProvider.GenericTaskAwaiterFullName, typeof(ControlledTasks.TaskAwaiter<>) },
+            { CachedNameProvider.ConfiguredTaskAwaitableFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable) },
+            { CachedNameProvider.GenericConfiguredTaskAwaitableFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>) },
+            { CachedNameProvider.ConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.GenericConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.YieldAwaitableFullName, typeof(ControlledTasks.YieldAwaitable) },
+            { CachedNameProvider.YieldAwaiterFullName, typeof(ControlledTasks.YieldAwaitable.YieldAwaiter) },
             { CachedNameProvider.TaskExtensionsFullName, typeof(ControlledTasks.TaskExtensions) },
             { CachedNameProvider.TaskFactoryFullName, typeof(ControlledTasks.TaskFactory) },
             { CachedNameProvider.GenericTaskFactoryFullName, typeof(ControlledTasks.TaskFactory<>) },

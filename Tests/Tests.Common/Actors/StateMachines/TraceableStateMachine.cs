@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common.Actors
 {
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Tests.Common.Actors
     {
         protected EventGroupList TraceOp;
 
-        protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+        protected override Task OnInitializeAsync(Event initialEvent)
         {
             this.TraceOp = this.CurrentEventGroup as EventGroupList;
             this.Assert(this.TraceOp != null, "Did you forget to provide OperationTrace?");

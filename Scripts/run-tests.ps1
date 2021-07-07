@@ -38,7 +38,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
         continue
     }
 
-    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "net48", "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {

@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -19,7 +18,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class SetupEvent : Event
         {
-            public TaskCompletionSource<string> Tcs = TaskCompletionSource.Create<string>();
+            public TaskCompletionSource<string> Tcs = new TaskCompletionSource<string>();
 
             public SetupEvent()
             {
@@ -38,7 +37,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M1 : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            protected override Task OnInitializeAsync(Event initialEvent)
             {
                 var tcs = (initialEvent as SetupEvent).Tcs;
                 tcs.SetResult(this.CurrentEventGroup?.Name);
@@ -63,7 +62,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private TaskCompletionSource<string> Tcs;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.Tcs = (initialEvent as SetupEvent).Tcs;
                 this.Context.SendEvent(this.Id, new E(this.Id), new EventGroup(name: EventGroupId));

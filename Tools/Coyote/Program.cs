@@ -373,8 +373,6 @@ namespace Microsoft.Coyote
         {
 #if NET5_0
             return "net5.0";
-#elif NET48
-            return "net48";
 #elif NET462
             return "net462";
 #elif NETSTANDARD2_1

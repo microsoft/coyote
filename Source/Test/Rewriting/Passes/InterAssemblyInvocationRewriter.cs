@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
+using ControlledTasks = Microsoft.Coyote.Interception;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -84,7 +83,7 @@ namespace Microsoft.Coyote.Rewriting
                         IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
                     {
                         var declaringType = methodReference.DeclaringType;
-                        TypeDefinition providerType = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter)).Resolve();
+                        TypeDefinition providerType = this.Module.ImportReference(typeof(ControlledTasks.TaskAwaiter)).Resolve();
                         MethodReference wrapMethod = null;
                         if (declaringType is GenericInstanceType gt)
                         {
@@ -97,7 +96,7 @@ namespace Microsoft.Coyote.Rewriting
                         else
                         {
                             wrapMethod = providerType.Methods.FirstOrDefault(
-                               m => m.Name is nameof(CoyoteTasks.TaskAwaiter.Wrap));
+                               m => m.Name is nameof(ControlledTasks.TaskAwaiter.Wrap));
                         }
 
                         wrapMethod = this.Module.ImportReference(wrapMethod);

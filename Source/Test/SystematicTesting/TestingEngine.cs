@@ -19,7 +19,6 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -207,24 +206,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, Task> test) =>
-            new TestingEngine(configuration, test);
-
-        /// <summary>
-        /// Creates a new systematic testing engine.
-        /// </summary>
-        public static TestingEngine Create(Configuration configuration, Func<CoyoteTasks.Task> test) =>
-            new TestingEngine(configuration, test);
-
-        /// <summary>
-        /// Creates a new systematic testing engine.
-        /// </summary>
-        public static TestingEngine Create(Configuration configuration, Func<ICoyoteRuntime, CoyoteTasks.Task> test) =>
-            new TestingEngine(configuration, test);
-
-        /// <summary>
-        /// Creates a new systematic testing engine.
-        /// </summary>
-        public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, CoyoteTasks.Task> test) =>
             new TestingEngine(configuration, test);
 
         /// <summary>

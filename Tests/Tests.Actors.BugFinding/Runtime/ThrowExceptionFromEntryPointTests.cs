@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

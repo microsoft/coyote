@@ -496,6 +496,17 @@ nav:
         - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
         - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
         - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
+    - Microsoft.Coyote.Interception:
+      - Namespace Overview: ref/Microsoft.Coyote.InterceptionNamespace.md
+      - ControlledSemaphoreSlim:
+        - Overview: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim.md
+        - Create: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create.md
+        - Wait: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait.md
+        - WaitAsync: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync.md
+        - Release: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release.md
+        - Dispose: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose.md
+        - ControlledSemaphoreSlim: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim.md
+        - CurrentCount: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount.md
     - Microsoft.Coyote.IO:
       - Namespace Overview: ref/Microsoft.Coyote.IONamespace.md
       - ConsoleLogger:
@@ -609,33 +620,6 @@ nav:
         - HotAttribute: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute.md
     - Microsoft.Coyote.Tasks:
       - Namespace Overview: ref/Microsoft.Coyote.TasksNamespace.md
-      - AsyncLock:
-        - Overview: ref/Microsoft.Coyote.Tasks/AsyncLock.md
-        - Create: ref/Microsoft.Coyote.Tasks/AsyncLock/Create.md
-        - AcquireAsync: ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync.md
-        - Release: ref/Microsoft.Coyote.Tasks/AsyncLock/Release.md
-        - AsyncLock: ref/Microsoft.Coyote.Tasks/AsyncLock/AsyncLock.md
-        - IsAcquired: ref/Microsoft.Coyote.Tasks/AsyncLock/IsAcquired.md
-        - Awaiters: ref/Microsoft.Coyote.Tasks/AsyncLock/Awaiters.md
-      - Semaphore:
-        - Overview: ref/Microsoft.Coyote.Tasks/Semaphore.md
-        - Create: ref/Microsoft.Coyote.Tasks/Semaphore/Create.md
-        - Wait: ref/Microsoft.Coyote.Tasks/Semaphore/Wait.md
-        - WaitAsync: ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync.md
-        - Release: ref/Microsoft.Coyote.Tasks/Semaphore/Release.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/Semaphore/Dispose.md
-        - Semaphore: ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore.md
-        - CurrentCount: ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount.md
-      - SynchronizedBlock:
-        - Overview: ref/Microsoft.Coyote.Tasks/SynchronizedBlock.md
-        - Lock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Lock.md
-        - EnterLock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/EnterLock.md
-        - Pulse: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Pulse.md
-        - PulseAll: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/PulseAll.md
-        - Wait: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Wait.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Dispose.md
-        - SynchronizedBlock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock.md
-        - SyncObject: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject.md
       - Task:
         - Overview: ref/Microsoft.Coyote.Tasks/Task.md
         - FromResult: ref/Microsoft.Coyote.Tasks/Task/FromResult.md
@@ -680,12 +664,6 @@ nav:
         - SetException: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetException.md
         - TrySetException: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException.md
         - Task: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task.md
-      - TaskExtensions:
-        - Overview: ref/Microsoft.Coyote.Tasks/TaskExtensions.md
-        - WrapInControlledTask: ref/Microsoft.Coyote.Tasks/TaskExtensions/WrapInControlledTask.md
-      - AsyncLock.Releaser:
-        - Overview: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose.md
   - Microsoft.Coyote.Test:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:

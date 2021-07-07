@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 #endif
 using System.Threading;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Interception
 {

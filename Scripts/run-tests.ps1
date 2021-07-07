@@ -2,7 +2,7 @@ param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "net5.0", "net462")]
     [string]$framework = "all",
-    [ValidateSet("all", "rewriting", "testing", "tasks-testing", "actors", "actors-testing", "standalone")]
+    [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -15,7 +15,6 @@ Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
     "testing" = "Tests.BugFinding"
-    "tasks-testing" = "Tests.Tasks.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
     "standalone" = "Tests.Standalone"

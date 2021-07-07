@@ -52,6 +52,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private readonly Regex DisallowedAssemblies;
 
+        /// <summary>
+        /// Simple cache to reduce redundant warnings.
+        /// </summary>
+        private readonly HashSet<string> ResolveWarnings = new HashSet<string>();
+
         private readonly string[] DefaultDisallowedList = new string[]
         {
             @"Newtonsoft\.Json\.dll",
@@ -696,7 +701,12 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: " + reference.FullName);
+            if (!this.ResolveWarnings.Contains(reference.FullName))
+            {
+                this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: " + reference.FullName);
+                this.ResolveWarnings.Add(reference.FullName);
+            }
+
             return null;
         }
     }

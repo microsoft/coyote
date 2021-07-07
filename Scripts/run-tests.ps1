@@ -21,6 +21,14 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
+$ilverify = FindProgram("ilverify")
+if ($null -eq $ilverify) {
+    &dotnet tool install --global dotnet-ilverify
+    $ilverify = FindProgram("ilverify");
+}
+
+$dotnet_path = FindDotNet("dotnet");
+
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 
 Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"
@@ -43,6 +51,18 @@ foreach ($kvp in $targets.GetEnumerator()) {
         }
 
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
+
+        if ($f -eq "net5.0") {
+            $AssemblyName = GetAssemblyName($target)
+            $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "5.0"
+            $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/$AssemblyName.dll"
+            $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/*.dll" + '"'
+            $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/5.0.0/ref/net5.0/*.dll" + '"'
+            $command = $command + ' -r "' + "$PSScriptRoot/../bin/net5.0/*.dll" + '"'
+            $command = $command + ' -r "' + $NetCoreApp + '/*.dll"'
+            Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "Verifying assembly failed"
+        }
+
         Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
     }
 }

@@ -199,9 +199,15 @@ namespace Microsoft.Coyote.Rewriting
             // Create the output directory and copy any necessary files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
-            this.Pending = new Queue<string>(this.Options.AssemblyPaths.ToArray());
+            this.Pending = new Queue<string>();
 
             int errors = 0;
+            // Rewrite the assembly files to the output directory.
+            foreach (string assemblyPath in this.Options.AssemblyPaths)
+            {
+                this.Pending.Enqueue(assemblyPath);
+            }
+
             while (this.Pending.Count > 0)
             {
                 var assemblyPath = this.Pending.Dequeue();

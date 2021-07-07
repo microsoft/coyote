@@ -164,15 +164,9 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
-            MethodDefinition resolvedMethod = null;
-            try
+            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
-                // can fail if external assembly is not resolvable.
-                resolvedMethod = method.Resolve();
-            }
-            catch (AssemblyResolutionException)
-            {
-                // can't rewrite external method reference since we are not rewriting this external assembly.
+                // Can't rewrite external method reference since we are not rewriting this external assembly.
                 return method;
             }
 

@@ -3,15 +3,16 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Tasks
+namespace Microsoft.Coyote.Interception
 {
     /// <summary>
     /// A semaphore that limits the number of tasks that can access a resource. During testing,
     /// the semaphore is automatically replaced with a controlled mocked version.
     /// </summary>
-    public class Semaphore : IDisposable
+    public class ControlledSemaphoreSlim : IDisposable
     {
         /// <summary>
         /// Limits the number of tasks that can access a resource.
@@ -24,9 +25,9 @@ namespace Microsoft.Coyote.Tasks
         public virtual int CurrentCount => this.Instance.CurrentCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Semaphore"/> class.
+        /// Initializes a new instance of the <see cref="ControlledSemaphoreSlim"/> class.
         /// </summary>
-        protected Semaphore(SemaphoreSlim semaphore)
+        protected ControlledSemaphoreSlim(SemaphoreSlim semaphore)
         {
             this.Instance = semaphore;
         }
@@ -35,8 +36,8 @@ namespace Microsoft.Coyote.Tasks
         /// Creates a new semaphore.
         /// </summary>
         /// <returns>The semaphore.</returns>
-        public static Semaphore Create(int initialCount, int maxCount) => CoyoteRuntime.IsExecutionControlled ?
-            new Mock(initialCount, maxCount) : new Semaphore(new SemaphoreSlim(initialCount, maxCount));
+        public static ControlledSemaphoreSlim Create(int initialCount, int maxCount) => CoyoteRuntime.IsExecutionControlled ?
+            new Mock(initialCount, maxCount) : new ControlledSemaphoreSlim(new SemaphoreSlim(initialCount, maxCount));
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore.
@@ -103,7 +104,7 @@ namespace Microsoft.Coyote.Tasks
         /// Asynchronously waits to enter the semaphore.
         /// </summary>
         /// <returns>A task that will complete when the semaphore has been entered.</returns>
-        public virtual Task WaitAsync() => this.Instance.WaitAsync().WrapInControlledTask();
+        public virtual Task WaitAsync() => this.Instance.WaitAsync();
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a <see cref="TimeSpan"/>
@@ -118,7 +119,7 @@ namespace Microsoft.Coyote.Tasks
         /// A task that will complete with a result of true if the current thread successfully entered
         /// the semaphore, otherwise with a result of false.
         /// </returns>
-        public virtual Task<bool> WaitAsync(TimeSpan timeout) => this.Instance.WaitAsync(timeout).WrapInControlledTask();
+        public virtual Task<bool> WaitAsync(TimeSpan timeout) => this.Instance.WaitAsync(timeout);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
@@ -133,7 +134,7 @@ namespace Microsoft.Coyote.Tasks
         /// the semaphore, otherwise with a result of false.
         /// </returns>
         public virtual Task<bool> WaitAsync(int millisecondsTimeout) =>
-            this.Instance.WaitAsync(millisecondsTimeout).WrapInControlledTask();
+            this.Instance.WaitAsync(millisecondsTimeout);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, while observing a <see cref="CancellationToken"/>.
@@ -141,7 +142,7 @@ namespace Microsoft.Coyote.Tasks
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A task that will complete when the semaphore has been entered.</returns>
         public virtual Task WaitAsync(CancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(cancellationToken).WrapInControlledTask();
+            this.Instance.WaitAsync(cancellationToken);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a <see cref="TimeSpan"/>
@@ -158,7 +159,7 @@ namespace Microsoft.Coyote.Tasks
         /// the semaphore, otherwise with a result of false.
         /// </returns>
         public virtual Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(timeout, cancellationToken).WrapInControlledTask();
+            this.Instance.WaitAsync(timeout, cancellationToken);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
@@ -174,7 +175,7 @@ namespace Microsoft.Coyote.Tasks
         /// the semaphore, otherwise with a result of false.
         /// </returns>
         public virtual Task<bool> WaitAsync(int millisecondsTimeout, CancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(millisecondsTimeout, cancellationToken).WrapInControlledTask();
+            this.Instance.WaitAsync(millisecondsTimeout, cancellationToken);
 
         /// <summary>
         /// Releases the semaphore.
@@ -204,9 +205,9 @@ namespace Microsoft.Coyote.Tasks
         }
 
         /// <summary>
-        /// Mock implementation of <see cref="Semaphore"/> that can be controlled during systematic testing.
+        /// Mock implementation of <see cref="SemaphoreSlim"/> that can be controlled during systematic testing.
         /// </summary>
-        private sealed class Mock : Semaphore
+        private sealed class Mock : ControlledSemaphoreSlim
         {
             /// <summary>
             /// The resource associated with this semaphore.

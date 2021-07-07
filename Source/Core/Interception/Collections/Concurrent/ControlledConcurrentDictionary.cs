@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.Interception
         }
 
         /// <summary>
-        /// Checks if the <see cref="ConcurrentDictionary{TKey, TValue}"/> is empty.
+        /// Gets a value that indicates whether the <see cref="ConcurrentDictionary{TKey, TValue}"/> is empty.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
@@ -128,6 +128,7 @@ namespace Microsoft.Coyote.Interception
         public static TValue AddOrUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TValue> addValueFactory,
             Func<TKey, TValue, TValue> updateValueFactory)
         {
+            Interleave();
             return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory);
         }
 
@@ -140,20 +141,24 @@ namespace Microsoft.Coyote.Interception
         public static TValue AddOrUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue addValue,
             Func<TKey, TValue, TValue> updateValueFactory)
         {
+            Interleave();
             return concurrentDictionary.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
-        // / <summary>
-        // / Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not
-        // / already exist, or updates a key/value pair in the <see cref="ConcurrentDictionary{TKey, TValue}"/>
-        // / if the key already exists.
-        // / </summary>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static TValue AddOrUpdate<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> addValueFactory,
-        //     Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
-        // {
-        //    return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
-        // }
+#if !NETSTANDARD2_0
+        /// <summary>
+        /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not
+        /// already exist, or updates a key/value pair in the <see cref="ConcurrentDictionary{TKey, TValue}"/>
+        /// if the key already exists.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TValue AddOrUpdate<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> addValueFactory,
+            Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
+        {
+            Interleave();
+            return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
+        }
+#endif
 
         /// <summary>
         /// Removes all keys and values from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
@@ -192,6 +197,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue GetOrAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TValue> valueFactory)
         {
+            Interleave();
             return concurrentDictionary.GetOrAdd(key, valueFactory);
         }
 
@@ -202,19 +208,23 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue GetOrAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
         {
+            Interleave();
             return concurrentDictionary.GetOrAdd(key, value);
         }
 
-        // / <summary>
-        // / Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not already exist.
-        // / Returns the new value, or the existing value if the key already exists.
-        // / </summary>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static TValue GetOrAdd<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> valueFactory,
-        //     TArg factoryArgument)
-        // {
-        //     return concurrentDictionary.GetOrAdd(key, valueFactory, factoryArgument);
-        // }
+#if !NETSTANDARD2_0
+        /// <summary>
+        /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not already exist.
+        /// Returns the new value, or the existing value if the key already exists.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TValue GetOrAdd<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> valueFactory,
+            TArg factoryArgument)
+        {
+            Interleave();
+            return concurrentDictionary.GetOrAdd(key, valueFactory, factoryArgument);
+        }
+#endif
 
         /// <summary>
         /// Copies the key and value pairs stored in the <see cref="ConcurrentDictionary{TKey, TValue}"/> to a new array.
@@ -222,6 +232,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyValuePair<TKey, TValue>[] ToArray<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
         {
+            Interleave();
             return concurrentDictionary.ToArray();
         }
 
@@ -231,9 +242,8 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
         {
-            bool result = concurrentDictionary.TryAdd(key, value);
             Interleave();
-            return result;
+            return concurrentDictionary.TryAdd(key, value);
         }
 
         /// <summary>
@@ -242,6 +252,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, out TValue value)
         {
+            Interleave();
             return concurrentDictionary.TryGetValue(key, out value);
         }
 
@@ -255,15 +266,17 @@ namespace Microsoft.Coyote.Interception
             return concurrentDictionary.TryRemove(key, out value);
         }
 
-        // / <summary>
-        // / Attempts to remove and return the value that has the specified key from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
-        // / </summary>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> item)
-        // {
-        //     Interleave();
-        //     return concurrentDictionary.TryRemove(item);
-        // }
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NETFRAMEWORK
+        /// <summary>
+        /// Attempts to remove and return the value that has the specified key from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> item)
+        {
+            Interleave();
+            return concurrentDictionary.TryRemove(item);
+        }
+#endif
 
         /// <summary>
         /// Updates the value associated with key to newValue if the existing value with key is equal to comparisonValue.
@@ -271,6 +284,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue newValue, TValue comparisonValue)
         {
+            Interleave();
             return concurrentDictionary.TryUpdate(key, newValue, comparisonValue);
         }
     }

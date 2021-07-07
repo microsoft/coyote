@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -45,20 +44,20 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void InitOnEntry() => this.RaiseHaltEvent();
 
-            protected override SystemTasks.Task OnHaltAsync(Event e)
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Assert(false);
-                return SystemTasks.Task.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestHaltCalled()
+        public async Task TestHaltCalled()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -83,19 +82,19 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void InitOnEntry() => this.RaiseHaltEvent();
 
-            protected override async SystemTasks.Task OnHaltAsync(Event e)
+            protected override async Task OnHaltAsync(Event e)
             {
                 await this.ReceiveEventAsync(typeof(Event));
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestReceiveOnHalt()
+        public async Task TestReceiveOnHalt()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -137,7 +136,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
                 this.RaiseHaltEvent();
             }
 
-            protected override SystemTasks.Task OnHaltAsync(Event e)
+            protected override Task OnHaltAsync(Event e)
             {
                 // No-ops, but no failure.
                 this.SendEvent(this.Id, new E());
@@ -145,17 +144,17 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
                 this.Assert(true);
                 this.CreateActor(typeof(Dummy));
                 this.tcs.TrySetResult(true);
-                return SystemTasks.Task.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAPIsOnHalt()
+        public async Task TestAPIsOnHalt()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;

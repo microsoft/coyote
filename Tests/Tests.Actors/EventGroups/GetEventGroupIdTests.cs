@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class SetupEvent : Event
         {
-            public TaskCompletionSource<string> Tcs = TaskCompletionSource.Create<string>();
+            public TaskCompletionSource<string> Tcs = new TaskCompletionSource<string>();
 
             public SetupEvent()
             {

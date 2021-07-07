@@ -63,7 +63,7 @@ Then pass this config file on the command line: `coyote rewrite config.json`.
 
 ### Strong name signing
 
-For .NET 4.6.2 and 4.8, you may need to resign your rewritten binaries in order for tests to run
+For .NET Framework, you may need to resign your rewritten binaries in order for tests to run
 properly. This can be done by providing the same strong name key that you provided during the
 original build. This can be done using the `--strong-name-key-file` command line argument (or
 `-snk` for the abbreviated option name).
@@ -71,7 +71,7 @@ original build. This can be done using the `--strong-name-key-file` command line
 For example, from your `coyote` repo:
 
 ```plain
-coyote rewrite d:\git\Coyote\Tests\Tests.BugFinding\bin\net48\rewrite.coyote.json
+coyote rewrite d:\git\Coyote\Tests\Tests.BugFinding\bin\net462\rewrite.coyote.json
     --strong-name-key-file Common\Key.snk
 ```
 

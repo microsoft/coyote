@@ -39,7 +39,7 @@ $command = "build -c $configuration $solution"
 if ($local) {
     if ($version_net4) {
         # Build .NET Framework 4.x as well as the new version.
-        $command = $command + " /p:BUILD_NET462=yes /p:BUILD_NET48=yes"
+        $command = $command + " /p:BUILD_NET462=yes"
     }
 
     if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {

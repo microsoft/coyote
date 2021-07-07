@@ -77,7 +77,7 @@ powershell -f build.ps1
 Now you can run the `CoffeeMachine` application:
 
 ```plain
-"./bin/net5.0/CoffeeMachineTasks.exe"
+./bin/net5.0/CoffeeMachineTasks.exe
 ```
 
 ## The Coffee Machine
@@ -191,7 +191,6 @@ coyote rewrite ./bin/net5.0/CoffeeMachineTasks.dll
 Then you can run the test:
 
 ```plain
-
 coyote test ./bin/net5.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fairpct 10
 ```
 

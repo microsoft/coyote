@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Interception
             {
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
-                    task.Wait(timeout);
+                    ControlledTask.Wait(task, timeout);
                     return thread.Join(timeout);
                 }
                 else
@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Interception
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
                     // TODO: support timeouts and cancellation tokens.
-                    task.Wait(millisecondsTimeout);
+                    ControlledTask.Wait(task, millisecondsTimeout);
                     return thread.Join(millisecondsTimeout);
                 }
                 else
@@ -322,7 +322,7 @@ namespace Microsoft.Coyote.Interception
             {
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
-                    task.Wait();
+                    ControlledTask.Wait(task);
                     thread.Join();
                 }
             }

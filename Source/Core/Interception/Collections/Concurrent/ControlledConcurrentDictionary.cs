@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Interception
             return concurrentDictionary.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
         /// <summary>
         /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not
         /// already exist, or updates a key/value pair in the <see cref="ConcurrentDictionary{TKey, TValue}"/>
@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.Interception
             return concurrentDictionary.GetOrAdd(key, value);
         }
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
         /// <summary>
         /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.

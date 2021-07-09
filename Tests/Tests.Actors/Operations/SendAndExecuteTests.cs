@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -79,7 +78,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var e1 = new E1();
@@ -120,12 +119,12 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestSyncSendBlocks()
+        public async Task TestSyncSendBlocks()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -149,7 +148,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
@@ -168,7 +167,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -179,12 +178,12 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestSendCycleDoesNotDeadlock()
+        public async Task TestSendCycleDoesNotDeadlock()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -207,7 +206,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N3));
@@ -228,10 +227,10 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void HandleE() => this.RaiseHaltEvent();
 
-            protected override SystemTasks.Task OnHaltAsync(Event e)
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<SafetyMonitor>(new MHalts());
-                return SystemTasks.Task.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -268,14 +267,14 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestMachineHaltsOnSendExec()
+        public async Task TestMachineHaltsOnSendExec()
         {
             var config = this.GetConfiguration();
             config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -298,7 +297,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config2).Tcs;
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N4), e);
@@ -346,12 +345,12 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestHandledExceptionOnSendExec()
+        public async Task TestHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -367,12 +366,12 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestUnHandledExceptionOnSendExec()
+        public async Task TestUnHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 var message = string.Empty;
 
                 r.OnFailure += (ex) =>
@@ -402,7 +401,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N5));
@@ -421,12 +420,12 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestUnhandledEventOnSendExec()
+        public async Task TestUnhandledEventOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 var message = string.Empty;
 
                 r.OnFailure += (ex) =>

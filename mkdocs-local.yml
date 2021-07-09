@@ -58,6 +58,7 @@ nav:
   - Writing mocks:
     - Mocking dependencies for testing: tutorials/mocks/mock-dependencies.md
     - Simulating optimistic concurrency control: tutorials/mocks/optimistic-concurrency-control.md
+    - Testing an ASP.NET Core service: tutorials/testing-aspnet-service.md
   - Test failover and liveness: tutorials/test-failover.md
   - Actors and state machines:
     - Hello world with actors: tutorials/actors/hello-world.md
@@ -496,6 +497,17 @@ nav:
         - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
         - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
         - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
+    - Microsoft.Coyote.Interception:
+      - Namespace Overview: ref/Microsoft.Coyote.InterceptionNamespace.md
+      - ControlledSemaphoreSlim:
+        - Overview: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim.md
+        - Create: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create.md
+        - Wait: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait.md
+        - WaitAsync: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync.md
+        - Release: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release.md
+        - Dispose: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose.md
+        - ControlledSemaphoreSlim: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim.md
+        - CurrentCount: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount.md
     - Microsoft.Coyote.IO:
       - Namespace Overview: ref/Microsoft.Coyote.IONamespace.md
       - ConsoleLogger:
@@ -607,85 +619,6 @@ nav:
       - Monitor.State.HotAttribute:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute.md
         - HotAttribute: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute.md
-    - Microsoft.Coyote.Tasks:
-      - Namespace Overview: ref/Microsoft.Coyote.TasksNamespace.md
-      - AsyncLock:
-        - Overview: ref/Microsoft.Coyote.Tasks/AsyncLock.md
-        - Create: ref/Microsoft.Coyote.Tasks/AsyncLock/Create.md
-        - AcquireAsync: ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync.md
-        - Release: ref/Microsoft.Coyote.Tasks/AsyncLock/Release.md
-        - AsyncLock: ref/Microsoft.Coyote.Tasks/AsyncLock/AsyncLock.md
-        - IsAcquired: ref/Microsoft.Coyote.Tasks/AsyncLock/IsAcquired.md
-        - Awaiters: ref/Microsoft.Coyote.Tasks/AsyncLock/Awaiters.md
-      - Semaphore:
-        - Overview: ref/Microsoft.Coyote.Tasks/Semaphore.md
-        - Create: ref/Microsoft.Coyote.Tasks/Semaphore/Create.md
-        - Wait: ref/Microsoft.Coyote.Tasks/Semaphore/Wait.md
-        - WaitAsync: ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync.md
-        - Release: ref/Microsoft.Coyote.Tasks/Semaphore/Release.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/Semaphore/Dispose.md
-        - Semaphore: ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore.md
-        - CurrentCount: ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount.md
-      - SynchronizedBlock:
-        - Overview: ref/Microsoft.Coyote.Tasks/SynchronizedBlock.md
-        - Lock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Lock.md
-        - EnterLock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/EnterLock.md
-        - Pulse: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Pulse.md
-        - PulseAll: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/PulseAll.md
-        - Wait: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Wait.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Dispose.md
-        - SynchronizedBlock: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock.md
-        - SyncObject: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject.md
-      - Task:
-        - Overview: ref/Microsoft.Coyote.Tasks/Task.md
-        - FromResult: ref/Microsoft.Coyote.Tasks/Task/FromResult.md
-        - FromCanceled: ref/Microsoft.Coyote.Tasks/Task/FromCanceled.md
-        - FromException: ref/Microsoft.Coyote.Tasks/Task/FromException.md
-        - Run: ref/Microsoft.Coyote.Tasks/Task/Run.md
-        - Delay: ref/Microsoft.Coyote.Tasks/Task/Delay.md
-        - WhenAll: ref/Microsoft.Coyote.Tasks/Task/WhenAll.md
-        - WhenAny: ref/Microsoft.Coyote.Tasks/Task/WhenAny.md
-        - WaitAll: ref/Microsoft.Coyote.Tasks/Task/WaitAll.md
-        - WaitAny: ref/Microsoft.Coyote.Tasks/Task/WaitAny.md
-        - Yield: ref/Microsoft.Coyote.Tasks/Task/Yield.md
-        - Wait: ref/Microsoft.Coyote.Tasks/Task/Wait.md
-        - GetAwaiter: ref/Microsoft.Coyote.Tasks/Task/GetAwaiter.md
-        - ConfigureAwait: ref/Microsoft.Coyote.Tasks/Task/ConfigureAwait.md
-        - ExploreContextSwitch: ref/Microsoft.Coyote.Tasks/Task/ExploreContextSwitch.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/Task/Dispose.md
-        - CompletedTask: ref/Microsoft.Coyote.Tasks/Task/CompletedTask.md
-        - CurrentId: ref/Microsoft.Coyote.Tasks/Task/CurrentId.md
-        - Id: ref/Microsoft.Coyote.Tasks/Task/Id.md
-        - UncontrolledTask: ref/Microsoft.Coyote.Tasks/Task/UncontrolledTask.md
-        - IsCompleted: ref/Microsoft.Coyote.Tasks/Task/IsCompleted.md
-        - IsCanceled: ref/Microsoft.Coyote.Tasks/Task/IsCanceled.md
-        - IsFaulted: ref/Microsoft.Coyote.Tasks/Task/IsFaulted.md
-        - Exception: ref/Microsoft.Coyote.Tasks/Task/Exception.md
-        - Status: ref/Microsoft.Coyote.Tasks/Task/Status.md
-      - Task<TResult>:
-        - Overview: ref/Microsoft.Coyote.Tasks/Task-1.md
-        - GetAwaiter: ref/Microsoft.Coyote.Tasks/Task-1/GetAwaiter.md
-        - ConfigureAwait: ref/Microsoft.Coyote.Tasks/Task-1/ConfigureAwait.md
-        - UncontrolledTask: ref/Microsoft.Coyote.Tasks/Task-1/UncontrolledTask.md
-        - Result: ref/Microsoft.Coyote.Tasks/Task-1/Result.md
-      - TaskCompletionSource:
-        - Overview: ref/Microsoft.Coyote.Tasks/TaskCompletionSource.md
-        - Create: ref/Microsoft.Coyote.Tasks/TaskCompletionSource/Create.md
-      - TaskCompletionSource<TResult>:
-        - Overview: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1.md
-        - SetResult: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetResult.md
-        - TrySetResult: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetResult.md
-        - SetCanceled: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetCanceled.md
-        - TrySetCanceled: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetCanceled.md
-        - SetException: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetException.md
-        - TrySetException: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException.md
-        - Task: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task.md
-      - TaskExtensions:
-        - Overview: ref/Microsoft.Coyote.Tasks/TaskExtensions.md
-        - WrapInControlledTask: ref/Microsoft.Coyote.Tasks/TaskExtensions/WrapInControlledTask.md
-      - AsyncLock.Releaser:
-        - Overview: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser.md
-        - Dispose: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose.md
   - Microsoft.Coyote.Test:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:

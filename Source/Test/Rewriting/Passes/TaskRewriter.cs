@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using ControlledTasks = Microsoft.Coyote.Interception;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
@@ -13,6 +14,25 @@ namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskRewriter : AssemblyRewriter
     {
+        private static readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>()
+        {
+            { CachedNameProvider.AsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder) },
+            { CachedNameProvider.GenericAsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder<>) },
+            { CachedNameProvider.TaskAwaiterFullName, typeof(ControlledTasks.TaskAwaiter) },
+            { CachedNameProvider.GenericTaskAwaiterFullName, typeof(ControlledTasks.TaskAwaiter<>) },
+            { CachedNameProvider.ConfiguredTaskAwaitableFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable) },
+            { CachedNameProvider.GenericConfiguredTaskAwaitableFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>) },
+            { CachedNameProvider.ConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.GenericConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter) },
+            { CachedNameProvider.YieldAwaitableFullName, typeof(ControlledTasks.YieldAwaitable) },
+            { CachedNameProvider.YieldAwaiterFullName, typeof(ControlledTasks.YieldAwaitable.YieldAwaiter) },
+            { CachedNameProvider.TaskExtensionsFullName, typeof(ControlledTasks.TaskExtensions) },
+            { CachedNameProvider.TaskFactoryFullName, typeof(ControlledTasks.TaskFactory) },
+            { CachedNameProvider.GenericTaskFactoryFullName, typeof(ControlledTasks.TaskFactory<>) },
+            { CachedNameProvider.TaskParallelFullName, typeof(ControlledTasks.Parallel) },
+            { CachedNameProvider.ThreadPoolFullName, typeof(ControlledTasks.ThreadPool) },
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
         /// </summary>
@@ -159,7 +179,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
             if (method.FullName == newMethod.FullName ||
-                !this.TryResolve(method, out MethodDefinition resolvedMethod))
+                !this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;
@@ -265,65 +285,19 @@ namespace Microsoft.Coyote.Rewriting
                 result = this.RewriteCompilerType(genericType, elementType);
                 result = this.Module.ImportReference(result);
             }
-            else if (fullName == CachedNameProvider.AsyncTaskMethodBuilderFullName)
+            else
             {
-                result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder));
-            }
-            else if (fullName == CachedNameProvider.GenericAsyncTaskMethodBuilderFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder<>), type);
-            }
-            else if (fullName == CachedNameProvider.TaskAwaiterFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter));
-            }
-            else if (fullName == CachedNameProvider.GenericTaskAwaiterFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter<>), type);
-            }
-            else if (fullName == CachedNameProvider.ConfiguredTaskAwaitableFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable));
-            }
-            else if (fullName == CachedNameProvider.GenericConfiguredTaskAwaitableFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable<>), type);
-            }
-            else if (fullName == CachedNameProvider.ConfiguredTaskAwaiterFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter));
-            }
-            else if (fullName == CachedNameProvider.GenericConfiguredTaskAwaiterFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter), type);
-            }
-            else if (fullName == CachedNameProvider.YieldAwaitableFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable));
-            }
-            else if (fullName == CachedNameProvider.YieldAwaiterFullName)
-            {
-                result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
-            }
-            else if (fullName == CachedNameProvider.TaskExtensionsFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.TaskExtensions), type);
-            }
-            else if (fullName == CachedNameProvider.TaskFactoryFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory));
-            }
-            else if (fullName == CachedNameProvider.GenericTaskFactoryFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory<>), type);
-            }
-            else if (fullName == CachedNameProvider.TaskParallelFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.Parallel));
-            }
-            else if (fullName == CachedNameProvider.ThreadPoolFullName)
-            {
-                result = this.Module.ImportReference(typeof(ControlledTasks.ThreadPool));
+                if (RewritableTypes.TryGetValue(fullName, out Type coyoteType))
+                {
+                    if (coyoteType.IsGenericType)
+                    {
+                        result = this.Module.ImportReference(coyoteType, type);
+                    }
+                    else
+                    {
+                        result = this.Module.ImportReference(coyoteType);
+                    }
+                }
             }
 
             if (isRoot && result != type)

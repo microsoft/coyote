@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -89,30 +88,6 @@ namespace Microsoft.Coyote.Runtime
                     {
                         IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
                         this.JoinDependencies.Add(task);
-                    }
-                }
-
-                if (this.JoinDependencies.Count > 0)
-                {
-                    this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                    this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Blocks the operation until all or any of the specified tasks complete.
-        /// </summary>
-        internal void BlockUntilTasksComplete(CoyoteTasks.Task[] tasks, bool waitAll)
-        {
-            if (waitAll || tasks.All(task => !task.IsCompleted))
-            {
-                foreach (var task in tasks)
-                {
-                    if (!task.IsCompleted)
-                    {
-                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-                        this.JoinDependencies.Add(task.UncontrolledTask);
                     }
                 }
 

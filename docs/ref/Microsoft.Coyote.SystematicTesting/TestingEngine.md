@@ -10,7 +10,7 @@ public sealed class TestingEngine
 
 | name | description |
 | --- | --- |
-| static [Create](TestingEngine/Create.md)(…) | Creates a new systematic testing engine. (10 methods) |
+| static [Create](TestingEngine/Create.md)(…) | Creates a new systematic testing engine. (7 methods) |
 | [Logger](TestingEngine/Logger.md) { get; set; } | Get or set the ILogger used to log messages during testing. |
 | [ReadableTrace](TestingEngine/ReadableTrace.md) { get; } | The readable trace, if any. |
 | [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducable trace, if any. |

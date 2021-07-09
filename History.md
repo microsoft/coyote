@@ -1,3 +1,10 @@
+## v1.3.0
+- Improved the binary rewriting engine and fixed various rewriting bugs.
+- Removed the deprecated `Microsoft.Coyote.Tasks` namespace. Testing task-based code should now only
+  be done via binary rewriting, instead of using a custom task type.
+- Removed the `net48` target, can instead just use the `net462` target for legacy .NET Framework
+  projects.
+
 ## v1.2.8
 - Improved the strategies used for concurrency fuzzing.
 - Fixed a rewriting bug related to the `TaskAwaiter` type.

@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -54,7 +53,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 6000)]
-        public async SystemTasks.Task TestTimerLifetime()
+        public async Task TestTimerLifetime()
         {
             await this.RunAsync(async r =>
             {
@@ -62,7 +61,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var awaiters = new Task[numTimers];
                 for (int i = 0; i < numTimers; i++)
                 {
-                    var tcs = TaskCompletionSource.Create<bool>();
+                    var tcs = new TaskCompletionSource<bool>();
                     r.CreateActor(typeof(T1), new SetupEvent(tcs));
                     awaiters[i] = tcs.Task;
                 }
@@ -105,7 +104,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 6000)]
-        public async SystemTasks.Task TestPeriodicTimerLifetime()
+        public async Task TestPeriodicTimerLifetime()
         {
             await this.RunAsync(async r =>
             {
@@ -113,7 +112,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var awaiters = new Task[numTimers];
                 for (int i = 0; i < numTimers; i++)
                 {
-                    var tcs = TaskCompletionSource.Create<bool>();
+                    var tcs = new TaskCompletionSource<bool>();
                     r.CreateActor(typeof(T2), new SetupEvent(tcs));
                     awaiters[i] = tcs.Task;
                 }

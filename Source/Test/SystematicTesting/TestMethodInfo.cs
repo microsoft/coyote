@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -166,13 +165,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
             bool hasVoidReturnType = testMethod.ReturnType == typeof(void);
             bool hasTaskReturnType = typeof(Task).IsAssignableFrom(testMethod.ReturnType);
-            bool hasControlledTaskReturnType = typeof(CoyoteTasks.Task).IsAssignableFrom(testMethod.ReturnType);
 
             bool hasNoInputParameters = testParams.Length is 0;
             bool hasActorInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime);
             bool hasTaskInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(ICoyoteRuntime);
 
-            if (!((hasVoidReturnType || hasTaskReturnType || hasControlledTaskReturnType) &&
+            if (!((hasVoidReturnType || hasTaskReturnType) &&
                 (hasNoInputParameters || hasActorInputParameters || hasTaskInputParameters) &&
                 !testMethod.IsAbstract && !testMethod.IsVirtual && !testMethod.IsConstructor &&
                 !testMethod.ContainsGenericParameters && testMethod.IsPublic && testMethod.IsStatic))
@@ -187,12 +185,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     $"  void\n" +
                     $"  {typeof(Task).FullName}\n" +
                     $"  {typeof(Task).FullName}<T>\n" +
-                    $"  {typeof(CoyoteTasks.Task).FullName}\n" +
-                    $"  {typeof(CoyoteTasks.Task).FullName}<T>\n" +
                     $"  async {typeof(Task).FullName}\n" +
-                    $"  async {typeof(Task).FullName}<T>\n" +
-                    $"  async {typeof(CoyoteTasks.Task).FullName}\n" +
-                    $"  async {typeof(CoyoteTasks.Task).FullName}<T>\n");
+                    $"  async {typeof(Task).FullName}<T>\n");
             }
 
             Delegate test;
@@ -209,21 +203,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     test = testMethod.CreateDelegate(typeof(Func<Task>));
-                }
-            }
-            else if (hasControlledTaskReturnType)
-            {
-                if (hasActorInputParameters)
-                {
-                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, CoyoteTasks.Task>));
-                }
-                else if (hasTaskInputParameters)
-                {
-                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, CoyoteTasks.Task>));
-                }
-                else
-                {
-                    test = testMethod.CreateDelegate(typeof(Func<CoyoteTasks.Task>));
                 }
             }
             else
@@ -260,9 +239,8 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (testMethods.Count > 1)
             {
-                throw new InvalidOperationException("Only one test method to the Coyote program can " +
-                    $"be declared with the attribute '{attribute.FullName}'. " +
-                    $"'{testMethods.Count}' test methods were found instead.");
+                throw new InvalidOperationException("Only one test method can be declared with the attribute " +
+                    $"'{attribute.FullName}'. '{testMethods.Count}' test methods were found instead.");
             }
 
             if (testMethods[0].ReturnType != typeof(void) ||

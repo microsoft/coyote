@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
+
 using Monitor = System.Threading.Monitor;
-using SynchronizedBlock = Microsoft.Coyote.Tasks.SynchronizedBlock;
+using SynchronizedBlock = Microsoft.Coyote.Interception.SynchronizedBlock;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {

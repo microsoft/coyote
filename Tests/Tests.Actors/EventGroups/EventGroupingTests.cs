@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -21,7 +20,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class SetupEvent : Event
         {
-            public TaskCompletionSource<string> Tcs = TaskCompletionSource.Create<string>();
+            public TaskCompletionSource<string> Tcs = new TaskCompletionSource<string>();
             public string Name;
         }
 
@@ -37,7 +36,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M1 : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.CurrentEventGroup?.Name);
@@ -62,7 +61,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private SetupEvent Setup;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 this.SendEvent(this.Id, new E(), new EventGroup(name: this.Setup.Name));
@@ -101,7 +100,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M4A : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.CurrentEventGroup = null; // clear the EventGroup
                 this.CreateActor(typeof(M4B), e);
@@ -111,7 +110,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M4B : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.CurrentEventGroup?.Name);
@@ -133,7 +132,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M5A : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 var target = this.CreateActor(typeof(M5B), e);
                 this.SendEvent(target, new E(), EventGroup.Null);
@@ -146,7 +145,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private SetupEvent Setup;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 return base.OnInitializeAsync(e);
@@ -176,7 +175,7 @@ namespace Microsoft.Coyote.Actors.Tests
             private SetupEvent Setup;
             private ActorId Child;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 this.Assert(this.CurrentEventGroup?.Name == EventGroup1);
@@ -197,7 +196,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private SetupEvent Setup;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 this.Assert(this.CurrentEventGroup?.Name == EventGroup1);
@@ -229,7 +228,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private SetupEvent Setup;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 var target = this.CreateActor(typeof(M7B), e);
@@ -270,7 +269,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             private SetupEvent Setup;
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
                 var target = this.CreateActor(typeof(M8B));
@@ -308,7 +307,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M9A : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            protected override Task OnInitializeAsync(Event e)
             {
                 var op = this.CurrentEventGroup as EventGroupCounter;
                 this.Assert(op != null, "M9A has unexpected null CurrentEventGroup");
@@ -363,7 +362,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class M10 : StateMachine
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.Assert(this.CurrentEventGroup is null, "CurrentEventGroup should be null");
                 this.RaiseEvent(new E());
@@ -377,7 +376,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task HandleE()
+            private async Task HandleE()
             {
                 this.Assert(this.CurrentEventGroup is null, "CurrentEventGroup should be null");
                 await this.ReceiveEventAsync(typeof(F));

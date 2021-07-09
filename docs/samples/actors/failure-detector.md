@@ -52,8 +52,8 @@ When you use the right scheduling strategy, you will see a bug report:
 ```plain
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
-..... Writing .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
+..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
 ```
 
 The `*.txt` file is the text log of the iteration that found the bug. The `*.schedule` contains the
@@ -64,9 +64,9 @@ is no point. So the `*.schedule` can be used with the `coyote replay` command as
 
 ```plain
 coyote replay ./bin/net5.0/Monitors.dll 
-    .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+    .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
     
-. Reproducing trace in coyote-samples\./bin/net48/Monitors.exe
+. Reproducing trace in coyote-samples\./bin/net5.0/Monitors.exe
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.
 ```
@@ -85,7 +85,7 @@ You will see the following output:
 
 ```plain
 ... Emitting graph:
-..... Writing .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
+..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
 ```
 
 Open the DGML diagram using Visual Studio 2019 and you will see the following:

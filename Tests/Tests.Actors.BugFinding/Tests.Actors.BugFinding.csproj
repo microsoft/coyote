@@ -22,14 +22,17 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="rewrite.coyote.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll" />
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll" />
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />
   </Target>
 </Project>

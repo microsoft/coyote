@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 
@@ -363,23 +362,23 @@ namespace Microsoft.Coyote.Interception
             task.Wait(millisecondsTimeout, cancellationToken);
 
         /// <summary>
-        /// Returns a <see cref="CoyoteTasks.TaskAwaiter"/> for the specified <see cref="Task"/>.
+        /// Returns a <see cref="TaskAwaiter"/> for the specified <see cref="Task"/>.
         /// </summary>
-        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task)
+        public static TaskAwaiter GetAwaiter(Task task)
         {
             var runtime = CoyoteRuntime.Current;
             runtime?.AssertIsAwaitedTaskControlled(task);
-            return new CoyoteTasks.TaskAwaiter(runtime, task);
+            return new TaskAwaiter(runtime, task);
         }
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static CoyoteTasks.ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
+        public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
         {
             var runtime = CoyoteRuntime.Current;
             runtime?.AssertIsAwaitedTaskControlled(task);
-            return new CoyoteTasks.ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
+            return new ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -390,7 +389,7 @@ namespace Microsoft.Coyote.Interception
         /// asynchronously. During systematic testing, the underlying scheduling strategy can use this
         /// as a hint on how to better prioritize this work relative to other work that may be pending.
         /// </remarks>
-        public static CoyoteTasks.YieldAwaitable Yield() => new CoyoteTasks.YieldAwaitable(CoyoteRuntime.Current);
+        public static YieldAwaitable Yield() => new YieldAwaitable(CoyoteRuntime.Current);
     }
 
     /// <summary>
@@ -421,23 +420,23 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>
-        /// Returns a <see cref="CoyoteTasks.TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
+        /// Returns a <see cref="TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
         /// </summary>
-        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
+        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
         {
             var runtime = CoyoteRuntime.Current;
             runtime?.AssertIsAwaitedTaskControlled(task);
-            return new CoyoteTasks.TaskAwaiter<TResult>(runtime, task);
+            return new TaskAwaiter<TResult>(runtime, task);
         }
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static CoyoteTasks.ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
+        public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
         {
             var runtime = CoyoteRuntime.Current;
             runtime?.AssertIsAwaitedTaskControlled(task);
-            return new CoyoteTasks.ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
+            return new ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }

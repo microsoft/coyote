@@ -7,9 +7,10 @@ as a [video on YouTube](https://youtu.be/wuKo-9iRm6o).
 
 Next, we recommend you to read the following tutorials:
 
-- [Test concurrent CRUD operations](test-concurrent-operations.md)
+- [Testing concurrent CRUD operations](test-concurrent-operations.md)
 - [Mocking dependencies for testing](mocks/mock-dependencies.md)
-- [Test failover and liveness](test-failover.md)
+- [Testing an ASP.NET Core service](testing-aspnet-service.md)
+- [Testing failover and liveness](test-failover.md)
 - More on the way!
 
 If you are looking to hone your mock crafting skills, go through the following tutorials:

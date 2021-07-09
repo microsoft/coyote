@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -74,20 +73,20 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAssertFailureNoEventHandler()
+        public async Task TestAssertFailureNoEventHandler()
         {
             var runtime = RuntimeFactory.Create();
-            var tcs = TaskCompletionSource.Create<bool>();
+            var tcs = new TaskCompletionSource<bool>();
             runtime.CreateActor(typeof(M), new SetupEvent(tcs));
             await tcs.Task;
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAssertFailureEventHandler()
+        public async Task TestAssertFailureEventHandler()
         {
             await this.RunAsync(async r =>
             {
-                var tcsFail = TaskCompletionSource.Create<bool>();
+                var tcsFail = new TaskCompletionSource<bool>();
                 int count = 0;
 
                 r.OnFailure += (exception) =>
@@ -99,7 +98,7 @@ namespace Microsoft.Coyote.Actors.Tests
                     }
                 };
 
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(M), new SetupEvent(tcs));
 
                 AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(
@@ -110,11 +109,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestUnhandledExceptionEventHandler()
+        public async Task TestUnhandledExceptionEventHandler()
         {
             await this.RunAsync(async r =>
             {
-                var tcsFail = TaskCompletionSource.Create<bool>();
+                var tcsFail = new TaskCompletionSource<bool>();
                 int count = 0;
                 bool sawFilterException = false;
 
@@ -133,7 +132,7 @@ namespace Microsoft.Coyote.Actors.Tests
                     tcsFail.SetException(exception);
                 };
 
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(N), new SetupEvent(tcs));
 
                 await this.WaitAsync(tcs.Task);

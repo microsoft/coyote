@@ -748,6 +748,26 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
+    - name: Microsoft.Coyote.Interception
+      link: ref/Microsoft.Coyote.InterceptionNamespace
+      subfolderitems:
+      - name: ControlledSemaphoreSlim
+        link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create
+        - name: Wait
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait
+        - name: WaitAsync
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync
+        - name: Release
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose
+        - name: ControlledSemaphoreSlim
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim
+        - name: CurrentCount
+          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount
     - name: Microsoft.Coyote.IO
       link: ref/Microsoft.Coyote.IONamespace
       subfolderitems:
@@ -945,154 +965,6 @@ toc:
         subfolderitems:
         - name: HotAttribute
           link: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
-    - name: Microsoft.Coyote.Tasks
-      link: ref/Microsoft.Coyote.TasksNamespace
-      subfolderitems:
-      - name: AsyncLock
-        link: ref/Microsoft.Coyote.Tasks/AsyncLock
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Create
-        - name: AcquireAsync
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Release
-        - name: AsyncLock
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/AsyncLock
-        - name: IsAcquired
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/IsAcquired
-        - name: Awaiters
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock/Awaiters
-      - name: Semaphore
-        link: ref/Microsoft.Coyote.Tasks/Semaphore
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Create
-        - name: Wait
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Wait
-        - name: WaitAsync
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Release
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Dispose
-        - name: Semaphore
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
-        - name: CurrentCount
-          link: ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
-      - name: SynchronizedBlock
-        link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock
-        subfolderitems:
-        - name: Lock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Lock
-        - name: EnterLock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/EnterLock
-        - name: Pulse
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Pulse
-        - name: PulseAll
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/PulseAll
-        - name: Wait
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Wait
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Dispose
-        - name: SynchronizedBlock
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock
-        - name: SyncObject
-          link: ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject
-      - name: Task
-        link: ref/Microsoft.Coyote.Tasks/Task
-        subfolderitems:
-        - name: FromResult
-          link: ref/Microsoft.Coyote.Tasks/Task/FromResult
-        - name: FromCanceled
-          link: ref/Microsoft.Coyote.Tasks/Task/FromCanceled
-        - name: FromException
-          link: ref/Microsoft.Coyote.Tasks/Task/FromException
-        - name: Run
-          link: ref/Microsoft.Coyote.Tasks/Task/Run
-        - name: Delay
-          link: ref/Microsoft.Coyote.Tasks/Task/Delay
-        - name: WhenAll
-          link: ref/Microsoft.Coyote.Tasks/Task/WhenAll
-        - name: WhenAny
-          link: ref/Microsoft.Coyote.Tasks/Task/WhenAny
-        - name: WaitAll
-          link: ref/Microsoft.Coyote.Tasks/Task/WaitAll
-        - name: WaitAny
-          link: ref/Microsoft.Coyote.Tasks/Task/WaitAny
-        - name: Yield
-          link: ref/Microsoft.Coyote.Tasks/Task/Yield
-        - name: Wait
-          link: ref/Microsoft.Coyote.Tasks/Task/Wait
-        - name: GetAwaiter
-          link: ref/Microsoft.Coyote.Tasks/Task/GetAwaiter
-        - name: ConfigureAwait
-          link: ref/Microsoft.Coyote.Tasks/Task/ConfigureAwait
-        - name: ExploreContextSwitch
-          link: ref/Microsoft.Coyote.Tasks/Task/ExploreContextSwitch
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/Task/Dispose
-        - name: CompletedTask
-          link: ref/Microsoft.Coyote.Tasks/Task/CompletedTask
-        - name: CurrentId
-          link: ref/Microsoft.Coyote.Tasks/Task/CurrentId
-        - name: Id
-          link: ref/Microsoft.Coyote.Tasks/Task/Id
-        - name: UncontrolledTask
-          link: ref/Microsoft.Coyote.Tasks/Task/UncontrolledTask
-        - name: IsCompleted
-          link: ref/Microsoft.Coyote.Tasks/Task/IsCompleted
-        - name: IsCanceled
-          link: ref/Microsoft.Coyote.Tasks/Task/IsCanceled
-        - name: IsFaulted
-          link: ref/Microsoft.Coyote.Tasks/Task/IsFaulted
-        - name: Exception
-          link: ref/Microsoft.Coyote.Tasks/Task/Exception
-        - name: Status
-          link: ref/Microsoft.Coyote.Tasks/Task/Status
-      - name: Task<TResult>
-        link: ref/Microsoft.Coyote.Tasks/Task-1
-        subfolderitems:
-        - name: GetAwaiter
-          link: ref/Microsoft.Coyote.Tasks/Task-1/GetAwaiter
-        - name: ConfigureAwait
-          link: ref/Microsoft.Coyote.Tasks/Task-1/ConfigureAwait
-        - name: UncontrolledTask
-          link: ref/Microsoft.Coyote.Tasks/Task-1/UncontrolledTask
-        - name: Result
-          link: ref/Microsoft.Coyote.Tasks/Task-1/Result
-      - name: TaskCompletionSource
-        link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource/Create
-      - name: TaskCompletionSource<TResult>
-        link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1
-        subfolderitems:
-        - name: SetResult
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetResult
-        - name: TrySetResult
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetResult
-        - name: SetCanceled
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetCanceled
-        - name: TrySetCanceled
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetCanceled
-        - name: SetException
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetException
-        - name: TrySetException
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException
-        - name: Task
-          link: ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task
-      - name: TaskExtensions
-        link: ref/Microsoft.Coyote.Tasks/TaskExtensions
-        subfolderitems:
-        - name: WrapInControlledTask
-          link: ref/Microsoft.Coyote.Tasks/TaskExtensions/WrapInControlledTask
-      - name: AsyncLock.Releaser
-        link: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser
-        subfolderitems:
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
   - name: Microsoft.Coyote.Test
     link: ref/Microsoft.Coyote.Test
     subfolderitems:

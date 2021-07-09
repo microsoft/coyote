@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -43,20 +42,20 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            protected override SystemTasks.Task OnHaltAsync(Event e)
+            protected override Task OnHaltAsync(Event e)
             {
                 this.SendEvent(this.Id, new E());
-                return SystemTasks.Task.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestOnDroppedCalled1()
+        public async Task TestOnDroppedCalled1()
         {
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -88,12 +87,12 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestOnDroppedCalled2()
+        public async Task TestOnDroppedCalled2()
         {
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -109,12 +108,12 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestOnDroppedParams()
+        public async Task TestOnDroppedParams()
         {
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
 
                 var m = r.CreateActor(typeof(M1));
 
@@ -217,13 +216,13 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestProcessedOrDropped()
+        public async Task TestProcessedOrDropped()
         {
             var config = this.GetConfiguration();
             config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
 
                 r.RegisterMonitor<Monitor3>();
                 r.Monitor<Monitor3>(new E(tcs));

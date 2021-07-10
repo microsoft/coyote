@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
+using Microsoft.Coyote.Interception;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -51,7 +53,11 @@ namespace Microsoft.Coyote.Actors
         public AwaitableEventGroup(Guid id = default, string name = null)
             : base(id, name)
         {
-            this.Tcs = TaskCompletionSource.Create<T>();
+            this.Tcs = new TaskCompletionSource<T>();
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                CoyoteRuntime.Current.OnTaskCompletionSourceGetTask(this.Tcs.Task);
+            }
         }
 
         /// <summary>
@@ -103,7 +109,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         public TaskAwaiter<T> GetAwaiter()
         {
-            return this.Tcs.Task.GetAwaiter();
+            return ControlledTask<T>.GetAwaiter(this.Tcs.Task);
         }
     }
 }

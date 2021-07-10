@@ -31,6 +31,12 @@ namespace Microsoft.Coyote.Rewriting
         protected TypeDefinition TypeDef { get; private set; }
 
         /// <summary>
+        /// List of assembly strong names of the assemblies that we are going to rewrite
+        /// so we know what the scope of the rewrite operation is.
+        /// </summary>
+        public HashSet<string> AssemblyNameScope { get; internal set; }
+
+        /// <summary>
         /// The current method being transformed.
         /// </summary>
         protected MethodDefinition Method;
@@ -158,16 +164,53 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
+            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
+            {
+                // Can't rewrite external method reference since we are not rewriting this external assembly.
+                return method;
+            }
 
             TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            if (method.DeclaringType == declaringType ||
-                !this.TryResolve(method, out MethodDefinition resolvedMethod))
+            var resolvedType = Resolve(declaringType);
+
+            if (resolvedMethod == null)
+            {
+                // Check if this method signature has been rewritten, find the method by same name,
+                // but with newly rewritten parameter types (note: signature does not include return type
+                // according to C# rules, but the return type may have also been rewritten which is why
+                // it is imperative here that we find the correct new MethodDefinition.
+                List<TypeReference> parameterTypes = new List<TypeReference>();
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    var p = method.Parameters[i];
+                    parameterTypes.Add(this.RewriteTypeReference(p.ParameterType));
+                }
+
+                var newMethod = FindMatchingMethodInDeclaringType(resolvedType, method.Name, parameterTypes.ToArray());
+                if (newMethod != null)
+                {
+                    if (!this.TryResolve(newMethod, out resolvedMethod))
+                    {
+                        return newMethod;
+                    }
+                }
+            }
+
+            if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
             {
                 // We are not rewriting this method.
                 return result;
             }
 
-            MethodDefinition match = FindMatchingMethodInDeclaringType(Resolve(declaringType), resolvedMethod, matchName);
+            if (resolvedMethod == null)
+            {
+                // print warning
+                this.TryResolve(method, out resolvedMethod);
+                // try and continue...
+                return method;
+            }
+
+            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedType, resolvedMethod, matchName);
             if (match != null)
             {
                 result = module.ImportReference(match);
@@ -468,124 +511,36 @@ namespace Microsoft.Coyote.Rewriting
             return result;
         }
 
-        /// <summary>
-        /// Create a GenericInstanceType for the given generic type instantiated with the given generic arguments.
-        /// </summary>
-        /// <param name="module">The module we are operating on.</param>
-        /// <param name="genericType">The generic type to instantiate.</param>
-        /// <param name="genericArgs">The generic arguments needed to instantiate the generic type.</param>
-        /// <returns>The new generic instance type.</returns>
-        protected static GenericInstanceType ImportGenericTypeInstance(ModuleDefinition module, TypeReference genericType,
-            params TypeReference[] genericArgs)
+        public static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
         {
-            TypeReference typeDef = genericType.Resolve();
-            if (!typeDef.HasGenericParameters)
+            if (self.GenericParameters.Count != arguments.Length)
             {
-                throw new InvalidOperationException(string.Format("Type {0} is not generic", genericType));
+                throw new ArgumentException();
             }
 
-            typeDef = module.ImportReference(typeDef);
-            var instance = new GenericInstanceType(typeDef);
-            for (int i = 0; i < typeDef.GenericParameters.Count; i++)
+            var instance = new GenericInstanceType(self);
+            foreach (var argument in arguments)
             {
-                var p = typeDef.GenericParameters[i];
-                if (p.Position < genericArgs.Length)
-                {
-                    GenericParameter parameter = new GenericParameter(p.Name, typeDef);
-                    instance.GenericParameters.Add(parameter);
-                    instance.GenericArguments.Add(genericArgs[p.Position]);
-                }
-                else
-                {
-                    throw new InvalidOperationException(string.Format("Not enough generic arguments to instantiate type {0}", genericType));
-                }
+                instance.GenericArguments.Add(argument);
             }
 
             return instance;
         }
 
-        /// <summary>
-        /// Create a GenericInstanceMethod from the given generic method and the given generic arguments.
-        /// </summary>
-        /// <param name="module">The module we are operating on.</param>
-        /// <param name="genericMethod">A generic method to instantiate.</param>
-        /// <param name="genericArgs">The combined generic arguments for the declaring type (if it is generic) and for the method.</param>
-        /// <returns>The new method reference.</returns>
-        /// <remarks>
-        /// This method can also handle the case where the DeclaringType is also generic.
-        /// Simply pass the combined generic args for the declaring type and the method.
-        /// </remarks>
-        protected static MethodReference ImportGenericMethodInstance(ModuleDefinition module, MethodReference genericMethod,
-            params TypeReference[] genericArgs)
+        public static MethodReference MakeGenericMethod(MethodReference self, params TypeReference[] arguments)
         {
-            var methodDef = genericMethod.Resolve();
-
-            TypeReference typeDef = methodDef.DeclaringType;
-            var genericArgOffset = 0;
-            GenericInstanceType typeInstance = null;
-
-            if (typeDef.HasGenericParameters)
+            if (self.GenericParameters.Count != arguments.Length)
             {
-                typeInstance = ImportGenericTypeInstance(module, typeDef, genericArgs);
-                typeDef = typeInstance;
-                genericArgOffset = typeInstance.GenericArguments.Count;
+                throw new ArgumentException();
             }
 
-            TypeReference returnType = methodDef.ReturnType;
-
-            // create a new MethodReference with the instantiated generic type as the DeclaringType.
-            MethodReference result = new MethodReference(genericMethod.Name, returnType, typeDef)
+            var instance = new GenericInstanceMethod(self);
+            foreach (var argument in arguments)
             {
-                HasThis = genericMethod.HasThis,
-                ExplicitThis = genericMethod.ExplicitThis,
-                CallingConvention = genericMethod.CallingConvention
-            };
-
-            GenericInstanceMethod genericMethodInstance = null;
-
-            if (methodDef.HasGenericParameters)
-            {
-                // Then we also need to instantiate the generic method!
-                genericMethodInstance = new GenericInstanceMethod(result);
-
-                for (int i = 0; i < methodDef.GenericParameters.Count; i++)
-                {
-                    var p = methodDef.GenericParameters[i];
-                    var j = p.Position + genericArgOffset;
-                    if (j > genericArgs.Length)
-                    {
-                        throw new InvalidOperationException(string.Format("Not enough generic arguments to instantiate method {0}", genericMethod));
-                    }
-
-                    GenericParameter parameter = new GenericParameter(p.Name, genericMethodInstance);
-                    result.GenericParameters.Add(parameter);
-                    genericMethodInstance.GenericParameters.Add(parameter);
-                    genericMethodInstance.GenericArguments.Add(genericArgs[j]);
-                }
-
-                result = genericMethodInstance;
+                instance.GenericArguments.Add(argument);
             }
 
-            foreach (var arg in genericMethod.Parameters)
-            {
-                ParameterDefinition p = new ParameterDefinition(arg.Name, arg.Attributes,
-                    module.ImportReference(arg.ParameterType, typeDef));
-                if (arg.ParameterType is GenericParameter gp)
-                {
-                    if (gp.DeclaringType != null)
-                    {
-                        p.ParameterType = typeInstance.GenericParameters[gp.Position];
-                    }
-                    else if (gp.DeclaringMethod != null)
-                    {
-                        p.ParameterType = genericMethodInstance.GenericParameters[gp.Position];
-                    }
-                }
-
-                result.Parameters.Add(p);
-            }
-
-            return result;
+            return instance;
         }
 
         /// <summary>

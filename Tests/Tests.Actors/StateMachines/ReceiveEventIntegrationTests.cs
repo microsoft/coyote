@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
@@ -47,7 +46,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -64,7 +63,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -81,7 +80,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -98,7 +97,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 var id = this.CreateActor(typeof(M5), new E2(this.Id));
@@ -120,14 +119,14 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             {
             }
 
-            private async SystemTasks.Task InitOnEntry(Event e)
+            private async Task InitOnEntry(Event e)
             {
                 var id = (e as E2).Id;
                 var received = (E2)await this.ReceiveEventAsync(typeof(E2));
                 this.SendEvent(received.Id, new E2(this.Id));
             }
 
-            private async SystemTasks.Task Handle(Event e)
+            private async Task Handle(Event e)
             {
                 var id = (e as E2).Id;
                 var received = (E2)await this.ReceiveEventAsync(typeof(E2));
@@ -136,11 +135,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestReceiveEventOneMachine()
+        public async Task TestReceiveEventOneMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(M1), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -149,11 +148,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestReceiveEventWithPredicateOneMachine()
+        public async Task TestReceiveEventWithPredicateOneMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(M2), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -162,11 +161,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestReceiveEventMultipleTypesOneMachine()
+        public async Task TestReceiveEventMultipleTypesOneMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(M3), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -175,11 +174,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestReceiveEventTwoMachines()
+        public async Task TestReceiveEventTwoMachines()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(M4), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);

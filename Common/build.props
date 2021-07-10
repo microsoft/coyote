@@ -20,13 +20,9 @@
     <GlobalVersion>$(GlobalVersion.Trim())</GlobalVersion>
     <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
     <Framework462Supported Condition="'$(Framework462Supported)'==''">true</Framework462Supported>
-    <Framework48Supported Condition="'$(Framework48Supported)'==''">true</Framework48Supported>
     <Framework462Installed>false</Framework462Installed>
-    <Framework48Installed>false</Framework48Installed>
     <Framework462Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</Framework462Installed>
     <Framework462Installed Condition="'$(BUILD_NET462)'=='yes'">true</Framework462Installed>
-    <Framework48Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</Framework48Installed>
-    <Framework48Installed Condition="'$(BUILD_NET48)'=='yes'">true</Framework48Installed>
     <NetCore31Supported Condition="'$(NetCore31Supported)'==''">true</NetCore31Supported>
     <NetCore31Installed>false</NetCore31Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
@@ -42,7 +38,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Framework48Installed)' and '$(Framework48Supported)'">$(TargetFrameworks);net48</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">

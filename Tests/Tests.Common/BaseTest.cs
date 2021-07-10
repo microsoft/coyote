@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
@@ -14,7 +15,6 @@ using Microsoft.Coyote.SystematicTesting;
 using Xunit;
 using Xunit.Abstractions;
 using ActorRuntimeFactory = Microsoft.Coyote.Actors.RuntimeFactory;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common
 {
@@ -539,7 +539,7 @@ namespace Microsoft.Coyote.Tests.Common
                     test(runtime);
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorTask.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorTask.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         errorMessage = ExtractErrorMessage(errorTask.Task.Result);
                     }
                 }
@@ -584,7 +584,7 @@ namespace Microsoft.Coyote.Tests.Common
                     await test(runtime);
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorCompletion.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         errorMessage = ExtractErrorMessage(errorCompletion.Task.Result);
                     }
                 }
@@ -632,7 +632,7 @@ namespace Microsoft.Coyote.Tests.Common
                     test(runtime);
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorCompletion.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
                     }
                 }
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.Tests.Common
                     test();
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorCompletion.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
                     }
                 }
@@ -730,7 +730,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorCompletion.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
                     }
                 }
@@ -780,7 +780,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     if (configuration.TestingIterations is 1)
                     {
-                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        Assert.True(errorCompletion.Task.Wait(GetErrorWaitingTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
                     }
                 }
@@ -815,70 +815,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             return logger;
-        }
-
-        private static int GetExceptionTimeout(int millisecondsDelay = 5000)
-        {
-            if (Debugger.IsAttached)
-            {
-                millisecondsDelay = 500000;
-            }
-
-            return millisecondsDelay;
-        }
-
-        protected async CoyoteTasks.Task WaitAsync(CoyoteTasks.Task task, int millisecondsDelay = 5000)
-        {
-            millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
-
-            if (this.SchedulingPolicy is SchedulingPolicy.None)
-            {
-                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
-            }
-            else
-            {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
-            }
-
-            if (task.IsFaulted)
-            {
-                // unwrap the AggregateException so unit tests can more easily
-                // Assert.Throws to match a more specific inner exception.
-                throw task.Exception.InnerException;
-            }
-
-            Assert.True(task.IsCompleted);
-        }
-
-        protected async CoyoteTasks.Task<TResult> GetResultAsync<TResult>(CoyoteTasks.TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
-        {
-            return await this.GetResultAsync(tcs.Task, millisecondsDelay);
-        }
-
-        protected async CoyoteTasks.Task<TResult> GetResultAsync<TResult>(CoyoteTasks.Task<TResult> task, int millisecondsDelay = 5000)
-        {
-            millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
-
-            if (this.SchedulingPolicy is SchedulingPolicy.None)
-            {
-                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
-            }
-            else
-            {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
-            }
-
-            if (task.IsFaulted)
-            {
-                // unwrap the AggregateException so unit tests can more easily
-                // Assert.Throws to match a more specific inner exception.
-                throw task.Exception.InnerException;
-            }
-
-            Assert.True(task.IsCompleted, string.Format("Task timed out after '{0}' milliseconds", millisecondsDelay));
-            return await task;
         }
 
         private static TestingEngine RunTest(Delegate test, Configuration configuration, ILogger logger)
@@ -950,5 +886,8 @@ namespace Microsoft.Coyote.Tests.Common
 
             return report;
         }
+
+        protected static TimeSpan GetErrorWaitingTimeout(int timeout = 5000) => Debugger.IsAttached ?
+            Timeout.InfiniteTimeSpan : TimeSpan.FromMilliseconds(timeout);
     }
 }

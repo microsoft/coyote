@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Rewriting
             if (isAsyncMethod)
             {
                 var funcType = this.Module.ImportReference(typeof(Func<>));
-                actionType = ImportGenericTypeInstance(this.Module, funcType, asyncReturnType);
+                actionType = MakeGenericType(funcType, asyncReturnType);
             }
             else
             {
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Rewriting
                 resolvedActionType.Methods.FirstOrDefault(m => m.IsConstructor));
             if (isAsyncMethod)
             {
-                actionConstructor = ImportGenericMethodInstance(this.Module, actionConstructor, asyncReturnType);
+                actionConstructor = MakeGenericMethod(actionConstructor, asyncReturnType);
             }
 
             MethodReference createConfigurationMethod = this.Module.ImportReference(

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private class SetupEvent : Event
         {
-            internal TaskCompletionSource<bool> Completed = TaskCompletionSource.Create<bool>();
+            internal TaskCompletionSource<bool> Completed = new TaskCompletionSource<bool>();
             internal int Count;
 
             public SetupEvent(int count = 1)

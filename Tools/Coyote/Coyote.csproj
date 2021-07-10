@@ -24,10 +24,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.ServiceModel" />
-  </ItemGroup>
   <ItemGroup Condition="'$(OS)'=='Windows_NT'">
     <None Update="DotnetToolSettings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

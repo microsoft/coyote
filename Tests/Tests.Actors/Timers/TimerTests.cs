@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Tests
 {
@@ -80,11 +79,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestBasicTimerOperationInStateMachine()
+        public async Task TestBasicTimerOperationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T1), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -128,11 +127,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestBasicPeriodicTimerOperationInStateMachine()
+        public async Task TestBasicPeriodicTimerOperationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T2), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -168,7 +167,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private async SystemTasks.Task DoPing(Event e)
+            private async Task DoPing(Event e)
             {
                 this.Tcs = (e as SetupEvent).Tcs;
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
@@ -199,11 +198,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestDropTimeoutsAfterTimerDisposalInStateMachine()
+        public async Task TestDropTimeoutsAfterTimerDisposalInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T3), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -240,11 +239,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestIllegalDueTimeSpecificationInStateMachine()
+        public async Task TestIllegalDueTimeSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T4), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -281,11 +280,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestIllegalPeriodSpecificationInStateMachine()
+        public async Task TestIllegalPeriodSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T5), new SetupEvent(tcs));
 
                 var result = await this.GetResultAsync(tcs);
@@ -365,11 +364,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestCustomTimerEventInStateMachine()
+        public async Task TestCustomTimerEventInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomTimer });
 
                 var result = await this.GetResultAsync(tcs);
@@ -378,11 +377,11 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 10000)]
-        public async SystemTasks.Task TestCustomPeriodicTimerEventInStateMachine()
+        public async Task TestCustomPeriodicTimerEventInStateMachine()
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomPeriodicTimer });
 
                 var result = await this.GetResultAsync(tcs);

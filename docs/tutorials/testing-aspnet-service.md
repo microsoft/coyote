@@ -34,18 +34,18 @@ After cloning the [Coyote Samples](http://github.com/microsoft/coyote-samples) g
 following command:
 
 ```
-cd ImageGalleryAspNet
+cd WebApps/ImageGalleryAspNet/
 dotnet build
 ```
 
-## Running the sample
+## Optional: deploying and running the sample locally
 
-You do not need to do this unless you really want to, you can do all the unit testing using coyote
-without running the development version of the service. But some people like to see the code
-running before they think about how to test it.
+You do not need to do this unless you really want to, you can do all the unit testing using Coyote
+without running the development version of the service. But some people like to see the code running
+before they think about how to test it.
 
-Once all the above prerequisites are complete (including the storage emulators) you can run this
-app using two separate console windows as follows:
+Once all the above prerequisites are complete (including the storage emulators) you can run this app
+using two separate console windows as follows:
 
 ```shell
 cd ImageGalleryService
@@ -72,8 +72,8 @@ The `ImageGallery.sln` solution consists of five projects (all will be discussed
 - `ImageGalleryService` - this is the ASP.NET API service.
 - `ImageGalleryClient` - a helper API for talking to the service.
 - `Tests` - this contains two regular unit tests that use `MSTest`.
-- `Tests.Coyote` - this invokes the two tests in `Tests` wrapping them with the Coyote systematic
-  testing engine.
+- `Tests.Coyote` - this invokes the two tests in `Tests` wrapping them with the Coyote testing
+  engine.
 - `TraceReplayer` - makes it easy to reproduce the bugs found by `coyote test`.
 
 ## The Image Gallery sample service
@@ -177,15 +177,14 @@ You can learn more about the systematic testing capabilities of Coyote
 [here](../concepts/concurrency-unit-testing.md), but lets give a brief summary here to get quickly in action.
 
 Coyote serializes the execution of a concurrent program (i.e., only executes a single task at at
-time). A Coyote test executes this serialized program lots of times (called testing
-iterations), each time exploring different interleavings in a clever manner. If a bug is found,
-Coyote gives a trace that allows you to deterministically reproduce the bug. You can use the VS
-Debugger to go over the trace as many times as required to fix the bug.
+time). A Coyote test executes this serialized program lots of times (called testing iterations),
+each time exploring different interleavings in a clever manner. If a bug is found, Coyote gives a
+trace that allows you to deterministically reproduce the bug. You can use the VS Debugger to go over
+the trace as many times as required to fix the bug.
 
 To be able to test this service, use Coyote's binary rewriting capabilities to instrument
-concurrency primitives (Coyote primarily supports common task-related types like `Task` and
-`TaskCompletionSource`, the `lock` statement, and some [more](../concepts/binary-rewriting.md)). This
-is handled by the build script above.
+concurrency primitives (learn more about this [here](../get-started/using-coyote.md)). This is
+handled by the build script above.
 
 ## How to run the Coyote systematic tests
 
@@ -221,8 +220,11 @@ repro. Right now, someone can use the replay functionality from the `coyote repl
 programmatically through the replay API, but for the purposes of this sample there is a simple
 `TraceReplayer` executable that takes the name of the test and the trace file produced by Coyote,
 and replays it in the VS debugger. To do this, just invoke the command mentioned in the error above
-(change the paths to the ones on your machine): ``` TraceReplayer.exe TestConcurrentAccountRequests
-TestConcurrentAccountRequests.schedule ```
+(change the paths to the ones on your machine):
+```
+cd bin/coyote
+TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
+```
 
 You will also see that the trace output contains logs such as:
 

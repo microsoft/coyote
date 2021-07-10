@@ -33,11 +33,6 @@
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>
         <dependency id="System.Configuration.ConfigurationManager" version="4.7.0"/>
       </group>
-      <group targetFramework=".NETFramework4.8">
-        <dependency id="Microsoft.Coyote" version="$version$"/>
-        <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>
-        <dependency id="System.Configuration.ConfigurationManager" version="4.7.0"/>
-      </group>
       <group targetFramework=".NETFramework4.6.2">
         <dependency id="Microsoft.Coyote" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>
@@ -66,12 +61,6 @@
     <file src="..\..\bin\netcoreapp3.1\*.pdb" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.config" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="lib\netcoreapp3.1" />
-    <!-- .NET Framework 4.8 -->
-    <file src="..\..\bin\net48\*.exe" target="lib\net48" />
-    <file src="..\..\bin\net48\*.dll" target="lib\net48" />
-    <file src="..\..\bin\net48\*.xml" target="lib\net48" />
-    <file src="..\..\bin\net48\*.pdb" target="lib\net48" />
-    <file src="..\..\bin\net48\*.exe.config" target="lib\net48" />
     <!-- .NET Framework 4.6.2 -->
     <file src="..\..\bin\net462\*.exe" target="lib\net462" />
     <file src="..\..\bin\net462\*.dll" target="lib\net462" />

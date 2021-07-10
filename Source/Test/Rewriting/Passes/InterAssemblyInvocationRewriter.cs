@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
+using ControlledTasks = Microsoft.Coyote.Interception;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -84,12 +83,25 @@ namespace Microsoft.Coyote.Rewriting
                         IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
                     {
                         var declaringType = methodReference.DeclaringType;
-                        TypeDefinition providerType = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter)).Resolve();
-                        MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                            m => m.Name is nameof(CoyoteTasks.TaskAwaiter.Wrap));
-                        providerMethod = this.Module.ImportReference(providerMethod);
+                        TypeDefinition providerType = this.Module.ImportReference(typeof(ControlledTasks.TaskAwaiter)).Resolve();
+                        MethodReference wrapMethod = null;
+                        if (declaringType is GenericInstanceType gt)
+                        {
+                            MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(m => m.Name == "Wrap" && m.HasGenericParameters);
+                            MethodReference wrapReference = this.Module.ImportReference(genericMethod);
 
-                        Instruction newInstruction = Instruction.Create(OpCodes.Call, providerMethod);
+                            TypeReference argType = gt.GenericArguments.FirstOrDefault().GetElementType();
+                            wrapMethod = MakeGenericMethod(wrapReference, argType);
+                        }
+                        else
+                        {
+                            wrapMethod = providerType.Methods.FirstOrDefault(
+                               m => m.Name is nameof(ControlledTasks.TaskAwaiter.Wrap));
+                        }
+
+                        wrapMethod = this.Module.ImportReference(wrapMethod);
+
+                        Instruction newInstruction = Instruction.Create(OpCodes.Call, wrapMethod);
                         Debug.WriteLine($"............. [+] {newInstruction}");
 
                         this.Processor.InsertAfter(instruction, newInstruction);

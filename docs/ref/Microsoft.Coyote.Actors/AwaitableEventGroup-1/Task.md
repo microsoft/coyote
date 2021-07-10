@@ -8,7 +8,6 @@ public Task<T> Task { get; }
 
 ## See Also
 
-* class [Task&lt;TResult&gt;](../../Microsoft.Coyote.Tasks/Task-1.md)
 * class [AwaitableEventGroup&lt;T&gt;](../AwaitableEventGroup-1.md)
 * namespace [Microsoft.Coyote.Actors](../AwaitableEventGroup-1.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

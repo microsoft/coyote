@@ -9,8 +9,7 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewrites the Concurrent Dictionary Collection type to use the Coyote ControlledConcurrentDictionary
-    /// instead which allows for systematic testing of code that uses concurrent dictionaries.
+    /// Rewrites the concurrent collection types to their controlled versions to enable Coyote explore interleavings during testing.
     /// </summary>
     internal class ConcurrentCollectionRewriter : AssemblyRewriter
     {
@@ -62,7 +61,7 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
-            if (method.FullName == newMethod.FullName || !this.TryResolve(method, out MethodDefinition _))
+            if (method.FullName == newMethod.FullName || !this.TryResolve(newMethod, out MethodDefinition _))
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;

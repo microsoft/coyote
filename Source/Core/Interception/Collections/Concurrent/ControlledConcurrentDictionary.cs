@@ -28,6 +28,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             return concurrentDictionary.Count;
         }
 
@@ -43,6 +44,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             return concurrentDictionary.IsEmpty;
         }
 
@@ -58,6 +60,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             return concurrentDictionary[key];
         }
 
@@ -73,6 +76,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             concurrentDictionary[key] = value;
         }
 
@@ -88,6 +92,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             return concurrentDictionary.Keys;
         }
 
@@ -103,6 +108,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
+            Interleave();
             return concurrentDictionary.Values;
         }
 

@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
         {
             this.Test(() =>
             {
-                ConcurrentDictionary<int, bool> concurrentDictionary = new ConcurrentDictionary<int, bool>();
+                var concurrentDictionary = new ConcurrentDictionary<int, bool>();
                 Assert.True(concurrentDictionary.IsEmpty);
 
                 concurrentDictionary[0] = false;
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
         {
             this.Test(() =>
             {
-                ConcurrentDictionary<int, int> concurrentDictionary = new ConcurrentDictionary<int, int>();
+                var concurrentDictionary = new ConcurrentDictionary<int, int>();
                 Assert.True(concurrentDictionary.IsEmpty);
 
                 int value = concurrentDictionary.GetOrAdd(1, (key) => 1);
@@ -79,29 +79,25 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
         {
             this.TestWithError(() =>
             {
-                ConcurrentDictionary<int, int> concurrentDictionary = new ConcurrentDictionary<int, int>();
+                var concurrentDictionary = new ConcurrentDictionary<int, int>();
 
                 var t1 = Task.Run(() =>
                 {
-                    concurrentDictionary.GetOrAdd(1, 1);
+                    var value1 = concurrentDictionary.AddOrUpdate(1, 1, (key, oldValue) => oldValue * 10);
+                    var value2 = concurrentDictionary.GetOrAdd(1, 2);
+
+                    Specification.Assert(value1 == value2, "Value is {0} instead of {1}.", value2, value1);
                 });
 
                 var t2 = Task.Run(() =>
                 {
-                    concurrentDictionary.AddOrUpdate(1, 1, (key, oldValue) => oldValue * 10);
+                    concurrentDictionary.AddOrUpdate(1, 2, (key, oldValue) => 2);
                 });
 
-                var t3 = Task.Run(() =>
-                {
-                    concurrentDictionary.TryUpdate(1, 1, 10);
-                });
-
-                Task.WaitAll(t1, t2, t3);
-
-                Specification.Assert(concurrentDictionary[1] is 1, "Value is {0} instead of 1.", concurrentDictionary[1]);
+                Task.WaitAll(t1, t2);
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "Value is 10 instead of 1.",
+            expectedError: "Value is 2 instead of 1.",
             replay: true);
         }
 
@@ -110,7 +106,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
         {
             this.Test(() =>
             {
-                ConcurrentDictionary<int, int> concurrentDictionary = new ConcurrentDictionary<int, int>();
+                var concurrentDictionary = new ConcurrentDictionary<int, int>();
                 Assert.True(concurrentDictionary.IsEmpty);
 
                 bool result = concurrentDictionary.TryAdd(1, 1);
@@ -144,30 +140,24 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
         {
             this.TestWithError(() =>
             {
-                ConcurrentDictionary<int, bool> concurrentDictionary = new ConcurrentDictionary<int, bool>();
+                var concurrentDictionary = new ConcurrentDictionary<int, bool>();
 
                 var t1 = Task.Run(() =>
                 {
-                    concurrentDictionary.TryAdd(0, true);
-                    concurrentDictionary.TryRemove(0, out bool _);
+                    concurrentDictionary.TryAdd(1, true);
+                    var count = concurrentDictionary.Count;
+                    Specification.Assert(count is 1, "Count is {0} instead of 1.", count);
                 });
 
                 var t2 = Task.Run(() =>
                 {
-                    concurrentDictionary.TryAdd(0, false);
-                });
-
-                var t3 = Task.Run(() =>
-                {
                     concurrentDictionary.Clear();
                 });
 
-                Task.WaitAll(t1, t2, t3);
-
-                Specification.Assert(concurrentDictionary.Count is 0, "Value is {0} instead of 0.", concurrentDictionary.Count);
+                Task.WaitAll(t1, t2);
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "Value is 1 instead of 0.",
+            expectedError: "Count is 0 instead of 1.",
             replay: true);
         }
     }

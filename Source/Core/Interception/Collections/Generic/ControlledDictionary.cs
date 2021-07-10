@@ -327,12 +327,12 @@ namespace Microsoft.Coyote.Interception
         private class Mock<TKey, TValue> : Dictionary<TKey, TValue>
         {
             /// <summary>
-            /// Count of read accesses to the list.
+            /// Count of read accesses to the dictionary.
             /// </summary>
             private volatile int ReaderCount;
 
             /// <summary>
-            /// Count of write accesses to the list.
+            /// Count of write accesses to the dictionary.
             /// </summary>
             private volatile int WriterCount;
 

@@ -129,6 +129,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 new TaskRewriter(this.Logger),
                 new MonitorRewriter(this.Logger),
+                new ConcurrentCollectionRewriter(this.Logger),
                 new ExceptionFilterRewriter(this.Logger)
             };
 

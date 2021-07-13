@@ -89,6 +89,10 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     type = this.Module.ImportReference(typeof(ControlledConcurrentDictionary));
                 }
+                else if (fullName == CachedNameProvider.ConcurrentQueueFullName)
+                {
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentQueue));
+                }
             }
 
             return type;

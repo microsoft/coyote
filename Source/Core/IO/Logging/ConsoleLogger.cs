@@ -92,6 +92,13 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
+        public override void Write(string format, params object[] args)
+        {
+            string value = string.Format(format, args);
+            this.Write(LogSeverity.Informational, value);
+        }
+
+        /// <inheritdoc/>
         public override void WriteLine(string format, params object[] args)
         {
             string value = string.Format(format, args);

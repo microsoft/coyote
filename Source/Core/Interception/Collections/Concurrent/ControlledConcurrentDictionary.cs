@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Interception
 {
@@ -28,7 +27,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.Count;
         }
 
@@ -44,7 +43,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.IsEmpty;
         }
 
@@ -60,7 +59,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary[key];
         }
 
@@ -76,7 +75,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             concurrentDictionary[key] = value;
         }
 
@@ -92,7 +91,7 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.Keys;
         }
 
@@ -108,21 +107,8 @@ namespace Microsoft.Coyote.Interception
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.Values;
-        }
-
-        private static void Interleave()
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.ScheduleNextOperation(AsyncOperationType.Default);
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
-            }
         }
 
         /// <summary>
@@ -134,7 +120,7 @@ namespace Microsoft.Coyote.Interception
         public static TValue AddOrUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TValue> addValueFactory,
             Func<TKey, TValue, TValue> updateValueFactory)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory);
         }
 
@@ -147,7 +133,7 @@ namespace Microsoft.Coyote.Interception
         public static TValue AddOrUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue addValue,
             Func<TKey, TValue, TValue> updateValueFactory)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
@@ -161,7 +147,7 @@ namespace Microsoft.Coyote.Interception
         public static TValue AddOrUpdate<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> addValueFactory,
             Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
         }
 #endif
@@ -172,7 +158,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             concurrentDictionary.Clear();
         }
 
@@ -182,7 +168,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsKey<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.ContainsKey(key);
         }
 
@@ -192,7 +178,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.GetEnumerator();
         }
 
@@ -203,7 +189,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue GetOrAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TValue> valueFactory)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.GetOrAdd(key, valueFactory);
         }
 
@@ -214,7 +200,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue GetOrAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.GetOrAdd(key, value);
         }
 
@@ -227,7 +213,7 @@ namespace Microsoft.Coyote.Interception
         public static TValue GetOrAdd<TKey, TArg, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> valueFactory,
             TArg factoryArgument)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.GetOrAdd(key, valueFactory, factoryArgument);
         }
 #endif
@@ -238,7 +224,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyValuePair<TKey, TValue>[] ToArray<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.ToArray();
         }
 
@@ -248,7 +234,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryAdd<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.TryAdd(key, value);
         }
 
@@ -258,7 +244,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, out TValue value)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.TryGetValue(key, out value);
         }
 
@@ -268,7 +254,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, out TValue value)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.TryRemove(key, out value);
         }
 
@@ -279,7 +265,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> item)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.TryRemove(item);
         }
 #endif
@@ -290,7 +276,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryUpdate<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue newValue, TValue comparisonValue)
         {
-            Interleave();
+            ConcurrentCollectionHelper.Interleave();
             return concurrentDictionary.TryUpdate(key, newValue, comparisonValue);
         }
     }

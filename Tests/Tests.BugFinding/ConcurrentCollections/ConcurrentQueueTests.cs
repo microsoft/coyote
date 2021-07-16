@@ -30,8 +30,10 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(1, count);
                 Assert.Single(concurrentQueue);
 
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
                 concurrentQueue.Clear();
                 Assert.Empty(concurrentQueue);
+#endif
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
@@ -45,8 +47,6 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.True(concurrentQueue.IsEmpty);
 
                 concurrentQueue.Enqueue(1);
-                var count = concurrentQueue.Count;
-                Assert.Equal(1, count);
                 Assert.Single(concurrentQueue);
 
                 bool peekResult = concurrentQueue.TryPeek(out int peek);
@@ -62,9 +62,12 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 bool dequeueResult = concurrentQueue.TryDequeue(out int dequeue);
                 Assert.True(dequeueResult);
                 Assert.Equal(1, dequeue);
+                Assert.Single(concurrentQueue);
 
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
                 concurrentQueue.Clear();
                 Assert.Empty(concurrentQueue);
+#endif
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
@@ -80,14 +83,14 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 {
                     concurrentQueue.Enqueue(1);
                     concurrentQueue.Enqueue(2);
-
                     concurrentQueue.TryDequeue(out int value);
+
                     Specification.Assert(value == 1, "Value is {0} instead of 1.", value);
                 });
 
                 var t2 = Task.Run(() =>
                 {
-                    concurrentQueue.TryDequeue(out int value);
+                    concurrentQueue.TryDequeue(out int _);
                 });
 
                 Task.WaitAll(t1, t2);

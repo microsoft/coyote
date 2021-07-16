@@ -49,9 +49,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 concurrentQueue.Enqueue(1);
                 Assert.Single(concurrentQueue);
 
-                bool peekResult = concurrentQueue.TryPeek(out int peek);
+                bool peekResult = concurrentQueue.TryPeek(out int peekValue);
                 Assert.True(peekResult);
-                Assert.Equal(1, peek);
+                Assert.Equal(1, peekValue);
 
                 concurrentQueue.Enqueue(2);
                 int[] expectedArray = { 1, 2 };
@@ -59,9 +59,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(2, concurrentQueue.Count);
                 Assert.Equal(expectedArray, actualArray);
 
-                bool dequeueResult = concurrentQueue.TryDequeue(out int dequeue);
+                bool dequeueResult = concurrentQueue.TryDequeue(out int dequeueValue);
                 Assert.True(dequeueResult);
-                Assert.Equal(1, dequeue);
+                Assert.Equal(1, dequeueValue);
                 Assert.Single(concurrentQueue);
 
 #if !NETSTANDARD2_0 && !NETFRAMEWORK

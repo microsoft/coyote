@@ -59,9 +59,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(2, concurrentQueue.Count);
                 Assert.Equal(expectedArray, actualArray);
 
-                bool dequeueResult = concurrentQueue.TryDequeue(out int dequeue);
+                bool dequeueResult = concurrentQueue.TryDequeue(out int dequeueValue);
                 Assert.True(dequeueResult);
-                Assert.Equal(1, dequeue);
+                Assert.Equal(1, dequeueValue);
                 Assert.Single(concurrentQueue);
 
 #if !NETSTANDARD2_0 && !NETFRAMEWORK

@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace Microsoft.Coyote.Interception
 {
     /// <summary>
-    /// Provides methods for creating concurrent dictionaries that can be controlled during testing.
+    /// Static implementation of the Properties and Methods of <see cref="ConcurrentDictionary{TKey, TValue}"/> that coyote uses for testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

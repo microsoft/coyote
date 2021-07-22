@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace Microsoft.Coyote.Interception
 {
     /// <summary>
-    /// Static implementation of the Properties and Methods of <see cref="ConcurrentQueue{T}"/> that coyote uses for testing.
+    /// Provides methods for controlling <see cref="ConcurrentQueue{T}"/> during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

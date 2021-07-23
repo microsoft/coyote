@@ -181,8 +181,6 @@ namespace Microsoft.Coyote.Interception
             return hashSet.GetEnumerator();
         }
 
-        /////////////////////////////// TODO: Is this requried? NetStandard should be 2.0 or higher. Do we need to specify this explicitly? ///////////////////////////////
-
         /// <summary>
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed to
         /// serialize a <see cref="HashSet{T}"/> object.

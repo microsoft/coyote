@@ -121,6 +121,10 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     type = this.Module.ImportReference(typeof(ControlledDictionary));
                 }
+                else if (fullName == CachedNameProvider.GenericHashSetFullName)
+                {
+                    type = this.Module.ImportReference(typeof(ControlledHashSet));
+                }
             }
 
             return type;

@@ -85,7 +85,11 @@ namespace Microsoft.Coyote.Rewriting
             if (type is GenericInstanceType genericType)
             {
                 string fullName = genericType.ElementType.FullName;
-                if (fullName == CachedNameProvider.ConcurrentDictonaryFullName)
+                if (fullName == CachedNameProvider.ConcurrentBagFullName)
+                {
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentBag));
+                }
+                else if (fullName == CachedNameProvider.ConcurrentDictonaryFullName)
                 {
                     type = this.Module.ImportReference(typeof(ControlledConcurrentDictionary));
                 }

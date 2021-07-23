@@ -50,6 +50,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string GenericListFullName { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionaryFullName { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;
 
+        internal static string ConcurrentBagFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentBag<>).FullName;
         internal static string ConcurrentDictonaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;

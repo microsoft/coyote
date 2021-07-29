@@ -49,6 +49,14 @@ namespace Microsoft.Coyote.IO
             this.Lock = new object();
         }
 
+        /// <summary>
+        /// Clear acculated log data.
+        /// </summary>
+        public void Clear()
+        {
+            this.Builder.Clear();
+        }
+
         /// <inheritdoc/>
         public override void Write(string value)
         {

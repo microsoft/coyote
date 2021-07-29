@@ -12,7 +12,9 @@ namespace Microsoft.Coyote.Actors
     /// Unique actor id.
     /// </summary>
     [DataContract]
+#if !DEBUG
     [DebuggerStepThrough]
+#endif
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
         /// <summary>

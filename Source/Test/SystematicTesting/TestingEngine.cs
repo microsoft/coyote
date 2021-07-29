@@ -576,6 +576,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 // Cleans up the runtime before the next iteration starts.
+                runtimeLogger?.Clear();
                 runtimeLogger?.Dispose();
                 runtime?.Dispose();
             }

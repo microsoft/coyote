@@ -140,22 +140,27 @@ function FindInstalledDotNetSdk($dotnet_path, $version) {
                 $name = $name.Split("-preview")[0]
                 $global_version = "$name-preview"
             }
-            $v = [version] $name
-            if ($v.Major -eq $version.Major -and $v.Minor -eq $version.Minor ) {
-                if ($null -eq $best_match) {
-                    $best_match = $v
-                    $matching_version = $global_version
-                }
-                elseif ($v.Build -eq $version.Build) {
-                    $exact_match = $true
-                    $best_match = $v
-                    $matching_version = $global_version
-                }
-                elseif ($v -gt $best_match -and $exact_match -eq $false) {
-                    # use the newest version then.
-                    $best_match = $v
-                    $matching_version = $global_version
-                }
+            try {
+              $v = [version] $name
+              
+              if ($v.Major -eq $version.Major -and $v.Minor -eq $version.Minor ) {
+                  if ($null -eq $best_match) {
+                      $best_match = $v
+                      $matching_version = $global_version
+                  }
+                  elseif ($v.Build -eq $version.Build) {
+                      $exact_match = $true
+                      $best_match = $v
+                      $matching_version = $global_version
+                  }
+                  elseif ($v -gt $best_match -and $exact_match -eq $false) {
+                      # use the newest version then.
+                      $best_match = $v
+                      $matching_version = $global_version
+                  }
+              }
+            } catch {
+               # ignore 'NuGetFallbackFolder' and other none version numbered folders.
             }
         }
 

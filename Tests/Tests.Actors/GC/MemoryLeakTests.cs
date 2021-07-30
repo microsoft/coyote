@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Actors.Tests.StateMachines
+namespace Microsoft.Coyote.Actors.Tests
 {
     public class MemoryLeakTests : BaseActorTest
     {

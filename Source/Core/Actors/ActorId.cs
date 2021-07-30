@@ -17,10 +17,30 @@ namespace Microsoft.Coyote.Actors
 #endif
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
+        private IActorRuntime runtime;
+
         /// <summary>
         /// The runtime that executes the actor with this id.
         /// </summary>
-        public IActorRuntime Runtime { get; private set; }
+        public IActorRuntime Runtime
+        {
+            get
+            {
+                if (this.runtime == null)
+                {
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+                    throw new InvalidOperationException($"Cannot use actor id '{this.Name}' of type '{this.Type}' after IActorRuntime has been disposed.");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+                }
+
+                return this.runtime;
+            }
+
+            private set
+            {
+                this.runtime = value;
+            }
+        }
 
         /// <summary>
         /// Unique id, when <see cref="NameValue"/> is empty.

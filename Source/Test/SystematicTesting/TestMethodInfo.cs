@@ -243,14 +243,47 @@ namespace Microsoft.Coyote.SystematicTesting
                     $"'{attribute.FullName}'. '{testMethods.Count}' test methods were found instead.");
             }
 
-            if (testMethods[0].ReturnType != typeof(void) ||
-                testMethods[0].ContainsGenericParameters ||
-                testMethods[0].IsAbstract || testMethods[0].IsVirtual ||
-                testMethods[0].IsConstructor ||
-                !testMethods[0].IsPublic || !testMethods[0].IsStatic ||
-                testMethods[0].GetParameters().Length != 0)
+            string error = null;
+            if (testMethods[0].ReturnType != typeof(void))
             {
-                throw new InvalidOperationException("Incorrect test method declaration. Please " +
+                error = "Return type is not void,";
+            }
+            else if (testMethods[0].IsGenericMethod)
+            {
+                error = "Method is generic.";
+            }
+            else if (testMethods[0].ContainsGenericParameters)
+            {
+                error = "Method inherits generic parameters from the class which is not supported.";
+            }
+            else if (testMethods[0].IsAbstract)
+            {
+                error = "Metehod is abstract.";
+            }
+            else if (testMethods[0].IsVirtual)
+            {
+                error = "Method is virtual";
+            }
+            else if (testMethods[0].IsConstructor)
+            {
+                error = "Method is a constructor.";
+            }
+            else if (!testMethods[0].IsPublic)
+            {
+                error = "Method is not public.";
+            }
+            else if (!testMethods[0].IsStatic)
+            {
+                error = "Method is not static.";
+            }
+            else if (testMethods[0].GetParameters().Length != 0)
+            {
+                error = "Test method has unexpected parameters,";
+            }
+
+            if (error != null)
+            {
+                throw new InvalidOperationException(error + ". Please " +
                     "declare the test method as follows:\n" +
                     $"  [{attribute.FullName}] public static void " +
                     $"{testMethods[0].Name}() {{ ... }}");

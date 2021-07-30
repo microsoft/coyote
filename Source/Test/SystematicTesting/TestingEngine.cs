@@ -579,7 +579,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtimeLogger?.Clear();
                 runtimeLogger?.Dispose();
                 runtime?.Dispose();
-                GC.Collect();
             }
 
             return true;

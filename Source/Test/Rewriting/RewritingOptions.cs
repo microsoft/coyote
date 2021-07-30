@@ -73,6 +73,11 @@ namespace Microsoft.Coyote.Rewriting
         public string StrongNameKeyFile { get; set; }
 
         /// <summary>
+        /// True if rewriting for concurrent collections is enabled, else false.
+        /// </summary>
+        public bool IsRewritingConcurrentCollections { get; set; }
+
+        /// <summary>
         /// True if rewriting for data race checking is enabled, else false.
         /// </summary>
         public bool IsDataRaceCheckingEnabled { get; set; }
@@ -143,6 +148,7 @@ namespace Microsoft.Coyote.Rewriting
             IList<string> ignoredAssemblies = null;
             IList<string> dependencySearchPaths = null;
             string strongNameKeyFile = null;
+            bool isRewritingConcurrentCollections = true;
             bool isDataRaceCheckingEnabled = false;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
@@ -160,6 +166,7 @@ namespace Microsoft.Coyote.Rewriting
                 Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                 assembliesDirectory = resolvedUri.LocalPath;
                 strongNameKeyFile = configuration.StrongNameKeyFile;
+                isRewritingConcurrentCollections = configuration.IsRewritingConcurrentCollections;
                 isDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
                 isRewritingDependencies = configuration.IsRewritingDependencies;
                 isRewritingUnitTests = configuration.IsRewritingUnitTests;
@@ -200,6 +207,7 @@ namespace Microsoft.Coyote.Rewriting
                 IgnoredAssemblies = ignoredAssemblies,
                 DependencySearchPaths = dependencySearchPaths,
                 StrongNameKeyFile = strongNameKeyFile,
+                IsRewritingConcurrentCollections = isRewritingConcurrentCollections,
                 IsDataRaceCheckingEnabled = isDataRaceCheckingEnabled,
                 IsRewritingDependencies = isRewritingDependencies,
                 IsRewritingUnitTests = isRewritingUnitTests,
@@ -296,9 +304,10 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
-
-            [DataMember(Name = "IsDataRaceCheckingEnabled")]
             public bool IsDataRaceCheckingEnabled { get; set; }
+
+            [DataMember(Name = "IsRewritingConcurrentCollections")]
+            public bool IsRewritingConcurrentCollections { get; set; }
 
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }

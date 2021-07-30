@@ -49,14 +49,6 @@ namespace Microsoft.Coyote.IO
             this.Lock = new object();
         }
 
-        /// <summary>
-        /// Clear acculated log data.
-        /// </summary>
-        public void Clear()
-        {
-            this.Builder.Clear();
-        }
-
         /// <inheritdoc/>
         public override void Write(string value)
         {
@@ -132,6 +124,19 @@ namespace Microsoft.Coyote.IO
             {
                 return this.Builder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Releases the resources used by the logger.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.Builder.Clear();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

@@ -2204,6 +2204,7 @@ namespace Microsoft.Coyote.Runtime
                 this.OperationIdCounter = 0;
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
+                this.ScheduleTrace.Dispose();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {

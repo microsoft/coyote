@@ -3,6 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -50,12 +52,15 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         public void TestActorFinalizerInvoked()
         {
             var tracker = new GCTracker();
-            this.Test(r =>
+
+            var config = this.GetConfiguration().WithTestingIterations(2);
+            TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
             {
                 var setup = new SetupEvent(tracker);
                 r.CreateActor(typeof(A), setup);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(2));
+            });
+
+            engine.Run();
 
             // Force a full GC.
             GC.Collect(2);
@@ -89,12 +94,15 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         public void TestStateMachineFinalizerInvoked()
         {
             var tracker = new GCTracker();
-            this.Test(r =>
+
+            var config = this.GetConfiguration().WithTestingIterations(2);
+            TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
             {
                 var setup = new SetupEvent(tracker);
                 r.CreateActor(typeof(M), setup);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(2));
+            });
+
+            engine.Run();
 
             // Force a full GC.
             GC.Collect(2);

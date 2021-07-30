@@ -268,14 +268,6 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 error = "The test method is a constructor.";
             }
-            else if (!testMethods[0].IsPublic)
-            {
-                error = "The test method is not public.";
-            }
-            else if (!testMethods[0].IsStatic)
-            {
-                error = "The test method is not static.";
-            }
             else if (testMethods[0].GetParameters().Length != 0)
             {
                 error = "The test method has unexpected parameters.";

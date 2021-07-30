@@ -1497,7 +1497,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                 op.Status = AsyncOperationStatus.Completed;
-                ExecutingOperation.Value = null;
             }
         }
 

@@ -246,45 +246,45 @@ namespace Microsoft.Coyote.SystematicTesting
             string error = null;
             if (testMethods[0].ReturnType != typeof(void))
             {
-                error = "Return type is not void,";
+                error = "The test method return type is not void.";
             }
             else if (testMethods[0].IsGenericMethod)
             {
-                error = "Method is generic.";
+                error = "The test method is generic.";
             }
             else if (testMethods[0].ContainsGenericParameters)
             {
-                error = "Method inherits generic parameters from the class which is not supported.";
+                error = "The test method inherits generic parameters which is not supported.";
             }
             else if (testMethods[0].IsAbstract)
             {
-                error = "Metehod is abstract.";
+                error = "The test method is abstract.";
             }
             else if (testMethods[0].IsVirtual)
             {
-                error = "Method is virtual";
+                error = "The test method is virtual.";
             }
             else if (testMethods[0].IsConstructor)
             {
-                error = "Method is a constructor.";
+                error = "The test method is a constructor.";
             }
             else if (!testMethods[0].IsPublic)
             {
-                error = "Method is not public.";
+                error = "The test method is not public.";
             }
             else if (!testMethods[0].IsStatic)
             {
-                error = "Method is not static.";
+                error = "The test method is not static.";
             }
             else if (testMethods[0].GetParameters().Length != 0)
             {
-                error = "Test method has unexpected parameters,";
+                error = "The test method has unexpected parameters.";
             }
 
             if (error != null)
             {
-                throw new InvalidOperationException(error + ". Please " +
-                    "declare the test method as follows:\n" +
+                throw new InvalidOperationException(error + " Please " +
+                    "declare it as follows:\n" +
                     $"  [{attribute.FullName}] public static void " +
                     $"{testMethods[0].Name}() {{ ... }}");
             }

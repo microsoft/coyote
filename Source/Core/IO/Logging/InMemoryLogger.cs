@@ -125,5 +125,18 @@ namespace Microsoft.Coyote.IO
                 return this.Builder.ToString();
             }
         }
+
+        /// <summary>
+        /// Releases the resources used by the logger.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.Builder.Clear();
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

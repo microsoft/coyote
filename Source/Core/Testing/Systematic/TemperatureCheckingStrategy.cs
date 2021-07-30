@@ -16,12 +16,24 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class TemperatureCheckingStrategy : LivenessCheckingStrategy
     {
         /// <summary>
+        /// Responsible for checking specifications.
+        /// </summary>
+        private SpecificationEngine SpecificationEngine;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TemperatureCheckingStrategy"/> class.
         /// </summary>
-        internal TemperatureCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
-            SystematicStrategy strategy)
-            : base(configuration, specificationEngine, strategy)
+        internal TemperatureCheckingStrategy(Configuration configuration, SystematicStrategy strategy)
+            : base(configuration, strategy)
         {
+        }
+
+        /// <summary>
+        /// Sets the specification engine.
+        /// </summary>
+        internal void SetSpecificationEngine(SpecificationEngine specificationEngine)
+        {
+            this.SpecificationEngine = specificationEngine;
         }
 
         /// <inheritdoc/>
@@ -30,7 +42,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (this.IsFair())
             {
-                this.SpecificationEngine.CheckLivenessThresholdExceeded();
+                this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }
 
             return this.SchedulingStrategy.GetNextOperation(ops, current, isYielding, out next);
@@ -41,7 +53,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (this.IsFair())
             {
-                this.SpecificationEngine.CheckLivenessThresholdExceeded();
+                this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }
 
             return this.SchedulingStrategy.GetNextBooleanChoice(current, maxValue, out next);
@@ -52,7 +64,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (this.IsFair())
             {
-                this.SpecificationEngine.CheckLivenessThresholdExceeded();
+                this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }
 
             return this.SchedulingStrategy.GetNextIntegerChoice(current, maxValue, out next);

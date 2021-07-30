@@ -12,13 +12,34 @@ namespace Microsoft.Coyote.Actors
     /// Unique actor id.
     /// </summary>
     [DataContract]
+#if !DEBUG
     [DebuggerStepThrough]
+#endif
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
         /// <summary>
+        /// The execution context of the actor with this id.
+        /// </summary>
+        private ActorExecutionContext Context;
+
+        /// <summary>
         /// The runtime that executes the actor with this id.
         /// </summary>
-        public IActorRuntime Runtime { get; private set; }
+        public IActorRuntime Runtime
+        {
+            get
+            {
+                if (this.Context == null)
+                {
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+                    throw new InvalidOperationException($"Cannot use actor id '{this.Name}' of type '{this.Type}' " +
+                        "after the runtime has been disposed.");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+                }
+
+                return this.Context;
+            }
+        }
 
         /// <summary>
         /// Unique id, when <see cref="NameValue"/> is empty.
@@ -54,20 +75,20 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, bool useNameForHashing = false)
         {
-            this.Runtime = context;
+            this.Context = context;
             this.Type = type.FullName;
             this.Value = value;
 
             if (useNameForHashing)
             {
                 this.NameValue = name;
-                this.Runtime.Assert(!string.IsNullOrEmpty(this.NameValue), "The actor name cannot be null when used as id.");
+                this.Context.Assert(!string.IsNullOrEmpty(this.NameValue), "The actor name cannot be null when used as id.");
                 this.Name = this.NameValue;
             }
             else
             {
                 this.NameValue = string.Empty;
-                this.Runtime.Assert(this.Value != ulong.MaxValue, "Detected actor id overflow.");
+                this.Context.Assert(this.Value != ulong.MaxValue, "Detected actor id overflow.");
                 this.Name = string.Format(CultureInfo.InvariantCulture, "{0}({1})",
                     string.IsNullOrEmpty(name) ? this.Type : name, this.Value.ToString());
             }
@@ -78,7 +99,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal void Bind(ActorExecutionContext context)
         {
-            this.Runtime = context;
+            this.Context = context;
         }
 
         /// <summary>

@@ -243,15 +243,40 @@ namespace Microsoft.Coyote.SystematicTesting
                     $"'{attribute.FullName}'. '{testMethods.Count}' test methods were found instead.");
             }
 
-            if (testMethods[0].ReturnType != typeof(void) ||
-                testMethods[0].ContainsGenericParameters ||
-                testMethods[0].IsAbstract || testMethods[0].IsVirtual ||
-                testMethods[0].IsConstructor ||
-                !testMethods[0].IsPublic || !testMethods[0].IsStatic ||
-                testMethods[0].GetParameters().Length != 0)
+            string error = null;
+            if (testMethods[0].ReturnType != typeof(void))
             {
-                throw new InvalidOperationException("Incorrect test method declaration. Please " +
-                    "declare the test method as follows:\n" +
+                error = "The test method return type is not void.";
+            }
+            else if (testMethods[0].IsGenericMethod)
+            {
+                error = "The test method is generic.";
+            }
+            else if (testMethods[0].ContainsGenericParameters)
+            {
+                error = "The test method inherits generic parameters which is not supported.";
+            }
+            else if (testMethods[0].IsAbstract)
+            {
+                error = "The test method is abstract.";
+            }
+            else if (testMethods[0].IsVirtual)
+            {
+                error = "The test method is virtual.";
+            }
+            else if (testMethods[0].IsConstructor)
+            {
+                error = "The test method is a constructor.";
+            }
+            else if (testMethods[0].GetParameters().Length != 0)
+            {
+                error = "The test method has unexpected parameters.";
+            }
+
+            if (error != null)
+            {
+                throw new InvalidOperationException(error + " Please " +
+                    "declare it as follows:\n" +
                     $"  [{attribute.FullName}] public static void " +
                     $"{testMethods[0].Name}() {{ ... }}");
             }

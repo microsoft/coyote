@@ -798,6 +798,11 @@ namespace Microsoft.Coyote.Actors
         internal sealed class Mock : ActorExecutionContext
         {
             /// <summary>
+            /// Set of all created actor ids.
+            /// </summary>
+            private readonly ConcurrentDictionary<ActorId, byte> ActorIds;
+
+            /// <summary>
             /// Map that stores all unique names and their corresponding actor ids.
             /// </summary>
             private readonly ConcurrentDictionary<string, ActorId> NameValueToActorId;
@@ -820,6 +825,7 @@ namespace Microsoft.Coyote.Actors
                 IRandomValueGenerator valueGenerator, LogWriter logWriter)
                 : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
             {
+                this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
                 this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
             }
@@ -829,7 +835,9 @@ namespace Microsoft.Coyote.Actors
             {
                 // It is important that all actor ids use the monotonically incrementing
                 // value as the id during testing, and not the unique name.
-                return this.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, key));
+                var id = this.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, key));
+                this.ActorIds.TryAdd(id, 0);
+                return id;
             }
 
             /// <inheritdoc/>
@@ -932,6 +940,7 @@ namespace Microsoft.Coyote.Actors
                 if (id is null)
                 {
                     id = this.CreateActorId(type, name);
+                    this.ActorIds.TryAdd(id, 0);
                 }
                 else
                 {
@@ -1158,8 +1167,7 @@ namespace Microsoft.Coyote.Actors
                             this.ResetProgramCounter(actor);
                         }
 
-                        IODebug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
-                        op.OnCompleted();
+                        this.Runtime.CompleteOperation(op);
 
                         // The actor is inactive or halted, schedule the next enabled operation.
                         this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);
@@ -1462,6 +1470,13 @@ namespace Microsoft.Coyote.Actors
                 {
                     this.NameValueToActorId.Clear();
                     this.ProgramCounterMap.Clear();
+                    foreach (var id in this.ActorIds)
+                    {
+                        // Unbind the runtime to avoid memory leaks if the user holds the id.
+                        id.Key.Bind(null);
+                    }
+
+                    this.ActorIds.Clear();
                 }
 
                 base.Dispose(disposing);

@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Testing
     /// Class implementing a program schedule trace. A trace is a series
     /// of transitions from some initial state to some end state.
     /// </summary>
-    internal sealed class ScheduleTrace : IEnumerable, IEnumerable<ScheduleStep>
+    internal sealed class ScheduleTrace : IEnumerable, IEnumerable<ScheduleStep>, IDisposable
     {
         /// <summary>
         /// The steps of the schedule trace.
@@ -257,6 +257,14 @@ namespace Microsoft.Coyote.Testing
             }
 
             return new ScheduleTrace(scheduleDump);
+        }
+
+        /// <summary>
+        /// Disposes the schedule trace.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Steps.Clear();
         }
     }
 }

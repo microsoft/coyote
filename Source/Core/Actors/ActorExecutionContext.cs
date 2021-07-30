@@ -798,6 +798,11 @@ namespace Microsoft.Coyote.Actors
         internal sealed class Mock : ActorExecutionContext
         {
             /// <summary>
+            /// Set of all created actor ids.
+            /// </summary>
+            private readonly ConcurrentDictionary<ActorId, byte> ActorIds;
+
+            /// <summary>
             /// Map that stores all unique names and their corresponding actor ids.
             /// </summary>
             private readonly ConcurrentDictionary<string, ActorId> NameValueToActorId;
@@ -814,20 +819,15 @@ namespace Microsoft.Coyote.Actors
             internal override bool IsExecutionControlled => true;
 
             /// <summary>
-            /// List of all ActorId's created during a test iteration.
-            /// </summary>
-            private readonly HashSet<ActorId> ActorIds;
-
-            /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
             internal Mock(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
                 IRandomValueGenerator valueGenerator, LogWriter logWriter)
                 : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
             {
+                this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
                 this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
-                this.ActorIds = new HashSet<ActorId>();
             }
 
             /// <inheritdoc/>
@@ -836,7 +836,7 @@ namespace Microsoft.Coyote.Actors
                 // It is important that all actor ids use the monotonically incrementing
                 // value as the id during testing, and not the unique name.
                 var id = this.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, key));
-                this.ActorIds.Add(id);
+                this.ActorIds.TryAdd(id, 0);
                 return id;
             }
 
@@ -940,7 +940,7 @@ namespace Microsoft.Coyote.Actors
                 if (id is null)
                 {
                     id = this.CreateActorId(type, name);
-                    this.ActorIds.Add(id);
+                    this.ActorIds.TryAdd(id, 0);
                 }
                 else
                 {
@@ -1472,9 +1472,8 @@ namespace Microsoft.Coyote.Actors
                     this.ProgramCounterMap.Clear();
                     foreach (var id in this.ActorIds)
                     {
-                        // clear the runtime to save memory on any leaked ActorId objects being held onto
-                        // by client code.
-                        id.Bind(null);
+                        // Unbind the runtime to avoid memory leaks if the user holds the id.
+                        id.Key.Bind(null);
                     }
 
                     this.ActorIds.Clear();

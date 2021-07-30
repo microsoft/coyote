@@ -17,6 +17,9 @@ namespace Microsoft.Coyote.Actors
 #endif
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
+        /// <summary>
+        /// The execution context of the actor with this id.
+        /// </summary>
         private ActorExecutionContext Context;
 
         /// <summary>
@@ -29,7 +32,8 @@ namespace Microsoft.Coyote.Actors
                 if (this.Context == null)
                 {
 #pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
-                    throw new InvalidOperationException($"Cannot use actor id '{this.Name}' of type '{this.Type}' after IActorRuntime has been disposed.");
+                    throw new InvalidOperationException($"Cannot use actor id '{this.Name}' of type '{this.Type}' " +
+                        "after the runtime has been disposed.");
 #pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
                 }
 

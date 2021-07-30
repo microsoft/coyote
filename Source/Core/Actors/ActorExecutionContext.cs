@@ -1167,8 +1167,7 @@ namespace Microsoft.Coyote.Actors
                             this.ResetProgramCounter(actor);
                         }
 
-                        IODebug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
-                        op.OnCompleted();
+                        this.Runtime.CompleteOperation(op);
 
                         // The actor is inactive or halted, schedule the next enabled operation.
                         this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);

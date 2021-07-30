@@ -15,26 +15,19 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// The configuration.
         /// </summary>
-        protected Configuration Configuration;
-
-        /// <summary>
-        /// Responsible for checking specifications.
-        /// </summary>
-        protected SpecificationEngine SpecificationEngine;
+        protected readonly Configuration Configuration;
 
         /// <summary>
         /// Strategy used for scheduling decisions.
         /// </summary>
-        protected SystematicStrategy SchedulingStrategy;
+        protected readonly SystematicStrategy SchedulingStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
-        internal LivenessCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
-            SystematicStrategy strategy)
+        internal LivenessCheckingStrategy(Configuration configuration, SystematicStrategy strategy)
         {
             this.Configuration = configuration;
-            this.SpecificationEngine = specificationEngine;
             this.SchedulingStrategy = strategy;
         }
 

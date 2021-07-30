@@ -85,6 +85,12 @@ namespace Microsoft.Coyote.Runtime
                     this.ReplayStrategy = replayStrategy;
                     this.IsReplayingSchedule = true;
                 }
+
+                // Wrap the strategy inside a liveness checking strategy.
+                if (this.Configuration.IsLivenessCheckingEnabled)
+                {
+                    this.Strategy = new TemperatureCheckingStrategy(this.Configuration, this.Strategy as SystematicStrategy);
+                }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
@@ -102,11 +108,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void SetSpecificationEngine(SpecificationEngine specificationEngine)
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic &&
-                this.Configuration.IsLivenessCheckingEnabled)
+            if (this.Strategy is TemperatureCheckingStrategy temperatureCheckingStrategy)
             {
-                this.Strategy = new TemperatureCheckingStrategy(this.Configuration, specificationEngine,
-                    this.Strategy as SystematicStrategy);
+                temperatureCheckingStrategy.SetSpecificationEngine(specificationEngine);
             }
         }
 

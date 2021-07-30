@@ -372,8 +372,7 @@ namespace Microsoft.Coyote.Runtime
                             }
                         }
 
-                        IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", op.Name, Task.CurrentId);
-                        op.OnCompleted();
+                        this.CompleteOperation(op);
 
                         // Task has completed, schedule the next enabled operation, which terminates exploration.
                         this.ScheduleNextOperation(AsyncOperationType.Stop);
@@ -552,8 +551,7 @@ namespace Microsoft.Coyote.Runtime
             }
             finally
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                op.OnCompleted();
+                this.CompleteOperation(op);
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
@@ -666,8 +664,7 @@ namespace Microsoft.Coyote.Runtime
             }
             finally
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                op.OnCompleted();
+                this.CompleteOperation(op);
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
@@ -1494,6 +1491,16 @@ namespace Microsoft.Coyote.Runtime
             this.ThrowExecutionCanceledExceptionIfDetached();
         }
 
+        internal void CompleteOperation(AsyncOperation op)
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                op.Status = AsyncOperationStatus.Completed;
+                ExecutingOperation.Value = null;
+            }
+        }
+
         /// <summary>
         /// Tries to enable the specified operation.
         /// </summary>
@@ -2202,6 +2209,9 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 this.OperationIdCounter = 0;
+                this.OperationMap.Clear();
+                this.TaskMap.Clear();
+
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
                 this.ScheduleTrace.Dispose();

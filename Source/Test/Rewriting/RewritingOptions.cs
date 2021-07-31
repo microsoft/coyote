@@ -287,7 +287,6 @@ namespace Microsoft.Coyote.Rewriting
         [DataContract]
         private class JsonConfiguration
         {
-            // this one defaults to true.
             private bool? isRewritingConcurrentCollections;
 
             [DataMember(Name = "AssembliesPath", IsRequired = true)]
@@ -312,8 +311,9 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "IsRewritingConcurrentCollections")]
             public bool IsRewritingConcurrentCollections
             {
-                get { return this.isRewritingConcurrentCollections.HasValue ? this.isRewritingConcurrentCollections.Value : true; }
-                set { this.isRewritingConcurrentCollections = value; }
+                // This option defaults to true.
+                get => this.isRewritingConcurrentCollections ?? true;
+                set => this.isRewritingConcurrentCollections = value;
             }
 
             [DataMember(Name = "IsRewritingDependencies")]

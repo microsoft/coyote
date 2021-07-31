@@ -129,13 +129,17 @@ namespace Microsoft.Coyote.Rewriting
             {
                 new TaskRewriter(this.Logger),
                 new MonitorRewriter(this.Logger),
-                new ConcurrentCollectionRewriter(this.Logger),
                 new ExceptionFilterRewriter(this.Logger)
             };
 
             if (this.Options.IsRewritingThreads)
             {
                 this.RewritingPasses.Add(new ThreadingRewriter(this.Logger));
+            }
+
+            if (this.Options.IsRewritingConcurrentCollections)
+            {
+                this.RewritingPasses.Add(new ConcurrentCollectionRewriter(this.Logger));
             }
 
             if (this.Options.IsDataRaceCheckingEnabled)

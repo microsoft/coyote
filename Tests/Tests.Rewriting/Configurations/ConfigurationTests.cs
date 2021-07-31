@@ -33,6 +33,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             Assert.Single(options.AssemblyPaths);
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
+
+            // Ensure this option defaults to true.
+            Assert.True(options.IsRewritingConcurrentCollections);
         }
 
         [Fact(Timeout = 5000)]
@@ -53,6 +56,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
             Assert.Equal(2, options.AssemblyPaths.Count());
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test1.dll"),
                 options.AssemblyPaths.First());
+
+            // Ensure this option can be set to false.
+            Assert.False(options.IsRewritingConcurrentCollections);
         }
 
         private static string GetJsonConfigurationDirectory(string subDirectory = null)

@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// True if rewriting for concurrent collections is enabled, else false.
         /// </summary>
-        public bool IsRewritingConcurrentCollections { get; set; }
+        public bool IsRewritingConcurrentCollections { get; set; } = true;
 
         /// <summary>
         /// True if rewriting for data race checking is enabled, else false.

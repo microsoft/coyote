@@ -1,6 +1,7 @@
 {
   "AssembliesPath": "../../../bin/$(Platform)/Configurations",
   "OutputPath": "../../../bin/$(Platform)/Configurations",
+  "IsRewritingConcurrentCollections": false,
   "Assemblies": [
     "Test1.dll",
     "Test2.dll"

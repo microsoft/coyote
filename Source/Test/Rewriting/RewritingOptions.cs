@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Rewriting
             IList<string> ignoredAssemblies = null;
             IList<string> dependencySearchPaths = null;
             string strongNameKeyFile = null;
-            bool isRewritingConcurrentCollections = true;
+            bool isRewritingConcurrentCollections = false;
             bool isDataRaceCheckingEnabled = false;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
@@ -287,6 +287,9 @@ namespace Microsoft.Coyote.Rewriting
         [DataContract]
         private class JsonConfiguration
         {
+            // this one defaults to true.
+            private bool? isRewritingConcurrentCollections;
+
             [DataMember(Name = "AssembliesPath", IsRequired = true)]
             public string AssembliesPath { get; set; }
 
@@ -307,7 +310,11 @@ namespace Microsoft.Coyote.Rewriting
             public bool IsDataRaceCheckingEnabled { get; set; }
 
             [DataMember(Name = "IsRewritingConcurrentCollections")]
-            public bool IsRewritingConcurrentCollections { get; set; }
+            public bool IsRewritingConcurrentCollections
+            {
+                get { return this.isRewritingConcurrentCollections.HasValue ? this.isRewritingConcurrentCollections.Value : true; }
+                set { this.isRewritingConcurrentCollections = value; }
+            }
 
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }

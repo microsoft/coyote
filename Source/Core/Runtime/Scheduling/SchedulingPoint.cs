@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Default, false, true);
+                runtime.ScheduleNextOperation(AsyncOperationType.Default, false, true);
             }
         }
 
@@ -32,7 +32,36 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                CoyoteRuntime.Current.ScheduleNextOperation(AsyncOperationType.Yield, true, true);
+                runtime.ScheduleNextOperation(AsyncOperationType.Yield, true, true);
+            }
+        }
+
+        /// <summary>
+        /// Suppresses interleavings during testing until <see cref="Resume"/> is invoked.
+        /// </summary>
+        /// <remarks>
+        /// This method does not suppress interleavings that happen when an operation is waiting
+        /// some other operation to complete, when an operation completes and the scheduler
+        /// switches to a new operation, or interleavings from uncontrolled concurrency.
+        /// </remarks>
+        public static void Suppress()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.SuppressScheduling();
+            }
+        }
+
+        /// <summary>
+        /// Resumes interleavings during testing due to an invoked <see cref="Suppress"/>.
+        /// </summary>
+        public static void Resume()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.ResumeScheduling();
             }
         }
     }

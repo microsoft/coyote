@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            // ensure we have full parameter names!
+            // Ensure that we have full parameter names!
             var methodDef = monitorMethod.Resolve();
 
             foreach (var method in this.ControlledMonitorType.Methods)

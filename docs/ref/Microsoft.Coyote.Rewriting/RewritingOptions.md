@@ -17,6 +17,7 @@ public class RewritingOptions
 | [DependencySearchPaths](RewritingOptions/DependencySearchPaths.md) { get; set; } | The paths to search for resolving dependencies. |
 | [IgnoredAssemblies](RewritingOptions/IgnoredAssemblies.md) { get; set; } | The regular expressions used to match against assembly names to determine which assemblies to ignore when rewriting dependencies or a whole directory. |
 | [IsDataRaceCheckingEnabled](RewritingOptions/IsDataRaceCheckingEnabled.md) { get; set; } | True if rewriting for data race checking is enabled, else false. |
+| [IsRewritingConcurrentCollections](RewritingOptions/IsRewritingConcurrentCollections.md) { get; set; } | True if rewriting for concurrent collections is enabled, else false. |
 | [IsRewritingDependencies](RewritingOptions/IsRewritingDependencies.md) { get; set; } | True if rewriting dependent assemblies that are found in the same location is enabled, else false. |
 | [IsRewritingThreads](RewritingOptions/IsRewritingThreads.md) { get; } | True if rewriting Threads as controlled tasks. |
 | [IsRewritingUnitTests](RewritingOptions/IsRewritingUnitTests.md) { get; } | True if rewriting of unit test methods is enabled, else false. |

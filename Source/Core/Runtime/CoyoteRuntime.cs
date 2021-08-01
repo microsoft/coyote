@@ -1229,7 +1229,7 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal void SupressScheduling()
+        internal void SuppressScheduling()
         {
             lock (this.SyncObject)
             {

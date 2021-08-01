@@ -37,24 +37,24 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Supresses interleavings during testing until <see cref="Resume"/> is invoked.
+        /// Suppresses interleavings during testing until <see cref="Resume"/> is invoked.
         /// </summary>
         /// <remarks>
-        /// This method does not supress interleavings that happen when an operation is waiting
+        /// This method does not suppress interleavings that happen when an operation is waiting
         /// some other operation to complete, when an operation completes and the scheduler
         /// switches to a new operation, or interleavings from uncontrolled concurrency.
         /// </remarks>
-        public static void Supress()
+        public static void Suppress()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.SupressScheduling();
+                runtime.SuppressScheduling();
             }
         }
 
         /// <summary>
-        /// Resumes interleavings during testing due to an invoked <see cref="Supress"/>.
+        /// Resumes interleavings during testing due to an invoked <see cref="Suppress"/>.
         /// </summary>
         public static void Resume()
         {

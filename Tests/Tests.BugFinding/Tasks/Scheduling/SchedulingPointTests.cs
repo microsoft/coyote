@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 int value = 0;
 
-                SchedulingPoint.Supress();
+                SchedulingPoint.Suppress();
                 var t = Task.Run(() =>
                 {
                     value = 2;
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 int value = 0;
 
-                SchedulingPoint.Supress();
+                SchedulingPoint.Suppress();
                 var t = Task.Run(() =>
                 {
                     value = 2;
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 var t1 = Task.Run(() =>
                 {
-                    SchedulingPoint.Supress();
+                    SchedulingPoint.Suppress();
                     lock (set)
                     {
                         set.Remove(1);
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 var t2 = Task.Run(() =>
                 {
-                    SchedulingPoint.Supress();
+                    SchedulingPoint.Suppress();
                     lock (set)
                     {
                         set.Remove(2);
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.Test(async r =>
             {
                 // Make sure the scheduler does not deadlock.
-                SchedulingPoint.Supress();
+                SchedulingPoint.Suppress();
                 // Only interleavings of enabled operations should be suppressed.
                 await Task.Run(() => { });
             },

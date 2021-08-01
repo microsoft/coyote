@@ -1,3 +1,11 @@
+## v1.3.1
+- Added rewriting support for testing race conditions with several `System.Collections.Concurrent`
+  data structures.
+- Added rewriting support for testing `System.Collections.Generic.HashSet<T>` data races.
+- Added the `SchedulingPoint.Suppress` and `SchedulingPoint.Resume` methods for suppressing and
+  resuming interleavings of enabled operations, accordingly.
+- Fixed a memory leak in the testing engine.
+
 ## v1.3.0
 - Improved the binary rewriting engine and fixed various rewriting bugs.
 - Removed the deprecated `Microsoft.Coyote.Tasks` namespace. Testing task-based code should now only

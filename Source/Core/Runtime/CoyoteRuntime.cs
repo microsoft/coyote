@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Runtime
         private bool IsAttached;
 
         /// <summary>
-        /// True if the scheduler is suppressed, else false.
+        /// True if interleavings of enabled operations are suppressed, else false.
         /// </summary>
         private bool IsSchedulingSuppressed;
 

@@ -1,6 +1,9 @@
 ## v1.3.1
-- Added rewriting support for several concurrent collections.
-- Added rewriting support for `HashSet<T>`.
+- Added rewriting support for testing race conditions with several `System.Collections.Concurrent`
+  data structures.
+- Added rewriting support for testing `System.Collections.Generic.HashSet<T>` data races.
+- Added the `SchedulingPoint.Suppress` and `SchedulingPoint.Resume` methods for suppressing and
+  resuming interleavings of enabled operations, accordingly.
 - Fixed a memory leak in the testing engine.
 
 ## v1.3.0

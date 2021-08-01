@@ -804,6 +804,8 @@ toc:
           link: ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine
         - name: ToString
           link: ref/Microsoft.Coyote.IO/InMemoryLogger/ToString
+        - name: Dispose
+          link: ref/Microsoft.Coyote.IO/InMemoryLogger/Dispose
         - name: InMemoryLogger
           link: ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger
         - name: TextWriter
@@ -882,6 +884,10 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave
         - name: Deprioritize
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize
+        - name: Suppress
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
+        - name: Resume
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
     - name: Microsoft.Coyote.Specifications
       link: ref/Microsoft.Coyote.SpecificationsNamespace
       subfolderitems:
@@ -1004,6 +1010,8 @@ toc:
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths
         - name: StrongNameKeyFile
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
+        - name: IsRewritingConcurrentCollections
+          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingConcurrentCollections
         - name: IsDataRaceCheckingEnabled
           link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled
         - name: IsRewritingDependencies

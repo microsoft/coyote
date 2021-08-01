@@ -528,6 +528,7 @@ nav:
         - Write: ref/Microsoft.Coyote.IO/InMemoryLogger/Write.md
         - WriteLine: ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine.md
         - ToString: ref/Microsoft.Coyote.IO/InMemoryLogger/ToString.md
+        - Dispose: ref/Microsoft.Coyote.IO/InMemoryLogger/Dispose.md
         - InMemoryLogger: ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger.md
         - TextWriter: ref/Microsoft.Coyote.IO/InMemoryLogger/TextWriter.md
         - Encoding: ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding.md
@@ -571,6 +572,8 @@ nav:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
         - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
         - Deprioritize: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize.md
+        - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
+        - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
     - Microsoft.Coyote.Specifications:
       - Namespace Overview: ref/Microsoft.Coyote.SpecificationsNamespace.md
       - Monitor:
@@ -641,6 +644,7 @@ nav:
         - IgnoredAssemblies: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies.md
         - DependencySearchPaths: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths.md
         - StrongNameKeyFile: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile.md
+        - IsRewritingConcurrentCollections: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingConcurrentCollections.md
         - IsDataRaceCheckingEnabled: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled.md
         - IsRewritingDependencies: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies.md
         - IsRewritingUnitTests: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests.md

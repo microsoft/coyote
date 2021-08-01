@@ -19,6 +19,12 @@ public sealed class InMemoryLogger : TextWriter, ILogger
 | override [WriteLine](InMemoryLogger/WriteLine.md)(…) | Writes an informational string to the log. |
 | [WriteLine](InMemoryLogger/WriteLine.md)(…) | Writes a string followed by a line terminator to the text string or stream. (2 methods) |
 
+## Protected Members
+
+| name | description |
+| --- | --- |
+| override [Dispose](InMemoryLogger/Dispose.md)(…) | Releases the resources used by the logger. |
+
 ## Remarks
 
 See [Logging](/coyote/concepts/actors/logging) for more information.

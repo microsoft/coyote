@@ -1,4 +1,4 @@
-# ConsoleLogger.Write method (1 of 3)
+# ConsoleLogger.Write method (1 of 4)
 
 Writes an informational string to the log.
 
@@ -18,7 +18,7 @@ public override void Write(string value)
 
 ---
 
-# ConsoleLogger.Write method (2 of 3)
+# ConsoleLogger.Write method (2 of 4)
 
 Writes a string to the log.
 
@@ -40,7 +40,28 @@ public void Write(LogSeverity severity, string value)
 
 ---
 
-# ConsoleLogger.Write method (3 of 3)
+# ConsoleLogger.Write method (3 of 4)
+
+Writes an informational string to the log.
+
+```csharp
+public override void Write(string format, params object[] args)
+```
+
+| parameter | description |
+| --- | --- |
+| format | The string format to write. |
+| args | The arguments needed to format the string. |
+
+## See Also
+
+* class [ConsoleLogger](../ConsoleLogger.md)
+* namespace [Microsoft.Coyote.IO](../ConsoleLogger.md)
+* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
+
+---
+
+# ConsoleLogger.Write method (4 of 4)
 
 Writes a string to the log.
 

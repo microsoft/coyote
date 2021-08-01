@@ -1233,7 +1233,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Suppressing scheduling of operations.");
+                IO.Debug.WriteLine("<ScheduleDebug> Suppressing scheduling of enabled operations.");
                 this.IsSchedulingSuppressed = true;
             }
         }
@@ -1242,7 +1242,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Resuming scheduling of operations.");
+                IO.Debug.WriteLine("<ScheduleDebug> Resuming scheduling of enabled operations.");
                 this.IsSchedulingSuppressed = false;
             }
         }

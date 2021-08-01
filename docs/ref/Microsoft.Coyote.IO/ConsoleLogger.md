@@ -14,7 +14,7 @@ public sealed class ConsoleLogger : TextWriter, ILogger
 | override [Encoding](ConsoleLogger/Encoding.md) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
 | [LogLevel](ConsoleLogger/LogLevel.md) { get; set; } | The level of detail to report. |
 | [TextWriter](ConsoleLogger/TextWriter.md) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
-| override [Write](ConsoleLogger/Write.md)(…) | Writes an informational string to the log. |
+| override [Write](ConsoleLogger/Write.md)(…) | Writes an informational string to the log. (2 methods) |
 | [Write](ConsoleLogger/Write.md)(…) | Writes a string to the log. (2 methods) |
 | override [WriteLine](ConsoleLogger/WriteLine.md)(…) | Writes an informational string to the log. (2 methods) |
 | [WriteLine](ConsoleLogger/WriteLine.md)(…) | Writes a string followed by a line terminator to the text string or stream. (2 methods) |

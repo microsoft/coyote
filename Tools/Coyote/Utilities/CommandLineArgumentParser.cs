@@ -862,9 +862,9 @@ namespace Microsoft.Coyote.Utilities
                     continue;
                 }
 
-                bool supressed = !fullHelp && !g.AlwaysPrint && !this.IsGroupSelected(g);
+                bool suppressed = !fullHelp && !g.AlwaysPrint && !this.IsGroupSelected(g);
 
-                if (!supressed)
+                if (!suppressed)
                 {
                     output.WriteLine(g.Description + ":");
                     output.WriteLine(new string('-', g.Description.Length + 1));
@@ -882,7 +882,7 @@ namespace Microsoft.Coyote.Utilities
                     {
                         visitedOptions.Add(option);
 
-                        if (!supressed)
+                        if (!suppressed)
                         {
                             string syntax = "  ";
                             if (!string.IsNullOrEmpty(arg.ShortName))
@@ -915,7 +915,7 @@ namespace Microsoft.Coyote.Utilities
                     }
                 }
 
-                if (!supressed)
+                if (!suppressed)
                 {
                     output.WriteLine();
                 }

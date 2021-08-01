@@ -150,6 +150,11 @@ namespace Microsoft.Coyote.Runtime
         private bool IsAttached;
 
         /// <summary>
+        /// True if interleavings of enabled operations are suppressed, else false.
+        /// </summary>
+        private bool IsSchedulingSuppressed;
+
+        /// <summary>
         /// Checks if the schedule has been fully explored.
         /// </summary>
         private bool HasFullyExploredSchedule;
@@ -225,6 +230,7 @@ namespace Microsoft.Coyote.Runtime
             this.Scheduler = scheduler;
             this.IsRunning = true;
             this.IsAttached = true;
+            this.IsSchedulingSuppressed = false;
             this.IsBugFound = false;
             this.HasFullyExploredSchedule = false;
             this.SyncObject = new object();
@@ -1186,6 +1192,12 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
+                if (this.IsSchedulingSuppressed && current.Status is AsyncOperationStatus.Enabled)
+                {
+                    // Suppress the interleaving.
+                    return;
+                }
+
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
@@ -1214,6 +1226,24 @@ namespace Microsoft.Coyote.Runtime
                     this.ScheduledOperation = next;
                     this.PauseOperation(current);
                 }
+            }
+        }
+
+        internal void SuppressScheduling()
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Suppressing scheduling of enabled operations.");
+                this.IsSchedulingSuppressed = true;
+            }
+        }
+
+        internal void ResumeScheduling()
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Resuming scheduling of enabled operations.");
+                this.IsSchedulingSuppressed = false;
             }
         }
 

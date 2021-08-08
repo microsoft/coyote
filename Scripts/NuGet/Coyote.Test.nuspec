@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
+    <readme>docs\README.md</readme>
     <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
@@ -67,6 +68,8 @@
     <file src="..\..\bin\net462\*.xml" target="lib\net462" />
     <file src="..\..\bin\net462\*.pdb" target="lib\net462" />
     <file src="..\..\bin\net462\*.exe.config" target="lib\net462" />
+    <!-- Readme -->
+    <file src="..\..\REDME.md" target="docs\" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

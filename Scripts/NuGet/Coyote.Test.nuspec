@@ -69,7 +69,7 @@
     <file src="..\..\bin\net462\*.pdb" target="lib\net462" />
     <file src="..\..\bin\net462\*.exe.config" target="lib\net462" />
     <!-- Readme -->
-    <file src="..\..\REDME.md" target="docs\" />
+    <file src="..\..\README.md" target="docs\" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

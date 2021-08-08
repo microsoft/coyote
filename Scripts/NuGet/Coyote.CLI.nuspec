@@ -31,7 +31,7 @@
     <file src="..\..\bin\netcoreapp3.1\*.config" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="tools\netcoreapp3.1\any" />
     <!-- Readme -->
-    <file src="..\..\REDME.md" target="docs\" />
+    <file src="..\..\README.md" target="docs\" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

@@ -44,11 +44,33 @@ namespace Microsoft.Coyote.Interception
                 var runtime = CoyoteRuntime.Current;
                 return System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken,
                     TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler);
-                // return runtime.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
-                //     false, cancellationToken);
             }
 
             return Task.Run(FuzzingProvider.CreateAction(action), cancellationToken);
+        }
+
+        /// <summary>
+        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
+        /// object that represents that work.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> Run<TResult>(Func<TResult> function) => Run(function, default);
+
+        /// <summary>
+        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
+        /// object that represents that work. A cancellation token allows the work to be cancelled.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var runtime = CoyoteRuntime.Current;
+                return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
+                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler);
+            }
+
+            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
         }
 
         /// <summary>
@@ -71,8 +93,6 @@ namespace Microsoft.Coyote.Interception
                 var runtime = CoyoteRuntime.Current;
                 return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
                     TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler).Unwrap();
-                // var task = runtime.ScheduleFunction(function, null, cancellationToken);
-                // return runtime.UnwrapTask(task);
             }
 
             return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
@@ -96,42 +116,20 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var runtime = CoyoteRuntime.Current;
-                var task = runtime.ScheduleFunction(function, null, cancellationToken);
-                return runtime.UnwrapTask(task);
+                return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
+                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler).Unwrap();
             }
 
             return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
         }
 
         /// <summary>
-        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
-        /// object that represents that work.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult> Run<TResult>(Func<TResult> function) => Run(function, default);
-
-        /// <summary>
-        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
-        /// object that represents that work. A cancellation token allows the work to be cancelled.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken) :
-            Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
-
-        /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(int millisecondsDelay)
-        {
-            //
-            //  => CoyoteRuntime.IsExecutionControlled ?
-            //     CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
-            //     Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
-            return Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
-        }
+        public static Task Delay(int millisecondsDelay) => CoyoteRuntime.IsExecutionControlled ?
+            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
+            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.

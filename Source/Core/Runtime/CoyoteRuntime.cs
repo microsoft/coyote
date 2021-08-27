@@ -30,20 +30,19 @@ namespace Microsoft.Coyote.Runtime
     internal sealed class CoyoteRuntime : IDisposable
     {
         /// <summary>
-        /// Provides access to the runtime associated with each asynchronous control flow.
+        /// Provides access to the runtime associated with each controlled thread.
         /// </summary>
         /// <remarks>
         /// In testing mode, each testing iteration uses a unique runtime instance. To safely
-        /// retrieve it from static methods, we store it in each asynchronous control flow.
+        /// retrieve it from static methods, we store it in each controlled thread local state.
         /// </remarks>
-        private static readonly AsyncLocal<CoyoteRuntime> AsyncLocalInstance = new AsyncLocal<CoyoteRuntime>();
+        private static readonly ThreadLocal<CoyoteRuntime> ThreadLocalInstance =
+            new ThreadLocal<CoyoteRuntime>(false);
 
         /// <summary>
-        /// Provides access to the operation executing on each asynchronous control flow
+        /// Provides access to the operation executing on each controlled thread
         /// during systematic testing.
         /// </summary>
-        // private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
-        //     new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
         private static readonly ThreadLocal<AsyncOperation> ExecutingOperation =
             new ThreadLocal<AsyncOperation>(false);
 
@@ -54,7 +53,7 @@ namespace Microsoft.Coyote.Runtime
         {
             get
             {
-                CoyoteRuntime runtime = AsyncLocalInstance.Value;
+                CoyoteRuntime runtime = ThreadLocalInstance.Value;
                 if (runtime is null)
                 {
                     if (IsExecutionControlled)
@@ -126,11 +125,6 @@ namespace Microsoft.Coyote.Runtime
         /// The currently scheduled asynchronous operation during systematic testing.
         /// </summary>
         private AsyncOperation ScheduledOperation;
-
-        /// <summary>
-        /// The root task id.
-        /// </summary>
-        private readonly int? RootTaskId;
 
         /// <summary>
         /// The scheduler completion source.
@@ -243,7 +237,6 @@ namespace Microsoft.Coyote.Runtime
             this.HasFullyExploredSchedule = false;
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
-            this.RootTaskId = Task.CurrentId;
 
             this.OperationMap = new Dictionary<ulong, AsyncOperation>();
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
@@ -305,9 +298,9 @@ namespace Microsoft.Coyote.Runtime
                 {
                     try
                     {
-                        // Update the current asynchronous control flow with the current runtime instance,
-                        // allowing future retrieval in the same asynchronous call stack.
-                        AssignAsyncControlFlowRuntime(this);
+                        // Update the current controlled thread with this runtime instance,
+                        // allowing future retrieval in the same controlled thread.
+                        SetCurrentRuntime(this);
 
                         if (testMethod is Action<IActorRuntime> actionWithRuntime)
                         {
@@ -356,9 +349,9 @@ namespace Microsoft.Coyote.Runtime
 
                     try
                     {
-                        // Update the current asynchronous control flow with the current runtime instance,
-                        // allowing future retrieval in the same asynchronous call stack.
-                        AssignAsyncControlFlowRuntime(this);
+                        // Update the current controlled thread with this runtime instance,
+                        // allowing future retrieval in the same controlled thread.
+                        SetCurrentRuntime(this);
 
                         // Set the synchronization context to the controlled synchronization context.
                         SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -431,9 +424,9 @@ namespace Microsoft.Coyote.Runtime
             //     {
             //         try
             //         {
-            //             // Update the current asynchronous control flow with the current runtime instance,
-            //             // allowing future retrieval in the same asynchronous call stack.
-            //             AssignAsyncControlFlowRuntime(this);
+            //             // Update the current controlled thread with this runtime instance,
+            // // allowing future retrieval in the same controlled thread.
+            // SetCurrentRuntime(this);
             //
             //             this.StartOperation(op);
             //
@@ -493,7 +486,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new task operation.
         /// </summary>
-        internal TaskOperation CreateTaskOperation(bool isDelay = false)
+        private TaskOperation CreateTaskOperation(bool isDelay = false)
         {
             ulong operationId = this.GetNextOperationId();
             TaskOperation op;
@@ -518,9 +511,10 @@ namespace Microsoft.Coyote.Runtime
             Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
 
             bool pauseOnStart = true;
-            TaskOperation op = this.CreateTaskOperation();
+            TaskOperation op = task.AsyncState is TaskOperation existingOp ? existingOp : this.CreateTaskOperation();
             if (this.ScheduledOperation == op)
             {
+                // This is the first operation created and scheduled.
                 Console.WriteLine($"   RT: Schedule: first op: {op}");
                 pauseOnStart = false;
             }
@@ -530,9 +524,9 @@ namespace Microsoft.Coyote.Runtime
                 try
                 {
                     Console.WriteLine($"   TS: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-                    // Update the current asynchronous control flow with the current runtime instance,
-                    // allowing future retrieval in the same asynchronous call stack.
-                    AssignAsyncControlFlowRuntime(this);
+                    // Update the current controlled thread with this runtime instance,
+                    // allowing future retrieval in the same controlled thread.
+                    SetCurrentRuntime(this);
 
                     // Set the synchronization context to the controlled synchronization context.
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -576,9 +570,9 @@ namespace Microsoft.Coyote.Runtime
                 try
                 {
                     Console.WriteLine($"   SC: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                    // Update the current asynchronous control flow with the current runtime instance,
-                    // allowing future retrieval in the same asynchronous call stack.
-                    AssignAsyncControlFlowRuntime(this);
+                    // Update the current controlled thread with this runtime instance,
+                    // allowing future retrieval in the same controlled thread.
+                    SetCurrentRuntime(this);
 
                     // Set the synchronization context to the controlled synchronization context.
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -604,6 +598,35 @@ namespace Microsoft.Coyote.Runtime
 
             this.WaitOperationStart(op);
             this.ScheduleNextOperation(AsyncOperationType.Create);
+        }
+
+        /// <summary>
+        /// Schedules the specified delay to be executed asynchronously.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            // TODO: support cancellations during testing.
+            if (delay.TotalMilliseconds is 0)
+            {
+                // If the delay is 0, then complete synchronously.
+                return Task.CompletedTask;
+            }
+
+            // TODO: cache the dummy delay action to optimize memory.
+            // var options = OperationContext.CreateOperationExecutionOptions();
+            // return this.ScheduleAction(() => { }, null, options, true, cancellationToken);
+            TaskOperation op = this.CreateTaskOperation(true);
+            return System.Threading.Tasks.Task.Factory.StartNew(state =>
+            {
+                if (state is TaskDelayOperation delayOp)
+                {
+                    // Delay the scheduling of this operation.
+                    delayOp.DelayUntilTimeout();
+                }
+            }, op, cancellationToken, TaskCreationOptions.DenyChildAttach, this.OperationTaskScheduler);
         }
 
         /// <summary>
@@ -733,9 +756,9 @@ namespace Microsoft.Coyote.Runtime
 
             try
             {
-                // Update the current asynchronous control flow with the current runtime instance,
-                // allowing future retrieval in the same asynchronous call stack.
-                AssignAsyncControlFlowRuntime(this);
+                // Update the current controlled thread with this runtime instance,
+                // allowing future retrieval in the same controlled thread.
+                SetCurrentRuntime(this);
 
                 // Notify the scheduler that the operation started. This will yield execution until
                 // the operation is ready to get scheduled.
@@ -817,9 +840,9 @@ namespace Microsoft.Coyote.Runtime
 
             try
             {
-                // Update the current asynchronous control flow with the current runtime instance,
-                // allowing future retrieval in the same asynchronous call stack.
-                AssignAsyncControlFlowRuntime(this);
+                // Update the current controlled thread with this runtime instance,
+                // allowing future retrieval in the same controlled thread.
+                SetCurrentRuntime(this);
 
                 // Notify the scheduler that the operation started. This will yield execution until
                 // the operation is ready to get scheduled.
@@ -926,31 +949,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 tcs.SetResult(result);
             }
-        }
-
-        /// <summary>
-        /// Schedules the specified delay to be executed asynchronously.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                throw new NotSupportedException($"8: {new StackTrace()}");
-            }
-
-            // TODO: support cancellations during testing.
-            if (delay.TotalMilliseconds is 0)
-            {
-                // If the delay is 0, then complete synchronously.
-                return Task.CompletedTask;
-            }
-
-            // TODO: cache the dummy delay action to optimize memory.
-            var options = OperationContext.CreateOperationExecutionOptions();
-            return this.ScheduleAction(() => { }, null, options, true, cancellationToken);
         }
 
         /// <summary>
@@ -1325,7 +1323,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                AssignAsyncControlFlowRuntime(this);
+                SetCurrentRuntime(this);
             }
         }
 
@@ -1405,6 +1403,12 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
+                if (!this.IsAttached)
+                {
+                    // The scheduler is detached, so we can't schedule any operations.
+                    return;
+                }
+
                 if (checkCaller)
                 {
                     var callerOp = this.GetExecutingOperation<AsyncOperation>();
@@ -1414,17 +1418,9 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                int? taskId = Task.CurrentId;
-
-                // TODO: figure out if this check is still needed.
-                // If the caller is the root task, then return.
-                if (taskId != null && taskId == this.RootTaskId)
-                {
-                    return;
-                }
+                // this.ThrowExecutionCanceledExceptionIfDetached();
 
                 AsyncOperation current = this.ScheduledOperation;
-                this.ThrowExecutionCanceledExceptionIfDetached();
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
                     // Checks if the current operation is controlled by the runtime.
@@ -1553,9 +1549,9 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
-                // Update the current asynchronous control flow with the current runtime instance,
-                // allowing future retrieval in the same asynchronous call stack.
-                AssignAsyncControlFlowRuntime(this);
+                // Update the current controlled thread with this runtime instance,
+                // allowing future retrieval in the same controlled thread.
+                SetCurrentRuntime(this);
 
                 // Choose the next delay to inject.
                 int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
@@ -2411,22 +2407,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Assigns the specified runtime as the default for the current asynchronous control flow.
+        /// Assigns the specified runtime as the default for the current controlled thread.
         /// </summary>
-        internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
-
-        /// <summary>
-        /// Invoked each time the <see cref="ExecutingOperation"/> async local value changes.
-        /// </summary>
-        private static void OnAsyncLocalExecutingOperationValueChanged(AsyncLocalValueChangedArgs<AsyncOperation> args)
-        {
-            if (args.ThreadContextChanged && args.PreviousValue != null && args.CurrentValue != null)
-            {
-                // Restore the value if it changed due to a change in the thread context,
-                // but the previous and current value where not null.
-                ExecutingOperation.Value = args.PreviousValue;
-            }
-        }
+        internal static void SetCurrentRuntime(CoyoteRuntime runtime) => ThreadLocalInstance.Value = runtime;
 
         /// <summary>
         /// Waits until the execution terminates.
@@ -2479,7 +2462,7 @@ namespace Microsoft.Coyote.Runtime
             if (cancelExecution)
             {
                 // Throw exception to force terminate the current operation.
-                throw new ExecutionCanceledException();
+                this.ThrowExecutionCanceledExceptionIfDetached();
             }
         }
 
@@ -2511,7 +2494,7 @@ namespace Microsoft.Coyote.Runtime
                     this.DeadlockMonitor.Dispose();
                 }
 
-                AssignAsyncControlFlowRuntime(null);
+                SetCurrentRuntime(null);
             }
         }
 

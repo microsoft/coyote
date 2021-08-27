@@ -1145,9 +1145,9 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        // Update the current asynchronous control flow with this runtime instance,
-                        // allowing future retrieval in the same asynchronous call stack.
-                        CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
+                        // Update the current controlled thread with this runtime instance,
+                        // allowing future retrieval in the same controlled thread.
+                        CoyoteRuntime.SetCurrentRuntime(this.Runtime);
 
                         this.Runtime.StartOperation(op);
 

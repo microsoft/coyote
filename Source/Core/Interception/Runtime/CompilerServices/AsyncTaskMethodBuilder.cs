@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -72,6 +73,12 @@ namespace Microsoft.Coyote.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> State machine context '{0}'.", SynchronizationContext.Current?.GetType());
+            if (SynchronizationContext.Current is null)
+            {
+                IO.Debug.WriteLine("<AsyncBuilder> State machine context: {0}", new StackTrace());
+            }
+
             this.Runtime?.CheckExecutingOperationIsControlled();
             this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
@@ -99,7 +106,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public void SetException(Exception exception)
         {
-            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
+            // this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
             this.MethodBuilder.SetException(exception);
         }
 
@@ -110,8 +117,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : INotifyCompletion
-            where TStateMachine : IAsyncStateMachine =>
+            where TStateMachine : IAsyncStateMachine
+        {
+            IO.Debug.WriteLine("<AsyncBuilder> (AwaitOnCompleted) State machine context '{0}'.", SynchronizationContext.Current?.GetType());
+            if (SynchronizationContext.Current is null)
+            {
+                IO.Debug.WriteLine("<AsyncBuilder> State machine context: {0}", new StackTrace());
+            }
+
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -120,8 +135,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
-            where TStateMachine : IAsyncStateMachine =>
+            where TStateMachine : IAsyncStateMachine
+        {
+            IO.Debug.WriteLine("<AsyncBuilder> (AwaitUnsafeOnCompleted) State machine context '{0}'.", SynchronizationContext.Current?.GetType());
+            if (SynchronizationContext.Current is null)
+            {
+                IO.Debug.WriteLine("<AsyncBuilder> State machine context: {0}", new StackTrace());
+            }
+
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+        }
     }
 
     /// <summary>
@@ -215,7 +238,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public void SetException(Exception exception)
         {
-            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
+            // this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
             this.MethodBuilder.SetException(exception);
         }
 

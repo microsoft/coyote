@@ -81,11 +81,11 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             public void OnCompleted(Action continuation)
             {
-                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                {
-                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
-                }
-                else
+                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                // {
+                //     this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
+                // }
+                // else
                 {
                     this.Awaiter.OnCompleted(continuation);
                 }
@@ -96,11 +96,11 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             public void UnsafeOnCompleted(Action continuation)
             {
-                if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                {
-                    this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
-                }
-                else
+                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                // {
+                //     this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
+                // }
+                // else
                 {
                     this.Awaiter.UnsafeOnCompleted(continuation);
                 }

@@ -76,11 +76,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
-            if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            }
-            else
+            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            // {
+            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            // }
+            // else
             {
                 this.Awaiter.OnCompleted(continuation);
             }
@@ -92,11 +92,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            }
-            else
+            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            // {
+            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            // }
+            // else
             {
                 this.Awaiter.UnsafeOnCompleted(continuation);
             }
@@ -180,11 +180,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
-            if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            }
-            else
+            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            // {
+            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            // }
+            // else
             {
                 this.Awaiter.OnCompleted(continuation);
             }
@@ -196,11 +196,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            }
-            else
+            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            // {
+            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            // }
+            // else
             {
                 this.Awaiter.UnsafeOnCompleted(continuation);
             }

@@ -25,12 +25,6 @@ namespace Microsoft.Coyote.Interception
         // aim to support user applications with code that explicitly uses the `TaskFactory`.
 
         /// <summary>
-        /// Cache of methods for optimizing invocation to the controlled runtime, when
-        /// the static type of the task generic argument is not available.
-        /// </summary>
-        private readonly ConcurrentDictionary<Type, MethodInfo> MethodCache = new ConcurrentDictionary<Type, MethodInfo>();
-
-        /// <summary>
         /// The default task continuation options for this task factory.
         /// </summary>
         public TaskContinuationOptions ContinuationOptions => Task.Factory.ContinuationOptions;
@@ -58,10 +52,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates and starts a <see cref="Task"/>.
         /// </summary>
-        public Task StartNew(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
-                false, cancellationToken) :
-            Task.Factory.StartNew(action, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
+        public Task StartNew(Action action, CancellationToken cancellationToken) =>
+            Task.Factory.StartNew(action, cancellationToken, TaskCreationOptions.None, CoyoteRuntime.IsExecutionControlled ?
+                CoyoteRuntime.Current.OperationTaskScheduler : TaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a <see cref="Task"/>.
@@ -114,32 +107,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates and starts a <see cref="Task{TResult}"/>.
         /// </summary>
-        public Task<TResult> StartNew<TResult>(Func<TResult> function, CancellationToken cancellationToken)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                Type resultType = typeof(TResult);
-                if (resultType.IsGenericType && resultType.GetGenericTypeDefinition() == typeof(Task<>))
-                {
-                    // TODO: we can optimize this further to avoid the cost of reflection and array allocations by doing
-                    // binary rewriting to an instantiated override of this method, but that will make rewriting much more
-                    // complex, which is not currently worth it as this is a non-typical method invocation.
-                    MethodInfo method = this.MethodCache.GetOrAdd(resultType,
-                        type => typeof(CoyoteRuntime).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
-                        First(m => m.IsGenericMethodDefinition && m.Name is "ScheduleFunction").
-                        MakeGenericMethod(type.GetGenericArguments()));
-                    return (Task<TResult>)method.Invoke(CoyoteRuntime.Current, new object[] { function, null, cancellationToken });
-                }
-                else if (!resultType.IsGenericType && function is Func<Task> taskFunction)
-                {
-                    return CoyoteRuntime.Current.ScheduleFunction(taskFunction, null, cancellationToken) as Task<TResult>;
-                }
-
-                return CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken);
-            }
-
-            return Task.Factory.StartNew(function, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
-        }
+        public Task<TResult> StartNew<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
+            Task.Factory.StartNew(function, cancellationToken, TaskCreationOptions.None, CoyoteRuntime.IsExecutionControlled ?
+                CoyoteRuntime.Current.OperationTaskScheduler : TaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a <see cref="Task{TResult}"/>.

@@ -28,6 +28,17 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestDoubleTaskYield()
+        {
+            this.Test(async () =>
+            {
+                await Task.Yield();
+                await Task.Yield();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestAsynchronousTaskYield()
         {
             this.Test(async () =>

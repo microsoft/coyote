@@ -41,9 +41,10 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = CoyoteRuntime.Current;
-                return System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken,
-                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler);
+                var taskFactory = CoyoteRuntime.Current.TaskFactory;
+                return taskFactory.StartNew(action, cancellationToken,
+                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    taskFactory.Scheduler);
             }
 
             return Task.Run(FuzzingProvider.CreateAction(action), cancellationToken);
@@ -65,9 +66,10 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = CoyoteRuntime.Current;
-                return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
-                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler);
+                var taskFactory = CoyoteRuntime.Current.TaskFactory;
+                return taskFactory.StartNew(function, cancellationToken,
+                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    taskFactory.Scheduler);
             }
 
             return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
@@ -90,9 +92,10 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = CoyoteRuntime.Current;
-                return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
-                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler).Unwrap();
+                var taskFactory = CoyoteRuntime.Current.TaskFactory;
+                return taskFactory.StartNew(function, cancellationToken,
+                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    taskFactory.Scheduler).Unwrap();
             }
 
             return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
@@ -115,9 +118,10 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = CoyoteRuntime.Current;
-                return System.Threading.Tasks.Task.Factory.StartNew(function, cancellationToken,
-                    TaskCreationOptions.DenyChildAttach, runtime.OperationTaskScheduler).Unwrap();
+                var taskFactory = CoyoteRuntime.Current.TaskFactory;
+                return taskFactory.StartNew(function, cancellationToken,
+                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    taskFactory.Scheduler).Unwrap();
             }
 
             return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
@@ -159,52 +163,42 @@ namespace Microsoft.Coyote.Interception
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+        public static Task WhenAll(params Task[] tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(IEnumerable<Task> tasks)
-        {
-            // => CoyoteRuntime.IsExecutionControlled ?
-            // CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
-            return Task.WhenAll(tasks);
-        }
+        public static Task WhenAll(IEnumerable<Task> tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
+        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+        public static Task<Task> WhenAny(params Task[] tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+        public static Task<Task> WhenAny(IEnumerable<Task> tasks) => Task.WhenAny(tasks);
 
 #if NET5_0
         /// <summary>
@@ -212,16 +206,14 @@ namespace Microsoft.Coyote.Interception
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(Task t1, Task t2) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task[] { t1, t2 }) : Task.WhenAny(t1, t2);
+        public static Task<Task> WhenAny(Task t1, Task t2) => Task.WhenAny(t1, t2);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when either of the
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task<TResult>[] { t1, t2 }) : Task.WhenAny(t1, t2);
+        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => Task.WhenAny(t1, t2);
 #endif
 
         /// <summary>
@@ -229,16 +221,14 @@ namespace Microsoft.Coyote.Interception
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Waits for all of the provided <see cref="Task"/> objects to complete execution.

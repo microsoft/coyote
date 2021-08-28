@@ -511,8 +511,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
                 // Runs the test and waits for it to terminate.
-                runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
-                runtime.WaitAsync().Wait();
+                Task task = runtime.RunTestAsync(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
+                task.Wait();
 
                 // Invokes the user-specified iteration disposal method.
                 this.TestMethodInfo.DisposeCurrentIteration();

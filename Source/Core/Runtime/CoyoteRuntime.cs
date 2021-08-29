@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.Runtime
                     SetCurrentRuntime(this);
 
                     TaskFactory taskFactory = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ?
-                        Task.Factory : this.TaskFactory;
+                        new TaskFactory(TaskScheduler.Default) : this.TaskFactory;
                     if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
                         // Set the synchronization context to the controlled synchronization context.
@@ -405,8 +405,10 @@ namespace Microsoft.Coyote.Runtime
                 this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
                     Timeout.InfiniteTimeSpan);
             }
-
-            this.ThreadPool.TryAdd(op.Id, thread);
+            else
+            {
+                this.ThreadPool.TryAdd(op.Id, thread);
+            }
 
             thread.IsBackground = true;
             thread.Start();

@@ -12,60 +12,9 @@ using System.Threading.Tasks;
 #pragma warning disable SA1005 // Single line comments should begin with single space
 namespace Microsoft.Coyote.Runtime
 {
-    //public class OperationTaskScheduler : TaskScheduler
-    //{
-    //    private readonly SynchronizationContext Context;
-    //    private readonly TaskScheduler OriginalScheduler;
-
-    //    // private int Counter;
-
-    //    public OperationTaskScheduler(SynchronizationContext context, TaskScheduler current)
-    //    {
-    //        Console.WriteLine($"      TS: New CoyoteTaskScheduler: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-    //        this.Context = context;
-    //        this.OriginalScheduler = current;
-    //        // this.Counter = 0;
-    //    }
-
-    //    protected override IEnumerable<Task> GetScheduledTasks()
-    //    {
-    //        Console.WriteLine($"      TS: GetScheduledTasks: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-    //        MethodInfo method = typeof(TaskScheduler).GetMethod("GetScheduledTasks", BindingFlags.NonPublic | BindingFlags.Instance);
-    //        return (IEnumerable<Task>)method.Invoke(this.OriginalScheduler, Array.Empty<object>());
-    //    }
-
-    //    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-    //    {
-    //        // return false;
-    //        // if (this.Counter > 0)
-    //        // {
-    //        //    return true;
-    //        // }
-
-    //        // this.Counter++;
-    //        Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-    //        MethodInfo method = typeof(TaskScheduler).GetMethod("TryExecuteTaskInline", BindingFlags.NonPublic | BindingFlags.Instance);
-    //        var result = (bool)method.Invoke(this.OriginalScheduler, new object[] { task, taskWasPreviouslyQueued });
-    //        Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}; res: {result}");
-    //        return result;
-    //    }
-
-    //    protected override void QueueTask(Task task)
-    //    {
-    //        Console.WriteLine($"      TS: QueueTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-    //        // MethodInfo method = typeof(TaskScheduler).GetMethod("QueueTask", BindingFlags.NonPublic | BindingFlags.Instance);
-    //        // method.Invoke(this.OriginalScheduler, new object[] { task });
-    //    }
-
-    //    protected override bool TryDequeue(Task task)
-    //    {
-    //        Console.WriteLine($"      TS: TryDequeue: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-    //        MethodInfo method = typeof(TaskScheduler).GetMethod("TryDequeue", BindingFlags.NonPublic | BindingFlags.Instance);
-    //        return (bool)method.Invoke(this.OriginalScheduler, new object[] { task });
-    //    }
-    //}
-
-    /// <summary>Provides a task scheduler that targets a specific SynchronizationContext.</summary>
+    /// <summary>
+    /// A scheduler that controls the scheduled tasks.
+    /// </summary>
     internal sealed class OperationTaskScheduler : TaskScheduler
     {
         /// <summary>

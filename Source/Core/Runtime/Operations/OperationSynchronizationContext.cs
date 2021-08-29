@@ -2,14 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 
 namespace Microsoft.Coyote.Runtime
 {
-    public sealed class OperationSynchronizationContext : SynchronizationContext, IDisposable
+    /// <summary>
+    /// The synchronization context where controlled operations are executed.
+    /// </summary>
+    internal sealed class OperationSynchronizationContext : SynchronizationContext, IDisposable
     {
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
@@ -45,7 +46,18 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public override void Post(SendOrPostCallback d, object state) => this.Runtime.Schedule(d, state);
+        public override void Post(SendOrPostCallback d, object state)
+        {
+            try
+            {
+                this.Runtime?.Schedule(d, state);
+            }
+            catch (ThreadInterruptedException)
+            {
+                // Ignore the thread interruption.
+                Console.WriteLine($">>>>>>>>>>>> SC: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+            }
+        }
 
         /// <inheritdoc/>
         public override void OperationStarted()
@@ -59,32 +71,32 @@ namespace Microsoft.Coyote.Runtime
             Console.WriteLine($"      SC: OperationCompleted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
         }
 
-        /// <inheritdoc/>
-        public override int Wait(IntPtr[] waitHandles, bool waitAll, int millisecondsTimeout)
-        {
-            SetSynchronizationContext(this.OriginalSynchronizationContext);
-            Console.WriteLine($"      SC: Wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-            // Console.WriteLine($"      SC:   |_ waitHandles: {waitHandles.Length}");
-
-            // Console.WriteLine($"      SC: Waiting ... thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
-            // if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     // var op = this.Runtime.GetExecutingOperation<Operation>();
-            //     // Console.WriteLine($"      SC: Wait: op: {op?.Name}");
-            //     // op?.BlockUntilWaitHandlesComplete(waitHandles, waitAll);
-            // }
-            // else if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            // {
-            //     this.Runtime.DelayOperation();
-            // }
-
-            // Console.WriteLine($"      SC: Done waiting ... thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
-            var result = base.Wait(waitHandles, waitAll, millisecondsTimeout);
-            SetSynchronizationContext(this);
-            return result;
-        }
+        // /// <inheritdoc/>
+        // public override int Wait(IntPtr[] waitHandles, bool waitAll, int millisecondsTimeout)
+        // {
+        //     SetSynchronizationContext(this.OriginalSynchronizationContext);
+        //     Console.WriteLine($"      SC: Wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+        //     // Console.WriteLine($"      SC:   |_ waitHandles: {waitHandles.Length}");
+        //
+        //     // Console.WriteLine($"      SC: Waiting ... thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+        //
+        //     // if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+        //     // {
+        //     //     // var op = this.Runtime.GetExecutingOperation<Operation>();
+        //     //     // Console.WriteLine($"      SC: Wait: op: {op?.Name}");
+        //     //     // op?.BlockUntilWaitHandlesComplete(waitHandles, waitAll);
+        //     // }
+        //     // else if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+        //     // {
+        //     //     this.Runtime.DelayOperation();
+        //     // }
+        //
+        //     // Console.WriteLine($"      SC: Done waiting ... thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+        //
+        //     var result = base.Wait(waitHandles, waitAll, millisecondsTimeout);
+        //     SetSynchronizationContext(this);
+        //     return result;
+        // }
 
         /// <inheritdoc/>
         public override SynchronizationContext CreateCopy()

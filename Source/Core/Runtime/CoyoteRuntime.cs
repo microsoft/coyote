@@ -389,6 +389,11 @@ namespace Microsoft.Coyote.Runtime
                     if (ex is ThreadInterruptedException tie)
                     {
                         Console.WriteLine($">>>>>>>>>>>> RT: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                        // lock (this.ThreadPool)
+                        // {
+                        //     var tid = Thread.CurrentThread.ManagedThreadId;
+                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> RunTestAsync: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
+                        // }
                     }
 
                     if (!(ex is ExecutionCanceledException))
@@ -532,6 +537,11 @@ namespace Microsoft.Coyote.Runtime
                     if (ex is ThreadInterruptedException tie)
                     {
                         Console.WriteLine($">>>>>>>>>>>> TS: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
+                        // lock (this.ThreadPool)
+                        // {
+                        //     var tid = Thread.CurrentThread.ManagedThreadId;
+                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> ScheduleTask: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
+                        // }
                     }
 
                     if (!(ex is ExecutionCanceledException))
@@ -582,6 +592,11 @@ namespace Microsoft.Coyote.Runtime
                     if (ex is ThreadInterruptedException tie)
                     {
                         Console.WriteLine($">>>>>>>>>>>> SC: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                        // lock (this.ThreadPool)
+                        // {
+                        //     var tid = Thread.CurrentThread.ManagedThreadId;
+                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> SchedulePost: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
+                        // }
                     }
 
                     if (!(ex is ExecutionCanceledException))
@@ -1728,22 +1743,35 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void PauseOperation(AsyncOperation op)
         {
-            SyncMonitor.PulseAll(this.SyncObject);
-            if (op.Status is AsyncOperationStatus.Completed ||
-                op.Status is AsyncOperationStatus.Canceled)
+            try
             {
-                // The operation is completed or canceled, so no need to wait.
-                return;
-            }
+                SyncMonitor.PulseAll(this.SyncObject);
+                if (op.Status is AsyncOperationStatus.Completed ||
+                    op.Status is AsyncOperationStatus.Canceled)
+                {
+                    // The operation is completed or canceled, so no need to wait.
+                    return;
+                }
 
-            while (op != this.ScheduledOperation && this.IsAttached)
+                while (op != this.ScheduledOperation && this.IsAttached)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                    SyncMonitor.Wait(this.SyncObject);
+                    IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                }
+
+                this.ThrowExecutionCanceledExceptionIfDetached();
+            }
+            catch (ThreadInterruptedException)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-                SyncMonitor.Wait(this.SyncObject);
-                IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
-            }
+                var tid = Thread.CurrentThread.ManagedThreadId;
+                // lock (this.ThreadPool)
+                // {
+                //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> PauseOperation: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}; {new StackTrace()}");
+                // }
 
-            this.ThrowExecutionCanceledExceptionIfDetached();
+                throw new ThreadInterruptedException($"THREAD INTERRUPTED {tid} - {new StackTrace()}");
+            }
         }
 
         internal void CompleteOperation(AsyncOperation op)

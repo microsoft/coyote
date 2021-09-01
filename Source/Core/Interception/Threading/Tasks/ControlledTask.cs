@@ -385,7 +385,7 @@ namespace Microsoft.Coyote.Interception
         public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
         {
             var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
+            // runtime?.AssertIsAwaitedTaskControlled(task);
             return new ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
         }
 
@@ -443,7 +443,7 @@ namespace Microsoft.Coyote.Interception
         public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
         {
             var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
+            // runtime?.AssertIsAwaitedTaskControlled(task);
             return new ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types

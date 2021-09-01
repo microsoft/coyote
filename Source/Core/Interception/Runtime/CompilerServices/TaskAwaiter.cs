@@ -74,33 +74,13 @@ namespace Microsoft.Coyote.Interception
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnCompleted(Action continuation)
-        {
-            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            // }
-            // else
-            {
-                this.Awaiter.OnCompleted(continuation);
-            }
-        }
+        public void OnCompleted(Action continuation) => this.Awaiter.OnCompleted(continuation);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnsafeOnCompleted(Action continuation)
-        {
-            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            // }
-            // else
-            {
-                this.Awaiter.UnsafeOnCompleted(continuation);
-            }
-        }
+        public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
 
         /// <summary>
         /// Wraps the specified task awaiter.
@@ -178,32 +158,12 @@ namespace Microsoft.Coyote.Interception
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnCompleted(Action continuation)
-        {
-            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            // }
-            // else
-            {
-                this.Awaiter.OnCompleted(continuation);
-            }
-        }
+        public void OnCompleted(Action continuation) => this.Awaiter.OnCompleted(continuation);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnsafeOnCompleted(Action continuation)
-        {
-            // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-            // }
-            // else
-            {
-                this.Awaiter.UnsafeOnCompleted(continuation);
-            }
-        }
+        public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
     }
 }

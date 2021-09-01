@@ -91,33 +91,13 @@ namespace Microsoft.Coyote.Interception
             /// Schedules the continuation action for the task associated with this awaiter.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
-            public void OnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.OnCompleted(continuation);
-                }
-            }
+            public void OnCompleted(Action continuation) => this.Awaiter.OnCompleted(continuation);
 
             /// <summary>
             /// Schedules the continuation action for the task associated with this awaiter.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
-            public void UnsafeOnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
-                }
-            }
+            public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
         }
     }
 
@@ -202,33 +182,13 @@ namespace Microsoft.Coyote.Interception
             /// Schedules the continuation action for the task associated with this awaiter.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
-            public void OnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.OnCompleted(continuation);
-                }
-            }
+            public void OnCompleted(Action continuation) => this.Awaiter.OnCompleted(continuation);
 
             /// <summary>
             /// Schedules the continuation action for the task associated with this awaiter.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
-            public void UnsafeOnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
-                }
-            }
+            public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
         }
     }
 }

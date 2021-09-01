@@ -104,11 +104,7 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        public void SetException(Exception exception)
-        {
-            // this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
-            this.MethodBuilder.SetException(exception);
-        }
+        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -236,11 +232,7 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        public void SetException(Exception exception)
-        {
-            // this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
-            this.MethodBuilder.SetException(exception);
-        }
+        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.

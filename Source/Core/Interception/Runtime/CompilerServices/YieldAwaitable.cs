@@ -79,32 +79,12 @@ namespace Microsoft.Coyote.Interception
             /// <summary>
             /// Posts the continuation action back to the current context.
             /// </summary>
-            public void OnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.OnCompleted(continuation);
-                }
-            }
+            public void OnCompleted(Action continuation) => this.Awaiter.OnCompleted(continuation);
 
             /// <summary>
             /// Posts the continuation action back to the current context.
             /// </summary>
-            public void UnsafeOnCompleted(Action continuation)
-            {
-                // if (this.Runtime != null && this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-                // {
-                //     this.Runtime.ScheduleYieldAwaiterContinuation(continuation);
-                // }
-                // else
-                {
-                    this.Awaiter.UnsafeOnCompleted(continuation);
-                }
-            }
+            public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
         }
     }
 }

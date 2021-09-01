@@ -74,16 +74,15 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool QueueUserWorkItem(WaitCallback callBack, object state)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: check if we need to capture the execution context.
-
-                // We set `failException` to true to mimic the production behavior of treating an unhandled
-                // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
-                return true;
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     // TODO: check if we need to capture the execution context.
+            //     // We set `failException` to true to mimic the production behavior of treating an unhandled
+            //     // exception as an error that crashes the application.
+            //     var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+            //     CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+            //     return true;
+            // }
 
             return SystemThreading.ThreadPool.QueueUserWorkItem(callBack, state);
         }
@@ -96,16 +95,15 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool QueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: check if we need to capture the execution context.
-
-                // We set `failException` to true to mimic the production behavior of treating an unhandled
-                // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
-                return true;
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     // TODO: check if we need to capture the execution context.
+            //     // We set `failException` to true to mimic the production behavior of treating an unhandled
+            //     // exception as an error that crashes the application.
+            //     var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+            //     CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+            //     return true;
+            // }
 
             return SystemThreading.ThreadPool.QueueUserWorkItem(callBack, state, preferLocal);
         }
@@ -116,16 +114,15 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static bool UnsafeQueueUserWorkItem(WaitCallback callBack, object state)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: check if we need to capture the execution context.
-
-                // We set `failException` to true to mimic the production behavior of treating an unhandled
-                // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
-                return true;
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     // TODO: check if we need to capture the execution context.
+            //     // We set `failException` to true to mimic the production behavior of treating an unhandled
+            //     // exception as an error that crashes the application.
+            //     var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+            //     CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+            //     return true;
+            // }
 
             return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, state);
         }
@@ -136,16 +133,15 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static bool UnsafeQueueUserWorkItem(IThreadPoolWorkItem callBack, bool preferLocal)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: check if we need to capture the execution context.
-
-                // We set `failException` to true to mimic the production behavior of treating an unhandled
-                // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack.Execute(), null, options);
-                return true;
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     // TODO: check if we need to capture the execution context.
+            //     // We set `failException` to true to mimic the production behavior of treating an unhandled
+            //     // exception as an error that crashes the application.
+            //     var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+            //     CoyoteRuntime.Current.ScheduleAction(() => callBack.Execute(), null, options);
+            //     return true;
+            // }
 
             return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, preferLocal);
         }
@@ -157,16 +153,15 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool UnsafeQueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: check if we need to capture the execution context.
-
-                // We set `failException` to true to mimic the production behavior of treating an unhandled
-                // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
-                return true;
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     // TODO: check if we need to capture the execution context.
+            //     // We set `failException` to true to mimic the production behavior of treating an unhandled
+            //     // exception as an error that crashes the application.
+            //     var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
+            //     CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+            //     return true;
+            // }
 
             return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, state, preferLocal);
         }

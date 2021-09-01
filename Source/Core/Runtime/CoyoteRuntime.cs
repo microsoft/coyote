@@ -558,6 +558,7 @@ namespace Microsoft.Coyote.Runtime
             });
 
             this.ThreadPool.TryAdd(op.Id, thread);
+            this.TaskMap.TryAdd(task, op);
 
             thread.IsBackground = true;
             thread.Start();
@@ -762,9 +763,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal Task UnwrapTask(Task<Task> task)
         {
-            var unwrappedTask = task.AsyncState is TaskCompletionSource<Task> tcs ? tcs.Task : task.Unwrap();
-            this.TaskMap.TryGetValue(task, out TaskOperation op);
-            this.TaskMap.TryAdd(unwrappedTask, op);
+            var unwrappedTask = task.Unwrap();
+            if (this.TaskMap.TryGetValue(task, out TaskOperation op))
+            {
+                this.TaskMap.TryAdd(unwrappedTask, op);
+            }
+
             return unwrappedTask;
         }
 
@@ -773,9 +777,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task)
         {
-            var unwrappedTask = task.AsyncState is TaskCompletionSource<TResult> tcs ? tcs.Task : task.Unwrap();
-            this.TaskMap.TryGetValue(task, out TaskOperation op);
-            this.TaskMap.TryAdd(unwrappedTask, op);
+            var unwrappedTask = task.Unwrap();
+            if (this.TaskMap.TryGetValue(task, out TaskOperation op))
+            {
+                this.TaskMap.TryAdd(unwrappedTask, op);
+            }
+
             return unwrappedTask;
         }
 

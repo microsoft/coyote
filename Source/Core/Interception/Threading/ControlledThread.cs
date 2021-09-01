@@ -33,24 +33,24 @@ namespace Microsoft.Coyote.Interception
         /// when this thread begins executing.</param>
         public static Thread Create(ThreadStart start)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread(() =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start();
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                });
-            }
-            else
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return new Thread(() =>
+            //     {
+            //         ScheduleAction(() =>
+            //         {
+            //             try
+            //             {
+            //                 start();
+            //             }
+            //             catch (ExecutionCanceledException)
+            //             {
+            //                 // this is normal termination of a test iteration, not something to be worried about.
+            //             }
+            //         });
+            //     });
+            // }
+            // else
             {
                 return new Thread(start);
             }
@@ -68,24 +68,24 @@ namespace Microsoft.Coyote.Interception
         /// stack size. No exception is thrown.</param>
         public static Thread Create(ThreadStart start, int maxStackSize)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread(() =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start();
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                }, maxStackSize);
-            }
-            else
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return new Thread(() =>
+            //     {
+            //         ScheduleAction(() =>
+            //         {
+            //             try
+            //             {
+            //                 start();
+            //             }
+            //             catch (ExecutionCanceledException)
+            //             {
+            //                 // this is normal termination of a test iteration, not something to be worried about.
+            //             }
+            //         });
+            //     }, maxStackSize);
+            // }
+            // else
             {
                 return new Thread(start, maxStackSize);
             }
@@ -98,24 +98,24 @@ namespace Microsoft.Coyote.Interception
         /// to be invoked when this thread begins executing.</param>
         public static Thread Create(ParameterizedThreadStart start)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread((object parameter) =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start(parameter);
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                });
-            }
-            else
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return new Thread((object parameter) =>
+            //     {
+            //         ScheduleAction(() =>
+            //         {
+            //             try
+            //             {
+            //                 start(parameter);
+            //             }
+            //             catch (ExecutionCanceledException)
+            //             {
+            //                 // this is normal termination of a test iteration, not something to be worried about.
+            //             }
+            //         });
+            //     });
+            // }
+            // else
             {
                 return new Thread(start);
             }
@@ -133,24 +133,24 @@ namespace Microsoft.Coyote.Interception
         /// stack size. No exception is thrown.</param>
         public static Thread Create(ParameterizedThreadStart start, int maxStackSize)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread((object parameter) =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start(parameter);
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                }, maxStackSize);
-            }
-            else
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return new Thread((object parameter) =>
+            //     {
+            //         ScheduleAction(() =>
+            //         {
+            //             try
+            //             {
+            //                 start(parameter);
+            //             }
+            //             catch (ExecutionCanceledException)
+            //             {
+            //                 // this is normal termination of a test iteration, not something to be worried about.
+            //             }
+            //         });
+            //     }, maxStackSize);
+            // }
+            // else
             {
                 return new Thread(start, maxStackSize);
             }

@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Runtime
@@ -21,9 +22,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="exception">The exception object.</param>
         public static void ThrowIfExecutionCanceledException(object exception)
         {
-            if (exception is ExecutionCanceledException ece)
+            if (exception is ExecutionCanceledException ||
+                exception is ThreadInterruptedException)
             {
-                throw ece;
+                throw (Exception)exception;
             }
 
             if (exception is Exception ex)

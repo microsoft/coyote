@@ -1252,8 +1252,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool WaitTaskCompletes(Task task)
         {
-            this.AssertIsAwaitedTaskControlled(task);
-
             // TODO: support timeouts and cancellation tokens.
             if (!task.IsCompleted)
             {
@@ -1275,8 +1273,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal TResult WaitTaskCompletes<TResult>(Task<TResult> task)
         {
-            this.AssertIsAwaitedTaskControlled(task);
-
             // TODO: support timeouts and cancellation tokens.
             if (!task.IsCompleted)
             {
@@ -2020,24 +2016,6 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
 #endif
         internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
-
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal void AssertIsAwaitedTaskControlled(Task task)
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic &&
-                !task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsRelaxedControlledTestingEnabled)
-            {
-                Console.WriteLine($"   RT: AssertIsAwaitedTaskControlled: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
-                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed by default " +
-                    "as it can interfere with the ability to reproduce bug traces: either mock the method " +
-                    "spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the '--no-repro'" +
-                    "command line option to ignore this error by disabling bug trace repro. " +
-                    "Learn more at http://aka.ms/coyote-no-repro.");
-            }
-        }
 
 #if !DEBUG
         [DebuggerStepThrough]

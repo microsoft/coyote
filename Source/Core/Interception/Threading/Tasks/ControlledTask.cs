@@ -372,22 +372,13 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter"/> for the specified <see cref="Task"/>.
         /// </summary>
-        public static TaskAwaiter GetAwaiter(Task task)
-        {
-            var runtime = CoyoteRuntime.Current;
-            // runtime?.AssertIsAwaitedTaskControlled(task);
-            return new TaskAwaiter(runtime, task);
-        }
+        public static TaskAwaiter GetAwaiter(Task task) => new TaskAwaiter(CoyoteRuntime.Current, task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
-        {
-            var runtime = CoyoteRuntime.Current;
-            // runtime?.AssertIsAwaitedTaskControlled(task);
-            return new ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
-        }
+        public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext) =>
+            new ConfiguredTaskAwaitable(CoyoteRuntime.Current, task, continueOnCapturedContext);
 
         /// <summary>
         /// Creates an awaitable that asynchronously yields back to the current context when awaited.
@@ -430,22 +421,14 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
         /// </summary>
-        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
-        {
-            var runtime = CoyoteRuntime.Current;
-            // runtime?.AssertIsAwaitedTaskControlled(task);
-            return new TaskAwaiter<TResult>(runtime, task);
-        }
+        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) =>
+            new TaskAwaiter<TResult>(CoyoteRuntime.Current, task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
-        {
-            var runtime = CoyoteRuntime.Current;
-            // runtime?.AssertIsAwaitedTaskControlled(task);
-            return new ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
-        }
+        public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext) =>
+            new ConfiguredTaskAwaitable<TResult>(CoyoteRuntime.Current, task, continueOnCapturedContext);
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

@@ -404,7 +404,8 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // TODO: this is internal exception only, right?
                         // Report the unhandled exception.
-                        this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
+                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}.";
+                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
                 }
             });
@@ -424,71 +425,6 @@ namespace Microsoft.Coyote.Runtime
 
             await this.CompletionSource.Task;
             this.IsRunning = false;
-
-            // else
-            // {
-            //     TaskOperation op = this.CreateTaskOperation();
-            //     Task task = new Task(() =>
-            //     {
-            //         try
-            //         {
-            //             // Update the current controlled thread with this runtime instance,
-            // // allowing future retrieval in the same controlled thread.
-            // SetCurrentRuntime(this);
-            //
-            //             this.StartOperation(op);
-            //
-            //             Task testMethodTask = null;
-            //             if (testMethod is Action<IActorRuntime> actionWithRuntime)
-            //             {
-            //                 actionWithRuntime(this.DefaultActorExecutionContext);
-            //             }
-            //             else if (testMethod is Action action)
-            //             {
-            //                 action();
-            //             }
-            //             else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
-            //             {
-            //                 testMethodTask = functionWithRuntime(this.DefaultActorExecutionContext);
-            //             }
-            //             else if (testMethod is Func<Task> function)
-            //             {
-            //                 testMethodTask = function();
-            //             }
-            //             else
-            //             {
-            //                 throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
-            //             }
-            //
-            //             if (testMethodTask != null)
-            //             {
-            //                 // If the test method is asynchronous, then wait until it completes.
-            //                 op.TryBlockUntilTaskCompletes(testMethodTask);
-            //                 if (testMethodTask.Exception != null)
-            //                 {
-            //                     // The test method failed with an unhandled exception.
-            //                     ExceptionDispatchInfo.Capture(testMethodTask.Exception).Throw();
-            //                 }
-            //                 else if (testMethodTask.IsCanceled)
-            //                 {
-            //                     throw new TaskCanceledException(testMethodTask);
-            //                 }
-            //             }
-            //
-            //             this.CompleteOperation(op);
-            //
-            //             // Task has completed, schedule the next enabled operation, which terminates exploration.
-            //             this.ScheduleNextOperation(AsyncOperationType.Stop);
-            //         }
-            //         catch (Exception ex)
-            //         {
-            //             this.ProcessUnhandledExceptionInOperation(op, ex);
-            //         }
-            //     });
-            //
-            //     task.Start();
-            //     this.WaitOperationStart(op);
-            // }
         }
 
         /// <summary>
@@ -552,7 +488,8 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // TODO: this is internal exception only, right?
                         // Report the unhandled exception.
-                        this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
+                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}.";
+                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
                 }
             });
@@ -568,9 +505,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Schedules the specified callback to be executed asynchronously.
+        /// Schedules the specified action to be executed asynchronously.
         /// </summary>
-        internal void Schedule(SendOrPostCallback callback, object state)
+        internal void Schedule(Action action)
         {
             Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
 
@@ -588,7 +525,7 @@ namespace Microsoft.Coyote.Runtime
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
                     this.StartOperation(op);
-                    callback(state);
+                    action();
                     this.CompleteOperation(op);
                     this.ScheduleNextOperation(AsyncOperationType.Stop);
                 }
@@ -608,7 +545,8 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // TODO: this is internal exception only, right?
                         // Report the unhandled exception.
-                        this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
+                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
+                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
                 }
             });

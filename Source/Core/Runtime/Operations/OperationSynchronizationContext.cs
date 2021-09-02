@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                this.Runtime?.Schedule(d, state);
+                this.Runtime?.Schedule(() => d(state));
             }
             catch (ThreadInterruptedException)
             {

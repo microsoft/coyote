@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             throw new InvalidOperationException();
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItem()
         {
             this.Test(async () =>
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemAsync()
         {
             this.Test(async () =>
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemWithException()
         {
             this.TestWithError(async () =>
@@ -80,12 +80,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Unhandled exception 'System.InvalidOperationException'", e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException:", e);
             },
             replay: true);
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemWithAsyncException()
         {
             this.TestWithException<InvalidOperationException>(async () =>
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItem()
         {
             this.Test(async () =>
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemAsync()
         {
             this.Test(async () =>
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemWithException()
         {
             this.TestWithError(() =>
@@ -154,12 +154,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Unhandled exception 'System.InvalidOperationException'", e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException:", e);
             },
             replay: true);
         }
 
-        [Fact(Skip="todo", Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemWithAsyncException()
         {
             this.TestWithException<InvalidOperationException>(async () =>

@@ -25,17 +25,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<Task> JoinDependencies;
 
         /// <summary>
-        /// The <see cref="Exception"/> that caused this operation to end prematurely.
-        /// If the operation completed successfully or has not yet thrown any exceptions,
-        /// this will be null.
-        /// </summary>
-        /// <remarks>
-        /// Only an exception thrown during the execution of an asynchronous state machine
-        /// is currently being captured by this property.
-        /// </remarks>
-        internal Exception Exception { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
         internal TaskOperation(ulong operationId, string name, CoyoteRuntime runtime)
@@ -54,21 +43,6 @@ namespace Microsoft.Coyote.Runtime
             this.JoinDependencies.Add(task);
             this.Status = AsyncOperationStatus.BlockedOnWaitAll;
             this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
-        }
-
-        /// <summary>
-        /// Tries to blocks the operation until the specified tasks completes,
-        /// if the task has not already completed.
-        /// </summary>
-        internal bool TryBlockUntilTaskCompletes(Task task)
-        {
-            if (!task.IsCompleted)
-            {
-                this.BlockUntilTaskCompletes(task);
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -112,27 +86,5 @@ namespace Microsoft.Coyote.Runtime
 
             return false;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsBlockedOnUncontrolledDependency()
-        {
-            if (this.JoinDependencies.Count > 0)
-            {
-                foreach (var task in this.JoinDependencies)
-                {
-                    if (!OperationContext.IsInstance(task.AsyncState))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Sets the <see cref="Exception"/> that caused this operation to end prematurely.
-        /// </summary>
-        internal void SetException(Exception exception) => this.Exception = exception;
     }
 }

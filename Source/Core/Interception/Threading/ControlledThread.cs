@@ -35,25 +35,10 @@ namespace Microsoft.Coyote.Interception
         {
             // if (CoyoteRuntime.IsExecutionControlled)
             // {
-            //     return new Thread(() =>
-            //     {
-            //         ScheduleAction(() =>
-            //         {
-            //             try
-            //             {
-            //                 start();
-            //             }
-            //             catch (ExecutionCanceledException)
-            //             {
-            //                 // this is normal termination of a test iteration, not something to be worried about.
-            //             }
-            //         });
-            //     });
+            //     return CoyoteRuntime.Current.Schedule(() => start());
             // }
-            // else
-            {
-                return new Thread(start);
-            }
+
+            return new Thread(start);
         }
 
         /// <summary>
@@ -70,25 +55,10 @@ namespace Microsoft.Coyote.Interception
         {
             // if (CoyoteRuntime.IsExecutionControlled)
             // {
-            //     return new Thread(() =>
-            //     {
-            //         ScheduleAction(() =>
-            //         {
-            //             try
-            //             {
-            //                 start();
-            //             }
-            //             catch (ExecutionCanceledException)
-            //             {
-            //                 // this is normal termination of a test iteration, not something to be worried about.
-            //             }
-            //         });
-            //     }, maxStackSize);
+            //     return CoyoteRuntime.Current.Schedule(() => start());
             // }
-            // else
-            {
-                return new Thread(start, maxStackSize);
-            }
+
+            return new Thread(start, maxStackSize);
         }
 
         /// <summary>
@@ -100,25 +70,10 @@ namespace Microsoft.Coyote.Interception
         {
             // if (CoyoteRuntime.IsExecutionControlled)
             // {
-            //     return new Thread((object parameter) =>
-            //     {
-            //         ScheduleAction(() =>
-            //         {
-            //             try
-            //             {
-            //                 start(parameter);
-            //             }
-            //             catch (ExecutionCanceledException)
-            //             {
-            //                 // this is normal termination of a test iteration, not something to be worried about.
-            //             }
-            //         });
-            //     });
+            //     return CoyoteRuntime.Current.Schedule(obj => start(obj));
             // }
-            // else
-            {
-                return new Thread(start);
-            }
+
+            return new Thread(start);
         }
 
         /// <summary>
@@ -135,25 +90,10 @@ namespace Microsoft.Coyote.Interception
         {
             // if (CoyoteRuntime.IsExecutionControlled)
             // {
-            //     return new Thread((object parameter) =>
-            //     {
-            //         ScheduleAction(() =>
-            //         {
-            //             try
-            //             {
-            //                 start(parameter);
-            //             }
-            //             catch (ExecutionCanceledException)
-            //             {
-            //                 // this is normal termination of a test iteration, not something to be worried about.
-            //             }
-            //         });
-            //     }, maxStackSize);
+            //     return CoyoteRuntime.Current.Schedule(obj => start(obj));
             // }
-            // else
-            {
-                return new Thread(start, maxStackSize);
-            }
+
+            return new Thread(start, maxStackSize);
         }
 
         /// <summary>
@@ -240,10 +180,8 @@ namespace Microsoft.Coyote.Interception
                 ControlledTask.Yield().GetAwaiter().GetResult();
                 return true;
             }
-            else
-            {
-                return Thread.Yield();
-            }
+
+            return Thread.Yield();
         }
 
         /// <summary>
@@ -272,10 +210,8 @@ namespace Microsoft.Coyote.Interception
                     return false;
                 }
             }
-            else
-            {
-                return thread.Join(timeout);
-            }
+
+            return thread.Join(timeout);
         }
 
         /// <summary>
@@ -305,10 +241,8 @@ namespace Microsoft.Coyote.Interception
                     return false;
                 }
             }
-            else
-            {
-                return thread.Join(millisecondsTimeout);
-            }
+
+            return thread.Join(millisecondsTimeout);
         }
 
         /// <summary>

@@ -90,14 +90,14 @@ namespace Microsoft.Coyote.Runtime
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
-        /// The synchronization context where controlled operations are executed.
-        /// </summary>
-        private readonly OperationSynchronizationContext SyncContext;
-
-        /// <summary>
         /// Responsible for scheduling controlled tasks.
         /// </summary>
         internal readonly OperationTaskScheduler OperationTaskScheduler;
+
+        /// <summary>
+        /// The synchronization context where controlled operations are executed.
+        /// </summary>
+        private readonly OperationSynchronizationContext SyncContext;
 
         /// <summary>
         /// Creates tasks that are controlled and scheduled by the runtime.
@@ -275,8 +275,8 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
+                this.OperationTaskScheduler = new OperationTaskScheduler(this);
                 this.SyncContext = new OperationSynchronizationContext(this);
-                this.OperationTaskScheduler = new OperationTaskScheduler(this, this.SyncContext);
                 this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.None,
                     TaskContinuationOptions.None, this.OperationTaskScheduler);
             }
@@ -324,7 +324,7 @@ namespace Microsoft.Coyote.Runtime
                     var task = taskFactory.StartNew(
                         async () =>
                         {
-                            Console.WriteLine($"   RT: RunTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                            // Console.WriteLine($"   RT: RunTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
 
                             try
                             {
@@ -356,11 +356,11 @@ namespace Microsoft.Coyote.Runtime
                                     throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                                 }
 
-                                Console.WriteLine($"   RT: EndTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                                // Console.WriteLine($"   RT: EndTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
                             }
                             catch (Exception ex)
                             {
-                                if (!(ex is ExecutionCanceledException))
+                                if (!(ex is ThreadInterruptedException))
                                 {
                                     // Report the unhandled exception.
                                     this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
@@ -377,11 +377,13 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        Console.WriteLine($"   RT: RunTest-wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                        // Console.WriteLine($"   RT: RunTest-wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
                         op.BlockUntilTaskCompletes(task.Unwrap());
-                        Console.WriteLine($"   RT: RunTest-wait-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                        // Console.WriteLine($"   RT: RunTest-wait-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
                         this.CompleteOperation(op);
                     }
+
+                    Console.WriteLine($">>>>>>>>>>>> RunTestAsync-END");
 
                     lock (this.SyncObject)
                     {
@@ -390,21 +392,11 @@ namespace Microsoft.Coyote.Runtime
                 }
                 catch (Exception ex)
                 {
-                    if (ex is ThreadInterruptedException tie)
-                    {
-                        Console.WriteLine($">>>>>>>>>>>> RT: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                        // lock (this.ThreadPool)
-                        // {
-                        //     var tid = Thread.CurrentThread.ManagedThreadId;
-                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> RunTestAsync: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
-                        // }
-                    }
-
-                    if (!(ex is ExecutionCanceledException))
+                    if (!(ex is ThreadInterruptedException))
                     {
                         // TODO: this is internal exception only, right?
                         // Report the unhandled exception.
-                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}.";
+                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
                         this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
                 }
@@ -448,18 +440,80 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Schedules the specified callback to be executed asynchronously.
+        /// </summary>
+        internal void Schedule(Action callback)
+        {
+            lock (this.SyncObject)
+            {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+            }
+
+            // Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+
+            TaskOperation op = this.CreateTaskOperation();
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    // Console.WriteLine($"   SC: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                    // Update the current controlled thread with this runtime instance,
+                    // allowing future retrieval in the same controlled thread.
+                    SetCurrentRuntime(this);
+
+                    // Set the synchronization context to the controlled synchronization context.
+                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+
+                    this.StartOperation(op);
+                    callback();
+                    this.CompleteOperation(op);
+                    this.ScheduleNextOperation(AsyncOperationType.Stop);
+                }
+                catch (Exception ex)
+                {
+                    if (!(ex is ThreadInterruptedException))
+                    {
+                        // TODO: this is internal exception only, right?
+                        // Report the unhandled exception.
+                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
+                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
+                    }
+                }
+            });
+
+            this.ThreadPool.TryAdd(op.Id, thread);
+
+            thread.IsBackground = true;
+            thread.Start();
+
+            this.WaitOperationStart(op);
+            this.ScheduleNextOperation(AsyncOperationType.Create);
+        }
+
+        /// <summary>
         /// Schedules the specified task to be executed asynchronously.
         /// </summary>
-        internal void Schedule(Task task)
+        internal void ScheduleTask(Task task)
         {
-            Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
+            lock (this.SyncObject)
+            {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+            }
+
+            // Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
 
             TaskOperation op = task.AsyncState is TaskOperation existingOp ? existingOp : this.CreateTaskOperation();
             var thread = new Thread(() =>
             {
                 try
                 {
-                    Console.WriteLine($"   TS: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
+                    // Console.WriteLine($"   TS: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
                     // Update the current controlled thread with this runtime instance,
                     // allowing future retrieval in the same controlled thread.
                     SetCurrentRuntime(this);
@@ -474,74 +528,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 catch (Exception ex)
                 {
-                    if (ex is ThreadInterruptedException tie)
-                    {
-                        Console.WriteLine($">>>>>>>>>>>> TS: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-                        // lock (this.ThreadPool)
-                        // {
-                        //     var tid = Thread.CurrentThread.ManagedThreadId;
-                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> ScheduleTask: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
-                        // }
-                    }
-
-                    if (!(ex is ExecutionCanceledException))
-                    {
-                        // TODO: this is internal exception only, right?
-                        // Report the unhandled exception.
-                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}.";
-                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
-                    }
-                }
-            });
-
-            this.ThreadPool.TryAdd(op.Id, thread);
-            this.TaskMap.TryAdd(task, op);
-
-            thread.IsBackground = true;
-            thread.Start();
-
-            this.WaitOperationStart(op);
-            this.ScheduleNextOperation(AsyncOperationType.Create);
-        }
-
-        /// <summary>
-        /// Schedules the specified action to be executed asynchronously.
-        /// </summary>
-        internal void Schedule(Action action)
-        {
-            Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
-            TaskOperation op = this.CreateTaskOperation();
-            var thread = new Thread(() =>
-            {
-                try
-                {
-                    Console.WriteLine($"   SC: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                    // Update the current controlled thread with this runtime instance,
-                    // allowing future retrieval in the same controlled thread.
-                    SetCurrentRuntime(this);
-
-                    // Set the synchronization context to the controlled synchronization context.
-                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
-
-                    this.StartOperation(op);
-                    action();
-                    this.CompleteOperation(op);
-                    this.ScheduleNextOperation(AsyncOperationType.Stop);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ThreadInterruptedException tie)
-                    {
-                        Console.WriteLine($">>>>>>>>>>>> SC: ThreadInterrupted: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                        // lock (this.ThreadPool)
-                        // {
-                        //     var tid = Thread.CurrentThread.ManagedThreadId;
-                        //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> SchedulePost: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}");
-                        // }
-                    }
-
-                    if (!(ex is ExecutionCanceledException))
+                    if (!(ex is ThreadInterruptedException))
                     {
                         // TODO: this is internal exception only, right?
                         // Report the unhandled exception.
@@ -552,6 +539,7 @@ namespace Microsoft.Coyote.Runtime
             });
 
             this.ThreadPool.TryAdd(op.Id, thread);
+            this.TaskMap.TryAdd(task, op);
 
             thread.IsBackground = true;
             thread.Start();
@@ -903,11 +891,10 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out next) &&
-                    this.Configuration.IsRelaxedControlledTestingEnabled &&
-                    ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
+                    this.Configuration.IsRelaxedControlledTestingEnabled)
                 {
-                    // At least one operation is blocked due to uncontrolled concurrency. To try defend against
-                    // this, retry after an asynchronous delay to give some time to the dependency to complete.
+                    // At least one operation is blocked, potentially on an uncontrolled operation,
+                    // so retry after an asynchronous delay.
                     Task.Run(async () =>
                     {
                         await Task.Delay(10);
@@ -1162,11 +1149,6 @@ namespace Microsoft.Coyote.Runtime
             catch (ThreadInterruptedException)
             {
                 var tid = Thread.CurrentThread.ManagedThreadId;
-                // lock (this.ThreadPool)
-                // {
-                //     System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> PauseOperation: tid{tid}; exists: {this.ThreadPool.Any(t => t.Value.ManagedThreadId == tid)}; {new StackTrace()}");
-                // }
-
                 throw new ThreadInterruptedException($"THREAD INTERRUPTED {tid} - {new StackTrace()}");
             }
         }
@@ -1341,37 +1323,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns true if the current operation is executing an asynchronous state machine, else false.
-        /// </summary>
-        private static bool IsCurrentOperationExecutingAsynchronously()
-        {
-            StackTrace st = new StackTrace(false);
-            bool result = false;
-            for (int i = 0; i < st.FrameCount; i++)
-            {
-                // Traverse the stack trace to find if the current operation is executing an asynchronous state machine.
-                MethodBase method = st.GetFrame(i).GetMethod();
-                if (method.DeclaringType == typeof(AsyncVoidMethodBuilder) &&
-                    (method.Name is "AwaitOnCompleted" || method.Name is "AwaitUnsafeOnCompleted"))
-                {
-                    // The operation is executing the root of an async void method, so we need to inline.
-                    break;
-                }
-                else if (method.Name is "MoveNext" &&
-                    method.DeclaringType.Namespace != typeof(CoyoteRuntime).Namespace &&
-                    method.DeclaringType.Namespace != typeof(Interception.ControlledTask).Namespace &&
-                    typeof(IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
-                {
-                    // The operation is executing the `MoveNext` of an asynchronous state machine.
-                    result = true;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
         internal void RegisterMonitor<T>()
@@ -1426,7 +1377,7 @@ namespace Microsoft.Coyote.Runtime
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
-                Console.WriteLine($"   RT: AssertIsReturnedTaskControlled: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
+                // Console.WriteLine($"   RT: AssertIsReturnedTaskControlled: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed by default as it can interfere with the ability to reproduce bug traces: " +
                     "either mock the method returning the uncontrolled task, or rewrite its assembly. Alternatively, " +
@@ -1575,6 +1526,11 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+
                 if (this.UnhandledException is null)
                 {
                     this.UnhandledException = ex;
@@ -1594,6 +1550,11 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+
                 if (!this.IsBugFound)
                 {
                     this.BugReport = text;
@@ -1636,7 +1597,7 @@ namespace Microsoft.Coyote.Runtime
             // Report the invalid operation and then throw it to fail the uncontrolled task.
             // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
             string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
-            Console.WriteLine($"   RT: ThrowUncontrolledTaskException: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
+            // Console.WriteLine($"   RT: ThrowUncontrolledTaskException: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
             throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
                 "which is not allowed by default as it can interfere with the ability to reproduce bug traces: either " +
                 "mock the method spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the " +
@@ -1818,6 +1779,8 @@ namespace Microsoft.Coyote.Runtime
                 return;
             }
 
+            Console.WriteLine($">>>>>>>>>>>> Detach: {new StackTrace()}");
+
             if (isScheduledExplored)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
@@ -1850,7 +1813,7 @@ namespace Microsoft.Coyote.Runtime
                 this.CompletionSource.SetResult(true);
             }
 
-            Console.WriteLine($">>>>>> RT: Detach: op: {ExecutingOperation.Value}; cancelExecution: {cancelExecution}; trace: {new StackTrace()}");
+            // Console.WriteLine($">>>>>> RT: Detach: op: {ExecutingOperation.Value}; cancelExecution: {cancelExecution}; trace: {new StackTrace()}");
 
             if (cancelExecution)
             {

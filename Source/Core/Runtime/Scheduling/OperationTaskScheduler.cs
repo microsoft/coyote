@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Runtime
@@ -29,11 +31,20 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
-            this.TryExecuteTask(task);
+        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+        {
+            Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+            bool result = this.TryExecuteTask(task);
+            Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; result: {result}");
+            return result;
+        }
 
         /// <inheritdoc/>
-        protected override void QueueTask(Task task) => this.Runtime.ScheduleTask(task);
+        protected override void QueueTask(Task task)
+        {
+            Console.WriteLine($"      TS: QueueTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+            this.Runtime.ScheduleTask(task);
+        }
 
         /// <inheritdoc/>
         protected override IEnumerable<Task> GetScheduledTasks() => Enumerable.Empty<Task>();
@@ -41,6 +52,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Executes the specified task on this scheduler.
         /// </summary>
-        internal void ExecuteTask(Task task) => this.TryExecuteTask(task);
+        internal void ExecuteTask(Task task)
+        {
+            Console.WriteLine($"      TS: ExecuteTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task {task.Id}");
+            this.TryExecuteTask(task);
+        }
     }
 }

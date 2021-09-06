@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// The synchronization context where controlled operations are executed.
     /// </summary>
-    internal sealed class OperationSynchronizationContext : SynchronizationContext, IDisposable
+    internal sealed class ControlledSynchronizationContext : SynchronizationContext, IDisposable
     {
         /// <summary>
         /// Responsible for controlling the execution of operations during systematic testing.
@@ -17,9 +17,9 @@ namespace Microsoft.Coyote.Runtime
         private CoyoteRuntime Runtime;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OperationSynchronizationContext"/> class.
+        /// Initializes a new instance of the <see cref="ControlledSynchronizationContext"/> class.
         /// </summary>
-        internal OperationSynchronizationContext(CoyoteRuntime runtime)
+        internal ControlledSynchronizationContext(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
         }

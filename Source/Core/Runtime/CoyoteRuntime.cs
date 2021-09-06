@@ -92,12 +92,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Responsible for scheduling controlled tasks.
         /// </summary>
-        internal readonly OperationTaskScheduler OperationTaskScheduler;
+        internal readonly ControlledTaskScheduler ControlledTaskScheduler;
 
         /// <summary>
         /// The synchronization context where controlled operations are executed.
         /// </summary>
-        private readonly OperationSynchronizationContext SyncContext;
+        private readonly ControlledSynchronizationContext SyncContext;
 
         /// <summary>
         /// Creates tasks that are controlled and scheduled by the runtime.
@@ -273,13 +273,10 @@ namespace Microsoft.Coyote.Runtime
 
             this.LogWriter = new LogWriter(configuration);
 
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.OperationTaskScheduler = new OperationTaskScheduler(this);
-                this.SyncContext = new OperationSynchronizationContext(this);
-                this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
-                    TaskContinuationOptions.HideScheduler, this.OperationTaskScheduler);
-            }
+            this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
+            this.SyncContext = new ControlledSynchronizationContext(this);
+            this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
+                TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
 
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
@@ -311,8 +308,8 @@ namespace Microsoft.Coyote.Runtime
                     // allowing future retrieval in the same controlled thread.
                     SetCurrentRuntime(this);
 
-                    TaskFactory taskFactory = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ?
-                        new TaskFactory(TaskScheduler.Default) : this.TaskFactory;
+                    // TaskFactory taskFactory = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ?
+                    //     new TaskFactory(TaskScheduler.Default) : this.TaskFactory;
                     if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
                         // Set the synchronization context to the controlled synchronization context.
@@ -543,7 +540,7 @@ namespace Microsoft.Coyote.Runtime
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
                     this.StartOperation(op);
-                    this.OperationTaskScheduler.ExecuteTask(task);
+                    this.ControlledTaskScheduler.ExecuteTask(task);
                     this.CompleteOperation(op);
                     this.ScheduleNextOperation(AsyncOperationType.Stop);
                 }
@@ -1869,6 +1866,8 @@ namespace Microsoft.Coyote.Runtime
                 this.TaskMap.Clear();
 
                 this.DefaultActorExecutionContext.Dispose();
+                this.ControlledTaskScheduler.Dispose();
+                this.SyncContext.Dispose();
                 this.SpecificationEngine.Dispose();
                 this.ScheduleTrace.Dispose();
 
@@ -1878,7 +1877,6 @@ namespace Microsoft.Coyote.Runtime
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
                     // This does not solve mixing unit test type in parallel.
                     Interlocked.Decrement(ref ExecutionControlledUseCount);
-                    this.SyncContext.Dispose();
                 }
                 else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {

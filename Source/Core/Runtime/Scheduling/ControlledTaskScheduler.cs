@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// A scheduler that controls the scheduled tasks.
     /// </summary>
-    internal sealed class OperationTaskScheduler : TaskScheduler
+    internal sealed class ControlledTaskScheduler : TaskScheduler, IDisposable
     {
         /// <summary>
         /// Responsible for controlling the execution of operations during systematic testing.
@@ -23,9 +23,9 @@ namespace Microsoft.Coyote.Runtime
         public override int MaximumConcurrencyLevel => 1;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OperationTaskScheduler"/> class.
+        /// Initializes a new instance of the <see cref="ControlledTaskScheduler"/> class.
         /// </summary>
-        public OperationTaskScheduler(CoyoteRuntime runtime)
+        public ControlledTaskScheduler(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
         }
@@ -56,6 +56,12 @@ namespace Microsoft.Coyote.Runtime
         {
             Console.WriteLine($"      TS: ExecuteTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task {task.Id}");
             this.TryExecuteTask(task);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            this.Runtime = null;
         }
     }
 }

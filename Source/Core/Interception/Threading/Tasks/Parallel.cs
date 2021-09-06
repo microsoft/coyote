@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Interception
                 {
                     CancellationToken = parallelOptions.CancellationToken,
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism,
-                    TaskScheduler = CoyoteRuntime.Current.OperationTaskScheduler
+                    TaskScheduler = CoyoteRuntime.Current.ControlledTaskScheduler
                 }, body);
             }
 
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Interception
                 {
                     CancellationToken = parallelOptions.CancellationToken,
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism,
-                    TaskScheduler = CoyoteRuntime.Current.OperationTaskScheduler
+                    TaskScheduler = CoyoteRuntime.Current.ControlledTaskScheduler
                 }, body);
             }
 

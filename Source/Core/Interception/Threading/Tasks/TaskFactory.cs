@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public Task StartNew(Action action, CancellationToken cancellationToken) =>
             Task.Factory.StartNew(action, cancellationToken, TaskCreationOptions.None, CoyoteRuntime.IsExecutionControlled ?
-                CoyoteRuntime.Current.OperationTaskScheduler : TaskScheduler.Default);
+                CoyoteRuntime.Current.ControlledTaskScheduler : TaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a <see cref="Task"/>.
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public Task<TResult> StartNew<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
             Task.Factory.StartNew(function, cancellationToken, TaskCreationOptions.None, CoyoteRuntime.IsExecutionControlled ?
-                CoyoteRuntime.Current.OperationTaskScheduler : TaskScheduler.Default);
+                CoyoteRuntime.Current.ControlledTaskScheduler : TaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a <see cref="Task{TResult}"/>.

@@ -321,73 +321,98 @@ namespace Microsoft.Coyote.Runtime
                         this.StartOperation(op);
                     }
 
-                    // TODO: execute directly on the thread?
-                    var task = taskFactory.StartNew(
-                        async () =>
-                        {
-                            Console.WriteLine($"   RT: RunTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
-                            try
-                            {
-                                // Update the current controlled thread with this runtime instance,
-                                // allowing future retrieval in the same controlled thread.
-                                SetCurrentRuntime(this);
-
-                                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-                                {
-                                    // Set the synchronization context to the controlled synchronization context.
-                                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
-                                }
-
-                                if (testMethod is Action<IActorRuntime> actionWithRuntime)
-                                {
-                                    actionWithRuntime(this.DefaultActorExecutionContext);
-                                }
-                                else if (testMethod is Action action)
-                                {
-                                    action();
-                                }
-                                else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
-                                {
-                                    await functionWithRuntime(this.DefaultActorExecutionContext);
-                                }
-                                else if (testMethod is Func<Task> function)
-                                {
-                                    await function();
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
-                                }
-
-                                Console.WriteLine($"   RT: EndTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                            }
-                            catch (Exception ex)
-                            {
-                                if (!(ex is ThreadInterruptedException))
-                                {
-                                    // Report the unhandled exception.
-                                    this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
-                                }
-                            }
-                        },
-                        taskFactory.CancellationToken,
-                        taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                        taskFactory.Scheduler);
-
-                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    Task task = Task.CompletedTask;
+                    if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
-                        task.Unwrap().Wait();
+                        actionWithRuntime(this.DefaultActorExecutionContext);
+                    }
+                    else if (testMethod is Action action)
+                    {
+                        action();
+                    }
+                    else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
+                    {
+                        task = functionWithRuntime(this.DefaultActorExecutionContext);
+                    }
+                    else if (testMethod is Func<Task> function)
+                    {
+                        task = function();
                     }
                     else
                     {
-                        Console.WriteLine($"   RT: RunTest-wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                        op.BlockUntilTaskCompletes(task.Unwrap());
-                        Console.WriteLine($"   RT: RunTest-wait-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                        throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
+                    }
+
+                    // TODO: execute directly on the thread?
+                    // var task = taskFactory.StartNew(
+                    //     async () =>
+                    //     {
+                    //         Console.WriteLine($"   RT: RunTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                    //
+                    //         try
+                    //         {
+                    //             // Update the current controlled thread with this runtime instance,
+                    //             // allowing future retrieval in the same controlled thread.
+                    //             SetCurrentRuntime(this);
+                    //
+                    //             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    //             {
+                    //                 // Set the synchronization context to the controlled synchronization context.
+                    //                 SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+                    //             }
+                    //
+                    //             if (testMethod is Action<IActorRuntime> actionWithRuntime)
+                    //             {
+                    //                 actionWithRuntime(this.DefaultActorExecutionContext);
+                    //             }
+                    //             else if (testMethod is Action action)
+                    //             {
+                    //                 action();
+                    //             }
+                    //             else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
+                    //             {
+                    //                 await functionWithRuntime(this.DefaultActorExecutionContext);
+                    //             }
+                    //             else if (testMethod is Func<Task> function)
+                    //             {
+                    //                 await function();
+                    //             }
+                    //             else
+                    //             {
+                    //                 throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
+                    //             }
+                    //
+                    //             Console.WriteLine($"   RT: EndTest: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                    //         }
+                    //         catch (Exception ex)
+                    //         {
+                    //             if (!(ex is ThreadInterruptedException))
+                    //             {
+                    //                 // Report the unhandled exception.
+                    //                 this.NotifyUnhandledException(ex, ex.Message, cancelExecution: false);
+                    //             }
+                    //         }
+                    //     },
+                    //     taskFactory.CancellationToken,
+                    //     taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    //     taskFactory.Scheduler);
+
+                    Console.WriteLine($"   RT: RunTest-wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    {
+                        op.BlockUntilTaskCompletes(task);
+                    }
+
+                    // Wait for the task to complete and propagate any exceptions.
+                    task.GetAwaiter().GetResult();
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    {
                         this.CompleteOperation(op);
                     }
 
-                    Console.WriteLine($">>>>>>>>>>>> RunTestAsync-END");
+                    Console.WriteLine($"   RT: RunTest-wait-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
 
                     lock (this.SyncObject)
                     {
@@ -428,16 +453,9 @@ namespace Microsoft.Coyote.Runtime
         private TaskOperation CreateTaskOperation(bool isDelay = false)
         {
             ulong operationId = this.GetNextOperationId();
-            TaskOperation op;
-            if (isDelay)
-            {
-                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay, this);
-            }
-            else
-            {
-                op = new TaskOperation(operationId, $"Task({operationId})", this);
-            }
-
+            TaskOperation op = isDelay ?
+                new TaskDelayOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay, this) :
+                new TaskOperation(operationId, $"Task({operationId})", this);
             this.RegisterOperation(op);
             return op;
         }
@@ -1578,6 +1596,7 @@ namespace Microsoft.Coyote.Runtime
                         this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
                     }
 
+                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 1");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
                         this.Scheduler.GetDescription());

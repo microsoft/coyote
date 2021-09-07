@@ -957,7 +957,7 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 Actor actor = ActorFactory.Create(type);
-                ActorOperation op = new ActorOperation(id.Value, id.Name, actor, this.Runtime);
+                ActorOperation op = new ActorOperation(id.Value, id.Name, actor);
                 IEventQueue eventQueue = new MockEventQueue(actor);
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();

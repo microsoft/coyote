@@ -991,7 +991,7 @@ namespace Microsoft.Coyote.Actors
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
                 this.Context.Runtime.AssertIsReturnedTaskControlled(task, methodName);
-                this.Operation.BlockUntilTaskCompletes(task);
+                this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
             }
         }
 
@@ -1002,7 +1002,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.BlockUntilEventReceived();
+                this.Operation.Status = AsyncOperationStatus.BlockedOnReceive;
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -1023,7 +1023,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.EnableDueToReceivedEvent();
+                this.Operation.Status = AsyncOperationStatus.Enabled;
             }
         }
 

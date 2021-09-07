@@ -39,15 +39,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Action action, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var taskFactory = CoyoteRuntime.Current.TaskFactory;
-                return taskFactory.StartNew(action, cancellationToken,
-                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    taskFactory.Scheduler);
+                return Task.Run(action, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateAction(action), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(action, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler);
         }
 
         /// <summary>
@@ -64,15 +65,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var taskFactory = CoyoteRuntime.Current.TaskFactory;
-                return taskFactory.StartNew(function, cancellationToken,
-                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    taskFactory.Scheduler);
+                return Task.Run(function, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler);
         }
 
         /// <summary>
@@ -90,15 +92,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Func<Task> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var taskFactory = CoyoteRuntime.Current.TaskFactory;
-                return taskFactory.StartNew(function, cancellationToken,
-                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    taskFactory.Scheduler).Unwrap();
+                return Task.Run(function, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler).Unwrap();
         }
 
         /// <summary>
@@ -116,47 +119,77 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var taskFactory = CoyoteRuntime.Current.TaskFactory;
-                return taskFactory.StartNew(function, cancellationToken,
-                    taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    taskFactory.Scheduler).Unwrap();
+                return Task.Run(function, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler).Unwrap();
         }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(int millisecondsDelay) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
-            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
+        public static Task Delay(int millisecondsDelay)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(millisecondsDelay);
+            }
+
+            return runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken) :
-            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay), cancellationToken);
+        public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(millisecondsDelay, cancellationToken);
+            }
+
+            return runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(TimeSpan delay) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(FuzzingProvider.CreateDelay(delay));
+        public static Task Delay(TimeSpan delay)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(delay);
+            }
+
+            return runtime.ScheduleDelay(delay, default);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(TimeSpan delay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, cancellationToken) :
-            Task.Delay(FuzzingProvider.CreateDelay(delay), cancellationToken);
+        public static Task Delay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(delay, cancellationToken);
+            }
+
+            return runtime.ScheduleDelay(delay, cancellationToken);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks

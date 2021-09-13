@@ -1649,7 +1649,6 @@ namespace Microsoft.Coyote.Runtime
             // Report the invalid operation and then throw it to fail the uncontrolled task.
             // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
             string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
-            // Console.WriteLine($"   RT: ThrowUncontrolledTaskException: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
             throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
                 "which is not allowed by default as it can interfere with the ability to reproduce bug traces: either " +
                 "mock the method spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the " +
@@ -1826,8 +1825,6 @@ namespace Microsoft.Coyote.Runtime
                 return;
             }
 
-            Console.WriteLine($">>>>>>>>>>>> Detach: {new StackTrace()}");
-
             if (isPathExplored)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Reached end of execution path.");
@@ -1864,8 +1861,6 @@ namespace Microsoft.Coyote.Runtime
                 this.IsRunning = false;
                 this.CompletionSource.SetResult(true);
             }
-
-            Console.WriteLine($">>>>>> RT: Detach: op: {ExecutingOperation.Value}; cancelExecution: {cancelExecution}; trace: {new StackTrace()}");
 
             if (cancelExecution)
             {

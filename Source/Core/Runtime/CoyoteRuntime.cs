@@ -171,11 +171,6 @@ namespace Microsoft.Coyote.Runtime
         private bool IsSchedulingSuppressed;
 
         /// <summary>
-        /// Checks if the schedule has been fully explored.
-        /// </summary>
-        private bool HasFullyExploredSchedule;
-
-        /// <summary>
         /// Associated with the bug report is an optional unhandled exception.
         /// </summary>
         private Exception UnhandledException;
@@ -248,7 +243,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsAttached = true;
             this.IsSchedulingSuppressed = false;
             this.IsBugFound = false;
-            this.HasFullyExploredSchedule = false;
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
 
@@ -345,7 +339,7 @@ namespace Microsoft.Coyote.Runtime
 
                     lock (this.SyncObject)
                     {
-                        this.Detach(true, false);
+                        this.Detach(isScheduledExplored: true, cancelExecution: false);
                     }
                 }
                 catch (Exception ex)
@@ -852,7 +846,7 @@ namespace Microsoft.Coyote.Runtime
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    this.Detach(isScheduledExplored: true);
+                    this.Detach(isScheduledExplored: true, cancelExecution: true);
                 }
 
                 IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
@@ -994,7 +988,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
-                    this.Detach();
+                    this.Detach(isScheduledExplored: false, cancelExecution: true);
                 }
 
                 this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
@@ -1034,7 +1028,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
-                    this.Detach();
+                    this.Detach(isScheduledExplored: false, cancelExecution: true);
                 }
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
@@ -1056,7 +1050,7 @@ namespace Microsoft.Coyote.Runtime
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
                 if (!this.Scheduler.GetNextDelay(maxDelay, out int next))
                 {
-                    this.Detach();
+                    this.Detach(isScheduledExplored: false, cancelExecution: true);
                 }
 
                 return next;
@@ -1375,7 +1369,7 @@ namespace Microsoft.Coyote.Runtime
                 else
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
-                    this.Detach();
+                    this.Detach(isScheduledExplored: false, cancelExecution: true);
                 }
             }
         }
@@ -1564,20 +1558,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Checks for liveness errors.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckLivenessErrors()
-        {
-            if (this.HasFullyExploredSchedule)
-            {
-                this.SpecificationEngine.CheckLivenessErrors();
-            }
-        }
-
-        /// <summary>
         /// Notify that an exception was not handled.
         /// </summary>
         internal void NotifyUnhandledException(Exception ex, string message, bool cancelExecution = true)
@@ -1616,20 +1596,17 @@ namespace Microsoft.Coyote.Runtime
                 if (!this.IsBugFound)
                 {
                     this.BugReport = text;
-
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
                     if (logStackTrace)
                     {
                         this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
                     }
 
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 1");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
                         this.Scheduler.GetDescription());
 
                     this.IsBugFound = true;
-
                     if (this.Configuration.AttachDebugger)
                     {
                         Debugger.Break();
@@ -1638,7 +1615,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (killTasks)
                 {
-                    this.Detach(false, cancelExecution);
+                    this.Detach(isScheduledExplored: false, cancelExecution);
                 }
             }
         }
@@ -1831,7 +1808,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
         /// </summary>
-        private void Detach(bool isScheduledExplored = false, bool cancelExecution = true)
+        private void Detach(bool isScheduledExplored, bool cancelExecution)
         {
             if (!this.IsAttached)
             {
@@ -1843,7 +1820,11 @@ namespace Microsoft.Coyote.Runtime
             if (isScheduledExplored)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                this.HasFullyExploredSchedule = isScheduledExplored;
+                if (!this.IsBugFound)
+                {
+                    // Checks for liveness errors. Only checked if no safety errors have been found.
+                    this.SpecificationEngine.CheckLivenessErrors();
+                }
             }
 
             this.IsAttached = false;

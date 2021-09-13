@@ -536,12 +536,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                if (!runtime.IsBugFound)
-                {
-                    // Checks for liveness errors. Only checked if no safety errors have been found.
-                    runtime.CheckLivenessErrors();
-                }
-
                 if (runtime.IsBugFound)
                 {
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);

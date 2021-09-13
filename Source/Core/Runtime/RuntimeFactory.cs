@@ -21,10 +21,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new Coyote runtime.
         /// </summary>
-        /// <returns>The created task runtime.</returns>
+        /// <returns>The created Coyote runtime.</returns>
         /// <remarks>
-        /// Only one task runtime can be created per process. If you create a new task
-        /// runtime it replaces the previously installed one.
+        /// Only one Coyote runtime can be created per process. If you create a new Coyote runtime
+        /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static ICoyoteRuntime Create() => CreateAndInstall(default).DefaultActorExecutionContext;
 
@@ -32,10 +32,10 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/>.
         /// </summary>
         /// <param name="configuration">The runtime configuration to use.</param>
-        /// <returns>The created task runtime.</returns>
+        /// <returns>The created Coyote runtime.</returns>
         /// <remarks>
-        /// Only one task runtime can be created per process. If you create a new task
-        /// runtime it replaces the previously installed one.
+        /// Only one Coyote runtime can be created per process. If you create a new Coyote runtime
+        /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static ICoyoteRuntime Create(Configuration configuration) =>
             CreateAndInstall(configuration).DefaultActorExecutionContext;
@@ -44,7 +44,10 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/> and sets
         /// it as the installed runtime, or returns the installed runtime if it already exists.
         /// </summary>
-        private static CoyoteRuntime CreateAndInstall(Configuration configuration)
+        /// <remarks>
+        /// This is a thread-safe operation.
+        /// </remarks>
+        internal static CoyoteRuntime CreateAndInstall(Configuration configuration)
         {
             lock (SyncObject)
             {

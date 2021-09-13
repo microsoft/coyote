@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Runtime;
-
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
@@ -15,7 +13,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <returns>The created actor runtime.</returns>
         /// <remarks>
-        /// Only one runtime can be created per async local context. This is not a thread-safe operation.
+        /// Only one runtime can be created per thread context. This is not a thread-safe operation.
         /// </remarks>
         public static IActorRuntime Create() => Create(default);
 
@@ -25,21 +23,10 @@ namespace Microsoft.Coyote.Actors
         /// <param name="configuration">The runtime configuration to use.</param>
         /// <returns>The created actor runtime.</returns>
         /// <remarks>
-        /// Only one runtime can be created per async local context. This is not a thread-safe operation.
+        /// Only one actor runtime can be created per process. If you create a new actor runtime
+        /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
-        public static IActorRuntime Create(Configuration configuration)
-        {
-            if (configuration is null)
-            {
-                configuration = Configuration.Create();
-            }
-
-            var valueGenerator = new RandomValueGenerator(configuration);
-            var runtime = new CoyoteRuntime(configuration, valueGenerator);
-
-            // Assign the runtime to the currently executing thread.
-            CoyoteRuntime.SetCurrentRuntime(runtime);
-            return runtime.DefaultActorExecutionContext;
-        }
+        public static IActorRuntime Create(Configuration configuration) =>
+            Runtime.RuntimeFactory.CreateAndInstall(configuration).DefaultActorExecutionContext;
     }
 }

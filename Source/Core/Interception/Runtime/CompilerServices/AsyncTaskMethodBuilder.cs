@@ -80,7 +80,6 @@ namespace Microsoft.Coyote.Interception
             }
 
             this.Runtime?.CheckExecutingOperationIsControlled();
-            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -207,7 +206,6 @@ namespace Microsoft.Coyote.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
             this.Runtime?.CheckExecutingOperationIsControlled();
-            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 

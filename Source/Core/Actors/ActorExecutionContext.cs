@@ -1141,16 +1141,9 @@ namespace Microsoft.Coyote.Actors
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
                 var op = actor.Operation;
-                Task task = new Task(async () =>
-                {
-                    try
+                this.Runtime.TaskFactory.StartNew(
+                    async state =>
                     {
-                        // Update the current controlled thread with this runtime instance,
-                        // allowing future retrieval in the same controlled thread.
-                        CoyoteRuntime.SetCurrentRuntime(this.Runtime);
-
-                        this.Runtime.StartOperation(op);
-
                         if (isFresh)
                         {
                             await actor.InitializeAsync(initialEvent);
@@ -1166,20 +1159,51 @@ namespace Microsoft.Coyote.Actors
                         {
                             this.ResetProgramCounter(actor);
                         }
+                    },
+                    op,
+                    default,
+                    this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    this.Runtime.TaskFactory.Scheduler);
 
-                        this.Runtime.CompleteOperation(op);
-
-                        // The actor is inactive or halted, schedule the next enabled operation.
-                        this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.ProcessUnhandledExceptionInOperation(op, ex);
-                    }
-                });
-
-                task.Start();
-                this.Runtime.WaitOperationStart(op);
+                // Task task = new Task(async () =>
+                // {
+                //     try
+                //     {
+                //         // Update the current controlled thread with this runtime instance,
+                //         // allowing future retrieval in the same controlled thread.
+                //         CoyoteRuntime.SetCurrentRuntime(this.Runtime);
+                //
+                //         this.Runtime.StartOperation(op);
+                //
+                //         if (isFresh)
+                //         {
+                //             await actor.InitializeAsync(initialEvent);
+                //         }
+                //
+                //         await actor.RunEventHandlerAsync();
+                //         if (syncCaller != null)
+                //         {
+                //             this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                //         }
+                //
+                //         if (!actor.IsHalted)
+                //         {
+                //             this.ResetProgramCounter(actor);
+                //         }
+                //
+                //         this.Runtime.CompleteOperation(op);
+                //
+                //         // The actor is inactive or halted, schedule the next enabled operation.
+                //         this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);
+                //     }
+                //     catch (Exception ex)
+                //     {
+                //         this.ProcessUnhandledExceptionInOperation(op, ex);
+                //     }
+                // });
+                //
+                // task.Start();
+                // this.Runtime.WaitOperationStart(op);
             }
 
             /// <summary>

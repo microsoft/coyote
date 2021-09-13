@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Runtime
         /// In testing mode, each testing iteration uses a unique runtime instance. To safely
         /// retrieve it from static methods, we store it in each controlled thread local state.
         /// </remarks>
-        private static readonly ThreadLocal<CoyoteRuntime> ThreadLocalInstance =
+        private static readonly ThreadLocal<CoyoteRuntime> ThreadLocalRuntime =
             new ThreadLocal<CoyoteRuntime>(false);
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Runtime
         {
             get
             {
-                CoyoteRuntime runtime = ThreadLocalInstance.Value;
+                CoyoteRuntime runtime = ThreadLocalRuntime.Value;
                 if (runtime is null)
                 {
                     if (IsExecutionControlled)
@@ -296,9 +296,10 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Update the current controlled thread with this runtime instance,
-                    // allowing future retrieval in the same controlled thread.
-                    SetCurrentRuntime(this);
+                    // Update the current controlled thread with this runtime instance and executing
+                    // operation, allowing future retrieval in the same controlled thread.
+                    ThreadLocalRuntime.Value = this;
+                    ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -352,6 +353,12 @@ namespace Microsoft.Coyote.Runtime
                         this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
                 }
+                finally
+                {
+                    // Clean the thread local state.
+                    ExecutingOperation.Value = null;
+                    ThreadLocalRuntime.Value = null;
+                }
             });
 
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
@@ -404,9 +411,10 @@ namespace Microsoft.Coyote.Runtime
                 try
                 {
                     Console.WriteLine($"   SC: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-                    // Update the current controlled thread with this runtime instance,
-                    // allowing future retrieval in the same controlled thread.
-                    SetCurrentRuntime(this);
+                    // Update the current controlled thread with this runtime instance and executing
+                    // operation, allowing future retrieval in the same controlled thread.
+                    ThreadLocalRuntime.Value = this;
+                    ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -431,6 +439,12 @@ namespace Microsoft.Coyote.Runtime
                         string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
                         this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
+                }
+                finally
+                {
+                    // Clean the thread local state.
+                    ExecutingOperation.Value = null;
+                    ThreadLocalRuntime.Value = null;
                 }
             });
 
@@ -464,9 +478,10 @@ namespace Microsoft.Coyote.Runtime
                 try
                 {
                     Console.WriteLine($"   TS: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-                    // Update the current controlled thread with this runtime instance,
-                    // allowing future retrieval in the same controlled thread.
-                    SetCurrentRuntime(this);
+                    // Update the current controlled thread with this runtime instance and executing
+                    // operation, allowing future retrieval in the same controlled thread.
+                    ThreadLocalRuntime.Value = this;
+                    ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
                     SynchronizationContext.SetSynchronizationContext(this.SyncContext);
@@ -491,6 +506,12 @@ namespace Microsoft.Coyote.Runtime
                         string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
                         this.NotifyUnhandledException(ex, error, cancelExecution: false);
                     }
+                }
+                finally
+                {
+                    // Clean the thread local state.
+                    ExecutingOperation.Value = null;
+                    ThreadLocalRuntime.Value = null;
                 }
             });
 
@@ -723,17 +744,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Start"/> is accessed.
-        /// </summary>
-        internal void OnAsyncTaskMethodBuilderStart()
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                SetCurrentRuntime(this);
-            }
-        }
-
-        /// <summary>
         /// Callback invoked when the task of a task completion source is accessed.
         /// </summary>
         internal void OnTaskCompletionSourceGetTask(Task task)
@@ -943,10 +953,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
-                // Update the current controlled thread with this runtime instance,
-                // allowing future retrieval in the same controlled thread.
-                SetCurrentRuntime(this);
-
                 // Choose the next delay to inject.
                 int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
 
@@ -1092,7 +1098,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// This method performs a handshake with <see cref="WaitOperationStart"/>.
         /// </remarks>
-        internal void StartOperation(AsyncOperation op)
+        private void StartOperation(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
@@ -1101,7 +1107,6 @@ namespace Microsoft.Coyote.Runtime
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
-                ExecutingOperation.Value = op;
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
                     this.PauseOperation(op);
@@ -1116,7 +1121,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// This method performs a handshake with <see cref="StartOperation"/>.
         /// </remarks>
-        internal void WaitOperationStart(AsyncOperation op)
+        private void WaitOperationStart(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
@@ -1169,7 +1174,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Completes the specified operation.
         /// </summary>
-        internal void CompleteOperation(AsyncOperation op)
+        private void CompleteOperation(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
@@ -1796,11 +1801,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Assigns the specified runtime as the default for the current controlled thread.
-        /// </summary>
-        internal static void SetCurrentRuntime(CoyoteRuntime runtime) => ThreadLocalInstance.Value = runtime;
-
-        /// <summary>
         /// Forces the scheduler to terminate.
         /// </summary>
         public void ForceStop() => this.IsRunning = false;
@@ -1893,8 +1893,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     this.DeadlockMonitor.Dispose();
                 }
-
-                SetCurrentRuntime(null);
             }
         }
 

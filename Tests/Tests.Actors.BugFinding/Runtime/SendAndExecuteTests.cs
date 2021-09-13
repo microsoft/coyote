@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             },
             configuration: Configuration.Create().WithTestingIterations(10),
             expectedError: "Deadlock detected. M1A() and M1B() are waiting to receive " +
-                "an event, but no other controlled tasks are enabled.",
+                "an event, but no other controlled operations are enabled.",
             replay: true);
         }
 

@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.Runtime
 
                     lock (this.SyncObject)
                     {
-                        this.Detach(isScheduledExplored: true, cancelExecution: false);
+                        this.Detach(isPathExplored: true, cancelExecution: false);
                     }
                 }
                 catch (Exception ex)
@@ -368,7 +368,8 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                this.ThreadPool.TryAdd(op.Id, thread);
+                // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+                this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
             }
 
             thread.IsBackground = true;
@@ -448,7 +449,8 @@ namespace Microsoft.Coyote.Runtime
                 }
             });
 
-            this.ThreadPool.TryAdd(op.Id, thread);
+            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
 
             thread.IsBackground = true;
             thread.Start();
@@ -515,7 +517,8 @@ namespace Microsoft.Coyote.Runtime
                 }
             });
 
-            this.ThreadPool.TryAdd(op.Id, thread);
+            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
             this.TaskMap.TryAdd(task, op);
 
             thread.IsBackground = true;
@@ -856,7 +859,7 @@ namespace Microsoft.Coyote.Runtime
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    this.Detach(isScheduledExplored: true, cancelExecution: true);
+                    this.Detach(isPathExplored: true, cancelExecution: true);
                 }
 
                 IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
@@ -994,7 +997,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
-                    this.Detach(isScheduledExplored: false, cancelExecution: true);
+                    this.Detach(isPathExplored: false, cancelExecution: true);
                 }
 
                 this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
@@ -1034,7 +1037,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
-                    this.Detach(isScheduledExplored: false, cancelExecution: true);
+                    this.Detach(isPathExplored: false, cancelExecution: true);
                 }
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
@@ -1056,7 +1059,7 @@ namespace Microsoft.Coyote.Runtime
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
                 if (!this.Scheduler.GetNextDelay(maxDelay, out int next))
                 {
-                    this.Detach(isScheduledExplored: false, cancelExecution: true);
+                    this.Detach(isPathExplored: false, cancelExecution: true);
                 }
 
                 return next;
@@ -1374,7 +1377,7 @@ namespace Microsoft.Coyote.Runtime
                 else
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
-                    this.Detach(isScheduledExplored: false, cancelExecution: true);
+                    this.Detach(isPathExplored: false, cancelExecution: true);
                 }
             }
         }
@@ -1456,11 +1459,19 @@ namespace Microsoft.Coyote.Runtime
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
                 op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
             var blockedOnResources = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
-            if (blockedOnReceiveOperations.Count is 0 &&
-                blockedOnWaitOperations.Count is 0 &&
-                blockedOnResources.Count is 0)
+
+            var totalCount = blockedOnReceiveOperations.Count + blockedOnWaitOperations.Count + blockedOnResources.Count;
+            if (totalCount is 0)
             {
                 return;
+            }
+
+            // To simplify the error message, remove the root operation, unless it is the only one that is blocked.
+            if (totalCount > 1)
+            {
+                blockedOnReceiveOperations.RemoveAll(op => op.Id is 0);
+                blockedOnWaitOperations.RemoveAll(op => op.Id is 0);
+                blockedOnResources.RemoveAll(op => op.Id is 0);
             }
 
             var msg = new StringBuilder("Deadlock detected.");
@@ -1480,7 +1491,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 msg.Append(blockedOnReceiveOperations.Count is 1 ? " is " : " are ");
-                msg.Append("waiting to receive an event, but no other controlled tasks are enabled.");
+                msg.Append("waiting to receive an event, but no other controlled operations are enabled.");
             }
 
             if (blockedOnWaitOperations.Count > 0)
@@ -1499,7 +1510,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 msg.Append(blockedOnWaitOperations.Count is 1 ? " is " : " are ");
-                msg.Append("waiting for a task to complete, but no other controlled tasks are enabled.");
+                msg.Append("waiting for a task to complete, but no other controlled operations are enabled.");
             }
 
             if (blockedOnResources.Count > 0)
@@ -1519,7 +1530,7 @@ namespace Microsoft.Coyote.Runtime
 
                 msg.Append(blockedOnResources.Count is 1 ? " is " : " are ");
                 msg.Append("waiting to acquire a resource that is already acquired, ");
-                msg.Append("but no other controlled tasks are enabled.");
+                msg.Append("but no other controlled operations are enabled.");
             }
 
             this.NotifyAssertionFailure(msg.ToString());
@@ -1620,7 +1631,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (killTasks)
                 {
-                    this.Detach(isScheduledExplored: false, cancelExecution);
+                    this.Detach(isPathExplored: false, cancelExecution);
                 }
             }
         }
@@ -1808,7 +1819,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
         /// </summary>
-        private void Detach(bool isScheduledExplored, bool cancelExecution)
+        private void Detach(bool isPathExplored, bool cancelExecution)
         {
             if (!this.IsAttached)
             {
@@ -1817,9 +1828,9 @@ namespace Microsoft.Coyote.Runtime
 
             Console.WriteLine($">>>>>>>>>>>> Detach: {new StackTrace()}");
 
-            if (isScheduledExplored)
+            if (isPathExplored)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                IO.Debug.WriteLine("<ScheduleDebug> Reached end of execution path.");
                 if (!this.IsBugFound)
                 {
                     // Checks for liveness errors. Only checked if no safety errors have been found.

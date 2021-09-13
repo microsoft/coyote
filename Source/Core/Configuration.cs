@@ -81,8 +81,7 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// If true, the seed will increment in each
-        /// testing iteration.
+        /// If true, the seed will increment in each testing iteration.
         /// </summary>
         [DataMember]
         internal bool IncrementalSchedulingSeed;

@@ -15,6 +15,8 @@ $originalFrameworkName = $json.runtimeOptions.framework.name
 $originalFrameworkVersion = $json.runtimeOptions.framework.version
 
 # Construct the updated JSON object that includes the aspnet framework.
+# This is required so that the tool can resolve aspnet related assemblies
+# during IL rewriting.
 $newJson = @"
 {
     "runtimeOptions": {

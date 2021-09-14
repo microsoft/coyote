@@ -8,11 +8,11 @@ public static ICoyoteRuntime Create()
 
 ## Return Value
 
-The created task runtime.
+The created Coyote runtime.
 
 ## Remarks
 
-Only one task runtime can be created per process. If you create a new task runtime it replaces the previously installed one.
+Only one Coyote runtime can be created per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 
@@ -37,11 +37,11 @@ public static ICoyoteRuntime Create(Configuration configuration)
 
 ## Return Value
 
-The created task runtime.
+The created Coyote runtime.
 
 ## Remarks
 
-Only one task runtime can be created per process. If you create a new task runtime it replaces the previously installed one.
+Only one Coyote runtime can be created per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 

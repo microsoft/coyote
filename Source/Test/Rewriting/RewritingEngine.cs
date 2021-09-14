@@ -708,7 +708,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (!this.ResolveWarnings.Contains(reference.FullName))
             {
-                this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: " + reference.FullName);
+                this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: '{0}'", reference.FullName);
                 this.ResolveWarnings.Add(reference.FullName);
             }
 

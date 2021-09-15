@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.Runtime
 
                     lock (this.SyncObject)
                     {
-                        this.Detach(isPathExplored: true, cancelExecution: false);
+                        this.Detach(SchedulerDetachmentReason.PathExplored, false);
                     }
                 }
                 catch (Exception ex)
@@ -859,7 +859,7 @@ namespace Microsoft.Coyote.Runtime
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    this.Detach(isPathExplored: true, cancelExecution: true);
+                    this.Detach(SchedulerDetachmentReason.PathExplored);
                 }
 
                 IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
@@ -997,7 +997,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
-                    this.Detach(isPathExplored: false, cancelExecution: true);
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
                 this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
@@ -1037,7 +1037,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
-                    this.Detach(isPathExplored: false, cancelExecution: true);
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
@@ -1059,7 +1059,7 @@ namespace Microsoft.Coyote.Runtime
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
                 if (!this.Scheduler.GetNextDelay(maxDelay, out int next))
                 {
-                    this.Detach(isPathExplored: false, cancelExecution: true);
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
                 return next;
@@ -1218,7 +1218,10 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                // If this is the root operation, then only try enable it if all actor operations (if any) are completed.
+                // If this is the root operation, then only try enable it if all actor operations (if any) are
+                // completed. This is required because in tests that include actors, actors can execute without
+                // the main task explicitly waiting for them to terminate or reach quiescence. Otherwise, if the
+                // root operation was enabled, the test can terminate early.
                 if (op.Id is 0 && this.OperationMap.Any(
                     kvp => kvp.Value is ActorOperation && !(kvp.Value.Status is AsyncOperationStatus.Completed ||
                     kvp.Value.Status is AsyncOperationStatus.Canceled)))
@@ -1377,7 +1380,7 @@ namespace Microsoft.Coyote.Runtime
                 else
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
-                    this.Detach(isPathExplored: false, cancelExecution: true);
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
             }
         }
@@ -1631,7 +1634,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (killTasks)
                 {
-                    this.Detach(isPathExplored: false, cancelExecution);
+                    this.Detach(SchedulerDetachmentReason.BugFound, cancelExecution);
                 }
             }
         }
@@ -1818,21 +1821,31 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
         /// </summary>
-        private void Detach(bool isPathExplored, bool cancelExecution)
+        private void Detach(SchedulerDetachmentReason reason, bool cancelExecution = true)
         {
             if (!this.IsAttached)
             {
                 return;
             }
 
-            if (isPathExplored)
+            if (reason is SchedulerDetachmentReason.PathExplored)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Reached end of execution path.");
-                if (!this.IsBugFound)
+                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the end of the test method].");
+                if (!this.IsBugFound &&
+                    this.OperationMap.All(kvp => kvp.Value.Status is AsyncOperationStatus.Completed))
                 {
-                    // Checks for liveness errors. Only checked if no safety errors have been found.
+                    // Checks for liveness errors. Only checked if no safety errors have been found
+                    // and all controlled operations have completed.
                     this.SpecificationEngine.CheckLivenessErrors();
                 }
+            }
+            else if (reason is SchedulerDetachmentReason.BoundReached)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the given bound].");
+            }
+            else if (reason is SchedulerDetachmentReason.BugFound)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [found a bug].");
             }
 
             this.IsAttached = false;

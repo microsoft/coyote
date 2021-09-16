@@ -16,14 +16,13 @@ namespace Microsoft.Coyote.Runtime
     public static class ExceptionProvider
     {
         /// <summary>
-        /// Checks if the exception object contains an <see cref="ExecutionCanceledException"/>
+        /// Checks if the exception object contains a <see cref="ThreadInterruptedException"/>
         /// and, if yes, it re-throws it so that the exception is not silently consumed.
         /// </summary>
         /// <param name="exception">The exception object.</param>
-        public static void ThrowIfExecutionCanceledException(object exception)
+        public static void ThrowIfThreadInterruptedException(object exception)
         {
-            if (exception is ExecutionCanceledException ||
-                exception is ThreadInterruptedException)
+            if (exception is ThreadInterruptedException)
             {
                 throw (Exception)exception;
             }
@@ -33,7 +32,7 @@ namespace Microsoft.Coyote.Runtime
                 // Look inside in case this is some sort of auto-wrapped AggregateException.
                 if (ex.InnerException != null)
                 {
-                    ThrowIfExecutionCanceledException(ex.InnerException);
+                    ThrowIfThreadInterruptedException(ex.InnerException);
                 }
             }
         }

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -328,7 +328,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     tcs.SetResult(3);
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     tcs.SetCanceled();
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     tcs.SetException(new InvalidOperationException());
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }

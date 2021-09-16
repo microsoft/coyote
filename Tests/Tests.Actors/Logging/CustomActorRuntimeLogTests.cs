@@ -283,7 +283,7 @@ StateTransition";
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
-            }, this.GetConfiguration().WithVerbosityEnabled());
+            }, this.GetConfiguration());
         }
 
         internal class PingEvent : Event

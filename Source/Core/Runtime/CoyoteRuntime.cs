@@ -328,30 +328,23 @@ namespace Microsoft.Coyote.Runtime
                         throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                     }
 
-                    Console.WriteLine($"   RT: RunTest-wait: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
                     // Wait for the task to complete and propagate any exceptions.
                     this.WaitUntilTaskCompletes(op, task);
                     task.GetAwaiter().GetResult();
 
                     this.CompleteOperation(op);
 
-                    Console.WriteLine($"   RT: RunTest-wait-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+                    Console.WriteLine($"   RT: RunTest-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
 
                     lock (this.SyncObject)
                     {
-                        this.Detach(SchedulerDetachmentReason.PathExplored, false);
+                        this.CheckLivenessErrorsAtTermination();
+                        this.Detach(SchedulerDetachmentReason.PathExplored);
                     }
                 }
                 catch (Exception ex)
                 {
-                    if (!(ex is ThreadInterruptedException))
-                    {
-                        // TODO: this is internal exception only, right?
-                        // Report the unhandled exception.
-                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
-                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
-                    }
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
                 }
                 finally
                 {
@@ -433,13 +426,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 catch (Exception ex)
                 {
-                    if (!(ex is ThreadInterruptedException))
-                    {
-                        // TODO: this is internal exception only, right?
-                        // Report the unhandled exception.
-                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
-                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
-                    }
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
                 }
                 finally
                 {
@@ -496,18 +483,13 @@ namespace Microsoft.Coyote.Runtime
                     }
 
                     this.ControlledTaskScheduler.ExecuteTask(task);
+
                     this.CompleteOperation(op);
                     this.ScheduleNextOperation(AsyncOperationType.Stop);
                 }
                 catch (Exception ex)
                 {
-                    if (!(ex is ThreadInterruptedException))
-                    {
-                        // TODO: this is internal exception only, right?
-                        // Report the unhandled exception.
-                        string error = $"Unhandled exception. {ex.GetType()}: {ex.Message}";
-                        this.NotifyUnhandledException(ex, error, cancelExecution: false);
-                    }
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
                 }
                 finally
                 {
@@ -826,8 +808,6 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                this.ThrowExecutionCanceledExceptionIfDetached();
-
                 AsyncOperation current = this.ScheduledOperation;
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
@@ -859,7 +839,7 @@ namespace Microsoft.Coyote.Runtime
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    this.Detach(SchedulerDetachmentReason.PathExplored);
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
                 IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
@@ -954,8 +934,6 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached();
-
                 // Choose the next delay to inject.
                 int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
 
@@ -978,8 +956,6 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached();
-
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
@@ -1018,8 +994,6 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached();
-
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
@@ -1146,31 +1120,20 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void PauseOperation(AsyncOperation op)
         {
-            try
+            SyncMonitor.PulseAll(this.SyncObject);
+            if (op.Status is AsyncOperationStatus.Completed)
             {
-                SyncMonitor.PulseAll(this.SyncObject);
-                if (op.Status is AsyncOperationStatus.Completed ||
-                    op.Status is AsyncOperationStatus.Canceled)
-                {
-                    // The operation is completed or canceled, so no need to wait.
-                    return;
-                }
-
-                while (op != this.ScheduledOperation && this.IsAttached)
-                {
-                    IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on thread '{1}'.",
-                        op.Name, Thread.CurrentThread.ManagedThreadId);
-                    SyncMonitor.Wait(this.SyncObject);
-                    IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on thread '{1}'.",
-                        op.Name, Thread.CurrentThread.ManagedThreadId);
-                }
-
-                this.ThrowExecutionCanceledExceptionIfDetached();
+                // The operation is completed, so no need to wait.
+                return;
             }
-            catch (ThreadInterruptedException)
+
+            while (op != this.ScheduledOperation && this.IsAttached)
             {
-                var tid = Thread.CurrentThread.ManagedThreadId;
-                throw new ThreadInterruptedException($"THREAD INTERRUPTED {tid} - {new StackTrace()}");
+                IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on thread '{1}'.",
+                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                SyncMonitor.Wait(this.SyncObject);
+                IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on thread '{1}'.",
+                    op.Name, Thread.CurrentThread.ManagedThreadId);
             }
         }
 
@@ -1223,8 +1186,7 @@ namespace Microsoft.Coyote.Runtime
                 // the main task explicitly waiting for them to terminate or reach quiescence. Otherwise, if the
                 // root operation was enabled, the test can terminate early.
                 if (op.Id is 0 && this.OperationMap.Any(
-                    kvp => kvp.Value is ActorOperation && !(kvp.Value.Status is AsyncOperationStatus.Completed ||
-                    kvp.Value.Status is AsyncOperationStatus.Canceled)))
+                    kvp => kvp.Value is ActorOperation && kvp.Value.Status != AsyncOperationStatus.Completed))
                 {
                     return false;
                 }
@@ -1258,8 +1220,6 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                this.ThrowExecutionCanceledExceptionIfDetached();
-
                 var op = ExecutingOperation.Value;
                 if (op is null)
                 {
@@ -1440,7 +1400,6 @@ namespace Microsoft.Coyote.Runtime
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
-                // Console.WriteLine($"   RT: AssertIsReturnedTaskControlled: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}: {new StackTrace()}");
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed by default as it can interfere with the ability to reproduce bug traces: " +
                     "either mock the method returning the uncontrolled task, or rewrite its assembly. Alternatively, " +
@@ -1556,7 +1515,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string msg = "Potential deadlock detected. If you think this is not a deadlock, you can try " +
                         "increase the dealock detection timeout (--deadlock-timeout).";
-                    this.NotifyAssertionFailure(msg, true, false, false);
+                    this.NotifyAssertionFailure(msg);
                 }
                 else
                 {
@@ -1577,9 +1536,24 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Checks for liveness errors at test termination.
+        /// </summary>
+        /// <remarks>
+        /// The liveness check only happens if no safety errors have been found, and all controlled
+        /// operations have completed to ensure that any found liveness bug is not a false positive.
+        /// </remarks>
+        private void CheckLivenessErrorsAtTermination()
+        {
+            if (!this.IsBugFound && this.OperationMap.All(kvp => kvp.Value.Status is AsyncOperationStatus.Completed))
+            {
+                this.SpecificationEngine.CheckLivenessErrors();
+            }
+        }
+
+        /// <summary>
         /// Notify that an exception was not handled.
         /// </summary>
-        internal void NotifyUnhandledException(Exception ex, string message, bool cancelExecution = true)
+        internal void NotifyUnhandledException(Exception ex, string message)
         {
             lock (this.SyncObject)
             {
@@ -1593,7 +1567,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UnhandledException = ex;
                 }
 
-                this.NotifyAssertionFailure(message, killTasks: true, cancelExecution);
+                this.NotifyAssertionFailure(message);
             }
         }
 
@@ -1603,7 +1577,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true, bool logStackTrace = true)
+        internal void NotifyAssertionFailure(string text)
         {
             lock (this.SyncObject)
             {
@@ -1616,11 +1590,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     this.BugReport = text;
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
-                    if (logStackTrace)
-                    {
-                        this.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
-                    }
-
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
                         this.Scheduler.GetDescription());
@@ -1632,10 +1601,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                if (killTasks)
-                {
-                    this.Detach(SchedulerDetachmentReason.BugFound, cancelExecution);
-                }
+                this.Detach(SchedulerDetachmentReason.BugFound);
             }
         }
 
@@ -1662,41 +1628,37 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Processes an unhandled exception in the specified asynchronous operation.
         /// </summary>
-        private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
+        internal void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
         {
             string message = null;
             Exception exception = UnwrapException(ex);
-            if (exception is ExecutionCanceledException ece)
+            if (exception is ThreadInterruptedException)
             {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    ece.GetType().Name, op.Name);
-                if (this.IsAttached)
-                {
-                    // TODO: add some tests for this, so that we check that a task (or lock) that
-                    // was cached and reused from prior iteration indeed cannot cause the runtime
-                    // to hang anymore.
-                    message = string.Format(CultureInfo.InvariantCulture, $"Handled benign exception: {ece}");
-                }
+                // Ignore this exception, its thrown by the runtime.
+                IO.Debug.WriteLine("<ScheduleDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",
+                    Thread.CurrentThread.ManagedThreadId, op.Name);
             }
-            else if (exception is TaskSchedulerException)
+            else if (op is ActorOperation actorOp)
             {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    exception.GetType().Name, op.Name);
-            }
-            else if (exception is ObjectDisposedException)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                    exception.GetType().Name, op.Name, ex.Message);
+                message = string.Format(CultureInfo.InvariantCulture,
+                    $"Unhandled exception '{exception.GetType()}' was thrown in actor '{actorOp.Name}', " +
+                    $"'{exception.Source}':\n" +
+                    $"   {exception.Message}\n" +
+                    $"The stack trace is:\n{exception.StackTrace}");
             }
             else
             {
-                message = FormatUnhandledException(exception);
+                message = $"Unhandled exception. {ex.GetType()}: {ex.Message}\n" +
+                    $"The stack trace is:\n{ex.StackTrace}";
             }
 
+            // Complete the failed operation. This is required so that the operation
+            // does not throw if it detaches.
+            op.Status = AsyncOperationStatus.Completed;
             if (message != null)
             {
                 // Report the unhandled exception.
-                this.NotifyUnhandledException(exception, message, cancelExecution: false);
+                this.NotifyUnhandledException(exception, message);
             }
         }
 
@@ -1720,42 +1682,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Formats the specified unhandled exception.
-        /// </summary>
-        internal static string FormatUnhandledException(Exception ex) => string.Format(CultureInfo.InvariantCulture,
-            $"Unhandled exception '{ex.GetType()}' was thrown in '{ex.Source}':\n" +
-            $"   {ex.Message}\nThe stack trace is:\n{ex.StackTrace}");
-
-        /// <summary>
-        /// Reports the specified thrown exception.
-        /// </summary>
-        private void ReportThrownException(Exception exception)
-        {
-            if (!(exception is ExecutionCanceledException || exception is TaskCanceledException ||
-                exception is OperationCanceledException))
-            {
-                string message = string.Format(CultureInfo.InvariantCulture,
-                    $"Exception '{exception.GetType()}' was thrown in task '{Task.CurrentId}', " +
-                    $"'{exception.Source}':\n" +
-                    $"   {exception.Message}\n" +
-                    $"The stack trace is:\n{exception.StackTrace}");
-                this.Logger.WriteLine(LogSeverity.Warning, $"<ExceptionLog> {message}");
-            }
-        }
-
-        /// <summary>
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.SchedulingPolicy != SchedulingPolicy.None &&
-                (exception is ExecutionCanceledException ||
-                (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException)))
-            {
-                // Internal exception used during testing.
-                return;
-            }
-
             if (this.Configuration.AttachDebugger)
             {
                 Debugger.Break();
@@ -1763,37 +1693,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             this.OnFailure?.Invoke(exception);
-        }
-
-        /// <summary>
-        /// If scheduler is detached, throw exception to force terminate the caller.
-        /// </summary>
-        private void ThrowExecutionCanceledExceptionIfDetached()
-        {
-            if (!this.IsAttached)
-            {
-                // throw new ExecutionCanceledException();
-            }
-        }
-
-        /// <summary>
-        /// Returns the stack trace without internal namespaces.
-        /// </summary>
-        private static string ConstructStackTrace()
-        {
-            StringBuilder sb = new StringBuilder();
-            string[] lines = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (var line in lines)
-            {
-                if (!line.Contains("at Microsoft.Coyote.Interception") &&
-                    !line.Contains("at Microsoft.Coyote.Runtime") &&
-                    !line.Contains("at Microsoft.Coyote.Testing"))
-                {
-                    sb.AppendLine(line);
-                }
-            }
-
-            return sb.ToString();
         }
 
         /// <summary>
@@ -1819,67 +1718,61 @@ namespace Microsoft.Coyote.Runtime
         public void ForceStop() => this.IsRunning = false;
 
         /// <summary>
-        /// Detaches the scheduler releasing all controlled operations.
+        /// Detaches the scheduler and interrupts all controlled operations.
         /// </summary>
-        private void Detach(SchedulerDetachmentReason reason, bool cancelExecution = true)
+        private void Detach(SchedulerDetachmentReason reason)
         {
             if (!this.IsAttached)
             {
                 return;
             }
 
-            if (reason is SchedulerDetachmentReason.PathExplored)
+            try
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the end of the test method].");
-                if (!this.IsBugFound &&
-                    this.OperationMap.All(kvp => kvp.Value.Status is AsyncOperationStatus.Completed))
+                if (reason is SchedulerDetachmentReason.PathExplored)
                 {
-                    // Checks for liveness errors. Only checked if no safety errors have been found
-                    // and all controlled operations have completed.
-                    this.SpecificationEngine.CheckLivenessErrors();
+                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the end of the test method].");
                 }
-            }
-            else if (reason is SchedulerDetachmentReason.BoundReached)
-            {
-                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the given bound].");
-            }
-            else if (reason is SchedulerDetachmentReason.BugFound)
-            {
-                IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [found a bug].");
-            }
-
-            this.IsAttached = false;
-
-            // Cancel any remaining operations at the end of the schedule.
-            foreach (var op in this.OperationMap.Values)
-            {
-                if (op.Status != AsyncOperationStatus.Completed)
+                else if (reason is SchedulerDetachmentReason.BoundReached)
                 {
-                    op.Status = AsyncOperationStatus.Canceled;
+                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the given bound].");
+                }
+                else if (reason is SchedulerDetachmentReason.BugFound)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [found a bug].");
                 }
 
-                if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
+                this.IsAttached = false;
+
+                // Complete any remaining operations at the end of the schedule.
+                foreach (var op in this.OperationMap.Values)
                 {
-                    // Interrupt the thread executing this operation.
-                    Console.WriteLine($">>>>>> RT: Detach: interrupting op: {op.Id}; thread-id: {thread.ManagedThreadId}");
-                    thread.Interrupt();
+                    if (op.Status != AsyncOperationStatus.Completed)
+                    {
+                        op.Status = AsyncOperationStatus.Completed;
+
+                        // Interrupt the thread executing this operation.
+                        if (op == ExecutingOperation.Value)
+                        {
+                            Console.WriteLine($">>>>>> RT: Detach: interrupting executing op: {op.Id}; thread-id: {Thread.CurrentThread.ManagedThreadId}");
+                            throw new ThreadInterruptedException();
+                        }
+                        else if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
+                        {
+                            Console.WriteLine($">>>>>> RT: Detach: interrupting op: {op.Id}; thread-id: {thread.ManagedThreadId}");
+                            thread.Interrupt();
+                        }
+                    }
                 }
             }
-
-            // SyncMonitor.PulseAll(this.SyncObject);
-
-            // Check if the completion source is completed, else set its result.
-            if (!this.CompletionSource.Task.IsCompleted)
+            finally
             {
-                this.IsRunning = false;
-                this.CompletionSource.SetResult(true);
-            }
-
-            if (cancelExecution)
-            {
-                // Throw exception to force terminate the current operation.
-                this.ThrowExecutionCanceledExceptionIfDetached();
-                Thread.Sleep(3000);
+                // Check if the completion source is completed, else set its result.
+                if (!this.CompletionSource.Task.IsCompleted)
+                {
+                    this.IsRunning = false;
+                    this.CompletionSource.SetResult(true);
+                }
             }
         }
 

@@ -29,7 +29,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    $command = "test $target -f $framework --no-build -v $verbosity"
+    $command = "test $target -f $framework --no-build -v $verbosity --blame"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }

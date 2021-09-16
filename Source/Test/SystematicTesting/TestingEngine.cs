@@ -579,7 +579,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
-                        $"[task-{this.Configuration.TestingProcessId}]");
+                        $"[task-{this.Configuration.TestingProcessId}] - '{runtime.BugReport}'");
                 }
 
                 // Cleans up the runtime before the next iteration starts.
@@ -690,7 +690,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.Configuration.PerformFullExploration)
             {
-                // Emits the reproducable trace, if it exists.
+                // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");

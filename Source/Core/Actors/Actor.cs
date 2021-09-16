@@ -707,7 +707,7 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
+            if (innerException is System.Threading.ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
@@ -1082,7 +1082,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>True if the exception was handled, else false if it should continue to get thrown.</returns>
         private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
-            if (ex is ExecutionCanceledException)
+            if (ex is System.Threading.ThreadInterruptedException)
             {
                 // Internal exception used during testing.
                 return false;

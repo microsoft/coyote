@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
@@ -162,7 +163,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                 }
                 catch (Exception ex)
                 {
-                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
+                    Specification.Assert(!(ex is ThreadInterruptedException), $"Must not catch '{typeof(ThreadInterruptedException)}'.");
                 }
             },
             configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
@@ -184,7 +185,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                 }
                 catch (Exception ex)
                 {
-                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
+                    Specification.Assert(!(ex is ThreadInterruptedException), $"Must not catch '{typeof(ThreadInterruptedException)}'.");
                 }
             },
             configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
@@ -214,7 +215,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
                 }
                 catch (Exception ex)
                 {
-                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
+                    Specification.Assert(!(ex is ThreadInterruptedException), $"Must not catch '{typeof(ThreadInterruptedException)}'.");
                 }
             },
             configuration: this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
@@ -224,7 +225,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             var instructions = methodInfo.GetInstructions();
             int count = instructions.Count(i => i.OpCode == OpCodes.Call &&
-                i.Operand.ToString().Contains(nameof(ExceptionProvider.ThrowIfExecutionCanceledException)));
+                i.Operand.ToString().Contains(nameof(ExceptionProvider.ThrowIfThreadInterruptedException)));
             Specification.Assert(count == expectedCount, $"Rewrote {count} catch blocks (expected {expectedCount}).");
         }
     }

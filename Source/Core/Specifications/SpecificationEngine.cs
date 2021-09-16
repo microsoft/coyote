@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Specifications
                     string msg = string.Format(CultureInfo.InvariantCulture,
                         "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
                         GetStackTrace(monitor.StackTrace));
-                    this.Runtime.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                    this.Runtime.NotifyAssertionFailure(msg);
                 }
             }
 
@@ -309,7 +309,7 @@ namespace Microsoft.Coyote.Specifications
                     string msg = string.Format(CultureInfo.InvariantCulture,
                         "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
                         monitor.GetType().FullName, stateName);
-                    this.Runtime.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                    this.Runtime.NotifyAssertionFailure(msg);
                 }
             }
         }

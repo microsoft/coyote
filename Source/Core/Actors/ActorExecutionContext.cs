@@ -1144,66 +1144,33 @@ namespace Microsoft.Coyote.Actors
                 this.Runtime.TaskFactory.StartNew(
                     async state =>
                     {
-                        if (isFresh)
+                        try
                         {
-                            await actor.InitializeAsync(initialEvent);
-                        }
+                            if (isFresh)
+                            {
+                                await actor.InitializeAsync(initialEvent);
+                            }
 
-                        await actor.RunEventHandlerAsync();
-                        if (syncCaller != null)
-                        {
-                            this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
-                        }
+                            await actor.RunEventHandlerAsync();
+                            if (syncCaller != null)
+                            {
+                                this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                            }
 
-                        if (!actor.IsHalted)
+                            if (!actor.IsHalted)
+                            {
+                                this.ResetProgramCounter(actor);
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            this.ResetProgramCounter(actor);
+                            this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
                         }
                     },
                     op,
                     default,
                     this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
                     this.Runtime.TaskFactory.Scheduler);
-
-                // Task task = new Task(async () =>
-                // {
-                //     try
-                //     {
-                //         // Update the current controlled thread with this runtime instance,
-                //         // allowing future retrieval in the same controlled thread.
-                //         CoyoteRuntime.SetCurrentRuntime(this.Runtime);
-                //
-                //         this.Runtime.StartOperation(op);
-                //
-                //         if (isFresh)
-                //         {
-                //             await actor.InitializeAsync(initialEvent);
-                //         }
-                //
-                //         await actor.RunEventHandlerAsync();
-                //         if (syncCaller != null)
-                //         {
-                //             this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
-                //         }
-                //
-                //         if (!actor.IsHalted)
-                //         {
-                //             this.ResetProgramCounter(actor);
-                //         }
-                //
-                //         this.Runtime.CompleteOperation(op);
-                //
-                //         // The actor is inactive or halted, schedule the next enabled operation.
-                //         this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);
-                //     }
-                //     catch (Exception ex)
-                //     {
-                //         this.ProcessUnhandledExceptionInOperation(op, ex);
-                //     }
-                // });
-                //
-                // task.Start();
-                // this.Runtime.WaitOperationStart(op);
             }
 
             /// <summary>
@@ -1429,62 +1396,6 @@ namespace Microsoft.Coyote.Actors
 
                 this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
                     op.Actor.Id, calledAPI, caller.Id);
-            }
-
-            /// <summary>
-            /// Processes an unhandled exception in the specified asynchronous operation.
-            /// </summary>
-            private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
-            {
-                string message = null;
-                Exception exception = UnwrapException(ex);
-                if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
-                {
-                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                        exception.GetType().Name, op.Name);
-                }
-                else if (exception is ObjectDisposedException)
-                {
-                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                        exception.GetType().Name, op.Name, ex.Message);
-                }
-                else if (op is ActorOperation actorOp)
-                {
-                    message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception '{exception.GetType()}' was thrown in actor '{actorOp.Name}', " +
-                        $"'{exception.Source}':\n" +
-                        $"   {exception.Message}\n" +
-                        $"The stack trace is:\n{exception.StackTrace}");
-                }
-                else
-                {
-                    message = CoyoteRuntime.FormatUnhandledException(exception);
-                }
-
-                if (message != null)
-                {
-                    // Report the unhandled exception.
-                    this.Runtime.NotifyUnhandledException(exception, message, cancelExecution: false);
-                }
-            }
-
-            /// <summary>
-            /// Unwraps the specified exception.
-            /// </summary>
-            private static Exception UnwrapException(Exception ex)
-            {
-                Exception exception = ex;
-                while (exception is TargetInvocationException)
-                {
-                    exception = exception.InnerException;
-                }
-
-                if (exception is AggregateException)
-                {
-                    exception = exception.InnerException;
-                }
-
-                return exception;
             }
 
             /// <inheritdoc/>

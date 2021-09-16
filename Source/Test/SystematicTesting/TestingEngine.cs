@@ -579,7 +579,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
-                        $"[task-{this.Configuration.TestingProcessId}] - '{runtime.BugReport}'");
+                        $"[task-{this.Configuration.TestingProcessId}]");
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 // Cleans up the runtime before the next iteration starts.

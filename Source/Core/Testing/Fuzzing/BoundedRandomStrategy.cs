@@ -2,18 +2,24 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// A randomized fuzzing strategy.
+    /// A bounded randomized fuzzing strategy.
     /// </summary>
-    internal class RandomStrategy : FuzzingStrategy
+    internal class BoundedRandomStrategy : FuzzingStrategy
     {
         /// <summary>
         /// Random value generator.
         /// </summary>
         protected IRandomValueGenerator RandomValueGenerator;
+
+        /// <summary>
+        /// Map from tasks to total delays.
+        /// </summary>
+        private readonly ConcurrentDictionary<Guid, int> TotalTaskDelayMap;
 
         /// <summary>
         /// The maximum number of steps to explore.
@@ -26,11 +32,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected int StepCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
+        /// Initializes a new instance of the <see cref="BoundedRandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(int maxDelays, IRandomValueGenerator random)
+        internal BoundedRandomStrategy(int maxDelays, IRandomValueGenerator random)
         {
             this.RandomValueGenerator = random;
+            this.TotalTaskDelayMap = new ConcurrentDictionary<Guid, int>();
             this.MaxSteps = maxDelays;
         }
 
@@ -38,13 +45,37 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool InitializeNextIteration(uint iteration)
         {
             this.StepCount = 0;
+            this.TotalTaskDelayMap.Clear();
             return true;
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// The delay has an injection probability of 0.05 and is in the range
+        /// of [1, 100] with an upper bound of 5000ms per task.
+        /// </remarks>
         internal override bool GetNextDelay(int maxValue, out int next)
         {
-            next = this.RandomValueGenerator.Next(maxValue);
+            Guid id = this.GetOperationId();
+
+            // Ensure that the max delay per task is less than 5000ms.
+            int maxDelay = this.TotalTaskDelayMap.GetOrAdd(id, 0);
+            if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
+            {
+                // There is a 0.05 probability for a delay.
+                next = this.RandomValueGenerator.Next(maxValue) + 1;
+            }
+            else
+            {
+                next = 0;
+            }
+
+            if (next > 0)
+            {
+                // Update the total delay per task.
+                this.TotalTaskDelayMap.TryUpdate(id, maxDelay + next, maxDelay);
+            }
+
             this.StepCount++;
             return true;
         }

@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.SystematicTesting
                             break;
                         }
 
-                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IncrementalSchedulingSeed)
+                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IsSchedulingSeedIncremental)
                         {
                             // Increments the seed in the random number generator (if one is used), to
                             // capture the seed used by the scheduling strategy in the next iteration.

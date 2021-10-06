@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <returns>The created actor runtime.</returns>
         /// <remarks>
-        /// Only one actor runtime can be created per process. If you create a new actor runtime
+        /// Only one actor runtime can be used per process. If you create a new actor runtime
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static IActorRuntime Create() => Create(default);
@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="configuration">The runtime configuration to use.</param>
         /// <returns>The created actor runtime.</returns>
         /// <remarks>
-        /// Only one actor runtime can be created per process. If you create a new actor runtime
+        /// Only one actor runtime can be used per process. If you create a new actor runtime
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static IActorRuntime Create(Configuration configuration) =>

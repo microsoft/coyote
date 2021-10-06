@@ -13,7 +13,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <returns>The created actor runtime.</returns>
         /// <remarks>
-        /// Only one runtime can be created per thread context. This is not a thread-safe operation.
+        /// Only one actor runtime can be created per process. If you create a new actor runtime
+        /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static IActorRuntime Create() => Create(default);
 

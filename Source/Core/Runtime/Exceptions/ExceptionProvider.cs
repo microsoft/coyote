@@ -22,6 +22,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="exception">The exception object.</param>
         public static void ThrowIfThreadInterruptedException(object exception)
         {
+            // TODO: only re-throw an exception thrown by the runtime upon detach.
             if (exception is ThreadInterruptedException)
             {
                 throw (Exception)exception;

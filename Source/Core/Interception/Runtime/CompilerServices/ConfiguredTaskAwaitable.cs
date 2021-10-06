@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Interception
             internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task awaitedTask,
                 bool continueOnCapturedContext)
             {
-                if (runtime?.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (runtime?.SchedulingPolicy != SchedulingPolicy.None)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Interception
             internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
                 bool continueOnCapturedContext)
             {
-                if (runtime?.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (runtime?.SchedulingPolicy != SchedulingPolicy.None)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;

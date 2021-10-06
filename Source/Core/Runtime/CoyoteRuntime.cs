@@ -1308,20 +1308,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckExecutingOperationIsControlled()
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                // this.GetExecutingOperation<AsyncOperation>();
-            }
-        }
-
-        /// <summary>
         /// Checks if the scheduling steps bound has been reached. If yes,
         /// it stops the scheduler and kills all enabled machines.
         /// </summary>

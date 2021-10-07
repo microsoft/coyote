@@ -334,8 +334,6 @@ namespace Microsoft.Coyote.Runtime
 
                     this.CompleteOperation(op);
 
-                    Console.WriteLine($"   RT: RunTest-done: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
                     lock (this.SyncObject)
                     {
                         this.CheckLivenessErrorsAtTermination();
@@ -1716,12 +1714,10 @@ namespace Microsoft.Coyote.Runtime
                         // Interrupt the thread executing this operation.
                         if (op == ExecutingOperation.Value)
                         {
-                            Console.WriteLine($">>>>>> RT: Detach: interrupting executing op: {op.Id}; thread-id: {Thread.CurrentThread.ManagedThreadId}");
                             throw new ThreadInterruptedException();
                         }
                         else if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
                         {
-                            Console.WriteLine($">>>>>> RT: Detach: interrupting op: {op.Id}; thread-id: {thread.ManagedThreadId}");
                             thread.Interrupt();
                         }
                     }

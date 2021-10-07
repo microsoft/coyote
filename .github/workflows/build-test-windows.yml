@@ -29,14 +29,10 @@ jobs:
         run: ./Scripts/run-tests.ps1
         shell: pwsh
       - name: Build and test Coyote NuGet packages
+        if: ${{ env.RUNNER_OS == 'Windows' }}
         run: |
-         if [ "$RUNNER_OS" == "Windows" ]; then
-            ./Scripts/create-nuget-packages.ps1
-            ./Scripts/test-cli-package.ps1
-         else
-              echo "$RUNNER_OS not supported"
-              exit 1
-         fi
+          ./Scripts/create-nuget-packages.ps1
+          ./Scripts/test-cli-package.ps1
         shell: pwsh
       - name: Clone, build and test Coyote samples repository
         run: |

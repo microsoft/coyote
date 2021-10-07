@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionRethrow()
+        public void TestThreadInterruptedExceptionRethrow()
         {
             this.Test(() =>
             {
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionExplicitRethrow()
+        public void TestThreadInterruptedExceptionExplicitRethrow()
         {
             this.Test(() =>
             {
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionDoubleRethrow()
+        public void TestThreadInterruptedExceptionDoubleRethrow()
         {
             this.Test(() =>
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionInEmptyCatchBlock()
+        public void TestThreadInterruptedExceptionInEmptyCatchBlock()
         {
             this.Test(() =>
             {
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionInDoubleEmptyCatchBlock()
+        public void TestThreadInterruptedExceptionInDoubleEmptyCatchBlock()
         {
             this.Test(() =>
             {
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionRethrowInEmptyCatchBlock()
+        public void TestThreadInterruptedExceptionRethrowInEmptyCatchBlock()
         {
             this.Test(() =>
             {
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionInNonEmptyCatchBlock()
+        public void TestThreadInterruptedExceptionInNonEmptyCatchBlock()
         {
             this.Test(() =>
             {
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionInNonEmptyCatchBlockAsync()
+        public void TestThreadInterruptedExceptionInNonEmptyCatchBlockAsync()
         {
             this.Test(async () =>
             {
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionCanceledExceptionInNonEmptyCatchBlockGenericAsync()
+        public void TestThreadInterruptedExceptionInNonEmptyCatchBlockGenericAsync()
         {
             this.Test(async () =>
             {

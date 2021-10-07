@@ -166,7 +166,6 @@ namespace Microsoft.Coyote.Specifications
                 string msg = "Detected an assertion failure.";
                 if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 2");
                     throw new AssertionFailureException(msg);
                 }
 
@@ -187,7 +186,6 @@ namespace Microsoft.Coyote.Specifications
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
                 if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 3");
                     throw new AssertionFailureException(msg);
                 }
 
@@ -208,7 +206,6 @@ namespace Microsoft.Coyote.Specifications
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
                 if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
-                    Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>> 4: {new StackTrace()}");
                     throw new AssertionFailureException(msg);
                 }
 
@@ -229,7 +226,6 @@ namespace Microsoft.Coyote.Specifications
                 var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
                 if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 5");
                     throw new AssertionFailureException(msg);
                 }
 
@@ -250,7 +246,6 @@ namespace Microsoft.Coyote.Specifications
                 var msg = string.Format(CultureInfo.InvariantCulture, s, args);
                 if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
                 {
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 6");
                     throw new AssertionFailureException(msg);
                 }
 
@@ -275,7 +270,6 @@ namespace Microsoft.Coyote.Specifications
 
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>> 7");
                 throw new AssertionFailureException(message, exception);
             }
 

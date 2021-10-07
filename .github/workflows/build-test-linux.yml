@@ -42,4 +42,17 @@ jobs:
       - name: Test Coyote.CLI NuGet package
         run: ./Scripts/test-cli-package.ps1
         shell: pwsh
-      
+
+      - name: Clone Coyote sample repository
+        uses: GuillaumeFalourd/clone-github-repo-action@v1
+        with:
+          owner: 'microsoft'
+          repository: 'coyote-samples'
+
+      - name: Test Coyote samples repository
+        run: |
+          cd coyote-samples
+          $env:LOCAL_COYOTE_PATH="$pwd\.."
+          /Scripts/build-tests.ps1
+          dotnet ./Common/bin/net5.0/TestDriver.dll
+        shell: pwsh

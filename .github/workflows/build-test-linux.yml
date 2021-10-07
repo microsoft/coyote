@@ -43,14 +43,9 @@ jobs:
         run: ./Scripts/test-cli-package.ps1
         shell: pwsh
 
-      - name: Clone Coyote sample repository
-        uses: GuillaumeFalourd/clone-github-repo-action@v1
-        with:
-          owner: 'microsoft'
-          repository: 'coyote-samples'
-
-      - name: Test Coyote samples repository
+      - name: Clone, build and test Coyote samples repository
         run: |
+          git clone https://github.com/microsoft/coyote-samples.git
           cd coyote-samples
           $env:LOCAL_COYOTE_PATH="$pwd\.."
           /Scripts/build-tests.ps1

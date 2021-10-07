@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>The created Coyote runtime.</returns>
         /// <remarks>
-        /// Only one Coyote runtime can be created per process. If you create a new Coyote runtime
+        /// Only one Coyote runtime can be used per process. If you create a new Coyote runtime
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static ICoyoteRuntime Create() => CreateAndInstall(default).DefaultActorExecutionContext;
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="configuration">The runtime configuration to use.</param>
         /// <returns>The created Coyote runtime.</returns>
         /// <remarks>
-        /// Only one Coyote runtime can be created per process. If you create a new Coyote runtime
+        /// Only one Coyote runtime can be used per process. If you create a new Coyote runtime
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static ICoyoteRuntime Create(Configuration configuration) =>

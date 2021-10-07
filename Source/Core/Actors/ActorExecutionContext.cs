@@ -348,6 +348,8 @@ namespace Microsoft.Coyote.Actors
                     if (isFresh)
                     {
                         await actor.InitializeAsync(initialEvent);
+                        // Add the actor to the set of non-halted enabled actors.
+                        this.Runtime.ActiveActors.Add(actor.Id);
                     }
 
                     await actor.RunEventHandlerAsync();
@@ -363,6 +365,9 @@ namespace Microsoft.Coyote.Actors
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
                     }
+
+                    // Remove the actor from the set of non-halted enabled actors.
+                    this.Runtime.ActiveActors.Remove(actor.Id);
                 }
             });
         }

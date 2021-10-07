@@ -165,6 +165,11 @@ namespace Microsoft.Coyote.Runtime
         private Exception UnhandledException;
 
         /// <summary>
+        /// Keeps track of currently enabled and non-halted actors.
+        /// </summary>
+        internal HashSet<ActorId> ActiveActors;
+
+        /// <summary>
         /// The operation scheduling policy used by the runtime.
         /// </summary>
         internal SchedulingPolicy SchedulingPolicy => this.Scheduler?.SchedulingPolicy ??
@@ -311,11 +316,14 @@ namespace Microsoft.Coyote.Runtime
                             throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                         }
 
-                        lock (this.SyncObject)
+                        if (this.ActiveActors.Count == 0)
                         {
-                            IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                            this.HasFullyExploredSchedule = true;
-                            this.Detach(false);
+                            lock (this.SyncObject)
+                            {
+                                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                                this.HasFullyExploredSchedule = true;
+                                this.Detach(false);
+                            }
                         }
                     }
                     catch (Exception ex)

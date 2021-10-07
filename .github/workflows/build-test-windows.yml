@@ -1,4 +1,4 @@
-name: Windows CI
+name: Build and Test CI
 
 on:
   push:
@@ -7,8 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-and-test:
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+
+    runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v2
@@ -28,18 +32,29 @@ jobs:
         run: echo "COYOTE_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
 
       - name: Build Coyote projects
-        run: .\Scripts\build.ps1
+        run: ./Scripts/build.ps1
         shell: pwsh
       
       - name: Run Coyote Tests
-        run: .\Scripts\run-tests.ps1
+        run: ./Scripts/run-tests.ps1
         shell: pwsh
       
-      - name: Build Coyote NuGet package
-        run: .\Scripts\create-nuget-packages.ps1
+      - name: Build and test Coyote NuGet packages
+        run: |
+         if [ "$RUNNER_OS" == "Windows" ]; then
+            ./Scripts/create-nuget-packages.ps1
+            ./Scripts/test-cli-package.ps1
+         else
+              echo "$RUNNER_OS not supported"
+              exit 1
+         fi
         shell: pwsh
-      
-      - name: Test Coyote.CLI NuGet package
-        run: .\Scripts\test-cli-package.ps1
+
+      - name: Clone, build and test Coyote samples repository
+        run: |
+          git clone https://github.com/microsoft/coyote-samples.git
+          cd coyote-samples
+          $env:LOCAL_COYOTE_PATH="$pwd\.."
+          ./Scripts/build-tests.ps1
+          dotnet ./Common/bin/net5.0/TestDriver.dll
         shell: pwsh
-      

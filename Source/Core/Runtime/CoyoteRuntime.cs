@@ -397,14 +397,11 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-
             TaskOperation op = this.CreateTaskOperation();
             var thread = new Thread(() =>
             {
                 try
                 {
-                    Console.WriteLine($"   SC: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
                     // Update the current controlled thread with this runtime instance and executing
                     // operation, allowing future retrieval in the same controlled thread.
                     ThreadLocalRuntime.Value = this;
@@ -459,14 +456,11 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            Console.WriteLine($"   RT: Schedule: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
-
             TaskOperation op = task.AsyncState as TaskOperation ?? this.CreateTaskOperation();
             var thread = new Thread(() =>
             {
                 try
                 {
-                    Console.WriteLine($"   TS: ThreadStart: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task: {task.Id}");
                     // Update the current controlled thread with this runtime instance and executing
                     // operation, allowing future retrieval in the same controlled thread.
                     ThreadLocalRuntime.Value = this;

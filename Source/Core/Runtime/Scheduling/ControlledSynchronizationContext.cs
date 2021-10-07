@@ -29,7 +29,8 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                Console.WriteLine($"      SC: Post: thread-id: {Thread.CurrentThread.ManagedThreadId}");
+                IO.Debug.WriteLine("<ScheduleDebug> Posting callback from thread '{0}'.",
+                    Thread.CurrentThread.ManagedThreadId);
                 this.Runtime?.Schedule(() => d(state));
             }
             catch (ThreadInterruptedException)

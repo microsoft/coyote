@@ -31,18 +31,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-        {
-            Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
-            bool result = this.TryExecuteTask(task);
-            Console.WriteLine($"      TS: TryExecuteTaskInline: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; result: {result}");
-            return result;
-        }
+        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
+            this.TryExecuteTask(task);
 
         /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
-            Console.WriteLine($"      TS: QueueTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}");
+            IO.Debug.WriteLine("<ScheduleDebug> Enqueuing task '{0}' from thread '{1}'.",
+                task.Id, Thread.CurrentThread.ManagedThreadId);
             this.Runtime.ScheduleTask(task);
         }
 
@@ -52,11 +48,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Executes the specified task on this scheduler.
         /// </summary>
-        internal void ExecuteTask(Task task)
-        {
-            Console.WriteLine($"      TS: ExecuteTask: thread-id: {Thread.CurrentThread.ManagedThreadId}; task-id: {Task.CurrentId}; task {task.Id}");
-            this.TryExecuteTask(task);
-        }
+        internal void ExecuteTask(Task task) => this.TryExecuteTask(task);
 
         /// <inheritdoc/>
         public void Dispose()

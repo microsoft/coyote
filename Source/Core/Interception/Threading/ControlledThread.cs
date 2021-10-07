@@ -169,18 +169,12 @@ namespace Microsoft.Coyote.Interception
         }
 
         /// <summary>
-        /// Causes the calling thread to yield execution to another thread that is ready
-        /// to run on the current processor. The operating system selects the thread to yield
-        /// to.
+        /// Causes the calling thread to yield execution to another thread that is ready to run
+        /// on the current processor. The operating system selects the thread to yield to.
         /// </summary>
         public static bool Yield()
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                ControlledTask.Yield().GetAwaiter().GetResult();
-                return true;
-            }
-
+            Microsoft.Coyote.Runtime.SchedulingPoint.Yield();
             return Thread.Yield();
         }
 

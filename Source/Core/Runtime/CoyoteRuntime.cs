@@ -740,24 +740,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="YieldAwaitable.YieldAwaiter.GetResult"/> is called.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal void OnYieldAwaiterGetResult()
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                // this.ScheduleNextOperation(AsyncOperationType.Yield);
-            }
-            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                this.DelayOperation();
-            }
-        }
-
-        /// <summary>
         /// Callback invoked when the <see cref="TaskAwaiter.GetResult"/> is called.
         /// </summary>
 #if !DEBUG

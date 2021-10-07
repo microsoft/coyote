@@ -412,16 +412,6 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext) =>
             new ConfiguredTaskAwaitable(CoyoteRuntime.Current, task, continueOnCapturedContext);
-
-        /// <summary>
-        /// Creates an awaitable that asynchronously yields back to the current context when awaited.
-        /// </summary>
-        /// <remarks>
-        /// You can use `await Task.Yield()` in an asynchronous method to force the method to complete
-        /// asynchronously. During systematic testing, the underlying scheduling strategy can use this
-        /// as a hint on how to better prioritize this work relative to other work that may be pending.
-        /// </remarks>
-        public static YieldAwaitable Yield() => new YieldAwaitable(CoyoteRuntime.Current);
     }
 
     /// <summary>

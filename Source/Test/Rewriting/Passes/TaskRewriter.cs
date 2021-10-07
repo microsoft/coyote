@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskRewriter : AssemblyRewriter
     {
-        private static readonly Dictionary<string, Type> RewritableTypes = new Dictionary<string, Type>()
+        private static readonly Dictionary<string, Type> SupportedTypes = new Dictionary<string, Type>()
         {
             { CachedNameProvider.AsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder) },
             { CachedNameProvider.GenericAsyncTaskMethodBuilderFullName, typeof(ControlledTasks.AsyncTaskMethodBuilder<>) },
@@ -24,8 +24,6 @@ namespace Microsoft.Coyote.Rewriting
             { CachedNameProvider.GenericConfiguredTaskAwaitableFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>) },
             { CachedNameProvider.ConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) },
             { CachedNameProvider.GenericConfiguredTaskAwaiterFullName, typeof(ControlledTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter) },
-            { CachedNameProvider.YieldAwaitableFullName, typeof(ControlledTasks.YieldAwaitable) },
-            { CachedNameProvider.YieldAwaiterFullName, typeof(ControlledTasks.YieldAwaitable.YieldAwaiter) },
             { CachedNameProvider.TaskExtensionsFullName, typeof(ControlledTasks.TaskExtensions) },
             { CachedNameProvider.TaskFactoryFullName, typeof(ControlledTasks.TaskFactory) },
             { CachedNameProvider.GenericTaskFactoryFullName, typeof(ControlledTasks.TaskFactory<>) },
@@ -287,7 +285,7 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
-                if (RewritableTypes.TryGetValue(fullName, out Type coyoteType))
+                if (SupportedTypes.TryGetValue(fullName, out Type coyoteType))
                 {
                     if (coyoteType.IsGenericType)
                     {
@@ -351,7 +349,6 @@ namespace Microsoft.Coyote.Rewriting
             methodName == nameof(ControlledTasks.ControlledTask.WaitAll) ||
             methodName == nameof(ControlledTasks.ControlledTask.WaitAny) ||
             methodName == nameof(ControlledTasks.ControlledTask.Wait) ||
-            methodName == nameof(ControlledTasks.ControlledTask.Yield) ||
             methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter) ||
             methodName == nameof(ControlledTasks.ControlledTask.ConfigureAwait));
     }

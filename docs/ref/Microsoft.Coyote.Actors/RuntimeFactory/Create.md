@@ -12,7 +12,7 @@ The created actor runtime.
 
 ## Remarks
 
-Only one runtime can be created per thread context. This is not a thread-safe operation.
+Only one actor runtime can be used per process. If you create a new actor runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 
@@ -41,7 +41,7 @@ The created actor runtime.
 
 ## Remarks
 
-Only one actor runtime can be created per process. If you create a new actor runtime it replaces the previously installed one. This is a thread-safe operation.
+Only one actor runtime can be used per process. If you create a new actor runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 

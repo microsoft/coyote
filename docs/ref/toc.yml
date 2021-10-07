@@ -45,6 +45,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
+        - name: WithIncrementalSeedGenerationEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled
         - name: WithVerbosityEnabled
           link: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
         - name: WithActivityCoverageEnabled
@@ -844,8 +846,6 @@ toc:
       subfolderitems:
       - name: AssertionFailureException
         link: ref/Microsoft.Coyote.Runtime/AssertionFailureException
-      - name: ExecutionCanceledException
-        link: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException
       - name: RuntimeException
         link: ref/Microsoft.Coyote.Runtime/RuntimeException
         subfolderitems:
@@ -882,8 +882,8 @@ toc:
         subfolderitems:
         - name: Interleave
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave
-        - name: Deprioritize
-          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize
+        - name: Yield
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Yield
         - name: Suppress
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume

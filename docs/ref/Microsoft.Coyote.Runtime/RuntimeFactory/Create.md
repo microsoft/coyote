@@ -12,7 +12,7 @@ The created Coyote runtime.
 
 ## Remarks
 
-Only one Coyote runtime can be created per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
+Only one Coyote runtime can be used per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 
@@ -41,7 +41,7 @@ The created Coyote runtime.
 
 ## Remarks
 
-Only one Coyote runtime can be created per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
+Only one Coyote runtime can be used per process. If you create a new Coyote runtime it replaces the previously installed one. This is a thread-safe operation.
 
 ## See Also
 

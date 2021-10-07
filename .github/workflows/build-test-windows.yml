@@ -38,7 +38,7 @@ jobs:
         run: |
           git clone https://github.com/microsoft/coyote-samples.git
           cd coyote-samples
-          $env:LOCAL_COYOTE_PATH="$pwd\.."
+          $env:LOCAL_COYOTE_PATH="$pwd/.."
           ./Scripts/build-tests.ps1
           dotnet ./Common/bin/net5.0/TestDriver.dll
         shell: pwsh

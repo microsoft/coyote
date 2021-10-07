@@ -1,0 +1,106 @@
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    # default location of '.github/workflows'
+    directory: '/'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'weekly'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Source/Core'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Source/Test'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Actors'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Actors.BugFinding'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Actors.Performance'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.BugFinding'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Common'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Performance'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Rewriting'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tests/Tests.Standalone'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tools/BenchmarkRunner'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tools/CoverageReportMerger'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tools/Coyote'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'nuget'
+    directory: 'Tools/GenToc'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'pip'
+    directory: 'docs'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+  - package-ecosystem: 'pip'
+    directory: 'Scripts/Notebooks'
+    open-pull-requests-limit: 3
+    schedule:
+      interval: 'daily'
+
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)

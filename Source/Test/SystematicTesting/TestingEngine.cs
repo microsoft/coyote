@@ -273,19 +273,6 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 TelemetryClient = new CoyoteTelemetryClient(this.Configuration);
             }
-
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        }
-
-        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
-            ReportUnhandledException((Exception)args.ExceptionObject);
-            Environment.Exit(1);
-        }
-
-        private static void ReportUnhandledException(Exception ex)
-        {
-            System.IO.File.AppendAllText(@"C:\Users\pdeligia\workspace\coyote\log.txt", $">>> UNHANDLED: {ex}");
         }
 
         /// <summary>

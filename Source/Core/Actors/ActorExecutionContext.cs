@@ -326,6 +326,12 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: false);
 
+            // Add a delay point before potentially enqueuing an event.
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation();
+            }
+
             EnqueueStatus enqueueStatus = target.Enqueue(e, eventGroup, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {

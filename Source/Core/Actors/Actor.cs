@@ -486,6 +486,12 @@ namespace Microsoft.Coyote.Actors
             {
                 while (this.CurrentStatus != Status.Halted && this.Context.IsRunning)
                 {
+                    // Add a delay point before dequeuing an event.
+                    if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        this.Context.Runtime.DelayOperation();
+                    }
+
                     (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) = this.Inbox.Dequeue();
                     lastDequeueStatus = status;
 

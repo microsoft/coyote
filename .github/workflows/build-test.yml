@@ -38,7 +38,7 @@ jobs:
         run: |
           git clone https://github.com/microsoft/coyote-samples.git
           cd coyote-samples
-          $env:LOCAL_COYOTE_PATH="$env:GITHUB_WORKSPACE"
+          $env:LOCAL_COYOTE_PATH=$env:GITHUB_WORKSPACE
           echo "TEST--"
           echo $env:LOCAL_COYOTE_PATH
           echo "TEST--"

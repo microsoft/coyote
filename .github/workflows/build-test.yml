@@ -29,7 +29,7 @@ jobs:
         run: ./Scripts/run-tests.ps1
         shell: pwsh
       - name: Build and test Coyote NuGet packages
-        if: ${{ RUNNER_OS == 'Windows' }}
+        if: ${{ matrix.platform == 'windows-latest' }}
         run: |
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1

@@ -29,16 +29,17 @@ jobs:
         run: ./Scripts/run-tests.ps1
         shell: pwsh
       - name: Build and test Coyote NuGet packages
-        if: ${{ env.RUNNER_OS == 'Windows' }}
+        if: ${{ RUNNER_OS == 'Windows' }}
         run: |
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
-      - name: Clone, build and test Coyote samples repository
+      - name: Clone, build and test Coyote samples
         run: |
           git clone https://github.com/microsoft/coyote-samples.git
           cd coyote-samples
-          $env:LOCAL_COYOTE_PATH="$pwd/.."
+          $env:LOCAL_COYOTE_PATH="$GITHUB_WORKSPACE"
+          $env:LOCAL_COYOTE_PATH
           ./Scripts/build-tests.ps1
           dotnet ./Common/bin/net5.0/TestDriver.dll
         shell: pwsh

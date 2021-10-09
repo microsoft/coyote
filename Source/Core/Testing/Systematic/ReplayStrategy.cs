@@ -211,8 +211,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Formats the error message.
         /// </summary>
-        private string FormatError(string reason) => this.Configuration.RandomGeneratorSeed is null ?
-            $"Trace is not reproducible: {reason}." :
-            $"Trace from execution with random seed '{this.Configuration.RandomGeneratorSeed}' is not reproducible: {reason}.";
+        private string FormatError(string reason) => this.Configuration.RandomGeneratorSeed.HasValue ?
+            $"Trace from execution with random seed '{this.Configuration.RandomGeneratorSeed}' is not reproducible: {reason}." :
+            $"Trace is not reproducible: {reason}.";
     }
 }

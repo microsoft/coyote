@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Runtime
@@ -15,15 +16,16 @@ namespace Microsoft.Coyote.Runtime
     public static class ExceptionProvider
     {
         /// <summary>
-        /// Checks if the exception object contains an <see cref="ExecutionCanceledException"/>
+        /// Checks if the exception object contains a <see cref="ThreadInterruptedException"/>
         /// and, if yes, it re-throws it so that the exception is not silently consumed.
         /// </summary>
         /// <param name="exception">The exception object.</param>
-        public static void ThrowIfExecutionCanceledException(object exception)
+        public static void ThrowIfThreadInterruptedException(object exception)
         {
-            if (exception is ExecutionCanceledException ece)
+            // TODO: only re-throw an exception thrown by the runtime upon detach.
+            if (exception is ThreadInterruptedException)
             {
-                throw ece;
+                throw (Exception)exception;
             }
 
             if (exception is Exception ex)
@@ -31,7 +33,7 @@ namespace Microsoft.Coyote.Runtime
                 // Look inside in case this is some sort of auto-wrapped AggregateException.
                 if (ex.InnerException != null)
                 {
-                    ThrowIfExecutionCanceledException(ex.InnerException);
+                    ThrowIfThreadInterruptedException(ex.InnerException);
                 }
             }
         }

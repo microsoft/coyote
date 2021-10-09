@@ -77,11 +77,9 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 // TODO: check if we need to capture the execution context.
-
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+                CoyoteRuntime.Current.Schedule(() => callBack(state));
                 return true;
             }
 
@@ -99,11 +97,9 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 // TODO: check if we need to capture the execution context.
-
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+                CoyoteRuntime.Current.Schedule(() => callBack(state));
                 return true;
             }
 
@@ -119,11 +115,9 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 // TODO: check if we need to capture the execution context.
-
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+                CoyoteRuntime.Current.Schedule(() => callBack(state));
                 return true;
             }
 
@@ -139,11 +133,9 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 // TODO: check if we need to capture the execution context.
-
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack.Execute(), null, options);
+                CoyoteRuntime.Current.Schedule(() => callBack.Execute());
                 return true;
             }
 
@@ -160,11 +152,9 @@ namespace Microsoft.Coyote.Interception
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 // TODO: check if we need to capture the execution context.
-
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                var options = OperationContext.CreateOperationExecutionOptions(failOnException: true);
-                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, options);
+                CoyoteRuntime.Current.Schedule(() => callBack(state));
                 return true;
             }
 

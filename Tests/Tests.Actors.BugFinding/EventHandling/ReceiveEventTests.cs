@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientActor() is waiting to " +
-                "receive an event, but no other controlled tasks are enabled.",
+                "receive an event, but no other controlled operations are enabled.",
             replay: true);
         }
 
@@ -183,8 +183,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(ServerActor2));
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "Deadlock detected. ClientActor() and ClientActor() are " +
-                "waiting to receive an event, but no other controlled tasks are enabled.",
+            expectedError: "Deadlock detected. ClientActor() and ClientActor() are waiting " +
+                "to receive an event, but no other controlled operations are enabled.",
             replay: true);
         }
 
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientActor(), ClientActor() and " +
                 "ClientActor() are waiting to receive an event, but no other " +
-                "controlled tasks are enabled.",
+                "controlled operations are enabled.",
             replay: true);
         }
 
@@ -329,8 +329,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(ServerStateMachine2));
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "Deadlock detected. ClientStateMachine() is waiting " +
-                "to receive an event, but no other controlled tasks are enabled.",
+            expectedError: "Deadlock detected. ClientStateMachine() is waiting to " +
+                "receive an event, but no other controlled operations are enabled.",
             replay: true);
         }
 
@@ -343,8 +343,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(ServerStateMachine2));
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "Deadlock detected. ClientStateMachine() and ClientStateMachine() " +
-                "are waiting to receive an event, but no other controlled tasks are enabled.",
+            expectedError: "Deadlock detected. ClientStateMachine() and ClientStateMachine() are " +
+                "waiting to receive an event, but no other controlled operations are enabled.",
             replay: true);
         }
 
@@ -360,7 +360,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientStateMachine(), ClientStateMachine() " +
                 "and ClientStateMachine() are waiting to receive an event, but no other " +
-                "controlled tasks are enabled.",
+                "controlled operations are enabled.",
             replay: true);
         }
     }

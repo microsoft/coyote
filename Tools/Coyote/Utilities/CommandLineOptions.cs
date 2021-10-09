@@ -55,7 +55,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
-            testingGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
             testingGroup.AddArgument("no-repro", null, "Disable bug trace repro to ignore uncontrolled concurrency errors", typeof(bool));
 
@@ -94,6 +93,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             var experimentalGroup = this.Parser.GetOrCreateGroup("experimentalGroup", "Experimental options");
             experimentalGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
+            experimentalGroup.AddArgument("sch-dfs", null, "Choose the depth-first search (DFS) scheduling strategy", typeof(bool));
+            experimentalGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
             experimentalGroup.AddArgument("concurrency-fuzzing", null, "Use concurrency fuzzing instead of systematic testing", typeof(bool));
             experimentalGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
 

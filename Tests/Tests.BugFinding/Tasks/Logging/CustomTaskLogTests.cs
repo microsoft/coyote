@@ -92,7 +92,6 @@ Task '' completed.
 Task '' is running.
 Task '' completed.
 <ErrorLog> Reached test assertion.
-<StackTrace> 
 <StrategyLog> Found bug using 'random' strategy.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
@@ -102,7 +101,6 @@ Task '' completed.
 <StrategyLog> Number of scheduling points in fair terminating schedules: 4 (), 4 (), 4 ().";
 
                 string actual = engine.ReadableTrace.ToString();
-                actual = actual.RemoveStackTrace("<StrategyLog>");
                 actual = actual.RemoveNonDeterministicValues();
                 expected = expected.RemoveNonDeterministicValues();
                 Assert.Equal(expected, actual);

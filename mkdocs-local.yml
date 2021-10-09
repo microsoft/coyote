@@ -124,6 +124,7 @@ nav:
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
+        - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
         - WithActivityCoverageEnabled: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled.md
         - WithDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled.md
@@ -550,7 +551,6 @@ nav:
     - Microsoft.Coyote.Runtime:
       - Namespace Overview: ref/Microsoft.Coyote.RuntimeNamespace.md
       - AssertionFailureException: ref/Microsoft.Coyote.Runtime/AssertionFailureException.md
-      - ExecutionCanceledException: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException.md
       - RuntimeException:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeException.md
         - RuntimeException: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException.md
@@ -571,7 +571,7 @@ nav:
       - SchedulingPoint:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
         - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
-        - Deprioritize: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize.md
+        - Yield: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Yield.md
         - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
         - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
     - Microsoft.Coyote.Specifications:

@@ -66,8 +66,8 @@ namespace Microsoft.Coyote.Runtime
         private OperationScheduler(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ?
-                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic;
+            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing :
+                SchedulingPolicy.Systematic;
 
             this.ValueGenerator = new RandomValueGenerator(configuration);
 

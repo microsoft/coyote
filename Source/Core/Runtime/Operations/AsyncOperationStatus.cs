@@ -46,11 +46,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The operation is completed.
         /// </summary>
-        Completed,
-
-        /// <summary>
-        /// The operation is canceled.
-        /// </summary>
-        Canceled
+        Completed
     }
 }

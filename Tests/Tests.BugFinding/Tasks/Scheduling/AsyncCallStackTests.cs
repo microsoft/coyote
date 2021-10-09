@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                         frameCount = st.FrameCount;
                     }
 
-                    Specification.Assert(st.FrameCount < frameCount + 5, $"Call stack size of {st.FrameCount} in iteration {i}.");
+                    Specification.Assert(st.FrameCount < frameCount + 15, $"Call stack size of {st.FrameCount} in iteration {i}.");
                 }
             },
             configuration: this.GetConfiguration());

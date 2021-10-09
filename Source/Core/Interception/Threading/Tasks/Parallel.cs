@@ -32,11 +32,6 @@ namespace Microsoft.Coyote.Interception
         private const int MaxDegreeOfParallelism = 4;
 
         /// <summary>
-        /// Cached completed result.
-        /// </summary>
-        private static ParallelLoopResult CompletedResult { get; } = GetCompletedResult();
-
-        /// <summary>
         /// Executes each of the provided actions, possibly in parallel.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,10 +59,7 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return For(fromInclusive, toExclusive, new ParallelOptions()
-                {
-                    MaxDegreeOfParallelism = MaxDegreeOfParallelism
-                }, body);
+                return For(fromInclusive, toExclusive, new ParallelOptions(), body);
             }
 
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
@@ -82,36 +74,12 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ValidateParallelOptions(parallelOptions);
-
-                var runtime = CoyoteRuntime.Current;
-
-                int numIterations = toExclusive - fromInclusive;
-                int numTasks = Math.Min(numIterations, parallelOptions.MaxDegreeOfParallelism);
-
-                var groups = Enumerable.Range(fromInclusive, numIterations)
-                    .Select((item, index) => new { index, item })
-                    .GroupBy(x => x.index % numTasks)
-                    .Select(x => x.Select(y => y.item));
-
-                int index = 0;
-                Task[] tasks = new Task[numTasks];
-
-                var options = OperationContext.CreateOperationExecutionOptions();
-                foreach (var group in groups)
+                return SystemTasks.Parallel.For(fromInclusive, toExclusive, new ParallelOptions()
                 {
-                    tasks[index] = runtime.ScheduleAction(() =>
-                    {
-                        foreach (var iteration in group)
-                        {
-                            body(iteration);
-                        }
-                    }, null, options, false, parallelOptions.CancellationToken);
-                    index++;
-                }
-
-                runtime.WaitAllTasksComplete(tasks);
-                return CompletedResult;
+                    CancellationToken = parallelOptions.CancellationToken,
+                    MaxDegreeOfParallelism = MaxDegreeOfParallelism,
+                    TaskScheduler = CoyoteRuntime.Current.ControlledTaskScheduler
+                }, body);
             }
 
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
@@ -191,10 +159,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-            }
-
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
         }
 
@@ -205,10 +170,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-            }
-
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
         }
 
@@ -246,10 +208,7 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ForEach(source, new ParallelOptions()
-                {
-                    MaxDegreeOfParallelism = MaxDegreeOfParallelism
-                }, body);
+                return ForEach(source, new ParallelOptions(), body);
             }
 
             return SystemTasks.Parallel.ForEach(source, body);
@@ -264,37 +223,12 @@ namespace Microsoft.Coyote.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ValidateParallelOptions(parallelOptions);
-
-                var runtime = CoyoteRuntime.Current;
-                var sourceList = source.ToList();
-
-                int numIterations = sourceList.Count;
-                int numTasks = Math.Min(numIterations, parallelOptions.MaxDegreeOfParallelism);
-
-                var groups = Enumerable.Range(0, numIterations)
-                    .Select((item, index) => new { index, item })
-                    .GroupBy(x => x.index % numTasks)
-                    .Select(x => x.Select(y => y.item));
-
-                int index = 0;
-                Task[] tasks = new Task[numTasks];
-
-                var options = OperationContext.CreateOperationExecutionOptions();
-                foreach (var group in groups)
+                return SystemTasks.Parallel.ForEach(source, new ParallelOptions()
                 {
-                    tasks[index] = runtime.ScheduleAction(() =>
-                    {
-                        foreach (var iteration in group)
-                        {
-                            body(sourceList[iteration]);
-                        }
-                    }, null, options, false, parallelOptions.CancellationToken);
-                    index++;
-                }
-
-                runtime.WaitAllTasksComplete(tasks);
-                return CompletedResult;
+                    CancellationToken = parallelOptions.CancellationToken,
+                    MaxDegreeOfParallelism = MaxDegreeOfParallelism,
+                    TaskScheduler = CoyoteRuntime.Current.ControlledTaskScheduler
+                }, body);
             }
 
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
@@ -517,29 +451,6 @@ namespace Microsoft.Coyote.Interception
         {
             ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
-        }
-
-        /// <summary>
-        /// Returns a completed <see cref="ParallelLoopResult"/>.
-        /// </summary>
-        private static ParallelLoopResult GetCompletedResult()
-        {
-            ParallelLoopResult result = default;
-            FieldInfo field = result.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                .First(f => f.Name is "_completed" || f.Name is "m_completed");
-            field.SetValueDirect(__makeref(result), true);
-            return result;
-        }
-
-        /// <summary>
-        /// Ensure that the specified parallel options can be handled during systematic testing.
-        /// </summary>
-        private static void ValidateParallelOptions(ParallelOptions options)
-        {
-            if (options.TaskScheduler != null && options.TaskScheduler != TaskScheduler.Default)
-            {
-                throw new NotSupportedException($"using a custom task scheduler is not supported during systematic testing.");
-            }
         }
     }
 }

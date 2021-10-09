@@ -81,11 +81,10 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// If true, the seed will increment in each
-        /// testing iteration.
+        /// If true, the seed will increment in each testing iteration.
         /// </summary>
         [DataMember]
-        internal bool IncrementalSchedulingSeed;
+        internal bool IsSchedulingSeedIncremental;
 
         /// <summary>
         /// If this option is enabled, systematic testing supports partially controlled executions.
@@ -368,7 +367,7 @@ namespace Microsoft.Coyote
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
-            this.IncrementalSchedulingSeed = false;
+            this.IsSchedulingSeedIncremental = false;
             this.IsRelaxedControlledTestingEnabled = false;
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsLivenessCheckingEnabled = true;
@@ -641,6 +640,16 @@ namespace Microsoft.Coyote
         public Configuration WithRandomGeneratorSeed(uint seed)
         {
             this.RandomGeneratorSeed = seed;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with incremental seed generation enabled or disabled.
+        /// </summary>
+        /// <param name="isIncremental">If true, then incremental seed generation is used.</param>
+        public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
+        {
+            this.IsSchedulingSeedIncremental = isIncremental;
             return this;
         }
 

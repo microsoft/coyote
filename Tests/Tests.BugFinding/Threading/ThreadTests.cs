@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             t.Join();
         }
 
-        [Fact(Timeout = 5000)]
+        [Fact(Skip="todo", Timeout = 5000)]
         public void TestThreadStartJoin()
         {
             this.Test(async () =>

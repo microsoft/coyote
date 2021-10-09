@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Unhandled exception 'System.InvalidOperationException'", e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException:", e);
             },
             replay: true);
         }
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Unhandled exception 'System.InvalidOperationException'", e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException:", e);
             },
             replay: true);
         }

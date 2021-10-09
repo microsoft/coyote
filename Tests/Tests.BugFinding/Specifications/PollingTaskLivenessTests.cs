@@ -6,7 +6,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BugFinding.Tests
+namespace Microsoft.Coyote.BugFinding.Tests.Specifications
 {
     public class PollingTaskLivenessTests : BaseBugFindingTest
     {

@@ -415,7 +415,7 @@ namespace Microsoft.Coyote.SystematicTesting
                             break;
                         }
 
-                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IncrementalSchedulingSeed)
+                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IsSchedulingSeedIncremental)
                         {
                             // Increments the seed in the random number generator (if one is used), to
                             // capture the seed used by the scheduling strategy in the next iteration.
@@ -511,8 +511,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
                 // Runs the test and waits for it to terminate.
-                runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
-                runtime.WaitAsync().Wait();
+                Task task = runtime.RunTestAsync(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
+                task.Wait();
 
                 // Invokes the user-specified iteration disposal method.
                 this.TestMethodInfo.DisposeCurrentIteration();
@@ -521,12 +521,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 foreach (var callback in this.PerIterationCallbacks)
                 {
                     callback(iteration);
-                }
-
-                if (!runtime.IsBugFound)
-                {
-                    // Checks for liveness errors. Only checked if no safety errors have been found.
-                    runtime.CheckLivenessErrors();
                 }
 
                 if (runtime.IsBugFound)
@@ -573,6 +567,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
                         $"[task-{this.Configuration.TestingProcessId}]");
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 // Cleans up the runtime before the next iteration starts.
@@ -683,7 +678,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.Configuration.PerformFullExploration)
             {
-                // Emits the reproducable trace, if it exists.
+                // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");

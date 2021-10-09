@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Xunit;
@@ -13,7 +14,7 @@ using Xunit.Abstractions;
 namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
 {
     /// <summary>
-    /// Tests that we can insert an <see cref="ExecutionCanceledException"/> filter.
+    /// Tests that we can insert an <see cref="ThreadInterruptedException"/> filter.
     /// </summary>
     public class TaskExceptionFilterTests : BaseRewritingTest
     {
@@ -27,7 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test catch Exception
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch (Exception ex)
             {
@@ -38,9 +39,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod);
         }
 
         private static void TestFilterMethod2()
@@ -48,7 +49,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test catch RuntimeException
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch (RuntimeException ex)
             {
@@ -59,9 +60,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter2()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod2);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod2);
         }
 
         private static void TestFilterMethod3()
@@ -69,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test catch all
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch
             {
@@ -80,9 +81,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter3()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod3);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod3);
         }
 
         private static void TestFilterMethod4()
@@ -90,9 +91,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test filter is unmodified if it is already correct!
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
-            catch (Exception ex) when (!(ex is ExecutionCanceledException))
+            catch (Exception ex) when (!(ex is ThreadInterruptedException))
             {
                 Debug.WriteLine(ex.GetType().FullName);
             }
@@ -101,9 +102,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter4()
         {
-            // The non-rewritten code should allow the ExecutionCanceledException through
+            // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod4);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod4);
         }
 
         private static void TestFilterMethod5()
@@ -111,9 +112,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test more interesting filter is also unmodified if it is already correct!
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
-            catch (Exception ex) when (!(ex is NullReferenceException) && !(ex is ExecutionCanceledException))
+            catch (Exception ex) when (!(ex is NullReferenceException) && !(ex is ThreadInterruptedException))
             {
                 Debug.WriteLine(ex.GetType().FullName);
             }
@@ -122,9 +123,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter5()
         {
-            // The non-rewritten code should allow the ExecutionCanceledException through
+            // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod5);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod5);
         }
 
         private static void TestFilterMethod6()
@@ -133,9 +134,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // Test we can parse a slightly different order of expressions in the filter.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
-            catch (Exception ex) when (!(ex is ExecutionCanceledException) && !(ex is NullReferenceException))
+            catch (Exception ex) when (!(ex is ThreadInterruptedException) && !(ex is NullReferenceException))
             {
                 Debug.WriteLine(ex.GetType().FullName);
             }
@@ -144,22 +145,22 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter6()
         {
-            // The non-rewritten code should allow the ExecutionCanceledException through
+            // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ExecutionCanceledException>(TestFilterMethod6);
+            this.RunWithException<ThreadInterruptedException>(TestFilterMethod6);
         }
 
         private static void TestComplexFilterMethod()
         {
             // This test case we cannot yet handle because filter is too complex.
-            // This '|| debugging' expression causes the filter to catch ExecutionCanceledException
+            // This '|| debugging' expression causes the filter to catch ThreadInterruptedException
             // which is bad, but this is hard to fix.
             bool debugging = true;
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
-            catch (Exception ex) when (!(ex is ExecutionCanceledException) || debugging)
+            catch (Exception ex) when (!(ex is ThreadInterruptedException) || debugging)
             {
                 Debug.WriteLine(ex.GetType().FullName);
             }
@@ -168,20 +169,20 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod);
+            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod);
         }
 
         private static void TestComplexFilterMethod2()
         {
             // This test case we cannot yet handle because filter is too complex.
-            // This '&& debugging' expression causes the filter to catch ExecutionCanceledException
+            // This '&& debugging' expression causes the filter to catch ThreadInterruptedException
             // which is bad, but this is hard to fix.
             bool debugging = true;
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch (Exception ex) when (!(ex is NullReferenceException) && debugging)
             {
@@ -192,16 +193,16 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter2()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod2);
+            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod2);
         }
 
         private static void TestComplexFilterMethod3()
         {
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch (Exception ex) when (!(ex is NullReferenceException))
             {
@@ -212,9 +213,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter3()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod3);
+            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod3);
         }
 
         private static void TestComplexFilterMethod4()
@@ -226,7 +227,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             {
                 Task.Run(() =>
                 {
-                    throw new ExecutionCanceledException();
+                    throw new ThreadInterruptedException();
                 }).Wait();
             }
             catch (Exception ex) when (ex.GetType().Name != (x > 10 ? "Foo" : "Bar" + suffix))
@@ -238,9 +239,9 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter4()
         {
-            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod4);
+            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod4);
         }
 
         private static void TestRethrowMethod()
@@ -249,7 +250,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             // so this code should be unmodified.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
             catch (Exception)
             {
@@ -262,18 +263,18 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should rethrow the exception
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ExecutionCanceledException>(TestRethrowMethod);
+            this.RunWithException<ThreadInterruptedException>(TestRethrowMethod);
         }
 
         private static void TestRethrowMethod2()
         {
-            // Test catch all with specific filter for ExecutionCanceledException,
+            // Test catch all with specific filter for ThreadInterruptedException,
             // but it is ok because it does a rethrow, so this code should be unmodified.
             try
             {
-                throw new ExecutionCanceledException();
+                throw new ThreadInterruptedException();
             }
-            catch (Exception ex) when (ex is ExecutionCanceledException)
+            catch (Exception ex) when (ex is ThreadInterruptedException)
             {
                 throw;
             }
@@ -284,7 +285,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should rethrow the exception
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ExecutionCanceledException>(TestRethrowMethod2);
+            this.RunWithException<ThreadInterruptedException>(TestRethrowMethod2);
         }
 
         private static void TestConditionalTryCatchMethod()

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Actors.BugFinding.Tests
+namespace Microsoft.Coyote.Actors.Tests
 {
-    public class EventInheritanceTests : BaseActorBugFindingTest
+    public class EventInheritanceTests : BaseActorTest
     {
         public EventInheritanceTests(ITestOutputHelper output)
             : base(output)

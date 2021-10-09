@@ -49,16 +49,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Tries to enable the operation, if it is not already enabled.
-        /// </summary>
-        internal virtual bool TryEnable() => false;
-
-        /// <summary>
-        /// Checks if the operation is blocked on an uncontrolled dependency.
-        /// </summary>
-        internal virtual bool IsBlockedOnUncontrolledDependency() => false;
-
-        /// <summary>
         /// Determines whether the specified object is equal to the current object.
         /// </summary>
         public override bool Equals(object obj)

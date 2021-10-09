@@ -17,8 +17,7 @@ namespace Microsoft.Coyote.Interception
     public static class TaskExtensions
     {
         /// <summary>
-        /// Creates a proxy <see cref="Task"/> that represents the asynchronous operation
-        /// of a <see cref="TaskScheduler.TryExecuteTaskInline"/>.
+        /// Creates a proxy <see cref="Task"/> that represents the asynchronous operation of a task.
         /// </summary>
         /// <param name="task">The task to unwrap.</param>
         /// <returns>A Task that represents the asynchronous operation of the provided task.</returns>

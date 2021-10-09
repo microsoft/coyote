@@ -51,12 +51,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                 strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
 
-            if (configuration.SchedulingStrategy != "replay" &&
-                configuration.ScheduleFile.Length > 0)
-            {
-                strategy = new ReplayStrategy(configuration, strategy);
-            }
-
             return strategy;
         }
 

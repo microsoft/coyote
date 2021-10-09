@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Choose a random delay if this task is in the low priority set.
             if (this.LowPrioritySet.Contains(id))
             {
-                next = this.RandomValueGenerator.Next(maxValue) + 1;
+                next = this.RandomValueGenerator.Next(maxValue) * 5;
             }
             else
             {

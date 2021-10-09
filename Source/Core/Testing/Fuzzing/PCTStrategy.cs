@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Probability with which operations should be alloted to the low priority set.
         /// </summary>
-        private double LowPriortityProbability;
+        private double LowPriorityProbability;
 
         /// <summary>
         /// The number of exploration steps.
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.PriorityChangePoints = priorityChangePoints;
             this.HighPrioritySet = new List<Guid>();
             this.LowPrioritySet = new List<Guid>();
-            this.LowPriortityProbability = 0;
+            this.LowPriorityProbability = 0;
         }
 
         /// <inheritdoc/>
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.HighPrioritySet.Clear();
 
             // Change the probability of a task to be assigned to the low priority set after each iteration.
-            this.LowPriortityProbability = this.LowPriortityProbability >= 0.8 ? 0 : this.LowPriortityProbability + 0.1;
+            this.LowPriorityProbability = this.LowPriorityProbability >= 0.8 ? 0 : this.LowPriorityProbability + 0.1;
 
             return true;
         }
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // If this task is not assigned to any priority set, then randomly assign it to one of the two sets.
             if (!this.LowPrioritySet.Contains(id) && !this.HighPrioritySet.Contains(id))
             {
-                if (this.RandomValueGenerator.NextDouble() < this.LowPriortityProbability)
+                if (this.RandomValueGenerator.NextDouble() < this.LowPriorityProbability)
                 {
                     this.LowPrioritySet.Add(id);
                 }

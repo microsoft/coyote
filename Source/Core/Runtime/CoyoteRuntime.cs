@@ -372,11 +372,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new task operation.
         /// </summary>
-        private TaskOperation CreateTaskOperation(bool isDelay = false)
+        private TaskOperation CreateTaskOperation(uint delay = 0)
         {
             ulong operationId = this.GetNextOperationId();
-            TaskOperation op = isDelay ?
-                new TaskOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay) :
+            TaskOperation op = delay > 0 ?
+                new TaskOperation(operationId, $"TaskDelay({operationId})", delay) :
                 new TaskOperation(operationId, $"Task({operationId})", 0);
             this.RegisterOperation(op);
             return op;
@@ -510,39 +510,39 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
-            // TODO: support cancellations during testing.
             if (delay.TotalMilliseconds is 0)
             {
                 // If the delay is 0, then complete synchronously.
                 return Task.CompletedTask;
             }
 
-            // TODO: convert to task completion source.
-
-            // TODO: cache the dummy delay action to optimize memory.
-            // var options = OperationContext.CreateOperationExecutionOptions();
-            // return this.ScheduleAction(() => { }, null, options, true, cancellationToken);
-            TaskOperation op = this.CreateTaskOperation(isDelay: true);
-            return this.TaskFactory.StartNew(
-                state =>
+            // TODO: support cancellations during testing.
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
+                if (timeout is 0)
                 {
-                    // Delay the completion of this task.
-                    if (this.SchedulingPolicy is SchedulingPolicy.Systematic &&
-                        state is TaskOperation delayedOp)
+                    // If the delay is 0, then complete synchronously.
+                    return Task.CompletedTask;
+                }
+
+                // TODO: cache the dummy delay action to optimize memory.
+                TaskOperation op = this.CreateTaskOperation(timeout);
+                return this.TaskFactory.StartNew(
+                    state =>
                     {
-                        delayedOp.Timeout = this.GetNextNondeterministicIntegerChoice(delayedOp.Timeout);
+                        var delayedOp = state as TaskOperation;
                         delayedOp.Status = AsyncOperationStatus.Delayed;
                         this.ScheduleNextOperation(AsyncOperationType.Yield);
-                    }
-                    else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        this.DelayOperation();
-                    }
-                },
-                op,
-                cancellationToken,
-                this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                this.TaskFactory.Scheduler);
+                    },
+                    op,
+                    cancellationToken,
+                    this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    this.TaskFactory.Scheduler);
+            }
+
+            return Task.Delay(TimeSpan.FromMilliseconds(
+                this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay)));
         }
 
         /// <summary>
@@ -902,18 +902,27 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Delays the currently executing operation.
+        /// Delays the currently executing operation for a nondeterministically chosen amount of time.
         /// </summary>
+        /// <remarks>
+        /// The delay is chosen nondeterministically by an underlying fuzzing strategy.
+        /// If a delay of 0 is chosen, then the operation is not delayed.
+        /// </remarks>
         internal void DelayOperation()
         {
+            int delay;
             lock (this.SyncObject)
             {
-                // Choose the next delay to inject.
-                int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
-
+                // Choose the next delay to inject. The value is in milliseconds.
+                delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on thread '{0}' by {1}ms.",
-                    Thread.CurrentThread.ManagedThreadId, next);
-                Thread.Sleep(next);
+                    Thread.CurrentThread.ManagedThreadId, delay);
+            }
+
+            if (delay > 0)
+            {
+                // Only sleep if a non-zero delay was chosen.
+                Thread.Sleep(delay);
             }
         }
 

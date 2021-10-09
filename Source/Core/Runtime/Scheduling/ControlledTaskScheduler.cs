@@ -20,7 +20,9 @@ namespace Microsoft.Coyote.Runtime
         private CoyoteRuntime Runtime;
 
         /// <inheritdoc/>
-        public override int MaximumConcurrencyLevel => 1;
+        public override int MaximumConcurrencyLevel =>
+            this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic ? 1 :
+            base.MaximumConcurrencyLevel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTaskScheduler"/> class.

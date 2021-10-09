@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         protected IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// Map from tasks to total delays.
+        /// Map from operation ids to total delays.
         /// </summary>
         private readonly ConcurrentDictionary<Guid, int> TotalTaskDelayMap;
 
@@ -51,19 +51,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         /// <inheritdoc/>
         /// <remarks>
-        /// The delay has an injection probability of 0.05 and is in the range
-        /// of [1, 100] with an upper bound of 5000ms per task.
+        /// The delay has an injection probability of 0.05 and is in the range of [10, maxValue * 10]
+        /// with an increment of 10 and an upper bound of 5000ms per operation.
         /// </remarks>
         internal override bool GetNextDelay(int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
 
-            // Ensure that the max delay per task is less than 5000ms.
+            // Ensure that the max delay per operation is less than 5000ms.
             int maxDelay = this.TotalTaskDelayMap.GetOrAdd(id, 0);
+
+            // There is a 0.05 probability for a delay.
             if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
             {
-                // There is a 0.05 probability for a delay.
-                next = this.RandomValueGenerator.Next(maxValue) + 1;
+                next = (this.RandomValueGenerator.Next(maxValue) * 10) + 10;
             }
             else
             {
@@ -72,7 +73,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             if (next > 0)
             {
-                // Update the total delay per task.
+                // Update the total delay per operation.
                 this.TotalTaskDelayMap.TryUpdate(id, maxDelay + next, maxDelay);
             }
 

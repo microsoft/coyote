@@ -31,14 +31,14 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 ActorId id = r.CreateActor(typeof(M));
                 r.CreateActor(id, typeof(M));
             },
-            expectedError: "Actor id '' is used by an existing or previously halted actor.",
+            expectedError: "An actor with id '' was already created.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestReuseActorIdAfterHalt()
         {
-            this.TestWithError(r =>
+            this.Test(r =>
             {
                 bool isEventDropped = false;
                 r.OnEventDropped += (Event e, ActorId target) =>
@@ -54,10 +54,25 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 }
 
                 // Trying to bring up a halted actor.
-                r.CreateActor(id, typeof(M2));
+                r.CreateActor(id, typeof(M));
             },
-            configuration: this.GetConfiguration(),
-            expectedError: "Actor id '' is used by an existing or previously halted actor.");
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestReuseActorIdWithHaltRace()
+        {
+            this.TestWithError(r =>
+            {
+                ActorId id = r.CreateActor(typeof(M));
+
+                // Sending a halt event can race with the subsequent actor creation.
+                r.SendEvent(id, HaltEvent.Instance);
+                r.CreateActor(id, typeof(M));
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "An actor with id '' was already created.",
+            replay: true);
         }
     }
 }

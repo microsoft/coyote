@@ -385,7 +385,13 @@ namespace Microsoft.Coyote.Actors
             {
                 this.Runtime.IsRunning = false;
                 this.RaiseOnFailureEvent(ex);
-                return;
+            }
+            finally
+            {
+                if (actor.IsHalted)
+                {
+                    this.ActorMap.TryRemove(actor.Id, out Actor _);
+                }
             }
         }
 
@@ -405,7 +411,7 @@ namespace Microsoft.Coyote.Actors
         /// Gets the actor of type <typeparamref name="TActor"/> with the specified id,
         /// or null if no such actor exists.
         /// </summary>
-        internal TActor GetActorWithId<TActor>(ActorId id)
+        private TActor GetActorWithId<TActor>(ActorId id)
             where TActor : Actor =>
             id != null && this.ActorMap.TryGetValue(id, out Actor value) &&
             value is TActor actor ? actor : null;
@@ -414,7 +420,7 @@ namespace Microsoft.Coyote.Actors
         /// Returns the next available unique operation id.
         /// </summary>
         /// <returns>Value representing the next available unique operation id.</returns>
-        internal ulong GetNextOperationId() => this.Runtime.GetNextOperationId();
+        private ulong GetNextOperationId() => this.Runtime.GetNextOperationId();
 
         /// <inheritdoc/>
         public bool RandomBoolean() => this.GetNondeterministicBooleanChoice(2, null, null);
@@ -957,7 +963,7 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 Actor actor = ActorFactory.Create(type);
-                ActorOperation op = new ActorOperation(id.Value, id.Name, actor);
+                ActorOperation op = this.GetOrCreateActorOperation(id, actor);
                 IEventQueue eventQueue = new MockEventQueue(actor);
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();
@@ -972,8 +978,6 @@ namespace Microsoft.Coyote.Actors
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }
 
-                bool result = this.Runtime.RegisterOperation(op);
-                this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
                 if (actor is StateMachine)
                 {
                     this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
@@ -984,6 +988,22 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 return actor;
+            }
+
+            /// <summary>
+            /// Returns the operation for the specified actor id, or creates a new
+            /// operation if it does not exist yet.
+            /// </summary>
+            private ActorOperation GetOrCreateActorOperation(ActorId id, Actor actor)
+            {
+                var op = this.Runtime.GetOperationWithId<ActorOperation>(id.Value);
+                if (op is null)
+                {
+                    op = new ActorOperation(id.Value, id.Name, actor);
+                    this.Runtime.RegisterOperation(op);
+                }
+
+                return op;
             }
 
             /// <inheritdoc/>

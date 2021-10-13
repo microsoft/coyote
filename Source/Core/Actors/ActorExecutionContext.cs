@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Actors
 
             if (!this.ActorMap.TryAdd(id, actor))
             {
-                this.Assert(false, $"An actor with id '{id.Value}' was already created by another runtime instance.");
+                this.Assert(false, $"An actor with id '{id.Value}' was already created.");
             }
 
             return actor;
@@ -962,6 +962,11 @@ namespace Microsoft.Coyote.Actors
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();
 
+                if (!this.ActorMap.TryAdd(id, actor))
+                {
+                    this.Assert(false, $"An actor with id '{id.Value}' was already created.");
+                }
+
                 if (this.Configuration.ReportActivityCoverage)
                 {
                     actor.ReportActivityCoverage(this.CoverageInfo);
@@ -1165,6 +1170,13 @@ namespace Microsoft.Coyote.Actors
                         catch (Exception ex)
                         {
                             this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                        }
+                        finally
+                        {
+                            if (actor.IsHalted)
+                            {
+                                this.ActorMap.TryRemove(actor.Id, out Actor _);
+                            }
                         }
                     },
                     op,

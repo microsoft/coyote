@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
@@ -66,6 +67,12 @@ namespace Microsoft.Coyote.Actors
         public readonly string Name;
 
         /// <summary>
+        /// Id used for RL in fuzzing.
+        /// </summary>
+        [DataMember]
+        public readonly HashSet<ulong> RLId;
+
+        /// <summary>
         /// True if <see cref="NameValue"/> is used as the unique id, else false.
         /// </summary>
         public bool IsNameUsedForHashing => this.NameValue.Length > 0;
@@ -73,11 +80,13 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, ActorId id, bool useNameForHashing = false)
         {
             this.Context = context;
             this.Type = type.FullName;
             this.Value = value;
+            this.RLId = new HashSet<ulong>(id.RLId);
+            this.RLId.Add(value);
 
             if (useNameForHashing)
             {

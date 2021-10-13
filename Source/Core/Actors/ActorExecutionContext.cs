@@ -128,8 +128,8 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter = logWriter;
         }
 
-        /// <inheritdoc/>
-        public ActorId CreateActorId(Type type, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this);
+        // <inheritdoc/>
+        public ActorId CreateActorId(Type type, ActorId id, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, id);
 
         /// <inheritdoc/>
         public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, 0, name, this, true);
@@ -211,7 +211,7 @@ namespace Microsoft.Coyote.Actors
 
             if (id is null)
             {
-                id = this.CreateActorId(type, name);
+                id = this.CreateActorId(type, creator.Id, name);
             }
             else if (id.Runtime != null && id.Runtime != this)
             {

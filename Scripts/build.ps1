@@ -34,7 +34,7 @@ Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
-$command = "build -c $configuration $solution"
+$command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
 if ($local) {
     if ($version_net4) {

@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Actors.BugFinding.Tests
+namespace Microsoft.Coyote.Actors.Tests
 {
-    public class ReuseActorIdTests : BaseActorBugFindingTest
+    public class ReuseActorIdTests : BaseActorTest
     {
         public ReuseActorIdTests(ITestOutputHelper output)
             : base(output)

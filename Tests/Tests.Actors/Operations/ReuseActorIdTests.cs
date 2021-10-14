@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,23 +38,33 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestReuseActorIdAfterHalt()
         {
-            this.Test(r =>
+            this.Test(async r =>
             {
-                bool isEventDropped = false;
-                r.OnEventDropped += (Event e, ActorId target) =>
+                var id = r.CreateActor(typeof(M));
+                while (true)
                 {
-                    isEventDropped = true;
-                };
+                    try
+                    {
+                        // Halt the actor before trying to reuse its id.
+                        r.SendEvent(id, HaltEvent.Instance);
 
-                ActorId id = r.CreateActor(typeof(M));
-                while (!isEventDropped)
-                {
-                    // Make sure the actor halts before trying to reuse its id.
-                    r.SendEvent(id, HaltEvent.Instance);
+                        // Trying to bring up a halted actor,
+                        // but this is racy and can fail.
+                        id = r.CreateActor(id, typeof(M));
+                        break;
+                    }
+                    catch (AssertionFailureException ex)
+                    {
+                        if (ex.Message.Contains("was already created"))
+                        {
+                            // Retry.
+                            await Task.Delay(10);
+                            continue;
+                        }
+
+                        throw;
+                    }
                 }
-
-                // Trying to bring up a halted actor.
-                r.CreateActor(id, typeof(M));
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }

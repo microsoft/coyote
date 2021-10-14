@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Actors.Tests
             expectedErrors: new string[]
             {
                 "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created."
+                "An actor with id '0' already exists."
             },
             replay: true);
         }
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.Actors.Tests
             expectedErrors: new string[]
             {
                 "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created."
+                "An actor with id '0' already exists."
             },
             replay: true);
         }

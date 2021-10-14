@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,12 +26,11 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestReuseActorId()
         {
-            this.TestWithError(r =>
+            this.TestWithException<InvalidOperationException>(r =>
             {
                 ActorId id = r.CreateActor(typeof(M));
                 r.CreateActor(id, typeof(M));
             },
-            expectedError: "An actor with id '' was already created.",
             replay: true);
         }
 
@@ -53,9 +52,9 @@ namespace Microsoft.Coyote.Actors.Tests
                         id = r.CreateActor(id, typeof(M));
                         break;
                     }
-                    catch (AssertionFailureException ex)
+                    catch (InvalidOperationException ex)
                     {
-                        if (ex.Message.Contains("was already created"))
+                        if (ex.Message.Contains("already exists"))
                         {
                             // Retry.
                             await Task.Delay(10);
@@ -72,7 +71,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestReuseActorIdWithHaltRace()
         {
-            this.TestWithError(r =>
+            this.TestWithException<InvalidOperationException>(r =>
             {
                 ActorId id = r.CreateActor(typeof(M));
 
@@ -81,7 +80,6 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(id, typeof(M));
             },
             configuration: this.GetConfiguration().WithTestingIterations(100),
-            expectedError: "An actor with id '' was already created.",
             replay: true);
         }
     }

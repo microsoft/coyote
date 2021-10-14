@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Actors
 
             if (!this.ActorMap.TryAdd(id, actor))
             {
-                this.Assert(false, $"An actor with id '{id.Value}' was already created.");
+                throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
             }
 
             return actor;
@@ -950,6 +950,11 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
+                    if (this.ActorMap.ContainsKey(id))
+                    {
+                        throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
+                    }
+
                     this.Assert(id.Runtime is null || id.Runtime == this, "Unbound actor id '{0}' was created by another runtime.", id.Value);
                     this.Assert(id.Type == type.FullName, "Cannot bind actor id '{0}' of type '{1}' to an actor of type '{2}'.",
                         id.Value, id.Type, type.FullName);
@@ -968,9 +973,12 @@ namespace Microsoft.Coyote.Actors
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();
 
+                // This should always succeed, because it is either a new id or it has already passed
+                // the assertion check, which still holds due to the schedule serialization during
+                // systematic testing, but we still do the check defensively.
                 if (!this.ActorMap.TryAdd(id, actor))
                 {
-                    this.Assert(false, $"An actor with id '{id.Value}' was already created.");
+                    throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
                 }
 
                 if (this.Configuration.ReportActivityCoverage)

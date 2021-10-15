@@ -15,12 +15,8 @@ namespace Microsoft.Coyote.Actors.Tests
         {
         }
 
-        private class M : StateMachine
+        private class A : Actor
         {
-            [Start]
-            private class S : State
-            {
-            }
         }
 
         [Fact(Timeout = 5000)]
@@ -28,9 +24,52 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                ActorId id = r.CreateActor(typeof(M));
-                r.CreateActor(id, typeof(M));
+                ActorId id = r.CreateActor(typeof(A));
+                r.CreateActor(id, typeof(A));
             },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestReuseNamedActorId()
+        {
+            this.TestWithException<InvalidOperationException>(r =>
+            {
+                ActorId id = r.CreateActorIdFromName(typeof(A), "NamedActor");
+                r.CreateActor(id, typeof(A));
+                r.CreateActor(id, typeof(A));
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestReuseActorIdWithHaltRace()
+        {
+            this.TestWithException<InvalidOperationException>(r =>
+            {
+                ActorId id = r.CreateActor(typeof(A));
+
+                // Sending a halt event can race with the subsequent actor creation.
+                r.SendEvent(id, HaltEvent.Instance);
+                r.CreateActor(id, typeof(A));
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestReuseNamedActorIdWithHaltRace()
+        {
+            this.TestWithException<InvalidOperationException>(r =>
+            {
+                ActorId id = r.CreateActorIdFromName(typeof(A), "NamedActor");
+                r.CreateActor(id, typeof(A));
+
+                // Sending a halt event can race with the subsequent actor creation.
+                r.SendEvent(id, HaltEvent.Instance);
+                r.CreateActor(id, typeof(A));
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             replay: true);
         }
 
@@ -39,7 +78,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async r =>
             {
-                var id = r.CreateActor(typeof(M));
+                ActorId id = r.CreateActor(typeof(A));
                 while (true)
                 {
                     try
@@ -49,7 +88,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                         // Trying to bring up a halted actor,
                         // but this is racy and can fail.
-                        id = r.CreateActor(id, typeof(M));
+                        id = r.CreateActor(id, typeof(A));
                         break;
                     }
                     catch (InvalidOperationException ex)
@@ -69,18 +108,38 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestReuseActorIdWithHaltRace()
+        public void TestReuseNamedActorIdAfterHalt()
         {
-            this.TestWithException<InvalidOperationException>(r =>
+            this.Test(async r =>
             {
-                ActorId id = r.CreateActor(typeof(M));
+                ActorId id = r.CreateActorIdFromName(typeof(A), "NamedActor");
+                r.CreateActor(id, typeof(A));
+                while (true)
+                {
+                    try
+                    {
+                        // Halt the actor before trying to reuse its id.
+                        r.SendEvent(id, HaltEvent.Instance);
 
-                // Sending a halt event can race with the subsequent actor creation.
-                r.SendEvent(id, HaltEvent.Instance);
-                r.CreateActor(id, typeof(M));
+                        // Trying to bring up a halted actor,
+                        // but this is racy and can fail.
+                        id = r.CreateActor(id, typeof(A));
+                        break;
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        if (ex.Message.Contains("already exists"))
+                        {
+                            // Retry.
+                            await Task.Delay(10);
+                            continue;
+                        }
+
+                        throw;
+                    }
+                }
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100),
-            replay: true);
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
     }
 }

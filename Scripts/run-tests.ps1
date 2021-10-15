@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "net5.0", "net462")]

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",

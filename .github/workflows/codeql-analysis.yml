@@ -1,25 +1,10 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL"
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
+name: "CodeQL"
 on:
   push:
     branches: [ main ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ main ]
-  schedule:
-    - cron: '22 19 * * 0'
-
 jobs:
   analyze:
     name: Analyze
@@ -28,33 +13,25 @@ jobs:
       actions: read
       contents: read
       security-events: write
-
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
         # Learn more:
         # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
-
+        language: [ 'csharp' ]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
     - name: Setup NuGet.exe
       uses: NuGet/setup-nuget@v1
-
     - name: Setup .NET 5.x SDK
       uses: actions/setup-dotnet@v1
-
     - name: Setup .NET Core 3.1.x SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.x'
-
     - name: Set environment variables
       run: echo "COYOTE_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
-
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
@@ -64,10 +41,8 @@ jobs:
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
-
     - name: Build Coyote projects
       run: ./Scripts/build.ps1 -local $false
       shell: pwsh
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

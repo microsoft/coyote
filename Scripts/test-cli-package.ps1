@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $ErrorActionPreference = 'Stop'
 
 Import-Module $PSScriptRoot\powershell\common.psm1 -Force

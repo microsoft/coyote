@@ -1,3 +1,8 @@
+## v1.4.0
+- Redesigned the systematic testing runtime to significantly improve its performance and simplicity.
+- An `ActorId` of a halted actor can now be reused.
+- The `coyote` tool can now resolve `aspnet`.
+
 ## v1.3.1
 - Added rewriting support for testing race conditions with several `System.Collections.Concurrent`
   data structures.

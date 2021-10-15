@@ -533,6 +533,18 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Logs that the specified actor is handling a raised <see cref="HaltEvent"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                this.LogWriter.LogHalt(actor.Id, inboxSize);
+            }
+        }
+
+        /// <summary>
         /// Logs that the specified actor called <see cref="Actor.ReceiveEventAsync(Type[])"/>
         /// or one of its overloaded methods.
         /// </summary>
@@ -1316,6 +1328,13 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
+            internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
+            {
+                this.Runtime.ScheduleNextOperation(AsyncOperationType.Halt);
+                this.LogWriter.LogHalt(actor.Id, inboxSize);
+            }
+
+            /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal override void LogReceiveCalled(Actor actor) => this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
 
@@ -1361,17 +1380,12 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
-            internal override void LogEnteredState(StateMachine stateMachine)
-            {
-                string stateName = stateMachine.CurrentStateName;
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateName, isEntry: true);
-            }
+            internal override void LogEnteredState(StateMachine stateMachine) =>
+                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
 
             /// <inheritdoc/>
-            internal override void LogExitedState(StateMachine stateMachine)
-            {
+            internal override void LogExitedState(StateMachine stateMachine) =>
                 this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
-            }
 
             /// <inheritdoc/>
             internal override void LogPopState(StateMachine stateMachine)

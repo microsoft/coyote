@@ -1149,8 +1149,7 @@ namespace Microsoft.Coyote.Actors
 
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
-
-            this.Context.LogWriter.LogHalt(this.Id, this.Inbox.Size);
+            this.Context.LogHandleHaltEvent(this, this.Inbox.Size);
 
             // Dispose any held resources.
             this.Inbox.Dispose();

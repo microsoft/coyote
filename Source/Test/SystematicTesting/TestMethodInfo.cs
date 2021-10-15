@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
@@ -156,8 +157,30 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (testMethods.Count is 0)
             {
-                throw new InvalidOperationException("Cannot detect a Coyote test method declared with the " +
-                    $"'[{typeof(TestAttribute).FullName}]' attribute.");
+                // see if user forgot to make it static!
+                flags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly);
+                StringBuilder sb = new StringBuilder();
+                if (testMethods.Count > 0)
+                {
+                    foreach (var method in testMethods)
+                    {
+                        string wrong = "non-static";
+                        if (!method.IsPublic)
+                        {
+                            wrong += " and non-public";
+                        }
+
+                        sb.AppendLine($"Ignoring Coyote test method '{method.DeclaringType.Name + "." + method.Name}' because it is {wrong}");
+                    }
+
+                    throw new InvalidOperationException($"The following Coyote test methods cannot be used :\n{sb}");
+                }
+                else
+                {
+                    throw new InvalidOperationException($"{sb}Cannot detect a static Coyote test method declared with the " +
+                        $"'[{typeof(TestAttribute).FullName}]' attribute.");
+                }
             }
 
             MethodInfo testMethod = testMethods[0];
@@ -235,6 +258,13 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (testMethods.Count is 0)
             {
+                flags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                testMethods = FindTestMethodsWithAttribute(attribute, flags, assembly);
+                if (testMethods.Count > 0)
+                {
+                    throw new InvalidOperationException($"Test setup methods must be static and public: '{testMethods[0].Name}'.");
+                }
+
                 return null;
             }
             else if (testMethods.Count > 1)
@@ -294,8 +324,9 @@ namespace Microsoft.Coyote.SystematicTesting
 
             try
             {
+                var name = attribute.FullName; // so we can test an assembly built against a different version of Coyote.exe.
                 testMethods = assembly.GetTypes().SelectMany(t => t.GetMethods(bindingFlags)).
-                    Where(m => m.GetCustomAttributes(attribute, false).Length > 0).ToList();
+                    Where(m => m.GetCustomAttributes(attribute, false).Any()).ToList();
             }
             catch (ReflectionTypeLoadException ex)
             {

@@ -855,7 +855,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(315)]
+        [InlineData(1)]
         public void TestReplicatingStorageLivenessBug(uint seed)
         {
             var configuration = this.GetConfiguration();

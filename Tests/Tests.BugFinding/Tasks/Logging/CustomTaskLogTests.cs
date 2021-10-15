@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             InMemoryLogger log = new InMemoryLogger();
 
-            var config = this.GetConfiguration().WithVerbosityEnabled().WithTestingIterations(3);
+            var config = this.GetConfiguration().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hi mom!");

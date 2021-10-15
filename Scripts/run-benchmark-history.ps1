@@ -1,5 +1,8 @@
-# run benchmarks on entire git history using the version of the benchmark
-# test that is currently checked out, up to some given -max number of commits
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Run benchmarks on entire git history using the version of the benchmark test
+# that is currently checked out, up to some given -max number of commits
 param(    
     # The filter passed through to same arg on BenchmarkRunner.    
     [string]$filter = "",

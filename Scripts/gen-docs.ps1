@@ -1,4 +1,5 @@
-# PowerShell v2
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 

@@ -1027,8 +1027,7 @@ namespace Microsoft.Coyote.Runtime
         /// Registers the specified asynchronous operation.
         /// </summary>
         /// <param name="op">The operation to register.</param>
-        /// <returns>True if the operation was successfully registered, else false if it already exists.</returns>
-        internal bool RegisterOperation(AsyncOperation op)
+        internal void RegisterOperation(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
@@ -1041,12 +1040,9 @@ namespace Microsoft.Coyote.Runtime
                 if (!this.OperationMap.ContainsKey(op.Id))
                 {
                     this.OperationMap.Add(op.Id, op);
-                    return true;
                 }
-
-                return false;
 #else
-                return this.OperationMap.TryAdd(op.Id, op);
+                this.OperationMap.TryAdd(op.Id, op);
 #endif
             }
         }

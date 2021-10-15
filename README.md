@@ -1,5 +1,6 @@
 <div align="center">
   <img src="docs/assets/images/logo_coyote.svg" width="70%">
+  <hr>
 </div>
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)

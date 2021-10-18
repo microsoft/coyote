@@ -50,7 +50,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Set of callbacks to invoke at the end
         /// of each iteration.
         /// </summary>
-        private readonly ISet<Action<uint>> PerIterationCallbacks;
+        private readonly ISet<Action> PerIterationCallbacks;
+
+        /// <summary>
+        /// Set of callbacks to invoke at the beginning
+        /// of each iteration.
+        /// </summary>
+        private readonly ISet<Action> PerIterationInitializationCallbacks;
 
         /// <summary>
         /// The scheduler used by the runtime during testing.
@@ -228,7 +234,8 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Logger = this.DefaultLogger;
             this.Profiler = new Profiler();
 
-            this.PerIterationCallbacks = new HashSet<Action<uint>>();
+            this.PerIterationCallbacks = new HashSet<Action>();
+            this.PerIterationInitializationCallbacks = new HashSet<Action>();
 
             this.TestReport = new TestReport(configuration);
             this.ReadableTrace = string.Empty;
@@ -510,6 +517,15 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
+                // Invoke TestInit methods (if any) for every iteration, except the first one.
+                if (iteration != 0)
+                {
+                    foreach (var callback in this.PerIterationInitializationCallbacks)
+                    {
+                        callback();
+                    }
+                }
+
                 // Runs the test and waits for it to terminate.
                 Task task = runtime.RunTestAsync(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
                 task.Wait();
@@ -520,7 +536,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Invoke the per iteration callbacks, if any.
                 foreach (var callback in this.PerIterationCallbacks)
                 {
-                    callback(iteration);
+                    callback();
                 }
 
                 if (runtime.IsBugFound)
@@ -692,12 +708,19 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Registers a callback to invoke at the end of each iteration. The callback takes as
-        /// a parameter an integer representing the current iteration.
+        /// Registers a callback to invoke at the end of each iteration.
         /// </summary>
-        public void RegisterPerIterationCallBack(Action<uint> callback)
+        public void RegisterPerIterationCallBack(Action callback)
         {
             this.PerIterationCallbacks.Add(callback);
+        }
+
+        /// <summary>
+        /// Registers a callback to invoke at the end of each iteration.
+        /// </summary>
+        public void RegisterPerIterationInitMethod(Action callback)
+        {
+            this.PerIterationInitializationCallbacks.Add(callback);
         }
 
         /// <summary>

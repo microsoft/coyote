@@ -20,12 +20,63 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
+        /// MethodReference of TestInitialize method within a test class.
+        /// </summary>
+        private MethodDefinition TestInitMethod;
+        private const string TestInitAttribute = "Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute";
+
+        /// <summary>
+        /// MethodReference of TestCleanupMethod method within a test class.
+        /// </summary>
+        private MethodDefinition TestCleanupMethod;
+        private const string TestCleanupAttribute = "Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute";
+
+        /// <summary>
+        /// TestClass Attribute of MSTests.
+        /// </summary>
+        private const string TestClassAttribute = "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MSTestRewriter"/> class.
         /// </summary>
         internal MSTestRewriter(Configuration configuration, ILogger logger)
             : base(logger)
         {
             this.Configuration = configuration;
+            this.TestInitMethod = null;
+            this.TestCleanupMethod = null;
+        }
+
+        /// <inheritdoc/>
+        internal override void VisitType(TypeDefinition type)
+        {
+            if (type.IsAbstract)
+            {
+                return;
+            }
+
+            this.TestInitMethod = null;
+            this.TestCleanupMethod = null;
+
+            if (type.CustomAttributes.Any(p => p.AttributeType.FullName == TestClassAttribute))
+            {
+                foreach (var method in type.Methods)
+                {
+                    if (method.CustomAttributes.Count > 0)
+                    {
+                        // Assuming that we can have at max only one TestInit and TestCleanup Methods.
+                        if (method.CustomAttributes.Any(p => p.AttributeType.FullName == TestCleanupAttribute))
+                        {
+                            this.TestCleanupMethod = method;
+                        }
+
+                        if (method.CustomAttributes.Any(p => p.AttributeType.FullName == TestInitAttribute))
+                        {
+                            this.TestInitMethod = method;
+                        }
+                    }
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -170,6 +221,8 @@ namespace Microsoft.Coyote.Rewriting
             // The emitted IL corresponds to a method body such as:
             //   Configuration configuration = Configuration.Create();
             //   TestingEngine engine = TestingEngine.Create(configuration, new Action(Test));
+            //   [engine.RegisterPerIterationInitMethod(new Action(method));]
+            //   [engine.RegisterPerIterationCallBack(new Action(method));]
             //   engine.Run();
             //   engine.ThrowIfBugFound();
             //
@@ -253,6 +306,35 @@ namespace Microsoft.Coyote.Rewriting
             processor.Emit(OpCodes.Newobj, actionConstructor);
             processor.Emit(OpCodes.Call, createEngineMethod);
             processor.Emit(OpCodes.Dup);
+
+            // Add call to engine.RegisterPerIterationInitMethod(new Action(method));
+            if (this.TestInitMethod != null)
+            {
+                processor.Emit(OpCodes.Dup);
+                processor.Emit(OpCodes.Ldarg_0);
+                processor.Emit(OpCodes.Ldftn, this.TestInitMethod);
+                processor.Emit(OpCodes.Newobj, actionConstructor);
+
+                MethodReference registerPerIterationInitMethod = this.Module.ImportReference(
+                FindMatchingMethodInDeclaringType(resolvedEngineType, "RegisterPerIterationInitMethod", actionType));
+
+                processor.Emit(OpCodes.Call, registerPerIterationInitMethod);
+            }
+
+            // Add call to engine.RegisterPerIterationCallBack(new Action(method));
+            if (this.TestCleanupMethod != null)
+            {
+                processor.Emit(OpCodes.Dup);
+                processor.Emit(OpCodes.Ldarg_0);
+                processor.Emit(OpCodes.Ldftn, this.TestCleanupMethod);
+                processor.Emit(OpCodes.Newobj, actionConstructor);
+
+                MethodReference registerPerIterationCallBack = this.Module.ImportReference(
+                FindMatchingMethodInDeclaringType(resolvedEngineType, "RegisterPerIterationCallBack", actionType));
+
+                processor.Emit(OpCodes.Call, registerPerIterationCallBack);
+            }
+
             this.EmitMethodCall(processor, resolvedEngineType, "Run");
             this.EmitMethodCall(processor, resolvedEngineType, "ThrowIfBugFound");
             processor.Emit(OpCodes.Ret);

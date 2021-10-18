@@ -324,7 +324,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             try
             {
-                var name = attribute.FullName; // so we can test an assembly built against a different version of Coyote.exe.
                 testMethods = assembly.GetTypes().SelectMany(t => t.GetMethods(bindingFlags)).
                     Where(m => m.GetCustomAttributes(attribute, false).Any()).ToList();
             }

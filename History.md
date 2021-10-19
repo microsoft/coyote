@@ -1,4 +1,4 @@
-## v1.4.0
+## v1.4.1
 - Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during
   testing to increase usability. This feature is enabled by default and can be disabled via the
   `disable-fuzzing-fallback` command line option (or

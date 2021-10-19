@@ -1587,7 +1587,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else
                 {
-                    this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
+                    this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 3));
                 }
             }
         }
@@ -1616,7 +1616,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
+                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 4, methodName));
                     }
                 }
             }
@@ -1646,7 +1646,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
+                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 3, methodName));
                     }
                 }
             }
@@ -1655,12 +1655,13 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Formats the message of the uncontrolled concurrency exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
+        private static string FormatUncontrolledConcurrencyExceptionMessage(string message,
+            int skipStackFrames, string methodName = default)
         {
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
                 "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
-                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace(3)}";
+                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace(skipStackFrames)}";
         }
 
         /// <summary>

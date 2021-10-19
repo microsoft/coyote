@@ -18,11 +18,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestDetectedUncontrolledDelay()
         {
-            this.TestWithException<NotSupportedException>(async () =>
+            this.TestWithError(async () =>
             {
                 await AsyncProvider.DelayAsync(100);
             },
             configuration: this.GetConfiguration().WithTestingIterations(10),
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith($"Invoking 'AsyncProvider.DelayAsync' is not intercepted", e);
+            },
             replay: true);
         }
 

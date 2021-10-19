@@ -19,19 +19,27 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledContinueWithTaskInvocation()
         {
-            this.TestWithException<NotSupportedException>(() =>
+            this.TestWithError(() =>
             {
                 var task = new Task(() => { });
                 task.ContinueWith(_ => { }, null);
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith($"Invoking 'Task.ContinueWith' is not intercepted", e);
             });
         }
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledThreadYieldInvocation()
         {
-            this.TestWithException<NotSupportedException>(() =>
+            this.TestWithError(() =>
             {
                 Thread.Yield();
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith($"Invoking 'Thread.Yield' is not intercepted", e);
             });
         }
 
@@ -39,10 +47,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledValueTaskInvocation()
         {
-            this.TestWithException<NotSupportedException>(async () =>
+            this.TestWithError(async () =>
             {
                 var task = default(ValueTask);
                 await task;
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith($"Invoking 'ValueTask' is not intercepted", e);
             });
         }
 #endif
@@ -50,9 +62,13 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTimerInvocation()
         {
-            this.TestWithException<NotSupportedException>(() =>
+            this.TestWithError(() =>
             {
                 using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith($"Invoking 'Timer' is not intercepted", e);
             });
         }
     }

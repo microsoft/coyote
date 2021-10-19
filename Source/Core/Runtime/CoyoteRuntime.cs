@@ -1587,7 +1587,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else
                 {
-                    throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
+                    this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message));
                 }
             }
         }
@@ -1616,7 +1616,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
+                        this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message, methodName));
                     }
                 }
             }
@@ -1646,16 +1646,16 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
+                        this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message, methodName));
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Formats the message of the uncontrolled concurrency exception.
+        /// Formats the uncontrolled concurrency error message.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
+        private static string FormatUncontrolledConcurrencyErrorMessage(string message, string methodName = default)
         {
             var mockMessage = methodName is null ? string.Empty : $" either mock '{methodName}' or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +

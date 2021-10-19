@@ -737,7 +737,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void OnTaskCompletionSourceGetTask(Task task)
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
                 this.TaskMap.TryAdd(task, null);
             }
@@ -1369,19 +1369,18 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
 
+        /// <summary>
+        /// Checks if the task returned from the specified method is uncontrolled.
+        /// </summary>
 #if !DEBUG
-        [DebuggerStepThrough]
+        [DebuggerHidden]
 #endif
-        internal void AssertIsReturnedTaskControlled(Task task, string methodName)
+        internal void CheckIfReturnedTaskIsUncontrolled(Task task, string methodName)
         {
             if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
                 !this.Configuration.IsRelaxedControlledTestingEnabled)
             {
-                this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
-                    "which is not allowed by default as it can interfere with the ability to reproduce bug traces: " +
-                    "either mock the method returning the uncontrolled task, or rewrite its assembly. Alternatively, " +
-                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
-                    "Learn more at http://aka.ms/coyote-no-repro.");
+                this.NotifyUncontrolledTaskReturned(task, methodName);
             }
         }
 
@@ -1583,6 +1582,37 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notify that an uncontrolled task was returned.
+        /// </summary>
+        private void NotifyUncontrolledTaskReturned(Task task, string methodName)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.SchedulingPolicy != SchedulingPolicy.None)
+                {
+                    this.UncontrolledInvocations.Add(methodName);
+                }
+
+                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                {
+                    string message = $"Invoking '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
+                        "which is not intercepted and controlled during testing, so it can interfere with the " +
+                        "ability to reproduce bug traces.";
+                    if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    {
+                        IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                        this.IsUncontrolledConcurrencyDetected = true;
+                        this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that an uncontrolled invocation was detected.
         /// </summary>
         internal void NotifyUncontrolledInvocation(string methodName)
@@ -1606,13 +1636,19 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        throw new NotSupportedException($"{message} As a workaround, you can use the '--no-repro' " +
-                            "command line option to ignore this error by disabling bug trace repro. " +
-                            "Learn more at http://aka.ms/coyote-no-repro.");
+                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Formats the message of the uncontrolled concurrency exception.
+        /// </summary>
+        private static string FormatUncontrolledConcurrencyExceptionMessage(string message) =>
+            $"{message} As a workaround, you can either mock this method or use the '--no-repro' " +
+            "command line option to ignore this error by disabling bug trace repro. Learn more at " +
+            "http://aka.ms/coyote-no-repro.";
 
         /// <summary>
         /// Checks if the currently executing operation is controlled by the runtime.

@@ -51,13 +51,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.AssertIsReturnedTaskControlled(task, methodName);
-            }
-        }
+        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName) =>
+            CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
     }
 }

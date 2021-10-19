@@ -1587,7 +1587,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else
                 {
-                    this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message));
+                    this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
                 }
             }
         }
@@ -1616,7 +1616,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message, methodName));
+                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
                     }
                 }
             }
@@ -1646,20 +1646,21 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        this.Assert(false, FormatUncontrolledConcurrencyErrorMessage(message, methodName));
+                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message));
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Formats the uncontrolled concurrency error message.
+        /// Formats the message of the uncontrolled concurrency exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyErrorMessage(string message, string methodName = default)
+        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
         {
             var mockMessage = methodName is null ? string.Empty : $" either mock '{methodName}' or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
-                "to ignore this error by disabling bug trace repro. Learn more at http://aka.ms/coyote-no-repro.";
+                "to ignore this error by disabling bug trace repro. Learn more at http://aka.ms/coyote-no-repro.\n" +
+                new StackTrace();
         }
 
         /// <summary>

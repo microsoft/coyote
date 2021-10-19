@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Runtime
         /// Throws an exception for the specified uncontrolled method invocation.
         /// </summary>
         /// <param name="methodName">The name of the invoked method that is not controlled.</param>
-        public static void FailOnUncontrolledInvocation(string methodName) =>
+        public static void ThrowUncontrolledInvocationException(string methodName) =>
             CoyoteRuntime.Current?.NotifyUncontrolledInvocation(methodName);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static void FailOnUncontrolledReturnedTask(Task task, string methodName) =>
+        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName) =>
             CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
     }
 }

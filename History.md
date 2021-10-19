@@ -6,7 +6,7 @@
 - Added a new JSON test report that lists any detected invocations of uncontrolled methods.
 - The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to
   reflect that the reports do not include only traces.
-- The `IActorRuntimeLog.OnStrategyDescription` has been removed.
+- The `IActorRuntimeLog.OnStrategyDescription` method has been removed.
 
 ## v1.4.0
 - Redesigned the systematic testing runtime to significantly improve its performance and simplicity.

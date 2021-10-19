@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
-                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Timer), "..ctor");
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Timer), ".ctor");
                 Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
             });
         }

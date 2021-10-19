@@ -1781,7 +1781,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else if (reason is SchedulerDetachmentReason.BugFound)
                 {
-                    this.Logger.WriteLine("<TestLog> Exploration finished [found a bug using the '{}' strategy].",
+                    this.Logger.WriteLine("<TestLog> Exploration finished [found a bug using the '{0}' strategy].",
                         this.Configuration.SchedulingStrategy);
                 }
 

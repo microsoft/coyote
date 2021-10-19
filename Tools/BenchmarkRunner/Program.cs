@@ -238,8 +238,8 @@ namespace Microsoft.Coyote.Benchmarking
                 if (FilterMatches(b.Name, this.Filters))
                 {
                     matching++;
-                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir)
-                        .WithOption(ConfigOptions.DisableOptimizationsValidator, true);
+                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir).
+                        WithOption(ConfigOptions.DisableOptimizationsValidator, true);
                     config.AddDiagnoser(new CpuDiagnoser());
                     config.AddDiagnoser(new TotalMemoryDiagnoser());
 

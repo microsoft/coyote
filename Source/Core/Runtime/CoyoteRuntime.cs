@@ -171,6 +171,11 @@ namespace Microsoft.Coyote.Runtime
         private bool IsSchedulingSuppressed;
 
         /// <summary>
+        /// True if uncontrolled concurrency was detected, else false.
+        /// </summary>
+        internal bool IsUncontrolledConcurrencyDetected { get; private set; }
+
+        /// <summary>
         /// Associated with the bug report is an optional unhandled exception.
         /// </summary>
         private Exception UnhandledException;
@@ -242,6 +247,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsRunning = true;
             this.IsAttached = true;
             this.IsSchedulingSuppressed = false;
+            this.IsUncontrolledConcurrencyDetected = false;
             this.IsBugFound = false;
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
@@ -1571,6 +1577,30 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notify that an unsupported invocation was detected.
+        /// </summary>
+        internal void NotifyNotSupportedInvocation(string methodName)
+        {
+            lock (this.SyncObject)
+            {
+                string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
+                    "testing, so it can interfere with the ability to reproduce bug traces.";
+                if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                {
+                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                    this.IsUncontrolledConcurrencyDetected = true;
+                    this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
+                }
+                else
+                {
+                    throw new NotSupportedException($"{message} As a workaround, you can use the '--no-repro' " +
+                        "command line option to ignore this error by disabling bug trace repro. " +
+                        "Learn more at http://aka.ms/coyote-no-repro.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks if the currently executing operation is controlled by the runtime.
         /// </summary>
 #if !DEBUG
@@ -1701,6 +1731,10 @@ namespace Microsoft.Coyote.Runtime
                 else if (reason is SchedulerDetachmentReason.BoundReached)
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the given bound].");
+                }
+                else if (reason is SchedulerDetachmentReason.UncontrolledConcurrencyDetected)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [detected uncontrolled concurrency].");
                 }
                 else if (reason is SchedulerDetachmentReason.BugFound)
                 {

@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M1));
             },
-            configuration: Configuration.Create().WithTestingIterations(50),
+            configuration: this.GetConfiguration().WithTestingIterations(50),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2));
             },
-            configuration: Configuration.Create().WithTestingIterations(50),
+            configuration: this.GetConfiguration().WithTestingIterations(50),
             replay: true);
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M3));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
 
         private class M4 : StateMachine
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M4));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
 
         private class M5 : StateMachine
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
                 var counter = SharedDictionary.Create<int, string>(r);
                 r.CreateActor(typeof(M5), new E2(counter, true));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
 
         [Fact(Timeout = 5000)]
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
                 var counter = SharedDictionary.Create<int, string>(r);
                 r.CreateActor(typeof(M5), new E2(counter, false));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
 
         private class M6 : StateMachine
@@ -332,7 +332,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
                 var counter = SharedDictionary.Create<int, string>(r);
                 r.CreateActor(typeof(M6), new E1(counter));
             },
-            configuration: Configuration.Create().WithTestingIterations(50),
+            configuration: this.GetConfiguration().WithTestingIterations(50),
             expectedError: "Reached test assertion.",
             replay: true);
         }

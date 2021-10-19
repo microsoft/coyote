@@ -873,7 +873,8 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected virtual Configuration GetConfiguration()
         {
-            return Configuration.Create().WithTelemetryEnabled(false);
+            return Configuration.Create().WithTelemetryEnabled(false).
+                WithConcurrencyFuzzingFallbackEnabled(false);
         }
 
         protected static string GetBugReport(TestingEngine engine)

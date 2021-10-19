@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, HaltEvent.Instance);
             },
-            configuration: Configuration.Create().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         private class M2 : StateMachine
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, HaltEvent.Instance);
             },
-            configuration: Configuration.Create().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             expectedError: "M2() halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(M3));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
             },
-            configuration: Configuration.Create().WithTestingIterations(500),
+            configuration: this.GetConfiguration().WithTestingIterations(500),
             expectedErrors: new string[]
                 {
                     "A must-handle event 'MustHandleEvent' was sent to M3() which has halted.",
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
             },
-            configuration: Configuration.Create().WithTestingIterations(500),
+            configuration: this.GetConfiguration().WithTestingIterations(500),
             expectedErrors: new string[]
                 {
                     "A must-handle event 'MustHandleEvent' was sent to M4() which has halted.",
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, new MoveEvent());
             },
-            configuration: Configuration.Create().WithTestingIterations(1),
+            configuration: this.GetConfiguration().WithTestingIterations(1),
             expectedError: "M5() halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }

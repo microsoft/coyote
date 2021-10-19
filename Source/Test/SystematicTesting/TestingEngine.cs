@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The scheduler used by the runtime during testing.
         /// </summary>
-        internal readonly OperationScheduler Scheduler;
+        internal OperationScheduler Scheduler { get; private set; }
 
         /// <summary>
         /// The profiler.
@@ -560,6 +560,16 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Restores the standard output and error streams.
                     Console.SetOut(stdOut);
                     Console.SetError(stdErr);
+                }
+
+                if (runtime.IsUncontrolledConcurrencyDetected)
+                {
+                    // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
+                    this.Scheduler = OperationScheduler.Setup(SchedulingPolicy.Fuzzing,
+                        this.Scheduler.ValueGenerator, this.Configuration);
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
+                        $"switching to fuzzing due to uncontrolled concurrency " +
+                        $"[task-{this.Configuration.TestingProcessId}]");
                 }
 
                 if (!this.Scheduler.IsReplayingSchedule && this.Configuration.PerformFullExploration && runtime.IsBugFound)

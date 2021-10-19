@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 string dgml = graphBuilder.Graph.ToString();
                 Assert.Equal(41, op.Count);
             },
-            configuration: Configuration.Create().WithPCTStrategy(true));
+            configuration: this.GetConfiguration().WithPCTStrategy(true));
         }
     }
 }

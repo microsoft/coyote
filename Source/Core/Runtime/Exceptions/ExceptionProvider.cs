@@ -44,7 +44,8 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="methodName">The name of the invoked method that is not supported.</param>
         public static void ThrowNotSupportedInvocationException(string methodName)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 throw new NotSupportedException($"Invoking '{methodName}' is not intercepted and controlled during " +
                     "testing, so it can interfere with the ability to reproduce bug traces. As a workaround, you can " +
@@ -61,9 +62,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="methodName">The name of the method returning the task.</param>
         public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                CoyoteRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
+                runtime.AssertIsReturnedTaskControlled(task, methodName);
             }
         }
     }

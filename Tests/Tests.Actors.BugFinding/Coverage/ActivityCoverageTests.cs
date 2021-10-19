@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Coverage
         [Fact(Timeout = 5000)]
         public void TestTrivialActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -88,7 +88,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMachineStateTransitionActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -137,7 +137,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMachineRaiseEventActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -217,7 +217,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMachineSendEventActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -272,7 +272,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestCoverageOnMultipleTests()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report1 = this.TestCoverage(r =>
@@ -346,7 +346,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestUncoveredEvents()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -420,7 +420,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestPushStateActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string report = this.TestCoverage(r =>
@@ -515,7 +515,7 @@ Event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMonitorActivityCoverage()
         {
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.ReportActivityCoverage = true;
 
             string result = this.TestCoverage(r =>

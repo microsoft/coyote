@@ -634,12 +634,12 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Tries to emit the testing traces, if any.
+        /// Tries to emit the testing reports, if any.
         /// </summary>
-        public IEnumerable<string> TryEmitTraces(string directory, string file)
+        public IEnumerable<string> TryEmitReports(string directory, string file)
         {
-            int index = 0;
             // Find the next available file index.
+            int index = 0;
             Regex match = new Regex("^(.*)_([0-9]+)_([0-9]+)");
             foreach (var path in Directory.GetFiles(directory))
             {

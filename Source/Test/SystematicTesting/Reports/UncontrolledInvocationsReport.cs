@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting
         internal static string ToJSON(HashSet<string> uncontrolledInvocations)
         {
             var report = new UncontrolledInvocationsJsonReport();
-            report.UncontrolledInvocations.AddRange(uncontrolledInvocations);
+            report.UncontrolledInvocations = new List<string>(uncontrolledInvocations);
 
             // TODO: replace with the new 'System.Text.Json' when .NET 5 comes out.
             try

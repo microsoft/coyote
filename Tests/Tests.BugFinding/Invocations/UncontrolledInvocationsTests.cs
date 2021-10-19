@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             errorChecker: (e) =>
             {
                 var expectedMethodName = GetFullyQualifiedMethodName(typeof(Task), nameof(Task.ContinueWith));
-                Assert.StartsWith($"Invoking 'Task.ContinueWith' is not intercepted", e);
+                Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
             });
         }
 
@@ -41,26 +41,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
             errorChecker: (e) =>
             {
                 var expectedMethodName = GetFullyQualifiedMethodName(typeof(Thread), nameof(Thread.Yield));
-                Assert.StartsWith($"Invoking 'Thread.Yield' is not intercepted", e);
+                Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
             });
         }
-
-#if !NETFRAMEWORK
-        [Fact(Timeout = 5000)]
-        public void TestUncontrolledValueTaskInvocation()
-        {
-            this.TestWithError(async () =>
-            {
-                var task = default(ValueTask);
-                await task;
-            },
-            errorChecker: (e) =>
-            {
-                var expectedMethodName = GetFullyQualifiedMethodName(typeof(ValueTask), nameof(ValueTask.CompletedTask));
-                Assert.StartsWith($"Invoking 'ValueTask' is not intercepted", e);
-            });
-        }
-#endif
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTimerInvocation()
@@ -71,8 +54,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
-                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Timer), nameof(Timer.ActiveCount));
-                Assert.StartsWith($"Invoking 'Timer' is not intercepted", e);
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Timer), "..ctor");
+                Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
             });
         }
     }

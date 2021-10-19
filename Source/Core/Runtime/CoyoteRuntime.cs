@@ -51,21 +51,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static CoyoteRuntime Current
         {
-            get
-            {
-                CoyoteRuntime runtime = ThreadLocalRuntime.Value;
-                if (runtime is null)
-                {
-                    if (IsExecutionControlled)
-                    {
-                        ThrowUncontrolledTaskException();
-                    }
-
-                    runtime = RuntimeFactory.InstalledRuntime;
-                }
-
-                return runtime;
-            }
+            get => ThreadLocalRuntime.Value ?? RuntimeFactory.InstalledRuntime;
         }
 
         /// <summary>
@@ -800,7 +786,7 @@ namespace Microsoft.Coyote.Runtime
                     // Checks if the current operation is controlled by the runtime.
                     if (ExecutingOperation.Value is null)
                     {
-                        ThrowUncontrolledTaskException();
+                        this.NotifyUncontrolledConcurrencyDetected();
                     }
                 }
 
@@ -954,7 +940,7 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
-                    ThrowUncontrolledTaskException();
+                    this.NotifyUncontrolledConcurrencyDetected();
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -992,7 +978,7 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
-                    ThrowUncontrolledTaskException();
+                    this.NotifyUncontrolledConcurrencyDetected();
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -1214,7 +1200,7 @@ namespace Microsoft.Coyote.Runtime
                 var op = ExecutingOperation.Value;
                 if (op is null)
                 {
-                    ThrowUncontrolledTaskException();
+                    this.NotifyUncontrolledConcurrencyDetected();
                 }
 
                 return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
@@ -1582,6 +1568,33 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Checks if the currently executing operation is controlled by the runtime.
+        /// </summary>
+        private void NotifyUncontrolledConcurrencyDetected()
+        {
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                // TODO: figure out if there is a way to get more information about the creator of the
+                // uncontrolled task to ease the user debugging experience.
+                // Report the invalid operation and then throw it to fail the uncontrolled task. This will
+                // most likely crash the program, but we try to fail as cleanly and fast as possible.
+                string taskId = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+                string message = $"Detected task '{taskId}' that is not intercepted and controlled during " +
+                    "testing, so it can interfere with the ability to reproduce bug traces.";
+                if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                {
+                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                    this.IsUncontrolledConcurrencyDetected = true;
+                    this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
+                }
+                else
+                {
+                    throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that an uncontrolled task was returned.
         /// </summary>
         private void NotifyUncontrolledTaskReturned(Task task, string methodName)
@@ -1595,9 +1608,8 @@ namespace Microsoft.Coyote.Runtime
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    string message = $"Invoking '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
-                        "which is not intercepted and controlled during testing, so it can interfere with the " +
-                        "ability to reproduce bug traces.";
+                    string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
+                        "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
                         IO.Debug.WriteLine($"<ScheduleDebug> {message}");
@@ -1606,7 +1618,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
+                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
                     }
                 }
             }
@@ -1636,7 +1648,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message));
+                        throw new NotSupportedException(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
                     }
                 }
             }
@@ -1645,29 +1657,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Formats the message of the uncontrolled concurrency exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message) =>
-            $"{message} As a workaround, you can either mock this method or use the '--no-repro' " +
-            "command line option to ignore this error by disabling bug trace repro. Learn more at " +
-            "http://aka.ms/coyote-no-repro.";
-
-        /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        private static void ThrowUncontrolledTaskException()
+        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
         {
-            // TODO: figure out if there is a way to get more information about the creator of the
-            // uncontrolled task to ease the user debugging experience.
-            // Report the invalid operation and then throw it to fail the uncontrolled task.
-            // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
-            string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
-            throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
-                "which is not allowed by default as it can interfere with the ability to reproduce bug traces: either " +
-                "mock the method spawning the uncontrolled task, or rewrite its assembly. Alternatively, use the " +
-                "'--no-repro' command line option to disable bug trace repro and ignore this error. " +
-                "Learn more at http://aka.ms/coyote-no-repro.");
+            var mockMessage = methodName is null ? string.Empty : $" either mock '{methodName}' or";
+            return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
+                "to ignore this error by disabling bug trace repro. Learn more at http://aka.ms/coyote-no-repro.";
         }
 
         /// <summary>

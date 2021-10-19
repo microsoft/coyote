@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Throws a <see cref="NotSupportedException"/> for the specified uncontrolled method.
+        /// Throws a <see cref="NotSupportedException"/> for the specified uncontrolled method invocation.
         /// </summary>
         /// <param name="methodName">The name of the invoked method that is not controlled.</param>
         public static void ThrowUncontrolledInvocationException(string methodName) =>

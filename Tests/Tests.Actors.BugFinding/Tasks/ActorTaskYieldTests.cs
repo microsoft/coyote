@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -270,7 +270,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
     }

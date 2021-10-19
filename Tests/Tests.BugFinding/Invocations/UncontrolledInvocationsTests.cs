@@ -9,15 +9,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {
-    public class NotSupportedInvocationsTests : BaseBugFindingTest
+    public class UncontrolledInvocationsTests : BaseBugFindingTest
     {
-        public NotSupportedInvocationsTests(ITestOutputHelper output)
+        public UncontrolledInvocationsTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedContinueWithTaskInvocation()
+        public void TestUncontrolledContinueWithTaskInvocation()
         {
             this.TestWithException<NotSupportedException>(() =>
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
 #if !NETFRAMEWORK
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedValueTaskInvocation()
+        public void TestUncontrolledValueTaskInvocation()
         {
             this.TestWithException<NotSupportedException>(async () =>
             {
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 #endif
 
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedTimerInvocation()
+        public void TestUncontrolledTimerInvocation()
         {
             this.TestWithException<NotSupportedException>(() =>
             {

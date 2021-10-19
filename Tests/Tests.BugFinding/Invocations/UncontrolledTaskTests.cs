@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             errorChecker: (e) =>
             {
                 string expectedMethodName = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.DelayAsync)}";
-                Assert.StartsWith($"Invoking '{expectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{expectedMethodName}' returned task", e);
             },
             replay: true);
         }

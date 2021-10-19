@@ -1583,7 +1583,7 @@ namespace Microsoft.Coyote.Runtime
                     "testing, so it can interfere with the ability to reproduce bug traces.";
                 if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                    this.Logger.WriteLine($"<TestLog> {message}");
                     this.IsUncontrolledConcurrencyDetected = true;
                     this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
                 }
@@ -1612,7 +1612,7 @@ namespace Microsoft.Coyote.Runtime
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
-                        IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                        this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
                         this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
                     }
@@ -1642,7 +1642,7 @@ namespace Microsoft.Coyote.Runtime
                         "testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
-                        IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                        this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
                         this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
                     }
@@ -1771,19 +1771,19 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (reason is SchedulerDetachmentReason.PathExplored)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the end of the test method].");
+                    this.Logger.WriteLine($"<TestLog> Exploration finished [reached the end of the test method].");
                 }
                 else if (reason is SchedulerDetachmentReason.BoundReached)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [reached the given bound].");
+                    this.Logger.WriteLine($"<TestLog> Exploration finished [reached the given bound].");
                 }
                 else if (reason is SchedulerDetachmentReason.UncontrolledConcurrencyDetected)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [detected uncontrolled concurrency].");
+                    this.Logger.WriteLine($"<TestLog> Exploration finished [detected uncontrolled concurrency].");
                 }
                 else if (reason is SchedulerDetachmentReason.BugFound)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Exploration finished [found a bug].");
+                    this.Logger.WriteLine($"<TestLog> Exploration finished [found a bug].");
                 }
 
                 this.IsAttached = false;

@@ -11,7 +11,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 {
     public class ActorTaskYieldTests : BaseActorBugFindingTest
     {
-        private static string ExpectedMethodName { get; } = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.YieldAsync)}";
+        private static string ExpectedMethodName { get; } =
+            GetFullyQualifiedMethodName(typeof(AsyncProvider), nameof(AsyncProvider.YieldAsync));
 
         public ActorTaskYieldTests(ITestOutputHelper output)
             : base(output)
@@ -165,7 +166,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -196,7 +197,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -230,7 +231,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
 
@@ -270,7 +271,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
+                Assert.StartsWith($"Invoking '{ExpectedMethodName}' returned task", e);
             });
         }
     }

@@ -486,11 +486,6 @@ namespace Microsoft.Coyote.Actors.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-        }
-
-        /// <inheritdoc/>
         public void OnCompleted()
         {
         }

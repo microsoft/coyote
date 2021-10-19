@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 return;
             }
 
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             configuration.TestingIterations = 100;
 
             this.TestWithError(r =>

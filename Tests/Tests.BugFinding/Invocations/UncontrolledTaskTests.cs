@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,11 +22,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await AsyncProvider.DelayAsync(100);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                string expectedMethodName = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.DelayAsync)}";
-                Assert.StartsWith($"Method '{expectedMethodName}' returned an uncontrolled task", e);
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(AsyncProvider), nameof(AsyncProvider.DelayAsync));
+                Assert.StartsWith($"Invoking '{expectedMethodName}' returned task", e);
             },
             replay: true);
         }
@@ -37,7 +38,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await new UncontrolledTaskAwaiter();
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await new UncontrolledTaskAwaiter<int>();
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
     }
 }

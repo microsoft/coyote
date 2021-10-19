@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             this.RewritingPasses.Add(new InterAssemblyInvocationRewriter(this.Logger));
-            this.RewritingPasses.Add(new NotSupportedInvocationRewriter(this.Logger));
+            this.RewritingPasses.Add(new UncontrolledInvocationRewriter(this.Logger));
 
             // expand folder
             if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)

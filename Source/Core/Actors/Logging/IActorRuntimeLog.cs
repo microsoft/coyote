@@ -274,13 +274,6 @@ namespace Microsoft.Coyote.Actors
         void OnAssertionFailure(string error);
 
         /// <summary>
-        /// Invoked to describe the specified scheduling strategy.
-        /// </summary>
-        /// <param name="strategyName">The name of the strategy that was used.</param>
-        /// <param name="description">More information about the scheduling strategy.</param>
-        void OnStrategyDescription(string strategyName, string description);
-
-        /// <summary>
         /// Invoked when a log is complete (and is about to be closed).
         /// </summary>
         void OnCompleted();

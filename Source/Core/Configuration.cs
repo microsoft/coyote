@@ -98,11 +98,15 @@ namespace Microsoft.Coyote
         /// <summary>
         /// If this option is enabled, the concurrency fuzzing policy is used during testing.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
         internal bool IsConcurrencyFuzzingEnabled;
+
+        /// <summary>
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// automatically switches to concurrency fuzzing, instead of failing with an error.
+        /// </summary>
+        [DataMember]
+        internal bool IsConcurrencyFuzzingFallbackEnabled;
 
         /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
@@ -111,8 +115,7 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If true, the Coyote tester performs a full exploration,
-        /// and does not stop when it finds a bug.
+        /// If true, the tester runs all iterations, even if a bug is found.
         /// </summary>
         [DataMember]
         internal bool PerformFullExploration;
@@ -370,6 +373,7 @@ namespace Microsoft.Coyote
             this.IsSchedulingSeedIncremental = false;
             this.IsRelaxedControlledTestingEnabled = false;
             this.IsConcurrencyFuzzingEnabled = false;
+            this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.PerformFullExploration = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -534,12 +538,19 @@ namespace Microsoft.Coyote
         /// Updates the configuration with concurrency fuzzing enabled or disabled.
         /// </summary>
         /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with concurrency fuzzing fallback enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then concurrency fuzzing fallback is enabled.</param>
+        public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
+        {
+            this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
             return this;
         }
 

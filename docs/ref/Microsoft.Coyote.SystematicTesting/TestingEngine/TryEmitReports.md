@@ -1,9 +1,9 @@
-# TestingEngine.TryEmitTraces method
+# TestingEngine.TryEmitReports method
 
-Tries to emit the testing traces, if any.
+Tries to emit the testing reports, if any.
 
 ```csharp
-public IEnumerable<string> TryEmitTraces(string directory, string file)
+public IEnumerable<string> TryEmitReports(string directory, string file)
 ```
 
 ## See Also

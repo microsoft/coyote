@@ -255,7 +255,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(M5), new E2(id));
                 r.CreateActor(id, typeof(M4));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
         }

@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// Class implementing the Coyote test report.
+    /// Report containing information from a test run.
     /// </summary>
     [DataContract]
-    public class TestReport
+    public class TestReport : ITestReport
     {
         /// <summary>
         /// Configuration of the program-under-test.
@@ -46,10 +47,16 @@ namespace Microsoft.Coyote.SystematicTesting
         public int NumOfFoundBugs { get; internal set; }
 
         /// <summary>
-        /// Set of unique bug reports.
+        /// Set of bug reports.
         /// </summary>
         [DataMember]
         public HashSet<string> BugReports { get; internal set; }
+
+        /// <summary>
+        /// Set of uncontrolled invocations.
+        /// </summary>
+        [DataMember]
+        public HashSet<string> UncontrolledInvocations { get; internal set; }
 
         /// <summary>
         /// The min explored scheduling steps in average,
@@ -108,7 +115,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Unhandled exception caught by RunNextIteration.
         /// </summary>
-        internal Exception ThrownException { get; set; }
+        internal Exception ThrownException { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestReport"/> class.
@@ -123,6 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.NumOfExploredUnfairSchedules = 0;
             this.NumOfFoundBugs = 0;
             this.BugReports = new HashSet<string>();
+            this.UncontrolledInvocations = new HashSet<string>();
 
             this.MinExploredFairSteps = -1;
             this.MaxExploredFairSteps = -1;
@@ -136,58 +144,62 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Lock = new object();
         }
 
-        /// <summary>
-        /// Creates a test report using the specified statistics.
-        /// </summary>
-        internal static TestReport CreateTestReportFromStats(Configuration configuration, bool isBugFound, string bugReport,
-            int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair, Exception thrownException)
+        /// <inheritdoc/>
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int scheduledSteps,
+            bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
-            TestReport report = new TestReport(configuration);
-
             if (isBugFound)
             {
-                report.NumOfFoundBugs++;
-                report.ThrownException = thrownException;
-                report.BugReports.Add(bugReport);
+                this.NumOfFoundBugs++;
+                this.BugReports.Add(bugReport);
             }
 
             if (isScheduleFair)
             {
-                report.NumOfExploredFairSchedules++;
-                report.TotalExploredFairSteps += scheduledSteps;
+                this.NumOfExploredFairSchedules++;
+                this.TotalExploredFairSteps += scheduledSteps;
 
-                if (report.MinExploredFairSteps < 0 ||
-                    report.MinExploredFairSteps > scheduledSteps)
+                if (this.MinExploredFairSteps < 0 ||
+                    this.MinExploredFairSteps > scheduledSteps)
                 {
-                    report.MinExploredFairSteps = scheduledSteps;
+                    this.MinExploredFairSteps = scheduledSteps;
                 }
 
-                if (report.MaxExploredFairSteps < scheduledSteps)
+                if (this.MaxExploredFairSteps < scheduledSteps)
                 {
-                    report.MaxExploredFairSteps = scheduledSteps;
+                    this.MaxExploredFairSteps = scheduledSteps;
                 }
 
                 if (isMaxScheduledStepsBoundReached)
                 {
-                    report.MaxFairStepsHitInFairTests++;
+                    this.MaxFairStepsHitInFairTests++;
                 }
 
-                if (scheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
+                if (scheduledSteps >= this.Configuration.MaxUnfairSchedulingSteps)
                 {
-                    report.MaxUnfairStepsHitInFairTests++;
+                    this.MaxUnfairStepsHitInFairTests++;
                 }
             }
             else
             {
-                report.NumOfExploredUnfairSchedules++;
-
+                this.NumOfExploredUnfairSchedules++;
                 if (isMaxScheduledStepsBoundReached)
                 {
-                    report.MaxUnfairStepsHitInUnfairTests++;
+                    this.MaxUnfairStepsHitInUnfairTests++;
                 }
             }
+        }
 
-            return report;
+        /// <inheritdoc/>
+        void ITestReport.SetUnhandledException(Exception exception)
+        {
+            this.ThrownException = exception;
+        }
+
+        /// <inheritdoc/>
+        void ITestReport.SetUncontrolledInvocations(HashSet<string> invocations)
+        {
+            this.UncontrolledInvocations.UnionWith(invocations);
         }
 
         /// <summary>
@@ -209,6 +221,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.NumOfFoundBugs += testReport.NumOfFoundBugs;
 
                 this.BugReports.UnionWith(testReport.BugReports);
+                this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
 
                 this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
                 this.NumOfExploredUnfairSchedules += testReport.NumOfExploredUnfairSchedules;
@@ -257,6 +270,17 @@ namespace Microsoft.Coyote.SystematicTesting
                 prefix.Equals("...") ? "....." : prefix,
                 this.NumOfFoundBugs,
                 this.NumOfFoundBugs is 1 ? string.Empty : "s");
+
+            int numUncontrolledInvocations = this.UncontrolledInvocations.Count;
+            if (numUncontrolledInvocations > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Found {1} uncontrolled invocation{2}.",
+                    prefix.Equals("...") ? "....." : prefix,
+                    numUncontrolledInvocations,
+                    numUncontrolledInvocations is 1 ? string.Empty : "s");
+            }
 
             report.AppendLine();
             report.AppendFormat("{0} Scheduling statistics:", prefix);

@@ -39,19 +39,11 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Throws a <see cref="NotSupportedException"/> for the specified unsupported method.
+        /// Throws an exception for the specified uncontrolled method invocation.
         /// </summary>
-        /// <param name="methodName">The name of the invoked method that is not supported.</param>
-        public static void ThrowNotSupportedInvocationException(string methodName)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                throw new NotSupportedException($"Invoking '{methodName}' is not intercepted and controlled during " +
-                    "testing, so it can interfere with the ability to reproduce bug traces. As a workaround, you can " +
-                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
-                    "Learn more at http://aka.ms/coyote-no-repro.");
-            }
-        }
+        /// <param name="methodName">The name of the invoked method that is not controlled.</param>
+        public static void ThrowUncontrolledInvocationException(string methodName) =>
+            CoyoteRuntime.Current?.NotifyUncontrolledInvocation(methodName);
 
         /// <summary>
         /// Throws an exception if the task returned by the method with the specified name
@@ -59,12 +51,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
-            }
-        }
+        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName) =>
+            CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
     }
 }

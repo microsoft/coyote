@@ -88,37 +88,37 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [Fact(Timeout = 5000)]
-        public void TestVoidEntryPoint() => CheckTestMethod(nameof(VoidTestWithNoRuntime));
+        public void TestVoidEntryPoint() => this.CheckTestMethod(nameof(VoidTestWithNoRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestVoidEntryPointWithRuntime() => CheckTestMethod(nameof(VoidTestWithRuntime));
+        public void TestVoidEntryPointWithRuntime() => this.CheckTestMethod(nameof(VoidTestWithRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestVoidEntryPointWithActorRuntime() => CheckTestMethod(nameof(VoidTestWithActorRuntime));
+        public void TestVoidEntryPointWithActorRuntime() => this.CheckTestMethod(nameof(VoidTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestTaskEntryPoint() => CheckTestMethod(nameof(TaskTestWithNoRuntime));
+        public void TestTaskEntryPoint() => this.CheckTestMethod(nameof(TaskTestWithNoRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestTaskEntryPointWithRuntime() => CheckTestMethod(nameof(TaskTestWithRuntime));
+        public void TestTaskEntryPointWithRuntime() => this.CheckTestMethod(nameof(TaskTestWithRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(TaskTestWithActorRuntime));
+        public void TestTaskEntryPointWithActorRuntime() => this.CheckTestMethod(nameof(TaskTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncTaskEntryPoint() => CheckTestMethod(nameof(AsyncTaskTestWithNoRuntime));
+        public void TestAsyncTaskEntryPoint() => this.CheckTestMethod(nameof(AsyncTaskTestWithNoRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncTaskEntryPointWithRuntime() => CheckTestMethod(nameof(AsyncTaskTestWithRuntime));
+        public void TestAsyncTaskEntryPointWithRuntime() => this.CheckTestMethod(nameof(AsyncTaskTestWithRuntime));
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncTaskEntryPointWithActorRuntime() => CheckTestMethod(nameof(AsyncTaskTestWithActorRuntime));
+        public void TestAsyncTaskEntryPointWithActorRuntime() => this.CheckTestMethod(nameof(AsyncTaskTestWithActorRuntime));
 
         [Fact(Timeout = 5000)]
         public void TestUnspecifiedEntryPoint()
         {
             string name = string.Empty;
-            var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
+            var exception = Assert.Throws<InvalidOperationException>(() => this.CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames();
             string expected = $"System.InvalidOperationException: Found '12' test methods declared with the " +
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
         public void TestNotExistingEntryPoint()
         {
             string name = "NotExistingEntryPoint";
-            var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
+            var exception = Assert.Throws<InvalidOperationException>(() => this.CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames();
             string expected = "System.InvalidOperationException: Cannot detect a Coyote test method name " +
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
         public void TestAmbiguousEntryPoint()
         {
             string name = "VoidTest";
-            var exception = Assert.Throws<InvalidOperationException>(() => CheckTestMethod(name));
+            var exception = Assert.Throws<InvalidOperationException>(() => this.CheckTestMethod(name));
 
             string possibleNames = GetPossibleTestNames(name);
             string expected = $"System.InvalidOperationException: The method name '{name}' is ambiguous. " +
@@ -157,9 +157,9 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             Assert.StartsWith(expected, actual);
         }
 
-        private static void CheckTestMethod(string name)
+        private void CheckTestMethod(string name)
         {
-            Configuration config = Configuration.Create();
+            Configuration config = this.GetConfiguration();
             config.AssemblyToBeAnalyzed = Assembly.GetExecutingAssembly().Location;
             config.TestMethodName = name;
             var testMethodInfo = TestMethodInfo.Create(config);

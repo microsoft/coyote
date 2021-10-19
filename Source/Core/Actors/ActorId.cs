@@ -73,6 +73,11 @@ namespace Microsoft.Coyote.Actors
         public readonly HashSet<ulong> RLId;
 
         /// <summary>
+        /// Counter which provides local child Ids for new Actor instances under a parent.
+        /// </summary>
+        public ulong IdCounter;
+
+        /// <summary>
         /// True if <see cref="NameValue"/> is used as the unique id, else false.
         /// </summary>
         public bool IsNameUsedForHashing => this.NameValue.Length > 0;
@@ -86,7 +91,9 @@ namespace Microsoft.Coyote.Actors
             this.Type = type.FullName;
             this.Value = value;
             this.RLId = new HashSet<ulong>(id.RLId);
-            this.RLId.Add(value);
+            this.RLId.Add(id.IdCounter);
+            id.IdCounter++;
+            this.IdCounter = 0;
 
             if (useNameForHashing)
             {

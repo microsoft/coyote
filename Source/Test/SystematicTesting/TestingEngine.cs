@@ -638,6 +638,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public IEnumerable<string> TryEmitReports(string directory, string file)
         {
+            bool reportsEmitted = false;
+
             // Find the next available file index.
             int index = 0;
             Regex match = new Regex("^(.*)_([0-9]+)_([0-9]+)");
@@ -666,6 +668,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     string readableTracePath = Path.Combine(directory, file + "_" + index + ".txt");
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {readableTracePath}");
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
+                    reportsEmitted = true;
                     yield return readableTracePath;
                 }
             }
@@ -675,14 +678,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 string xmlPath = Path.Combine(directory, file + "_" + index + ".trace.xml");
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {xmlPath}");
                 File.WriteAllText(xmlPath, this.XmlLog.ToString());
+                reportsEmitted = true;
                 yield return xmlPath;
             }
 
             if (this.Graph != null)
             {
                 string graphPath = Path.Combine(directory, file + "_" + index + ".dgml");
-                this.Graph.SaveDgml(graphPath, true);
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {graphPath}");
+                this.Graph.SaveDgml(graphPath, true);
+                reportsEmitted = true;
                 yield return graphPath;
             }
 
@@ -694,6 +699,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reproTracePath}");
                     File.WriteAllText(reproTracePath, this.ReproducibleTrace);
+                    reportsEmitted = true;
                     yield return reproTracePath;
                 }
             }
@@ -701,11 +707,16 @@ namespace Microsoft.Coyote.SystematicTesting
             // Emits the uncontrolled invocations report, if it exists.
             if (this.TestReport.UncontrolledInvocations.Count > 0)
             {
-                string report = UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations);
                 string reportPath = Path.Combine(directory, file + "_" + index + ".uncontrolled.json");
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reportPath}");
-                File.WriteAllText(reportPath, this.ReproducibleTrace);
+                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
+                reportsEmitted = true;
                 yield return reportPath;
+            }
+
+            if (!reportsEmitted)
+            {
+                Console.WriteLine($"..... No reports available.");
             }
 
             this.Logger.WriteLine(LogSeverity.Important, $"... Elapsed {this.Profiler.Results()} sec.");

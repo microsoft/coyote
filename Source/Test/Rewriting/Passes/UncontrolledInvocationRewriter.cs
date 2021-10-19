@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Rewriting
 
                     var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                     MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
+                        m => m.Name is nameof(ExceptionProvider.FailOnUncontrolledInvocation));
                     providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));

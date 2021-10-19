@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting
 
                         var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                         MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                            m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedTaskNotControlled));
+                            m => m.Name is nameof(ExceptionProvider.FailOnUncontrolledReturnedTask));
                         providerMethod = this.Module.ImportReference(providerMethod);
 
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));

@@ -1,9 +1,9 @@
-# TestReport.BugReports property
+# TestReport.UncontrolledInvocations property
 
-Set of bug reports.
+Set of uncontrolled invocations.
 
 ```csharp
-public HashSet<string> BugReports { get; }
+public HashSet<string> UncontrolledInvocations { get; }
 ```
 
 ## See Also

@@ -285,7 +285,6 @@ see something like this:
 ```xml
 <ErrorLog> Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor detected liveness bug 
            in hot state 'Busy' at the end of program execution.
-<StrategyLog> Found bug using 'PCT' strategy.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:

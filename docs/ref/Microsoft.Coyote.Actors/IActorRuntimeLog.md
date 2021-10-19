@@ -40,7 +40,6 @@ public interface IActorRuntimeLog
 | [OnSendEvent](IActorRuntimeLog/OnSendEvent.md)(…) | Invoked when the specified event is sent to a target actor. |
 | [OnStateTransition](IActorRuntimeLog/OnStateTransition.md)(…) | Invoked when the specified state machine enters or exits a state. |
 | [OnStopTimer](IActorRuntimeLog/OnStopTimer.md)(…) | Invoked when the specified actor timer has been stopped. |
-| [OnStrategyDescription](IActorRuntimeLog/OnStrategyDescription.md)(…) | Invoked to describe the specified scheduling strategy. |
 | [OnWaitEvent](IActorRuntimeLog/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks

@@ -1,14 +1,14 @@
-# Configuration.WithConcurrencyFuzzingEnabled method
+# Configuration.WithConcurrencyFuzzingFallbackEnabled method
 
-Updates the configuration with concurrency fuzzing enabled or disabled.
+Updates the configuration with concurrency fuzzing fallback enabled or disabled.
 
 ```csharp
-public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
+public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
 ```
 
 | parameter | description |
 | --- | --- |
-| isEnabled | If true, then concurrency fuzzing is enabled. |
+| isEnabled | If true, then concurrency fuzzing fallback is enabled. |
 
 ## See Also
 

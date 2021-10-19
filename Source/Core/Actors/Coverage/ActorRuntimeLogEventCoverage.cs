@@ -258,10 +258,6 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
         }
 
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-        }
-
         public void OnWaitEvent(ActorId id, string stateName, Type eventType)
         {
         }

@@ -1553,8 +1553,6 @@ namespace Microsoft.Coyote.Runtime
                     this.BugReport = text;
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
-                    this.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
-                        this.Scheduler.GetDescription());
 
                     this.IsBugFound = true;
                     if (this.Configuration.AttachDebugger)
@@ -1771,19 +1769,20 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (reason is SchedulerDetachmentReason.PathExplored)
                 {
-                    this.Logger.WriteLine($"<TestLog> Exploration finished [reached the end of the test method].");
+                    this.Logger.WriteLine("<TestLog> Exploration finished [reached the end of the test method].");
                 }
                 else if (reason is SchedulerDetachmentReason.BoundReached)
                 {
-                    this.Logger.WriteLine($"<TestLog> Exploration finished [reached the given bound].");
+                    this.Logger.WriteLine("<TestLog> Exploration finished [reached the given bound].");
                 }
                 else if (reason is SchedulerDetachmentReason.UncontrolledConcurrencyDetected)
                 {
-                    this.Logger.WriteLine($"<TestLog> Exploration finished [detected uncontrolled concurrency].");
+                    this.Logger.WriteLine("<TestLog> Exploration finished [detected uncontrolled concurrency].");
                 }
                 else if (reason is SchedulerDetachmentReason.BugFound)
                 {
-                    this.Logger.WriteLine($"<TestLog> Exploration finished [found a bug].");
+                    this.Logger.WriteLine("<TestLog> Exploration finished [found a bug using the '{}' strategy].",
+                        this.Configuration.SchedulingStrategy);
                 }
 
                 this.IsAttached = false;

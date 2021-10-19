@@ -42,7 +42,6 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnSendEvent](ActorRuntimeLogTextFormatter/OnSendEvent.md)(…) | Invoked when the specified event is sent to a target actor. |
 | virtual [OnStateTransition](ActorRuntimeLogTextFormatter/OnStateTransition.md)(…) | Invoked when the specified state machine enters or exits a state. |
 | virtual [OnStopTimer](ActorRuntimeLogTextFormatter/OnStopTimer.md)(…) | Invoked when the specified actor timer has been stopped. |
-| virtual [OnStrategyDescription](ActorRuntimeLogTextFormatter/OnStrategyDescription.md)(…) | Invoked to describe the specified scheduling strategy. |
 | virtual [OnWaitEvent](ActorRuntimeLogTextFormatter/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks

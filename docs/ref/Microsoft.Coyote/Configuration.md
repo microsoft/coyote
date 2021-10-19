@@ -26,6 +26,7 @@ public class Configuration
 | [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this value is 10. |
 | [WithActivityCoverageEnabled](Configuration/WithActivityCoverageEnabled.md)(…) | Updates the configuration with activity coverage enabled or disabled. |
 | [WithConcurrencyFuzzingEnabled](Configuration/WithConcurrencyFuzzingEnabled.md)(…) | Updates the configuration with concurrency fuzzing enabled or disabled. |
+| [WithConcurrencyFuzzingFallbackEnabled](Configuration/WithConcurrencyFuzzingFallbackEnabled.md)(…) | Updates the configuration with concurrency fuzzing fallback enabled or disabled. |
 | [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the DeadlockTimeout value that controls how much time the deadlock monitor should wait during concurrency fuzzing before reporting a potential deadlock. |
 | [WithDgmlGraphEnabled](Configuration/WithDgmlGraphEnabled.md)(…) | Updates the configuration with DGML graph generation enabled or disabled. |
 | [WithIncrementalSeedGenerationEnabled](Configuration/WithIncrementalSeedGenerationEnabled.md)(…) | Updates the configuration with incremental seed generation enabled or disabled. |

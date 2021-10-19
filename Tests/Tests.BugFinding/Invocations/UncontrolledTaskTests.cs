@@ -25,7 +25,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Invoking 'AsyncProvider.DelayAsync' is not intercepted", e);
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(AsyncProvider), nameof(AsyncProvider.DelayAsync));
+                Assert.StartsWith($"Invoking '{expectedMethodName}' returned task", e);
             },
             replay: true);
         }

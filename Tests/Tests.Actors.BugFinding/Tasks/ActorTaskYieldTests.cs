@@ -11,7 +11,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 {
     public class ActorTaskYieldTests : BaseActorBugFindingTest
     {
-        private static string ExpectedMethodName { get; } = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.YieldAsync)}";
+        private static string ExpectedMethodName { get; } =
+            GetFullyQualifiedMethodName(typeof(AsyncProvider), nameof(AsyncProvider.DelayAsync));
 
         public ActorTaskYieldTests(ITestOutputHelper output)
             : base(output)

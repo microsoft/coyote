@@ -26,6 +26,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Task), nameof(Task.ContinueWith));
                 Assert.StartsWith($"Invoking 'Task.ContinueWith' is not intercepted", e);
             });
         }
@@ -39,6 +40,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Thread), nameof(Thread.Yield));
                 Assert.StartsWith($"Invoking 'Thread.Yield' is not intercepted", e);
             });
         }
@@ -54,6 +56,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(ValueTask), nameof(ValueTask.CompletedTask));
                 Assert.StartsWith($"Invoking 'ValueTask' is not intercepted", e);
             });
         }
@@ -68,6 +71,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             errorChecker: (e) =>
             {
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Timer), nameof(Timer.ActiveCount));
                 Assert.StartsWith($"Invoking 'Timer' is not intercepted", e);
             });
         }

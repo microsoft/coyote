@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(params Action[] actions)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.Invoke));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.Invoke));
             SystemTasks.Parallel.Invoke(actions);
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(ParallelOptions parallelOptions, params Action[] actions)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.Invoke));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.Invoke));
             SystemTasks.Parallel.Invoke(parallelOptions, actions);
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions,
             Action<int, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Action<long, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
         }
 
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
         }
 
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, Func<TLocal> localInit,
             Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
         }
 
@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
         }
 
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -251,7 +251,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -287,7 +287,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -310,7 +310,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -334,7 +334,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -347,7 +347,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -384,7 +384,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -422,7 +422,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -449,7 +449,7 @@ namespace Microsoft.Coyote.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
     }

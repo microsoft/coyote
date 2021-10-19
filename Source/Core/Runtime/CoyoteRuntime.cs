@@ -197,6 +197,11 @@ namespace Microsoft.Coyote.Runtime
         internal string BugReport { get; private set; }
 
         /// <summary>
+        /// Set of method calls with uncontrolled concurrency or other sources of nondeterminism.
+        /// </summary>
+        private HashSet<string> UncontrolledInvocations;
+
+        /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
         /// </summary>
         internal LogWriter LogWriter { get; private set; }
@@ -255,6 +260,7 @@ namespace Microsoft.Coyote.Runtime
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, AsyncOperation>();
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
+            this.UncontrolledInvocations = new HashSet<string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
             this.ScheduleTrace = new ScheduleTrace();
 
@@ -1577,25 +1583,33 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notify that an unsupported invocation was detected.
+        /// Notify that an uncontrolled invocation was detected.
         /// </summary>
-        internal void NotifyNotSupportedInvocation(string methodName)
+        internal void NotifyUncontrolledInvocation(string methodName)
         {
             lock (this.SyncObject)
             {
-                string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
-                    "testing, so it can interfere with the ability to reproduce bug traces.";
-                if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                if (this.SchedulingPolicy != SchedulingPolicy.None)
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
-                    this.IsUncontrolledConcurrencyDetected = true;
-                    this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
+                    this.UncontrolledInvocations.Add(methodName);
                 }
-                else
+
+                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    throw new NotSupportedException($"{message} As a workaround, you can use the '--no-repro' " +
-                        "command line option to ignore this error by disabling bug trace repro. " +
-                        "Learn more at http://aka.ms/coyote-no-repro.");
+                    string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
+                        "testing, so it can interfere with the ability to reproduce bug traces.";
+                    if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    {
+                        IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                        this.IsUncontrolledConcurrencyDetected = true;
+                        this.Detach(SchedulerDetachmentReason.UncontrolledConcurrencyDetected);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"{message} As a workaround, you can use the '--no-repro' " +
+                            "command line option to ignore this error by disabling bug trace repro. " +
+                            "Learn more at http://aka.ms/coyote-no-repro.");
+                    }
                 }
             }
         }
@@ -1691,19 +1705,20 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns scheduling statistics and results.
+        /// Populates the specified test report.
         /// </summary>
-        internal void GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int steps,
-            out bool isMaxStepsReached, out bool isScheduleFair, out Exception unhandledException)
+        internal void PopulateTestReport(ITestReport report)
         {
             lock (this.SyncObject)
             {
-                steps = this.Scheduler.StepCount;
-                isMaxStepsReached = this.Scheduler.IsMaxStepsReached;
-                isScheduleFair = this.Scheduler.IsScheduleFair;
-                isBugFound = this.IsBugFound;
-                bugReport = this.BugReport;
-                unhandledException = this.UnhandledException;
+                report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.Scheduler.StepCount,
+                    this.Scheduler.IsMaxStepsReached, this.Scheduler.IsScheduleFair);
+                if (this.IsBugFound)
+                {
+                    report.SetUnhandledException(this.UnhandledException);
+                }
+
+                report.SetUncontrolledInvocations(this.UncontrolledInvocations);
             }
         }
 
@@ -1784,6 +1799,7 @@ namespace Microsoft.Coyote.Runtime
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();
                 this.TaskMap.Clear();
+                this.UncontrolledInvocations.Clear();
 
                 this.DefaultActorExecutionContext.Dispose();
                 this.ControlledTaskScheduler.Dispose();

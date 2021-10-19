@@ -698,6 +698,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
+            // Emits the uncontrolled invocations report, if it exists.
+            if (this.TestReport.UncontrolledInvocations.Count > 0)
+            {
+                string report = UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations);
+                string reportPath = Path.Combine(directory, file + "_" + index + ".uncontrolled.json");
+                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reportPath}");
+                File.WriteAllText(reportPath, this.ReproducibleTrace);
+                yield return reportPath;
+            }
+
             this.Logger.WriteLine(LogSeverity.Important, $"... Elapsed {this.Profiler.Results()} sec.");
         }
 
@@ -791,11 +801,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
-            runtime.GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int steps,
-                out bool isMaxStepsReached, out bool isScheduleFair, out Exception unhandledException);
-
-            TestReport report = TestReport.CreateTestReportFromStats(this.Configuration, isBugFound, bugReport,
-                steps, isMaxStepsReached, isScheduleFair, unhandledException);
+            TestReport report = new TestReport(this.Configuration);
+            runtime.PopulateTestReport(report);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;

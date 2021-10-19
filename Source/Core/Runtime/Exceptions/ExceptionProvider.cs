@@ -39,20 +39,11 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Throws a <see cref="NotSupportedException"/> for the specified unsupported method.
+        /// Throws a <see cref="NotSupportedException"/> for the specified uncontrolled method.
         /// </summary>
-        /// <param name="methodName">The name of the invoked method that is not supported.</param>
-        public static void ThrowNotSupportedInvocationException(string methodName)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                throw new NotSupportedException($"Invoking '{methodName}' is not intercepted and controlled during " +
-                    "testing, so it can interfere with the ability to reproduce bug traces. As a workaround, you can " +
-                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
-                    "Learn more at http://aka.ms/coyote-no-repro.");
-            }
-        }
+        /// <param name="methodName">The name of the invoked method that is not controlled.</param>
+        public static void ThrowUncontrolledInvocationException(string methodName) =>
+            CoyoteRuntime.Current?.NotifyUncontrolledInvocation(methodName);
 
         /// <summary>
         /// Throws an exception if the task returned by the method with the specified name

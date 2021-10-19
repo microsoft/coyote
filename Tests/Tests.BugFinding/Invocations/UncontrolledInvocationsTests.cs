@@ -23,8 +23,16 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 var task = new Task(() => { });
                 task.ContinueWith(_ => { }, null);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(1));
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledThreadYieldInvocation()
+        {
+            this.TestWithException<NotSupportedException>(() =>
+            {
+                Thread.Yield();
+            });
         }
 
 #if !NETFRAMEWORK
@@ -35,8 +43,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 var task = default(ValueTask);
                 await task;
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(1));
+            });
         }
 #endif
 
@@ -46,8 +53,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.TestWithException<NotSupportedException>(() =>
             {
                 using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(1));
+            });
         }
     }
 }

@@ -1657,10 +1657,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
         {
-            var mockMessage = methodName is null ? string.Empty : $" either mock '{methodName}' or";
+            var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
-                "to ignore this error by disabling bug trace repro. Learn more at http://aka.ms/coyote-no-repro.\n" +
-                new StackTrace();
+                "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
+                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace()}";
         }
 
         /// <summary>

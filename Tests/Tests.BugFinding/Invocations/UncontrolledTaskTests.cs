@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await AsyncProvider.DelayAsync(100);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(10)
+            configuration: this.GetConfiguration().WithTestingIterations(10),
             replay: true);
         }
 

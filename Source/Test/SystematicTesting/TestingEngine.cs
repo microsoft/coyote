@@ -32,9 +32,14 @@ namespace Microsoft.Coyote.SystematicTesting
     public sealed class TestingEngine
     {
         /// <summary>
+        /// Url with information about the rewriting process.
+        /// </summary>
+        private const string LearnAboutRewritingUrl = "https://aka.ms/coyote-rewrite";
+
+        /// <summary>
         /// Url with information about the gathered telemetry.
         /// </summary>
-        private const string LearnAboutTelemetryUrl = "http://aka.ms/coyote-telemetry";
+        private const string LearnAboutTelemetryUrl = "https://aka.ms/coyote-telemetry";
 
         /// <summary>
         /// The project configuration.
@@ -381,6 +386,13 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
                 $"using '{this.Configuration.SchedulingStrategy}' strategy{options}.");
+
+            if (!this.IsTestRewritten())
+            {
+                // TODO: eventually will throw an exception; we allow this for now for pure actor programs.
+                this.Logger.WriteLine(LogSeverity.Error,
+                    $"... Assembly is not rewritten for testing, see {LearnAboutRewritingUrl}.");
+            }
 
             if (this.Configuration.EnableTelemetry)
             {

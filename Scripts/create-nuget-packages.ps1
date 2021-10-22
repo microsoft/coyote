@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Import-Module $PSScriptRoot\powershell\common.psm1 -Force
 
 # Check that NuGet.exe is installed.

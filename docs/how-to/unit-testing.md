@@ -124,7 +124,7 @@ at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
    at System.Threading.ThreadPoolWorkQueue.Dispatch()
    at System.Threading._ThreadPoolWaitCallback.PerformWaitCallback()
 
-<StrategyLog> Found bug using 'random' strategy.
+<TestLog> Exploration finished [found a bug using the 'random' strategy].
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:

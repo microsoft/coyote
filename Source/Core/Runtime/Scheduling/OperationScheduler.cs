@@ -63,13 +63,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration)
+        private OperationScheduler(SchedulingPolicy policy, IRandomValueGenerator valueGenerator, Configuration configuration)
         {
             this.Configuration = configuration;
-            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ?
-                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic;
-
-            this.ValueGenerator = new RandomValueGenerator(configuration);
+            this.SchedulingPolicy = policy;
+            this.ValueGenerator = valueGenerator;
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
@@ -101,7 +99,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration) => new OperationScheduler(configuration);
+        internal static OperationScheduler Setup(Configuration configuration) =>
+            new OperationScheduler(configuration.IsConcurrencyFuzzingEnabled ?
+                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                new RandomValueGenerator(configuration), configuration);
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="OperationScheduler"/> class.
+        /// </summary>
+        internal static OperationScheduler Setup(SchedulingPolicy policy, IRandomValueGenerator valueGenerator,
+            Configuration configuration) =>
+            new OperationScheduler(policy, valueGenerator, configuration);
 
         /// <summary>
         /// Sets the specification engine.

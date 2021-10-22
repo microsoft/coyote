@@ -1,10 +1,14 @@
-# SchedulingPoint.Deprioritize method
+# SchedulingPoint.Yield method
 
-Lowers the scheduling priority of the currently executing operation during testing.
+Yields execution to another operation during testing.
 
 ```csharp
-public static void Deprioritize()
+public static void Yield()
 ```
+
+## Remarks
+
+Invoking this method can lower the scheduling priority of the currently executing operation when certain exploration strategies are used.
 
 ## See Also
 

@@ -18,20 +18,10 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorOperation"/> class.
         /// </summary>
-        internal ActorOperation(ulong operationId, string name, Actor actor, CoyoteRuntime runtime)
-            : base(operationId, name, runtime)
+        internal ActorOperation(ulong operationId, string name, Actor actor)
+            : base(operationId, name, 0)
         {
             this.Actor = actor;
         }
-
-        /// <summary>
-        /// Blocks the operation until the event the actor is waiting for has been received.
-        /// </summary>
-        internal void BlockUntilEventReceived() => this.Status = AsyncOperationStatus.BlockedOnReceive;
-
-        /// <summary>
-        /// Enables the operation due to the received event.
-        /// </summary>
-        internal void EnableDueToReceivedEvent() => this.Status = AsyncOperationStatus.Enabled;
     }
 }

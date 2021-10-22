@@ -42,7 +42,6 @@ namespace Microsoft.Coyote.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.Runtime?.CheckExecutingOperationIsControlled();
                 this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
@@ -72,8 +71,6 @@ namespace Microsoft.Coyote.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
-            this.Runtime?.CheckExecutingOperationIsControlled();
-            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -90,18 +87,13 @@ namespace Microsoft.Coyote.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, Task.CurrentId);
-            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult();
         }
 
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        public void SetException(Exception exception)
-        {
-            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
-            this.MethodBuilder.SetException(exception);
-        }
+        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -155,7 +147,6 @@ namespace Microsoft.Coyote.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.Runtime?.CheckExecutingOperationIsControlled();
                 this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
@@ -187,8 +178,6 @@ namespace Microsoft.Coyote.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
-            this.Runtime?.CheckExecutingOperationIsControlled();
-            this.Runtime?.OnAsyncTaskMethodBuilderStart();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -206,18 +195,13 @@ namespace Microsoft.Coyote.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
-            this.Runtime?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult(result);
         }
 
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        public void SetException(Exception exception)
-        {
-            this.Runtime?.OnAsyncTaskMethodBuilderSetException(exception);
-            this.MethodBuilder.SetException(exception);
-        }
+        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.

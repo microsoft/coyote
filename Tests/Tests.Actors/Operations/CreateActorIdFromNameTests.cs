@@ -145,24 +145,6 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName5()
         {
-            this.TestWithError(r =>
-            {
-                var m1 = r.CreateActorIdFromName(typeof(M2), "M2");
-                r.CreateActor(m1, typeof(M2));
-                r.CreateActor(m1, typeof(M2));
-            },
-            Configuration.Create().WithProductionMonitorEnabled(),
-            expectedErrors: new string[]
-            {
-                "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created by another runtime instance."
-            },
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName6()
-        {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
                 // Production runtime just drops the event, no errors are raised.
@@ -174,43 +156,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var m = r.CreateActorIdFromName(typeof(M2), "M2");
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            Configuration.Create().WithProductionMonitorEnabled(),
             expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName7()
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.None)
-            {
-                // Production runtime allows reuse of a machine id because it does not keep track
-                // of halted machines.
-                return;
-            }
-
-            this.TestWithError(async r =>
-            {
-                var setup = new SetupEvent();
-                r.RegisterMonitor<TestMonitor>();
-                r.Monitor<TestMonitor>(setup);
-                var m = r.CreateActorIdFromName(typeof(M2), "M2");
-                r.CreateActor(m, typeof(M2));
-
-                // Make sure that the state machine halts.
-                r.SendEvent(m, HaltEvent.Instance);
-
-                await setup.Completed.Task;
-
-                // Trying to bring up a halted state machine.
-                r.CreateActor(m, typeof(M2));
-            },
-            configuration: Configuration.Create().WithProductionMonitorEnabled(),
-            expectedErrors: new string[]
-            {
-                "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created by another runtime instance."
-            },
             replay: true);
         }
 
@@ -254,7 +200,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName8()
+        public void TestCreateActorIdFromName6()
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
@@ -262,7 +208,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 return;
             }
 
-            var configuration = Configuration.Create().WithProductionMonitorEnabled();
+            var configuration = this.GetConfiguration();
             configuration.TestingIterations = 100;
 
             this.TestWithError(r =>
@@ -276,7 +222,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName9()
+        public void TestCreateActorIdFromName7()
         {
             this.Test(r =>
             {
@@ -318,7 +264,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName11()
+        public void TestCreateActorIdFromName8()
         {
             this.Test(async r =>
             {

@@ -588,22 +588,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Logs the specified scheduling strategy description.
-        /// </summary>
-        /// <param name="strategyName">The name of the strategy that was used.</param>
-        /// <param name="description">More information about the scheduling strategy.</param>
-        public void LogStrategyDescription(string strategyName, string description)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnStrategyDescription(strategyName, description);
-                }
-            }
-        }
-
-        /// <summary>
         /// Use this method to notify all logs that the test iteration is complete.
         /// </summary>
         internal void LogCompletion()

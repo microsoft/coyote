@@ -11,14 +11,14 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewriting pass that fails invocations of not supported types.
+    /// Rewriting pass that fails invocations of uncontrolled types.
     /// </summary>
-    internal class NotSupportedInvocationRewriter : AssemblyRewriter
+    internal class UncontrolledInvocationRewriter : AssemblyRewriter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotSupportedInvocationRewriter"/> class.
+        /// Initializes a new instance of the <see cref="UncontrolledInvocationRewriter"/> class.
         /// </summary>
-        internal NotSupportedInvocationRewriter(ILogger log)
+        internal UncontrolledInvocationRewriter(ILogger log)
             : base(log)
         {
         }
@@ -58,34 +58,34 @@ namespace Microsoft.Coyote.Rewriting
 
             try
             {
-                bool isUnsupportedType = false;
+                bool isUncontrolledType = false;
                 string invocationName = null;
 
                 if (instruction.OpCode == OpCodes.Initobj && instruction.Operand is TypeReference typeReference)
                 {
-                    if (IsUnsupportedType(typeReference.Resolve()))
+                    if (IsUncontrolledType(typeReference.Resolve()))
                     {
                         invocationName = GetFullyQualifiedTypeName(typeReference);
-                        isUnsupportedType = true;
+                        isUncontrolledType = true;
                     }
                 }
                 else if ((instruction.OpCode == OpCodes.Newobj || instruction.OpCode == OpCodes.Call ||
                     instruction.OpCode == OpCodes.Callvirt) && instruction.Operand is MethodReference methodReference)
                 {
-                    if (IsUnsupportedType(methodReference.DeclaringType.Resolve(), methodReference))
+                    if (IsUncontrolledType(methodReference.DeclaringType.Resolve(), methodReference))
                     {
                         invocationName = GetFullyQualifiedMethodName(methodReference);
-                        isUnsupportedType = true;
+                        isUncontrolledType = true;
                     }
                 }
 
-                if (isUnsupportedType)
+                if (isUncontrolledType)
                 {
-                    Debug.WriteLine($"............. [+] injected unsupported '{invocationName}' invocation exception");
+                    Debug.WriteLine($"............. [+] injected uncontrolled '{invocationName}' invocation exception");
 
                     var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                     MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowNotSupportedInvocationException));
+                        m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
                     providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
@@ -103,10 +103,10 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is not supported. If the optional method is specified,
-        /// then it also checks if the method is not supported.
+        /// Checks if the specified type is not controlled. If the optional method is specified,
+        /// then it also checks if the method is not controlled.
         /// </summary>
-        private static bool IsUnsupportedType(TypeDefinition type, MethodReference method = null)
+        private static bool IsUncontrolledType(TypeDefinition type, MethodReference method = null)
         {
             if (type is null)
             {

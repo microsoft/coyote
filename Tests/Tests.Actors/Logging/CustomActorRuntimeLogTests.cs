@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCustomLoggerNoVerbosity()
         {
-            Configuration config = Configuration.Create();
+            Configuration config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 runtime.Logger = new NullLogger();
@@ -243,7 +243,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestNullCustomLogger()
         {
-            Configuration config = Configuration.Create();
+            Configuration config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 var tcs = new TaskCompletionSource<bool>();
@@ -283,7 +283,7 @@ StateTransition";
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
-            }, this.GetConfiguration().WithVerbosityEnabled());
+            }, this.GetConfiguration());
         }
 
         internal class PingEvent : Event

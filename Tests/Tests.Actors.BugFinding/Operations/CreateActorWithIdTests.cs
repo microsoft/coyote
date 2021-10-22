@@ -198,48 +198,11 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
             this.TestWithError(r =>
             {
-                ActorId id = r.CreateActor(typeof(M2));
-                r.CreateActor(id, typeof(M2));
-            },
-            expectedError: "Actor id '' is used by an existing or previously halted actor.",
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestCreateActorWithId5()
-        {
-            this.TestWithError(r =>
-            {
                 ActorId id = r.CreateActorId(typeof(M2));
                 r.SendEvent(id, UnitEvent.Instance);
             },
             expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestCreateActorWithId6()
-        {
-            this.TestWithError(r =>
-            {
-                bool isEventDropped = false;
-                r.OnEventDropped += (Event e, ActorId target) =>
-                {
-                    isEventDropped = true;
-                };
-
-                ActorId id = r.CreateActor(typeof(M2));
-                while (!isEventDropped)
-                {
-                    // Make sure the actor halts before trying to reuse its id.
-                    r.SendEvent(id, HaltEvent.Instance);
-                }
-
-                // Trying to bring up a halted actor.
-                r.CreateActor(id, typeof(M2));
-            },
-            configuration: this.GetConfiguration(),
-            expectedError: "Actor id '' is used by an existing or previously halted actor.");
         }
 
         private class E2 : Event
@@ -284,7 +247,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestCreateActorWithId7()
+        public void TestCreateActorWithId5()
         {
             this.TestWithError(r =>
             {
@@ -292,7 +255,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(M5), new E2(id));
                 r.CreateActor(id, typeof(M4));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
         }

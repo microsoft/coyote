@@ -21,7 +21,7 @@ public sealed class TestingEngine
 | [Run](TestingEngine/Run.md)() | Runs the testing engine. |
 | [Stop](TestingEngine/Stop.md)() | Stops the testing engine. |
 | [ThrowIfBugFound](TestingEngine/ThrowIfBugFound.md)() | Throws either an AssertionFailureException, if a bug was found, or an unhandled Exception, if one was thrown. |
-| [TryEmitTraces](TestingEngine/TryEmitTraces.md)(…) | Tries to emit the testing traces, if any. |
+| [TryEmitReports](TestingEngine/TryEmitReports.md)(…) | Tries to emit the testing reports, if any. |
 
 ## See Also
 

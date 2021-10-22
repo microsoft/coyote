@@ -118,12 +118,14 @@ nav:
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithRelaxedControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled.md
         - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
+        - WithConcurrencyFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
+        - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
         - WithActivityCoverageEnabled: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled.md
         - WithDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled.md
@@ -263,7 +265,6 @@ nav:
         - OnSendEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent.md
         - OnStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition.md
         - OnStopTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer.md
-        - OnStrategyDescription: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStrategyDescription.md
         - OnWaitEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent.md
         - OnRandom: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom.md
         - OnCompleted: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCompleted.md
@@ -301,7 +302,6 @@ nav:
         - OnMonitorError: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorError.md
         - OnRandom: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom.md
         - OnAssertionFailure: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure.md
-        - OnStrategyDescription: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription.md
         - OnCompleted: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted.md
       - RuntimeFactory:
         - Overview: ref/Microsoft.Coyote.Actors/RuntimeFactory.md
@@ -396,7 +396,6 @@ nav:
         - OnMonitorError: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorError.md
         - OnRandom: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnRandom.md
         - OnAssertionFailure: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnAssertionFailure.md
-        - OnStrategyDescription: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnStrategyDescription.md
         - OnCompleted: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnCompleted.md
         - SnapshotGraph: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/SnapshotGraph.md
         - ActorRuntimeLogGraphBuilder: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/ActorRuntimeLogGraphBuilder.md
@@ -550,7 +549,6 @@ nav:
     - Microsoft.Coyote.Runtime:
       - Namespace Overview: ref/Microsoft.Coyote.RuntimeNamespace.md
       - AssertionFailureException: ref/Microsoft.Coyote.Runtime/AssertionFailureException.md
-      - ExecutionCanceledException: ref/Microsoft.Coyote.Runtime/ExecutionCanceledException.md
       - RuntimeException:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeException.md
         - RuntimeException: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException.md
@@ -571,7 +569,7 @@ nav:
       - SchedulingPoint:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
         - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
-        - Deprioritize: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Deprioritize.md
+        - Yield: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Yield.md
         - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
         - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
     - Microsoft.Coyote.Specifications:
@@ -653,6 +651,26 @@ nav:
         - LogLevel: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel.md
     - Microsoft.Coyote.SystematicTesting:
       - Namespace Overview: ref/Microsoft.Coyote.SystematicTestingNamespace.md
+      - TestReport:
+        - Overview: ref/Microsoft.Coyote.SystematicTesting/TestReport.md
+        - Merge: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge.md
+        - GetText: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText.md
+        - Clone: ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone.md
+        - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport.md
+        - Configuration: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration.md
+        - CoverageInfo: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo.md
+        - NumOfExploredFairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules.md
+        - NumOfExploredUnfairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules.md
+        - NumOfFoundBugs: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs.md
+        - BugReports: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports.md
+        - UncontrolledInvocations: ref/Microsoft.Coyote.SystematicTesting/TestReport/UncontrolledInvocations.md
+        - MinExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps.md
+        - MaxExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps.md
+        - TotalExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps.md
+        - MaxFairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests.md
+        - MaxUnfairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests.md
+        - MaxUnfairStepsHitInUnfairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests.md
+        - InternalErrors: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors.md
       - TestAttribute:
         - Overview: ref/Microsoft.Coyote.SystematicTesting/TestAttribute.md
         - TestAttribute: ref/Microsoft.Coyote.SystematicTesting/TestAttribute/TestAttribute.md
@@ -672,30 +690,11 @@ nav:
         - Stop: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop.md
         - GetReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport.md
         - ThrowIfBugFound: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound.md
-        - TryEmitTraces: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces.md
+        - TryEmitReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports.md
         - RegisterPerIterationCallBack: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack.md
         - IsTestRewritten: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten.md
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport.md
         - Logger: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger.md
         - ReadableTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace.md
         - ReproducibleTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace.md
-      - TestReport:
-        - Overview: ref/Microsoft.Coyote.SystematicTesting/TestReport.md
-        - Merge: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge.md
-        - GetText: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText.md
-        - Clone: ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone.md
-        - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport.md
-        - Configuration: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration.md
-        - CoverageInfo: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo.md
-        - NumOfExploredFairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules.md
-        - NumOfExploredUnfairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules.md
-        - NumOfFoundBugs: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs.md
-        - BugReports: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports.md
-        - MinExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps.md
-        - MaxExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps.md
-        - TotalExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps.md
-        - MaxFairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests.md
-        - MaxUnfairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests.md
-        - MaxUnfairStepsHitInUnfairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests.md
-        - InternalErrors: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors.md
 ...

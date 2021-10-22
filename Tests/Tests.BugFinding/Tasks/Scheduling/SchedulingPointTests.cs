@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestDeprioritize()
+        public void TestYield()
         {
             this.TestWithError(async r =>
             {
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 var t1 = Task.Run(async () =>
                 {
                     a = x + 1;
-                    SchedulingPoint.Deprioritize();
+                    SchedulingPoint.Yield();
                     x = a;
                     await Task.CompletedTask;
                 });
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 var t2 = Task.Run(async () =>
                 {
                     b = x + 1;
-                    SchedulingPoint.Deprioritize();
+                    SchedulingPoint.Yield();
                     x = b;
                     await Task.CompletedTask;
                 });

@@ -155,7 +155,7 @@ Before going further (and into Coyote), lets build and run the tests!
 Just run them from inside Visual Studio, or run the following:
 
 ```
-cd ImageGalleryAspNet
+cd WebApps/ImageGalleryAspNet/
 dotnet test bin/net5.0/ImageGalleryTests.dll
 ```
 

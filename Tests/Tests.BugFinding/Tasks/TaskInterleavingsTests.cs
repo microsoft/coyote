@@ -191,55 +191,35 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Task task1 = Task.Run(async () =>
                 {
-                    log.WriteLine(">foo");
+                    log.WriteLine("1");
                     await Task.Delay(runtime.RandomInteger(10));
-                    log.WriteLine("<foo");
+                    log.WriteLine("2");
                 });
 
-                Task task2 = Task.Run(async () =>
+                Task task2 = Task.Run(() =>
                 {
-                    log.WriteLine(">bar");
-                    await Task.Delay(runtime.RandomInteger(10));
-                    log.WriteLine("<bar");
+                    log.WriteLine("3");
                 });
 
                 await Task.WhenAll(task1, task2);
 
                 results.Add(log.ToString());
-                Specification.Assert(results.Count < 6, success);
+                Specification.Assert(results.Count < 3, success);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(1000),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: success);
 
-            string expected = @">bar
-<bar
->foo
-<foo
+            string expected = @"1
+2
+3
 
->bar
->foo
-<bar
-<foo
+1
+3
+2
 
->bar
->foo
-<foo
-<bar
-
->foo
-<foo
->bar
-<bar
-
->foo
->bar
-<bar
-<foo
-
->foo
->bar
-<foo
-<bar
+3
+1
+2
 ";
             expected = expected.NormalizeNewLines();
 

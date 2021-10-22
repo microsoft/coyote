@@ -33,27 +33,12 @@ namespace Microsoft.Coyote.Interception
         /// when this thread begins executing.</param>
         public static Thread Create(ThreadStart start)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread(() =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start();
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                });
-            }
-            else
-            {
-                return new Thread(start);
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return CoyoteRuntime.Current.Schedule(() => start());
+            // }
+
+            return new Thread(start);
         }
 
         /// <summary>
@@ -68,27 +53,12 @@ namespace Microsoft.Coyote.Interception
         /// stack size. No exception is thrown.</param>
         public static Thread Create(ThreadStart start, int maxStackSize)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread(() =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start();
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                }, maxStackSize);
-            }
-            else
-            {
-                return new Thread(start, maxStackSize);
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return CoyoteRuntime.Current.Schedule(() => start());
+            // }
+
+            return new Thread(start, maxStackSize);
         }
 
         /// <summary>
@@ -98,27 +68,12 @@ namespace Microsoft.Coyote.Interception
         /// to be invoked when this thread begins executing.</param>
         public static Thread Create(ParameterizedThreadStart start)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread((object parameter) =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start(parameter);
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                });
-            }
-            else
-            {
-                return new Thread(start);
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return CoyoteRuntime.Current.Schedule(obj => start(obj));
+            // }
+
+            return new Thread(start);
         }
 
         /// <summary>
@@ -133,27 +88,12 @@ namespace Microsoft.Coyote.Interception
         /// stack size. No exception is thrown.</param>
         public static Thread Create(ParameterizedThreadStart start, int maxStackSize)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new Thread((object parameter) =>
-                {
-                    ScheduleAction(() =>
-                    {
-                        try
-                        {
-                            start(parameter);
-                        }
-                        catch (ExecutionCanceledException)
-                        {
-                            // this is normal termination of a test iteration, not something to be worried about.
-                        }
-                    });
-                }, maxStackSize);
-            }
-            else
-            {
-                return new Thread(start, maxStackSize);
-            }
+            // if (CoyoteRuntime.IsExecutionControlled)
+            // {
+            //     return CoyoteRuntime.Current.Schedule(obj => start(obj));
+            // }
+
+            return new Thread(start, maxStackSize);
         }
 
         /// <summary>
@@ -229,21 +169,13 @@ namespace Microsoft.Coyote.Interception
         }
 
         /// <summary>
-        /// Causes the calling thread to yield execution to another thread that is ready
-        /// to run on the current processor. The operating system selects the thread to yield
-        /// to.
+        /// Causes the calling thread to yield execution to another thread that is ready to run
+        /// on the current processor. The operating system selects the thread to yield to.
         /// </summary>
         public static bool Yield()
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                ControlledTask.Yield().GetAwaiter().GetResult();
-                return true;
-            }
-            else
-            {
-                return Thread.Yield();
-            }
+            Microsoft.Coyote.Runtime.SchedulingPoint.Yield();
+            return Thread.Yield();
         }
 
         /// <summary>
@@ -272,10 +204,8 @@ namespace Microsoft.Coyote.Interception
                     return false;
                 }
             }
-            else
-            {
-                return thread.Join(timeout);
-            }
+
+            return thread.Join(timeout);
         }
 
         /// <summary>
@@ -305,10 +235,8 @@ namespace Microsoft.Coyote.Interception
                     return false;
                 }
             }
-            else
-            {
-                return thread.Join(millisecondsTimeout);
-            }
+
+            return thread.Join(millisecondsTimeout);
         }
 
         /// <summary>

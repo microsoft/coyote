@@ -10,10 +10,6 @@ public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
 | --- | --- |
 | isEnabled | If true, then concurrency fuzzing is enabled. |
 
-## Remarks
-
-This is an experimental feature.
-
 ## See Also
 
 * class [Configuration](../Configuration.md)

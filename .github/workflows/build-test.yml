@@ -1,0 +1,47 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: Build and Test CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NuGet.exe
+        uses: NuGet/setup-nuget@v1
+      - name: Setup .NET 5.x SDK
+        uses: actions/setup-dotnet@v1
+      - name: Setup .NET Core 3.1.x SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Build Coyote projects
+        run: ./Scripts/build.ps1
+        shell: pwsh
+      - name: Run Coyote Tests
+        run: ./Scripts/run-tests.ps1
+        shell: pwsh
+      - name: Build and test Coyote NuGet packages
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: |
+          ./Scripts/create-nuget-packages.ps1
+          ./Scripts/test-cli-package.ps1
+        shell: pwsh
+      - name: Clone, build and test Coyote samples
+        run: |
+          git clone https://github.com/microsoft/coyote-samples.git
+          cd coyote-samples
+          $env:LOCAL_COYOTE_PATH=$env:GITHUB_WORKSPACE
+          ./Scripts/build-tests.ps1
+          dotnet ./Common/bin/net5.0/TestDriver.dll
+        shell: pwsh

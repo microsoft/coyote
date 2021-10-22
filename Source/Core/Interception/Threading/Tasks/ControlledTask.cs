@@ -37,10 +37,45 @@ namespace Microsoft.Coyote.Interception
         /// object that represents that work.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Run(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
-                false, cancellationToken) :
-            Task.Run(FuzzingProvider.CreateAction(action), cancellationToken);
+        public static Task Run(Action action, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Run(action, cancellationToken);
+            }
+
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(action, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler);
+        }
+
+        /// <summary>
+        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
+        /// object that represents that work.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> Run<TResult>(Func<TResult> function) => Run(function, default);
+
+        /// <summary>
+        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
+        /// object that represents that work. A cancellation token allows the work to be cancelled.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Run(function, cancellationToken);
+            }
+
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler);
+        }
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a proxy for
@@ -57,14 +92,16 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Func<Task> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var runtime = CoyoteRuntime.Current;
-                var task = runtime.ScheduleFunction(function, null, cancellationToken);
-                return runtime.UnwrapTask(task);
+                return Task.Run(function, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler).Unwrap();
         }
 
         /// <summary>
@@ -82,111 +119,119 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
-                var runtime = CoyoteRuntime.Current;
-                var task = runtime.ScheduleFunction(function, null, cancellationToken);
-                return runtime.UnwrapTask(task);
+                return Task.Run(function, cancellationToken);
             }
 
-            return Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            var taskFactory = runtime.TaskFactory;
+            return taskFactory.StartNew(function, cancellationToken,
+                taskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                taskFactory.Scheduler).Unwrap();
         }
 
         /// <summary>
-        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
-        /// object that represents that work.
+        /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult> Run<TResult>(Func<TResult> function) => Run(function, default);
+        public static Task Delay(int millisecondsDelay)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(millisecondsDelay);
+            }
 
-        /// <summary>
-        /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
-        /// object that represents that work. A cancellation token allows the work to be cancelled.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken) :
-            Task.Run(FuzzingProvider.CreateFunc(function), cancellationToken);
+            return runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(int millisecondsDelay) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
-            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay));
+        public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(millisecondsDelay, cancellationToken);
+            }
 
-        /// <summary>
-        /// Creates a <see cref="Task"/> that completes after a time delay.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken) :
-            Task.Delay(FuzzingProvider.CreateDelay(millisecondsDelay), cancellationToken);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that completes after a specified time interval.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(TimeSpan delay) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(FuzzingProvider.CreateDelay(delay));
+            return runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Delay(TimeSpan delay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleDelay(delay, cancellationToken) :
-            Task.Delay(FuzzingProvider.CreateDelay(delay), cancellationToken);
+        public static Task Delay(TimeSpan delay)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(delay);
+            }
+
+            return runtime.ScheduleDelay(delay, default);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that completes after a specified time interval.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task Delay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return Task.Delay(delay, cancellationToken);
+            }
+
+            return runtime.ScheduleDelay(delay, cancellationToken);
+        }
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+        public static Task WhenAll(params Task[] tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
+        public static Task WhenAll(IEnumerable<Task> tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
+        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+        public static Task<Task> WhenAny(params Task[] tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+        public static Task<Task> WhenAny(IEnumerable<Task> tasks) => Task.WhenAny(tasks);
 
 #if NET5_0
         /// <summary>
@@ -194,16 +239,14 @@ namespace Microsoft.Coyote.Interception
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(Task t1, Task t2) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task[] { t1, t2 }) : Task.WhenAny(t1, t2);
+        public static Task<Task> WhenAny(Task t1, Task t2) => Task.WhenAny(t1, t2);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when either of the
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task<TResult>[] { t1, t2 }) : Task.WhenAny(t1, t2);
+        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => Task.WhenAny(t1, t2);
 #endif
 
         /// <summary>
@@ -211,16 +254,14 @@ namespace Microsoft.Coyote.Interception
         /// in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => Task.WhenAny(tasks);
 
         /// <summary>
         /// Waits for all of the provided <see cref="Task"/> objects to complete execution.
@@ -364,32 +405,13 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter"/> for the specified <see cref="Task"/>.
         /// </summary>
-        public static TaskAwaiter GetAwaiter(Task task)
-        {
-            var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
-            return new TaskAwaiter(runtime, task);
-        }
+        public static TaskAwaiter GetAwaiter(Task task) => new TaskAwaiter(CoyoteRuntime.Current, task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext)
-        {
-            var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
-            return new ConfiguredTaskAwaitable(runtime, task, continueOnCapturedContext);
-        }
-
-        /// <summary>
-        /// Creates an awaitable that asynchronously yields back to the current context when awaited.
-        /// </summary>
-        /// <remarks>
-        /// You can use `await Task.Yield()` in an asynchronous method to force the method to complete
-        /// asynchronously. During systematic testing, the underlying scheduling strategy can use this
-        /// as a hint on how to better prioritize this work relative to other work that may be pending.
-        /// </remarks>
-        public static YieldAwaitable Yield() => new YieldAwaitable(CoyoteRuntime.Current);
+        public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext) =>
+            new ConfiguredTaskAwaitable(CoyoteRuntime.Current, task, continueOnCapturedContext);
     }
 
     /// <summary>
@@ -422,22 +444,14 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
         /// </summary>
-        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
-        {
-            var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
-            return new TaskAwaiter<TResult>(runtime, task);
-        }
+        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) =>
+            new TaskAwaiter<TResult>(CoyoteRuntime.Current, task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext)
-        {
-            var runtime = CoyoteRuntime.Current;
-            runtime?.AssertIsAwaitedTaskControlled(task);
-            return new ConfiguredTaskAwaitable<TResult>(runtime, task, continueOnCapturedContext);
-        }
+        public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext) =>
+            new ConfiguredTaskAwaitable<TResult>(CoyoteRuntime.Current, task, continueOnCapturedContext);
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

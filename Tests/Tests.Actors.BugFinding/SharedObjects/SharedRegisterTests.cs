@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M1), new Setup(true));
             },
-            configuration: Configuration.Create().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M1), new Setup(false));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new Setup(true));
             },
-            configuration: Configuration.Create().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new Setup(false));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }

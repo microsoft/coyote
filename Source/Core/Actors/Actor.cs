@@ -707,7 +707,7 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
+            if (innerException is System.Threading.ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
@@ -990,8 +990,8 @@ namespace Microsoft.Coyote.Actors
         {
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
-                this.Context.Runtime.AssertIsReturnedTaskControlled(task, methodName);
-                this.Operation.BlockUntilTaskCompletes(task);
+                this.Context.Runtime.CheckIfReturnedTaskIsUncontrolled(task, methodName);
+                this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
             }
         }
 
@@ -1002,7 +1002,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.BlockUntilEventReceived();
+                this.Operation.Status = AsyncOperationStatus.BlockedOnReceive;
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -1023,7 +1023,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.EnableDueToReceivedEvent();
+                this.Operation.Status = AsyncOperationStatus.Enabled;
             }
         }
 
@@ -1082,7 +1082,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>True if the exception was handled, else false if it should continue to get thrown.</returns>
         private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
-            if (ex is ExecutionCanceledException)
+            if (ex is System.Threading.ThreadInterruptedException)
             {
                 // Internal exception used during testing.
                 return false;
@@ -1149,8 +1149,7 @@ namespace Microsoft.Coyote.Actors
 
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
-
-            this.Context.LogWriter.LogHalt(this.Id, this.Inbox.Size);
+            this.Context.LogHandleHaltEvent(this, this.Inbox.Size);
 
             // Dispose any held resources.
             this.Inbox.Dispose();

@@ -25,9 +25,13 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Lowers the scheduling priority of the currently executing operation during testing.
+        /// Yields execution to another operation during testing.
         /// </summary>
-        public static void Deprioritize()
+        /// <remarks>
+        /// Invoking this method can lower the scheduling priority of the currently executing
+        /// operation when certain exploration strategies are used.
+        /// </remarks>
+        public static void Yield()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)

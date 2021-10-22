@@ -10,10 +10,10 @@ public static class SchedulingPoint
 
 | name | description |
 | --- | --- |
-| static [Deprioritize](SchedulingPoint/Deprioritize.md)() | Lowers the scheduling priority of the currently executing operation during testing. |
 | static [Interleave](SchedulingPoint/Interleave.md)() | Explores a possible interleaving with another operation during testing. |
 | static [Resume](SchedulingPoint/Resume.md)() | Resumes interleavings during testing due to an invoked [`Suppress`](SchedulingPoint/Suppress.md). |
 | static [Suppress](SchedulingPoint/Suppress.md)() | Suppresses interleavings during testing until [`Resume`](SchedulingPoint/Resume.md) is invoked. |
+| static [Yield](SchedulingPoint/Yield.md)() | Yields execution to another operation during testing. |
 
 ## Remarks
 

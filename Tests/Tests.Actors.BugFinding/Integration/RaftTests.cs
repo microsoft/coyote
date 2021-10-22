@@ -1216,7 +1216,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(361)]
+        [InlineData(3)]
         public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
             var configuration = this.GetConfiguration();

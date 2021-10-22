@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # Invokes the specified coyote tool command on the specified target.
 function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [String]$target, [String]$key) {
     Write-Comment -prefix "..." -text "Rewriting '$target' ($framework)" -color "white"
@@ -29,7 +32,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    $command = "test $target -f $framework --no-build -v $verbosity"
+    $command = "test $target -f $framework --no-build -v $verbosity --blame"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }

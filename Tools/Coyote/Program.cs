@@ -304,22 +304,7 @@ namespace Microsoft.Coyote
         {
             lock (ConsoleLock)
             {
-                string msg = string.Empty;
-                if (ex is ExecutionCanceledException)
-                {
-                    msg = "[CoyoteTester] unhandled exception: ExecutionCanceledException: This can mean you have " +
-                        "a code path that is not controlled by the runtime, which is not allowed by default as it " +
-                        "can interfere with the ability to reproduce bug traces: either mock the method returning " +
-                        "the uncontrolled task, or rewrite its assembly. Alternatively, use the '--no-repro' " +
-                        "command line option to ignore this error by disabling bug trace repro. " +
-                        "Learn more at http://aka.ms/coyote-no-repro.";
-                }
-                else
-                {
-                    msg = $"[CoyoteTester] unhandled exception: {ex}";
-                }
-
-                Error.Report(msg);
+                Error.Report($"[CoyoteTester] unhandled exception: {ex}");
                 StdOut.WriteLine(ex.StackTrace);
             }
         }

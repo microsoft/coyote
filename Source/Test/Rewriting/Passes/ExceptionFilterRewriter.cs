@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
@@ -100,11 +101,11 @@ namespace Microsoft.Coyote.Rewriting
                 this.ModifiedMethodBody = true;
             }
 
-            Debug.WriteLine($"............. [+] rewriting catch block to rethrow an {nameof(ExecutionCanceledException)}");
+            Debug.WriteLine($"............. [+] rewriting catch block to rethrow a {nameof(ThreadInterruptedException)}");
 
             var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
             MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                m => m.Name is nameof(ExceptionProvider.ThrowIfExecutionCanceledException));
+                m => m.Name is nameof(ExceptionProvider.ThrowIfThreadInterruptedException));
             providerMethod = this.Method.Module.ImportReference(providerMethod);
 
             var processor = this.Method.Body.GetILProcessor();

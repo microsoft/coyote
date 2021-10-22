@@ -6,9 +6,9 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
+namespace Microsoft.Coyote.BugFinding.Tests.Specifications
 {
-    public class TaskLivenessMonitorTests : BaseActorBugFindingTest
+    public class TaskLivenessMonitorTests : BaseBugFindingTest
     {
         public TaskLivenessMonitorTests(ITestOutputHelper output)
             : base(output)

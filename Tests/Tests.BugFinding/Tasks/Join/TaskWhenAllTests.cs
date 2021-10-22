@@ -99,10 +99,10 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int[] results = await Task.WhenAll(task1, task2);
                 Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
-                Specification.Assert(results[0] == results[1], "Results are equal.");
+                Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
             configuration: this.GetConfiguration().WithTestingIterations(200),
-            expectedError: "Results are equal.",
+            expectedError: "Results are not equal.",
             replay: true);
         }
 

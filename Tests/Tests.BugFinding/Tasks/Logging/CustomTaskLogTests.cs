@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             InMemoryLogger log = new InMemoryLogger();
 
-            var config = this.GetConfiguration().WithVerbosityEnabled().WithTestingIterations(3);
+            var config = this.GetConfiguration().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hi mom!");
@@ -40,12 +40,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
 ..... Iteration #1
 <TestLog> Running test.
 Hi mom!
+<TestLog> Exploration finished [reached the end of the test method].
 ..... Iteration #2
 <TestLog> Running test.
 Hi mom!
+<TestLog> Exploration finished [reached the end of the test method].
 ..... Iteration #3
 <TestLog> Running test.
 Hi mom!
+<TestLog> Exploration finished [reached the end of the test method].
 ";
             expected = expected.RemoveNonDeterministicValues();
 
@@ -92,8 +95,7 @@ Task '' completed.
 Task '' is running.
 Task '' completed.
 <ErrorLog> Reached test assertion.
-<StackTrace> 
-<StrategyLog> Found bug using 'random' strategy.
+<TestLog> Exploration finished [found a bug using the 'random' strategy].
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:
@@ -102,7 +104,6 @@ Task '' completed.
 <StrategyLog> Number of scheduling points in fair terminating schedules: 4 (), 4 (), 4 ().";
 
                 string actual = engine.ReadableTrace.ToString();
-                actual = actual.RemoveStackTrace("<StrategyLog>");
                 actual = actual.RemoveNonDeterministicValues();
                 expected = expected.RemoveNonDeterministicValues();
                 Assert.Equal(expected, actual);

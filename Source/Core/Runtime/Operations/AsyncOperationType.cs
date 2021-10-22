@@ -34,6 +34,11 @@ namespace Microsoft.Coyote.Runtime
         Receive,
 
         /// <summary>
+        /// An asynchronous operation halts executing.
+        /// </summary>
+        Halt,
+
+        /// <summary>
         /// An asynchronous operation stops executing.
         /// </summary>
         Stop,

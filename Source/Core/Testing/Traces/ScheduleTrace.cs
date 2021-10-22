@@ -175,10 +175,14 @@ namespace Microsoft.Coyote.Testing
         internal string Serialize(Configuration configuration, bool isFair)
         {
             StringBuilder stringBuilder = new StringBuilder();
-
-            if (isFair)
+            if (!string.IsNullOrEmpty(configuration.TestMethodName))
             {
-                stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
+                stringBuilder.Append("--test-method:" + configuration.TestMethodName).Append(Environment.NewLine);
+            }
+
+            if (configuration.RandomGeneratorSeed.HasValue)
+            {
+                stringBuilder.Append("--seed:" + configuration.RandomGeneratorSeed.Value).Append(Environment.NewLine);
             }
 
             if (configuration.IsLivenessCheckingEnabled)
@@ -188,9 +192,9 @@ namespace Microsoft.Coyote.Testing
                     Append(Environment.NewLine);
             }
 
-            if (!string.IsNullOrEmpty(configuration.TestMethodName))
+            if (isFair)
             {
-                stringBuilder.Append("--test-method:" + configuration.TestMethodName).Append(Environment.NewLine);
+                stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
             }
 
             for (int idx = 0; idx < this.Count; idx++)
@@ -241,18 +245,22 @@ namespace Microsoft.Coyote.Testing
                     break;
                 }
 
-                if (line.Equals("--fair-scheduling"))
+                if (line.StartsWith("--test-method:"))
                 {
-                    isFair = true;
+                    configuration.TestMethodName = line.Substring("--test-method:".Length);
+                }
+                else if (line.StartsWith("--seed:"))
+                {
+                    configuration.RandomGeneratorSeed = uint.Parse(line.Substring("--seed:".Length));
                 }
                 else if (line.StartsWith("--liveness-temperature-threshold:"))
                 {
                     configuration.LivenessTemperatureThreshold =
                         int.Parse(line.Substring("--liveness-temperature-threshold:".Length));
                 }
-                else if (line.StartsWith("--test-method:"))
+                else if (line.Equals("--fair-scheduling"))
                 {
-                    configuration.TestMethodName = line.Substring("--test-method:".Length);
+                    isFair = true;
                 }
             }
 

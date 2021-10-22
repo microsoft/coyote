@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     await task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     await task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     await task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     await task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     await task;
                 }
-                catch (Exception ex) when (!(ex is ExecutionCanceledException))
+                catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
                     exception = ex;
                 }

@@ -829,7 +829,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(0)]
+        [InlineData(20)]
         public void TestLivenessBugInChordProtocol(uint seed)
         {
             var configuration = this.GetConfiguration();

@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 r.RegisterMonitor<WatchDog>();
                 r.CreateActor(typeof(EventHandler));
             },
-            configuration: Configuration.Create().WithDFSStrategy());
+            configuration: this.GetConfiguration().WithDFSStrategy());
         }
     }
 }

@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Actors
 
             if (!this.ActorMap.TryAdd(id, actor))
             {
-                this.Assert(false, $"An actor with id '{id.Value}' was already created by another runtime instance.");
+                throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
             }
 
             return actor;
@@ -385,7 +385,13 @@ namespace Microsoft.Coyote.Actors
             {
                 this.Runtime.IsRunning = false;
                 this.RaiseOnFailureEvent(ex);
-                return;
+            }
+            finally
+            {
+                if (actor.IsHalted)
+                {
+                    this.ActorMap.TryRemove(actor.Id, out Actor _);
+                }
             }
         }
 
@@ -405,7 +411,7 @@ namespace Microsoft.Coyote.Actors
         /// Gets the actor of type <typeparamref name="TActor"/> with the specified id,
         /// or null if no such actor exists.
         /// </summary>
-        internal TActor GetActorWithId<TActor>(ActorId id)
+        private TActor GetActorWithId<TActor>(ActorId id)
             where TActor : Actor =>
             id != null && this.ActorMap.TryGetValue(id, out Actor value) &&
             value is TActor actor ? actor : null;
@@ -414,7 +420,7 @@ namespace Microsoft.Coyote.Actors
         /// Returns the next available unique operation id.
         /// </summary>
         /// <returns>Value representing the next available unique operation id.</returns>
-        internal ulong GetNextOperationId() => this.Runtime.GetNextOperationId();
+        private ulong GetNextOperationId() => this.Runtime.GetNextOperationId();
 
         /// <inheritdoc/>
         public bool RandomBoolean() => this.GetNondeterministicBooleanChoice(2, null, null);
@@ -523,6 +529,18 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
                 this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
+            }
+        }
+
+        /// <summary>
+        /// Logs that the specified actor is handling a raised <see cref="HaltEvent"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                this.LogWriter.LogHalt(actor.Id, inboxSize);
             }
         }
 
@@ -944,6 +962,11 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
+                    if (this.ActorMap.ContainsKey(id))
+                    {
+                        throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
+                    }
+
                     this.Assert(id.Runtime is null || id.Runtime == this, "Unbound actor id '{0}' was created by another runtime.", id.Value);
                     this.Assert(id.Type == type.FullName, "Cannot bind actor id '{0}' of type '{1}' to an actor of type '{2}'.",
                         id.Value, id.Type, type.FullName);
@@ -957,18 +980,24 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 Actor actor = ActorFactory.Create(type);
-                ActorOperation op = new ActorOperation(id.Value, id.Name, actor, this.Runtime);
+                ActorOperation op = this.GetOrCreateActorOperation(id, actor);
                 IEventQueue eventQueue = new MockEventQueue(actor);
                 actor.Configure(this, id, op, eventQueue, eventGroup);
                 actor.SetupEventHandlers();
+
+                // This should always succeed, because it is either a new id or it has already passed
+                // the assertion check, which still holds due to the schedule serialization during
+                // systematic testing, but we still do the check defensively.
+                if (!this.ActorMap.TryAdd(id, actor))
+                {
+                    throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
+                }
 
                 if (this.Configuration.ReportActivityCoverage)
                 {
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }
 
-                bool result = this.Runtime.RegisterOperation(op);
-                this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
                 if (actor is StateMachine)
                 {
                     this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
@@ -979,6 +1008,22 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 return actor;
+            }
+
+            /// <summary>
+            /// Returns the operation for the specified actor id, or creates a new
+            /// operation if it does not exist yet.
+            /// </summary>
+            private ActorOperation GetOrCreateActorOperation(ActorId id, Actor actor)
+            {
+                var op = this.Runtime.GetOperationWithId<ActorOperation>(id.Value);
+                if (op is null)
+                {
+                    op = new ActorOperation(id.Value, id.Name, actor);
+                    this.Runtime.RegisterOperation(op);
+                }
+
+                return op;
             }
 
             /// <inheritdoc/>
@@ -1141,45 +1186,43 @@ namespace Microsoft.Coyote.Actors
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
                 var op = actor.Operation;
-                Task task = new Task(async () =>
-                {
-                    try
+                this.Runtime.TaskFactory.StartNew(
+                    async state =>
                     {
-                        // Update the current asynchronous control flow with this runtime instance,
-                        // allowing future retrieval in the same asynchronous call stack.
-                        CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
-
-                        this.Runtime.StartOperation(op);
-
-                        if (isFresh)
+                        try
                         {
-                            await actor.InitializeAsync(initialEvent);
-                        }
+                            if (isFresh)
+                            {
+                                await actor.InitializeAsync(initialEvent);
+                            }
 
-                        await actor.RunEventHandlerAsync();
-                        if (syncCaller != null)
+                            await actor.RunEventHandlerAsync();
+                            if (syncCaller != null)
+                            {
+                                this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                            }
+
+                            if (!actor.IsHalted)
+                            {
+                                this.ResetProgramCounter(actor);
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                            this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
                         }
-
-                        if (!actor.IsHalted)
+                        finally
                         {
-                            this.ResetProgramCounter(actor);
+                            if (actor.IsHalted)
+                            {
+                                this.ActorMap.TryRemove(actor.Id, out Actor _);
+                            }
                         }
-
-                        this.Runtime.CompleteOperation(op);
-
-                        // The actor is inactive or halted, schedule the next enabled operation.
-                        this.Runtime.ScheduleNextOperation(AsyncOperationType.Stop);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.ProcessUnhandledExceptionInOperation(op, ex);
-                    }
-                });
-
-                task.Start();
-                this.Runtime.WaitOperationStart(op);
+                    },
+                    op,
+                    default,
+                    this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    this.Runtime.TaskFactory.Scheduler);
             }
 
             /// <summary>
@@ -1285,6 +1328,13 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
+            internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
+            {
+                this.Runtime.ScheduleNextOperation(AsyncOperationType.Halt);
+                this.LogWriter.LogHalt(actor.Id, inboxSize);
+            }
+
+            /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal override void LogReceiveCalled(Actor actor) => this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
 
@@ -1330,17 +1380,12 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
-            internal override void LogEnteredState(StateMachine stateMachine)
-            {
-                string stateName = stateMachine.CurrentStateName;
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateName, isEntry: true);
-            }
+            internal override void LogEnteredState(StateMachine stateMachine) =>
+                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
 
             /// <inheritdoc/>
-            internal override void LogExitedState(StateMachine stateMachine)
-            {
+            internal override void LogExitedState(StateMachine stateMachine) =>
                 this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
-            }
 
             /// <inheritdoc/>
             internal override void LogPopState(StateMachine stateMachine)
@@ -1405,62 +1450,6 @@ namespace Microsoft.Coyote.Actors
 
                 this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
                     op.Actor.Id, calledAPI, caller.Id);
-            }
-
-            /// <summary>
-            /// Processes an unhandled exception in the specified asynchronous operation.
-            /// </summary>
-            private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
-            {
-                string message = null;
-                Exception exception = UnwrapException(ex);
-                if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
-                {
-                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                        exception.GetType().Name, op.Name);
-                }
-                else if (exception is ObjectDisposedException)
-                {
-                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                        exception.GetType().Name, op.Name, ex.Message);
-                }
-                else if (op is ActorOperation actorOp)
-                {
-                    message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception '{exception.GetType()}' was thrown in actor '{actorOp.Name}', " +
-                        $"'{exception.Source}':\n" +
-                        $"   {exception.Message}\n" +
-                        $"The stack trace is:\n{exception.StackTrace}");
-                }
-                else
-                {
-                    message = CoyoteRuntime.FormatUnhandledException(exception);
-                }
-
-                if (message != null)
-                {
-                    // Report the unhandled exception.
-                    this.Runtime.NotifyUnhandledException(exception, message, cancelExecution: false);
-                }
-            }
-
-            /// <summary>
-            /// Unwraps the specified exception.
-            /// </summary>
-            private static Exception UnwrapException(Exception ex)
-            {
-                Exception exception = ex;
-                while (exception is TargetInvocationException)
-                {
-                    exception = exception.InnerException;
-                }
-
-                if (exception is AggregateException)
-                {
-                    exception = exception.InnerException;
-                }
-
-                return exception;
             }
 
             /// <inheritdoc/>

@@ -464,8 +464,7 @@ namespace Microsoft.Coyote.Specifications
                     innerException = innerException.InnerException;
                 }
 
-                if (innerException is ExecutionCanceledException ||
-                    innerException is TaskSchedulerException)
+                if (innerException is System.Threading.ThreadInterruptedException)
                 {
                     throw;
                 }

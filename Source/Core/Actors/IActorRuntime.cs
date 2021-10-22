@@ -25,9 +25,10 @@ namespace Microsoft.Coyote.Actors
         /// Creates a fresh actor id that has not yet been bound to any actor.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
+        /// <param name="parent">Name of the parent actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <returns>The result is the actor id.</returns>
-        ActorId CreateActorId(Type type, string name = null);
+        ActorId CreateActorId(Type type, ActorId parent = null, string name = null);
 
         /// <summary>
         /// Creates a actor id that is uniquely tied to the specified unique name. The

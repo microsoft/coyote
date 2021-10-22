@@ -85,14 +85,14 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, ActorId id, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, ActorId parent = null, bool useNameForHashing = false)
         {
             this.Context = context;
             this.Type = type.FullName;
             this.Value = value;
-            this.RLId = new HashSet<ulong>(id.RLId);
-            this.RLId.Add(id.IdCounter);
-            id.IdCounter++;
+            this.RLId = new HashSet<ulong>(parent.RLId);
+            this.RLId.Add(parent.IdCounter);
+            parent.IdCounter++;
             this.IdCounter = 0;
 
             if (useNameForHashing)

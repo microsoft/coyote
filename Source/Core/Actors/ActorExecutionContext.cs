@@ -129,10 +129,10 @@ namespace Microsoft.Coyote.Actors
         }
 
         // <inheritdoc/>
-        public ActorId CreateActorId(Type type, ActorId id, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, id);
+        public ActorId CreateActorId(Type type, ActorId parent = null, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, parent);
 
         /// <inheritdoc/>
-        public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, 0, name, this, true);
+        public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, 0, name, this, useNameForHashing: true);
 
         /// <inheritdoc/>
         public virtual ActorId CreateActor(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
@@ -846,7 +846,7 @@ namespace Microsoft.Coyote.Actors
             {
                 // It is important that all actor ids use the monotonically incrementing
                 // value as the id during testing, and not the unique name.
-                var id = this.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, key));
+                var id = this.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, name: key));
                 this.ActorIds.TryAdd(id, 0);
                 return id;
             }
@@ -950,7 +950,7 @@ namespace Microsoft.Coyote.Actors
 
                 if (id is null)
                 {
-                    id = this.CreateActorId(type, name);
+                    id = this.CreateActorId(type, name: name);
                     this.ActorIds.TryAdd(id, 0);
                 }
                 else

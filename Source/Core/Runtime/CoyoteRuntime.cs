@@ -316,14 +316,18 @@ namespace Microsoft.Coyote.Runtime
                             throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                         }
 
-                        if (this.ActiveActors.Count == 0)
+                        while (this.ActiveActors.Count != 0)
                         {
-                            lock (this.SyncObject)
-                            {
-                                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                                this.HasFullyExploredSchedule = true;
-                                this.Detach(false);
-                            }
+                            // this.GetNondeterministicDelay(2);
+                            // this.DelayOperation();
+                            await Task.Delay(2);
+                        }
+
+                        lock (this.SyncObject)
+                        {
+                            IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                            this.HasFullyExploredSchedule = true;
+                            this.Detach(false);
                         }
                     }
                     catch (Exception ex)

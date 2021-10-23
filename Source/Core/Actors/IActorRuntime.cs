@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="parent">Name of the parent actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <returns>The result is the actor id.</returns>
-        ActorId CreateActorId(Type type, ActorId parent = null, string name = null);
+        ActorId CreateActorId(Type type, Actor parent = null, string name = null);
 
         /// <summary>
         /// Creates a actor id that is uniquely tied to the specified unique name. The

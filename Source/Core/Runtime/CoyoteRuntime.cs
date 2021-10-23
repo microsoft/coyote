@@ -165,11 +165,6 @@ namespace Microsoft.Coyote.Runtime
         private Exception UnhandledException;
 
         /// <summary>
-        /// Keeps track of currently enabled and non-halted actors.
-        /// </summary>
-        internal HashSet<ActorId> ActiveActors;
-
-        /// <summary>
         /// The operation scheduling policy used by the runtime.
         /// </summary>
         internal SchedulingPolicy SchedulingPolicy => this.Scheduler?.SchedulingPolicy ??
@@ -316,12 +311,9 @@ namespace Microsoft.Coyote.Runtime
                             throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                         }
 
-                        while (this.ActiveActors.Count != 0)
-                        {
-                            // this.GetNondeterministicDelay(2);
-                            // this.DelayOperation();
-                            await Task.Delay(2);
-                        }
+                        this.DefaultActorExecutionContext.NotifyActiveActorsCheck = true;
+
+                        await this.DefaultActorExecutionContext.RespActiveActorsCheck.Task;
 
                         lock (this.SyncObject)
                         {

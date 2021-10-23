@@ -70,12 +70,17 @@ namespace Microsoft.Coyote.Actors
         /// Id used for RL in fuzzing.
         /// </summary>
         [DataMember]
-        public readonly HashSet<ulong> RLId;
+        public readonly string RLId;
 
         /// <summary>
         /// Counter which provides local child Ids for new Actor instances under a parent.
         /// </summary>
         public ulong IdCounter;
+
+        /// <summary>
+        /// A string used to identify the sequence of non-deterministic choices made by the actor.
+        /// </summary>
+        public string Choices;
 
         /// <summary>
         /// True if <see cref="NameValue"/> is used as the unique id, else false.
@@ -85,15 +90,23 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, ActorId parent = null, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, Actor parent = null, bool useNameForHashing = false)
         {
             this.Context = context;
             this.Type = type.FullName;
             this.Value = value;
-            this.RLId = new HashSet<ulong>(parent.RLId);
-            this.RLId.Add(parent.IdCounter);
-            parent.IdCounter++;
+            if (parent is null)
+            {
+                this.RLId = "0";
+            }
+            else
+            {
+                this.RLId = parent.Id.RLId + parent.Id.Choices + parent.Id.IdCounter.ToString();
+            }
+
+            parent.Id.IdCounter++;
             this.IdCounter = 0;
+            this.Choices = string.Empty;
 
             if (useNameForHashing)
             {

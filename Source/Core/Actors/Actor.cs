@@ -319,7 +319,21 @@ namespace Microsoft.Coyote.Actors
         /// controlled during analysis or testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool RandomBoolean() => this.Context.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
+        protected bool RandomBoolean()
+        {
+            var result = this.Context.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
+            if (result)
+            {
+                this.Id.Choices += "(1)";
+            }
+            else
+            {
+                this.Id.Choices += "(0)";
+            }
+
+            this.Id.IdCounter = 0;
+            return result;
+        }
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be
@@ -329,8 +343,21 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool RandomBoolean(int maxValue) =>
-            this.Context.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
+        protected bool RandomBoolean(int maxValue)
+        {
+            var result = this.Context.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
+            if (result)
+            {
+                this.Id.Choices += "(1)";
+            }
+            else
+            {
+                this.Id.Choices += "(0)";
+            }
+
+            this.Id.IdCounter = 0;
+            return result;
+        }
 
         /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during
@@ -339,8 +366,13 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic integer.</returns>
-        protected int RandomInteger(int maxValue) =>
-            this.Context.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
+        protected int RandomInteger(int maxValue)
+        {
+            var result = this.Context.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
+            this.Id.Choices += "(" + result.ToString() + ")";
+            this.Id.IdCounter = 0;
+            return result;
+        }
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.

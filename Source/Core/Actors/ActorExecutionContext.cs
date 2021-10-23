@@ -69,6 +69,18 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal readonly LogWriter LogWriter;
 
+        /// <summary>
+        /// Keeps track of currently enabled and non-halted actors.
+        /// </summary>
+        internal ConcurrentDictionary<ActorId, byte> ActiveActors;
+
+        /// <summary>
+        /// Notifies when all the queued actors have been created.
+        /// </summary>
+        internal bool NotifyActiveActorsCheck;
+
+        internal TaskCompletionSource<bool> RespActiveActorsCheck;
+
         /// <inheritdoc/>
         public ILogger Logger
         {
@@ -126,10 +138,13 @@ namespace Microsoft.Coyote.Actors
             this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
+            this.ActiveActors = new ConcurrentDictionary<ActorId, byte>();
+            this.NotifyActiveActorsCheck = false;
+            this.RespActiveActorsCheck = new TaskCompletionSource<bool>();
         }
 
         // <inheritdoc/>
-        public ActorId CreateActorId(Type type, ActorId parent = null, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, parent);
+        public ActorId CreateActorId(Type type, Actor parent = null, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, parent);
 
         /// <inheritdoc/>
         public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, 0, name, this, useNameForHashing: true);
@@ -211,7 +226,7 @@ namespace Microsoft.Coyote.Actors
 
             if (id is null)
             {
-                id = this.CreateActorId(type, creator.Id, name);
+                id = this.CreateActorId(type, creator, name);
             }
             else if (id.Runtime != null && id.Runtime != this)
             {
@@ -355,7 +370,7 @@ namespace Microsoft.Coyote.Actors
                     {
                         await actor.InitializeAsync(initialEvent);
                         // Add the actor to the set of non-halted enabled actors.
-                        this.Runtime.ActiveActors.Add(actor.Id);
+                        this.ActiveActors.TryAdd(actor.Id, 1);
                     }
 
                     await actor.RunEventHandlerAsync();
@@ -370,10 +385,15 @@ namespace Microsoft.Coyote.Actors
                     if (actor.IsHalted)
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
-                    }
 
-                    // Remove the actor from the set of non-halted enabled actors.
-                    this.Runtime.ActiveActors.Remove(actor.Id);
+                        // Remove the actor from the set of non-halted enabled actors.
+                        this.ActiveActors.TryRemove(actor.Id, out byte one);
+
+                        if (this.NotifyActiveActorsCheck && this.ActiveActors.IsEmpty)
+                        {
+                            this.RespActiveActorsCheck.TrySetResult(true);
+                        }
+                    }
                 }
             });
         }
@@ -388,6 +408,8 @@ namespace Microsoft.Coyote.Actors
                 if (isFresh)
                 {
                     await actor.InitializeAsync(initialEvent);
+                    // Add the actor to the set of non-halted enabled actors.
+                    this.ActiveActors.TryAdd(actor.Id, 1);
                 }
 
                 await actor.RunEventHandlerAsync();
@@ -396,7 +418,16 @@ namespace Microsoft.Coyote.Actors
             {
                 this.Runtime.IsRunning = false;
                 this.RaiseOnFailureEvent(ex);
-                return;
+            }
+            finally
+            {
+                if (actor.IsHalted)
+                {
+                    this.ActorMap.TryRemove(actor.Id, out Actor _);
+
+                    // Remove the actor from the set of non-halted enabled actors.
+                    this.ActiveActors.TryRemove(actor.Id, out byte one);
+                }
             }
         }
 

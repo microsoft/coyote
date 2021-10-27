@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnet-ilverify": {
+      "version": "5.0.0",
+      "commands": [
+        "ilverify"
+      ]
+    }
+  }
+}

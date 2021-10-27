@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Responsible for controlling the execution of operations during systematic testing.
         /// </summary>
-        private CoyoteRuntime Runtime;
+        internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledSynchronizationContext"/> class.

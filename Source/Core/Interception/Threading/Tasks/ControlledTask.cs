@@ -405,13 +405,13 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter"/> for the specified <see cref="Task"/>.
         /// </summary>
-        public static TaskAwaiter GetAwaiter(Task task) => new TaskAwaiter(CoyoteRuntime.Current, task);
+        public static TaskAwaiter GetAwaiter(Task task) => new TaskAwaiter(task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
         public static ConfiguredTaskAwaitable ConfigureAwait(Task task, bool continueOnCapturedContext) =>
-            new ConfiguredTaskAwaitable(CoyoteRuntime.Current, task, continueOnCapturedContext);
+            new ConfiguredTaskAwaitable(task, continueOnCapturedContext);
     }
 
     /// <summary>
@@ -444,14 +444,13 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns a <see cref="TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
         /// </summary>
-        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) =>
-            new TaskAwaiter<TResult>(CoyoteRuntime.Current, task);
+        public static TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) => new TaskAwaiter<TResult>(task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
         public static ConfiguredTaskAwaitable<TResult> ConfigureAwait(Task<TResult> task, bool continueOnCapturedContext) =>
-            new ConfiguredTaskAwaitable<TResult>(CoyoteRuntime.Current, task, continueOnCapturedContext);
+            new ConfiguredTaskAwaitable<TResult>(task, continueOnCapturedContext);
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

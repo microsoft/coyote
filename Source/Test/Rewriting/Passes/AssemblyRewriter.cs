@@ -31,10 +31,9 @@ namespace Microsoft.Coyote.Rewriting
         protected TypeDefinition TypeDef { get; private set; }
 
         /// <summary>
-        /// List of assembly strong names of the assemblies that we are going to rewrite
-        /// so we know what the scope of the rewrite operation is.
+        /// The set of assemblies that are being rewritten.
         /// </summary>
-        public HashSet<string> AssemblyNameScope { get; internal set; }
+        protected HashSet<AssemblyInfo> RewrittenAssemblies { get; private set; }
 
         /// <summary>
         /// The current method being transformed.
@@ -64,8 +63,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
-        protected AssemblyRewriter(ILogger logger)
+        protected AssemblyRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
         {
+            this.RewrittenAssemblies = rewrittenAssemblies;
             this.Logger = logger;
         }
 
@@ -511,7 +511,7 @@ namespace Microsoft.Coyote.Rewriting
             return result;
         }
 
-        public static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
+        protected static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
         {
             if (self.GenericParameters.Count != arguments.Length)
             {
@@ -527,7 +527,7 @@ namespace Microsoft.Coyote.Rewriting
             return instance;
         }
 
-        public static MethodReference MakeGenericMethod(MethodReference self, params TypeReference[] arguments)
+        protected static MethodReference MakeGenericMethod(MethodReference self, params TypeReference[] arguments)
         {
             if (self.GenericParameters.Count != arguments.Length)
             {
@@ -541,6 +541,18 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return instance;
+        }
+
+        /// <summary>
+        /// Returns the parameter type that is at the specified index of the given <see cref="GenericInstanceType"/>.
+        /// </summary>
+        /// <remarks>
+        /// The index is of the form '!N' where N is the index of the parameter in the generic type.
+        /// </remarks>
+        protected static TypeReference GetGenericParameterTypeFromNamedIndex(GenericInstanceType genericType, string namedIndex)
+        {
+            int index = int.Parse(namedIndex.Split('!')[1]);
+            return genericType.GenericArguments[index].GetElementType();
         }
 
         /// <summary>

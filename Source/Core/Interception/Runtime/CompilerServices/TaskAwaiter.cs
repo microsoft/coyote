@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -19,11 +21,6 @@ namespace Microsoft.Coyote.Interception
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
-
-        /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
-        /// </summary>
-        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -43,9 +40,8 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        internal TaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task awaitedTask)
+        internal TaskAwaiter(SystemTasks.Task awaitedTask)
         {
-            this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
@@ -53,10 +49,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        internal TaskAwaiter(CoyoteRuntime runtime, SystemCompiler.TaskAwaiter awaiter)
+        private TaskAwaiter(SystemTasks.Task awaitedTask, SystemCompiler.TaskAwaiter awaiter)
         {
-            this.Runtime = runtime;
-            this.AwaitedTask = null;
+            this.AwaitedTask = awaitedTask;
             this.Awaiter = awaiter;
         }
 
@@ -66,7 +61,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult()
         {
-            this.Runtime?.OnWaitTask(this.AwaitedTask);
+            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+            {
+                context.Runtime?.OnWaitTask(this.AwaitedTask);
+            }
+
             this.Awaiter.GetResult();
         }
 
@@ -85,12 +84,24 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Wraps the specified task awaiter.
         /// </summary>
-        public static TaskAwaiter Wrap(SystemCompiler.TaskAwaiter awaiter) => new TaskAwaiter(null, awaiter);
+        public static TaskAwaiter Wrap(SystemCompiler.TaskAwaiter awaiter)
+        {
+            // Access the task being awaited through reflection.
+            var field = awaiter.GetType().GetField("m_task", BindingFlags.NonPublic | BindingFlags.Instance);
+            var awaitedTask = (Task)field?.GetValue(awaiter);
+            return new TaskAwaiter(awaitedTask, awaiter);
+        }
 
         /// <summary>
-        /// Wraps the specified task awaiter.
+        /// Wraps the specified generic task awaiter.
         /// </summary>
-        public static TaskAwaiter<TResult> Wrap<TResult>(SystemCompiler.TaskAwaiter<TResult> awaiter) => new TaskAwaiter<TResult>(null, awaiter);
+        public static TaskAwaiter<TResult> Wrap<TResult>(SystemCompiler.TaskAwaiter<TResult> awaiter)
+        {
+            // Access the generic task being awaited through reflection.
+            var field = awaiter.GetType().GetField("m_task", BindingFlags.NonPublic | BindingFlags.Instance);
+            var awaitedTask = (Task<TResult>)field?.GetValue(awaiter);
+            return new TaskAwaiter<TResult>(awaitedTask, awaiter);
+        }
     }
 
     /// <summary>
@@ -103,11 +114,6 @@ namespace Microsoft.Coyote.Interception
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
-
-        /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
-        /// </summary>
-        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -127,9 +133,8 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal TaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask)
+        internal TaskAwaiter(SystemTasks.Task<TResult> awaitedTask)
         {
-            this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
@@ -137,10 +142,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal TaskAwaiter(CoyoteRuntime runtime, SystemCompiler.TaskAwaiter<TResult> awaiter)
+        internal TaskAwaiter(SystemTasks.Task<TResult> awaitedTask, SystemCompiler.TaskAwaiter<TResult> awaiter)
         {
-            this.Runtime = runtime;
-            this.AwaitedTask = null;
+            this.AwaitedTask = awaitedTask;
             this.Awaiter = awaiter;
         }
 
@@ -150,7 +154,11 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TResult GetResult()
         {
-            this.Runtime?.OnWaitTask(this.AwaitedTask);
+            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+            {
+                context.Runtime?.OnWaitTask(this.AwaitedTask);
+            }
+
             return this.Awaiter.GetResult();
         }
 

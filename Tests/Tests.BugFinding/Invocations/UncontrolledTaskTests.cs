@@ -46,6 +46,16 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
+                await new UncontrolledGenericTaskAwaiter();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDetectedUncontrolledAwaiterWithGenericArgument()
+        {
+            this.Test(async () =>
+            {
                 await new UncontrolledTaskAwaiter<int>();
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));

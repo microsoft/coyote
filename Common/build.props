@@ -33,9 +33,6 @@
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
     <TargetFrameworks>$(TargetFrameworks);netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library' and '$(OS)'=='Windows_NT'">
-    <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Coyote.IO;
@@ -24,8 +25,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionFilterRewriter"/> class.
         /// </summary>
-        internal ExceptionFilterRewriter(ILogger logger)
-            : base(logger)
+        internal ExceptionFilterRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 

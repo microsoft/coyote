@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -16,8 +17,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ConcurrentCollectionRewriter"/> class.
         /// </summary>
-        internal ConcurrentCollectionRewriter(ILogger logger)
-            : base(logger)
+        internal ConcurrentCollectionRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 

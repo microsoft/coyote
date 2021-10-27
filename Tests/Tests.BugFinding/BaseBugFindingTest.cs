@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             get
             {
                 var assembly = this.GetType().Assembly;
-                bool result = RewritingEngine.IsAssemblyRewritten(assembly);
+                bool result = RewritingEngine.IsAssemblyRewrittenWithCurrentVersion(assembly);
                 Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
                 return SchedulingPolicy.Systematic;
             }

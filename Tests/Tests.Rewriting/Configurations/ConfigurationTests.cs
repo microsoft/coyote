@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             Assert.Equal(Path.Combine(configDirectory, "Input"), options.AssembliesDirectory);
             Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), options.OutputDirectory);
-            Assert.False(options.IsReplacingAssemblies);
+            Assert.False(options.IsReplacingAssemblies());
 
             Assert.Single(options.AssemblyPaths);
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             Assert.Equal(configDirectory, options.AssembliesDirectory);
             Assert.Equal(configDirectory, options.OutputDirectory);
-            Assert.True(options.IsReplacingAssemblies);
+            Assert.True(options.IsReplacingAssemblies());
 
             Assert.Equal(2, options.AssemblyPaths.Count());
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test1.dll"),

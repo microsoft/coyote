@@ -3,10 +3,10 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Interception
 {
@@ -26,10 +26,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(CoyoteRuntime runtime, SystemTasks.Task awaitedTask,
-            bool continueOnCapturedContext)
+        internal ConfiguredTaskAwaitable(Task awaitedTask, bool continueOnCapturedContext)
         {
-            this.Awaiter = new ConfiguredTaskAwaiter(runtime, awaitedTask, continueOnCapturedContext);
+            this.Awaiter = new ConfiguredTaskAwaiter(awaitedTask, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -45,14 +44,9 @@ namespace Microsoft.Coyote.Interception
         public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
-            /// Responsible for controlling the execution of tasks during systematic testing.
-            /// </summary>
-            private readonly CoyoteRuntime Runtime;
-
-            /// <summary>
             /// The task being awaited.
             /// </summary>
-            private readonly SystemTasks.Task AwaitedTask;
+            private readonly Task AwaitedTask;
 
             /// <summary>
             /// The task awaiter.
@@ -67,16 +61,16 @@ namespace Microsoft.Coyote.Interception
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task awaitedTask,
-                bool continueOnCapturedContext)
+            internal ConfiguredTaskAwaiter(Task awaitedTask, bool continueOnCapturedContext)
             {
-                if (runtime?.SchedulingPolicy != SchedulingPolicy.None)
+                IO.Debug.WriteLine("<ConfiguredTaskAwaiter> Continue on captured context '{0}'",
+                    SynchronizationContext.Current);
+                if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;
                 }
 
-                this.Runtime = runtime;
                 this.AwaitedTask = awaitedTask;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
             }
@@ -86,7 +80,11 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             public void GetResult()
             {
-                this.Runtime?.OnWaitTask(this.AwaitedTask);
+                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+                {
+                    context.Runtime?.OnWaitTask(this.AwaitedTask);
+                }
+
                 this.Awaiter.GetResult();
             }
 
@@ -120,10 +118,9 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable{TResult}"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
-            bool continueOnCapturedContext)
+        internal ConfiguredTaskAwaitable(Task<TResult> awaitedTask, bool continueOnCapturedContext)
         {
-            this.Awaiter = new ConfiguredTaskAwaiter(runtime, awaitedTask, continueOnCapturedContext);
+            this.Awaiter = new ConfiguredTaskAwaiter(awaitedTask, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -139,14 +136,9 @@ namespace Microsoft.Coyote.Interception
         public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
-            /// Responsible for controlling the execution of tasks during systematic testing.
-            /// </summary>
-            private readonly CoyoteRuntime Runtime;
-
-            /// <summary>
             /// The task being awaited.
             /// </summary>
-            private readonly SystemTasks.Task<TResult> AwaitedTask;
+            private readonly Task<TResult> AwaitedTask;
 
             /// <summary>
             /// The task awaiter.
@@ -161,16 +153,16 @@ namespace Microsoft.Coyote.Interception
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
-                bool continueOnCapturedContext)
+            internal ConfiguredTaskAwaiter(Task<TResult> awaitedTask, bool continueOnCapturedContext)
             {
-                if (runtime?.SchedulingPolicy != SchedulingPolicy.None)
+                IO.Debug.WriteLine("<ConfiguredTaskAwaiter> Continue on captured context '{0}'",
+                    SynchronizationContext.Current);
+                if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;
                 }
 
-                this.Runtime = runtime;
                 this.AwaitedTask = awaitedTask;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
             }
@@ -180,7 +172,11 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             public TResult GetResult()
             {
-                this.Runtime?.OnWaitTask(this.AwaitedTask);
+                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+                {
+                    context.Runtime?.OnWaitTask(this.AwaitedTask);
+                }
+
                 return this.Awaiter.GetResult();
             }
 

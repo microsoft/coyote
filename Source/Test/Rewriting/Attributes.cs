@@ -6,23 +6,32 @@ using System;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Attribute for checking if an assembly has been rewritten by Coyote. If this attribute
-    /// is applied to an assembly, it denotes that the assembly has been rewritten.
+    /// Attribute that defines the version of Coyote used for rewriting an assembly.
     /// </summary>
+    /// <remarks>
+    /// If this attribute is applied to an assembly manifest, it denotes that the
+    /// assembly has been rewritten.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Assembly)]
-    public sealed class IsAssemblyRewrittenAttribute : Attribute
+    public sealed class CoyoteVersionAttribute : Attribute
     {
         /// <summary>
-        /// The version of Coyote used for the rewritting.
+        /// The version of Coyote used for the rewriting.
         /// </summary>
         public readonly string Version;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IsAssemblyRewrittenAttribute"/> class.
+        /// Unique identifier applied to all dependent rewritten assemblies.
         /// </summary>
-        public IsAssemblyRewrittenAttribute(string version)
+        public readonly string Identifier;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoyoteVersionAttribute"/> class.
+        /// </summary>
+        public CoyoteVersionAttribute(string version, string identifier)
         {
             this.Version = version;
+            this.Identifier = identifier;
         }
     }
 }

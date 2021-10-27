@@ -22,8 +22,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MSTestRewriter"/> class.
         /// </summary>
-        internal MSTestRewriter(Configuration configuration, ILogger logger)
-            : base(logger)
+        internal MSTestRewriter(Configuration configuration, HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
             this.Configuration = configuration;
         }

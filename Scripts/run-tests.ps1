@@ -23,13 +23,11 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
-$ilverify = FindProgram("ilverify")
-if ($null -eq $ilverify) {
-    &dotnet tool install --global dotnet-ilverify
-    $ilverify = FindProgram("ilverify");
-}
-
 $dotnet_path = FindDotNet("dotnet");
+
+# Restore the local ilverify tool.
+&dotnet tool restore
+$ilverify = "dotnet ilverify"
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 
@@ -62,7 +60,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
             $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/5.0.0/ref/net5.0/*.dll" + '"'
             $command = $command + ' -r "' + "$PSScriptRoot/../bin/net5.0/*.dll" + '"'
             $command = $command + ' -r "' + $NetCoreApp + '/*.dll"'
-            Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "Verifying assembly failed"
+            Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }
 
         Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v

@@ -30,7 +30,8 @@ namespace Microsoft.Coyote.Runtime
     internal sealed class CoyoteRuntime : IDisposable
     {
         /// <summary>
-        /// Provides access to the runtime associated with each controlled thread.
+        /// Provides access to the runtime associated with each controlled thread, or null
+        /// if the current thread is not controlled.
         /// </summary>
         /// <remarks>
         /// In testing mode, each testing iteration uses a unique runtime instance. To safely
@@ -38,6 +39,17 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private static readonly ThreadLocal<CoyoteRuntime> ThreadLocalRuntime =
             new ThreadLocal<CoyoteRuntime>(false);
+
+        /// <summary>
+        /// Provides access to the runtime associated with each async local context, or null
+        /// if the current async local context has no associated runtime.
+        /// </summary>
+        /// <remarks>
+        /// In testing mode, each testing iteration uses a unique runtime instance. To safely
+        /// retrieve it from static methods, we store it in each controlled async local state.
+        /// </remarks>
+        private static readonly AsyncLocal<CoyoteRuntime> AsyncLocalRuntime =
+            new AsyncLocal<CoyoteRuntime>();
 
         /// <summary>
         /// Provides access to the operation executing on each controlled thread
@@ -51,7 +63,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static CoyoteRuntime Current
         {
-            get => ThreadLocalRuntime.Value ?? RuntimeFactory.InstalledRuntime;
+            get => ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeFactory.InstalledRuntime;
         }
 
         /// <summary>
@@ -297,10 +309,11 @@ namespace Microsoft.Coyote.Runtime
                     // Update the current controlled thread with this runtime instance and executing
                     // operation, allowing future retrieval in the same controlled thread.
                     ThreadLocalRuntime.Value = this;
+                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
                     ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
-                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+                    this.SetControlledSynchronizationContext();
 
                     this.StartOperation(op);
 
@@ -346,6 +359,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Clean the thread local state.
                     ExecutingOperation.Value = null;
+                    AsyncLocalRuntime.Value = null;
                     ThreadLocalRuntime.Value = null;
                 }
             });
@@ -401,10 +415,11 @@ namespace Microsoft.Coyote.Runtime
                     // Update the current controlled thread with this runtime instance and executing
                     // operation, allowing future retrieval in the same controlled thread.
                     ThreadLocalRuntime.Value = this;
+                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
                     ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
-                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+                    this.SetControlledSynchronizationContext();
 
                     this.StartOperation(op);
 
@@ -425,6 +440,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Clean the thread local state.
                     ExecutingOperation.Value = null;
+                    AsyncLocalRuntime.Value = null;
                     ThreadLocalRuntime.Value = null;
                 }
             });
@@ -460,10 +476,11 @@ namespace Microsoft.Coyote.Runtime
                     // Update the current controlled thread with this runtime instance and executing
                     // operation, allowing future retrieval in the same controlled thread.
                     ThreadLocalRuntime.Value = this;
+                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
                     ExecutingOperation.Value = op;
 
                     // Set the synchronization context to the controlled synchronization context.
-                    SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+                    this.SetControlledSynchronizationContext();
 
                     this.StartOperation(op);
 
@@ -485,6 +502,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Clean the thread local state.
                     ExecutingOperation.Value = null;
+                    AsyncLocalRuntime.Value = null;
                     ThreadLocalRuntime.Value = null;
                 }
             });
@@ -648,7 +666,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (task.IsFaulted)
             {
-                // Propagate the failing exception by rethrowing it.
+                // Propagate the failing exception by re-throwing it.
                 ExceptionDispatchInfo.Capture(task.Exception).Throw();
             }
 
@@ -669,7 +687,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (task.IsFaulted)
             {
-                // Propagate the failing exception by rethrowing it.
+                // Propagate the failing exception by re-throwing it.
                 ExceptionDispatchInfo.Capture(task.Exception).Throw();
             }
 
@@ -725,6 +743,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
+                System.Console.WriteLine($"ADDING TASK: {task?.Id}");
                 this.TaskMap.TryAdd(task, null);
             }
         }
@@ -737,17 +756,20 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void OnWaitTask(Task task)
         {
-            if (!task.IsCompleted)
+            System.Console.WriteLine($"CHECKING TASK: {task?.Id}");
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic && !task.IsCompleted)
             {
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (!this.TaskMap.ContainsKey(task))
                 {
-                    var callerOp = this.GetExecutingOperation<TaskOperation>();
-                    this.WaitUntilTaskCompletes(callerOp, task);
+                    this.NotifyUncontrolledTaskDetected(task.Id);
                 }
-                else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                {
-                    this.DelayOperation();
-                }
+
+                var callerOp = this.GetExecutingOperation<TaskOperation>();
+                this.WaitUntilTaskCompletes(callerOp, task);
+            }
+            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.DelayOperation();
             }
         }
 
@@ -786,7 +808,7 @@ namespace Microsoft.Coyote.Runtime
                     // Checks if the current operation is controlled by the runtime.
                     if (ExecutingOperation.Value is null)
                     {
-                        this.NotifyUncontrolledConcurrencyDetected();
+                        this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                     }
                 }
 
@@ -940,7 +962,7 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
-                    this.NotifyUncontrolledConcurrencyDetected();
+                    this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -978,7 +1000,7 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the current operation is controlled by the runtime.
                 if (ExecutingOperation.Value is null)
                 {
-                    this.NotifyUncontrolledConcurrencyDetected();
+                    this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -1200,7 +1222,7 @@ namespace Microsoft.Coyote.Runtime
                 var op = ExecutingOperation.Value;
                 if (op is null)
                 {
-                    this.NotifyUncontrolledConcurrencyDetected();
+                    this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                 }
 
                 return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
@@ -1566,9 +1588,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
+        /// Notify that an uncontrolled task was detected.
         /// </summary>
-        private void NotifyUncontrolledConcurrencyDetected()
+        private void NotifyUncontrolledTaskDetected(int? taskId)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
@@ -1576,7 +1598,7 @@ namespace Microsoft.Coyote.Runtime
                 // uncontrolled task to ease the user debugging experience.
                 // Report the invalid operation and then throw it to fail the uncontrolled task. This will
                 // most likely crash the program, but we try to fail as cleanly and fast as possible.
-                string taskId = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+                string id = taskId.HasValue ? taskId.Value.ToString() : "<unknown>";
                 string message = $"Detected task '{taskId}' that is not intercepted and controlled during " +
                     "testing, so it can interfere with the ability to reproduce bug traces.";
                 if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
@@ -1751,6 +1773,12 @@ namespace Microsoft.Coyote.Runtime
                 report.SetUncontrolledInvocations(this.UncontrolledInvocations);
             }
         }
+
+        /// <summary>
+        /// Sets the synchronization context to the controlled synchronization context.
+        /// </summary>
+        internal void SetControlledSynchronizationContext() =>
+            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
         /// <summary>
         /// Forces the scheduler to terminate.

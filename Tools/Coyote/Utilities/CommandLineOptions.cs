@@ -121,9 +121,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// Parses the command line options and returns a configuration.
         /// </summary>
         /// <param name="args">The command line arguments to parse.</param>
-        /// <param name="configuration">The Configuration object populated with the parsed command line options.</param>
-        /// <param name="options">The optional rewriting options.</param>
-        internal bool Parse(string[] args, Configuration configuration, RewritingOptions options)
+        /// <param name="configuration">The configuration object populated with the parsed command line options.</param>
+        /// <param name="rewritingOptions">The rewriting options.</param>
+        internal bool Parse(string[] args, Configuration configuration, RewritingOptions rewritingOptions)
         {
             try
             {
@@ -132,7 +132,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 {
                     foreach (var arg in result)
                     {
-                        UpdateConfigurationWithParsedArgument(configuration, options, arg);
+                        UpdateConfigurationWithParsedArgument(configuration, rewritingOptions, arg);
                     }
 
                     SanitizeConfiguration(configuration);
@@ -164,7 +164,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// <summary>
         /// Updates the configuration with the specified parsed argument.
         /// </summary>
-        private static void UpdateConfigurationWithParsedArgument(Configuration configuration, RewritingOptions options, CommandLineArgument option)
+        private static void UpdateConfigurationWithParsedArgument(Configuration configuration,
+            RewritingOptions rewritingOptions, CommandLineArgument option)
         {
             switch (option.LongName)
             {
@@ -187,13 +188,13 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                             configuration.IsVerbose = false;
                             break;
                         case "detailed":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Informational;
+                            configuration.LogLevel = LogSeverity.Informational;
                             break;
                         case "normal":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Warning;
+                            configuration.LogLevel = LogSeverity.Warning;
                             break;
                         case "minimal":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Error;
+                            configuration.LogLevel = LogSeverity.Error;
                             break;
                         default:
                             Error.ReportAndExit($"Please give a valid value for 'verbosity' must be one of 'errors', 'warnings', or 'info', but found {verbosity}.");
@@ -214,20 +215,28 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         string filename = (string)option.Value;
                         if (Directory.Exists(filename))
                         {
-                            // then we want to rewrite a whole folder full of dll's.
-                            configuration.RewritingOptionsPath = filename;
+                            // Then we want to rewrite a whole folder full of assemblies.
+                            var assembliesDir = Path.GetFullPath(filename);
+                            rewritingOptions.AssembliesDirectory = assembliesDir;
+                            rewritingOptions.OutputDirectory = assembliesDir;
                         }
                         else
                         {
                             string extension = Path.GetExtension(filename);
                             if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) is 0)
                             {
-                                configuration.RewritingOptionsPath = filename;
+                                // Parse the rewriting options from the JSON file.
+                                RewritingOptions.ParseFromJSON(rewritingOptions, filename);
                             }
                             else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) is 0 ||
                                 string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) is 0)
                             {
                                 configuration.AssemblyToBeAnalyzed = filename;
+                                var fullPath = Path.GetFullPath(filename);
+                                var assembliesDir = Path.GetDirectoryName(fullPath);
+                                rewritingOptions.AssembliesDirectory = assembliesDir;
+                                rewritingOptions.OutputDirectory = assembliesDir;
+                                rewritingOptions.AssemblyPaths.Add(fullPath);
                             }
                             else
                             {
@@ -393,19 +402,19 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = true;
                     break;
                 case "strong-name-key-file":
-                    options.StrongNameKeyFile = (string)option.Value;
+                    rewritingOptions.StrongNameKeyFile = (string)option.Value;
                     break;
                 case "assert-data-races":
-                    options.IsDataRaceCheckingEnabled = true;
+                    rewritingOptions.IsDataRaceCheckingEnabled = true;
                     break;
                 case "rewrite-dependencies":
-                    options.IsRewritingDependencies = true;
+                    rewritingOptions.IsRewritingDependencies = true;
                     break;
                 case "rewrite-unit-tests":
-                    options.IsRewritingUnitTests = true;
+                    rewritingOptions.IsRewritingUnitTests = true;
                     break;
                 case "rewrite-threads":
-                    options.IsRewritingThreads = true;
+                    rewritingOptions.IsRewritingThreads = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;
@@ -463,7 +472,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         }
 
         /// <summary>
-        /// Checks the configuration for errors.
+        /// Sanitizes the configuration.
         /// </summary>
         private static void SanitizeConfiguration(Configuration configuration)
         {

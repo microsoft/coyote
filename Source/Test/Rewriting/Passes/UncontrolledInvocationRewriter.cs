@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
@@ -18,8 +19,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="UncontrolledInvocationRewriter"/> class.
         /// </summary>
-        internal UncontrolledInvocationRewriter(ILogger log)
-            : base(log)
+        internal UncontrolledInvocationRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 
@@ -193,7 +194,7 @@ namespace Microsoft.Coyote.Rewriting
                     type.Name is nameof(System.Threading.SemaphoreSlim) ||
                     type.Name is nameof(System.Threading.SpinLock) ||
                     type.Name is nameof(System.Threading.SpinWait) ||
-                    type.Name is nameof(System.Threading.SynchronizationContext) ||
+                    // type.Name is nameof(System.Threading.SynchronizationContext) ||
                     type.Name is nameof(System.Threading.Timer) ||
                     type.Name is nameof(System.Threading.WaitHandle))
                 {

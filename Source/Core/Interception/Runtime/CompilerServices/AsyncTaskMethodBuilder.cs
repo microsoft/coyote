@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -59,8 +60,24 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        public static AsyncTaskMethodBuilder Create() =>
-            new AsyncTaskMethodBuilder(CoyoteRuntime.Current);
+        public static AsyncTaskMethodBuilder Create()
+        {
+            CoyoteRuntime runtime = null;
+            SynchronizationContext context = SynchronizationContext.Current;
+            if (context is ControlledSynchronizationContext controlledContext)
+            {
+                runtime = controlledContext.Runtime;
+            }
+            else if (context is null)
+            {
+                // Try get the current runtime, if it exists, and use it to set the current
+                // synchronization context to the controlled synchronization context.
+                runtime = CoyoteRuntime.Current;
+                runtime?.SetControlledSynchronizationContext();
+            }
+
+            return new AsyncTaskMethodBuilder(runtime);
+        }
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -70,7 +87,8 @@ namespace Microsoft.Coyote.Interception
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' with context '{1}'.",
+                Task.CurrentId, SynchronizationContext.Current);
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -165,8 +183,24 @@ namespace Microsoft.Coyote.Interception
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
-        public static AsyncTaskMethodBuilder<TResult> Create() =>
-            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.Current);
+        public static AsyncTaskMethodBuilder<TResult> Create()
+        {
+            CoyoteRuntime runtime = null;
+            SynchronizationContext context = SynchronizationContext.Current;
+            if (context is ControlledSynchronizationContext controlledContext)
+            {
+                runtime = controlledContext.Runtime;
+            }
+            else if (context is null)
+            {
+                // Try get the current runtime, if it exists, and use it to set the current
+                // synchronization context to the controlled synchronization context.
+                runtime = CoyoteRuntime.Current;
+                runtime?.SetControlledSynchronizationContext();
+            }
+
+            return new AsyncTaskMethodBuilder<TResult>(runtime);
+        }
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>
@@ -177,7 +211,8 @@ namespace Microsoft.Coyote.Interception
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' with context '{1}'.",
+                System.Threading.Tasks.Task.CurrentId, SynchronizationContext.Current);
             this.MethodBuilder.Start(ref stateMachine);
         }
 

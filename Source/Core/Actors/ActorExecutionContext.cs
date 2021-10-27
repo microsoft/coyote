@@ -72,14 +72,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Keeps track of currently enabled and non-halted actors.
         /// </summary>
-        internal ConcurrentDictionary<ActorId, byte> ActiveActors;
+        internal HashSet<ActorId> ActiveActors;
 
         /// <summary>
         /// Notifies when all the queued actors have been created.
         /// </summary>
-        internal bool NotifyActiveActorsCheck;
+        internal bool NotifyLastActorCreated;
 
-        internal TaskCompletionSource<bool> RespActiveActorsCheck;
+        internal TaskCompletionSource<bool> RespActorQuiescence;
+
+        private readonly object SyncObject = new object();
 
         /// <inheritdoc/>
         public ILogger Logger
@@ -138,13 +140,23 @@ namespace Microsoft.Coyote.Actors
             this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
-            this.ActiveActors = new ConcurrentDictionary<ActorId, byte>();
-            this.NotifyActiveActorsCheck = false;
-            this.RespActiveActorsCheck = new TaskCompletionSource<bool>();
+            this.ActiveActors = new HashSet<ActorId>();
+            this.NotifyLastActorCreated = false;
+            this.RespActorQuiescence = new TaskCompletionSource<bool>();
         }
 
         // <inheritdoc/>
-        public ActorId CreateActorId(Type type, Actor parent = null, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this, parent);
+        public ActorId CreateActorId(Type type, Actor parent = null, string name = null)
+        {
+            if (parent == null)
+            {
+                return new ActorId(type, this.GetNextOperationId(), name, this);
+            }
+            else
+            {
+                return new ActorId(type, this.GetNextOperationId(), name, this, parent);
+            }
+        }
 
         /// <inheritdoc/>
         public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, 0, name, this, useNameForHashing: true);
@@ -369,8 +381,12 @@ namespace Microsoft.Coyote.Actors
                     if (isFresh)
                     {
                         await actor.InitializeAsync(initialEvent);
-                        // Add the actor to the set of non-halted enabled actors.
-                        this.ActiveActors.TryAdd(actor.Id, 1);
+
+                        lock (this.SyncObject)
+                        {
+                            // Add the actor to the set of non-halted enabled actors.
+                            this.ActiveActors.Add(actor.Id);
+                        }
                     }
 
                     await actor.RunEventHandlerAsync();
@@ -386,16 +402,35 @@ namespace Microsoft.Coyote.Actors
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
 
-                        // Remove the actor from the set of non-halted enabled actors.
-                        this.ActiveActors.TryRemove(actor.Id, out byte one);
-
-                        if (this.NotifyActiveActorsCheck && this.ActiveActors.IsEmpty)
+                        lock (this.SyncObject)
                         {
-                            this.RespActiveActorsCheck.TrySetResult(true);
+                            // Remove the actor from the set of non-halted enabled actors.
+                            this.ActiveActors.Remove(actor.Id);
+
+                            if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
+                            {
+                                this.RespActorQuiescence.TrySetResult(true);
+                            }
                         }
                     }
                 }
             });
+        }
+
+        internal Task AwaitActorQuiescence()
+        {
+            lock (this.SyncObject)
+            {
+                if (!(this.ActiveActors.Count == 0))
+                {
+                    this.NotifyLastActorCreated = true;
+                    return this.RespActorQuiescence.Task;
+                }
+                else
+                {
+                    return Task.CompletedTask;
+                }
+            }
         }
 
         /// <summary>
@@ -408,8 +443,11 @@ namespace Microsoft.Coyote.Actors
                 if (isFresh)
                 {
                     await actor.InitializeAsync(initialEvent);
-                    // Add the actor to the set of non-halted enabled actors.
-                    this.ActiveActors.TryAdd(actor.Id, 1);
+                    lock (this.SyncObject)
+                    {
+                        // Add the actor to the set of non-halted enabled actors.
+                        this.ActiveActors.Add(actor.Id);
+                    }
                 }
 
                 await actor.RunEventHandlerAsync();
@@ -425,8 +463,16 @@ namespace Microsoft.Coyote.Actors
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
 
-                    // Remove the actor from the set of non-halted enabled actors.
-                    this.ActiveActors.TryRemove(actor.Id, out byte one);
+                    lock (this.SyncObject)
+                    {
+                        // Remove the actor from the set of non-halted enabled actors.
+                        this.ActiveActors.Remove(actor.Id);
+
+                        if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
+                        {
+                            this.RespActorQuiescence.TrySetResult(true);
+                        }
+                    }
                 }
             }
         }

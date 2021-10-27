@@ -311,9 +311,7 @@ namespace Microsoft.Coyote.Runtime
                             throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                         }
 
-                        this.DefaultActorExecutionContext.NotifyActiveActorsCheck = true;
-
-                        await this.DefaultActorExecutionContext.RespActiveActorsCheck.Task;
+                        await this.DefaultActorExecutionContext.AwaitActorQuiescence();
 
                         lock (this.SyncObject)
                         {

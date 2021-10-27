@@ -101,10 +101,14 @@ namespace Microsoft.Coyote.Actors
             }
             else
             {
-                this.RLId = parent.Id.RLId + parent.Id.Choices + parent.Id.IdCounter.ToString();
+                this.RLId = parent.Id.RLId + parent.Id.Choices + "{" + parent.Id.IdCounter.ToString() + "}";
             }
 
-            parent.Id.IdCounter++;
+            if (parent != null)
+            {
+                parent.Id.IdCounter++;
+            }
+
             this.IdCounter = 0;
             this.Choices = string.Empty;
 

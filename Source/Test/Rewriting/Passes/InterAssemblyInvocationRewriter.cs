@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewriter"/> class.
         /// </summary>
-        internal InterAssemblyInvocationRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal InterAssemblyInvocationRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }
@@ -127,25 +127,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return instruction;
-        }
-
-        /// <summary>
-        /// Checks if the specified type is foreign.
-        /// </summary>
-        private bool IsForeignType(TypeDefinition type)
-        {
-            if (type is null || this.Module == type.Module)
-            {
-                return false;
-            }
-
-            string module = Path.GetFileName(type.Module.FileName);
-            if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
-            {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

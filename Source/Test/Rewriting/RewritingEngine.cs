@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes the passes to run during rewriting.
         /// </summary>
-        private void InitializeRewritingPasses(HashSet<AssemblyInfo> assemblies)
+        private void InitializeRewritingPasses(IEnumerable<AssemblyInfo> assemblies)
         {
             this.RewritingPasses.Add(new TaskRewriter(assemblies, this.Logger));
             this.RewritingPasses.Add(new MonitorRewriter(assemblies, this.Logger));
@@ -176,7 +176,6 @@ namespace Microsoft.Coyote.Rewriting
             try
             {
                 this.Logger.WriteLine($"... Rewriting the '{assembly.Name}' assembly ({assembly.FullName})");
-                assembly.ValidateAssemblyBeforeRewriting();
                 assembly.ApplyCoyoteVersionAttribute(GetAssemblyRewriterVersion(), this.Identifier);
 
                 // Traverse the assembly to apply each rewriting pass.

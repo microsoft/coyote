@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="UncontrolledInvocationRewriter"/> class.
         /// </summary>
-        internal UncontrolledInvocationRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal UncontrolledInvocationRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

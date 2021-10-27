@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting
         internal readonly AssemblyDefinition Definition;
 
         /// <summary>
-        /// The assembly dependencies.
+        /// The assembly direct dependencies.
         /// </summary>
         private readonly HashSet<AssemblyInfo> Dependencies;
 
@@ -98,18 +98,16 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Loads and returns the set of assemblies to rewrite.
+        /// Loads and returns the topological sorted list of unique assemblies to rewrite.
         /// </summary>
-        internal static HashSet<AssemblyInfo> LoadAssembliesToRewrite(RewritingOptions options,
+        internal static IEnumerable<AssemblyInfo> LoadAssembliesToRewrite(RewritingOptions options,
             AssemblyResolveEventHandler handler)
         {
-            var result = new HashSet<AssemblyInfo>();
-            var visitedPaths = new HashSet<string>();
-
             // Add all explicitly requested assemblies.
+            var assemblies = new HashSet<AssemblyInfo>();
             foreach (string path in options.AssemblyPaths)
             {
-                if (!visitedPaths.Contains(path))
+                if (!assemblies.Any(assembly => assembly.FilePath == path))
                 {
                     var name = Path.GetFileName(path);
                     if (options.IsAssemblyIgnored(name))
@@ -117,21 +115,23 @@ namespace Microsoft.Coyote.Rewriting
                         throw new InvalidOperationException($"Rewriting assembly '{name}' ({path}) that is in the ignore list.");
                     }
 
-                    result.Add(new AssemblyInfo(name, path, options, handler));
-                    visitedPaths.Add(path);
+                    assemblies.Add(new AssemblyInfo(name, path, options, handler));
                 }
             }
 
-            // Add all implicit assembly dependencies, if the corresponding option is enabled.
-            if (options.IsRewritingDependencies)
+            // Find direct dependencies to each assembly and load them, if the corresponding option is enabled.
+            foreach (var assembly in assemblies)
             {
-                foreach (var assembly in result)
-                {
-                    result.UnionWith(assembly.LoadDependencies(handler, visitedPaths));
-                }
+                assembly.LoadDependencies(assemblies, handler);
             }
 
-            return result;
+            // Validate that all assemblies are eligible for rewriting.
+            foreach (var assembly in assemblies)
+            {
+                assembly.ValidateAssembly();
+            }
+
+            return SortAssemblies(assemblies);
         }
 
         /// <summary>
@@ -194,44 +194,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Loads all dependent assemblies in the local assembly path.
-        /// </summary>
-        private HashSet<AssemblyInfo> LoadDependencies(AssemblyResolveEventHandler handler, HashSet<string> visitedPaths)
-        {
-            var assemblyDir = Path.GetDirectoryName(this.FilePath);
-            var result = new HashSet<AssemblyInfo>();
-
-            // Add this assembly to the visited paths.
-            visitedPaths.Add(this.FilePath);
-
-            // Perform a non-recursive depth-first search to find all dependencies.
-            var stack = new Stack<AssemblyInfo>();
-            stack.Push(this);
-            while (stack.Count > 0)
-            {
-                var assembly = stack.Pop();
-                foreach (var module in assembly.Definition.Modules)
-                {
-                    foreach (var ar in module.AssemblyReferences)
-                    {
-                        var fileName = ar.Name + ".dll";
-                        var path = Path.Combine(assemblyDir, fileName);
-                        if (!visitedPaths.Contains(path) && File.Exists(path) && !this.Options.IsAssemblyIgnored(fileName))
-                        {
-                            var name = Path.GetFileName(path);
-                            var dependency = new AssemblyInfo(name, path, this.Options, handler);
-                            result.Add(dependency);
-                            stack.Push(dependency);
-                            visitedPaths.Add(path);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Applies the <see cref="CoyoteVersionAttribute"/> attribute to the assembly. This attribute
         /// indicates that the assembly has been rewritten with the current version of Coyote.
         /// </summary>
@@ -288,7 +250,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Validates that the assembly can be rewritten.
         /// </summary>
-        internal void ValidateAssemblyBeforeRewriting()
+        private void ValidateAssembly()
         {
             if (this.IsAssemblyRewritten())
             {
@@ -301,6 +263,105 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException($"Rewriting mixed-mode assembly '{this.Name}' is not supported.");
             }
         }
+
+        /// <summary>
+        /// Loads all dependent assemblies in the local assembly path.
+        /// </summary>
+        private void LoadDependencies(HashSet<AssemblyInfo> assemblies, AssemblyResolveEventHandler handler)
+        {
+            Console.WriteLine($"=== DEPENDENCIES OF {this.FullName}");
+            // Get the directory associated with this assembly.
+            var assemblyDir = Path.GetDirectoryName(this.FilePath);
+
+            // Perform a non-recursive depth-first search to find all dependencies.
+            var stack = new Stack<AssemblyInfo>();
+            stack.Push(this);
+            while (stack.Count > 0)
+            {
+                var assembly = stack.Pop();
+                foreach (var reference in assembly.Definition.Modules.SelectMany(module => module.AssemblyReferences))
+                {
+                    var fileName = reference.Name + ".dll";
+                    var path = Path.Combine(assemblyDir, fileName);
+                    if (File.Exists(path) && !this.Options.IsAssemblyIgnored(fileName))
+                    {
+                        AssemblyInfo dependency = assemblies.FirstOrDefault(assembly => assembly.FilePath == path);
+                        if (dependency is null && this.Options.IsRewritingDependencies)
+                        {
+                            var name = Path.GetFileName(path);
+                            dependency = new AssemblyInfo(name, path, this.Options, handler);
+                            stack.Push(dependency);
+                            assemblies.Add(dependency);
+                        }
+
+                        if (dependency != null)
+                        {
+                            Console.WriteLine($"                  - {dependency.FullName}");
+                            this.Dependencies.Add(dependency);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sorts the specified assemblies in topological ordering.
+        /// </summary>
+        private static IEnumerable<AssemblyInfo> SortAssemblies(HashSet<AssemblyInfo> assemblies)
+        {
+            var sortedAssemblies = new List<AssemblyInfo>();
+
+            // Assemblies that have zero or visited dependencies.
+            var nextAssemblies = new HashSet<AssemblyInfo>(
+                assemblies.Where(assembly => assembly.Dependencies.Count is 0));
+
+            // Sort the assemblies in topological ordering.
+            while (nextAssemblies.Count > 0)
+            {
+                var nextAssembly = nextAssemblies.First();
+                nextAssemblies.Remove(nextAssembly);
+                sortedAssemblies.Add(nextAssembly);
+
+                // Add all assemblies that have not been sorted yet and have all their dependencies visited
+                // to the set of next assemblies to sort.
+                foreach (var assembly in assemblies.Where(assembly => !sortedAssemblies.Contains(assembly)))
+                {
+                    if (assembly.Dependencies.IsSubsetOf(sortedAssemblies))
+                    {
+                        nextAssemblies.Add(assembly);
+                    }
+                }
+            }
+
+            foreach (var x in sortedAssemblies)
+            {
+                Console.WriteLine(x.FilePath);
+            }
+
+            if (sortedAssemblies.Count != assemblies.Count)
+            {
+                // There are cycles in the assembly dependencies. This should normally never
+                // happen because C# does not allow cycles in assembly references.
+                throw new InvalidOperationException("Detected circular assembly dependencies.");
+            }
+
+            return sortedAssemblies;
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        public override bool Equals(object obj) => obj is AssemblyInfo info && this.FullName == info.FullName;
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        public override int GetHashCode() => this.FullName.GetHashCode();
+
+        /// <summary>
+        /// Returns a string that represents the current assembly.
+        /// </summary>
+        public override string ToString() => this.FullName;
 
         /// <summary>
         /// Disposes the resources held by this object.

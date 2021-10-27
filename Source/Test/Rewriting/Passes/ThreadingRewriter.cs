@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreadingRewriter"/> class.
         /// </summary>
-        internal ThreadingRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal ThreadingRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

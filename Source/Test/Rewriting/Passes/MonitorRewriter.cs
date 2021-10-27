@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MonitorRewriter"/> class.
         /// </summary>
-        internal MonitorRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal MonitorRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

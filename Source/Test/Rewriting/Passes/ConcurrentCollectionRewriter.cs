@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ConcurrentCollectionRewriter"/> class.
         /// </summary>
-        internal ConcurrentCollectionRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal ConcurrentCollectionRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

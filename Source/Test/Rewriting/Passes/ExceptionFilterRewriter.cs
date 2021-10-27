@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionFilterRewriter"/> class.
         /// </summary>
-        internal ExceptionFilterRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal ExceptionFilterRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

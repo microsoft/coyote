@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="DataRaceCheckingRewriter"/> class.
         /// </summary>
-        internal DataRaceCheckingRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal DataRaceCheckingRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }

@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
         /// </summary>
-        internal TaskRewriter(HashSet<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+        internal TaskRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
             : base(rewrittenAssemblies, logger)
         {
         }
@@ -175,6 +175,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
+            Debug.WriteLine($"............. [???] {method.FullName}");
+
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
             if (method.FullName == newMethod.FullName ||
                 !this.TryResolve(newMethod, out MethodDefinition resolvedMethod))

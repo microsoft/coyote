@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Rewriting
     /// <remarks>
     /// See <see href="/coyote/get-started/rewriting">rewriting</see> for more information.
     /// </remarks>
-    internal class RewritingEngine
+    public class RewritingEngine
     {
         /// <summary>
         /// Temporary directory that is used to write the rewritten assemblies
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         /// <param name="assembly">The assembly to check.</param>
         /// <returns>True if the assembly has been rewritten with the current version, else false.</returns>
-        internal static bool IsAssemblyRewrittenWithCurrentVersion(Assembly assembly) =>
+        public static bool IsAssemblyRewritten(Assembly assembly) =>
             assembly.GetCustomAttribute(typeof(CoyoteVersionAttribute)) is CoyoteVersionAttribute attribute &&
             attribute.Version == GetAssemblyRewriterVersion().ToString();
 

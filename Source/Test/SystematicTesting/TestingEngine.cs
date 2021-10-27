@@ -858,7 +858,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Checks if the test executed by the testing engine has been rewritten with the current version.
         /// </summary>
         /// <returns>True if the test has been rewritten, else false.</returns>
-        public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewrittenWithCurrentVersion(this.TestMethodInfo.Assembly);
+        public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
 
         /// <summary>
         /// Installs the specified TextWriter for logging.

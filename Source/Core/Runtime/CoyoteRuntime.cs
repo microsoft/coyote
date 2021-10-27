@@ -743,7 +743,6 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
-                System.Console.WriteLine($"ADDING TASK: {task?.Id}");
                 this.TaskMap.TryAdd(task, null);
             }
         }

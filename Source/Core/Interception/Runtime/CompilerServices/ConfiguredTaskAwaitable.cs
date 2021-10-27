@@ -63,8 +63,6 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             internal ConfiguredTaskAwaiter(Task awaitedTask, bool continueOnCapturedContext)
             {
-                IO.Debug.WriteLine("<ConfiguredTaskAwaiter> Continue on captured context '{0}'",
-                    SynchronizationContext.Current);
                 if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
@@ -155,8 +153,6 @@ namespace Microsoft.Coyote.Interception
             /// </summary>
             internal ConfiguredTaskAwaiter(Task<TResult> awaitedTask, bool continueOnCapturedContext)
             {
-                IO.Debug.WriteLine("<ConfiguredTaskAwaiter> Continue on captured context '{0}'",
-                    SynchronizationContext.Current);
                 if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
                     // Force the continuation to run on the current context so that it can be controlled.

@@ -755,7 +755,6 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void OnWaitTask(Task task)
         {
-            System.Console.WriteLine($"CHECKING TASK: {task?.Id}");
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic && !task.IsCompleted)
             {
                 if (!this.TaskMap.ContainsKey(task))

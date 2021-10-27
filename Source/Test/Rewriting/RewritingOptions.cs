@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -159,8 +158,10 @@ namespace Microsoft.Coyote.Rewriting
         {
             try
             {
-                string jsonString = File.ReadAllText(configurationPath);
-                JsonConfiguration configuration = JsonSerializer.Deserialize<JsonConfiguration>(jsonString);
+                // TODO: replace with the new 'System.Text.Json'.
+                using FileStream fs = new FileStream(configurationPath, FileMode.Open, FileAccess.Read);
+                var serializer = new DataContractJsonSerializer(typeof(JsonConfiguration));
+                JsonConfiguration configuration = (JsonConfiguration)serializer.ReadObject(fs);
 
                 Uri baseUri = new Uri(Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar);
                 Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
@@ -322,18 +323,47 @@ namespace Microsoft.Coyote.Rewriting
         /// }
         /// </code>
         /// </example>
+        [DataContract]
         private class JsonConfiguration
         {
+            [DataMember(Name = "AssembliesPath", IsRequired = true)]
             public string AssembliesPath { get; set; }
+
+            [DataMember(Name = "OutputPath")]
             public string OutputPath { get; set; }
+
+            [DataMember(Name = "Assemblies")]
             public IList<string> Assemblies { get; set; }
+
+            [DataMember(Name = "IgnoredAssemblies")]
             public IList<string> IgnoredAssemblies { get; set; }
+
+            [DataMember(Name = "DependencySearchPaths")]
             public IList<string> DependencySearchPaths { get; set; }
+
+            [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
+
+            [DataMember(Name = "IsDataRaceCheckingEnabled")]
             public bool IsDataRaceCheckingEnabled { get; set; }
-            public bool IsRewritingConcurrentCollections { get; set; } = true;
+
+            private bool? isRewritingConcurrentCollections;
+
+            [DataMember(Name = "IsRewritingConcurrentCollections")]
+            public bool IsRewritingConcurrentCollections
+            {
+                // This option defaults to true.
+                get => this.isRewritingConcurrentCollections ?? true;
+                set => this.isRewritingConcurrentCollections = value;
+            }
+
+            [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }
+
+            [DataMember(Name = "IsRewritingUnitTests")]
             public bool IsRewritingUnitTests { get; set; }
+
+            [DataMember(Name = "IsRewritingThreads")]
             public bool IsRewritingThreads { get; set; }
         }
     }

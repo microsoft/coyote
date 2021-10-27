@@ -269,7 +269,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void LoadDependencies(HashSet<AssemblyInfo> assemblies, AssemblyResolveEventHandler handler)
         {
-            Console.WriteLine($"=== DEPENDENCIES OF {this.FullName}");
             // Get the directory associated with this assembly.
             var assemblyDir = Path.GetDirectoryName(this.FilePath);
 
@@ -296,7 +295,6 @@ namespace Microsoft.Coyote.Rewriting
 
                         if (dependency != null)
                         {
-                            Console.WriteLine($"                  - {dependency.FullName}");
                             this.Dependencies.Add(dependency);
                         }
                     }
@@ -331,11 +329,6 @@ namespace Microsoft.Coyote.Rewriting
                         nextAssemblies.Add(assembly);
                     }
                 }
-            }
-
-            foreach (var x in sortedAssemblies)
-            {
-                Console.WriteLine(x.FilePath);
             }
 
             if (sortedAssemblies.Count != assemblies.Count)

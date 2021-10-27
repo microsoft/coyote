@@ -199,9 +199,6 @@ namespace Microsoft.Coyote.Rewriting
 
             if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
             {
-                Debug.WriteLine($"............. [RewriteMethodReference] FAIL");
-                Debug.WriteLine($"............. {method.DeclaringType.FullName}");
-                Debug.WriteLine($"............. {method.Module.FileName}");
                 // We are not rewriting this method.
                 return result;
             }

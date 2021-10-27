@@ -175,8 +175,6 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
-            Debug.WriteLine($"............. [???] {method.FullName}");
-
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
             if (method.FullName == newMethod.FullName ||
                 !this.TryResolve(newMethod, out MethodDefinition resolvedMethod))

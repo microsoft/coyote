@@ -197,7 +197,6 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
                 throw new InvalidOperationException(
                     $"Unexpected JSON format in the '{configurationPath}' configuration file.\n{ex.Message}");
             }

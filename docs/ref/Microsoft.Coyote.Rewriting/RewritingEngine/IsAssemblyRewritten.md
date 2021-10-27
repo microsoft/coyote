@@ -1,6 +1,6 @@
 # RewritingEngine.IsAssemblyRewritten method
 
-Checks if the specified assembly has been already rewritten with the current version of Coyote.
+Checks if the specified assembly has been already rewritten with the current version.
 
 ```csharp
 public static bool IsAssemblyRewritten(Assembly assembly)
@@ -12,7 +12,7 @@ public static bool IsAssemblyRewritten(Assembly assembly)
 
 ## Return Value
 
-True if the assembly has been rewritten, else false.
+True if the assembly has been rewritten with the current version, else false.
 
 ## See Also
 

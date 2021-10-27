@@ -973,53 +973,20 @@ toc:
     - name: Microsoft.Coyote.Rewriting
       link: ref/Microsoft.Coyote.RewritingNamespace
       subfolderitems:
-      - name: IsAssemblyRewrittenAttribute
-        link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute
+      - name: CoyoteVersionAttribute
+        link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute
         subfolderitems:
-        - name: IsAssemblyRewrittenAttribute
-          link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/IsAssemblyRewrittenAttribute
+        - name: CoyoteVersionAttribute
+          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/CoyoteVersionAttribute
         - name: Version
-          link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/Version
+          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Version
+        - name: Identifier
+          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Identifier
       - name: RewritingEngine
         link: ref/Microsoft.Coyote.Rewriting/RewritingEngine
         subfolderitems:
-        - name: Run
-          link: ref/Microsoft.Coyote.Rewriting/RewritingEngine/Run
         - name: IsAssemblyRewritten
           link: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten
-      - name: RewritingOptions
-        link: ref/Microsoft.Coyote.Rewriting/RewritingOptions
-        subfolderitems:
-        - name: ParseFromJSON
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON
-        - name: RewritingOptions
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/RewritingOptions
-        - name: AssembliesDirectory
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory
-        - name: OutputDirectory
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory
-        - name: AssemblyPaths
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
-        - name: IgnoredAssemblies
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies
-        - name: DependencySearchPaths
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths
-        - name: StrongNameKeyFile
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
-        - name: IsRewritingConcurrentCollections
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingConcurrentCollections
-        - name: IsDataRaceCheckingEnabled
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled
-        - name: IsRewritingDependencies
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
-        - name: IsRewritingUnitTests
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests
-        - name: IsRewritingThreads
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingThreads
-        - name: Logger
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
-        - name: LogLevel
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
     - name: Microsoft.Coyote.SystematicTesting
       link: ref/Microsoft.Coyote.SystematicTestingNamespace
       subfolderitems:

@@ -1,6 +1,6 @@
 # TestingEngine.IsTestRewritten method
 
-Checks if the test executed by the testing engine has been rewritten.
+Checks if the test executed by the testing engine has been rewritten with the current version.
 
 ```csharp
 public bool IsTestRewritten()

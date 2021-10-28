@@ -624,31 +624,14 @@ nav:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:
       - Namespace Overview: ref/Microsoft.Coyote.RewritingNamespace.md
-      - IsAssemblyRewrittenAttribute:
-        - Overview: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute.md
-        - IsAssemblyRewrittenAttribute: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/IsAssemblyRewrittenAttribute.md
-        - Version: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/Version.md
+      - CoyoteVersionAttribute:
+        - Overview: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute.md
+        - CoyoteVersionAttribute: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/CoyoteVersionAttribute.md
+        - Version: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Version.md
+        - Identifier: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Identifier.md
       - RewritingEngine:
         - Overview: ref/Microsoft.Coyote.Rewriting/RewritingEngine.md
-        - Run: ref/Microsoft.Coyote.Rewriting/RewritingEngine/Run.md
         - IsAssemblyRewritten: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten.md
-      - RewritingOptions:
-        - Overview: ref/Microsoft.Coyote.Rewriting/RewritingOptions.md
-        - ParseFromJSON: ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON.md
-        - RewritingOptions: ref/Microsoft.Coyote.Rewriting/RewritingOptions/RewritingOptions.md
-        - AssembliesDirectory: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory.md
-        - OutputDirectory: ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory.md
-        - AssemblyPaths: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths.md
-        - IgnoredAssemblies: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies.md
-        - DependencySearchPaths: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths.md
-        - StrongNameKeyFile: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile.md
-        - IsRewritingConcurrentCollections: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingConcurrentCollections.md
-        - IsDataRaceCheckingEnabled: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled.md
-        - IsRewritingDependencies: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies.md
-        - IsRewritingUnitTests: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests.md
-        - IsRewritingThreads: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingThreads.md
-        - Logger: ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger.md
-        - LogLevel: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel.md
     - Microsoft.Coyote.SystematicTesting:
       - Namespace Overview: ref/Microsoft.Coyote.SystematicTestingNamespace.md
       - TestReport:

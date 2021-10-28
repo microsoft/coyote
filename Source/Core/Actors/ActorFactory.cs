@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Actors
                     var constructorInfo = type.GetConstructor(Type.EmptyTypes);
                     if (constructorInfo is null)
                     {
-                        throw new Exception("Could not find empty constructor for type " + type.FullName);
+                        throw new InvalidOperationException("Could not find empty constructor for type " + type.FullName);
                     }
 
                     constructor = Expression.Lambda<Func<Actor>>(

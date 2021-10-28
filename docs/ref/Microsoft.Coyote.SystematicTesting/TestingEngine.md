@@ -16,7 +16,7 @@ public sealed class TestingEngine
 | [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport.md) { get; set; } | Data structure containing information gathered during testing. |
 | [GetReport](TestingEngine/GetReport.md)() | Returns a report with the testing results. |
-| [IsTestRewritten](TestingEngine/IsTestRewritten.md)() | Checks if the test executed by the testing engine has been rewritten. |
+| [IsTestRewritten](TestingEngine/IsTestRewritten.md)() | Checks if the test executed by the testing engine has been rewritten with the current version. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack.md)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
 | [Run](TestingEngine/Run.md)() | Runs the testing engine. |
 | [Stop](TestingEngine/Stop.md)() | Stops the testing engine. |

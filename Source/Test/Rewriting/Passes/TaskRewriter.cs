@@ -34,8 +34,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
         /// </summary>
-        internal TaskRewriter(ILogger logger)
-            : base(logger)
+        internal TaskRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 

@@ -4,9 +4,8 @@
 
 | public type | description |
 | --- | --- |
-| class [IsAssemblyRewrittenAttribute](Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute.md) | Attribute for checking if an assembly has been rewritten by Coyote. If this attribute is applied to an assembly, it denotes that the assembly has been rewritten. |
+| class [CoyoteVersionAttribute](Microsoft.Coyote.Rewriting/CoyoteVersionAttribute.md) | Attribute that defines the version of Coyote used for rewriting an assembly. |
 | class [RewritingEngine](Microsoft.Coyote.Rewriting/RewritingEngine.md) | Engine that can rewrite a set of assemblies for systematic testing. |
-| class [RewritingOptions](Microsoft.Coyote.Rewriting/RewritingOptions.md) | Options for rewriting binaries. |
 
 ## Microsoft.Coyote.SystematicTesting namespace
 

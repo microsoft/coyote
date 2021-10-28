@@ -855,7 +855,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Checks if the test executed by the testing engine has been rewritten.
+        /// Checks if the test executed by the testing engine has been rewritten with the current version.
         /// </summary>
         /// <returns>True if the test has been rewritten, else false.</returns>
         public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewritten(this.TestMethodInfo.Assembly);

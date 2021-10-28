@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
@@ -16,7 +14,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -48,41 +45,14 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// List of assemblies that are not allowed to be rewritten.
-        /// </summary>
-        private readonly Regex DisallowedAssemblies;
-
-        /// <summary>
-        /// Simple cache to reduce redundant warnings.
-        /// </summary>
-        private readonly HashSet<string> ResolveWarnings = new HashSet<string>();
-
-        private readonly string[] DefaultDisallowedList = new string[]
-        {
-            @"Newtonsoft\.Json\.dll",
-            @"Microsoft\.Coyote\.dll",
-            @"Microsoft\.Coyote.Test\.dll",
-            @"Microsoft\.VisualStudio\.TestPlatform.*",
-            @"Microsoft\.TestPlatform.*",
-            @"System\.Private\.CoreLib\.dll",
-            @"mscorlib\.dll"
-        };
-
-        /// <summary>
         /// List of passes applied while rewriting.
         /// </summary>
         private readonly List<AssemblyRewriter> RewritingPasses;
 
         /// <summary>
-        /// Map from assembly name to full name definition of the rewritten assemblies.
+        /// Simple cache to reduce redundant warnings.
         /// </summary>
-        private readonly Dictionary<string, AssemblyNameDefinition> RewrittenAssemblies;
-
-        /// <summary>
-        /// List of assembly names to be rewritten, these are strong names like:
-        /// "Microsoft.AspNetCore.Mvc.Core, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60".
-        /// </summary>
-        private HashSet<string> AssemblyNameScope = new HashSet<string>();
+        private readonly HashSet<string> ResolveWarnings;
 
         /// <summary>
         /// The installed logger.
@@ -90,117 +60,35 @@ namespace Microsoft.Coyote.Rewriting
         private readonly ILogger Logger;
 
         /// <summary>
-        /// The profiler.
+        /// The installed profiler.
         /// </summary>
         private readonly Profiler Profiler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RewritingEngine"/> class.
         /// </summary>
-        /// <param name="configuration">The test configuration to use when rewriting unit tests.</param>
-        /// <param name="options">The <see cref="RewritingOptions"/> for this rewriter.</param>
-        private RewritingEngine(Configuration configuration, RewritingOptions options)
+        private RewritingEngine(RewritingOptions options, Configuration configuration, ILogger logger, Profiler profiler)
         {
+            this.Options = options.Sanitize();
             this.Configuration = configuration;
-            this.Options = options;
-            this.Logger = options.Logger ?? new ConsoleLogger() { LogLevel = options.LogLevel };
-            this.Profiler = new Profiler();
-
-            this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
-            var ignoredAssemblies = options.IgnoredAssemblies ?? Array.Empty<string>();
-            StringBuilder combined = new StringBuilder();
-            foreach (var e in this.DefaultDisallowedList.Concat(ignoredAssemblies))
-            {
-                combined.Append(combined.Length is 0 ? "(" : "|");
-                combined.Append(e);
-            }
-
-            combined.Append(')');
-            try
-            {
-                this.DisallowedAssemblies = new Regex(combined.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("DisallowedAssemblies not a valid regular expression\n" + ex.Message);
-            }
-
-            this.RewritingPasses = new List<AssemblyRewriter>()
-            {
-                new TaskRewriter(this.Logger),
-                new MonitorRewriter(this.Logger),
-                new ExceptionFilterRewriter(this.Logger)
-            };
-
-            if (this.Options.IsRewritingThreads)
-            {
-                this.RewritingPasses.Add(new ThreadingRewriter(this.Logger));
-            }
-
-            if (this.Options.IsRewritingConcurrentCollections)
-            {
-                this.RewritingPasses.Add(new ConcurrentCollectionRewriter(this.Logger));
-            }
-
-            if (this.Options.IsDataRaceCheckingEnabled)
-            {
-                this.RewritingPasses.Add(new DataRaceCheckingRewriter(this.Logger));
-            }
-
-            if (this.Options.IsRewritingUnitTests)
-            {
-                // We are running this pass last, as we are rewriting the original method, and
-                // we need the other rewriting passes to happen before this pass.
-                this.RewritingPasses.Add(new MSTestRewriter(this.Configuration, this.Logger));
-            }
-
-            this.RewritingPasses.Add(new InterAssemblyInvocationRewriter(this.Logger));
-            this.RewritingPasses.Add(new UncontrolledInvocationRewriter(this.Logger));
-
-            // expand folder
-            if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)
-            {
-                // Expand to include all .dll files in AssemblyPaths.
-                foreach (var file in Directory.GetFiles(this.Options.AssembliesDirectory, "*.dll"))
-                {
-                    if (this.IsDisallowed(Path.GetFileName(file)))
-                    {
-                        this.Options.AssemblyPaths.Add(file);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Skipping " + file);
-                    }
-                }
-            }
+            this.RewritingPasses = new List<AssemblyRewriter>();
+            this.ResolveWarnings = new HashSet<string>();
+            this.Logger = logger;
+            this.Profiler = profiler;
         }
 
         /// <summary>
         /// Runs the engine using the specified rewriting options.
         /// </summary>
-        public static void Run(Configuration configuration, RewritingOptions options)
+        internal static void Run(RewritingOptions options, Configuration configuration, Profiler profiler)
         {
-            if (string.IsNullOrEmpty(options.AssembliesDirectory))
-            {
-                throw new Exception("Please provide RewritingOptions.AssembliesDirectory");
-            }
-
-            if (string.IsNullOrEmpty(options.OutputDirectory))
-            {
-                throw new Exception("Please provide RewritingOptions.OutputDirectory");
-            }
-
-            if (options.AssemblyPaths is null || options.AssemblyPaths.Count is 0)
-            {
-                throw new Exception("Please provide RewritingOptions.AssemblyPaths");
-            }
-
-            var engine = new RewritingEngine(configuration, options);
+            var logger = new ConsoleLogger() { LogLevel = configuration.LogLevel };
+            var engine = new RewritingEngine(options, configuration, logger, profiler);
             engine.Run();
         }
 
         /// <summary>
-        /// Runs the engine.
+        /// Runs the rewriting engine.
         /// </summary>
         private void Run()
         {
@@ -209,202 +97,106 @@ namespace Microsoft.Coyote.Rewriting
             // Create the output directory and copy any necessary files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
-            // Create list of all assemblies we need to transform.
-            this.AssemblyNameScope = new HashSet<string>();
-            var list = new List<string>();
-            foreach (var pair in this.FindUniqueAssemblies())
+            try
             {
-                list.Add(pair.Item1);
-                this.AssemblyNameScope.Add(pair.Item2);
-            }
-
-            int errors = 0;
-
-            foreach (var assemblyPath in list)
-            {
-                try
+                // Get the set of assemblies to rewrite.
+                var assemblies = AssemblyInfo.LoadAssembliesToRewrite(this.Options, this.OnResolveAssemblyFailure);
+                this.InitializeRewritingPasses(assemblies);
+                foreach (var assembly in assemblies)
                 {
-                    this.RewriteAssembly(assemblyPath, outputDirectory);
-                }
-                catch (Exception ex)
-                {
-                    if (!this.Options.IsReplacingAssemblies)
-                    {
-                        // Make sure to copy the original assembly to avoid any corruptions.
-                        CopyFile(assemblyPath, outputDirectory);
-                    }
-
-                    if (ex is AggregateException ae && ae.InnerException != null)
-                    {
-                        this.Logger.WriteLine(LogSeverity.Error, ae.InnerException.Message);
-                    }
-                    else
-                    {
-                        this.Logger.WriteLine(LogSeverity.Error, ex.Message);
-                    }
-
-                    if (this.Configuration.IsDebugVerbosityEnabled)
-                    {
-                        this.Logger.WriteLine(LogSeverity.Error, ex.StackTrace);
-                    }
-
-                    errors++;
+                    string outputPath = Path.Combine(outputDirectory, assembly.Name);
+                    this.RewriteAssembly(assembly, outputPath);
                 }
             }
-
-            if (errors is 0 && this.Options.IsReplacingAssemblies)
+            catch (Exception ex)
             {
-                // If we are replacing the original assemblies, then delete the temporary output directory.
-                Directory.Delete(outputDirectory, true);
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
-
-            this.Profiler.StopMeasuringExecutionTime();
-            Console.WriteLine($". Done rewriting in {this.Profiler.Results()} sec");
-        }
-
-        /// <summary>
-        /// Recursively find all assemblies that need to be rewritten as defined in the options.
-        /// If the options IsRewritingDependencies is true then find all dependent assemblies also.
-        /// </summary>
-        /// <returns>All discovered assemblies and their strong names.</returns>
-        private IEnumerable<Tuple<string, string>> FindUniqueAssemblies()
-        {
-            HashSet<string> unique = new HashSet<string>();
-            // Rewrite the assembly files to the output directory.
-            foreach (string assemblyPath in this.Options.AssemblyPaths)
+            finally
             {
-                foreach (var pair in this.FindAllDependencies(assemblyPath, unique))
+                if (this.Options.IsReplacingAssemblies())
                 {
-                    yield return pair;
+                    // If we are replacing the original assemblies, then delete the temporary output directory.
+                    Directory.Delete(outputDirectory, true);
                 }
+
+                this.Profiler.StopMeasuringExecutionTime();
             }
         }
 
         /// <summary>
-        /// Recursively find all unique dependent assemblies in local assembly path.
+        /// Initializes the passes to run during rewriting.
         /// </summary>
-        /// <param name="assemblyPath">The assembly to analyze.</param>
-        /// <param name="visited">Set of assemblies already visited.</param>
-        /// <returns>The newly discovered dependent assemblies.</returns>
-        private IEnumerable<Tuple<string, string>> FindAllDependencies(string assemblyPath, HashSet<string> visited)
+        private void InitializeRewritingPasses(IEnumerable<AssemblyInfo> assemblies)
         {
-            using var assemblyResolver = this.GetAssemblyResolver();
-            var readParams = new ReaderParameters()
+            this.RewritingPasses.Add(new TaskRewriter(assemblies, this.Logger));
+            this.RewritingPasses.Add(new MonitorRewriter(assemblies, this.Logger));
+            this.RewritingPasses.Add(new ExceptionFilterRewriter(assemblies, this.Logger));
+
+            if (this.Options.IsRewritingThreads)
             {
-                AssemblyResolver = assemblyResolver,
-                ReadSymbols = IsSymbolFileAvailable(assemblyPath)
-            };
-
-            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
-            {
-                if (!visited.Contains(assemblyPath))
-                {
-                    visited.Add(assemblyPath);
-                    yield return new Tuple<string, string>(assemblyPath, assembly.FullName);
-                }
-
-                if (this.Options.IsRewritingDependencies)
-                {
-                    foreach (var pair in this.FindLocalDependencies(assemblyPath, assembly))
-                    {
-                        if (!visited.Contains(pair.Item1))
-                        {
-                            visited.Add(pair.Item1);
-                            yield return pair;
-
-                            // recurrse!
-                            foreach (var child in this.FindAllDependencies(pair.Item1, visited))
-                            {
-                                yield return child;
-                            }
-                        }
-                    }
-                }
+                this.RewritingPasses.Add(new ThreadingRewriter(assemblies, this.Logger));
             }
+
+            if (this.Options.IsRewritingConcurrentCollections)
+            {
+                this.RewritingPasses.Add(new ConcurrentCollectionRewriter(assemblies, this.Logger));
+            }
+
+            if (this.Options.IsDataRaceCheckingEnabled)
+            {
+                this.RewritingPasses.Add(new DataRaceCheckingRewriter(assemblies, this.Logger));
+            }
+
+            if (this.Options.IsRewritingUnitTests)
+            {
+                // We are running this pass last, as we are rewriting the original method, and
+                // we need the other rewriting passes to happen before this pass.
+                this.RewritingPasses.Add(new MSTestRewriter(this.Configuration, assemblies, this.Logger));
+            }
+
+            this.RewritingPasses.Add(new InterAssemblyInvocationRewriter(assemblies, this.Logger));
+            this.RewritingPasses.Add(new UncontrolledInvocationRewriter(assemblies, this.Logger));
         }
 
         /// <summary>
-        /// Rewrites the specified assembly definition.
+        /// Rewrites the specified assembly.
         /// </summary>
-        private void RewriteAssembly(string assemblyPath, string outputDirectory)
+        private void RewriteAssembly(AssemblyInfo assembly, string outputPath)
         {
-            string assemblyName = Path.GetFileName(assemblyPath);
-            if (this.IsDisallowed(assemblyName))
+            try
             {
-                throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assemblyPath}) is not allowed.");
-            }
-            else if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
-            {
-                // The assembly is already rewritten, so skip it.
-                return;
-            }
-
-            string outputPath = Path.Combine(outputDirectory, assemblyName);
-
-            using var assemblyResolver = this.GetAssemblyResolver();
-            var readParams = new ReaderParameters()
-            {
-                AssemblyResolver = assemblyResolver,
-                ReadSymbols = IsSymbolFileAvailable(assemblyPath)
-            };
-
-            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
-            {
-                this.Logger.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
-
-                this.RewrittenAssemblies[assembly.Name.Name] = assembly.Name;
-
-                if (IsAssemblyRewritten(assembly))
+                this.Logger.WriteLine($"... Rewriting the '{assembly.Name}' assembly ({assembly.FullName})");
+                if (assembly.IsRewritten)
                 {
-                    // The assembly has been already rewritten by this version of Coyote, so skip it.
-                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly with reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()}");
-                    return;
-                }
-                else if (IsMixedModeAssembly(assembly))
-                {
-                    // Mono.Cecil does not support writing mixed-mode assemblies.
-                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly with reason: rewriting a mixed-mode assembly is not supported");
+                    this.Logger.WriteLine($"..... Skipping as assembly is already rewritten with matching signature");
                     return;
                 }
 
-                this.FixAssemblyReferences(assembly);
-
-                ApplyIsAssemblyRewrittenAttribute(assembly);
+                // Traverse the assembly to apply each rewriting pass.
                 foreach (var pass in this.RewritingPasses)
                 {
-                    // Traverse the assembly to apply each rewriting pass.
-                    Debug.WriteLine($"..... Applying the '{pass.GetType().Name}' pass");
-                    pass.AssemblyNameScope = this.AssemblyNameScope;
-                    foreach (var module in assembly.Modules)
-                    {
-                        RewriteModule(module, pass);
-                    }
+                    assembly.Rewrite(pass);
                 }
+
+                // Apply the rewriting signature to the assembly metadata.
+                assembly.ApplyRewritingSignatureAttribute(GetAssemblyRewriterVersion());
 
                 // Write the binary in the output path with portable symbols enabled.
-                this.Logger.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
-                    $"{(this.Options.IsReplacingAssemblies ? assemblyPath : outputPath)}");
-
-                var writeParams = new WriterParameters()
-                {
-                    WriteSymbols = readParams.ReadSymbols,
-                    SymbolWriterProvider = new PortablePdbWriterProvider()
-                };
-
-                if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
-                {
-                    using FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open);
-                    writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
-                }
-
-                assembly.Write(outputPath, writeParams);
+                this.Logger.WriteLine($"... Writing the modified '{assembly.Name}' assembly to " +
+                    $"{(this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath)}");
+                assembly.Write(outputPath);
+            }
+            finally
+            {
+                assembly.Dispose();
             }
 
-            if (this.Options.IsReplacingAssemblies)
+            if (this.Options.IsReplacingAssemblies())
             {
-                string targetPath = Path.Combine(this.Options.AssembliesDirectory, assemblyName);
-                this.CopyWithRetriesAsync(outputPath, assemblyPath).Wait();
-                if (readParams.ReadSymbols)
+                string targetPath = Path.Combine(this.Options.AssembliesDirectory, assembly.Name);
+                this.CopyWithRetriesAsync(outputPath, assembly.FilePath).Wait();
+                if (assembly.IsSymbolFileAvailable())
                 {
                     string pdbFile = Path.ChangeExtension(outputPath, "pdb");
                     string targetPdbFile = Path.ChangeExtension(targetPath, "pdb");
@@ -413,154 +205,30 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
-        private async Task CopyWithRetriesAsync(string srcFile, string targetFile)
-        {
-            for (int retries = 10; retries >= 0; retries--)
-            {
-                try
-                {
-                    File.Copy(srcFile, targetFile, true);
-                }
-                catch (Exception)
-                {
-                    if (retries is 0)
-                    {
-                        throw;
-                    }
-
-                    await Task.Delay(100);
-                    this.Logger.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
-                }
-            }
-        }
-
-        private void FixAssemblyReferences(AssemblyDefinition assembly)
-        {
-            foreach (var module in assembly.Modules)
-            {
-                for (int i = 0, n = module.AssemblyReferences.Count; i < n; i++)
-                {
-                    var ar = module.AssemblyReferences[i];
-                    var name = ar.Name;
-                    if (this.RewrittenAssemblies.TryGetValue(name, out AssemblyNameDefinition rewrittenName))
-                    {
-                        // rewrite this reference to point to the newly rewritten assembly.
-                        var refName = AssemblyNameReference.Parse(rewrittenName.FullName);
-                        module.AssemblyReferences[i] = refName;
-                    }
-                }
-            }
-        }
-
         /// <summary>
-        /// Enqueue any dependent assemblies that also exist in the assemblyPath and have not
-        /// already been rewritten.
+        /// Checks if the specified assembly has been already rewritten with the current version.
         /// </summary>
-        private IEnumerable<Tuple<string, string>> FindLocalDependencies(string assemblyPath, AssemblyDefinition assembly)
-        {
-            var assemblyDir = Path.GetDirectoryName(assemblyPath);
-            foreach (var module in assembly.Modules)
-            {
-                foreach (var ar in module.AssemblyReferences)
-                {
-                    var name = ar.Name + ".dll";
-                    var localName = Path.Combine(assemblyDir, name);
-                    if (!this.IsDisallowed(name) &&
-                        File.Exists(localName))
-                    {
-                        yield return new Tuple<string, string>(localName, ar.FullName);
-                    }
-                }
-            }
-        }
+        /// <param name="assembly">The assembly to check.</param>
+        /// <returns>True if the assembly has been rewritten with the current version, else false.</returns>
+        public static bool IsAssemblyRewritten(Assembly assembly) =>
+            assembly.GetCustomAttribute(typeof(RewritingSignatureAttribute)) is RewritingSignatureAttribute attribute &&
+            attribute.Version == GetAssemblyRewriterVersion().ToString();
 
         /// <summary>
-        /// Rewrites the specified module definition using the specified pass.
+        /// Returns the version of the assembly rewriter.
         /// </summary>
-        private static void RewriteModule(ModuleDefinition module, AssemblyRewriter pass)
-        {
-            Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");
-            pass.VisitModule(module);
-            foreach (var type in module.GetTypes())
-            {
-                RewriteType(type, pass);
-            }
-        }
+        private static Version GetAssemblyRewriterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
 
         /// <summary>
-        /// Rewrites the specified type definition using the specified pass.
-        /// </summary>
-        private static void RewriteType(TypeDefinition type, AssemblyRewriter pass)
-        {
-            Debug.WriteLine($"......... Type: {type.FullName}");
-            pass.VisitType(type);
-            foreach (var field in type.Fields.ToArray())
-            {
-                Debug.WriteLine($"........... Field: {field.FullName}");
-                pass.VisitField(field);
-            }
-
-            foreach (var method in type.Methods.ToArray())
-            {
-                RewriteMethod(method, pass);
-                if (pass.ModifiedMethodBody)
-                {
-                    AssemblyRewriter.FixInstructionOffsets(method);
-                    pass.ModifiedMethodBody = false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Rewrites the specified method definition using the specified pass.
-        /// </summary>
-        private static void RewriteMethod(MethodDefinition method, AssemblyRewriter pass)
-        {
-            if (method.Body is null)
-            {
-                return;
-            }
-
-            Debug.WriteLine($"........... Method {method.FullName}");
-            pass.VisitMethod(method);
-        }
-
-        /// <summary>
-        /// Applies the <see cref="IsAssemblyRewrittenAttribute"/> attribute to the specified assembly. This attribute
-        /// indicates that the assembly has been rewritten with the current version of Coyote.
-        /// </summary>
-        private static void ApplyIsAssemblyRewrittenAttribute(AssemblyDefinition assembly)
-        {
-            CustomAttribute attribute = GetCustomAttribute(assembly, typeof(IsAssemblyRewrittenAttribute));
-            var attributeArgument = new CustomAttributeArgument(
-                assembly.MainModule.ImportReference(typeof(string)),
-                GetAssemblyRewritterVersion().ToString());
-
-            if (attribute is null)
-            {
-                MethodReference attributeConstructor = assembly.MainModule.ImportReference(
-                    typeof(IsAssemblyRewrittenAttribute).GetConstructor(new Type[] { typeof(string) }));
-                attribute = new CustomAttribute(attributeConstructor);
-                attribute.ConstructorArguments.Add(attributeArgument);
-                assembly.CustomAttributes.Add(attribute);
-            }
-            else
-            {
-                attribute.ConstructorArguments[0] = attributeArgument;
-            }
-        }
-
-        /// <summary>
-        /// Creates the output directory, if it does not already exists, and copies all necessery files.
+        /// Creates the output directory, if it does not already exists, and copies all necessary files.
         /// </summary>
         /// <returns>The output directory path.</returns>
         private string CreateOutputDirectoryAndCopyFiles()
         {
             string sourceDirectory = this.Options.AssembliesDirectory;
-            string outputDirectory = Directory.CreateDirectory(this.Options.IsReplacingAssemblies ?
+            string outputDirectory = Directory.CreateDirectory(this.Options.IsReplacingAssemblies() ?
                 Path.Combine(this.Options.OutputDirectory, TempDirectory) : this.Options.OutputDirectory).FullName;
-
-            if (!this.Options.IsReplacingAssemblies)
+            if (!this.Options.IsReplacingAssemblies())
             {
                 this.Logger.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
 
@@ -578,7 +246,8 @@ namespace Microsoft.Coyote.Rewriting
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
-                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length).TrimStart('\\', '/'));
+                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length)
+                            .TrimStart('\\', '/'));
                         Directory.CreateDirectory(path);
                         foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
                         {
@@ -589,7 +258,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            // Copy all the dependent assemblies
+            // Copy all the dependent assemblies.
             foreach (var type in new Type[]
                 {
                     typeof(ControlledTask),
@@ -614,91 +283,27 @@ namespace Microsoft.Coyote.Rewriting
             File.Copy(filePath, Path.Combine(destination, Path.GetFileName(filePath)), true);
 
         /// <summary>
-        /// Checks if the assembly with the specified name is not allowed.
+        /// Copies the specified file to the destination with retries.
         /// </summary>
-        private bool IsDisallowed(string assemblyName) => this.DisallowedAssemblies is null ? false :
-            this.DisallowedAssemblies.IsMatch(assemblyName);
-
-        /// <summary>
-        /// Checks if the specified assembly has been already rewritten with the current version of Coyote.
-        /// </summary>
-        /// <param name="assembly">The assembly to check.</param>
-        /// <returns>True if the assembly has been rewritten, else false.</returns>
-        public static bool IsAssemblyRewritten(Assembly assembly) =>
-            assembly.GetCustomAttribute(typeof(IsAssemblyRewrittenAttribute)) is IsAssemblyRewrittenAttribute attribute &&
-            attribute.Version == GetAssemblyRewritterVersion().ToString();
-
-        /// <summary>
-        /// Checks if the specified assembly has been already rewritten with the current version of Coyote.
-        /// </summary>
-        /// <param name="assembly">The assembly to check.</param>
-        /// <returns>True if the assembly has been rewritten, else false.</returns>
-        private static bool IsAssemblyRewritten(AssemblyDefinition assembly)
+        private async Task CopyWithRetriesAsync(string srcFile, string targetFile)
         {
-            var attribute = GetCustomAttribute(assembly, typeof(IsAssemblyRewrittenAttribute));
-            return attribute != null && (string)attribute.ConstructorArguments[0].Value == GetAssemblyRewritterVersion().ToString();
-        }
-
-        /// <summary>
-        /// Checks if the specified assembly is a mixed-mode assembly.
-        /// </summary>
-        /// <param name="assembly">The assembly to check.</param>
-        /// <returns>True if the assembly only contains IL, else false.</returns>
-        private static bool IsMixedModeAssembly(AssemblyDefinition assembly)
-        {
-            foreach (var module in assembly.Modules)
+            for (int retries = 10; retries >= 0; retries--)
             {
-                if ((module.Attributes & ModuleAttributes.ILOnly) is 0)
+                try
                 {
-                    return true;
+                    File.Copy(srcFile, targetFile, true);
+                }
+                catch (Exception)
+                {
+                    if (retries is 0)
+                    {
+                        throw;
+                    }
+
+                    await Task.Delay(100);
+                    this.Logger.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
                 }
             }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks if the symbol file for the specified assembly is available.
-        /// </summary>
-        private static bool IsSymbolFileAvailable(string assemblyPath) =>
-            File.Exists(Path.ChangeExtension(assemblyPath, "pdb"));
-
-        /// <summary>
-        /// Returns the first found custom attribute with the specified type, if such an attribute
-        /// is applied to the specified assembly, else null.
-        /// </summary>
-        private static CustomAttribute GetCustomAttribute(AssemblyDefinition assembly, Type attributeType) =>
-            assembly.CustomAttributes.FirstOrDefault(
-                attr => attr.AttributeType.Namespace == attributeType.Namespace &&
-                attr.AttributeType.Name == attributeType.Name);
-
-        /// <summary>
-        /// Returns the version of the assembly rewritter.
-        /// </summary>
-        private static Version GetAssemblyRewritterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
-
-        /// <summary>
-        /// Returns a new assembly resolver.
-        /// </summary>
-        private IAssemblyResolver GetAssemblyResolver()
-        {
-            // TODO: can we reuse it, or do we need a new one for each assembly?
-            var assemblyResolver = new DefaultAssemblyResolver();
-
-            // Add known search directories for resolving assemblies.
-            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
-            assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
-            if (this.Options.DependencySearchPaths != null)
-            {
-                foreach (var path in this.Options.DependencySearchPaths)
-                {
-                    assemblyResolver.AddSearchDirectory(path);
-                }
-            }
-
-            // Add the assembly resolution error handler.
-            assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
-            return assemblyResolver;
         }
 
         /// <summary>

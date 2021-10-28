@@ -109,7 +109,6 @@ namespace Microsoft.Coyote.Actors
         {
             if (obj is ActorId id)
             {
-                // Use same machanism for hashing.
                 if (this.IsNameUsedForHashing != id.IsNameUsedForHashing)
                 {
                     return false;

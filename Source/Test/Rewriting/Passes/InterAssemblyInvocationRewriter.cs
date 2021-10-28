@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
@@ -19,8 +20,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewriter"/> class.
         /// </summary>
-        internal InterAssemblyInvocationRewriter(ILogger log)
-            : base(log)
+        internal InterAssemblyInvocationRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 
@@ -82,15 +83,25 @@ namespace Microsoft.Coyote.Rewriting
                     else if (methodReference.Name is "GetAwaiter" &&
                         IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
                     {
-                        var declaringType = methodReference.DeclaringType;
+                        var returnType = methodReference.ReturnType;
                         TypeDefinition providerType = this.Module.ImportReference(typeof(ControlledTasks.TaskAwaiter)).Resolve();
                         MethodReference wrapMethod = null;
-                        if (declaringType is GenericInstanceType gt)
+                        if (returnType is GenericInstanceType rgt)
                         {
-                            MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(m => m.Name == "Wrap" && m.HasGenericParameters);
-                            MethodReference wrapReference = this.Module.ImportReference(genericMethod);
+                            TypeReference argType;
+                            if (methodReference.DeclaringType is GenericInstanceType dgt)
+                            {
+                                var returnArgType = rgt.GenericArguments.FirstOrDefault().GetElementType();
+                                argType = GetGenericParameterTypeFromNamedIndex(dgt, returnArgType.FullName);
+                            }
+                            else
+                            {
+                                argType = rgt.GenericArguments.FirstOrDefault().GetElementType();
+                            }
 
-                            TypeReference argType = gt.GenericArguments.FirstOrDefault().GetElementType();
+                            MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(
+                                m => m.Name == "Wrap" && m.HasGenericParameters);
+                            MethodReference wrapReference = this.Module.ImportReference(genericMethod);
                             wrapMethod = MakeGenericMethod(wrapReference, argType);
                         }
                         else
@@ -116,25 +127,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return instruction;
-        }
-
-        /// <summary>
-        /// Checks if the specified type is foreign.
-        /// </summary>
-        private bool IsForeignType(TypeDefinition type)
-        {
-            if (type is null || this.Module == type.Module)
-            {
-                return false;
-            }
-
-            string module = Path.GetFileName(type.Module.FileName);
-            if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
-            {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

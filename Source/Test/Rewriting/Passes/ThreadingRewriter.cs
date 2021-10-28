@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -18,8 +19,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreadingRewriter"/> class.
         /// </summary>
-        internal ThreadingRewriter(ILogger logger)
-            : base(logger)
+        internal ThreadingRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
+            : base(rewrittenAssemblies, logger)
         {
         }
 

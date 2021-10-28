@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Rewriting
         private readonly IAssemblyResolver Resolver;
 
         /// <summary>
-        /// The writing options.
+        /// The rewriting options.
         /// </summary>
         private readonly RewritingOptions Options;
 
@@ -57,6 +57,11 @@ namespace Microsoft.Coyote.Rewriting
         /// True if the assembly has been rewritten, else false.
         /// </summary>
         internal bool IsRewritten { get; private set; }
+
+        /// <summary>
+        /// True if the assembly has been disposed, else false.
+        /// </summary>
+        private bool IsDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyInfo"/> class.
@@ -68,6 +73,7 @@ namespace Microsoft.Coyote.Rewriting
             this.Dependencies = new HashSet<AssemblyInfo>();
             this.Options = options;
             this.IsRewritten = false;
+            this.IsDisposed = false;
 
             // TODO: can we reuse it, or do we need a new one for each assembly?
             var assemblyResolver = new DefaultAssemblyResolver();
@@ -194,20 +200,24 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Applies the <see cref="CoyoteVersionAttribute"/> attribute to the assembly. This attribute
-        /// indicates that the assembly has been rewritten with the current version of Coyote.
+        /// Applies the <see cref="RewritingSignatureAttribute"/> attribute to the assembly. This attribute
+        /// indicates that the assembly has been rewritten with the current version of Coyote and contains
+        /// a signature identifying the parameters used during binary rewriting of the assembly.
         /// </summary>
-        internal void ApplyCoyoteVersionAttribute(Version rewriterVersion, Guid rewriterIdentifier)
+        internal void ApplyRewritingSignatureAttribute(Version rewriterVersion)
         {
-            CustomAttribute attribute = this.GetCustomAttribute(typeof(CoyoteVersionAttribute));
+            var signature = new AssemblySignature(this, this.Dependencies, rewriterVersion, this.Options);
+            var signatureHash = signature.ComputeHash();
+
+            CustomAttribute attribute = this.GetCustomAttribute(typeof(RewritingSignatureAttribute));
             var versionAttributeArgument = new CustomAttributeArgument(
                 this.Definition.MainModule.ImportReference(typeof(string)), rewriterVersion.ToString());
             var idAttributeArgument = new CustomAttributeArgument(
-                this.Definition.MainModule.ImportReference(typeof(string)), rewriterIdentifier.ToString());
+                this.Definition.MainModule.ImportReference(typeof(string)), signatureHash);
             if (attribute is null)
             {
                 MethodReference attributeConstructor = this.Definition.MainModule.ImportReference(
-                    typeof(CoyoteVersionAttribute).GetConstructor(new Type[] { typeof(string), typeof(string) }));
+                    typeof(RewritingSignatureAttribute).GetConstructor(new Type[] { typeof(string), typeof(string) }));
                 attribute = new CustomAttribute(attributeConstructor);
                 attribute.ConstructorArguments.Add(versionAttributeArgument);
                 attribute.ConstructorArguments.Add(idAttributeArgument);
@@ -218,13 +228,28 @@ namespace Microsoft.Coyote.Rewriting
                 attribute.ConstructorArguments[0] = versionAttributeArgument;
                 attribute.ConstructorArguments[1] = idAttributeArgument;
             }
+
+            this.IsRewritten = true;
         }
 
         /// <summary>
-        /// Checks if the specified assembly has been already rewritten.
+        /// Checks if this assembly has been rewritten and, if yes, returns its version and signature.
         /// </summary>
-        /// <returns>True if the assembly has been rewritten, else false.</returns>
-        internal bool IsAssemblyRewritten() => this.GetCustomAttribute(typeof(CoyoteVersionAttribute)) != null;
+        /// <returns>True if the assembly has been rewritten with the same signature, else false.</returns>
+        private bool IsAssemblyRewritten(out string version, out string signatureHash)
+        {
+            CustomAttribute attribute = this.GetCustomAttribute(typeof(RewritingSignatureAttribute));
+            if (attribute != null)
+            {
+                version = attribute.ConstructorArguments[0].Value as string;
+                signatureHash = attribute.ConstructorArguments[1].Value as string;
+                return true;
+            }
+
+            version = string.Empty;
+            signatureHash = string.Empty;
+            return false;
+        }
 
         /// <summary>
         /// Checks if the specified assembly is a mixed-mode assembly.
@@ -252,10 +277,24 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void ValidateAssembly()
         {
-            if (this.IsAssemblyRewritten())
+            if (this.IsAssemblyRewritten(out string version, out string signatureHash))
             {
-                // The assembly has been already rewritten by this version of Coyote, so exit with an error.
-                throw new InvalidOperationException($"Assembly '{this.Name}' has been already rewritten.");
+                // The assembly has been already rewritten so check if the signatures match.
+                var newVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var newSignature = new AssemblySignature(this, this.Dependencies, newVersion, this.Options);
+                var newSignatureHash = newSignature.ComputeHash();
+                if (version != newVersion.ToString())
+                {
+                    throw new InvalidOperationException(
+                        $"Assembly '{this.Name}' has been rewritten with a different coyote version.");
+                }
+                else if (signatureHash != newSignatureHash)
+                {
+                    throw new InvalidOperationException(
+                        $"Assembly '{this.Name}' has been rewritten with a different rewriting configuration.");
+                }
+
+                this.IsRewritten = true;
             }
             else if (this.IsMixedModeAssembly())
             {
@@ -361,8 +400,12 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         public void Dispose()
         {
-            this.Definition?.Dispose();
-            this.Resolver?.Dispose();
+            if (!this.IsDisposed)
+            {
+                this.Definition?.Dispose();
+                this.Resolver?.Dispose();
+                this.IsDisposed = true;
+            }
         }
     }
 }

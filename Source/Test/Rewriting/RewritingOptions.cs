@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Rewriting
         internal bool IsRewritingUnitTests { get; set; }
 
         /// <summary>
-        /// True if rewriting Threads as controlled tasks.
+        /// True if rewriting threads as controlled tasks.
         /// </summary>
         /// <remarks>
         /// Normally Thread is not supported by Coyote, but this experimental feature wraps the

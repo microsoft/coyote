@@ -45,11 +45,6 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// Unique identifier applied to the rewritten assemblies.
-        /// </summary>
-        private readonly Guid Identifier;
-
-        /// <summary>
         /// List of passes applied while rewriting.
         /// </summary>
         private readonly List<AssemblyRewriter> RewritingPasses;
@@ -74,7 +69,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private RewritingEngine(RewritingOptions options, Configuration configuration, ILogger logger, Profiler profiler)
         {
-            this.Identifier = Guid.NewGuid();
             this.Options = options.Sanitize();
             this.Configuration = configuration;
             this.RewritingPasses = new List<AssemblyRewriter>();
@@ -110,11 +104,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.InitializeRewritingPasses(assemblies);
                 foreach (var assembly in assemblies)
                 {
-                    if (!assembly.IsRewritten)
-                    {
-                        string outputPath = Path.Combine(outputDirectory, assembly.Name);
-                        this.RewriteAssembly(assembly, outputPath);
-                    }
+                    string outputPath = Path.Combine(outputDirectory, assembly.Name);
+                    this.RewriteAssembly(assembly, outputPath);
                 }
             }
             catch (Exception ex)
@@ -176,13 +167,20 @@ namespace Microsoft.Coyote.Rewriting
             try
             {
                 this.Logger.WriteLine($"... Rewriting the '{assembly.Name}' assembly ({assembly.FullName})");
-                assembly.ApplyCoyoteVersionAttribute(GetAssemblyRewriterVersion(), this.Identifier);
+                if (assembly.IsRewritten)
+                {
+                    this.Logger.WriteLine($"..... Skipping as assembly is already rewritten with matching signature");
+                    return;
+                }
 
                 // Traverse the assembly to apply each rewriting pass.
                 foreach (var pass in this.RewritingPasses)
                 {
                     assembly.Rewrite(pass);
                 }
+
+                // Apply the rewriting signature to the assembly metadata.
+                assembly.ApplyRewritingSignatureAttribute(GetAssemblyRewriterVersion());
 
                 // Write the binary in the output path with portable symbols enabled.
                 this.Logger.WriteLine($"... Writing the modified '{assembly.Name}' assembly to " +
@@ -213,7 +211,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="assembly">The assembly to check.</param>
         /// <returns>True if the assembly has been rewritten with the current version, else false.</returns>
         public static bool IsAssemblyRewritten(Assembly assembly) =>
-            assembly.GetCustomAttribute(typeof(CoyoteVersionAttribute)) is CoyoteVersionAttribute attribute &&
+            assembly.GetCustomAttribute(typeof(RewritingSignatureAttribute)) is RewritingSignatureAttribute attribute &&
             attribute.Version == GetAssemblyRewriterVersion().ToString();
 
         /// <summary>

@@ -62,6 +62,8 @@ namespace Microsoft.Coyote.Rewriting
                 Debug.WriteLine($"............. [+] systematic test method '{method.Name}'");
                 Debug.WriteLine($"............. [+] test method '{newMethod.Name}'");
             }
+
+            base.VisitMethod(method);
         }
 
         /// <summary>

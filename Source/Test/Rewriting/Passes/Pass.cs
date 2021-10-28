@@ -17,29 +17,34 @@ namespace Microsoft.Coyote.Rewriting
     internal abstract class Pass
     {
         /// <summary>
-        /// The current module being transformed.
-        /// </summary>
-        protected ModuleDefinition Module { get; private set; }
-
-        /// <summary>
-        /// The type being transformed.
-        /// </summary>
-        protected TypeDefinition TypeDef { get; private set; }
-
-        /// <summary>
-        /// The set of assemblies that are being rewritten.
+        /// The set of assemblies that are being visited.
         /// </summary>
         protected IEnumerable<AssemblyInfo> VisitedAssemblies { get; private set; }
 
         /// <summary>
-        /// The current method being transformed.
+        /// The current assembly being visited.
         /// </summary>
-        protected MethodDefinition Method;
+        protected AssemblyDefinition Assembly { get; private set; }
 
         /// <summary>
-        /// A helper class for editing method body.
+        /// The current module being visited.
         /// </summary>
-        protected ILProcessor Processor;
+        protected ModuleDefinition Module { get; private set; }
+
+        /// <summary>
+        /// The type being visited.
+        /// </summary>
+        protected TypeDefinition TypeDef { get; private set; }
+
+        /// <summary>
+        /// The current method being visited.
+        /// </summary>
+        protected MethodDefinition Method { get; private set; }
+
+        /// <summary>
+        /// A helper for transforming method bodies.
+        /// </summary>
+        protected ILProcessor Processor { get; private set; }
 
         /// <summary>
         /// Cache of qualified names.
@@ -61,28 +66,46 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="ModuleDefinition"/> inside the <see cref="AssemblyDefinition"/>
-        /// that was visited by the <see cref="RewritingEngine"/>.
+        /// Visits the specified <see cref="AssemblyDefinition"/>.
+        /// </summary>
+        /// <param name="assembly">The assembly definition to visit.</param>
+        internal virtual void VisitAssembly(AssemblyDefinition assembly)
+        {
+            this.Assembly = assembly;
+            this.Module = null;
+            this.TypeDef = null;
+            this.Method = null;
+            this.Processor = null;
+        }
+
+        /// <summary>
+        /// Visits the specified <see cref="ModuleDefinition"/> inside the currently
+        /// visited <see cref="AssemblyDefinition"/>.
         /// </summary>
         /// <param name="module">The module definition to visit.</param>
         internal virtual void VisitModule(ModuleDefinition module)
         {
             this.Module = module;
+            this.TypeDef = null;
+            this.Method = null;
+            this.Processor = null;
         }
 
         /// <summary>
-        /// Visits the specified <see cref="TypeDefinition"/> inside the <see cref="ModuleDefinition"/>
-        /// that was visited by the last <see cref="VisitModule"/>.
+        /// Visits the specified <see cref="TypeDefinition"/> inside the currently
+        /// visited <see cref="ModuleDefinition"/>.
         /// </summary>
         /// <param name="type">The type definition to visit.</param>
         internal virtual void VisitType(TypeDefinition type)
         {
             this.TypeDef = type;
+            this.Method = null;
+            this.Processor = null;
         }
 
         /// <summary>
-        /// Visits the specified <see cref="FieldDefinition"/> inside the <see cref="TypeDefinition"/> that was visited
-        /// by the last <see cref="VisitType"/>.
+        /// Visits the specified <see cref="FieldDefinition"/> inside the currently
+        /// visited <see cref="TypeDefinition"/>.
         /// </summary>
         /// <param name="field">The field definition to visit.</param>
         internal virtual void VisitField(FieldDefinition field)
@@ -90,29 +113,38 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="MethodDefinition"/> inside the <see cref="TypeDefinition"/> that was visited
-        /// by the last <see cref="VisitType"/>.
+        /// Visits the specified <see cref="MethodDefinition"/> inside the currently
+        /// visited <see cref="TypeDefinition"/>.
         /// </summary>
         /// <param name="method">The method definition to visit.</param>
         internal virtual void VisitMethod(MethodDefinition method)
         {
-        }
+            this.Method = method;
 
-        /// <summary>
-        /// If you want to transform individual method variables, then call this method.
-        /// </summary>
-        /// <param name="method">The method whose variables are being transformed.</param>
-        protected virtual void VisitVariables(MethodDefinition method)
-        {
-            foreach (var variable in method.Body.Variables.ToArray())
+            // Only non-abstract method bodies can be visited.
+            if (!method.IsAbstract)
             {
-                this.VisitVariable(variable);
+                this.Processor = method.Body.GetILProcessor();
+
+                // Visit the method body variables.
+                foreach (var variable in method.Body.Variables.ToArray())
+                {
+                    this.VisitVariable(variable);
+                }
+
+                // Visit the method body instructions.
+                Instruction instruction = method.Body.Instructions.FirstOrDefault();
+                while (instruction != null)
+                {
+                    instruction = this.VisitInstruction(instruction);
+                    instruction = instruction.Next;
+                }
             }
         }
 
         /// <summary>
-        /// Visits the specified <see cref="VariableDefinition"/> inside the <see cref="MethodDefinition"/> that was visited
-        /// by the last <see cref="VisitMethod"/>.
+        /// Visits the specified <see cref="VariableDefinition"/> inside the currently
+        /// visited <see cref="MethodDefinition"/>.
         /// </summary>
         /// <param name="variable">The variable definition to visit.</param>
         protected virtual void VisitVariable(VariableDefinition variable)
@@ -120,29 +152,21 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// If you want to transform individual instructions, then call this method.
-        /// </summary>
-        /// <param name="method">The method whose instructions will be transformed.</param>
-        protected void VisitInstructions(MethodDefinition method)
-        {
-            // Rewrite the method body instructions.
-            Instruction instruction = method.Body.Instructions.FirstOrDefault();
-            while (instruction != null)
-            {
-                instruction = this.VisitInstruction(instruction);
-                instruction = instruction.Next;
-            }
-        }
-
-        /// <summary>
-        /// Visits the specified IL <see cref="Instruction"/> inside the body of the <see cref="MethodDefinition"/>
-        /// that was visited by the last <see cref="VisitMethod"/>.
+        /// Visits the specified IL <see cref="Instruction"/> inside the body of the currently
+        /// visited <see cref="MethodDefinition"/>.
         /// </summary>
         /// <param name="instruction">The instruction to visit.</param>
         /// <returns>The last modified instruction, or the original if it was not changed.</returns>
         protected virtual Instruction VisitInstruction(Instruction instruction)
         {
             return instruction;
+        }
+
+        /// <summary>
+        /// Completes the visit over the current assembly.
+        /// </summary>
+        internal virtual void CompleteVisit()
+        {
         }
 
         /// <summary>

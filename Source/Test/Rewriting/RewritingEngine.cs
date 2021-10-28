@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// List of passes applied while rewriting IL.
         /// </summary>
-        private readonly List<Pass> Passes;
+        private readonly LinkedList<Pass> Passes;
 
         /// <summary>
         /// Simple cache to reduce redundant warnings.
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             this.Options = options.Sanitize();
             this.Configuration = configuration;
-            this.Passes = new List<Pass>();
+            this.Passes = new LinkedList<Pass>();
             this.ResolveWarnings = new HashSet<string>();
             this.Logger = logger;
             this.Profiler = profiler;
@@ -129,34 +129,41 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void InitializePasses(IEnumerable<AssemblyInfo> assemblies)
         {
-            this.Passes.Add(new TaskRewritingPass(assemblies, this.Logger));
-            this.Passes.Add(new MonitorRewritingPass(assemblies, this.Logger));
-            this.Passes.Add(new ExceptionFilterRewritingPass(assemblies, this.Logger));
+            this.Passes.AddFirst(new TaskRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new MonitorRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
 
             if (this.Options.IsRewritingThreads)
             {
-                this.Passes.Add(new ThreadingRewritingPass(assemblies, this.Logger));
+                this.Passes.AddLast(new ThreadingRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsRewritingConcurrentCollections)
             {
-                this.Passes.Add(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
+                this.Passes.AddLast(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsDataRaceCheckingEnabled)
             {
-                this.Passes.Add(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
+                this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.Passes.Add(new MSTestRewritingPass(this.Configuration, assemblies, this.Logger));
+                this.Passes.AddLast(new MSTestRewritingPass(this.Configuration, assemblies, this.Logger));
             }
 
-            this.Passes.Add(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
-            this.Passes.Add(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
+
+            if (this.Options.IsLoggingContentsAsJson)
+            {
+                // Logging the contents of an assembly must happen before and after any other pass.
+                this.Passes.AddFirst(new LoggingPass(assemblies, this.Logger));
+                this.Passes.AddLast(new LoggingPass(assemblies, this.Logger));
+            }
         }
 
         /// <summary>
@@ -183,9 +190,15 @@ namespace Microsoft.Coyote.Rewriting
                 assembly.ApplyRewritingSignatureAttribute(GetAssemblyRewriterVersion());
 
                 // Write the binary in the output path with portable symbols enabled.
-                this.Logger.WriteLine($"... Writing the modified '{assembly.Name}' assembly to " +
+                this.Logger.WriteLine($"..... Writing the modified '{assembly.Name}' assembly to " +
                     $"{(this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath)}");
                 assembly.Write(outputPath);
+
+                if (this.Options.IsLoggingContentsAsJson)
+                {
+                    // Log the original and rewritten contents as JSON.
+                    this.LogContentsToJson(assembly, outputPath);
+                }
             }
             finally
             {
@@ -218,6 +231,29 @@ namespace Microsoft.Coyote.Rewriting
         /// Returns the version of the assembly rewriter.
         /// </summary>
         private static Version GetAssemblyRewriterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
+
+        /// <summary>
+        /// Writes the contents before and after rewriting in JSON format to the specified output path.
+        /// </summary>
+        internal void LogContentsToJson(AssemblyInfo assembly, string outputPath)
+        {
+            outputPath = this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath;
+            if (this.Passes.First.Value is LoggingPass originalLoggingPass)
+            {
+                string json = originalLoggingPass.GetJSON(assembly);
+                string jsonFile = Path.ChangeExtension(outputPath, ".il.json");
+                this.Logger.WriteLine($"..... Writing the original IL of '{assembly.Name}' as JSON to {jsonFile}");
+                File.WriteAllText(jsonFile, json);
+            }
+
+            if (this.Passes.Last.Value is LoggingPass rewrittenLoggingPass)
+            {
+                string json = rewrittenLoggingPass.GetJSON(assembly);
+                string jsonFile = Path.ChangeExtension(outputPath, ".rw.json");
+                this.Logger.WriteLine($"..... Writing the rewritten IL of '{assembly.Name}' as JSON to {jsonFile}");
+                File.WriteAllText(jsonFile, json);
+            }
+        }
 
         /// <summary>
         /// Creates the output directory, if it does not already exists, and copies all necessary files.

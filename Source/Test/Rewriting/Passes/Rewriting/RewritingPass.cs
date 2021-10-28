@@ -16,11 +16,6 @@ namespace Microsoft.Coyote.Rewriting
     internal abstract class RewritingPass : Pass
     {
         /// <summary>
-        /// Cache of qualified names.
-        /// </summary>
-        private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();
-
-        /// <summary>
         /// True if the current method body has been modified, else false.
         /// </summary>
         internal bool IsMethodBodyModified { get; set; }

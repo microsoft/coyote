@@ -40,14 +40,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
-        {
-            this.Method = null;
-            this.Processor = null;
-            base.VisitType(type);
-        }
-
-        /// <inheritdoc/>
         internal override void VisitField(FieldDefinition field)
         {
             if (this.TryRewriteCompilerType(field.FieldType, out TypeReference newFieldType))
@@ -61,20 +53,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (!method.IsAbstract)
-            {
-                this.Method = method;
-                this.Processor = method.Body.GetILProcessor();
-
-                // Rewrite the variable declarations.
-                this.VisitVariables(method);
-
-                // Rewrite the method body instructions.
-                this.VisitInstructions(method);
-            }
+            base.VisitMethod(method);
 
             // TODO: what if this is an override of an inherited virtual method?  For example, what if there
             // is an external base class that is a Task like type that implements a virtual GetAwaiter() that

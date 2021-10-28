@@ -100,6 +100,11 @@ namespace Microsoft.Coyote.Rewriting
         internal bool IsRewritingThreads { get; set; }
 
         /// <summary>
+        /// True if the rewriter should log the IL contents before and after rewriting in JSON.
+        /// </summary>
+        internal bool IsLoggingContentsAsJson { get; set; }
+
+        /// <summary>
         /// The .NET platform version that Coyote was compiled for.
         /// </summary>
         internal string PlatformVersion
@@ -141,7 +146,8 @@ namespace Microsoft.Coyote.Rewriting
                 IsDataRaceCheckingEnabled = false,
                 IsRewritingDependencies = false,
                 IsRewritingUnitTests = false,
-                IsRewritingThreads = false
+                IsRewritingThreads = false,
+                IsLoggingContentsAsJson = false,
             };
 
         /// <summary>

@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
-            this.Method = method;
+            base.VisitMethod(method);
 
             if (method.Body.HasExceptionHandlers)
             {
@@ -53,8 +53,8 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the <see cref="MethodDefinition"/>
-        /// that was visited by the last <see cref="VisitMethod"/>.
+        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the currently
+        /// visited <see cref="MethodDefinition"/>.
         /// </summary>
         /// <remarks>
         /// In the case of nested try/catch blocks the inner block is visited first before the outer block.

@@ -25,31 +25,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
-        {
-            this.Method = null;
-            this.Processor = null;
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
-        {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (method.IsAbstract)
-            {
-                return;
-            }
-
-            this.Method = method;
-            this.Processor = method.Body.GetILProcessor();
-
-            // Rewrite the method body instructions.
-            this.VisitInstructions(method);
-        }
-
-        /// <inheritdoc/>
         protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method is null)

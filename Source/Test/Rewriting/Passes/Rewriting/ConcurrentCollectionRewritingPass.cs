@@ -9,13 +9,16 @@ using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class DataRaceCheckingRewriter : AssemblyRewriter
+    /// <summary>
+    /// Rewrites the concurrent collection types to their controlled versions to enable Coyote explore interleavings during testing.
+    /// </summary>
+    internal class ConcurrentCollectionRewritingPass : RewritingPass
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataRaceCheckingRewriter"/> class.
+        /// Initializes a new instance of the <see cref="ConcurrentCollectionRewritingPass"/> class.
         /// </summary>
-        internal DataRaceCheckingRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal ConcurrentCollectionRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
         }
 
@@ -43,11 +46,7 @@ namespace Microsoft.Coyote.Rewriting
                 return instruction;
             }
 
-            if (instruction.OpCode == OpCodes.Newobj)
-            {
-                instruction = this.VisitNewobjInstruction(instruction);
-            }
-            else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
+            if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 instruction.Operand is MethodReference methodReference)
             {
                 instruction = this.VisitCallInstruction(instruction, methodReference);
@@ -57,40 +56,13 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified <see cref="OpCodes.Initobj"/> instruction.
-        /// </summary>
-        /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
-        private Instruction VisitNewobjInstruction(Instruction instruction)
-        {
-            MethodReference constructor = instruction.Operand as MethodReference;
-            MethodReference newMethod = this.RewriteMethodReference(constructor, this.Module, "Create");
-            if (constructor.FullName == newMethod.FullName ||
-                !this.TryResolve(constructor, out MethodDefinition _))
-            {
-                // There is nothing to rewrite, return the original instruction.
-                return instruction;
-            }
-
-            // Create and return the new instruction.
-            Instruction newInstruction = Instruction.Create(OpCodes.Call, newMethod);
-            newInstruction.Offset = instruction.Offset;
-
-            Debug.WriteLine($"............. [-] {instruction}");
-            this.Replace(instruction, newInstruction);
-            Debug.WriteLine($"............. [+] {newInstruction}");
-
-            return newInstruction;
-        }
-
-        /// <summary>
         /// Rewrites the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
             MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
-            if (method.FullName == newMethod.FullName ||
-                !this.TryResolve(method, out MethodDefinition _))
+            if (method.FullName == newMethod.FullName || !this.TryResolve(newMethod, out MethodDefinition _))
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;
@@ -114,17 +86,21 @@ namespace Microsoft.Coyote.Rewriting
             if (type is GenericInstanceType genericType)
             {
                 string fullName = genericType.ElementType.FullName;
-                if (fullName == CachedNameProvider.GenericListFullName)
+                if (fullName == CachedNameProvider.ConcurrentBagFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledList));
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentBag));
                 }
-                else if (fullName == CachedNameProvider.GenericDictionaryFullName)
+                else if (fullName == CachedNameProvider.ConcurrentDictonaryFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledDictionary));
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentDictionary));
                 }
-                else if (fullName == CachedNameProvider.GenericHashSetFullName)
+                else if (fullName == CachedNameProvider.ConcurrentQueueFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledHashSet));
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentQueue));
+                }
+                else if (fullName == CachedNameProvider.ConcurrentStackFullName)
+                {
+                    type = this.Module.ImportReference(typeof(ControlledConcurrentStack));
                 }
             }
 

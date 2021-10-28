@@ -12,7 +12,7 @@ using Mono.Cecil.Rocks;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class MSTestRewriter : AssemblyRewriter
+    internal class MSTestRewritingPass : RewritingPass
     {
         /// <summary>
         /// The test configuration to use when rewriting unit tests.
@@ -20,10 +20,10 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MSTestRewriter"/> class.
+        /// Initializes a new instance of the <see cref="MSTestRewritingPass"/> class.
         /// </summary>
-        internal MSTestRewriter(Configuration configuration, IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal MSTestRewritingPass(Configuration configuration, IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
             this.Configuration = configuration;
         }

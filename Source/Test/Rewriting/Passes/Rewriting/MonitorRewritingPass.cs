@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Rewriting
     /// Coyote ControlledMonitor instead which allows systematic testing of code that
     /// uses monitors.
     /// </summary>
-    internal class MonitorRewriter : AssemblyRewriter
+    internal class MonitorRewritingPass : RewritingPass
     {
         /// <summary>
         /// The cached imported <see cref="ControlledMonitor"/> type.
@@ -25,10 +25,10 @@ namespace Microsoft.Coyote.Rewriting
         private const string MonitorClassName = "System.Threading.Monitor";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MonitorRewriter"/> class.
+        /// Initializes a new instance of the <see cref="MonitorRewritingPass"/> class.
         /// </summary>
-        internal MonitorRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal MonitorRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
         }
 

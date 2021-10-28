@@ -12,7 +12,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class TaskRewriter : AssemblyRewriter
+    internal class TaskRewritingPass : RewritingPass
     {
         private static readonly Dictionary<string, Type> SupportedTypes = new Dictionary<string, Type>()
         {
@@ -32,10 +32,10 @@ namespace Microsoft.Coyote.Rewriting
         };
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
+        /// Initializes a new instance of the <see cref="TaskRewritingPass"/> class.
         /// </summary>
-        internal TaskRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal TaskRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fd.FieldType = newFieldType;
-                    this.ModifiedMethodBody = true;
+                    this.IsMethodBodyModified = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fr.FieldType = newFieldType;
-                    this.ModifiedMethodBody = true;
+                    this.IsMethodBodyModified = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
             }

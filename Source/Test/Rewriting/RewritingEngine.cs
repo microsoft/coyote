@@ -45,9 +45,9 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// List of passes applied while rewriting.
+        /// List of passes applied while rewriting IL.
         /// </summary>
-        private readonly List<AssemblyRewriter> RewritingPasses;
+        private readonly List<Pass> Passes;
 
         /// <summary>
         /// Simple cache to reduce redundant warnings.
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             this.Options = options.Sanitize();
             this.Configuration = configuration;
-            this.RewritingPasses = new List<AssemblyRewriter>();
+            this.Passes = new List<Pass>();
             this.ResolveWarnings = new HashSet<string>();
             this.Logger = logger;
             this.Profiler = profiler;
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 // Get the set of assemblies to rewrite.
                 var assemblies = AssemblyInfo.LoadAssembliesToRewrite(this.Options, this.OnResolveAssemblyFailure);
-                this.InitializeRewritingPasses(assemblies);
+                this.InitializePasses(assemblies);
                 foreach (var assembly in assemblies)
                 {
                     string outputPath = Path.Combine(outputDirectory, assembly.Name);
@@ -125,38 +125,38 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Initializes the passes to run during rewriting.
+        /// Initializes the passes to apply during rewriting.
         /// </summary>
-        private void InitializeRewritingPasses(IEnumerable<AssemblyInfo> assemblies)
+        private void InitializePasses(IEnumerable<AssemblyInfo> assemblies)
         {
-            this.RewritingPasses.Add(new TaskRewriter(assemblies, this.Logger));
-            this.RewritingPasses.Add(new MonitorRewriter(assemblies, this.Logger));
-            this.RewritingPasses.Add(new ExceptionFilterRewriter(assemblies, this.Logger));
+            this.Passes.Add(new TaskRewritingPass(assemblies, this.Logger));
+            this.Passes.Add(new MonitorRewritingPass(assemblies, this.Logger));
+            this.Passes.Add(new ExceptionFilterRewritingPass(assemblies, this.Logger));
 
             if (this.Options.IsRewritingThreads)
             {
-                this.RewritingPasses.Add(new ThreadingRewriter(assemblies, this.Logger));
+                this.Passes.Add(new ThreadingRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsRewritingConcurrentCollections)
             {
-                this.RewritingPasses.Add(new ConcurrentCollectionRewriter(assemblies, this.Logger));
+                this.Passes.Add(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsDataRaceCheckingEnabled)
             {
-                this.RewritingPasses.Add(new DataRaceCheckingRewriter(assemblies, this.Logger));
+                this.Passes.Add(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
             }
 
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.RewritingPasses.Add(new MSTestRewriter(this.Configuration, assemblies, this.Logger));
+                this.Passes.Add(new MSTestRewritingPass(this.Configuration, assemblies, this.Logger));
             }
 
-            this.RewritingPasses.Add(new InterAssemblyInvocationRewriter(assemblies, this.Logger));
-            this.RewritingPasses.Add(new UncontrolledInvocationRewriter(assemblies, this.Logger));
+            this.Passes.Add(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
+            this.Passes.Add(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
         }
 
         /// <summary>
@@ -173,10 +173,10 @@ namespace Microsoft.Coyote.Rewriting
                     return;
                 }
 
-                // Traverse the assembly to apply each rewriting pass.
-                foreach (var pass in this.RewritingPasses)
+                // Traverse the assembly to invoke each pass.
+                foreach (var pass in this.Passes)
                 {
-                    assembly.Rewrite(pass);
+                    assembly.Invoke(pass);
                 }
 
                 // Apply the rewriting signature to the assembly metadata.

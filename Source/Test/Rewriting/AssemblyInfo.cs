@@ -141,11 +141,12 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the assembly definition using the specified pass.
+        /// Invokes the specified analysis or transformation pass on the assembly.
         /// </summary>
-        internal void Rewrite(AssemblyRewriter pass)
+        internal void Invoke(Pass pass)
         {
             Debug.WriteLine($"..... Applying the '{pass.GetType().Name}' pass");
+            pass.VisitAssembly(this.Definition);
             foreach (var module in this.Definition.Modules)
             {
                 Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");
@@ -169,14 +170,16 @@ namespace Microsoft.Coyote.Rewriting
 
                         Debug.WriteLine($"........... Method {method.FullName}");
                         pass.VisitMethod(method);
-                        if (pass.ModifiedMethodBody)
+                        if (pass is RewritingPass rewritingPass && rewritingPass.IsMethodBodyModified)
                         {
-                            AssemblyRewriter.FixInstructionOffsets(method);
-                            pass.ModifiedMethodBody = false;
+                            RewritingPass.FixInstructionOffsets(method);
+                            rewritingPass.IsMethodBodyModified = false;
                         }
                     }
                 }
             }
+
+            pass.CompleteVisit();
         }
 
         /// <summary>

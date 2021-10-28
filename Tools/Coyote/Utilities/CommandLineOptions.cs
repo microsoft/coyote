@@ -70,6 +70,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
             rewritingGroup.AddArgument("rewrite-unit-tests", null, "Rewrite unit tests to run in the scope of the Coyote testing engine", typeof(bool));
             rewritingGroup.AddArgument("rewrite-threads", null, "Rewrite low-level threading APIs (experimental)", typeof(bool));
+            rewritingGroup.AddArgument("dump-il", null, "Dumps the IL contents before and after rewriting as JSON", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             coverageGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
@@ -415,6 +416,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "rewrite-threads":
                     rewritingOptions.IsRewritingThreads = true;
+                    break;
+                case "dump-il":
+                    rewritingOptions.IsLoggingContentsAsJson = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;

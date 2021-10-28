@@ -9,7 +9,7 @@ using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class ThreadingRewriter : AssemblyRewriter
+    internal class ThreadingRewritingPass : RewritingPass
     {
         /// <summary>
         /// The cached imported <see cref="ControlledThread"/> type.
@@ -17,10 +17,10 @@ namespace Microsoft.Coyote.Rewriting
         private TypeDefinition ControlledThreadType;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ThreadingRewriter"/> class.
+        /// Initializes a new instance of the <see cref="ThreadingRewritingPass"/> class.
         /// </summary>
-        internal ThreadingRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal ThreadingRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
         }
 
@@ -29,29 +29,6 @@ namespace Microsoft.Coyote.Rewriting
         {
             this.ControlledThreadType = null;
             base.VisitModule(module);
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
-        {
-            this.Method = null;
-            this.Processor = null;
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
-        {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (!method.IsAbstract)
-            {
-                this.Method = method;
-                this.Processor = method.Body.GetILProcessor();
-
-                // Rewrite the method body instructions.
-                this.VisitInstructions(method);
-            }
         }
 
         /// <inheritdoc/>

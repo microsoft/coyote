@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Initializes the passes to apply during rewriting.
+        /// Initializes the passes to invoke during rewriting.
         /// </summary>
         private void InitializePasses(IEnumerable<AssemblyInfo> assemblies)
         {

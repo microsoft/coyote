@@ -12,7 +12,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    internal class TaskRewriter : AssemblyRewriter
+    internal class TaskRewritingPass : RewritingPass
     {
         private static readonly Dictionary<string, Type> SupportedTypes = new Dictionary<string, Type>()
         {
@@ -32,19 +32,11 @@ namespace Microsoft.Coyote.Rewriting
         };
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TaskRewriter"/> class.
+        /// Initializes a new instance of the <see cref="TaskRewritingPass"/> class.
         /// </summary>
-        internal TaskRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal TaskRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
-        {
-            this.Method = null;
-            this.Processor = null;
-            base.VisitType(type);
         }
 
         /// <inheritdoc/>
@@ -61,20 +53,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (!method.IsAbstract)
-            {
-                this.Method = method;
-                this.Processor = method.Body.GetILProcessor();
-
-                // Rewrite the variable declarations.
-                this.VisitVariables(method);
-
-                // Rewrite the method body instructions.
-                this.VisitInstructions(method);
-            }
+            base.VisitMethod(method);
 
             // TODO: what if this is an override of an inherited virtual method?  For example, what if there
             // is an external base class that is a Task like type that implements a virtual GetAwaiter() that
@@ -123,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fd.FieldType = newFieldType;
-                    this.ModifiedMethodBody = true;
+                    this.IsMethodBodyModified = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
@@ -131,7 +110,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [-] {instruction}");
                     fr.FieldType = newFieldType;
-                    this.ModifiedMethodBody = true;
+                    this.IsMethodBodyModified = true;
                     Debug.WriteLine($"............. [+] {instruction}");
                 }
             }

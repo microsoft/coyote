@@ -10,32 +10,17 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewrites the concurrent collection types to their controlled versions to enable Coyote explore interleavings during testing.
+    /// A pass that rewrites the concurrent collection types to their controlled versions
+    /// to enable Coyote explore interleavings during testing.
     /// </summary>
-    internal class ConcurrentCollectionRewriter : AssemblyRewriter
+    internal class ConcurrentCollectionRewritingPass : RewritingPass
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConcurrentCollectionRewriter"/> class.
+        /// Initializes a new instance of the <see cref="ConcurrentCollectionRewritingPass"/> class.
         /// </summary>
-        internal ConcurrentCollectionRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal ConcurrentCollectionRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
-        {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (!method.IsAbstract)
-            {
-                this.Method = method;
-                this.Processor = method.Body.GetILProcessor();
-
-                // Rewrite the method body instructions.
-                this.VisitInstructions(method);
-            }
         }
 
         /// <inheritdoc/>

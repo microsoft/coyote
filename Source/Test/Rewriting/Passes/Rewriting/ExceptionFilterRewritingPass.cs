@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewriting pass that ensures user defined try/catch blocks do not consume runtime exceptions.
     /// </summary>
-    internal class ExceptionFilterRewriter : AssemblyRewriter
+    internal class ExceptionFilterRewritingPass : RewritingPass
     {
         /// <summary>
         /// True if the visited type is a generated async state machine.
@@ -23,10 +23,10 @@ namespace Microsoft.Coyote.Rewriting
         private bool IsAsyncStateMachineType;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionFilterRewriter"/> class.
+        /// Initializes a new instance of the <see cref="ExceptionFilterRewritingPass"/> class.
         /// </summary>
-        internal ExceptionFilterRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal ExceptionFilterRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
-            this.Method = method;
+            base.VisitMethod(method);
 
             if (method.Body.HasExceptionHandlers)
             {
@@ -53,8 +53,8 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the <see cref="MethodDefinition"/>
-        /// that was visited by the last <see cref="VisitMethod"/>.
+        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the currently
+        /// visited <see cref="MethodDefinition"/>.
         /// </summary>
         /// <remarks>
         /// In the case of nested try/catch blocks the inner block is visited first before the outer block.
@@ -94,12 +94,12 @@ namespace Microsoft.Coyote.Rewriting
 
         private void AddThrowIfExecutionCanceledException(ExceptionHandler handler)
         {
-            if (!this.ModifiedMethodBody)
+            if (!this.IsMethodBodyModified)
             {
                 // A previous transform may have replaced some instructions, and if so, we need to recompute
                 // the instruction indexes before we operate on the try catch.
                 FixInstructionOffsets(this.Method);
-                this.ModifiedMethodBody = true;
+                this.IsMethodBodyModified = true;
             }
 
             Debug.WriteLine($"............. [+] rewriting catch block to rethrow a {nameof(ThreadInterruptedException)}");

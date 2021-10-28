@@ -15,39 +15,14 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewriting pass for invocations between assemblies.
     /// </summary>
-    internal class InterAssemblyInvocationRewriter : AssemblyRewriter
+    internal class InterAssemblyInvocationRewritingPass : RewritingPass
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewriter"/> class.
+        /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewritingPass"/> class.
         /// </summary>
-        internal InterAssemblyInvocationRewriter(IEnumerable<AssemblyInfo> rewrittenAssemblies, ILogger logger)
-            : base(rewrittenAssemblies, logger)
+        internal InterAssemblyInvocationRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+            : base(visitedAssemblies, logger)
         {
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
-        {
-            this.Method = null;
-            this.Processor = null;
-        }
-
-        /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
-        {
-            this.Method = null;
-
-            // Only non-abstract method bodies can be rewritten.
-            if (method.IsAbstract)
-            {
-                return;
-            }
-
-            this.Method = method;
-            this.Processor = method.Body.GetILProcessor();
-
-            // Rewrite the method body instructions.
-            this.VisitInstructions(method);
         }
 
         /// <inheritdoc/>
@@ -78,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
                         this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
 
-                        this.ModifiedMethodBody = true;
+                        this.IsMethodBodyModified = true;
                     }
                     else if (methodReference.Name is "GetAwaiter" &&
                         IsTaskAwaiterType(methodReference.ReturnType.Resolve()))
@@ -117,7 +92,7 @@ namespace Microsoft.Coyote.Rewriting
 
                         this.Processor.InsertAfter(instruction, newInstruction);
 
-                        this.ModifiedMethodBody = true;
+                        this.IsMethodBodyModified = true;
                     }
                 }
             }

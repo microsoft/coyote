@@ -61,15 +61,11 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 var newMethod = FindMatchingMethodInDeclaringType(resolvedDeclaringType, method.Name, paramTypes.ToArray());
-                this.Logger.WriteLine($"newMethod: {newMethod?.FullName}");
                 if (!this.TryResolve(newMethod, out resolvedMethod))
                 {
-                    this.Logger.WriteLine($"3");
                     // Unable to resolve the method or an rewritten version of this method.
                     return result;
                 }
-
-                this.Logger.WriteLine($"new-resolvedMethod: {resolvedMethod.FullName}");
             }
 
             // Try to rewrite the declaring type.
@@ -99,12 +95,9 @@ namespace Microsoft.Coyote.Rewriting
             //     return method;
             // }
 
-            this.Logger.WriteLine($"6");
-
             MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
             if (match != null)
             {
-                this.Logger.WriteLine($"match:{match}");
                 result = module.ImportReference(match);
             }
 
@@ -202,7 +195,6 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            this.Logger.WriteLine($"result: {result}");
             return module.ImportReference(result);
         }
 

@@ -401,16 +401,16 @@ namespace Microsoft.Coyote.Actors
                     if (actor.IsHalted)
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
+                    }
 
-                        lock (this.SyncObject)
+                    lock (this.SyncObject)
+                    {
+                        // Remove the actor from the set of non-halted enabled actors.
+                        this.ActiveActors.Remove(actor.Id);
+
+                        if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
                         {
-                            // Remove the actor from the set of non-halted enabled actors.
-                            this.ActiveActors.Remove(actor.Id);
-
-                            if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
-                            {
-                                this.RespActorQuiescence.TrySetResult(true);
-                            }
+                            this.RespActorQuiescence.TrySetResult(true);
                         }
                     }
                 }
@@ -463,16 +463,16 @@ namespace Microsoft.Coyote.Actors
                 if (actor.IsHalted)
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
+                }
 
-                    lock (this.SyncObject)
+                lock (this.SyncObject)
+                {
+                    // Remove the actor from the set of non-halted enabled actors.
+                    this.ActiveActors.Remove(actor.Id);
+
+                    if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
                     {
-                        // Remove the actor from the set of non-halted enabled actors.
-                        this.ActiveActors.Remove(actor.Id);
-
-                        if (this.NotifyLastActorCreated && this.ActiveActors.Count == 0)
-                        {
-                            this.RespActorQuiescence.TrySetResult(true);
-                        }
+                        this.RespActorQuiescence.TrySetResult(true);
                     }
                 }
             }

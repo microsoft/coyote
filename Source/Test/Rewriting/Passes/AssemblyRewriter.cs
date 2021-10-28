@@ -165,58 +165,77 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
-            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
+            TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
+            if (this.IsForeignType(resolvedDeclaringType) && !IsSystemType(resolvedDeclaringType))
             {
-                // Can't rewrite external method reference since we are not rewriting this external assembly.
-                return method;
-            }
-
-            TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            var resolvedType = Resolve(declaringType);
-
-            if (resolvedMethod is null)
-            {
-                // Check if this method signature has been rewritten, find the method by same name,
-                // but with newly rewritten parameter types (note: signature does not include return type
-                // according to C# rules, but the return type may have also been rewritten which is why
-                // it is imperative here that we find the correct new MethodDefinition.
-                List<TypeReference> parameterTypes = new List<TypeReference>();
-                for (int i = 0; i < method.Parameters.Count; i++)
-                {
-                    var p = method.Parameters[i];
-                    parameterTypes.Add(this.RewriteTypeReference(p.ParameterType));
-                }
-
-                var newMethod = FindMatchingMethodInDeclaringType(resolvedType, method.Name, parameterTypes.ToArray());
-                if (newMethod != null)
-                {
-                    if (!this.TryResolve(newMethod, out resolvedMethod))
-                    {
-                        return newMethod;
-                    }
-                }
-            }
-
-            if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
-            {
-                // We are not rewriting this method.
+                // Can't rewrite a foreign method reference since we are not rewriting this assembly.
                 return result;
             }
 
-            if (resolvedMethod is null)
+            // TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
+            // var resolvedDeclaringType = Resolve(declaringType);
+            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
-                // TODO: do we need to return the resolved method here?
-                this.TryResolve(method, out resolvedMethod);
-                return method;
+                // Check if this method signature has been rewritten and, if it has, find the
+                // rewritten method. The signature does not include return type according to
+                // C# rules, but the return type may have also been rewritten which is why it
+                // is imperative here that we find the correct new definition.
+                List<TypeReference> paramTypes = new List<TypeReference>();
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    var p = method.Parameters[i];
+                    paramTypes.Add(this.RewriteTypeReference(p.ParameterType));
+                }
+
+                var newMethod = FindMatchingMethodInDeclaringType(resolvedDeclaringType, method.Name, paramTypes.ToArray());
+                this.Logger.WriteLine($"newMethod: {newMethod?.FullName}");
+                if (!this.TryResolve(newMethod, out resolvedMethod))
+                {
+                    this.Logger.WriteLine($"3");
+                    // Unable to resolve the method or an rewritten version of this method.
+                    return result;
+                }
+
+                this.Logger.WriteLine($"new-resolvedMethod: {resolvedMethod.FullName}");
             }
 
-            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedType, resolvedMethod, matchName);
+            // Try to rewrite the declaring type.
+            TypeReference newDeclaringType = this.RewriteDeclaringTypeReference(method);
+            resolvedDeclaringType = Resolve(newDeclaringType);
+
+            // this.Logger.WriteLine($"x: {resolvedMethod.DeclaringType} vs {newDeclaringType}");
+            // this.Logger.WriteLine($"x: {result.Resolve()} vs {resolvedMethod}");
+            // if (resolvedMethod.DeclaringType == newDeclaringType)
+            // {
+            //     this.Logger.WriteLine($"4");
+            //     // We are not rewriting this method.
+            //     return result;
+            // }
+
+            // if (method.DeclaringType == newDeclaringType && result.Resolve() == resolvedMethod)
+            // {
+            //     this.Logger.WriteLine($"4");
+            //     // We are not rewriting this method.
+            //     return result;
+            // }
+            // else if (resolvedMethod is null)
+            // {
+            //     this.Logger.WriteLine($"5");
+            //     // TODO: do we need to return the resolved method here?
+            //     this.TryResolve(method, out resolvedMethod);
+            //     return method;
+            // }
+
+            this.Logger.WriteLine($"6");
+
+            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
             if (match != null)
             {
+                this.Logger.WriteLine($"match:{match}");
                 result = module.ImportReference(match);
             }
 
-            if (match != null && !result.HasThis && !declaringType.IsGenericInstance &&
+            if (match != null && !result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
                 // We are converting from a generic type to a non generic static type, and from a non-generic
@@ -247,10 +266,11 @@ namespace Microsoft.Coyote.Rewriting
                     instanceParameter = result.Parameters[0];
                 }
 
-                TypeReference returnType = this.RewriteTypeReference(method.ReturnType);
+                // Try to rewrite the return type.
+                TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
-                result = new MethodReference(result.Name, returnType, declaringType)
+                result = new MethodReference(result.Name, newReturnType, newDeclaringType)
                 {
                     HasThis = result.HasThis,
                     ExplicitThis = result.ExplicitThis,
@@ -265,7 +285,7 @@ namespace Microsoft.Coyote.Rewriting
                     var genericArgs = new List<TypeReference>();
                     int genericArgOffset = 0;
 
-                    if (declaringType is GenericInstanceType genericDeclaringType)
+                    if (newDeclaringType is GenericInstanceType genericDeclaringType)
                     {
                         // Populate the generic arguments with the generic declaring type arguments.
                         genericArgs.AddRange(genericDeclaringType.GenericArguments);
@@ -309,6 +329,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
+            this.Logger.WriteLine($"result: {result}");
             return module.ImportReference(result);
         }
 
@@ -484,12 +505,12 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
         {
-            resolved = method.Resolve();
+            resolved = method?.Resolve();
             if (resolved is null)
             {
                 this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +
-                    "The method is either unsupported by Coyote, or a user-defined extension method, or the " +
-                    ".NET platform of Coyote and the target assembly do not match.");
+                    "The method is either unsupported by Coyote, an external method not being rewritten, " +
+                    "or the .NET platform of Coyote and the target assembly do not match.");
                 return false;
             }
 
@@ -501,10 +522,10 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         protected static TypeDefinition Resolve(TypeReference type)
         {
-            TypeDefinition result = type.Resolve();
+            TypeDefinition result = type?.Resolve();
             if (result is null)
             {
-                throw new Exception($"Error resolving '{type.FullName}' type. Please check that " +
+                throw new InvalidOperationException($"Error resolving '{type.FullName}' type. Please check that " +
                     "the .NET platform of coyote and the target assembly match.");
             }
 
@@ -606,29 +627,46 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is foreign.
+        /// Checks if the specified type is a foreign type.
         /// </summary>
         protected bool IsForeignType(TypeDefinition type)
         {
-            if (type is null || this.Module == type.Module)
+            if (type != null)
             {
-                return false;
-            }
+                // Any type from an assembly being rewritten is not a foreign type.
+                if (type.Module == this.Module ||
+                    this.RewrittenAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
+                {
+                    return false;
+                }
 
-            // Any type from the Coyote assemblies is not a foreign type.
-            string module = Path.GetFileName(type.Module.FileName);
-            if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
-            {
-                return false;
-            }
-
-            // Any type from a assembly being rewritten is not a foreign type.
-            if (this.RewrittenAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
-            {
-                return false;
+                // Any type from the Coyote assemblies is not a foreign type.
+                string modulePath = Path.GetFileName(type.Module.FileName);
+                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
+                {
+                    return false;
+                }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a system type.
+        /// </summary>
+        protected static bool IsSystemType(TypeDefinition type)
+        {
+            if (type != null)
+            {
+                // Any type from the .NET assemblies is a system type.
+                string modulePath = Path.GetFileName(type.Module.FileName);
+                if (modulePath is "System.Private.CoreLib.dll" || modulePath is "mscorlib.dll")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

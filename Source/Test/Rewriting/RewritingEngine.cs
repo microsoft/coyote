@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// List of passes applied while rewriting IL.
+        /// List of passes to invoke while rewriting IL.
         /// </summary>
         private readonly LinkedList<Pass> Passes;
 

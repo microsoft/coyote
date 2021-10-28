@@ -374,6 +374,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh)
         {
+            lock (this.SyncObject)
+            {
+                // Add the actor to the set of non-halted enabled actors.
+                this.ActiveActors.Add(actor.Id);
+            }
+
             Task.Run(async () =>
             {
                 try
@@ -381,12 +387,6 @@ namespace Microsoft.Coyote.Actors
                     if (isFresh)
                     {
                         await actor.InitializeAsync(initialEvent);
-
-                        lock (this.SyncObject)
-                        {
-                            // Add the actor to the set of non-halted enabled actors.
-                            this.ActiveActors.Add(actor.Id);
-                        }
                     }
 
                     await actor.RunEventHandlerAsync();
@@ -438,16 +438,17 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task RunActorEventHandlerAsync(Actor actor, Event initialEvent, bool isFresh)
         {
+            lock (this.SyncObject)
+            {
+                // Add the actor to the set of non-halted enabled actors.
+                this.ActiveActors.Add(actor.Id);
+            }
+
             try
             {
                 if (isFresh)
                 {
                     await actor.InitializeAsync(initialEvent);
-                    lock (this.SyncObject)
-                    {
-                        // Add the actor to the set of non-halted enabled actors.
-                        this.ActiveActors.Add(actor.Id);
-                    }
                 }
 
                 await actor.RunEventHandlerAsync();

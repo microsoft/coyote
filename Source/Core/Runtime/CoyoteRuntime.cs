@@ -2223,6 +2223,7 @@ namespace Microsoft.Coyote.Runtime
             if (!this.CompletionSource.Task.IsCompleted)
             {
                 this.CompletionSource.SetResult(true);
+                this.DefaultActorExecutionContext.RespActorQuiescence.TrySetResult(true);
             }
 
             if (cancelExecution)

@@ -183,6 +183,7 @@ namespace Microsoft.Coyote.Rewriting
                 // Traverse the assembly to invoke each pass.
                 foreach (var pass in this.Passes)
                 {
+                    this.Logger.WriteLine($"..... Invoking the '{pass.GetType().Name}' pass");
                     assembly.Invoke(pass);
                 }
 

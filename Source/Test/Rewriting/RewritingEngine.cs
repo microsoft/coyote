@@ -158,11 +158,11 @@ namespace Microsoft.Coyote.Rewriting
             this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
             this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
 
-            if (this.Options.IsLoggingContentsAsJson)
+            if (this.Options.IsLoggingAssemblyContents || this.Options.IsDiffingAssemblyContents)
             {
-                // Logging the contents of an assembly must happen before and after any other pass.
-                this.Passes.AddFirst(new LoggingPass(assemblies, this.Logger));
-                this.Passes.AddLast(new LoggingPass(assemblies, this.Logger));
+                // Parsing the contents of an assembly must happen before and after any other pass.
+                this.Passes.AddFirst(new AssemblyDiffingPass(assemblies, this.Logger));
+                this.Passes.AddLast(new AssemblyDiffingPass(assemblies, this.Logger));
             }
         }
 
@@ -190,14 +190,21 @@ namespace Microsoft.Coyote.Rewriting
                 assembly.ApplyRewritingSignatureAttribute(GetAssemblyRewriterVersion());
 
                 // Write the binary in the output path with portable symbols enabled.
-                this.Logger.WriteLine($"..... Writing the modified '{assembly.Name}' assembly to " +
-                    $"{(this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath)}");
+                string resolvedOutputPath = this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath;
+                this.Logger.WriteLine($"..... Writing the modified '{assembly.Name}' assembly to {resolvedOutputPath}");
                 assembly.Write(outputPath);
 
-                if (this.Options.IsLoggingContentsAsJson)
+                if (this.Options.IsLoggingAssemblyContents)
                 {
-                    // Log the original and rewritten contents as JSON.
-                    this.LogContentsToJson(assembly, outputPath);
+                    // Write the IL before and after rewriting to a JSON file.
+                    this.WriteILToJson(assembly, false, resolvedOutputPath);
+                    this.WriteILToJson(assembly, true, resolvedOutputPath);
+                }
+
+                if (this.Options.IsDiffingAssemblyContents)
+                {
+                    // Write the IL diff before and after rewriting to a JSON file.
+                    this.WriteILDiffToJson(assembly, resolvedOutputPath);
                 }
             }
             finally
@@ -219,6 +226,45 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Writes the original or rewritten IL to a JSON file in the specified output path.
+        /// </summary>
+        internal void WriteILToJson(AssemblyInfo assembly, bool isRewritten, string outputPath)
+        {
+            var diffingPass = (isRewritten ? this.Passes.Last : this.Passes.First).Value as AssemblyDiffingPass;
+            if (diffingPass != null)
+            {
+                string json = diffingPass.GetJson(assembly);
+                if (!string.IsNullOrEmpty(json))
+                {
+                    string jsonFile = Path.ChangeExtension(outputPath, $".{(isRewritten ? "rw" : "il")}.json");
+                    this.Logger.WriteLine($"..... Writing the {(isRewritten ? "rewritten" : "original")} IL " +
+                        $"of '{assembly.Name}' as JSON to {jsonFile}");
+                    File.WriteAllText(jsonFile, json);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes the IL diff to a JSON file in the specified output path.
+        /// </summary>
+        internal void WriteILDiffToJson(AssemblyInfo assembly, string outputPath)
+        {
+            var originalDiffingPass = this.Passes.First.Value as AssemblyDiffingPass;
+            var rewrittenDiffingPass = this.Passes.Last.Value as AssemblyDiffingPass;
+            if (originalDiffingPass != null && rewrittenDiffingPass != null)
+            {
+                // Compute the diff between the original and rewritten IL and dump it to JSON.
+                string diffJson = originalDiffingPass.GetDiffJson(assembly, rewrittenDiffingPass);
+                if (!string.IsNullOrEmpty(diffJson))
+                {
+                    string jsonFile = Path.ChangeExtension(outputPath, ".diff.json");
+                    this.Logger.WriteLine($"..... Writing the IL diff of '{assembly.Name}' as JSON to {jsonFile}");
+                    File.WriteAllText(jsonFile, diffJson);
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks if the specified assembly has been already rewritten with the current version.
         /// </summary>
         /// <param name="assembly">The assembly to check.</param>
@@ -231,29 +277,6 @@ namespace Microsoft.Coyote.Rewriting
         /// Returns the version of the assembly rewriter.
         /// </summary>
         private static Version GetAssemblyRewriterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
-
-        /// <summary>
-        /// Writes the contents before and after rewriting in JSON format to the specified output path.
-        /// </summary>
-        internal void LogContentsToJson(AssemblyInfo assembly, string outputPath)
-        {
-            outputPath = this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath;
-            if (this.Passes.First.Value is LoggingPass originalLoggingPass)
-            {
-                string json = originalLoggingPass.GetJSON(assembly);
-                string jsonFile = Path.ChangeExtension(outputPath, ".il.json");
-                this.Logger.WriteLine($"..... Writing the original IL of '{assembly.Name}' as JSON to {jsonFile}");
-                File.WriteAllText(jsonFile, json);
-            }
-
-            if (this.Passes.Last.Value is LoggingPass rewrittenLoggingPass)
-            {
-                string json = rewrittenLoggingPass.GetJSON(assembly);
-                string jsonFile = Path.ChangeExtension(outputPath, ".rw.json");
-                this.Logger.WriteLine($"..... Writing the rewritten IL of '{assembly.Name}' as JSON to {jsonFile}");
-                File.WriteAllText(jsonFile, json);
-            }
-        }
 
         /// <summary>
         /// Creates the output directory, if it does not already exists, and copies all necessary files.

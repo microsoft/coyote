@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     type = this.Module.ImportReference(typeof(ControlledConcurrentBag));
                 }
-                else if (fullName == CachedNameProvider.ConcurrentDictonaryFullName)
+                else if (fullName == CachedNameProvider.ConcurrentDictionaryFullName)
                 {
                     type = this.Module.ImportReference(typeof(ControlledConcurrentDictionary));
                 }

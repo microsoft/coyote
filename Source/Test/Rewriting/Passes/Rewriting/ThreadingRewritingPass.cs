@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
+        protected internal override void VisitModule(ModuleDefinition module)
         {
             this.ControlledThreadType = null;
             base.VisitModule(module);

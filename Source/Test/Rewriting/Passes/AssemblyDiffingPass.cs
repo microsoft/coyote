@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitAssembly(AssemblyDefinition assembly)
+        protected internal override void VisitAssembly(AssemblyDefinition assembly)
         {
             if (!this.ContentMap.ContainsKey(assembly.FullName))
             {
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
+        protected internal override void VisitModule(ModuleDefinition module)
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
+        protected internal override void VisitType(TypeDefinition type)
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
@@ -73,7 +73,6 @@ namespace Microsoft.Coyote.Rewriting
                     new TypeContents()
                     {
                         FullName = type.FullName,
-                        Fields = new List<string>(),
                         Methods = new List<MethodContents>()
                     });
             }
@@ -82,19 +81,20 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitField(FieldDefinition field)
+        protected internal override void VisitField(FieldDefinition field)
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
                 contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
-                    .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Fields.Add(field.FullName);
+                    .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?
+                    .AddField(field);
             }
 
             base.VisitField(field);
         }
 
         /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
+        protected internal override void VisitMethod(MethodDefinition method)
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             try
             {
-                contents.Cleanup();
+                contents.Resolve();
                 return JsonSerializer.Serialize(contents, new JsonSerializerOptions()
                 {
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -245,9 +245,9 @@ namespace Microsoft.Coyote.Rewriting
                 return diffedContents;
             }
 
-            internal void Cleanup()
+            internal void Resolve()
             {
-                this.Modules.ForEach(m => m.Cleanup());
+                this.Modules.ForEach(m => m.Resolve());
                 this.Modules.RemoveAll(t => t.Types is null);
                 this.Modules = this.Modules.Count is 0 ? null : this.Modules;
             }
@@ -308,9 +308,9 @@ namespace Microsoft.Coyote.Rewriting
                 };
             }
 
-            internal void Cleanup()
+            internal void Resolve()
             {
-                this.Types.ForEach(t => t.Cleanup());
+                this.Types.ForEach(t => t.Resolve());
                 this.Types.RemoveAll(t => t.Fields is null && t.Methods is null);
                 this.Types = this.Types.Count is 0 ? null : this.Types;
             }
@@ -322,11 +322,20 @@ namespace Microsoft.Coyote.Rewriting
         private class TypeContents
         {
             public string FullName { get; set; }
-            public List<string> Fields { get; set; }
+
+            public IEnumerable<string> Fields { get; set; }
+
             public List<MethodContents> Methods { get; set; }
+
+            private List<(string, string)> FieldContents = new List<(string, string)>();
 
             [JsonIgnore]
             internal DiffStatus DiffStatus { get; private set; } = DiffStatus.None;
+
+            internal void AddField(FieldDefinition field)
+            {
+                this.FieldContents.Add((field.Name, field.ToString()));
+            }
 
             /// <summary>
             /// Returns the diff between the IL contents of this type against the specified type.
@@ -336,22 +345,21 @@ namespace Microsoft.Coyote.Rewriting
                 var diffedContents = new TypeContents()
                 {
                     FullName = this.FullName,
-                    Fields = new List<string>(),
                     Methods = new List<MethodContents>()
                 };
 
-                var diffedFields = this.Fields.Union(other.Fields);
+                var diffedFields = this.FieldContents.Union(other.FieldContents);
                 foreach (var field in diffedFields)
                 {
-                    var thisField = this.Fields.FirstOrDefault(f => f == field);
-                    var otherField = other.Fields.FirstOrDefault(f => f == field);
+                    var (thisField, thisType) = this.FieldContents.FirstOrDefault(f => f == field);
+                    var (otherField, otherType) = other.FieldContents.FirstOrDefault(f => f == field);
                     if (thisField is null)
                     {
-                        diffedContents.Fields.Add("[+] " + field);
+                        diffedContents.FieldContents.Add((field.Item1, "[+] " + field.Item2));
                     }
                     else if (otherField is null)
                     {
-                        diffedContents.Fields.Add("[-] " + field);
+                        diffedContents.FieldContents.Add((field.Item1, "[-] " + field.Item2));
                     }
                 }
 
@@ -383,16 +391,21 @@ namespace Microsoft.Coyote.Rewriting
                 return new TypeContents()
                 {
                     FullName = prefix + this.FullName,
-                    Fields = this.Fields.ToList(),
+                    FieldContents = this.FieldContents.ToList(),
                     Methods = this.Methods.Select(m => m.Clone(DiffStatus.None)).ToList(),
                     DiffStatus = status
                 };
             }
 
-            internal void Cleanup()
+            internal void Resolve()
             {
-                this.Fields = this.Fields.Count is 0 ? null : this.Fields;
-                this.Methods.ForEach(m => m.Cleanup());
+                this.FieldContents = this.FieldContents.Count is 0 ? null : this.FieldContents;
+                if (this.FieldContents != null)
+                {
+                    this.Fields = this.FieldContents.OrderBy(kvp => kvp.Item1).Select(kvp => kvp.Item2);
+                }
+
+                this.Methods.ForEach(m => m.Resolve());
                 this.Methods.RemoveAll(m => m.Variables is null && m.Instructions is null);
                 this.Methods = this.Methods.Count is 0 ? null : this.Methods;
             }
@@ -476,7 +489,7 @@ namespace Microsoft.Coyote.Rewriting
                 };
             }
 
-            internal void Cleanup()
+            internal void Resolve()
             {
                 this.Variables = this.Variables.Count is 0 ? null : this.Variables;
                 this.Instructions = this.Instructions.Count is 0 ? null : this.Instructions;

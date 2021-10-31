@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting
         /// Visits the specified <see cref="AssemblyDefinition"/>.
         /// </summary>
         /// <param name="assembly">The assembly definition to visit.</param>
-        internal virtual void VisitAssembly(AssemblyDefinition assembly)
+        protected internal virtual void VisitAssembly(AssemblyDefinition assembly)
         {
             this.Assembly = assembly;
             this.Module = null;
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Rewriting
         /// visited <see cref="AssemblyDefinition"/>.
         /// </summary>
         /// <param name="module">The module definition to visit.</param>
-        internal virtual void VisitModule(ModuleDefinition module)
+        protected internal virtual void VisitModule(ModuleDefinition module)
         {
             this.Module = module;
             this.TypeDef = null;
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Rewriting
         /// visited <see cref="ModuleDefinition"/>.
         /// </summary>
         /// <param name="type">The type definition to visit.</param>
-        internal virtual void VisitType(TypeDefinition type)
+        protected internal virtual void VisitType(TypeDefinition type)
         {
             this.TypeDef = type;
             this.Method = null;
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Rewriting
         /// visited <see cref="TypeDefinition"/>.
         /// </summary>
         /// <param name="field">The field definition to visit.</param>
-        internal virtual void VisitField(FieldDefinition field)
+        protected internal virtual void VisitField(FieldDefinition field)
         {
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Rewriting
         /// visited <see cref="TypeDefinition"/>.
         /// </summary>
         /// <param name="method">The method definition to visit.</param>
-        internal virtual void VisitMethod(MethodDefinition method)
+        protected internal virtual void VisitMethod(MethodDefinition method)
         {
             this.Method = method;
 
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Completes the visit over the current assembly.
         /// </summary>
-        internal virtual void CompleteVisit()
+        protected internal virtual void CompleteVisit()
         {
         }
 

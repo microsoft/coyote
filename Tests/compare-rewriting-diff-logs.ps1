@@ -12,7 +12,7 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
-Write-Comment -prefix "." -text "Comparing the Coyote rewriting diff logs" -color "yellow"
+Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
 
 $log_dir = "$PSScriptRoot/Tests.Rewriting.Diff/Logs"
 if (Test-Path -Path $log_dir) {
@@ -32,8 +32,10 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"
     $original = "$log_dir/Microsoft.Coyote.$($kvp.Value).diff.json"
 
-    if ($(Get-FileHash $new).Hash -ne $(Get-FileHash $original).Hash) {
-        Write-Error "IL diff for Microsoft.Coyote.$($kvp.Value) is not matching."
+    $new_hash = $(Get-FileHash $new).Hash
+    $original_hash = $(Get-FileHash $original).Hash
+    if ($new_hash -ne $original_hash) {
+        Write-Error "IL diff hash '$new_hash' for Microsoft.Coyote.$($kvp.Value) is not matching '$original_hash'."
         exit 1
     }
 }

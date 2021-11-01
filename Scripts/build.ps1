@@ -4,7 +4,8 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",
-    [bool]$local = $true
+    [bool]$local = $true,
+    [switch]$latest
 )
 
 $ScriptDir = $PSScriptRoot
@@ -40,12 +41,12 @@ $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Co
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
 if ($local) {
-    if ($version_net4) {
+    if ($version_net4 -and -not $latest) {
         # Build .NET Framework 4.x as well as the new version.
         $command = $command + " /p:BUILD_NET462=yes"
     }
 
-    if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {
+    if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version -and -not $latest) {
         # Build .NET Core 3.1 as well as the new version.
         $command = $command + " /p:BUILD_NETCORE31=yes"
     }

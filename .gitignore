@@ -387,9 +387,6 @@ FodyWeavers.xsd
 .idea/
 *.sln.iml
 
-# Artifacts
-Tests/Tests.Rewriting.Diff/Logs
-
 # Website
 site
 docs/assets/images/Thumbs.db

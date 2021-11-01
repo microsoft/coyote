@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
+        protected internal override void VisitMethod(MethodDefinition method)
         {
             if (method.IsAbstract)
             {

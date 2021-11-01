@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string GenericHashSetFullName { get; } = typeof(SystemGenericCollections.HashSet<>).FullName;
 
         internal static string ConcurrentBagFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentBag<>).FullName;
-        internal static string ConcurrentDictonaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
+        internal static string ConcurrentDictionaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
     }

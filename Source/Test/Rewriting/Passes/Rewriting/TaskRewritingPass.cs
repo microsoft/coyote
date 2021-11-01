@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitField(FieldDefinition field)
+        protected internal override void VisitField(FieldDefinition field)
         {
             if (this.TryRewriteCompilerType(field.FieldType, out TypeReference newFieldType))
             {
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
+        protected internal override void VisitMethod(MethodDefinition method)
         {
             base.VisitMethod(method);
 

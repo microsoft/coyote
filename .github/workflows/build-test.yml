@@ -28,6 +28,10 @@ jobs:
       - name: Build Coyote projects
         run: ./Scripts/build.ps1
         shell: pwsh
+      - name: Validate Coyote Rewriting
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: ./Tests/compare-rewriting-diff-logs.ps1
+        shell: pwsh
       - name: Run Coyote Tests
         run: ./Scripts/run-tests.ps1
         shell: pwsh

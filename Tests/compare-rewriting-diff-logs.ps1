@@ -12,15 +12,15 @@ $targets = [ordered]@{
     "standalone" = "Tests.Standalone"
 }
 
-Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
-
-$log_dir = "$PSScriptRoot/Tests.Rewriting.Diff/Logs"
-if (Test-Path -Path $log_dir) {
-    Remove-Item -Path $log_dir -Recurse -Force
+$expected_hashes = [ordered]@{
+    "rewriting" = "8C2120F12EB0D078C8DAAE3EC2DF8A726B2ACE8EEB95D72627827CE2D3D16DE9"
+    "testing" = "11674E359626C7D2DC694F67CCA4A65D131BB7F423BD1ED7D9A4CC53A0C6B799"
+    "actors" = "9A863B22CD587208BEAC37AD07A8672D94CD32D035D750A2D8D72AAF363FB9C7"
+    "actors-testing" = "4AB2024003281520B29BE30D70560F49CE5CD4C6BDBDD6BDFCF044133896F2D5"
+    "standalone" = "C25C82E533BABC560742359491DBB58F262AE739284B16CA395E2534F7CF295C"
 }
 
-# Decompressing the IL diff logs.
-Expand-Archive -LiteralPath "$log_dir.zip" -DestinationPath $log_dir -Force
+Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
 
 # Compare all IL diff logs.
 foreach ($kvp in $targets.GetEnumerator()) {
@@ -30,12 +30,11 @@ foreach ($kvp in $targets.GetEnumerator()) {
     }
 
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"
-    $original = "$log_dir/Microsoft.Coyote.$($kvp.Value).diff.json"
-
     $new_hash = $(Get-FileHash $new).Hash
-    $original_hash = $(Get-FileHash $original).Hash
-    if ($new_hash -ne $original_hash) {
-        Write-Error "IL diff hash '$new_hash' for Microsoft.Coyote.$($kvp.Value) is not matching '$original_hash'."
+    Write-Comment -prefix "..." -text "Microsoft.Coyote.$($kvp.Value) has IL diff hash '$new_hash'" -color "white"
+    $expected_hash = $expected_hashes[$($kvp.Key)]
+    if ($new_hash -ne $expected_hash) {
+        Write-Error "Microsoft.Coyote.$($kvp.Value) IL diff hash '$new_hash' is not the expected '$expected_hash'."
         exit 1
     }
 }

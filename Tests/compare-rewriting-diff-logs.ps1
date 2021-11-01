@@ -31,10 +31,10 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"
     $new_hash = $(Get-FileHash $new).Hash
-    Write-Comment -prefix "..." -text "Microsoft.Coyote.$($kvp.Value) has IL diff hash '$new_hash'" -color "white"
+    Write-Comment -prefix "..." -text "Computed IL diff hash '$new_hash' for '$($kvp.Value)' project" -color "white"
     $expected_hash = $expected_hashes[$($kvp.Key)]
     if ($new_hash -ne $expected_hash) {
-        Write-Error "Microsoft.Coyote.$($kvp.Value) IL diff hash '$new_hash' is not the expected '$expected_hash'."
+        Write-Error "The '$($kvp.Value)' project's IL diff hash '$new_hash' is not the expected '$expected_hash'."
         exit 1
     }
 }

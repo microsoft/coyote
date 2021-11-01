@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitModule(ModuleDefinition module)
+        protected internal override void VisitModule(ModuleDefinition module)
         {
             this.ControlledMonitorType = null;
             base.VisitModule(module);

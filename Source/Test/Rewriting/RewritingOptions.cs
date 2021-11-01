@@ -81,28 +81,22 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// True if rewriting of unit test methods is enabled, else false.
         /// </summary>
-        /// <remarks>
-        /// If unit test rewriting is enabled, Coyote will instrument the binary to run unit test
-        /// methods in the scope of the Coyote testing engine. Note that this rewriting does not
-        /// change the semantics of the original test. For example, if the test is sequential it
-        /// will remain sequential, limiting the concurrency coverage that Coyote can achieve.
-        /// </remarks>
         internal bool IsRewritingUnitTests { get; set; }
 
         /// <summary>
         /// True if rewriting threads as controlled tasks.
         /// </summary>
-        /// <remarks>
-        /// Normally Thread is not supported by Coyote, but this experimental feature wraps the
-        /// thread in a Task so that Coyote knows about it which avoids uncontrolled concurrency
-        /// errors in some cases.
-        /// </remarks>
         internal bool IsRewritingThreads { get; set; }
 
         /// <summary>
-        /// True if the rewriter should log the IL contents before and after rewriting in JSON.
+        /// True if the rewriter should log the IL before and after rewriting.
         /// </summary>
-        internal bool IsLoggingContentsAsJson { get; set; }
+        internal bool IsLoggingAssemblyContents { get; set; }
+
+        /// <summary>
+        /// True if the rewriter should diff the IL before and after rewriting.
+        /// </summary>
+        internal bool IsDiffingAssemblyContents { get; set; }
 
         /// <summary>
         /// The .NET platform version that Coyote was compiled for.
@@ -147,7 +141,8 @@ namespace Microsoft.Coyote.Rewriting
                 IsRewritingDependencies = false,
                 IsRewritingUnitTests = false,
                 IsRewritingThreads = false,
-                IsLoggingContentsAsJson = false,
+                IsLoggingAssemblyContents = false,
+                IsDiffingAssemblyContents = false,
             };
 
         /// <summary>

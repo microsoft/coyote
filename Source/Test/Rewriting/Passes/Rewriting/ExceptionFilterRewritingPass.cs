@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitType(TypeDefinition type)
+        protected internal override void VisitType(TypeDefinition type)
         {
             this.IsAsyncStateMachineType = type.Interfaces.Any(
                 i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitMethod(MethodDefinition method)
+        protected internal override void VisitMethod(MethodDefinition method)
         {
             base.VisitMethod(method);
 

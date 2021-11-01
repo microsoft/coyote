@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 contents.Modules.Add(new ModuleContents()
                 {
-                    FileName = module.FileName,
+                    Name = module.Name,
                     Types = new List<TypeContents>()
                 });
             }
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
-                contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types.Add(
+                contents.Modules.FirstOrDefault(m => m.Name == this.Module.Name)?.Types.Add(
                     new TypeContents()
                     {
                         FullName = type.FullName,
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
-                contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
+                contents.Modules.FirstOrDefault(m => m.Name == this.Module.Name)?.Types
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?
                     .AddField(field);
             }
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
-                contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
+                contents.Modules.FirstOrDefault(m => m.Name == this.Module.Name)?.Types
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Methods
                     .Add(new MethodContents()
                     {
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
-                contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
+                contents.Modules.FirstOrDefault(m => m.Name == this.Module.Name)?.Types
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Methods
                     .FirstOrDefault(m => m.FullName == this.Method.FullName)?
                     .AddVariable(variable);
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ContentMap.TryGetValue(this.Assembly.FullName, out AssemblyContents contents))
             {
-                contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
+                contents.Modules.FirstOrDefault(m => m.Name == this.Module.Name)?.Types
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Methods
                     .FirstOrDefault(m => m.FullName == this.Method.FullName)?.Instructions
                     .Add(instruction.ToString());
@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.Rewriting
 
         private class ModuleContents
         {
-            public string FileName { get; set; }
+            public string Name { get; set; }
             public List<TypeContents> Types { get; set; }
 
             [JsonIgnore]
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 var diffedContents = new ModuleContents()
                 {
-                    FileName = this.FileName,
+                    Name = this.Name,
                     Types = new List<TypeContents>()
                 };
 
@@ -303,7 +303,7 @@ namespace Microsoft.Coyote.Rewriting
                 string prefix = status is DiffStatus.Added ? "[+] " : status is DiffStatus.Removed ? "[-] " : string.Empty;
                 return new ModuleContents()
                 {
-                    FileName = prefix + this.FileName,
+                    Name = prefix + this.Name,
                     Types = this.Types.Select(t => t.Clone(DiffStatus.None)).ToList(),
                     DiffStatus = status
                 };
@@ -316,8 +316,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.Types = this.Types.Count is 0 ? null : this.Types;
             }
 
-            public override bool Equals(object obj) => obj is ModuleContents other && this.FileName == other.FileName;
-            public override int GetHashCode() => this.FileName.GetHashCode();
+            public override bool Equals(object obj) => obj is ModuleContents other && this.Name == other.Name;
+            public override int GetHashCode() => this.Name.GetHashCode();
         }
 
         private class TypeContents

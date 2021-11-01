@@ -102,6 +102,8 @@ namespace Microsoft.Coyote.Rewriting
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Methods
                     .Add(new MethodContents()
                     {
+                        Index = this.TypeDef.Methods.IndexOf(method),
+                        Name = method.Name,
                         FullName = method.FullName,
                         Instructions = new List<string>()
                     });
@@ -225,8 +227,8 @@ namespace Microsoft.Coyote.Rewriting
                 var diffedModules = this.Modules.Union(other.Modules);
                 foreach (var module in diffedModules)
                 {
-                    var thisModule = this.Modules.FirstOrDefault(m => m.FileName == module.FileName);
-                    var otherModule = other.Modules.FirstOrDefault(m => m.FileName == module.FileName);
+                    var thisModule = this.Modules.FirstOrDefault(m => m.Equals(module));
+                    var otherModule = other.Modules.FirstOrDefault(m => m.Equals(module));
                     if (thisModule is null)
                     {
                         diffedContents.Modules.Add(module.Clone(DiffStatus.Added));
@@ -277,8 +279,8 @@ namespace Microsoft.Coyote.Rewriting
                 var diffedTypes = this.Types.Union(other.Types);
                 foreach (var type in diffedTypes)
                 {
-                    var thisType = this.Types.FirstOrDefault(t => t.FullName == type.FullName);
-                    var otherType = other.Types.FirstOrDefault(t => t.FullName == type.FullName);
+                    var thisType = this.Types.FirstOrDefault(t => t.Equals(type));
+                    var otherType = other.Types.FirstOrDefault(t => t.Equals(type));
                     if (thisType is null)
                     {
                         diffedContents.Types.Add(type.Clone(DiffStatus.Added));
@@ -363,8 +365,8 @@ namespace Microsoft.Coyote.Rewriting
                 var diffedMethods = this.Methods.Union(other.Methods);
                 foreach (var method in diffedMethods)
                 {
-                    var thisMethod = this.Methods.FirstOrDefault(m => m.FullName == method.FullName);
-                    var otherMethod = other.Methods.FirstOrDefault(m => m.FullName == method.FullName);
+                    var thisMethod = this.Methods.FirstOrDefault(m => m.Equals(method));
+                    var otherMethod = other.Methods.FirstOrDefault(m => m.Equals(method));
                     if (thisMethod is null)
                     {
                         diffedContents.Methods.Add(method.Clone(DiffStatus.Added));
@@ -413,6 +415,10 @@ namespace Microsoft.Coyote.Rewriting
 
         private class MethodContents
         {
+            [JsonIgnore]
+            internal int Index { get; set; }
+
+            public string Name { get; set; }
             public string FullName { get; set; }
             public IEnumerable<string> Variables { get; set; }
             public List<string> Instructions { get; set; }
@@ -432,9 +438,12 @@ namespace Microsoft.Coyote.Rewriting
             /// </summary>
             internal MethodContents Diff(MethodContents other)
             {
+                // TODO: show diff in method signature.
                 var diffedContents = new MethodContents()
                 {
-                    FullName = this.FullName,
+                    Index = this.Index,
+                    Name = this.Name,
+                    FullName = other.FullName,
                     Instructions = new List<string>()
                 };
 
@@ -485,6 +494,8 @@ namespace Microsoft.Coyote.Rewriting
                 string prefix = status is DiffStatus.Added ? "[+] " : status is DiffStatus.Removed ? "[-] " : string.Empty;
                 return new MethodContents()
                 {
+                    Index = this.Index,
+                    Name = this.Name,
                     FullName = prefix + this.FullName,
                     VariableContents = this.VariableContents.ToList(),
                     Instructions = this.Instructions.ToList(),
@@ -503,8 +514,19 @@ namespace Microsoft.Coyote.Rewriting
                 this.Instructions = this.Instructions.Count is 0 ? null : this.Instructions;
             }
 
-            public override bool Equals(object obj) => obj is MethodContents other && this.FullName == other.FullName;
-            public override int GetHashCode() => this.FullName.GetHashCode();
+            public override bool Equals(object obj) => obj is MethodContents other &&
+                this.Index == other.Index && this.Name == other.Name;
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hash = 19;
+                    hash = (hash * 31) + this.Index.GetHashCode();
+                    hash = (hash * 31) + this.Name.GetHashCode();
+                    return hash;
+                }
+            }
         }
     }
 }

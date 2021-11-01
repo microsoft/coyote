@@ -103,7 +103,6 @@ namespace Microsoft.Coyote.Rewriting
                     .Add(new MethodContents()
                     {
                         FullName = method.FullName,
-                        Variables = new List<string>(),
                         Instructions = new List<string>()
                     });
             }
@@ -118,8 +117,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 contents.Modules.FirstOrDefault(m => m.FileName == this.Module.FileName)?.Types
                     .FirstOrDefault(t => t.FullName == this.TypeDef.FullName)?.Methods
-                    .FirstOrDefault(m => m.FullName == this.Method.FullName)?.Variables
-                    .Add(variable.ToString());
+                    .FirstOrDefault(m => m.FullName == this.Method.FullName)?
+                    .AddVariable(variable);
             }
 
             base.VisitVariable(variable);
@@ -322,9 +321,7 @@ namespace Microsoft.Coyote.Rewriting
         private class TypeContents
         {
             public string FullName { get; set; }
-
             public IEnumerable<string> Fields { get; set; }
-
             public List<MethodContents> Methods { get; set; }
 
             private List<(string, string)> FieldContents = new List<(string, string)>();
@@ -417,11 +414,18 @@ namespace Microsoft.Coyote.Rewriting
         private class MethodContents
         {
             public string FullName { get; set; }
-            public List<string> Variables { get; set; }
+            public IEnumerable<string> Variables { get; set; }
             public List<string> Instructions { get; set; }
+
+            private List<(int, string)> VariableContents = new List<(int, string)>();
 
             [JsonIgnore]
             internal DiffStatus DiffStatus { get; private set; } = DiffStatus.None;
+
+            internal void AddVariable(VariableDefinition variable)
+            {
+                this.VariableContents.Add((variable.Index, $"[{variable.Index}] {variable.VariableType.FullName}"));
+            }
 
             /// <summary>
             /// Returns the diff between the IL contents of this method against the specified method.
@@ -431,22 +435,21 @@ namespace Microsoft.Coyote.Rewriting
                 var diffedContents = new MethodContents()
                 {
                     FullName = this.FullName,
-                    Variables = new List<string>(),
                     Instructions = new List<string>()
                 };
 
-                var diffedVariables = this.Variables.Union(other.Variables);
+                var diffedVariables = this.VariableContents.Union(other.VariableContents);
                 foreach (var variable in diffedVariables)
                 {
-                    var thisVariable = this.Variables.FirstOrDefault(v => v == variable);
-                    var otherVariable = other.Variables.FirstOrDefault(v => v == variable);
-                    if (thisVariable is null)
+                    var (thisVariable, thisType) = this.VariableContents.FirstOrDefault(v => v == variable);
+                    var (otherVariable, otherType) = other.VariableContents.FirstOrDefault(v => v == variable);
+                    if (thisType is null)
                     {
-                        diffedContents.Variables.Add("[+] " + variable);
+                        diffedContents.VariableContents.Add((variable.Item1, "[+] " + variable.Item2));
                     }
-                    else if (otherVariable is null)
+                    else if (otherType is null)
                     {
-                        diffedContents.Variables.Add("[-] " + variable);
+                        diffedContents.VariableContents.Add((variable.Item1, "[-] " + variable.Item2));
                     }
                 }
 
@@ -483,7 +486,7 @@ namespace Microsoft.Coyote.Rewriting
                 return new MethodContents()
                 {
                     FullName = prefix + this.FullName,
-                    Variables = this.Variables.ToList(),
+                    VariableContents = this.VariableContents.ToList(),
                     Instructions = this.Instructions.ToList(),
                     DiffStatus = status
                 };
@@ -491,7 +494,12 @@ namespace Microsoft.Coyote.Rewriting
 
             internal void Resolve()
             {
-                this.Variables = this.Variables.Count is 0 ? null : this.Variables;
+                this.VariableContents = this.VariableContents.Count is 0 ? null : this.VariableContents;
+                if (this.VariableContents != null)
+                {
+                    this.Variables = this.VariableContents.OrderBy(kvp => kvp.Item1).Select(kvp => kvp.Item2);
+                }
+
                 this.Instructions = this.Instructions.Count is 0 ? null : this.Instructions;
             }
 

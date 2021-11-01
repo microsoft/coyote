@@ -21,17 +21,15 @@ if (-not (Test-Path -Path $log_dir)) {
 
 # Copy all diff logs.
 foreach ($kvp in $targets.GetEnumerator()) {
-    foreach ($suffix in "il", "rw") {
-        $project = $($kvp.Value)
-        if ($project -eq $targets["actors"]) {
-            $project = $targets["actors-testing"]
-        }
-
-        Copy-Item "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).$suffix.json" $log_dir
+    $project = $($kvp.Value)
+    if ($project -eq $targets["actors"]) {
+        $project = $targets["actors-testing"]
     }
+
+    Copy-Item "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json" $log_dir
 }
 
 # Compressing the logs.
-Compress-Archive -LiteralPath $log_dir -DestinationPath "$log_dir.zip"
+Compress-Archive -LiteralPath $log_dir -DestinationPath "$log_dir.zip" -Force
 
 Write-Comment -prefix "." -text "Done" -color "green"

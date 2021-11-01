@@ -30,9 +30,9 @@
     </None>
   </ItemGroup>
   <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite rewrite.coyote.json --dump-il" />
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite rewrite.coyote.json --dump-il-diff" />
   </Target>
   <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json --dump-il" />
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json --dump-il-diff" />
   </Target>
 </Project>

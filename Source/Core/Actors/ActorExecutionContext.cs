@@ -1027,19 +1027,13 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
-            public override void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default, SendOptions options = null)
-            {
-                var senderOp = this.Runtime.GetExecutingOperation<ActorOperation>();
-                this.SendEvent(targetId, initialEvent, senderOp?.Actor, eventGroup, options);
-            }
+            public override void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default,
+                SendOptions options = null) => this.SendEvent(targetId, initialEvent, null, eventGroup, options);
 
             /// <inheritdoc/>
             public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
-                EventGroup eventGroup = null, SendOptions options = null)
-            {
-                var senderOp = this.Runtime.GetExecutingOperation<ActorOperation>();
-                return this.SendEventAndExecuteAsync(targetId, initialEvent, senderOp?.Actor, eventGroup, options);
-            }
+                EventGroup eventGroup = null, SendOptions options = null) =>
+                this.SendEventAndExecuteAsync(targetId, initialEvent, null, eventGroup, options);
 
             /// <summary>
             /// Sends an asynchronous <see cref="Event"/> to an actor.

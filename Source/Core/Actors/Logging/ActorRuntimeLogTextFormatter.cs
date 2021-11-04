@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
@@ -327,7 +328,8 @@ namespace Microsoft.Coyote.Actors
         {
             var eventGroupIdMsg = eventGroupId != Guid.Empty ? $" (event group '{eventGroupId}')" : string.Empty;
             var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
-            var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" : $"task '{Task.CurrentId}'";
+            var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" :
+                Task.CurrentId.HasValue ? $"task '{Task.CurrentId}'" : $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             var eventName = e.GetType().FullName;
             var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{eventGroupIdMsg}.";
             this.Logger.WriteLine(text);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
@@ -38,6 +39,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             switch (configuration.SchedulingStrategy)
             {
+                case "rl":
+                    return new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
                 case "pct":
                     return new PCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
                 default:
@@ -50,8 +53,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
+        /// <param name="state">Current state.</param>
+        /// <param name="operation">Calling actor.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal abstract bool GetNextDelay(int maxValue, out int next);
+        internal abstract bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null);
 
         /// <summary>
         /// Returns the current operation id.

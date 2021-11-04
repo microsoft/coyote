@@ -521,7 +521,7 @@ namespace Microsoft.Coyote.Actors
                     // Add a delay point before dequeuing an event.
                     if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
-                        this.Context.Runtime.DelayOperation();
+                        this.Context.Runtime.DelayOperation(this.Operation);
                     }
 
                     (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) = this.Inbox.Dequeue();

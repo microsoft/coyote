@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -22,7 +23,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The installed program exploration strategy.
         /// </summary>
-        private ExplorationStrategy Strategy;
+        private readonly ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed replay strategy, if any.
@@ -158,9 +159,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
+        /// <param name="state">Current state.</param>
+        /// <param name="operation">Calling actor.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(int maxValue, out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next);
+        internal bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, state, operation);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

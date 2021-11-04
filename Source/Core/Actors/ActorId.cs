@@ -75,7 +75,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Counter which provides local child Ids for new Actor instances under a parent.
         /// </summary>
-        public ulong IdCounter;
+        public ulong ChildIdCounter;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public static ulong RootIdCounter;
 
         /// <summary>
         /// A string used to identify the sequence of non-deterministic choices made by the actor.
@@ -97,19 +102,21 @@ namespace Microsoft.Coyote.Actors
             this.Value = value;
             if (parent is null)
             {
-                this.RLId = "0";
+                // TODO : Take into account random choices.
+                this.RLId = RootIdCounter.ToString();
+                RootIdCounter++;
             }
             else
             {
-                this.RLId = parent.Id.RLId + parent.Id.Choices + "{" + parent.Id.IdCounter.ToString() + "}";
+                this.RLId = parent.Id.RLId + parent.Id.Choices + "{" + parent.Id.ChildIdCounter.ToString() + "}";
             }
 
             if (parent != null)
             {
-                parent.Id.IdCounter++;
+                parent.Id.ChildIdCounter++;
             }
 
-            this.IdCounter = 0;
+            this.ChildIdCounter = 0;
             this.Choices = string.Empty;
 
             if (useNameForHashing)

@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemTasks = System.Threading.Tasks;
@@ -34,7 +31,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Executes each of the provided actions, possibly in parallel.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(params Action[] actions)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.Invoke));
@@ -44,7 +40,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Executes each of the provided actions, possibly in parallel, unless the operation is cancelled by the user.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(ParallelOptions parallelOptions, params Action[] actions)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.Invoke));
@@ -54,7 +49,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Executes a for loop in which iterations may run in parallel.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int> body)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -69,7 +63,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop in which iterations may run in parallel and loop options
         /// can be configured.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Action<int> body)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -89,7 +82,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop in which iterations may run in parallel and the state of
         /// the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int, ParallelLoopState> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -100,7 +92,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop in which iterations may run in parallel, loop options can
         /// be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions,
             Action<int, ParallelLoopState> body)
         {
@@ -111,7 +102,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -122,7 +112,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel
         /// and loop options can be configured.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -133,7 +122,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel
         /// and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long, ParallelLoopState> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -144,7 +132,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel, loop
         /// options can be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Action<long, ParallelLoopState> body)
         {
@@ -156,7 +143,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with thread-local data in which iterations may run in parallel,
         /// and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -167,7 +153,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with thread-local data in which iterations may run in parallel, loop
         /// options can be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Func<TLocal> localInit, Func<int, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.For));
@@ -178,7 +163,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a for loop with 64-bit indexes and thread-local data in which iterations
         /// may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, Func<TLocal> localInit,
             Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -191,7 +175,6 @@ namespace Microsoft.Coyote.Interception
         /// may run in parallel, loop options can be configured, and the state of the loop
         /// can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -203,7 +186,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource> body)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -218,7 +200,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel and loop options can be configured.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions, Action<TSource> body)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -237,7 +218,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run in parallel.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -248,7 +228,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run
         /// in parallel and loop options can be configured.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -259,7 +238,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/> in which iterations
         /// may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -271,7 +249,6 @@ namespace Microsoft.Coyote.Interception
         /// may run in parallel, loop options can be configured, and the state of the loop can be monitored and
         /// manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
@@ -284,7 +261,6 @@ namespace Microsoft.Coyote.Interception
         /// and the state of the loop can be monitored
         /// and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource, ParallelLoopState> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -295,7 +271,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run in parallel,
         /// loop options can be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
@@ -307,7 +282,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation with 64-bit indexes on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -319,7 +293,6 @@ namespace Microsoft.Coyote.Interception
         /// in which iterations may run in parallel, loop options can be configured, and the state of the loop
         /// can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
@@ -331,7 +304,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation on a <see cref="OrderablePartitioner{TSource}"/> in which iterations
         /// may run in parallel and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTasks.Parallel.ForEach));
@@ -343,7 +315,6 @@ namespace Microsoft.Coyote.Interception
         /// in which iterations may run in parallel, loop options can be configured, and
         /// the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
@@ -355,7 +326,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation with thread-local data on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -368,7 +338,6 @@ namespace Microsoft.Coyote.Interception
         /// in which iterations may run in parallel, loop options can be configured, and the state of the loop
         /// can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -380,7 +349,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation with thread-local data on a <see cref="Partitioner"/> in which iterations may run in
         /// parallel and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -393,7 +361,6 @@ namespace Microsoft.Coyote.Interception
         /// parallel, loop options can be configured, and the state of the loop can be monitored
         /// and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -405,7 +372,6 @@ namespace Microsoft.Coyote.Interception
         /// Executes a foreach operation with thread-local data on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel and the state of the loop can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -418,7 +384,6 @@ namespace Microsoft.Coyote.Interception
         /// in which iterations may run in parallel, loop options can be configured, and the state of the loop can be monitored and
         /// manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -431,7 +396,6 @@ namespace Microsoft.Coyote.Interception
         /// in which iterations may run in parallel, loop options can be configured, and the state of the loop
         /// can be monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
@@ -445,7 +409,6 @@ namespace Microsoft.Coyote.Interception
         /// parallel , loop options can be configured, and the state of the loop can be
         /// monitored and manipulated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {

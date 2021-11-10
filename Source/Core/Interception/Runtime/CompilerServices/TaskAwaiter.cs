@@ -58,7 +58,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult()
         {
             if (SynchronizationContext.Current is ControlledSynchronizationContext context)
@@ -151,7 +150,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TResult GetResult()
         {
             if (SynchronizationContext.Current is ControlledSynchronizationContext context)

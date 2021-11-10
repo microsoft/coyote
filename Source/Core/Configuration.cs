@@ -81,13 +81,12 @@ namespace Microsoft.Coyote
         internal bool IsSchedulingSeedIncremental;
 
         /// <summary>
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// will attempt to partially control the concurrency of the application, instead of
+        /// failing with an error.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
-        internal bool IsRelaxedControlledTestingEnabled;
+        internal bool IsPartiallyControlledConcurrencyEnabled;
 
         /// <summary>
         /// If this option is enabled, the concurrency fuzzing policy is used during testing.
@@ -364,7 +363,7 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IsSchedulingSeedIncremental = false;
-            this.IsRelaxedControlledTestingEnabled = false;
+            this.IsPartiallyControlledConcurrencyEnabled = true;
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
@@ -514,16 +513,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with relaxed controlled testing enabled or disabled.
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// Updates the configuration with partial controlled concurrency enabled or disabled.
         /// </summary>
-        /// <param name="isEnabled">If true, then relaxed controlled testing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        public Configuration WithRelaxedControlledTestingEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial controlled concurrency is enabled.</param>
+        public Configuration WithPartiallyControlledConcurrencyEnabled(bool isEnabled = true)
         {
-            this.IsRelaxedControlledTestingEnabled = isEnabled;
+            this.IsPartiallyControlledConcurrencyEnabled = isEnabled;
             return this;
         }
 

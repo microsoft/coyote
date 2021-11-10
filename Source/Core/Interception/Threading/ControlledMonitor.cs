@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-#if !DEBUG
-using System.Runtime.CompilerServices;
-#endif
 using System.Threading;
 using Microsoft.Coyote.Runtime;
+using SystemThreading = System.Threading;
 
 namespace Microsoft.Coyote.Interception
 {
@@ -21,9 +19,6 @@ namespace Microsoft.Coyote.Interception
         /// Acquires an exclusive lock on the specified object.
         /// </summary>
         /// <param name="obj">The object on which to acquire the monitor lock.</param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void Enter(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -46,9 +41,6 @@ namespace Microsoft.Coyote.Interception
         /// even if an exception occurs during the attempt to acquire the lock. Note that if no exception
         /// occurs, the output of this method is always true.
         /// </param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void Enter(object obj, ref bool lockTaken)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -67,9 +59,6 @@ namespace Microsoft.Coyote.Interception
         /// Releases an exclusive lock on the specified object.
         /// </summary>
         /// <param name="obj">The object on which to release the lock.</param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void Exit(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -93,9 +82,6 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         /// <param name="obj">The object to test.</param>
         /// <returns>True if the current thread holds the lock on obj, else false.</returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool IsEntered(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -116,9 +102,6 @@ namespace Microsoft.Coyote.Interception
         /// Notifies a thread in the waiting queue of a change in the locked object's state.
         /// </summary>
         /// <param name="obj">The object that sends the pulse.</param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void Pulse(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -141,9 +124,6 @@ namespace Microsoft.Coyote.Interception
         /// Notifies all waiting threads of a change in the object's state.
         /// </summary>
         /// <param name="obj">The object that sends the pulse.</param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void PulseAll(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -176,9 +156,6 @@ namespace Microsoft.Coyote.Interception
         /// even if an exception occurs during the attempt to acquire the lock. Note that if no exception
         /// occurs, the output of this method is always true.
         /// </param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void TryEnter(object obj, TimeSpan timeout, ref bool lockTaken)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -202,9 +179,6 @@ namespace Microsoft.Coyote.Interception
         /// <param name="timeout">
         /// The amount of time to wait for the lock. A value of –1 millisecond specifies an infinite wait.
         /// </param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool TryEnter(object obj, TimeSpan timeout)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -229,9 +203,6 @@ namespace Microsoft.Coyote.Interception
         /// The output is true if the lock is acquired; otherwise, the output is false. The output is set
         /// even if an exception occurs during the attempt to acquire the lock.
         /// </param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void TryEnter(object obj, int millisecondsTimeout, ref bool lockTaken)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -257,9 +228,6 @@ namespace Microsoft.Coyote.Interception
         /// The output is true if the lock is acquired; otherwise, the output is false. The output is set
         /// even if an exception occurs during the attempt to acquire the lock.
         /// </param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void TryEnter(object obj, ref bool lockTaken)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -279,9 +247,6 @@ namespace Microsoft.Coyote.Interception
         /// Attempts to acquire an exclusive lock on the specified object.
         /// </summary>
         /// <param name="obj">The object on which to acquire the lock.</param>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool TryEnter(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -302,9 +267,6 @@ namespace Microsoft.Coyote.Interception
         /// True if the call returned because the caller reacquired the lock for the specified
         /// object. This method does not return if the lock is not reacquired.
         /// </returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool Wait(object obj)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -334,9 +296,6 @@ namespace Microsoft.Coyote.Interception
         /// lock was reacquired after the specified time elapsed. The method does not return until
         /// the lock is reacquired.
         /// </returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool Wait(object obj, int millisecondsTimeout)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -371,9 +330,6 @@ namespace Microsoft.Coyote.Interception
         /// True if the lock was reacquired before the specified time elapsed, else false if the lock was reacquired
         /// after the specified time elapsed. The method does not return until the lock is reacquired.
         /// </returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool Wait(object obj, int millisecondsTimeout, bool exitContext)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -403,9 +359,6 @@ namespace Microsoft.Coyote.Interception
         /// True if the lock was reacquired before the specified time elapsed, else false if the lock was reacquired
         /// after the specified time elapsed. The method does not return until the lock is reacquired.
         /// </returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool Wait(object obj, TimeSpan timeout)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -440,9 +393,6 @@ namespace Microsoft.Coyote.Interception
         /// True if the lock was reacquired before the specified time elapsed, else false if the lock was reacquired
         /// after the specified time elapsed. The method does not return until the lock is reacquired.
         /// </returns>
-#if !DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool Wait(object obj, TimeSpan timeout, bool exitContext)
         {
             if (CoyoteRuntime.IsExecutionControlled)

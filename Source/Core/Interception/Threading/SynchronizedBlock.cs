@@ -219,6 +219,8 @@ namespace Microsoft.Coyote.Interception
 
             protected override SynchronizedBlock EnterLock()
             {
+                Console.WriteLine($">>> EnterLock from {Task.CurrentId} | {Thread.CurrentThread.ManagedThreadId} | {System.Threading.SynchronizationContext.Current}");
+                Console.WriteLine($"StackTrace: \n{new System.Diagnostics.StackTrace()}");
                 this.IsLockTaken = true;
                 Interlocked.Increment(ref this.UseCount);
 
@@ -232,6 +234,7 @@ namespace Microsoft.Coyote.Interception
                 if (this.Owner != null)
                 {
                     var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    Console.WriteLine($">>> EnterLock op '{op}'");
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -256,6 +259,7 @@ namespace Microsoft.Coyote.Interception
 
                 // The executing op acquired the lock and can proceed.
                 this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                Console.WriteLine($">>> EnterLock owner '{this.Owner}'");
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }

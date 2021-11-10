@@ -45,7 +45,8 @@ namespace Microsoft.Coyote.Interception
         /// sufficient capacity to accommodate the number of elements copied.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(IEnumerable<T> collection, IEqualityComparer<T> comparer) => new Mock<T>(collection, comparer);
+        public static HashSet<T> Create<T>(IEnumerable<T> collection, IEqualityComparer<T> comparer) =>
+            new Mock<T>(collection, comparer);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HashSet{T}"/> class with serialized data.
@@ -72,7 +73,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets the <see cref="IEqualityComparer{T}"/> object that is used to determine equality for the values in the set.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -88,7 +88,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets the number of elements that are contained in the <see cref="HashSet{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -104,7 +103,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Adds the specified element to the <see cref="HashSet{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Add<T>(HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -114,7 +112,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes all elements from a <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<T>(HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -124,7 +121,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object contains the specified element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Contains<T>(HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -134,7 +130,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Copies the elements of a <see cref="HashSet{T}"/> object to an array.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(HashSet<T> hashSet, T[] array)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -144,7 +139,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Copies the elements of a <see cref="HashSet{T}"/> object to an array, starting at the specified array index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(HashSet<T> hashSet, T[] array, int arrayIndex)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -154,7 +148,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Copies the specified number of elements of a <see cref="HashSet{T}"/> object to an array, starting at the specified array index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(HashSet<T> hashSet, T[] array, int arrayIndex, int count)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -164,7 +157,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes all elements in the specified collection from the current <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ExceptWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -174,7 +166,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns an enumerator that iterates through a <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashSet<T>.Enumerator GetEnumerator<T>(HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -185,7 +176,6 @@ namespace Microsoft.Coyote.Interception
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed to
         /// serialize a <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetObjectData<T>(HashSet<T> hashSet, SerializationInfo info, StreamingContext context)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -196,7 +186,6 @@ namespace Microsoft.Coyote.Interception
         /// Modifies the current <see cref="HashSet{T}"/> object to contain only elements that are present
         /// in that object and in the specified collection.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IntersecWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -206,7 +195,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object is a proper subset of the specified collection.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsProperSubsetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -216,7 +204,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object is a proper superset of the specified collection.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsProperSupersetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -226,7 +213,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object is a subset of the specified collection.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSubsetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -236,7 +222,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object is a superset of the specified collection.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSupersetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -248,7 +233,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Implements the <see cref="ISerializable"/> interface and raises the deserialization event when the deserialization is complete.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnDeserialization<T>(HashSet<T> hashSet, object sender)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -258,7 +242,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object and a specified collection share common elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Overlaps<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -268,7 +251,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes the specified element from a <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<T>(HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -278,7 +260,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes the specified element from a <see cref="HashSet{T}"/> object.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int RemoveWhere<T>(HashSet<T> hashSet, Predicate<T> match)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -288,7 +269,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether a <see cref="HashSet{T}"/> object and the specified collection contain the same elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SetEquals<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -299,7 +279,6 @@ namespace Microsoft.Coyote.Interception
         /// Modifies the current <see cref="HashSet{T}"/> object to contain only elements that are present either in
         /// that object or in the specified collection, but not both.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SymmetricExceptWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -310,7 +289,6 @@ namespace Microsoft.Coyote.Interception
         /// Sets the capacity of a <see cref="HashSet{T}"/> object to the actual number of elements it
         /// contains, rounded up to a nearby, implementation-specific value.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<T>(HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -321,7 +299,6 @@ namespace Microsoft.Coyote.Interception
         /// Modifies the current <see cref="HashSet{T}"/> object to contain all elements that are
         /// present in itself, the specified collection, or both.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnionWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
@@ -332,7 +309,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Ensures that this <see cref="HashSet{T}"/> object can hold the specified number of elements without growing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int EnsureCapacity<T>(HashSet<T> hashSet, int capacity)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -342,7 +318,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Searches the set for a given value and returns the equal value it finds, if any.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue<T>(HashSet<T> hashSet, T equalValue, out T actualValue)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
@@ -405,7 +380,6 @@ namespace Microsoft.Coyote.Interception
             /// <summary>
             /// Checks for a data race.
             /// </summary>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal void CheckDataRace(bool isWriteAccess)
             {
                 var runtime = CoyoteRuntime.Current;

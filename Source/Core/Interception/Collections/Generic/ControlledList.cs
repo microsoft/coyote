@@ -38,7 +38,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets the element at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -54,7 +53,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Sets the element at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -70,7 +68,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns the number of elements contained in the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -86,7 +83,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets the total number of elements the internal data structure can hold without resizing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -102,7 +98,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Sets the total number of elements the internal data structure can hold without resizing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -118,7 +113,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Adds an object to the end of the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -128,7 +122,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Adds the elements of the specified collection to the end of the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddRange<T>(List<T> list, IEnumerable<T> collection)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -139,7 +132,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches the entire sorted <see cref="List{T}"/> for an element using
         /// the default comparer and returns the zero-based index of the element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BinarySearch<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -150,7 +142,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches the entire sorted <see cref="List{T}"/> for an element using
         /// the specified comparer and returns the zero-based index of the element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BinarySearch<T>(List<T> list, T item, IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -161,7 +152,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches a range of elements in the sorted <see cref="List{T}"/> for an element using
         /// the specified comparer and returns the zero-based index of the element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BinarySearch<T>(List<T> list, int index, int count, T item, IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -171,7 +161,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes all elements from the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -181,7 +170,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Determines whether an element is in the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Contains<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -192,7 +180,6 @@ namespace Microsoft.Coyote.Interception
         /// Converts the elements in the current <see cref="List{T}"/> to another
         /// type, and returns a list containing the converted elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<TOutput> ConvertAll<T, TOutput>(List<T> list, Converter<T, TOutput> converter)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -203,7 +190,6 @@ namespace Microsoft.Coyote.Interception
         /// Copies the entire <see cref="List{T}"/> to a compatible one-dimensional
         /// array, starting at the beginning of the target array.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(List<T> list, T[] array)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -214,7 +200,6 @@ namespace Microsoft.Coyote.Interception
         /// Copies the entire <see cref="List{T}"/> to a compatible one-dimensional
         /// array, starting at the specified index of the target array.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(List<T> list, T[] array, int arrayIndex)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -225,7 +210,6 @@ namespace Microsoft.Coyote.Interception
         /// Copies a range of elements from the <see cref="List{T}"/> to a compatible
         /// one-dimensional array, starting at the specified index of the target array.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(List<T> list, int index, T[] array, int arrayIndex, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -236,7 +220,6 @@ namespace Microsoft.Coyote.Interception
         /// Determines whether the <see cref="List{T}"/> contains elements that
         /// match the conditions defined by the specified predicate.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Exists<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -247,7 +230,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the first occurrence within the entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Find<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -257,7 +239,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Retrieves all the elements that match the conditions defined by the specified predicate.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> FindAll<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -270,7 +251,6 @@ namespace Microsoft.Coyote.Interception
         /// range of elements in the <see cref="List{T}"/> that starts at the specified
         /// index and contains the specified number of elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex<T>(List<T> list, int startIndex, int count, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -283,7 +263,6 @@ namespace Microsoft.Coyote.Interception
         /// range of elements in the <see cref="List{T}"/> that extends from the specified
         /// index to the last element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex<T>(List<T> list, int startIndex, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -295,7 +274,6 @@ namespace Microsoft.Coyote.Interception
         /// predicate, and returns the zero-based index of the first occurrence within the
         /// entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -306,7 +284,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the last occurrence within the entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindLast<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -319,7 +296,6 @@ namespace Microsoft.Coyote.Interception
         /// range of elements in the <see cref="List{T}"/> that contains the specified
         /// number of elements and ends at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindLastIndex<T>(List<T> list, int startIndex, int count, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -332,7 +308,6 @@ namespace Microsoft.Coyote.Interception
         /// range of elements in the <see cref="List{T}"/> that extends from the first
         /// element to the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindLastIndex<T>(List<T> list, int startIndex, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -344,7 +319,6 @@ namespace Microsoft.Coyote.Interception
         /// predicate, and returns the zero-based index of the last occurrence within the
         /// entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindLastIndex<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -354,7 +328,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Performs the specified action on each element of the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ForEach<T>(List<T> list, Action<T> action)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -364,7 +337,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns an enumerator that iterates through the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T>.Enumerator GetEnumerator<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -374,7 +346,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates a shallow copy of a range of elements in the source <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> GetRange<T>(List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -386,7 +357,6 @@ namespace Microsoft.Coyote.Interception
         /// occurrence within the range of elements in the <see cref="List{T}"/> that starts
         /// at the specified index and contains the specified number of elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf<T>(List<T> list, T item, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -398,7 +368,6 @@ namespace Microsoft.Coyote.Interception
         /// occurrence within the range of elements in the <see cref="List{T}"/> that extends
         /// from the specified index to the last element.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf<T>(List<T> list, T item, int index)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -409,7 +378,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches for the specified object and returns the zero-based index of the first
         /// occurrence within the entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -419,7 +387,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Inserts an element into the <see cref="List{T}"/> at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Insert<T>(List<T> list, int index, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -430,7 +397,6 @@ namespace Microsoft.Coyote.Interception
         /// Inserts the elements of a collection into the <see cref="List{T}"/>
         /// at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InsertRange<T>(List<T> list, int index, IEnumerable<T> collection)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -441,7 +407,6 @@ namespace Microsoft.Coyote.Interception
         /// Searches for the specified object and returns the zero-based index of the last
         /// occurrence within the entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -453,7 +418,6 @@ namespace Microsoft.Coyote.Interception
         /// occurrence within the range of elements in the <see cref="List{T}"/> that extends
         /// from the first element to the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf<T>(List<T> list, T item, int index)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -465,7 +429,6 @@ namespace Microsoft.Coyote.Interception
         /// occurrence within the range of elements in the <see cref="List{T}"/> that contains
         /// the specified number of elements and ends at the specified index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf<T>(List<T> list, T item, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -475,7 +438,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes the first occurrence of a specific object from the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Remove<T>(List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -485,7 +447,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes all the elements that match the conditions defined by the specified predicate.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int RemoveAll<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -495,7 +456,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes the element at the specified index of the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveAt<T>(List<T> list, int index)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -505,7 +465,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes a range of elements from the <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveRange<T>(List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -515,7 +474,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Reverses the order of the elements in the specified range.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Reverse<T>(List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -525,7 +483,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Reverses the order of the elements in the entire <see cref="List{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Reverse<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -536,7 +493,6 @@ namespace Microsoft.Coyote.Interception
         /// Sorts the elements in the entire <see cref="List{T}"/> using the
         /// specified <see cref="Comparison{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Sort<T>(List<T> list, Comparison<T> comparison)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -547,7 +503,6 @@ namespace Microsoft.Coyote.Interception
         /// Sorts the elements in a range of elements in <see cref="List{T}"/>
         /// using the specified comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Sort<T>(List<T> list, int index, int count, IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -557,7 +512,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Sorts the elements in the entire <see cref="List{T}"/> using the default comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Sort<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -567,7 +521,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Sorts the elements in the entire <see cref="List{T}"/> using the specified comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Sort<T>(List<T> list, IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -577,7 +530,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Copies the elements of the <see cref="List{T}"/> to a new array.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] ToArray<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -588,7 +540,6 @@ namespace Microsoft.Coyote.Interception
         /// Sets the capacity to the actual number of elements in the <see cref="List{T}"/>,
         /// if that number is less than a threshold value.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TrimExcess<T>(List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
@@ -599,7 +550,6 @@ namespace Microsoft.Coyote.Interception
         /// Determines whether every element in the <see cref="List{T}"/> matches
         /// the conditions defined by the specified predicate.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TrueForAll<T>(List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
@@ -651,7 +601,6 @@ namespace Microsoft.Coyote.Interception
             /// <summary>
             /// Checks for a data race.
             /// </summary>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal void CheckDataRace(bool isWriteAccess)
             {
                 var runtime = CoyoteRuntime.Current;

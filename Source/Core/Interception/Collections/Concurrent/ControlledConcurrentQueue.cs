@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Interception
 {
@@ -18,7 +17,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets the number of elements contained in the <see cref="ConcurrentQueue{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -34,7 +32,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Gets a value that indicates whether the <see cref="ConcurrentQueue{T}"/> is empty.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
@@ -51,7 +48,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Removes all objects from the <see cref="ConcurrentQueue{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear<T>(ConcurrentQueue<T> concurrentQueue)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -63,7 +59,6 @@ namespace Microsoft.Coyote.Interception
         /// Copies the <see cref="ConcurrentQueue{T}"/> elements to an existing one-dimensional <see cref="Array"/>,
         /// starting at the specified array index.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(ConcurrentQueue<T> concurrentQueue, T[] array, int index)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -73,7 +68,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Adds an object to the end of the <see cref="ConcurrentQueue{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Enqueue<T>(ConcurrentQueue<T> concurrentQueue, T item)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -83,7 +77,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Returns an enumerator that iterates through the  <see cref="ConcurrentQueue{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerator<T> GetEnumerator<T>(ConcurrentQueue<T> concurrentQueue)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -93,7 +86,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Copies the elements stored in the <see cref="ConcurrentQueue{T}"/> to a new <see cref="Array"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] ToArray<T>(ConcurrentQueue<T> concurrentQueue)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -103,7 +95,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Tries to remove and return the object at the beginning of the <see cref="ConcurrentQueue{T}"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDequeue<T>(ConcurrentQueue<T> concurrentQueue, out T result)
         {
             ConcurrentCollectionHelper.Interleave();
@@ -113,7 +104,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Tries to return an object from the beginning of the <see cref="ConcurrentQueue{T}"/> without removing it.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryPeek<T>(ConcurrentQueue<T> concurrentQueue, out T result)
         {
             ConcurrentCollectionHelper.Interleave();

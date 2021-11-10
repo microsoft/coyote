@@ -71,7 +71,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Queues a method for execution. The method executes when a thread pool thread becomes available.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool QueueUserWorkItem(WaitCallback callBack, object state)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -91,7 +90,6 @@ namespace Microsoft.Coyote.Interception
         /// Queues a method specified by an <see cref="Action{T}"/> delegate for execution, and provides data
         /// to be used by the method. The method executes when a thread pool thread becomes available.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool QueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -146,7 +144,6 @@ namespace Microsoft.Coyote.Interception
         /// Queues a method specified by an <see cref="Action{T}"/> delegate for execution, and provides data
         /// to be used by the method. The method executes when a thread pool thread becomes available.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool UnsafeQueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
         {
             if (CoyoteRuntime.IsExecutionControlled)
@@ -165,7 +162,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Binds an operating system handle to the <see cref="ThreadPool"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool BindHandle(SafeHandle osHandle)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemThreading.ThreadPool.BindHandle));
@@ -187,7 +183,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a <see cref="TimeSpan"/> for
         /// the time-out.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, TimeSpan timeout, bool executeOnlyOnce)
         {
@@ -199,7 +194,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit signed integer for
         /// the time-out in milliseconds.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
@@ -212,7 +206,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 64-bit signed integer for
         /// the time-out in milliseconds.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
@@ -225,7 +218,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit unsigned integer for
         /// the time-out in milliseconds.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
@@ -238,7 +230,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a <see cref="TimeSpan"/> for
         /// the time-out. This method does not propagate the calling stack to the worker thread.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, TimeSpan timeout, bool executeOnlyOnce)
         {
@@ -250,7 +241,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit signed integer for
         /// the time-out in milliseconds. This method does not propagate the calling stack to the worker thread.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
@@ -263,7 +253,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 64-bit signed integer for
         /// the time-out in milliseconds. This method does not propagate the calling stack to the worker thread.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
@@ -276,7 +265,6 @@ namespace Microsoft.Coyote.Interception
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit unsigned integer for
         /// the time-out in milliseconds. This method does not propagate the calling stack to the worker thread.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
         {

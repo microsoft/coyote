@@ -874,6 +874,7 @@ namespace Microsoft.Coyote.Runtime
             // The scheduler might need to retry choosing a next operation in the presence of uncontrolled
             // concurrency, as explained below. In this case, we implement a simple retry logic.
             int retries = 0;
+            int delay = 100;
             do
             {
                 // Enable any blocked operation that has its dependencies already satisfied.
@@ -886,13 +887,13 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out next) &&
-                    this.Configuration.IsRelaxedControlledTestingEnabled)
+                    this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // At least one operation is blocked, potentially on an uncontrolled operation,
                     // so retry after an asynchronous delay.
                     Task.Run(async () =>
                     {
-                        await Task.Delay(10);
+                        await Task.Delay(delay);
                         lock (this.SyncObject)
                         {
                             SyncMonitor.PulseAll(this.SyncObject);
@@ -901,7 +902,9 @@ namespace Microsoft.Coyote.Runtime
 
                     // Pause the current operation until the scheduler retries.
                     SyncMonitor.Wait(this.SyncObject);
+                    IO.Debug.WriteLine("<ScheduleDebug> Retrying to enable blocked operations.");
                     retries++;
+                    delay *= 5;
                     continue;
                 }
 
@@ -1383,8 +1386,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void CheckIfReturnedTaskIsUncontrolled(Task task, string methodName)
         {
-            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
-                !this.Configuration.IsRelaxedControlledTestingEnabled)
+            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task))
             {
                 this.NotifyUncontrolledTaskReturned(task, methodName);
             }
@@ -1628,7 +1630,12 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    {
+                        this.Logger.WriteLine($"<TestLog> {message}");
+                        IO.Debug.WriteLine($"<ScheduleDebug> StackTrace: \n{new StackTrace()}");
+                    }
+                    else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;

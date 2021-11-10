@@ -83,7 +83,6 @@ namespace Microsoft.Coyote.Interception
         /// Begins running the builder with the associated state machine.
         /// </summary>
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
@@ -207,7 +206,6 @@ namespace Microsoft.Coyote.Interception
         /// Begins running the builder with the associated state machine.
         /// </summary>
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {

@@ -36,7 +36,6 @@ namespace Microsoft.Coyote.Interception
         /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
         /// object that represents that work.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Action action, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -62,7 +61,6 @@ namespace Microsoft.Coyote.Interception
         /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
         /// object that represents that work. A cancellation token allows the work to be cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -89,7 +87,6 @@ namespace Microsoft.Coyote.Interception
         /// the <see cref="Task"/> returned by the function. A cancellation
         /// token allows the work to be cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Func<Task> function, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -116,7 +113,6 @@ namespace Microsoft.Coyote.Interception
         /// <see cref="Task{TResult}"/> returned by the function. A cancellation
         /// token allows the work to be cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -134,7 +130,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay)
         {
             var runtime = CoyoteRuntime.Current;
@@ -149,7 +144,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a time delay.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -164,7 +158,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay)
         {
             var runtime = CoyoteRuntime.Current;
@@ -179,7 +172,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
@@ -273,7 +265,6 @@ namespace Microsoft.Coyote.Interception
         /// Waits for all of the provided <see cref="Task"/> objects to complete
         /// execution within a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool WaitAll(Task[] tasks, TimeSpan timeout)
         {
             long totalMilliseconds = (long)timeout.TotalMilliseconds;
@@ -305,7 +296,6 @@ namespace Microsoft.Coyote.Interception
         /// execution within a specified number of milliseconds or until a cancellation
         /// token is cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool WaitAll(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.WaitAllTasksComplete(tasks) :
@@ -321,7 +311,6 @@ namespace Microsoft.Coyote.Interception
         /// Waits for any of the provided <see cref="Task"/> objects to complete
         /// execution within a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(Task[] tasks, TimeSpan timeout)
         {
             long totalMilliseconds = (long)timeout.TotalMilliseconds;
@@ -352,7 +341,6 @@ namespace Microsoft.Coyote.Interception
         /// execution within a specified number of milliseconds or until a cancellation
         /// token is cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.WaitAnyTaskCompletes(tasks) :
@@ -367,7 +355,6 @@ namespace Microsoft.Coyote.Interception
         /// <summary>
         /// Waits for the specified <see cref="Task"/> to complete execution within a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Wait(Task task, TimeSpan timeout)
         {
             long totalMilliseconds = (long)timeout.TotalMilliseconds;
@@ -396,7 +383,6 @@ namespace Microsoft.Coyote.Interception
         /// Waits for the specified <see cref="Task"/> to complete execution. The wait terminates if a timeout interval
         /// elapses or a cancellation token is canceled before the task completes.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.WaitTaskCompletes(task) :

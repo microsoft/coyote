@@ -108,7 +108,6 @@ namespace Microsoft.Coyote.Actors
             {
                 this.OnReceiveEvent(e, eventGroup, info);
                 this.ReceiveCompletionSource.SetResult(e);
-                return enqueueStatus;
             }
             else
             {
@@ -147,34 +146,35 @@ namespace Microsoft.Coyote.Actors
                 while (node != null)
                 {
                     // Iterates through the events in the inbox.
-                    if (this.IsEventIgnored(node.Value.e))
+                    var currentEvent = node.Value;
+                    if (this.IsEventIgnored(currentEvent.e))
                     {
                         // Removes an ignored event.
                         var nextNode = node.Next;
                         this.Queue.Remove(node);
-                        this.OnIgnoreEvent(node.Value.e, node.Value.eventGroup, null);
+                        this.OnIgnoreEvent(currentEvent.e, currentEvent.eventGroup, null);
                         node = nextNode;
                         continue;
                     }
-                    else if (this.IsEventDeferred(node.Value.e))
+                    else if (this.IsEventDeferred(currentEvent.e))
                     {
                         // Skips a deferred event.
-                        this.OnDeferEvent(node.Value.e, node.Value.eventGroup, null);
+                        this.OnDeferEvent(currentEvent.e, currentEvent.eventGroup, null);
                         node = node.Next;
                         continue;
                     }
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    return (DequeueStatus.Success, node.Value.e, node.Value.eventGroup, null);
+                    return (DequeueStatus.Success, currentEvent.e, currentEvent.eventGroup, null);
                 }
 
                 // No event can be dequeued, so check if there is a default event handler.
                 if (!this.IsDefaultHandlerAvailable())
                 {
-                    // There is no default event handler installed, so do not return an event.
-                    // Setting IsEventHandlerRunning must happen inside the lock as it needs
-                    // to be synchronized with the enqueue and starting a new event handler.
+                    // There is no default event handler installed, so do not return an event. Setting the
+                    // IsEventHandlerRunning field must happen inside the lock as it needs to be synchronized
+                    // with the enqueue and starting a new event handler.
                     this.IsEventHandlerRunning = false;
                     return (DequeueStatus.Unavailable, null, null, null);
                 }
@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.Actors
 
             if (receivedEvent == default)
             {
-                // Note that EventWaitTypes is racy, so should not be accessed outside
+                // Note that the EventWaitTypes field is racy, so should not be accessed outside
                 // the lock, this is why we access eventWaitTypes instead.
                 this.OnWaitEvent(eventWaitTypes.Keys);
                 return this.ReceiveCompletionSource.Task;

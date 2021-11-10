@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Mocks
@@ -46,6 +47,11 @@ namespace Microsoft.Coyote.Actors.Mocks
         private TaskCompletionSource<Event> ReceiveCompletionSource;
 
         /// <summary>
+        /// A lock that synchronizes accesses to the queue.
+        /// </summary>
+        private readonly SemaphoreSlim Lock;
+
+        /// <summary>
         /// Checks if the queue is accepting new events.
         /// </summary>
         private bool IsClosed;
@@ -76,52 +82,71 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             this.Owner = owner;
             this.Queue = new LinkedList<(Event, EventGroup, EventInfo)>();
-            this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
+            this.Lock = new SemaphoreSlim(1, 1);
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
-            if (this.IsClosed)
+            EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
+            this.Lock.Wait();
+            try
             {
-                return EnqueueStatus.Dropped;
-            }
-
-            if (this.EventWaitTypes.TryGetValue(e.GetType(), out Func<Event, bool> predicate) &&
-                (predicate is null || predicate(e)))
-            {
-                this.EventWaitTypes.Clear();
-                this.OnReceiveEvent(e, eventGroup, info);
-                this.ReceiveCompletionSource.SetResult(e);
-                return EnqueueStatus.EventHandlerRunning;
-            }
-
-            this.OnEnqueueEvent(e, eventGroup, info);
-            this.Queue.AddLast((e, eventGroup, info));
-
-            if (info.Assert >= 0)
-            {
-                var eventCount = this.Queue.Count(val => val.e.GetType().Equals(e.GetType()));
-                this.Assert(eventCount <= info.Assert,
-                    "There are more than {0} instances of '{1}' in the input queue of {2}.",
-                    info.Assert, info.EventName, this.Owner.Id);
-            }
-
-            if (!this.IsEventHandlerRunning)
-            {
-                if (this.TryDequeueEvent(true).e is null)
+                if (this.IsClosed)
                 {
-                    return EnqueueStatus.NextEventUnavailable;
+                    return EnqueueStatus.Dropped;
+                }
+
+                if (this.EventWaitTypes != null &&
+                    this.EventWaitTypes.TryGetValue(e.GetType(), out Func<Event, bool> predicate) &&
+                    (predicate is null || predicate(e)))
+                {
+                    this.EventWaitTypes = null;
+                    enqueueStatus = EnqueueStatus.Received;
                 }
                 else
                 {
-                    this.IsEventHandlerRunning = true;
-                    return EnqueueStatus.EventHandlerNotRunning;
+                    this.Queue.AddLast((e, eventGroup, info));
+                    if (info.Assert >= 0)
+                    {
+                        var eventCount = this.Queue.Count(val => val.e.GetType().Equals(e.GetType()));
+                        this.Assert(eventCount <= info.Assert,
+                            "There are more than {0} instances of '{1}' in the input queue of {2}.",
+                            info.Assert, info.EventName, this.Owner.Id);
+                    }
+
+                    if (!this.IsEventHandlerRunning)
+                    {
+                        if (this.TryDequeueEvent(true).e is null)
+                        {
+                            enqueueStatus = EnqueueStatus.NextEventUnavailable;
+                        }
+                        else
+                        {
+                            this.IsEventHandlerRunning = true;
+                            enqueueStatus = EnqueueStatus.EventHandlerNotRunning;
+                        }
+                    }
                 }
             }
+            finally
+            {
+                this.Lock.Release();
+            }
 
-            return EnqueueStatus.EventHandlerRunning;
+            if (enqueueStatus is EnqueueStatus.Received)
+            {
+                this.OnReceiveEvent(e, eventGroup, info);
+                this.ReceiveCompletionSource.SetResult(e);
+                enqueueStatus = EnqueueStatus.EventHandlerRunning;
+            }
+            else
+            {
+                this.OnEnqueueEvent(e, eventGroup, info);
+            }
+
+            return enqueueStatus;
         }
 
         /// <inheritdoc/>
@@ -148,21 +173,31 @@ namespace Microsoft.Coyote.Actors.Mocks
 
             // Make sure this happens before a potential dequeue.
             var hasDefaultHandler = this.IsDefaultHandlerAvailable();
-
-            // Try to dequeue the next event, if there is one.
-            var (e, eventGroup, info) = this.TryDequeueEvent();
-            if (e != null)
+            Console.WriteLine($"Try Dequeue");
+            this.Lock.Wait();
+            try
             {
-                // Found next event that can be dequeued.
-                return (DequeueStatus.Success, e, eventGroup, info);
+                // Try to dequeue the next event, if there is one.
+                var (e, eventGroup, info) = this.TryDequeueEvent();
+                if (e != null)
+                {
+                    // Found next event that can be dequeued.
+                    return (DequeueStatus.Success, e, eventGroup, info);
+                }
+
+                // No event can be dequeued, so check if there is a default event handler.
+                if (!hasDefaultHandler)
+                {
+                    // There is no default event handler installed, so do not return an event. Setting the
+                    // IsEventHandlerRunning field must happen inside the lock as it needs to be synchronized
+                    // with the enqueue and starting a new event handler.
+                    this.IsEventHandlerRunning = false;
+                    return (DequeueStatus.Unavailable, null, null, null);
+                }
             }
-
-            // No event can be dequeued, so check if there is a default event handler.
-            if (!hasDefaultHandler)
+            finally
             {
-                // There is no default event handler installed, so do not return an event.
-                this.IsEventHandlerRunning = false;
-                return (DequeueStatus.Unavailable, null, null, null);
+                this.Lock.Release();
             }
 
             // TODO: check op-id of default event.
@@ -183,11 +218,10 @@ namespace Microsoft.Coyote.Actors.Mocks
             while (node != null)
             {
                 // Iterates through the events and metadata in the inbox.
-                var nextNode = node.Next;
                 var currentEvent = node.Value;
-
                 if (this.IsEventIgnored(currentEvent.e))
                 {
+                    var nextNode = node.Next;
                     if (!checkOnly)
                     {
                         // Removes an ignored event.
@@ -202,12 +236,13 @@ namespace Microsoft.Coyote.Actors.Mocks
                 {
                     // Skips a deferred event.
                     this.OnDeferEvent(currentEvent.e, currentEvent.eventGroup, currentEvent.info);
-                    node = nextNode;
+                    node = node.Next;
                     continue;
                 }
 
                 if (!checkOnly)
                 {
+                    // Found next event that can be dequeued.
                     this.Queue.Remove(node);
                 }
 
@@ -264,33 +299,47 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <summary>
-        /// Waits for an event to be enqueued.
+        /// Waits for an event to be enqueued based on the conditions defined in the event wait types.
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
             this.OnReceiveInvoked();
 
             (Event e, EventGroup eventGroup, EventInfo info) receivedEvent = default;
-            var node = this.Queue.First;
-            while (node != null)
+            this.Lock.Wait();
+            try
             {
-                // Dequeue the first event that the caller waits to receive, if there is one in the queue.
-                if (eventWaitTypes.TryGetValue(node.Value.e.GetType(), out Func<Event, bool> predicate) &&
-                    (predicate is null || predicate(node.Value.e)))
+                var node = this.Queue.First;
+                while (node != null)
                 {
-                    receivedEvent = node.Value;
-                    this.Queue.Remove(node);
-                    break;
+                    // Dequeue the first event that the caller waits to receive, if there is one in the queue.
+                    if (eventWaitTypes.TryGetValue(node.Value.e.GetType(), out Func<Event, bool> predicate) &&
+                        (predicate is null || predicate(node.Value.e)))
+                    {
+                        receivedEvent = node.Value;
+                        this.Queue.Remove(node);
+                        break;
+                    }
+
+                    node = node.Next;
                 }
 
-                node = node.Next;
+                if (receivedEvent == default)
+                {
+                    this.ReceiveCompletionSource = new TaskCompletionSource<Event>();
+                    this.EventWaitTypes = eventWaitTypes;
+                }
+            }
+            finally
+            {
+                this.Lock.Release();
             }
 
             if (receivedEvent == default)
             {
-                this.ReceiveCompletionSource = new TaskCompletionSource<Event>();
-                this.EventWaitTypes = eventWaitTypes;
-                this.OnWaitEvent(this.EventWaitTypes.Keys);
+                // Note that the EventWaitTypes field is racy, so should not be accessed outside
+                // the lock, this is why we access eventWaitTypes instead.
+                this.OnWaitEvent(eventWaitTypes.Keys);
                 return this.ReceiveCompletionSource.Task;
             }
 
@@ -415,7 +464,15 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <inheritdoc/>
         public void Close()
         {
-            this.IsClosed = true;
+            this.Lock.Wait();
+            try
+            {
+                this.IsClosed = true;
+            }
+            finally
+            {
+                this.Lock.Release();
+            }
         }
 
         /// <summary>

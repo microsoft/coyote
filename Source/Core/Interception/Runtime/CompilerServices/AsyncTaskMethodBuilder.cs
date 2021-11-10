@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.Interception
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
-                    this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from thread '{1}' (isCompleted {2}).",
+                    this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
                 this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
@@ -87,8 +87,8 @@ namespace Microsoft.Coyote.Interception
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' with context '{1}'.",
-                Task.CurrentId, SynchronizationContext.Current);
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}'.",
+                Thread.CurrentThread.ManagedThreadId, SynchronizationContext.Current);
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -103,8 +103,8 @@ namespace Microsoft.Coyote.Interception
         /// </summary>
         public void SetResult()
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
-                this.MethodBuilder.Task.Id, Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from thread '{1}'.",
+                this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult();
         }
 
@@ -163,8 +163,8 @@ namespace Microsoft.Coyote.Interception
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
-                    this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from thread '{1}' (isCompleted {2}).",
+                    this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
                 this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
@@ -211,8 +211,8 @@ namespace Microsoft.Coyote.Interception
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' with context '{1}'.",
-                System.Threading.Tasks.Task.CurrentId, SynchronizationContext.Current);
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}'.",
+                Thread.CurrentThread.ManagedThreadId, SynchronizationContext.Current);
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -228,8 +228,8 @@ namespace Microsoft.Coyote.Interception
         /// <param name="result">The result to use to complete the task.</param>
         public void SetResult(TResult result)
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
-                this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from thread '{1}'.",
+                this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult(result);
         }
 

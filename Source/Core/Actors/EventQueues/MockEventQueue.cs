@@ -89,7 +89,6 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
-            Console.WriteLine($"Try Enqueue: {e}");
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             this.Lock.Wait();
             try

@@ -78,7 +78,6 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
-            Console.WriteLine($"Try Enqueue: {e}");
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
             {
@@ -115,7 +114,6 @@ namespace Microsoft.Coyote.Actors
                 this.OnEnqueueEvent(e, eventGroup, info);
             }
 
-            Console.WriteLine($"enqueueStatus: {enqueueStatus}");
             return enqueueStatus;
         }
 

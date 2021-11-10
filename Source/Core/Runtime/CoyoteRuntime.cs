@@ -341,7 +341,6 @@ namespace Microsoft.Coyote.Runtime
 
                     // Wait for the task to complete and propagate any exceptions.
                     this.WaitUntilTaskCompletes(op, task);
-                    Console.WriteLine("DONE WAIT: {0}.", new System.Diagnostics.StackTrace().ToString());
                     task.GetAwaiter().GetResult();
 
                     this.CompleteOperation(op);
@@ -703,7 +702,6 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
-                IO.Debug.WriteLine("<ScheduleDebug> {0}.", new StackTrace().ToString());
                 op.JoinDependencies.Add(task);
                 op.Status = AsyncOperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(AsyncOperationType.Join);

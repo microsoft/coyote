@@ -1081,11 +1081,14 @@ namespace Microsoft.Coyote.Actors
                 EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, eventGroup, options, out Actor target);
                 if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
                 {
+                    Console.WriteLine("RUN new handler");
                     this.RunActorEventHandler(target, null, false, sender as StateMachine);
                     // Wait until the actor reaches quiescence.
                     await (sender as StateMachine).ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == targetId);
                     return true;
                 }
+
+                Console.WriteLine("DO NOT RUN new handler");
 
                 // EnqueueStatus.EventHandlerNotRunning is not returned by EnqueueEvent
                 // (even when the actor was previously inactive) when the event e requires
@@ -1125,6 +1128,7 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, eventGroup, options);
+                Console.WriteLine("EnqueueStatus: {0}", enqueueStatus);
                 if (enqueueStatus == EnqueueStatus.Dropped)
                 {
                     this.HandleDroppedEvent(e, targetId);

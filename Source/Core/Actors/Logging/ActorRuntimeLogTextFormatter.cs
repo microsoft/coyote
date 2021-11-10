@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"task '{Task.CurrentId}'";
+            var source = ResolveSourceName(creatorName);
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"task '{Task.CurrentId}'";
+            var source = ResolveSourceName(creatorName);
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnCreateTimer(TimerInfo info)
         {
             string text;
-            var source = info.OwnerId?.Name ?? $"task '{Task.CurrentId}'";
+            var source = ResolveSourceName(info.OwnerId?.Name);
             if (info.Period.TotalMilliseconds >= 0)
             {
                 text = $"<TimerLog> Timer '{info}' (due-time:{info.DueTime.TotalMilliseconds}ms; " +
@@ -326,12 +326,11 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
             Event e, Guid eventGroupId, bool isTargetHalted)
         {
-            var eventGroupIdMsg = eventGroupId != Guid.Empty ? $" (event group '{eventGroupId}')" : string.Empty;
-            var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
-            var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" :
-                Task.CurrentId.HasValue ? $"task '{Task.CurrentId}'" : $"thread '{Thread.CurrentThread.ManagedThreadId}'";
+            var eventGroupIdMsg = eventGroupId != Guid.Empty ? $" (with event group '{eventGroupId}')" : string.Empty;
+            var isHalted = isTargetHalted ? $" halted" : string.Empty;
+            var source = ResolveSourceName(senderName != null ? $"{senderName} in state '{senderStateName}'" : null);
             var eventName = e.GetType().FullName;
-            var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{eventGroupIdMsg}.";
+            var text = $"<SendLog> Event '{eventName}'{eventGroupIdMsg} was sent to{isHalted} {targetActorId} by {source}.";
             this.Logger.WriteLine(text);
         }
 
@@ -423,5 +422,11 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnCompleted()
         {
         }
+
+        /// <summary>
+        /// Returns the resolved source name.
+        /// </summary>
+        private static string ResolveSourceName(string name) => name ?? (Task.CurrentId.HasValue ?
+            $"task '{Task.CurrentId}'" : $"thread '{Thread.CurrentThread.ManagedThreadId}'");
     }
 }

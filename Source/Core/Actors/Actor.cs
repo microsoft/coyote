@@ -488,6 +488,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) = this.Inbox.Dequeue();
                     lastDequeueStatus = status;
+                    Console.WriteLine("DequeueStatus: {0}", lastDequeueStatus);
 
                     if (eventGroup != null)
                     {

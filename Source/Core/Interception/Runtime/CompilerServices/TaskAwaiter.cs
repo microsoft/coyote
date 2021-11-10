@@ -61,6 +61,7 @@ namespace Microsoft.Coyote.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult()
         {
+            Console.WriteLine("GetResult: {0}.", new System.Diagnostics.StackTrace().ToString());
             if (SynchronizationContext.Current is ControlledSynchronizationContext context)
             {
                 context.Runtime?.OnWaitTask(this.AwaitedTask);

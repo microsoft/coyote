@@ -40,6 +40,22 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
+        public override void Send(SendOrPostCallback d, object state)
+        {
+            try
+            {
+                IO.Debug.WriteLine("\n\n\n\n>>>>> <ScheduleDebug> Sending callback from thread '{0}'\n\n\n\n.",
+                    Thread.CurrentThread.ManagedThreadId);
+                // this.Runtime?.Schedule(() => d(state));
+                base.Send(d, state);
+            }
+            catch (ThreadInterruptedException)
+            {
+                // Ignore the thread interruption.
+            }
+        }
+
+        /// <inheritdoc/>
         public override SynchronizationContext CreateCopy() => this;
 
         /// <inheritdoc/>

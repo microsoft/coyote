@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.Actors
                 this.Id.Choices += "(0)";
             }
 
-            this.Id.IdCounter = 0;
+            this.Id.ChildIdCounter = 0;
             return result;
         }
 
@@ -355,7 +355,7 @@ namespace Microsoft.Coyote.Actors
                 this.Id.Choices += "(0)";
             }
 
-            this.Id.IdCounter = 0;
+            this.Id.ChildIdCounter = 0;
             return result;
         }
 
@@ -370,7 +370,7 @@ namespace Microsoft.Coyote.Actors
         {
             var result = this.Context.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
             this.Id.Choices += "(" + result.ToString() + ")";
-            this.Id.IdCounter = 0;
+            this.Id.ChildIdCounter = 0;
             return result;
         }
 

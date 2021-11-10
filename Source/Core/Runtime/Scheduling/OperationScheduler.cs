@@ -165,6 +165,9 @@ namespace Microsoft.Coyote.Runtime
         internal bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null) =>
             (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, state, operation);
 
+        internal void NotifyActorToWakeUp(AsyncOperation operation, FuzzingState state) =>
+            (this.Strategy as FuzzingStrategy).NotifyActorToWakeUp(operation, state);
+
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.
         /// </summary>

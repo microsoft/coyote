@@ -58,6 +58,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <returns>True if there is a next delay, else false.</returns>
         internal abstract bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null);
 
+        internal virtual void NotifyActorToWakeUp(AsyncOperation operation = null, FuzzingState state = null)
+        {
+        }
+
         /// <summary>
         /// Returns the current operation id.
         /// </summary>

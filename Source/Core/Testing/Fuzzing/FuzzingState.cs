@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
@@ -26,13 +27,35 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal void Wake(Actor actor)
         {
-            this.AwakeOperations.Add(actor.Id.RLId);
-            this.SleepingOperations.Remove(actor.Id.RLId);
+            if (actor != null)
+            {
+                this.AwakeOperations.Add(actor.Id.RLId);
+                this.SleepingOperations.Remove(actor.Id.RLId);
+            }
         }
 
         internal int GetHashedState(AsyncOperation operation)
         {
+            int sleepinghash = 0;
+            foreach (string id in this.SleepingOperations)
+            {
+                sleepinghash -= id.GetHashCode();
+            }
 
+            int awakehash = 0;
+            foreach (string id in this.AwakeOperations)
+            {
+                awakehash += id.GetHashCode();
+            }
+
+            if (operation != null)
+            {
+                return sleepinghash + awakehash + operation.GetHashCode();
+            }
+            else
+            {
+                return sleepinghash + awakehash;
+            }
         }
     }
 }

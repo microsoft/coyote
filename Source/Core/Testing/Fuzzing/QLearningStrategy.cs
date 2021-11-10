@@ -12,11 +12,17 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 {
     internal class QLearningStrategy : RandomStrategy
     {
+        /// <summary>
+        /// Previous choice of delay value.
+        /// </summary>
         private int PreviousDelayValue;
 
+        /// <summary>
+        /// Map from program states to a map from next delays to their quality values.
+        /// </summary>
         private readonly Dictionary<int, Dictionary<int, double>> OperationQTable;
 
-        private readonly LinkedList<(int, AsyncOperationType, int)> ExecutionPath;
+        private readonly LinkedList<(int, AsyncOperationType?, int)> ExecutionPath;
 
         private readonly double LearningRate;
 
@@ -36,7 +42,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             : base(maxSteps, random)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<int, double>>();
-            this.ExecutionPath = new LinkedList<(int, AsyncOperationType, int)>();
+            this.ExecutionPath = new LinkedList<(int, AsyncOperationType?, int)>();
             this.PreviousDelayValue = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
@@ -47,7 +53,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.FailureInjectionReward = -1000;
         }
 
-        internal override bool GetNextDelay(int maxValue, out int next, FuzzingState currentstate, AsyncOperation operation)
+        internal override bool GetNextDelay(int maxValue, out int next, FuzzingState currentstate = null, AsyncOperation operation = null)
         {
             int state = this.CaptureExecutionStep(currentstate, operation);
             this.InitializeDelayQValues(state, maxValue);
@@ -56,15 +62,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // TODO : workaround for this.
             int delay = next;
 
-            if (next != 0)
+            if (next != 0 && operation != null && currentstate != null)
             {
                 currentstate.Snooze((operation as ActorOperation).Actor);
-                Task.Run(async () =>
-                {
-                    await Task.Delay(delay);
-                    // TODO : The fuzzingstate will wake up the actor few millisecs before the actor is really awake. This means that a getnxtdelay call during this sweet time will result in incorrect state computation.
-                    currentstate.Wake((operation as ActorOperation).Actor);
-                });
             }
 
             this.PreviousDelayValue = next;
@@ -72,11 +72,30 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             return true;
         }
 
+        internal override void NotifyActorToWakeUp(AsyncOperation operation, FuzzingState currentstate)
+        {
+            if (operation != null)
+            {
+                currentstate.Wake((operation as ActorOperation).Actor);
+            }
+            else
+            {
+                currentstate.Wake(null);
+            }
+        }
+
         internal int CaptureExecutionStep(FuzzingState currentstate, AsyncOperation operation)
         {
             int state = currentstate.GetHashedState(operation);
 
-            this.ExecutionPath.AddLast((this.PreviousDelayValue, operation.Type, state));
+            if (operation != null)
+            {
+                this.ExecutionPath.AddLast((this.PreviousDelayValue, operation.Type, state));
+            }
+            else
+            {
+                this.ExecutionPath.AddLast((this.PreviousDelayValue, null, state));
+            }
 
             return state;
         }

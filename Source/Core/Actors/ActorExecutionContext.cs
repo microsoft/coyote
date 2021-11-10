@@ -79,6 +79,9 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal bool NotifyLastActorCreated;
 
+        /// <summary>
+        /// Notifies the runtime when the actor quiescence is reached.
+        /// </summary>
         internal TaskCompletionSource<bool> RespActorQuiescence;
 
         private readonly object SyncObject = new object();

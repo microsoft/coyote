@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None || this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
                     lock (monitor)
                     {

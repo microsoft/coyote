@@ -59,8 +59,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.InitializeDelayQValues(state, maxValue);
 
             next = this.GetNextDelayByPolicy(state, maxValue);
-            // TODO : workaround for this.
-            int delay = next;
 
             if (next != 0 && operation != null && currentstate != null)
             {
@@ -106,6 +104,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             {
                 qValues = new Dictionary<int, double>();
                 this.OperationQTable.Add(state, qValues);
+                Console.WriteLine("Adding state {0} to the qtable", state);
             }
 
             for (int i = 0;  i < maxValue; i++)
@@ -113,6 +112,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 if (!qValues.ContainsKey(i))
                 {
                     qValues.Add(i, 0);
+                    Console.WriteLine("Adding delay of {0} ms to state {1}", i, state);
                 }
             }
         }
@@ -201,14 +201,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
                 var (_, _, state) = node.Value;
                 var (nextDelay, nextType, nextState) = node.Next.Value;
+                Console.WriteLine("Next state in execution path is {0}", nextState);
 
                 // Compute the max Q value.
                 double maxQ = double.MinValue;
-                foreach (var nextOpQValuePair in this.OperationQTable[nextState])
+                if (this.OperationQTable.TryGetValue(nextState, out Dictionary<int, double> qValues))
                 {
-                    if (nextOpQValuePair.Value > maxQ)
+                    foreach (var nextOpQValuePair in qValues)
                     {
-                        maxQ = nextOpQValuePair.Value;
+                        Console.WriteLine(qValues.Values);
+                        if (nextOpQValuePair.Value > maxQ)
+                        {
+                            Console.WriteLine(nextOpQValuePair.Value.ToString());
+                            maxQ = nextOpQValuePair.Value;
+                        }
                     }
                 }
 

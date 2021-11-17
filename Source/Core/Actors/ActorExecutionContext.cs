@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 #if !DEBUG
 using System.Diagnostics;
 #endif
@@ -20,7 +19,6 @@ using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
-using IODebug = Microsoft.Coyote.IO.Debug;
 
 namespace Microsoft.Coyote.Actors
 {

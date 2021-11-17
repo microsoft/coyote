@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <!-- <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
+  </ItemGroup> -->
 </Project>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -18,7 +17,7 @@ namespace Microsoft.Coyote.Rewriting
     internal class MonitorRewritingPass : RewritingPass
     {
         /// <summary>
-        /// The cached imported <see cref="ControlledMonitor"/> type.
+        /// The cached imported <see cref="Types.ControlledMonitor"/> type.
         /// </summary>
         private TypeDefinition ControlledMonitorType;
 
@@ -71,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.ControlledMonitorType is null)
             {
-                var tr = this.Module.ImportReference(typeof(Interception.ControlledMonitor));
+                var tr = this.Module.ImportReference(typeof(Types.ControlledMonitor));
                 this.ControlledMonitorType = tr.Resolve();
                 if (this.ControlledMonitorType is null)
                 {

@@ -320,7 +320,15 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
         {
-            resolved = method?.Resolve();
+            try
+            {
+                resolved = method.Resolve();
+            }
+            catch
+            {
+                resolved = null;
+            }
+
             if (resolved is null)
             {
                 this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +

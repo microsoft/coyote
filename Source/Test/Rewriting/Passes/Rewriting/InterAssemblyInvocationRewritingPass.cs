@@ -8,7 +8,7 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using ControlledTasks = Microsoft.Coyote.Interception;
+using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Rewriting
                         CachedNameProvider.TaskAwaiterName, CachedNameProvider.SystemCompilerNamespace))
                     {
                         var returnType = methodReference.ReturnType;
-                        TypeDefinition providerType = this.Module.ImportReference(typeof(ControlledTasks.TaskAwaiter)).Resolve();
+                        TypeDefinition providerType = this.Module.ImportReference(typeof(RuntimeCompiler.TaskAwaiter)).Resolve();
                         MethodReference wrapMethod = null;
                         if (returnType is GenericInstanceType rgt)
                         {
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Rewriting
                         else
                         {
                             wrapMethod = providerType.Methods.FirstOrDefault(
-                               m => m.Name is nameof(ControlledTasks.TaskAwaiter.Wrap));
+                               m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap));
                         }
 
                         wrapMethod = this.Module.ImportReference(wrapMethod);

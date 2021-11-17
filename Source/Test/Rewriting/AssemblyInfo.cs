@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -79,7 +78,7 @@ namespace Microsoft.Coyote.Rewriting
             var assemblyResolver = new DefaultAssemblyResolver();
 
             // Add known search directories for resolving assemblies.
-            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
+            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(Types.ControlledTask).Assembly.Location));
             assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
             if (this.Options.DependencySearchPaths != null)
             {

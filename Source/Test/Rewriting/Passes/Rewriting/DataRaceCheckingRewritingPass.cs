@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -100,15 +99,15 @@ namespace Microsoft.Coyote.Rewriting
                 string fullName = genericType.ElementType.FullName;
                 if (fullName == CachedNameProvider.GenericListFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledList));
+                    type = this.Module.ImportReference(typeof(Types.ControlledList));
                 }
                 else if (fullName == CachedNameProvider.GenericDictionaryFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledDictionary));
+                    type = this.Module.ImportReference(typeof(Types.ControlledDictionary));
                 }
                 else if (fullName == CachedNameProvider.GenericHashSetFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledHashSet));
+                    type = this.Module.ImportReference(typeof(Types.ControlledHashSet));
                 }
             }
 

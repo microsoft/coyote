@@ -4,8 +4,8 @@
 
 | public type | description |
 | --- | --- |
-| class [CoyoteVersionAttribute](Microsoft.Coyote.Rewriting/CoyoteVersionAttribute.md) | Attribute that defines the version of Coyote used for rewriting an assembly. |
 | class [RewritingEngine](Microsoft.Coyote.Rewriting/RewritingEngine.md) | Engine that can rewrite a set of assemblies for systematic testing. |
+| class [RewritingSignatureAttribute](Microsoft.Coyote.Rewriting/RewritingSignatureAttribute.md) | Attribute that contains a signature identifying the parameters used during binary rewriting of an assembly. |
 
 ## Microsoft.Coyote.SystematicTesting namespace
 

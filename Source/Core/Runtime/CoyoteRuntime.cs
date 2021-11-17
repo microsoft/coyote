@@ -1792,7 +1792,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Sets the synchronization context to the controlled synchronization context.
         /// </summary>
-        internal void SetControlledSynchronizationContext() =>
+        private void SetControlledSynchronizationContext() =>
             SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
         /// <summary>

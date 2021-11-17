@@ -86,8 +86,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>True if the runtime was set, else false.</returns>
         /// <remarks>
-        /// This is a thread-safe operation.
+        /// This method is intended for compiler use rather than use directly in code.
         /// </remarks>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static bool TrySetCurrent(Guid runtimeId)
         {
             lock (SyncObject)

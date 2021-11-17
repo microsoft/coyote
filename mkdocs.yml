@@ -116,7 +116,7 @@ nav:
         - WithReplayStrategy: ref/Microsoft.Coyote/Configuration/WithReplayStrategy.md
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
-        - WithRelaxedControlledTestingEnabled: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled.md
+        - WithPartiallyControlledConcurrencyEnabled: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled.md
         - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
         - WithConcurrencyFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
@@ -496,17 +496,6 @@ nav:
         - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
         - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
         - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
-    - Microsoft.Coyote.Interception:
-      - Namespace Overview: ref/Microsoft.Coyote.InterceptionNamespace.md
-      - ControlledSemaphoreSlim:
-        - Overview: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim.md
-        - Create: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create.md
-        - Wait: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait.md
-        - WaitAsync: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync.md
-        - Release: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release.md
-        - Dispose: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose.md
-        - ControlledSemaphoreSlim: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim.md
-        - CurrentCount: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount.md
     - Microsoft.Coyote.IO:
       - Namespace Overview: ref/Microsoft.Coyote.IONamespace.md
       - ConsoleLogger:
@@ -563,9 +552,9 @@ nav:
         - Logger: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Logger.md
         - OnFailure: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md
       - OnFailureHandler: ref/Microsoft.Coyote.Runtime/OnFailureHandler.md
-      - RuntimeFactory:
-        - Overview: ref/Microsoft.Coyote.Runtime/RuntimeFactory.md
-        - Create: ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create.md
+      - RuntimeProvider:
+        - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md
+        - Create: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create.md
       - SchedulingPoint:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
         - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
@@ -624,11 +613,11 @@ nav:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:
       - Namespace Overview: ref/Microsoft.Coyote.RewritingNamespace.md
-      - CoyoteVersionAttribute:
-        - Overview: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute.md
-        - CoyoteVersionAttribute: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/CoyoteVersionAttribute.md
-        - Version: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Version.md
-        - Identifier: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Identifier.md
+      - RewritingSignatureAttribute:
+        - Overview: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute.md
+        - RewritingSignatureAttribute: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/RewritingSignatureAttribute.md
+        - Version: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Version.md
+        - Signature: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Signature.md
       - RewritingEngine:
         - Overview: ref/Microsoft.Coyote.Rewriting/RewritingEngine.md
         - IsAssemblyRewritten: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten.md

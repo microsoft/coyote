@@ -12,6 +12,8 @@ namespace Microsoft.Coyote.Rewriting.Types
     /// A semaphore that limits the number of tasks that can access a resource. During testing,
     /// the semaphore is automatically replaced with a controlled mocked version.
     /// </summary>
+    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public class ControlledSemaphoreSlim : IDisposable
     {
         /// <summary>

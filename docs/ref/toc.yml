@@ -29,8 +29,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithRelaxedControlledTestingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled
+        - name: WithPartiallyControlledConcurrencyEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
         - name: WithConcurrencyFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
         - name: WithConcurrencyFuzzingFallbackEnabled
@@ -746,26 +746,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
-    - name: Microsoft.Coyote.Interception
-      link: ref/Microsoft.Coyote.InterceptionNamespace
-      subfolderitems:
-      - name: ControlledSemaphoreSlim
-        link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create
-        - name: Wait
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait
-        - name: WaitAsync
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose
-        - name: ControlledSemaphoreSlim
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim
-        - name: CurrentCount
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount
     - name: Microsoft.Coyote.IO
       link: ref/Microsoft.Coyote.IONamespace
       subfolderitems:
@@ -868,11 +848,11 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure
       - name: OnFailureHandler
         link: ref/Microsoft.Coyote.Runtime/OnFailureHandler
-      - name: RuntimeFactory
-        link: ref/Microsoft.Coyote.Runtime/RuntimeFactory
+      - name: RuntimeProvider
+        link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:
         - name: Create
-          link: ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create
+          link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create
       - name: SchedulingPoint
         link: ref/Microsoft.Coyote.Runtime/SchedulingPoint
         subfolderitems:
@@ -973,15 +953,15 @@ toc:
     - name: Microsoft.Coyote.Rewriting
       link: ref/Microsoft.Coyote.RewritingNamespace
       subfolderitems:
-      - name: CoyoteVersionAttribute
-        link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute
+      - name: RewritingSignatureAttribute
+        link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute
         subfolderitems:
-        - name: CoyoteVersionAttribute
-          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/CoyoteVersionAttribute
+        - name: RewritingSignatureAttribute
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/RewritingSignatureAttribute
         - name: Version
-          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Version
-        - name: Identifier
-          link: ref/Microsoft.Coyote.Rewriting/CoyoteVersionAttribute/Identifier
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Version
+        - name: Signature
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Signature
       - name: RewritingEngine
         link: ref/Microsoft.Coyote.Rewriting/RewritingEngine
         subfolderitems:

@@ -250,10 +250,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
         {
-            // Install the runtime with the provider which assigns a unique identifier.
-            this.Id = RuntimeProvider.Install(this);
+            // Registers the runtime with the provider which in return assigns a unique identifier.
+            this.Id = RuntimeProvider.Register(this);
 
-            IO.Debug.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> NEW RUNTIME on thread '{Thread.CurrentThread.ManagedThreadId}': {this.Id}:\n{new StackTrace()}");
             this.Configuration = configuration;
             this.Scheduler = scheduler;
             this.IsRunning = true;
@@ -835,7 +834,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}' (rid: '{1}').", next.Name, this.Id);
+                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -875,7 +874,7 @@ namespace Microsoft.Coyote.Runtime
             // The scheduler might need to retry choosing a next operation in the presence of uncontrolled
             // concurrency, as explained below. In this case, we implement a simple retry logic.
             int retries = 0;
-            int delay = 100;
+            int delay = 10;
             do
             {
                 // Enable any blocked operation that has its dependencies already satisfied.
@@ -893,7 +892,7 @@ namespace Microsoft.Coyote.Runtime
                     // At least one operation is blocked, potentially on an uncontrolled operation,
                     // so pause the current operation and then retry.
                     Thread.Sleep(delay);
-                    IO.Debug.WriteLine($"<ScheduleDebug> Retrying to enable blocked operations (scheduled: '{this.ScheduledOperation}', retries: '{retries}', rid: '{this.Id}').");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Retrying to enable blocked operations (scheduled: '{this.ScheduledOperation}', retries: '{retries}').");
                     retries++;
                     delay *= 5;
                     continue;
@@ -1070,8 +1069,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Starting the operation of '{0}' on thread '{1}' (rid: '{2}').",
-                    op.Name, Thread.CurrentThread.ManagedThreadId, this.Id);
+                IO.Debug.WriteLine("<ScheduleDebug> Starting the operation of '{0}' on thread '{1}'.",
+                    op.Name, Thread.CurrentThread.ManagedThreadId);
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
@@ -1217,12 +1216,6 @@ namespace Microsoft.Coyote.Runtime
                     this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                 }
 
-                if (!op.Equals(this.ScheduledOperation))
-                {
-                    Console.WriteLine($">>> OP '{op}' IS NOT SCHEDULED '{this.ScheduledOperation}'");
-                }
-
-                // return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
                 return op is TAsyncOperation expected ? expected : default;
             }
         }
@@ -1629,9 +1622,7 @@ namespace Microsoft.Coyote.Runtime
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
-                        this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                         this.Logger.WriteLine($"<TestLog> {message}");
-                        IO.Debug.WriteLine($"<ScheduleDebug> StackTrace: \n{new StackTrace()}");
                     }
                     else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
@@ -1869,7 +1860,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
-                RuntimeProvider.Uninstall(this.Id);
+                RuntimeProvider.Deregister(this.Id);
 
                 this.OperationIdCounter = 0;
                 this.ThreadPool.Clear();

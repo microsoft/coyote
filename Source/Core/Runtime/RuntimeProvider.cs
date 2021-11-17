@@ -104,10 +104,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Installs the specified runtime with the provider and returns a
+        /// Registers the specified runtime with the provider and returns a
         /// unique identifier that can be used to retrieve the runtime.
         /// </summary>
-        internal static Guid Install(CoyoteRuntime runtime)
+        internal static Guid Register(CoyoteRuntime runtime)
         {
             var id = Guid.NewGuid();
             Runtimes.TryAdd(id, runtime);
@@ -115,9 +115,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Uninstalls the runtime with the specified identifier from the provider.
+        /// Deregisters the runtime with the specified identifier from the provider.
         /// </summary>
-        internal static void Uninstall(Guid id)
+        internal static void Deregister(Guid id)
         {
             Runtimes.TryRemove(id, out CoyoteRuntime _);
         }

@@ -86,8 +86,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>True if the runtime was set, else false.</returns>
         /// <remarks>
-        /// This is a thread-safe operation.
+        /// This method is intended for compiler use rather than use directly in code.
         /// </remarks>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static bool TrySetCurrent(Guid runtimeId)
         {
             lock (SyncObject)
@@ -104,10 +105,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Installs the specified runtime with the provider and returns a
+        /// Registers the specified runtime with the provider and returns a
         /// unique identifier that can be used to retrieve the runtime.
         /// </summary>
-        internal static Guid Install(CoyoteRuntime runtime)
+        internal static Guid Register(CoyoteRuntime runtime)
         {
             var id = Guid.NewGuid();
             Runtimes.TryAdd(id, runtime);
@@ -115,9 +116,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Uninstalls the runtime with the specified identifier from the provider.
+        /// Deregisters the runtime with the specified identifier from the provider.
         /// </summary>
-        internal static void Uninstall(Guid id)
+        internal static void Deregister(Guid id)
         {
             Runtimes.TryRemove(id, out CoyoteRuntime _);
         }

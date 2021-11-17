@@ -62,21 +62,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public static AsyncTaskMethodBuilder Create()
         {
             CoyoteRuntime runtime = null;
-            SynchronizationContext context = SynchronizationContext.Current;
-            if (context is ControlledSynchronizationContext controlledContext &&
+            if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
                 controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
                 runtime = controlledContext.Runtime;
             }
-
-            // else if (context is null)
-            // {
-            //     Console.WriteLine("<AsyncBuilder> WARNING: No SynchronizationContext found; setting new one!!!");
-            //     // Try get the current runtime, if it exists, and use it to set the current
-            //     // synchronization context to the controlled synchronization context.
-            //     runtime = CoyoteRuntime.Current;
-            //     runtime?.SetControlledSynchronizationContext();
-            // }
 
             return new AsyncTaskMethodBuilder(runtime);
         }
@@ -187,21 +177,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public static AsyncTaskMethodBuilder<TResult> Create()
         {
             CoyoteRuntime runtime = null;
-            SynchronizationContext context = SynchronizationContext.Current;
-            if (context is ControlledSynchronizationContext controlledContext &&
+            if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
                 controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
                 runtime = controlledContext.Runtime;
             }
-
-            // else if (context is null)
-            // {
-            //     Console.WriteLine("<AsyncBuilder> WARNING: No SynchronizationContext found; setting new one!!!");
-            //     // Try get the current runtime, if it exists, and use it to set the current
-            //     // synchronization context to the controlled synchronization context.
-            //     runtime = CoyoteRuntime.Current;
-            //     runtime?.SetControlledSynchronizationContext();
-            // }
 
             return new AsyncTaskMethodBuilder<TResult>(runtime);
         }

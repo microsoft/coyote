@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is MethodReference method)
                 {
                     TypeReference type = method.DeclaringType;
-                    if ((type.Namespace == CachedNameProvider.InterceptionNamespace ||
+                    if ((type.Namespace == CachedNameProvider.RuntimeCompilerNamespace ||
                         type.Namespace == CachedNameProvider.SystemCompilerNamespace) &&
                         (type.Name == CachedNameProvider.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&

@@ -13,7 +13,6 @@ using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using PerformanceTests = Microsoft.Coyote.Tests.Performance;
 using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
-using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 
@@ -39,7 +38,6 @@ namespace Microsoft.Coyote.Benchmarking
         {
             new BenchmarkTest("MathBenchmark", typeof(PerformanceTests.MathBenchmark)),
             new BenchmarkTest("MemoryBenchmark", typeof(PerformanceTests.MemoryBenchmark)),
-            new BenchmarkTest("TaskInterleavingsBenchmark", typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new BenchmarkTest("CreationThroughputBenchmark", typeof(StateMachineTests.CreationThroughputBenchmark)),
             new BenchmarkTest("ExchangeEventLatencyBenchmark", typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new BenchmarkTest("SendEventThroughputBenchmark", typeof(StateMachineTests.SendEventThroughputBenchmark)),

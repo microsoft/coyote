@@ -41,6 +41,7 @@ namespace Microsoft.Coyote.Rewriting
             if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
                 // Can't rewrite external method reference since we are not rewriting this external assembly.
+                Console.WriteLine($"6");
                 return method;
             }
 
@@ -61,10 +62,12 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 var newMethod = FindMatchingMethodInDeclaringType(resolvedType, method.Name, parameterTypes.ToArray());
+                Console.WriteLine($"FindMatchingMethodInDeclaringType: {newMethod}");
                 if (newMethod != null)
                 {
                     if (!this.TryResolve(newMethod, out resolvedMethod))
                     {
+                        Console.WriteLine($"5");
                         return newMethod;
                     }
                 }
@@ -73,6 +76,7 @@ namespace Microsoft.Coyote.Rewriting
             if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
             {
                 // We are not rewriting this method.
+                Console.WriteLine($"4");
                 return result;
             }
 
@@ -80,6 +84,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 // TODO: do we need to return the resolved method here?
                 this.TryResolve(method, out resolvedMethod);
+                Console.WriteLine($"3");
                 return method;
             }
 
@@ -182,7 +187,15 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            return module.ImportReference(result);
+            result = module.ImportReference(result);
+            if (!this.TryResolve(result, out _))
+            {
+                Console.WriteLine($"1");
+                return method;
+            }
+
+            Console.WriteLine($"2: {result}");
+            return result;
         }
 
         /// <summary>

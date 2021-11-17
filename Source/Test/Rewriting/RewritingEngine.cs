@@ -11,8 +11,8 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 
 namespace Microsoft.Coyote.Rewriting
@@ -129,24 +129,26 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void InitializePasses(IEnumerable<AssemblyInfo> assemblies)
         {
-            this.Passes.AddFirst(new TaskRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new MonitorRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
+            // this.Passes.AddFirst(new TaskRewritingPass(assemblies, this.Logger));
+            // this.Passes.AddLast(new MonitorRewritingPass(assemblies, this.Logger));
+            // this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
 
-            if (this.Options.IsRewritingThreads)
-            {
-                this.Passes.AddLast(new ThreadingRewritingPass(assemblies, this.Logger));
-            }
+            // if (this.Options.IsRewritingThreads)
+            // {
+            //     this.Passes.AddLast(new ThreadingRewritingPass(assemblies, this.Logger));
+            // }
 
-            if (this.Options.IsRewritingConcurrentCollections)
-            {
-                this.Passes.AddLast(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
-            }
+            // if (this.Options.IsRewritingConcurrentCollections)
+            // {
+            //     this.Passes.AddLast(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
+            // }
 
-            if (this.Options.IsDataRaceCheckingEnabled)
-            {
-                this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
-            }
+            // if (this.Options.IsDataRaceCheckingEnabled)
+            // {
+            //     this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
+            // }
+
+            this.Passes.AddLast(new AspNetRewritingPass(assemblies, this.Logger));
 
             if (this.Options.IsRewritingUnitTests)
             {
@@ -155,8 +157,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.Passes.AddLast(new MSTestRewritingPass(this.Configuration, assemblies, this.Logger));
             }
 
-            this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
+            // this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
+            // this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
 
             if (this.Options.IsLoggingAssemblyContents || this.Options.IsDiffingAssemblyContents)
             {
@@ -320,7 +322,7 @@ namespace Microsoft.Coyote.Rewriting
             // Copy all the dependent assemblies.
             foreach (var type in new Type[]
                 {
-                    typeof(ControlledTask),
+                    typeof(CoyoteRuntime),
                     typeof(RewritingEngine),
                     typeof(TelemetryConfiguration),
                     typeof(EventTelemetry),

@@ -29,8 +29,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild"
+  <!-- <Target Name="CoyoteRewriting" AfterTargets="AfterBuild"
       Condition="'$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
-  </Target>
+  </Target> -->
 </Project>

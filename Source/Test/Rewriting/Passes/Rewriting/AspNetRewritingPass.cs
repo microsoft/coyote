@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -8,16 +9,12 @@ using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
-    /// <summary>
-    /// A pass that rewrites the concurrent collection types to their controlled versions
-    /// to enable Coyote explore interleavings during testing.
-    /// </summary>
-    internal class ConcurrentCollectionRewritingPass : RewritingPass
+    internal class AspNetRewritingPass : RewritingPass
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConcurrentCollectionRewritingPass"/> class.
+        /// Initializes a new instance of the <see cref="AspNetRewritingPass"/> class.
         /// </summary>
-        internal ConcurrentCollectionRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+        internal AspNetRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
             : base(visitedAssemblies, logger)
         {
         }
@@ -70,21 +67,9 @@ namespace Microsoft.Coyote.Rewriting
             if (type is GenericInstanceType genericType)
             {
                 string fullName = genericType.ElementType.FullName;
-                if (fullName == CachedNameProvider.ConcurrentBagFullName)
+                if (fullName == CachedNameProvider.WebApplicationFactoryFullName)
                 {
-                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentBag));
-                }
-                else if (fullName == CachedNameProvider.ConcurrentDictionaryFullName)
-                {
-                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentDictionary));
-                }
-                else if (fullName == CachedNameProvider.ConcurrentQueueFullName)
-                {
-                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentQueue));
-                }
-                else if (fullName == CachedNameProvider.ConcurrentStackFullName)
-                {
-                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentStack));
+                    type = this.Module.ImportReference(typeof(Types.WebApplicationFactory));
                 }
             }
 

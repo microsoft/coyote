@@ -28,6 +28,6 @@ namespace Microsoft.Coyote.Actors
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
         public static IActorRuntime Create(Configuration configuration) =>
-            Runtime.RuntimeFactory.CreateAndInstall(configuration).DefaultActorExecutionContext;
+            Runtime.RuntimeProvider.CreateAndInstall(configuration).DefaultActorExecutionContext;
     }
 }

@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -107,9 +107,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
-        public TaskAwaiter<T> GetAwaiter()
-        {
-            return ControlledTask<T>.GetAwaiter(this.Tcs.Task);
-        }
+        public TaskAwaiter<T> GetAwaiter() => new TaskAwaiter<T>(this.Tcs.Task);
     }
 }

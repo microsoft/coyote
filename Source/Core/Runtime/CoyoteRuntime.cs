@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static CoyoteRuntime Current
         {
-            get => ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeFactory.InstalledRuntime;
+            get => ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.DefaultRuntime;
         }
 
         /// <summary>
@@ -76,6 +76,11 @@ namespace Microsoft.Coyote.Runtime
         /// Count of controlled execution runtimes that have been used in this process.
         /// </summary>
         private static int ExecutionControlledUseCount;
+
+        /// <summary>
+        /// The unique id of this runtime.
+        /// </summary>
+        internal readonly Guid Id;
 
         /// <summary>
         /// The configuration used by the runtime.
@@ -245,6 +250,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
         {
+            // Install the runtime with the provider which assigns a unique identifier.
+            this.Id = RuntimeProvider.Install(this);
+
+            IO.Debug.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> NEW RUNTIME on thread '{Thread.CurrentThread.ManagedThreadId}': {this.Id}:\n{new StackTrace()}");
             this.Configuration = configuration;
             this.Scheduler = scheduler;
             this.IsRunning = true;
@@ -285,8 +294,6 @@ namespace Microsoft.Coyote.Runtime
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
-
-            Interception.ControlledThread.ClearCache();
         }
 
         /// <summary>
@@ -306,14 +313,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Update the current controlled thread with this runtime instance and executing
-                    // operation, allowing future retrieval in the same controlled thread.
-                    ThreadLocalRuntime.Value = this;
-                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
-                    ExecutingOperation.Value = op;
+                    // Install the runtime to the execution context of the current thread.
+                    this.SetThreadExecutionContext();
 
-                    // Set the synchronization context to the controlled synchronization context.
-                    this.SetControlledSynchronizationContext();
+                    // Update the controlled thread with the currently executing operation,
+                    // allowing future retrieval in the same controlled thread.
+                    ExecutingOperation.Value = op;
 
                     this.StartOperation(op);
 
@@ -412,14 +417,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Update the current controlled thread with this runtime instance and executing
-                    // operation, allowing future retrieval in the same controlled thread.
-                    ThreadLocalRuntime.Value = this;
-                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
-                    ExecutingOperation.Value = op;
+                    // Install the runtime to the execution context of the current thread.
+                    this.SetThreadExecutionContext();
 
-                    // Set the synchronization context to the controlled synchronization context.
-                    this.SetControlledSynchronizationContext();
+                    // Update the controlled thread with the currently executing operation,
+                    // allowing future retrieval in the same controlled thread.
+                    ExecutingOperation.Value = op;
 
                     this.StartOperation(op);
 
@@ -473,14 +476,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Update the current controlled thread with this runtime instance and executing
-                    // operation, allowing future retrieval in the same controlled thread.
-                    ThreadLocalRuntime.Value = this;
-                    AsyncLocalRuntime.Value = this.SchedulingPolicy is SchedulingPolicy.Fuzzing ? this : null;
-                    ExecutingOperation.Value = op;
+                    // Install the runtime to the execution context of the current thread.
+                    this.SetThreadExecutionContext();
 
-                    // Set the synchronization context to the controlled synchronization context.
-                    this.SetControlledSynchronizationContext();
+                    // Update the controlled thread with the currently executing operation,
+                    // allowing future retrieval in the same controlled thread.
+                    ExecutingOperation.Value = op;
 
                     this.StartOperation(op);
 
@@ -834,7 +835,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}'.", next.Name);
+                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}' (rid: '{1}').", next.Name, this.Id);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -890,19 +891,9 @@ namespace Microsoft.Coyote.Runtime
                     this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // At least one operation is blocked, potentially on an uncontrolled operation,
-                    // so retry after an asynchronous delay.
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(delay);
-                        lock (this.SyncObject)
-                        {
-                            SyncMonitor.PulseAll(this.SyncObject);
-                        }
-                    });
-
-                    // Pause the current operation until the scheduler retries.
-                    SyncMonitor.Wait(this.SyncObject);
-                    IO.Debug.WriteLine("<ScheduleDebug> Retrying to enable blocked operations.");
+                    // so pause the current operation and then retry.
+                    Thread.Sleep(delay);
+                    IO.Debug.WriteLine($"<ScheduleDebug> Retrying to enable blocked operations (scheduled: '{this.ScheduledOperation}', retries: '{retries}', rid: '{this.Id}').");
                     retries++;
                     delay *= 5;
                     continue;
@@ -1079,8 +1070,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Starting the operation of '{0}' on thread '{1}'.",
-                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<ScheduleDebug> Starting the operation of '{0}' on thread '{1}' (rid: '{2}').",
+                    op.Name, Thread.CurrentThread.ManagedThreadId, this.Id);
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
@@ -1226,7 +1217,13 @@ namespace Microsoft.Coyote.Runtime
                     this.NotifyUncontrolledTaskDetected(Task.CurrentId);
                 }
 
-                return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
+                if (!op.Equals(this.ScheduledOperation))
+                {
+                    Console.WriteLine($">>> OP '{op}' IS NOT SCHEDULED '{this.ScheduledOperation}'");
+                }
+
+                // return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
+                return op is TAsyncOperation expected ? expected : default;
             }
         }
 
@@ -1632,6 +1629,7 @@ namespace Microsoft.Coyote.Runtime
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
+                        this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                         this.Logger.WriteLine($"<TestLog> {message}");
                         IO.Debug.WriteLine($"<ScheduleDebug> StackTrace: \n{new StackTrace()}");
                     }
@@ -1780,6 +1778,18 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Sets this runtime instance to the execution context of the current thread,
+        /// allowing future retrieval in the same thread, as well as across threads in
+        /// the same asynchronous control flow.
+        /// </summary>
+        internal void SetThreadExecutionContext()
+        {
+            ThreadLocalRuntime.Value = this;
+            AsyncLocalRuntime.Value = this;
+            this.SetControlledSynchronizationContext();
+        }
+
+        /// <summary>
         /// Sets the synchronization context to the controlled synchronization context.
         /// </summary>
         internal void SetControlledSynchronizationContext() =>
@@ -1859,6 +1869,8 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
+                RuntimeProvider.Uninstall(this.Id);
+
                 this.OperationIdCounter = 0;
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();

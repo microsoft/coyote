@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Rewriting
     /// </summary>
     internal static class CachedNameProvider
     {
-        internal static string InterceptionNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
+        internal static string InterceptionNamespace { get; } = typeof(Types.ControlledTask).Namespace;
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
 
@@ -55,5 +55,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string ConcurrentDictionaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
+
+        internal static string WebApplicationFactoryFullName { get; } = typeof(AspNetCore.Mvc.Testing.WebApplicationFactory<>).FullName;
     }
 }

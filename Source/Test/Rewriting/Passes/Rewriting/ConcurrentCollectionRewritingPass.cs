@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -73,19 +72,19 @@ namespace Microsoft.Coyote.Rewriting
                 string fullName = genericType.ElementType.FullName;
                 if (fullName == CachedNameProvider.ConcurrentBagFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledConcurrentBag));
+                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentBag));
                 }
                 else if (fullName == CachedNameProvider.ConcurrentDictionaryFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledConcurrentDictionary));
+                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentDictionary));
                 }
                 else if (fullName == CachedNameProvider.ConcurrentQueueFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledConcurrentQueue));
+                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentQueue));
                 }
                 else if (fullName == CachedNameProvider.ConcurrentStackFullName)
                 {
-                    type = this.Module.ImportReference(typeof(ControlledConcurrentStack));
+                    type = this.Module.ImportReference(typeof(Types.ControlledConcurrentStack));
                 }
             }
 

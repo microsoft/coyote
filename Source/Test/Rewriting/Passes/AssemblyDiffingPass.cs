@@ -188,6 +188,13 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Returns the union of the two collections.
+        /// </summary>
+        private static IEnumerable<T> GetUnion<T>(IEnumerable<T> first, IEnumerable<T> second) =>
+            first is null && second is null ? new List<T>() : first is null ? second :
+            second is null ? first : first.Union(second);
+
+        /// <summary>
         /// The status of diffing two IL contents.
         /// </summary>
         private enum DiffStatus
@@ -224,7 +231,7 @@ namespace Microsoft.Coyote.Rewriting
                     Modules = new List<ModuleContents>()
                 };
 
-                var diffedModules = this.Modules.Union(other.Modules);
+                var diffedModules = GetUnion(this.Modules, other.Modules);
                 foreach (var module in diffedModules)
                 {
                     var thisModule = this.Modules.FirstOrDefault(m => m.Equals(module));
@@ -276,7 +283,7 @@ namespace Microsoft.Coyote.Rewriting
                     Types = new List<TypeContents>()
                 };
 
-                var diffedTypes = this.Types.Union(other.Types);
+                var diffedTypes = GetUnion(this.Types, other.Types);
                 foreach (var type in diffedTypes)
                 {
                     var thisType = this.Types.FirstOrDefault(t => t.Equals(type));
@@ -347,7 +354,7 @@ namespace Microsoft.Coyote.Rewriting
                     Methods = new List<MethodContents>()
                 };
 
-                var diffedFields = this.FieldContents.Union(other.FieldContents);
+                var diffedFields = GetUnion(this.FieldContents, other.FieldContents);
                 foreach (var field in diffedFields)
                 {
                     var (thisField, thisType) = this.FieldContents.FirstOrDefault(f => f == field);
@@ -362,7 +369,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
 
-                var diffedMethods = this.Methods.Union(other.Methods);
+                var diffedMethods = GetUnion(this.Methods, other.Methods);
                 foreach (var method in diffedMethods)
                 {
                     var thisMethod = this.Methods.FirstOrDefault(m => m.Equals(method));
@@ -447,7 +454,7 @@ namespace Microsoft.Coyote.Rewriting
                     Instructions = new List<string>()
                 };
 
-                var diffedVariables = this.VariableContents.Union(other.VariableContents);
+                var diffedVariables = GetUnion(this.VariableContents, other.VariableContents);
                 foreach (var variable in diffedVariables)
                 {
                     var (thisVariable, thisType) = this.VariableContents.FirstOrDefault(v => v == variable);
@@ -462,7 +469,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
 
-                var diffedInstructions = this.Instructions.Union(other.Instructions);
+                var diffedInstructions = GetUnion(this.Instructions, other.Instructions);
                 foreach (var instruction in diffedInstructions)
                 {
                     var thisInstruction = this.Instructions.FirstOrDefault(i => i == instruction);

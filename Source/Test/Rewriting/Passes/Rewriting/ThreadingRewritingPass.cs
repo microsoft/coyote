@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -12,7 +11,7 @@ namespace Microsoft.Coyote.Rewriting
     internal class ThreadingRewritingPass : RewritingPass
     {
         /// <summary>
-        /// The cached imported <see cref="ControlledThread"/> type.
+        /// The cached imported <see cref="Types.ControlledThread"/> type.
         /// </summary>
         private TypeDefinition ControlledThreadType;
 
@@ -157,13 +156,13 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Returns the imported <see cref="ControlledThread"/> type definition.
+        /// Returns the imported <see cref="Types.ControlledThread"/> type definition.
         /// </summary>
         private TypeDefinition GetOrImportControlledThreadType()
         {
             if (this.ControlledThreadType is null)
             {
-                this.ControlledThreadType = this.Module.ImportReference(typeof(ControlledThread)).Resolve();
+                this.ControlledThreadType = this.Module.ImportReference(typeof(Types.ControlledThread)).Resolve();
             }
 
             return this.ControlledThreadType;

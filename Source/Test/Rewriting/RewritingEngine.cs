@@ -11,8 +11,8 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Coyote.Interception;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 
 namespace Microsoft.Coyote.Rewriting
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Rewriting
             // Copy all the dependent assemblies.
             foreach (var type in new Type[]
                 {
-                    typeof(ControlledTask),
+                    typeof(CoyoteRuntime),
                     typeof(RewritingEngine),
                     typeof(TelemetryConfiguration),
                     typeof(EventTelemetry),

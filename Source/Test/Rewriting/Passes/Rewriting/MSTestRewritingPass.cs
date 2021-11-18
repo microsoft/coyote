@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
                 else
                 {
-                    throw new Exception(string.Format("Argument type '{0}' is not supported", t.FullName));
+                    throw new InvalidOperationException(string.Format("Argument type '{0}' is not supported", t.FullName));
                 }
 
                 typeRefs.Add(this.Module.ImportReference(t));
@@ -294,7 +294,8 @@ namespace Microsoft.Coyote.Rewriting
             var method = FindMatchingMethodInDeclaringType(typedef, methodName, typeRefs.ToArray());
             if (method is null)
             {
-                throw new Exception(string.Format("Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));
+                throw new InvalidOperationException(string.Format(
+                    "Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));
             }
 
             processor.Emit(OpCodes.Call, this.Module.ImportReference(method));

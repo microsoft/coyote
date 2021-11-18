@@ -3,7 +3,7 @@
 
 param(
     [string]$dotnet = "dotnet",
-    [ValidateSet("all", "net5.0", "net462")]
+    [ValidateSet("all", "net6.0", "net462")]
     [string]$framework = "all",
     [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
@@ -20,7 +20,6 @@ $targets = [ordered]@{
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
-    "standalone" = "Tests.Standalone"
 }
 
 $dotnet_path = FindDotNet("dotnet");
@@ -46,19 +45,15 @@ foreach ($kvp in $targets.GetEnumerator()) {
             continue
         }
 
-        if (($($kvp.Name) -eq "standalone") -and ($f -eq "net462")) {
-            continue
-        }
-
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
 
-        if ($f -eq "net5.0") {
+        if ($f -eq "net6.0") {
             $AssemblyName = GetAssemblyName($target)
-            $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "5.0"
-            $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/$AssemblyName.dll"
-            $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net5.0/*.dll" + '"'
-            $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/5.0.0/ref/net5.0/*.dll" + '"'
-            $command = $command + ' -r "' + "$PSScriptRoot/../bin/net5.0/*.dll" + '"'
+            $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "6.0"
+            $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/$AssemblyName.dll"
+            $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/*.dll" + '"'
+            $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/6.0.0/ref/net6.0/*.dll" + '"'
+            $command = $command + ' -r "' + "$PSScriptRoot/../bin/net6.0/*.dll" + '"'
             $command = $command + ' -r "' + $NetCoreApp + '/*.dll"'
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }

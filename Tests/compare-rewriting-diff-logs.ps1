@@ -3,21 +3,21 @@
 
 Import-Module $PSScriptRoot/../Scripts/powershell/common.psm1 -Force
 
-$framework = "net5.0"
+$framework = "net6.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
+    "rewriting-helpers" = "Tests.Rewriting.Helpers"
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
-    "standalone" = "Tests.Standalone"
 }
 
 $expected_hashes = [ordered]@{
-    "rewriting" = "3AE655C9586D10AC0D599226CEBC7314E8F743B4E6BF921DF22B98181F87648D"
-    "testing" = "FF77454582428126712A51C8EAF910444505DA38BC0BE56659CF3BDD9E8845F5"
-    "actors" = "38744E42DDD648ED448ABDF083A24875F2812C0A6FB350C121B916665BC1E9E9"
-    "actors-testing" = "B6898714431A66E4C1C4D6A3F978BD25906374F8E54D27D7924D4BDF2424F8D9"
-    "standalone" = "FB0286E1172EFCD94E51E392829BCAADD7E32F7834D71F109FACC155A48BB030"
+    "rewriting" = "C174400B3E1C10D9AF4986E597C5E595BB46E578AA3785B39B5C3018519C0EAD"
+    "rewriting-helpers" = "1867813B408FC0B20FD9DB972952968EAD40E54068D0BFB1BE269FFDBB32FB5F"
+    "testing" = "954FF5FC53F7E0A16D39FF1A987C5074744F1D3A2C652630610770E265EF03FB"
+    "actors" = "E8146A76F0A6C16F2468A80B9D48AF2AD3E96D9E1FC42624F82765DC02D81D3B"
+    "actors-testing" = "400EC56DF424EF4556F7D631744613A60CDDE0D014C69B4768996DB4D30867B4"
 }
 
 Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
@@ -27,6 +27,8 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $project = $($kvp.Value)
     if ($project -eq $targets["actors"]) {
         $project = $targets["actors-testing"]
+    } elseif ($project -eq $targets["rewriting-helpers"]) {
+        $project = $targets["rewriting"]
     }
 
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"

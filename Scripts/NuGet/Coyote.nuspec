@@ -11,11 +11,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
+    <readme>docs\readme.md</readme>
     <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0" />
       <group targetFramework=".NETStandard2.1" />
       <group targetFramework=".NET5.0" />
+      <group targetFramework=".NET6.0" />
       <group targetFramework=".NETFramework4.6.2" />
     </dependencies>
   </metadata>
@@ -28,6 +30,10 @@
     <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.dll" target="lib\netstandard2.1" />
     <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.xml" target="lib\netstandard2.1" />
     <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.pdb" target="lib\netstandard2.1" />
+    <!-- .NET 6.0 -->
+    <file src="..\..\bin\net6.0\Microsoft.Coyote.dll" target="lib\net6.0" />
+    <file src="..\..\bin\net6.0\Microsoft.Coyote.xml" target="lib\net6.0" />
+    <file src="..\..\bin\net6.0\Microsoft.Coyote.pdb" target="lib\net6.0" />
     <!-- .NET 5.0 -->
     <file src="..\..\bin\net5.0\Microsoft.Coyote.dll" target="lib\net5.0" />
     <file src="..\..\bin\net5.0\Microsoft.Coyote.xml" target="lib\net5.0" />
@@ -36,6 +42,8 @@
     <file src="..\..\bin\net462\Microsoft.Coyote.dll" target="lib\net462" />
     <file src="..\..\bin\net462\Microsoft.Coyote.xml" target="lib\net462" />
     <file src="..\..\bin\net462\Microsoft.Coyote.pdb" target="lib\net462" />
+    <!-- Readme -->
+    <file src="..\..\README.md" target="docs\readme.md" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

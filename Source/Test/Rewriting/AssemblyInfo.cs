@@ -144,7 +144,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         internal void Invoke(Pass pass)
         {
-            Debug.WriteLine($"..... Applying the '{pass.GetType().Name}' pass");
             pass.VisitAssembly(this.Definition);
             foreach (var module in this.Definition.Modules)
             {
@@ -191,12 +190,6 @@ namespace Microsoft.Coyote.Rewriting
                 WriteSymbols = this.IsSymbolFileAvailable(),
                 SymbolWriterProvider = new PortablePdbWriterProvider()
             };
-
-            if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
-            {
-                using FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open);
-                writerParameters.StrongNameKeyPair = new StrongNameKeyPair(fs);
-            }
 
             this.Definition.Write(outputPath, writerParameters);
         }

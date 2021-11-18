@@ -3,13 +3,13 @@
 
 Import-Module $PSScriptRoot/../Scripts/powershell/common.psm1 -Force
 
-$framework = "net5.0"
+$framework = "net6.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
+    "rewriting-helpers" = "Tests.Rewriting.Helpers"
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
-    "standalone" = "Tests.Standalone"
 }
 
 Write-Comment -prefix "." -text "Gathering the test rewriting diff logs" -color "yellow"
@@ -19,6 +19,8 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $project = $($kvp.Value)
     if ($project -eq $targets["actors"]) {
         $project = $targets["actors-testing"]
+    } elseif ($project -eq $targets["rewriting-helpers"]) {
+        $project = $targets["rewriting"]
     }
 
     $suffix = "diff.json"

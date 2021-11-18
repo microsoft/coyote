@@ -38,63 +38,45 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
             MethodReference result = method;
-            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
+            TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
+            if (this.IsForeignType(resolvedDeclaringType) && !IsSystemType(resolvedDeclaringType))
             {
-                // Can't rewrite external method reference since we are not rewriting this external assembly.
-                Console.WriteLine($"6");
-                return method;
-            }
-
-            TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            var resolvedType = Resolve(declaringType);
-
-            if (resolvedMethod is null)
-            {
-                // Check if this method signature has been rewritten, find the method by same name,
-                // but with newly rewritten parameter types (note: signature does not include return type
-                // according to C# rules, but the return type may have also been rewritten which is why
-                // it is imperative here that we find the correct new MethodDefinition.
-                List<TypeReference> parameterTypes = new List<TypeReference>();
-                for (int i = 0; i < method.Parameters.Count; i++)
-                {
-                    var p = method.Parameters[i];
-                    parameterTypes.Add(this.RewriteTypeReference(p.ParameterType));
-                }
-
-                var newMethod = FindMatchingMethodInDeclaringType(resolvedType, method.Name, parameterTypes.ToArray());
-                Console.WriteLine($"FindMatchingMethodInDeclaringType: {newMethod}");
-                if (newMethod != null)
-                {
-                    if (!this.TryResolve(newMethod, out resolvedMethod))
-                    {
-                        Console.WriteLine($"5");
-                        return newMethod;
-                    }
-                }
-            }
-
-            if (method.DeclaringType == declaringType && result.Resolve() == resolvedMethod)
-            {
-                // We are not rewriting this method.
-                Console.WriteLine($"4");
+                // Can't rewrite a foreign method reference since we are not rewriting its assembly.
                 return result;
             }
 
-            if (resolvedMethod is null)
+            if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
-                // TODO: do we need to return the resolved method here?
-                this.TryResolve(method, out resolvedMethod);
-                Console.WriteLine($"3");
-                return method;
+                // Check if this method signature has been rewritten and, if it has, find the
+                // rewritten method. The signature does not include the return type according
+                // to C# rules, but the return type may have also been rewritten which is why
+                // it is imperative here that we find the correct new definition.
+                List<TypeReference> paramTypes = new List<TypeReference>();
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    var p = method.Parameters[i];
+                    paramTypes.Add(this.RewriteTypeReference(p.ParameterType));
+                }
+
+                var newMethod = FindMatchingMethodInDeclaringType(resolvedDeclaringType, method.Name, paramTypes.ToArray());
+                if (!this.TryResolve(newMethod, out resolvedMethod))
+                {
+                    // Unable to resolve the method or a rewritten version of this method.
+                    return result;
+                }
             }
 
-            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedType, resolvedMethod, matchName);
+            // Try to rewrite the declaring type.
+            TypeReference newDeclaringType = this.RewriteMethodDeclaringTypeReference(method);
+            resolvedDeclaringType = Resolve(newDeclaringType);
+
+            MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
             if (match != null)
             {
                 result = module.ImportReference(match);
             }
 
-            if (match != null && !result.HasThis && !declaringType.IsGenericInstance &&
+            if (match != null && !result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
                 // We are converting from a generic type to a non generic static type, and from a non-generic
@@ -125,10 +107,11 @@ namespace Microsoft.Coyote.Rewriting
                     instanceParameter = result.Parameters[0];
                 }
 
-                TypeReference returnType = this.RewriteTypeReference(method.ReturnType);
+                // Try to rewrite the return type.
+                TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
-                result = new MethodReference(result.Name, returnType, declaringType)
+                result = new MethodReference(result.Name, newReturnType, newDeclaringType)
                 {
                     HasThis = result.HasThis,
                     ExplicitThis = result.ExplicitThis,
@@ -143,7 +126,7 @@ namespace Microsoft.Coyote.Rewriting
                     var genericArgs = new List<TypeReference>();
                     int genericArgOffset = 0;
 
-                    if (declaringType is GenericInstanceType genericDeclaringType)
+                    if (newDeclaringType is GenericInstanceType genericDeclaringType)
                     {
                         // Populate the generic arguments with the generic declaring type arguments.
                         genericArgs.AddRange(genericDeclaringType.GenericArguments);
@@ -210,7 +193,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         /// <param name="method">The method with the declaring type to rewrite.</param>
         /// <returns>The rewritten declaring type, or the original if it was not changed.</returns>
-        protected virtual TypeReference RewriteDeclaringTypeReference(MethodReference method) => method.DeclaringType;
+        protected virtual TypeReference RewriteMethodDeclaringTypeReference(MethodReference method) => method.DeclaringType;
 
         /// <summary>
         /// Rewrites the specified <see cref="TypeReference"/>.

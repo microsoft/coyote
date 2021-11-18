@@ -19,9 +19,17 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup NuGet.exe
         uses: NuGet/setup-nuget@v1
-      - name: Setup .NET 5.x SDK
+        with:
+          nuget-version: '6.x'
+      - name: Setup .NET 6.0 SDK
         uses: actions/setup-dotnet@v1
-      - name: Setup .NET Core 3.1.x SDK
+        with:
+          dotnet-version: '6.0.x'
+      - name: Setup .NET 5.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Setup .NET Core 3.1 SDK
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
@@ -47,5 +55,5 @@ jobs:
           cd coyote-samples
           $env:LOCAL_COYOTE_PATH=$env:GITHUB_WORKSPACE
           ./Scripts/build-tests.ps1
-          dotnet ./Common/bin/net5.0/TestDriver.dll
+          dotnet ./Common/bin/net6.0/TestDriver.dll
         shell: pwsh

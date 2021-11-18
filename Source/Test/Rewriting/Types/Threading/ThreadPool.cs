@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             return SystemThreading.ThreadPool.QueueUserWorkItem(callBack, state);
         }
 
-#if NET5_0 || NETCOREAPP3_1 || NETSTANDARD2_1
+#if NET6_0 || NET5_0 || NETCOREAPP3_1 || NETSTANDARD2_1
         /// <summary>
         /// Queues a method specified by an <see cref="Action{T}"/> delegate for execution, and provides data
         /// to be used by the method. The method executes when a thread pool thread becomes available.
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, state);
         }
 
-#if NET5_0 || NETCOREAPP3_1
+#if NET6_0 || NET5_0 || NETCOREAPP3_1
         /// <summary>
         /// Queues the specified work item object to the thread pool.
         /// </summary>
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         public static bool BindHandle(SafeHandle osHandle)
         {
             ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemThreading.ThreadPool.BindHandle));
-#if NET5_0
+#if NET6_0 || NET5_0
             if (OperatingSystem.IsWindows())
             {
                 return SystemThreading.ThreadPool.BindHandle(osHandle);

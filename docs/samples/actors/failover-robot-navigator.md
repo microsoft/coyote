@@ -127,7 +127,7 @@ powershell -f build.ps1
 Now you can run the `DrinksServingRobotActors` application:
 
 ```plain
-"./bin/net5.0/DrinksServingRobotActors.exe"
+"./bin/net6.0/DrinksServingRobotActors.exe"
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -241,13 +241,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./bin/net5.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```plain
-. Testing .\bin\net5.0\DrinksServingRobotActors.exe
+. Testing .\bin\net6.0\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'pct' strategy (seed:324932188).
@@ -278,7 +278,7 @@ Starting TestingProcessScheduler in process 26236
 ```
 
 Notice that a log file is produced
-`.bin\net5.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
+`.bin\net6.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
 pretty big, it contains the test iteration that failed, and towards the end of this file you will
 see something like this:
 
@@ -474,7 +474,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```plain
-coyote test .\bin\net5.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
+coyote test .\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -643,7 +643,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./bin/net5.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

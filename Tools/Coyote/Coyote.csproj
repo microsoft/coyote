@@ -23,7 +23,6 @@
   <ItemGroup Condition="'$(TargetFramework)'=='net462'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
-    <PackageReference Include="System.ValueTuple" Version="4.0.3" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)'=='Windows_NT'">
     <None Update="DotnetToolSettings.xml">

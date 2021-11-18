@@ -71,12 +71,14 @@ namespace Microsoft.Coyote.Rewriting
             resolvedDeclaringType = Resolve(newDeclaringType);
 
             MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
-            if (match != null)
+            if (match is null)
             {
-                result = module.ImportReference(match);
+                // No matching method found.
+                return result;
             }
 
-            if (match != null && !result.HasThis && !newDeclaringType.IsGenericInstance &&
+            result = module.ImportReference(match);
+            if (!result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
                 // We are converting from a generic type to a non generic static type, and from a non-generic
@@ -101,7 +103,7 @@ namespace Microsoft.Coyote.Rewriting
                 // This is an extra initial parameter that we have when converting an instance to a static method.
                 // For example, `task.GetAwaiter()` is converted to `ControlledTask.GetAwaiter(task)`.
                 ParameterDefinition instanceParameter = null;
-                if (match != null && resolvedMethod.Parameters.Count != match.Parameters.Count)
+                if (resolvedMethod.Parameters.Count != match.Parameters.Count)
                 {
                     // We are converting from an instance method to a static method, so store the instance parameter.
                     instanceParameter = result.Parameters[0];

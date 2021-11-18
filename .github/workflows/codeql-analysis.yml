@@ -24,6 +24,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Setup NuGet.exe
       uses: NuGet/setup-nuget@v1
+      with:
+        nuget-version: '6.x'
     - name: Setup .NET 6.0 SDK
       uses: actions/setup-dotnet@v1
       with:

@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
+    <readme>docs\readme.md</readme>
     <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <packageTypes>
       <packageType name="DotnetTool" />
@@ -35,6 +36,8 @@
     <file src="..\..\bin\netcoreapp3.1\*.pdb" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.config" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="tools\netcoreapp3.1\any" />
+    <!-- Readme -->
+    <file src="..\..\README.md" target="docs\readme.md" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

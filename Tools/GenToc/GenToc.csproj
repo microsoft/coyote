@@ -8,6 +8,7 @@
     <Framework462Supported>false</Framework462Supported>
     <Framework48Supported>false</Framework48Supported>
     <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

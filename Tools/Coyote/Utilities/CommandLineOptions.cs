@@ -50,6 +50,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
+            testingGroup.AddArgument("concurrency-fuzzing", null, "Use concurrency fuzzing instead of systematic testing", typeof(bool));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
@@ -64,11 +65,12 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             var rewritingGroup = this.Parser.GetOrCreateGroup("rewritingGroup", "Binary rewriting options");
             rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
-            rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
             rewritingGroup.AddArgument("assert-data-races", null, "Add assertions for read/write data races", typeof(bool));
             rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
             rewritingGroup.AddArgument("rewrite-unit-tests", null, "Rewrite unit tests to run in the scope of the Coyote testing engine", typeof(bool));
             rewritingGroup.AddArgument("rewrite-threads", null, "Rewrite low-level threading APIs (experimental)", typeof(bool));
+            rewritingGroup.AddArgument("dump-il", null, "Dumps the original and rewritten IL in JSON", typeof(bool));
+            rewritingGroup.AddArgument("dump-il-diff", null, "Dumps the IL diff in JSON", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             coverageGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
@@ -85,6 +87,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
             advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
+            advancedGroup.AddArgument("disable-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
+            advancedGroup.AddArgument("disable-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
@@ -95,8 +99,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             experimentalGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             experimentalGroup.AddArgument("sch-dfs", null, "Choose the depth-first search (DFS) scheduling strategy", typeof(bool));
             experimentalGroup.AddArgument("sch-rl", null, "Choose the reinforcement learning (RL) scheduling strategy", typeof(bool));
-            experimentalGroup.AddArgument("concurrency-fuzzing", null, "Use concurrency fuzzing instead of systematic testing", typeof(bool));
-            experimentalGroup.AddArgument("relaxed-testing", null, "Relax systematic testing to allow for uncontrolled concurrency", typeof(bool));
 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
@@ -120,9 +122,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// Parses the command line options and returns a configuration.
         /// </summary>
         /// <param name="args">The command line arguments to parse.</param>
-        /// <param name="configuration">The Configuration object populated with the parsed command line options.</param>
-        /// <param name="options">The optional rewriting options.</param>
-        internal bool Parse(string[] args, Configuration configuration, RewritingOptions options)
+        /// <param name="configuration">The configuration object populated with the parsed command line options.</param>
+        /// <param name="rewritingOptions">The rewriting options.</param>
+        internal bool Parse(string[] args, Configuration configuration, RewritingOptions rewritingOptions)
         {
             try
             {
@@ -131,7 +133,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 {
                     foreach (var arg in result)
                     {
-                        UpdateConfigurationWithParsedArgument(configuration, options, arg);
+                        UpdateConfigurationWithParsedArgument(configuration, rewritingOptions, arg);
                     }
 
                     SanitizeConfiguration(configuration);
@@ -163,7 +165,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// <summary>
         /// Updates the configuration with the specified parsed argument.
         /// </summary>
-        private static void UpdateConfigurationWithParsedArgument(Configuration configuration, RewritingOptions options, CommandLineArgument option)
+        private static void UpdateConfigurationWithParsedArgument(Configuration configuration,
+            RewritingOptions rewritingOptions, CommandLineArgument option)
         {
             switch (option.LongName)
             {
@@ -186,13 +189,13 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                             configuration.IsVerbose = false;
                             break;
                         case "detailed":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Informational;
+                            configuration.LogLevel = LogSeverity.Informational;
                             break;
                         case "normal":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Warning;
+                            configuration.LogLevel = LogSeverity.Warning;
                             break;
                         case "minimal":
-                            configuration.LogLevel = options.LogLevel = LogSeverity.Error;
+                            configuration.LogLevel = LogSeverity.Error;
                             break;
                         default:
                             Error.ReportAndExit($"Please give a valid value for 'verbosity' must be one of 'errors', 'warnings', or 'info', but found {verbosity}.");
@@ -213,20 +216,28 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         string filename = (string)option.Value;
                         if (Directory.Exists(filename))
                         {
-                            // then we want to rewrite a whole folder full of dll's.
-                            configuration.RewritingOptionsPath = filename;
+                            // Then we want to rewrite a whole folder full of assemblies.
+                            var assembliesDir = Path.GetFullPath(filename);
+                            rewritingOptions.AssembliesDirectory = assembliesDir;
+                            rewritingOptions.OutputDirectory = assembliesDir;
                         }
                         else
                         {
                             string extension = Path.GetExtension(filename);
                             if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) is 0)
                             {
-                                configuration.RewritingOptionsPath = filename;
+                                // Parse the rewriting options from the JSON file.
+                                RewritingOptions.ParseFromJSON(rewritingOptions, filename);
                             }
                             else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) is 0 ||
                                 string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) is 0)
                             {
                                 configuration.AssemblyToBeAnalyzed = filename;
+                                var fullPath = Path.GetFullPath(filename);
+                                var assembliesDir = Path.GetDirectoryName(fullPath);
+                                rewritingOptions.AssembliesDirectory = assembliesDir;
+                                rewritingOptions.OutputDirectory = assembliesDir;
+                                rewritingOptions.AssemblyPaths.Add(fullPath);
                             }
                             else
                             {
@@ -239,12 +250,15 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
-                case "relaxed-testing":
-                    configuration.IsRelaxedControlledTestingEnabled = true;
+                case "disable-partial-control":
+                    configuration.IsPartiallyControlledConcurrencyEnabled = false;
                     break;
                 case "concurrency-fuzzing":
                 case "no-repro":
                     configuration.IsConcurrencyFuzzingEnabled = true;
+                    break;
+                case "disable-fuzzing-fallback":
+                    configuration.IsConcurrencyFuzzingFallbackEnabled = false;
                     break;
                 case "explore":
                     configuration.PerformFullExploration = true;
@@ -388,20 +402,23 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "instrument-list":
                     configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = true;
                     break;
-                case "strong-name-key-file":
-                    options.StrongNameKeyFile = (string)option.Value;
-                    break;
                 case "assert-data-races":
-                    options.IsDataRaceCheckingEnabled = true;
+                    rewritingOptions.IsDataRaceCheckingEnabled = true;
                     break;
                 case "rewrite-dependencies":
-                    options.IsRewritingDependencies = true;
+                    rewritingOptions.IsRewritingDependencies = true;
                     break;
                 case "rewrite-unit-tests":
-                    options.IsRewritingUnitTests = true;
+                    rewritingOptions.IsRewritingUnitTests = true;
                     break;
                 case "rewrite-threads":
-                    options.IsRewritingThreads = true;
+                    rewritingOptions.IsRewritingThreads = true;
+                    break;
+                case "dump-il":
+                    rewritingOptions.IsLoggingAssemblyContents = true;
+                    break;
+                case "dump-il-diff":
+                    rewritingOptions.IsDiffingAssemblyContents = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;
@@ -459,7 +476,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         }
 
         /// <summary>
-        /// Checks the configuration for errors.
+        /// Sanitizes the configuration.
         /// </summary>
         private static void SanitizeConfiguration(Configuration configuration)
         {

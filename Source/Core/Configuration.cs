@@ -41,12 +41,6 @@ namespace Microsoft.Coyote
         internal string AssemblyToBeAnalyzed;
 
         /// <summary>
-        /// The path to the binary rewriting configuration file or a folder containing assemblies to rewrite.
-        /// </summary>
-        [DataMember]
-        internal string RewritingOptionsPath;
-
-        /// <summary>
         /// Test method to be used.
         /// </summary>
         [DataMember]
@@ -87,22 +81,25 @@ namespace Microsoft.Coyote
         internal bool IsSchedulingSeedIncremental;
 
         /// <summary>
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// will attempt to partially control the concurrency of the application, instead of
+        /// failing with an error.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
-        internal bool IsRelaxedControlledTestingEnabled;
+        internal bool IsPartiallyControlledConcurrencyEnabled;
 
         /// <summary>
         /// If this option is enabled, the concurrency fuzzing policy is used during testing.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
         internal bool IsConcurrencyFuzzingEnabled;
+
+        /// <summary>
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// automatically switches to concurrency fuzzing, instead of failing with an error.
+        /// </summary>
+        [DataMember]
+        internal bool IsConcurrencyFuzzingFallbackEnabled;
 
         /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
@@ -111,8 +108,7 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If true, the Coyote tester performs a full exploration,
-        /// and does not stop when it finds a bug.
+        /// If true, the tester runs all iterations, even if a bug is found.
         /// </summary>
         [DataMember]
         internal bool PerformFullExploration;
@@ -360,7 +356,6 @@ namespace Microsoft.Coyote
             this.OutputFilePath = string.Empty;
 
             this.AssemblyToBeAnalyzed = string.Empty;
-            this.RewritingOptionsPath = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
@@ -368,8 +363,9 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IsSchedulingSeedIncremental = false;
-            this.IsRelaxedControlledTestingEnabled = false;
+            this.IsPartiallyControlledConcurrencyEnabled = false;
             this.IsConcurrencyFuzzingEnabled = false;
+            this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.PerformFullExploration = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -517,16 +513,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with relaxed controlled testing enabled or disabled.
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// Updates the configuration with partial controlled concurrency enabled or disabled.
         /// </summary>
-        /// <param name="isEnabled">If true, then relaxed controlled testing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        public Configuration WithRelaxedControlledTestingEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial controlled concurrency is enabled.</param>
+        public Configuration WithPartiallyControlledConcurrencyEnabled(bool isEnabled = true)
         {
-            this.IsRelaxedControlledTestingEnabled = isEnabled;
+            this.IsPartiallyControlledConcurrencyEnabled = isEnabled;
             return this;
         }
 
@@ -534,12 +526,19 @@ namespace Microsoft.Coyote
         /// Updates the configuration with concurrency fuzzing enabled or disabled.
         /// </summary>
         /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with concurrency fuzzing fallback enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then concurrency fuzzing fallback is enabled.</param>
+        public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
+        {
+            this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
             return this;
         }
 
@@ -729,7 +728,9 @@ namespace Microsoft.Coyote
         /// </summary>
         private static string GetPlatformVersion()
         {
-#if NET5_0
+#if NET6_0
+            return "net6.0";
+#elif NET5_0
             return "net5.0";
 #elif NET462
             return "net462";

@@ -10,8 +10,7 @@ public class RewritingEngine
 
 | name | description |
 | --- | --- |
-| static [IsAssemblyRewritten](RewritingEngine/IsAssemblyRewritten.md)(…) | Checks if the specified assembly has been already rewritten with the current version of Coyote. |
-| static [Run](RewritingEngine/Run.md)(…) | Runs the engine using the specified rewriting options. |
+| static [IsAssemblyRewritten](RewritingEngine/IsAssemblyRewritten.md)(…) | Checks if the specified assembly has been already rewritten with the current version. |
 
 ## Remarks
 

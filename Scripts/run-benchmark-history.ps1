@@ -1,5 +1,8 @@
-# run benchmarks on entire git history using the version of the benchmark
-# test that is currently checked out, up to some given -max number of commits
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Run benchmarks on entire git history using the version of the benchmark test
+# that is currently checked out, up to some given -max number of commits
 param(    
     # The filter passed through to same arg on BenchmarkRunner.    
     [string]$filter = "",
@@ -38,7 +41,7 @@ function RestoreBenchmark() {
     Invoke-Expression "sed -i 's/\\Performance.Tests.csproj/\\Microsoft.Coyote.Performance.Tests.csproj/' $RootDir\Coyote.sln"
 }
 
-$benchmarks_dir = "$RootDir\Tools\BenchmarkRunner\bin\net5.0"
+$benchmarks_dir = "$RootDir\Tools\BenchmarkRunner\bin\net6.0"
 $benchmark_runner = "BenchmarkRunner.exe"
 $index = 0
 

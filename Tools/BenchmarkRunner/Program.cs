@@ -13,7 +13,6 @@ using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using PerformanceTests = Microsoft.Coyote.Tests.Performance;
 using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
-using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 
@@ -39,7 +38,6 @@ namespace Microsoft.Coyote.Benchmarking
         {
             new BenchmarkTest("MathBenchmark", typeof(PerformanceTests.MathBenchmark)),
             new BenchmarkTest("MemoryBenchmark", typeof(PerformanceTests.MemoryBenchmark)),
-            new BenchmarkTest("TaskInterleavingsBenchmark", typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new BenchmarkTest("CreationThroughputBenchmark", typeof(StateMachineTests.CreationThroughputBenchmark)),
             new BenchmarkTest("ExchangeEventLatencyBenchmark", typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new BenchmarkTest("SendEventThroughputBenchmark", typeof(StateMachineTests.SendEventThroughputBenchmark)),
@@ -238,8 +236,8 @@ namespace Microsoft.Coyote.Benchmarking
                 if (FilterMatches(b.Name, this.Filters))
                 {
                     matching++;
-                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir)
-                        .WithOption(ConfigOptions.DisableOptimizationsValidator, true);
+                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir).
+                        WithOption(ConfigOptions.DisableOptimizationsValidator, true);
                     config.AddDiagnoser(new CpuDiagnoser());
                     config.AddDiagnoser(new TotalMemoryDiagnoser());
 
@@ -383,7 +381,9 @@ namespace Microsoft.Coyote.Benchmarking
 
         public static string GetRuntimeVersion()
         {
-#if NET5_0
+#if NET6_0
+            return "net6.0";
+#elif NET5_0
             return "net5.0";
 #elif NET462
             return "net462";

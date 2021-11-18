@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
@@ -31,6 +32,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
         protected static void AssertSharedEntryValue(SharedEntry entry, int expected) =>
             Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
+
+        protected static string GetFullyQualifiedMethodName(Type type, string methodName) => $"{type.FullName}.{methodName}";
 
         protected class SharedEntry
         {

@@ -1,6 +1,6 @@
 # TestReport.BugReports property
 
-Set of unique bug reports.
+Set of bug reports.
 
 ```csharp
 public HashSet<string> BugReports { get; }

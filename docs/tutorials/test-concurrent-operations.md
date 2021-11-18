@@ -14,7 +14,7 @@ In this follow-up tutorial, you will write a few more tests that exercise the co
 To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 - Go through the [write your first concurrency unit test](first-concurrency-unit-test.md) tutorial.
 

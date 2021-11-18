@@ -243,7 +243,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(A3a), new E(m));
                 r.CreateActor(typeof(A3b), new E(m));
             },
-            configuration: Configuration.Create().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
         private class M3a : StateMachine
@@ -303,7 +303,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(M3a), new E(m));
                 r.CreateActor(typeof(M3b), new E(m));
             },
-            configuration: Configuration.Create().WithTestingIterations(200));
+            configuration: this.GetConfiguration().WithTestingIterations(200));
         }
     }
 }

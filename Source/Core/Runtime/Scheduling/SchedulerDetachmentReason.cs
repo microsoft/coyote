@@ -19,6 +19,11 @@ namespace Microsoft.Coyote.Runtime
         BoundReached,
 
         /// <summary>
+        /// The runtime detached the scheduler because uncontrolled concurrency was detected.
+        /// </summary>
+        UncontrolledConcurrencyDetected,
+
+        /// <summary>
         /// The runtime detached the scheduler because a was found bug in the execution path.
         /// </summary>
         BugFound

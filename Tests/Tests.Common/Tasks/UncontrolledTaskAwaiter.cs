@@ -25,6 +25,19 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
     /// <remarks>
     /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
     /// </remarks>
+    public class UncontrolledGenericTaskAwaiter
+    {
+#pragma warning disable CA1822 // Mark members as static
+        public TaskAwaiter<int> GetAwaiter() => Task.FromResult<int>(0).GetAwaiter();
+#pragma warning restore CA1822 // Mark members as static
+    }
+
+    /// <summary>
+    /// Helper class for task rewriting tests.
+    /// </summary>
+    /// <remarks>
+    /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
+    /// </remarks>
     public class UncontrolledTaskAwaiter<T>
     {
         public TaskAwaiter<T> GetAwaiter() => Task.FromResult<T>(default).GetAwaiter();

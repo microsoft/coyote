@@ -522,7 +522,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="Event"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleRaisedEvent(Actor actor, Event e)
         {
             if (this.Configuration.IsVerbose)
@@ -535,7 +534,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="HaltEvent"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize)
         {
             if (this.Configuration.IsVerbose)
@@ -601,7 +599,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the event handler of the specified actor terminated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
         {
             if (this.Configuration.IsVerbose)

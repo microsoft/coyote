@@ -1,6 +1,6 @@
 # TestReport class
 
-Class implementing the Coyote test report.
+Report containing information from a test run.
 
 ```csharp
 public class TestReport
@@ -11,7 +11,7 @@ public class TestReport
 | name | description |
 | --- | --- |
 | [TestReport](TestReport/TestReport.md)(…) | Initializes a new instance of the [`TestReport`](TestReport.md) class. |
-| [BugReports](TestReport/BugReports.md) { get; } | Set of unique bug reports. |
+| [BugReports](TestReport/BugReports.md) { get; } | Set of bug reports. |
 | [Configuration](TestReport/Configuration.md) { get; } | Configuration of the program-under-test. |
 | [CoverageInfo](TestReport/CoverageInfo.md) { get; } | Information regarding code coverage. |
 | [InternalErrors](TestReport/InternalErrors.md) { get; } | Set of internal errors. If no internal errors occurred, then this set is empty. |
@@ -24,6 +24,7 @@ public class TestReport
 | [NumOfExploredUnfairSchedules](TestReport/NumOfExploredUnfairSchedules.md) { get; } | Number of explored unfair schedules. |
 | [NumOfFoundBugs](TestReport/NumOfFoundBugs.md) { get; } | Number of found bugs. |
 | [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored scheduling steps (across all testing iterations), in fair tests. |
+| [UncontrolledInvocations](TestReport/UncontrolledInvocations.md) { get; } | Set of uncontrolled invocations. |
 | [Clone](TestReport/Clone.md)() | Clones the test report. |
 | [GetText](TestReport/GetText.md)(…) | Returns the testing report as a string, given a configuration and an optional prefix. |
 | [Merge](TestReport/Merge.md)(…) | Merges the information from the specified test report. |

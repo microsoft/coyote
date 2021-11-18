@@ -18,6 +18,12 @@
     </packageTypes>
   </metadata>
   <files>
+    <!-- .NET 6.0 -->
+    <file src="..\..\bin\net6.0\*.dll" target="tools\net6.0\any" />
+    <file src="..\..\bin\net6.0\*.xml" target="tools\net6.0\any" />
+    <file src="..\..\bin\net6.0\*.pdb" target="tools\net6.0\any" />
+    <file src="..\..\bin\net6.0\*.config" target="tools\net6.0\any" />
+    <file src="..\..\bin\net6.0\*.runtimeconfig.json" target="tools\net6.0\any" />
     <!-- .NET 5.0 -->
     <file src="..\..\bin\net5.0\*.dll" target="tools\net5.0\any" />
     <file src="..\..\bin\net5.0\*.xml" target="tools\net5.0\any" />

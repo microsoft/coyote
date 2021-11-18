@@ -459,7 +459,7 @@ namespace Microsoft.Coyote.Tests.Common
                         };
                     }
 
-                    // BUGBUG: but is this actually letting the test complete in the case
+                    // TODO: but is this actually letting the test complete in the case
                     // of actors which run completely asynchronously?
                     await Task.WhenAny(test(runtime), errorTask.Task);
                     if (handleFailures && errorTask.Task.IsCompleted)
@@ -873,7 +873,8 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected virtual Configuration GetConfiguration()
         {
-            return Configuration.Create().WithTelemetryEnabled(false);
+            return Configuration.Create().WithTelemetryEnabled(false).
+                WithConcurrencyFuzzingFallbackEnabled(false);
         }
 
         protected static string GetBugReport(TestingEngine engine)

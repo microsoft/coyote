@@ -350,14 +350,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnStrategyDescription(string strategyName, string description)
-        {
-            var desc = string.IsNullOrEmpty(description) ? $" Description: {description}" : string.Empty;
-            var text = $"<StrategyLog> Found bug using '{strategyName}' strategy.{desc}";
-            this.Logger.WriteLine(text);
-        }
-
-        /// <inheritdoc/>
         public virtual void OnWaitEvent(ActorId id, string stateName, Type eventType)
         {
             string text;

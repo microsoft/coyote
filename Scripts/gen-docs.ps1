@@ -1,10 +1,11 @@
-# PowerShell v2
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 
 $CoyoteRoot = Split-Path $PSScriptRoot
 
-$gentoc = "$CoyoteRoot\bin\net5.0\GenToc.exe"
+$gentoc = "$CoyoteRoot\bin\net6.0\GenToc.exe"
 $ToolPath = "$CoyoteRoot\packages"
 
 if (-Not (Test-Path -Path "$CoyoteRoot\bin")) {

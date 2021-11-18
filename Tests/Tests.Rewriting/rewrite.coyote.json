@@ -1,0 +1,8 @@
+{
+  "AssembliesPath": "./bin/$(Platform)",
+  "IsRewritingThreads": true,
+  "Assemblies": [
+    "Microsoft.Coyote.Tests.Rewriting.dll",
+    "Microsoft.Coyote.Tests.Rewriting.Helpers.dll"
+  ]
+}

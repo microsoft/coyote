@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 param(
     [string]$store = "",
     [string]$key = "",
@@ -20,7 +23,7 @@ else {
 }
 
 $current_dir = (Get-Item -Path ".\").FullName
-$benchmarks_dir = "$PSScriptRoot\..\Tools\BenchmarkRunner\bin\net5.0"
+$benchmarks_dir = "$PSScriptRoot\..\Tools\BenchmarkRunner\bin\net6.0"
 $benchmark_runner = "BenchmarkRunner.exe"
 $artifacts_dir = "$current_dir\benchmark_$commit"
 

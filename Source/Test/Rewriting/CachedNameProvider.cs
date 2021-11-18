@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemConcurrentCollections = System.Collections.Concurrent;
 using SystemGenericCollections = System.Collections.Generic;
@@ -14,9 +15,9 @@ namespace Microsoft.Coyote.Rewriting
     /// </summary>
     internal static class CachedNameProvider
     {
-        internal static string InterceptionNamespace { get; } = typeof(Interception.ControlledTask).Namespace;
-        internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
+        internal static string RuntimeCompilerNamespace { get; } = typeof(RuntimeCompiler.AsyncTaskMethodBuilder).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
+        internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
 
         internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string TaskFullName { get; } = typeof(SystemTasks.Task).FullName;
@@ -52,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string GenericHashSetFullName { get; } = typeof(SystemGenericCollections.HashSet<>).FullName;
 
         internal static string ConcurrentBagFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentBag<>).FullName;
-        internal static string ConcurrentDictonaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
+        internal static string ConcurrentDictionaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
     }

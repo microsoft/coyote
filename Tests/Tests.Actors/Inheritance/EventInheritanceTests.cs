@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public void TestEventInheritanceInStateMachine()
         {
             var tcs = new TaskCompletionSource<bool>();
-            var configuration = Configuration.Create();
+            var configuration = this.GetConfiguration();
             var runtime = RuntimeFactory.Create(configuration);
             var a = runtime.CreateActor(typeof(A), null, new A.SetupEvent(tcs));
             runtime.SendEvent(a, new A.E3());

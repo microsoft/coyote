@@ -1,3 +1,18 @@
+## v1.4.1
+- Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during
+  testing to increase usability. This feature is enabled by default and can be disabled via the
+  `disable-fuzzing-fallback` command line option (or
+  `Configuration.WithConcurrencyFuzzingFallbackEnabled`).
+- Added a new JSON test report that lists any detected invocations of uncontrolled methods.
+- The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to
+  reflect that the reports do not include only traces.
+- The `IActorRuntimeLog.OnStrategyDescription` method has been removed.
+
+## v1.4.0
+- Redesigned the systematic testing runtime to significantly improve its performance and simplicity.
+- An `ActorId` of a halted actor can now be reused.
+- The `coyote` tool can now resolve `aspnet`.
+
 ## v1.3.1
 - Added rewriting support for testing race conditions with several `System.Collections.Concurrent`
   data structures.

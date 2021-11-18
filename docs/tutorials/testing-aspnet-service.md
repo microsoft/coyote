@@ -12,7 +12,7 @@ Coyote and you can run the web front end using the Azure storage emulators.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
@@ -156,7 +156,7 @@ Just run them from inside Visual Studio, or run the following:
 
 ```
 cd WebApps/ImageGalleryAspNet/
-dotnet test bin/net5.0/ImageGalleryTests.dll
+dotnet test bin/net6.0/ImageGalleryTests.dll
 ```
 
 The tests may or may not trigger the bug! Most likely you will see this output:

@@ -309,7 +309,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if a liveness monitor exceeded its threshold, and if yes, it reports an error.
+        /// Checks if a liveness monitor exceeded its threshold and, if yes, it reports an error.
         /// </summary>
         internal void CheckLivenessThresholdExceeded()
         {

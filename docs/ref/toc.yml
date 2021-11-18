@@ -29,10 +29,12 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithRelaxedControlledTestingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithRelaxedControlledTestingEnabled
+        - name: WithPartiallyControlledConcurrencyEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
         - name: WithConcurrencyFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
+        - name: WithConcurrencyFuzzingFallbackEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled
         - name: WithNoBugTraceRepro
           link: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro
         - name: WithMaxSchedulingSteps
@@ -314,8 +316,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition
         - name: OnStopTimer
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer
-        - name: OnStrategyDescription
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStrategyDescription
         - name: OnWaitEvent
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
         - name: OnRandom
@@ -389,8 +389,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
         - name: OnAssertionFailure
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure
-        - name: OnStrategyDescription
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription
         - name: OnCompleted
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
       - name: RuntimeFactory
@@ -562,8 +560,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnRandom
         - name: OnAssertionFailure
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnAssertionFailure
-        - name: OnStrategyDescription
-          link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnStrategyDescription
         - name: OnCompleted
           link: ref/Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilder/OnCompleted
         - name: SnapshotGraph
@@ -750,26 +746,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
-    - name: Microsoft.Coyote.Interception
-      link: ref/Microsoft.Coyote.InterceptionNamespace
-      subfolderitems:
-      - name: ControlledSemaphoreSlim
-        link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Create
-        - name: Wait
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Wait
-        - name: WaitAsync
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/WaitAsync
-        - name: Release
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Release
-        - name: Dispose
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/Dispose
-        - name: ControlledSemaphoreSlim
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/ControlledSemaphoreSlim
-        - name: CurrentCount
-          link: ref/Microsoft.Coyote.Interception/ControlledSemaphoreSlim/CurrentCount
     - name: Microsoft.Coyote.IO
       link: ref/Microsoft.Coyote.IONamespace
       subfolderitems:
@@ -872,11 +848,11 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure
       - name: OnFailureHandler
         link: ref/Microsoft.Coyote.Runtime/OnFailureHandler
-      - name: RuntimeFactory
-        link: ref/Microsoft.Coyote.Runtime/RuntimeFactory
+      - name: RuntimeProvider
+        link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:
         - name: Create
-          link: ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create
+          link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create
       - name: SchedulingPoint
         link: ref/Microsoft.Coyote.Runtime/SchedulingPoint
         subfolderitems:
@@ -977,56 +953,62 @@ toc:
     - name: Microsoft.Coyote.Rewriting
       link: ref/Microsoft.Coyote.RewritingNamespace
       subfolderitems:
-      - name: IsAssemblyRewrittenAttribute
-        link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute
+      - name: RewritingSignatureAttribute
+        link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute
         subfolderitems:
-        - name: IsAssemblyRewrittenAttribute
-          link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/IsAssemblyRewrittenAttribute
+        - name: RewritingSignatureAttribute
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/RewritingSignatureAttribute
         - name: Version
-          link: ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/Version
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Version
+        - name: Signature
+          link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Signature
       - name: RewritingEngine
         link: ref/Microsoft.Coyote.Rewriting/RewritingEngine
         subfolderitems:
-        - name: Run
-          link: ref/Microsoft.Coyote.Rewriting/RewritingEngine/Run
         - name: IsAssemblyRewritten
           link: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten
-      - name: RewritingOptions
-        link: ref/Microsoft.Coyote.Rewriting/RewritingOptions
-        subfolderitems:
-        - name: ParseFromJSON
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON
-        - name: RewritingOptions
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/RewritingOptions
-        - name: AssembliesDirectory
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory
-        - name: OutputDirectory
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory
-        - name: AssemblyPaths
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
-        - name: IgnoredAssemblies
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies
-        - name: DependencySearchPaths
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths
-        - name: StrongNameKeyFile
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
-        - name: IsRewritingConcurrentCollections
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingConcurrentCollections
-        - name: IsDataRaceCheckingEnabled
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsDataRaceCheckingEnabled
-        - name: IsRewritingDependencies
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
-        - name: IsRewritingUnitTests
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests
-        - name: IsRewritingThreads
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingThreads
-        - name: Logger
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
-        - name: LogLevel
-          link: ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
     - name: Microsoft.Coyote.SystematicTesting
       link: ref/Microsoft.Coyote.SystematicTestingNamespace
       subfolderitems:
+      - name: TestReport
+        link: ref/Microsoft.Coyote.SystematicTesting/TestReport
+        subfolderitems:
+        - name: Merge
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
+        - name: GetText
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
+        - name: Clone
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone
+        - name: TestReport
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport
+        - name: Configuration
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
+        - name: CoverageInfo
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
+        - name: NumOfExploredFairSchedules
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
+        - name: NumOfExploredUnfairSchedules
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
+        - name: NumOfFoundBugs
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
+        - name: BugReports
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
+        - name: UncontrolledInvocations
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/UncontrolledInvocations
+        - name: MinExploredFairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
+        - name: MaxExploredFairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
+        - name: TotalExploredFairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
+        - name: MaxFairStepsHitInFairTests
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInFairTests
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInUnfairTests
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
+        - name: InternalErrors
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors
       - name: TestAttribute
         link: ref/Microsoft.Coyote.SystematicTesting/TestAttribute
         subfolderitems:
@@ -1060,8 +1042,8 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
         - name: ThrowIfBugFound
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound
-        - name: TryEmitTraces
-          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
+        - name: TryEmitReports
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports
         - name: RegisterPerIterationCallBack
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
         - name: IsTestRewritten
@@ -1074,40 +1056,3 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
         - name: ReproducibleTrace
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace
-      - name: TestReport
-        link: ref/Microsoft.Coyote.SystematicTesting/TestReport
-        subfolderitems:
-        - name: Merge
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
-        - name: GetText
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
-        - name: Clone
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone
-        - name: TestReport
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport
-        - name: Configuration
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
-        - name: CoverageInfo
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
-        - name: NumOfExploredFairSchedules
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
-        - name: NumOfExploredUnfairSchedules
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
-        - name: NumOfFoundBugs
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
-        - name: BugReports
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
-        - name: MinExploredFairSteps
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
-        - name: MaxExploredFairSteps
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
-        - name: TotalExploredFairSteps
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
-        - name: MaxFairStepsHitInFairTests
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
-        - name: MaxUnfairStepsHitInFairTests
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
-        - name: MaxUnfairStepsHitInUnfairTests
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
-        - name: InternalErrors
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors

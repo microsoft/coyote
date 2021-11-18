@@ -32,9 +32,14 @@ namespace Microsoft.Coyote.SystematicTesting
     public sealed class TestingEngine
     {
         /// <summary>
+        /// Url with information about the rewriting process.
+        /// </summary>
+        private const string LearnAboutRewritingUrl = "https://aka.ms/coyote-rewrite";
+
+        /// <summary>
         /// Url with information about the gathered telemetry.
         /// </summary>
-        private const string LearnAboutTelemetryUrl = "http://aka.ms/coyote-telemetry";
+        private const string LearnAboutTelemetryUrl = "https://aka.ms/coyote-telemetry";
 
         /// <summary>
         /// The project configuration.
@@ -55,7 +60,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The scheduler used by the runtime during testing.
         /// </summary>
-        internal readonly OperationScheduler Scheduler;
+        internal OperationScheduler Scheduler { get; private set; }
 
         /// <summary>
         /// The profiler.
@@ -382,6 +387,13 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
                 $"using '{this.Configuration.SchedulingStrategy}' strategy{options}.");
 
+            if (!this.IsTestRewritten())
+            {
+                // TODO: eventually will throw an exception; we allow this for now for pure actor programs.
+                this.Logger.WriteLine(LogSeverity.Error,
+                    $"... Assembly is not rewritten for testing, see {LearnAboutRewritingUrl}.");
+            }
+
             if (this.Configuration.EnableTelemetry)
             {
                 this.Logger.WriteLine(LogSeverity.Important, $"... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
@@ -562,6 +574,16 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
+                if (runtime.IsUncontrolledConcurrencyDetected)
+                {
+                    // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
+                    this.Scheduler = OperationScheduler.Setup(SchedulingPolicy.Fuzzing,
+                        this.Scheduler.ValueGenerator, this.Configuration);
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
+                        $"switching to fuzzing due to uncontrolled concurrency " +
+                        $"[task-{this.Configuration.TestingProcessId}]");
+                }
+
                 if (!this.Scheduler.IsReplayingSchedule && this.Configuration.PerformFullExploration && runtime.IsBugFound)
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
@@ -624,12 +646,14 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Tries to emit the testing traces, if any.
+        /// Tries to emit the testing reports, if any.
         /// </summary>
-        public IEnumerable<string> TryEmitTraces(string directory, string file)
+        public IEnumerable<string> TryEmitReports(string directory, string file)
         {
-            int index = 0;
+            bool reportsEmitted = false;
+
             // Find the next available file index.
+            int index = 0;
             Regex match = new Regex("^(.*)_([0-9]+)_([0-9]+)");
             foreach (var path in Directory.GetFiles(directory))
             {
@@ -656,6 +680,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     string readableTracePath = Path.Combine(directory, file + "_" + index + ".txt");
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {readableTracePath}");
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
+                    reportsEmitted = true;
                     yield return readableTracePath;
                 }
             }
@@ -665,14 +690,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 string xmlPath = Path.Combine(directory, file + "_" + index + ".trace.xml");
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {xmlPath}");
                 File.WriteAllText(xmlPath, this.XmlLog.ToString());
+                reportsEmitted = true;
                 yield return xmlPath;
             }
 
             if (this.Graph != null)
             {
                 string graphPath = Path.Combine(directory, file + "_" + index + ".dgml");
-                this.Graph.SaveDgml(graphPath, true);
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {graphPath}");
+                this.Graph.SaveDgml(graphPath, true);
+                reportsEmitted = true;
                 yield return graphPath;
             }
 
@@ -684,8 +711,24 @@ namespace Microsoft.Coyote.SystematicTesting
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reproTracePath}");
                     File.WriteAllText(reproTracePath, this.ReproducibleTrace);
+                    reportsEmitted = true;
                     yield return reproTracePath;
                 }
+            }
+
+            // Emits the uncontrolled invocations report, if it exists.
+            if (this.TestReport.UncontrolledInvocations.Count > 0)
+            {
+                string reportPath = Path.Combine(directory, file + "_" + index + ".uncontrolled.json");
+                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reportPath}");
+                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
+                reportsEmitted = true;
+                yield return reportPath;
+            }
+
+            if (!reportsEmitted)
+            {
+                Console.WriteLine($"..... No reports available.");
             }
 
             this.Logger.WriteLine(LogSeverity.Important, $"... Elapsed {this.Profiler.Results()} sec.");
@@ -781,11 +824,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
-            runtime.GetSchedulingStatisticsAndResults(out bool isBugFound, out string bugReport, out int steps,
-                out bool isMaxStepsReached, out bool isScheduleFair, out Exception unhandledException);
-
-            TestReport report = TestReport.CreateTestReportFromStats(this.Configuration, isBugFound, bugReport,
-                steps, isMaxStepsReached, isScheduleFair, unhandledException);
+            TestReport report = new TestReport(this.Configuration);
+            runtime.PopulateTestReport(report);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;
@@ -815,7 +855,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Checks if the test executed by the testing engine has been rewritten.
+        /// Checks if the test executed by the testing engine has been rewritten with the current version.
         /// </summary>
         /// <returns>True if the test has been rewritten, else false.</returns>
         public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewritten(this.TestMethodInfo.Assembly);

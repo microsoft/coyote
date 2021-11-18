@@ -436,9 +436,14 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (type != null)
             {
-                // Any type from the .NET assemblies is a system type.
-                string modulePath = Path.GetFileName(type.Module.FileName);
-                if (modulePath is "System.Private.CoreLib.dll" || modulePath is "mscorlib.dll")
+                TypeDefinition declaringType = type;
+                while (declaringType.IsNested)
+                {
+                    declaringType = declaringType.DeclaringType;
+                }
+
+                // Any type in the 'System' namespace is a system type.
+                if (declaringType.Namespace is "System" || declaringType.Namespace.StartsWith("System."))
                 {
                     return true;
                 }

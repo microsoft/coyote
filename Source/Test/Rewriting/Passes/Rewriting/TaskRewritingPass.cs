@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.Rewriting
             new ParameterDefinition(parameter.Name, parameter.Attributes, this.RewriteTypeReference(parameter.ParameterType));
 
         /// <inheritdoc/>
-        protected override TypeReference RewriteDeclaringTypeReference(MethodReference method)
+        protected override TypeReference RewriteMethodDeclaringTypeReference(MethodReference method)
         {
             TypeReference type = method.DeclaringType;
             if (IsSupportedTaskType(type))

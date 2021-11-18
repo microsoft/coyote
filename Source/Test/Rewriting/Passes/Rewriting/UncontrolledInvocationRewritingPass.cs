@@ -84,13 +84,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private static bool IsUncontrolledType(TypeDefinition type, MethodReference method = null)
         {
-            if (type is null)
-            {
-                return false;
-            }
-
-            string module = Path.GetFileName(type.Module.FileName);
-            if (!(module is "System.Private.CoreLib.dll" || module is "mscorlib.dll"))
+            if (type is null || !IsSystemType(type))
             {
                 return false;
             }

@@ -41,18 +41,16 @@ namespace Microsoft.Coyote.Rewriting
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (this.IsForeignType(resolvedDeclaringType) && !IsSystemType(resolvedDeclaringType))
             {
-                // Can't rewrite a foreign method reference since we are not rewriting this assembly.
+                // Can't rewrite a foreign method reference since we are not rewriting its assembly.
                 return result;
             }
 
-            // TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            // var resolvedDeclaringType = Resolve(declaringType);
             if (!this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
                 // Check if this method signature has been rewritten and, if it has, find the
-                // rewritten method. The signature does not include return type according to
-                // C# rules, but the return type may have also been rewritten which is why it
-                // is imperative here that we find the correct new definition.
+                // rewritten method. The signature does not include the return type according
+                // to C# rules, but the return type may have also been rewritten which is why
+                // it is imperative here that we find the correct new definition.
                 List<TypeReference> paramTypes = new List<TypeReference>();
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
@@ -63,37 +61,14 @@ namespace Microsoft.Coyote.Rewriting
                 var newMethod = FindMatchingMethodInDeclaringType(resolvedDeclaringType, method.Name, paramTypes.ToArray());
                 if (!this.TryResolve(newMethod, out resolvedMethod))
                 {
-                    // Unable to resolve the method or an rewritten version of this method.
+                    // Unable to resolve the method or a rewritten version of this method.
                     return result;
                 }
             }
 
             // Try to rewrite the declaring type.
-            TypeReference newDeclaringType = this.RewriteDeclaringTypeReference(method);
+            TypeReference newDeclaringType = this.RewriteMethodDeclaringTypeReference(method);
             resolvedDeclaringType = Resolve(newDeclaringType);
-
-            // this.Logger.WriteLine($"x: {resolvedMethod.DeclaringType} vs {newDeclaringType}");
-            // this.Logger.WriteLine($"x: {result.Resolve()} vs {resolvedMethod}");
-            // if (resolvedMethod.DeclaringType == newDeclaringType)
-            // {
-            //     this.Logger.WriteLine($"4");
-            //     // We are not rewriting this method.
-            //     return result;
-            // }
-
-            // if (method.DeclaringType == newDeclaringType && result.Resolve() == resolvedMethod)
-            // {
-            //     this.Logger.WriteLine($"4");
-            //     // We are not rewriting this method.
-            //     return result;
-            // }
-            // else if (resolvedMethod is null)
-            // {
-            //     this.Logger.WriteLine($"5");
-            //     // TODO: do we need to return the resolved method here?
-            //     this.TryResolve(method, out resolvedMethod);
-            //     return method;
-            // }
 
             MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
             if (match != null)
@@ -210,7 +185,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         /// <param name="method">The method with the declaring type to rewrite.</param>
         /// <returns>The rewritten declaring type, or the original if it was not changed.</returns>
-        protected virtual TypeReference RewriteDeclaringTypeReference(MethodReference method) => method.DeclaringType;
+        protected virtual TypeReference RewriteMethodDeclaringTypeReference(MethodReference method) => method.DeclaringType;
 
         /// <summary>
         /// Rewrites the specified <see cref="TypeReference"/>.

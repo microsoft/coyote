@@ -6,10 +6,10 @@ Import-Module $PSScriptRoot/../Scripts/powershell/common.psm1 -Force
 $framework = "net5.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
+    "rewriting-helpers" = "Tests.Rewriting.Helpers"
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
-    "standalone" = "Tests.Standalone"
 }
 
 Write-Comment -prefix "." -text "Gathering the test rewriting diff logs" -color "yellow"

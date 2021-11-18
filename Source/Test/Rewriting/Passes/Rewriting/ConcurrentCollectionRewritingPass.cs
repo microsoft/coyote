@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        protected override TypeReference RewriteDeclaringTypeReference(MethodReference method)
+        protected override TypeReference RewriteMethodDeclaringTypeReference(MethodReference method)
         {
             TypeReference type = method.DeclaringType;
             if (type is GenericInstanceType genericType)

@@ -20,7 +20,6 @@ $targets = [ordered]@{
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
-    "standalone" = "Tests.Standalone"
 }
 
 $dotnet_path = FindDotNet("dotnet");
@@ -43,10 +42,6 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {
-            continue
-        }
-
-        if (($($kvp.Name) -eq "standalone") -and ($f -eq "net462")) {
             continue
         }
 

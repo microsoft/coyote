@@ -332,8 +332,8 @@ namespace Microsoft.Coyote.Rewriting
             if (resolved is null)
             {
                 this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +
-                    "The method is either unsupported by Coyote, or a user-defined extension method, or the " +
-                    ".NET platform of Coyote and the target assembly do not match.");
+                    "The method is either unsupported by Coyote, an external method not being rewritten, " +
+                    "or the .NET platform of Coyote and the target assembly do not match.");
                 return false;
             }
 
@@ -345,10 +345,10 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         protected static TypeDefinition Resolve(TypeReference type)
         {
-            TypeDefinition result = type.Resolve();
+            TypeDefinition result = type?.Resolve();
             if (result is null)
             {
-                throw new Exception($"Error resolving '{type.FullName}' type. Please check that " +
+                throw new InvalidOperationException($"Error resolving '{type.FullName}' type. Please check that " +
                     "the .NET platform of coyote and the target assembly match.");
             }
 
@@ -405,29 +405,51 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is foreign.
+        /// Checks if the specified type is a foreign type.
         /// </summary>
         protected bool IsForeignType(TypeDefinition type)
         {
-            if (type is null || this.Module == type.Module)
+            if (type != null)
             {
-                return false;
-            }
+                // Any type from an assembly being visited is not a foreign type.
+                if (type.Module == this.Module ||
+                    this.VisitedAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
+                {
+                    return false;
+                }
 
-            // Any type from the Coyote assemblies is not a foreign type.
-            string module = Path.GetFileName(type.Module.FileName);
-            if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
-            {
-                return false;
-            }
-
-            // Any type from a assembly being rewritten is not a foreign type.
-            if (this.VisitedAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
-            {
-                return false;
+                // Any type from the Coyote assemblies is not a foreign type.
+                string modulePath = Path.GetFileName(type.Module.FileName);
+                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
+                {
+                    return false;
+                }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a system type.
+        /// </summary>
+        protected static bool IsSystemType(TypeDefinition type)
+        {
+            if (type != null)
+            {
+                TypeDefinition declaringType = type;
+                while (declaringType.IsNested)
+                {
+                    declaringType = declaringType.DeclaringType;
+                }
+
+                // Any type in the 'System' namespace is a system type.
+                if (declaringType.Namespace is "System" || declaringType.Namespace.StartsWith("System."))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -28,6 +28,11 @@
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>
         <dependency id="System.Configuration.ConfigurationManager" version="4.7.0"/>
       </group>
+      <group targetFramework=".NET6.0">
+        <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>
+        <dependency id="System.Configuration.ConfigurationManager" version="4.7.0"/>
+      </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="Microsoft.Coyote" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="2.14.0"/>

@@ -41,7 +41,6 @@ namespace Microsoft.Coyote.Rewriting
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
             {
-                Console.WriteLine("Not rewritable method: " + method);
                 return result;
             }
 
@@ -69,16 +68,16 @@ namespace Microsoft.Coyote.Rewriting
             // Try to rewrite the declaring type.
             TypeReference newDeclaringType = this.RewriteMethodDeclaringTypeReference(method);
             resolvedDeclaringType = Resolve(newDeclaringType);
-            Console.WriteLine("Rewriting type: " + resolvedDeclaringType);
 
             MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
-            Console.WriteLine("Rewriting method: " + match);
-            if (match != null)
+            if (match is null)
             {
-                result = module.ImportReference(match);
+                // No matching method found.
+                return result;
             }
 
-            if (match != null && !result.HasThis && !newDeclaringType.IsGenericInstance &&
+            result = module.ImportReference(match);
+            if (!result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
                 // We are converting from a generic type to a non generic static type, and from a non-generic
@@ -103,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting
                 // This is an extra initial parameter that we have when converting an instance to a static method.
                 // For example, `task.GetAwaiter()` is converted to `ControlledTask.GetAwaiter(task)`.
                 ParameterDefinition instanceParameter = null;
-                if (match != null && resolvedMethod.Parameters.Count != match.Parameters.Count)
+                if (resolvedMethod.Parameters.Count != match.Parameters.Count)
                 {
                     // We are converting from an instance method to a static method, so store the instance parameter.
                     instanceParameter = result.Parameters[0];
@@ -172,15 +171,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            result = module.ImportReference(result);
-            if (!this.TryResolve(result, out _))
-            {
-                Console.WriteLine($"1");
-                return method;
-            }
-
-            Console.WriteLine($"2: {result}");
-            return result;
+            return module.ImportReference(result);
         }
 
         /// <summary>

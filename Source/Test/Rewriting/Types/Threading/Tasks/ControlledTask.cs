@@ -231,14 +231,15 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(Task t1, Task t2) => Task.WhenAny(t1, t2);
+        public static Task<Task> WhenAny(Task task1, Task task2) => Task.WhenAny(task1, task2);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when either of the
         /// two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => Task.WhenAny(t1, t2);
+        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> task1, Task<TResult> task2) =>
+            Task.WhenAny(task1, task2);
 #endif
 
         /// <summary>

@@ -38,8 +38,8 @@ You can provide more rewriting options in a JSON file like this:
 
 ```json
 {
-  "AssembliesPath": "bin/net5.0",
-  "OutputPath": "bin/net5.0/rewritten",
+  "AssembliesPath": "bin/net6.0",
+  "OutputPath": "bin/net6.0/rewritten",
   "Assemblies": [
     "BoundedBuffer.dll",
     "MyOtherLibrary.dll",
@@ -265,7 +265,7 @@ explore Coyote further!
 **Format of the executable (.exe) or library (.dll) is invalid.**
 
 If you are using a .NET Core target platform then on Windows you will get executable program with
-`.exe` file extension, like `coyote-samples\bin\net5.0\BoundedBuffer.exe` These are not
+`.exe` file extension, like `coyote-samples\bin\net6.0\BoundedBuffer.exe` These are not
 rewritable assemblies. You must instead rewrite and test the associated library, in this case
 `BoundedBuffer.dll`.
 

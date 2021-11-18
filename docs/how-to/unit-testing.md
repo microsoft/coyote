@@ -11,11 +11,11 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Coyote" Version="1.2.1" />
-    <PackageReference Include="Microsoft.Coyote.Test" Version="1.2.1" />
+    <PackageReference Include="Microsoft.Coyote" Version="1.4.1" />
+    <PackageReference Include="Microsoft.Coyote.Test" Version="1.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
       <PrivateAssets>all</PrivateAssets>

@@ -4,7 +4,7 @@ Coyote is a NuGet library and works on .NET Core which means it can be used on W
 macOS.
 
 ### Prerequisites
-- [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet)
 
 **Optional:**
 
@@ -37,9 +37,9 @@ dotnet add <yourproject>.csproj package Microsoft.Coyote
 dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
 ```
 
-### Installing the .NET 5.0 Coyote tool
+### Installing the .NET 6.0 Coyote tool
 
-You can also install the `dotnet tool` named `coyote` for .NET 5.0 using the following command:
+You can also install the `dotnet tool` named `coyote` for .NET 6.0 using the following command:
 
 ```plain
 dotnet tool install --global Microsoft.Coyote.CLI

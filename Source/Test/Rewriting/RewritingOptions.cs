@@ -59,11 +59,6 @@ namespace Microsoft.Coyote.Rewriting
         private Regex IgnoredAssembliesPattern { get; set; }
 
         /// <summary>
-        /// Path of strong name key to use for signing rewritten assemblies.
-        /// </summary>
-        internal string StrongNameKeyFile { get; set; }
-
-        /// <summary>
         /// True if rewriting for concurrent collections is enabled, else false.
         /// </summary>
         internal bool IsRewritingConcurrentCollections { get; set; }
@@ -135,7 +130,6 @@ namespace Microsoft.Coyote.Rewriting
                 AssemblyPaths = new HashSet<string>(),
                 DependencySearchPaths = null,
                 IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(new List<string>()),
-                StrongNameKeyFile = null,
                 IsRewritingConcurrentCollections = true,
                 IsDataRaceCheckingEnabled = false,
                 IsRewritingDependencies = false,
@@ -190,7 +184,6 @@ namespace Microsoft.Coyote.Rewriting
                 options.DependencySearchPaths = configuration.DependencySearchPaths;
                 options.IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(
                     configuration.IgnoredAssemblies ?? Array.Empty<string>());
-                options.StrongNameKeyFile = configuration.StrongNameKeyFile;
                 options.IsRewritingConcurrentCollections = configuration.IsRewritingConcurrentCollections;
                 options.IsDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
                 options.IsRewritingDependencies = configuration.IsRewritingDependencies;
@@ -313,10 +306,10 @@ namespace Microsoft.Coyote.Rewriting
         /// {
         ///     // The directory with the assemblies to rewrite. This path is relative
         ///     // to this configuration file.
-        ///     "AssembliesPath": "./bin/net5.0",
+        ///     "AssembliesPath": "./bin/net6.0",
         ///     // The output directory where rewritten assemblies are placed. This path
         ///     // is relative to this configuration file.
-        ///     "OutputPath": "./bin/net5.0/RewrittenBinaries",
+        ///     "OutputPath": "./bin/net6.0/RewrittenBinaries",
         ///     // The assemblies to rewrite. The paths are relative to 'AssembliesPath'.
         ///     "Assemblies": [
         ///         "Example.exe"
@@ -341,9 +334,6 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "DependencySearchPaths")]
             public IList<string> DependencySearchPaths { get; set; }
-
-            [DataMember(Name = "StrongNameKeyFile")]
-            public string StrongNameKeyFile { get; set; }
 
             [DataMember(Name = "IsDataRaceCheckingEnabled")]
             public bool IsDataRaceCheckingEnabled { get; set; }

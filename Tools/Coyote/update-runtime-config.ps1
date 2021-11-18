@@ -10,6 +10,8 @@ if (-not ($json.runtimeOptions | Get-Member -MemberType NoteProperty -Name "fram
     return
 }
 
+Write-Host "Framework: $json.runtimeOptions.framework"
+
 $tfm = $json.runtimeOptions.tfm
 $originalFrameworkName = $json.runtimeOptions.framework.name
 $originalFrameworkVersion = $json.runtimeOptions.framework.version

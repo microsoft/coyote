@@ -14,7 +14,7 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
         $command = "$coyote $cmd $target"
     }
 
-    if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and $framework -ne "net5.0" -and $IsWindows) {
+    if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and $framework -ne "net5.0" -and $framework -ne "net6.0" -and $IsWindows) {
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
     }

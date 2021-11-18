@@ -161,21 +161,21 @@ Then run `coyote` with one of the coverage flags, as well as the other options y
 some minimal examples:
 
 ```plain
-coyote test ./bin/net5.0/Monitors.exe -i 10 --coverage
+coyote test ./bin/net6.0/Monitors.exe -i 10 --coverage
 ```
 
-This will create the directory `./bin/net5.0/Output/Monitors.exe/CoyoteOutput/`, then it
+This will create the directory `./bin/net6.0/Output/Monitors.exe/CoyoteOutput/`, then it
 generates coverage files for code coverage which you can load into Visual Studio to see the results.
 
 ```plain
-coyote test ./bin/net5.0/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
+coyote test ./bin/net6.0/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
 ```
 
 This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it generates only
 activity coverage.
 
 ```plain
-coyote test ./bin/net5.0/Monitors.exe -i 10 --coverage code activity-debug
+coyote test ./bin/net6.0/Monitors.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.

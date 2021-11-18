@@ -29,8 +29,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild"
-      Condition="'$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
+  <Target Name="CoyoteRewritingNet6_0" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'net6.0'">
+    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
+  </Target>
+  <Target Name="CoyoteRewritingNet5_0" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'net5.0'">
+    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
+  </Target>
+  <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
   </Target>
 </Project>

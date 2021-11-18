@@ -19,6 +19,8 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $project = $($kvp.Value)
     if ($project -eq $targets["actors"]) {
         $project = $targets["actors-testing"]
+    } elseif ($project -eq $targets["rewriting-helpers"]) {
+        $project = $targets["rewriting"]
     }
 
     $suffix = "diff.json"

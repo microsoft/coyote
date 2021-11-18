@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
-            if (this.IsForeignType(resolvedDeclaringType) && !IsSystemType(resolvedDeclaringType))
+            if (!this.IsRewritableType(resolvedDeclaringType))
             {
-                // Can't rewrite a foreign method reference since we are not rewriting its assembly.
+                Console.WriteLine("Not rewritable method: " + method);
                 return result;
             }
 
@@ -69,8 +69,10 @@ namespace Microsoft.Coyote.Rewriting
             // Try to rewrite the declaring type.
             TypeReference newDeclaringType = this.RewriteMethodDeclaringTypeReference(method);
             resolvedDeclaringType = Resolve(newDeclaringType);
+            Console.WriteLine("Rewriting type: " + resolvedDeclaringType);
 
             MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType, resolvedMethod, matchName);
+            Console.WriteLine("Rewriting method: " + match);
             if (match != null)
             {
                 result = module.ImportReference(match);
@@ -201,6 +203,11 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="type">The type reference to rewrite.</param>
         /// <returns>The rewritten type reference, or the original if it was not changed.</returns>
         protected virtual TypeReference RewriteTypeReference(TypeReference type) => type;
+
+        /// <summary>
+        /// Checks if the specified type is a rewritable type.
+        /// </summary>
+        protected virtual bool IsRewritableType(TypeDefinition type) => IsSystemType(type) || !this.IsForeignType(type);
 
         protected static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
         {

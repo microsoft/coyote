@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -74,6 +75,21 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return type;
+        }
+
+        /// <inheritdoc/>
+        protected override bool IsRewritableType(TypeDefinition type)
+        {
+            if (type != null)
+            {
+                string modulePath = Path.GetFileName(type.Module.FileName);
+                if (modulePath is "Microsoft.AspNetCore.Mvc.Testing.dll")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

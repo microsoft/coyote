@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Actors.BugFinding", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Common", "Tests\Tests.Common\Tests.Common.csproj", "{61FC86A6-AF87-4007-B184-AF860A57AB9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Standalone", "Tests\Tests.Standalone\Tests.Standalone.csproj", "{E719FD60-9CDE-4DE9-BD2C-5DB1053AC552}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Rewriting.Helpers", "Tests\Tests.Rewriting.Helpers\Tests.Rewriting.Helpers.csproj", "{E719FD60-9CDE-4DE9-BD2C-5DB1053AC552}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{9BC0914F-3068-4148-B778-4CA27D828D39}"
 EndProject

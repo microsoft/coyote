@@ -32,7 +32,10 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    $command = "test $target -f $framework --no-build -v $verbosity --blame"
+    # TODO: workaround until .NET fixes normal logging.
+    # See https://github.com/dotnet/sdk/issues/16122
+    # $command = "test $target -f $framework --no-build -v $verbosity --blame"
+    $command = "test $target -f $framework --no-build -v $verbosity --logger 'console;verbosity=normal' --blame"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }

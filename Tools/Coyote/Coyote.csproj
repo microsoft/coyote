@@ -37,5 +37,5 @@
   </Target>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
-  </Target> -->
+  </Target>
 </Project>

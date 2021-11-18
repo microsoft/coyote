@@ -10,7 +10,7 @@ model](../../concepts/actors/overview.md).
 To run the Hello World Actors  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 
@@ -27,7 +27,7 @@ powershell -f build.ps1
 Now you can run the HelloWorldActors application:
 
 ```plain
-"./bin/net5.0/HelloWorldActors.exe"
+"./bin/net6.0/HelloWorldActors.exe"
 ```
 
 Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
@@ -62,13 +62,13 @@ find the `coyote` test tool and setup your environment to use it.
 Enter the following from the command line:
 
 ```plain
-coyote test ./bin/net5.0/HelloWorldActors.dll --iterations 30
+coyote test ./bin/net6.0/HelloWorldActors.dll --iterations 30
 ```
 
 The result is:
 
 ```plain
-. Testing .\bin\net5.0\HelloWorldActors.dll
+. Testing .\bin\net6.0\HelloWorldActors.dll
 Starting TestingProcessScheduler in process 16432
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:308255541).
@@ -76,8 +76,8 @@ Starting TestingProcessScheduler in process 16432
 ..... Iteration #2
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net5.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
-..... Writing .\bin\net5.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
+..... Writing .\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -243,7 +243,7 @@ tool has ways of interrupting and restarting this `Execute` method based on `--i
 So now you know what happened when you ran the following command line:
 
 ```plain
-coyote test ./bin/net5.0/HelloWorldActors.exe --iterations 30
+coyote test ./bin/net6.0/HelloWorldActors.exe --iterations 30
 ```
 
 A special coyote `TestingEngine` was created, it invoked the `Execute` method 30 times, and during

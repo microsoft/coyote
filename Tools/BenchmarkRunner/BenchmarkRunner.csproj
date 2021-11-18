@@ -8,6 +8,7 @@
     <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework48Supported>false</Framework48Supported>
     <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn);</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

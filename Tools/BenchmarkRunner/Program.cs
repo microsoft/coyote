@@ -381,7 +381,9 @@ namespace Microsoft.Coyote.Benchmarking
 
         public static string GetRuntimeVersion()
         {
-#if NET5_0
+#if NET6_0
+            return "net6.0";
+#elif NET5_0
             return "net5.0";
 #elif NET462
             return "net462";

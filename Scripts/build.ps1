@@ -24,8 +24,8 @@ if ($host.Version.Major -lt 7)
 $dotnet = "dotnet"
 $dotnet_path = FindDotNet($dotnet)
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
-$v31 = [version] "3.1.0"
-$version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version $v31
+$version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version [version] "3.1.0"
+$version_net5 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version [version] "5.0.0"
 $sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
 
 if ($null -eq $sdk_version) {
@@ -35,20 +35,24 @@ if ($null -eq $sdk_version) {
 }
 
 Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
-
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
 if ($local) {
     if ($version_net4 -and -not $latest) {
-        # Build .NET Framework 4.x as well as the new version.
+        # Build .NET Framework 4.x as well as the latest version.
         $command = $command + " /p:BUILD_NET462=yes"
     }
 
     if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version -and -not $latest) {
-        # Build .NET Core 3.1 as well as the new version.
+        # Build .NET Core 3.1 as well as the latest version.
         $command = $command + " /p:BUILD_NETCORE31=yes"
+    }
+
+    if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version -and -not $latest) {
+        # Build .NET 5.0 as well as the latest version.
+        $command = $command + " /p:BUILD_NET5=yes"
     }
 }
 else {

@@ -191,12 +191,6 @@ namespace Microsoft.Coyote.Rewriting
                 SymbolWriterProvider = new PortablePdbWriterProvider()
             };
 
-            if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
-            {
-                using FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open);
-                writerParameters.StrongNameKeyPair = new StrongNameKeyPair(fs);
-            }
-
             this.Definition.Write(outputPath, writerParameters);
         }
 

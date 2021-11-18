@@ -17,7 +17,7 @@ you in writing correct concurrent code.
 To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
 ## Watch this tutorial
@@ -414,7 +414,7 @@ powershell -f build.ps1
 You can now run the tests (without Coyote) like this:
 
 ```plain
-cd .\bin\net5.0
+cd .\bin\net6.0
 .\AccountManager.exe
 ```
 

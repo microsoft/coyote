@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             {
                 if (SynchronizationContext.Current is ControlledSynchronizationContext context)
                 {
-                    context.Runtime?.OnWaitTask(this.AwaitedTask);
+                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 }
 
                 this.Awaiter.GetResult();
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             {
                 if (SynchronizationContext.Current is ControlledSynchronizationContext context)
                 {
-                    context.Runtime?.OnWaitTask(this.AwaitedTask);
+                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 }
 
                 return this.Awaiter.GetResult();

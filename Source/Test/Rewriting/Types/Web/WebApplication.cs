@@ -37,7 +37,8 @@ namespace Microsoft.Coyote.Rewriting.Types
                     return runtime.TaskFactory.StartNew(() =>
                     {
                         Task task = next.Invoke(context);
-                        runtime.WaitTaskCompletes(task);
+                        runtime.WaitUntilTaskCompletes(task);
+                        task.GetAwaiter().GetResult();
                     },
                     default,
                     runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,

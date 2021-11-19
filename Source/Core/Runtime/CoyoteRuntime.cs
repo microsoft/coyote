@@ -666,42 +666,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Waits for the task to complete execution. The wait terminates if a timeout interval
-        /// elapses or a cancellation token is canceled before the task completes.
-        /// </summary>
-        internal bool WaitTaskCompletes(Task task, int millisecondsTimeout = -1,
-            CancellationToken cancellationToken = default)
-        {
-            this.WaitUntilTaskCompletes(task, millisecondsTimeout, cancellationToken);
-            if (task.IsFaulted)
-            {
-                // Propagate the failing exception by re-throwing it.
-                ExceptionDispatchInfo.Capture(task.Exception).Throw();
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Waits for the task to complete execution and returns the result.
-        /// </summary>
-        internal TResult WaitTaskCompletes<TResult>(Task<TResult> task)
-        {
-            this.WaitUntilTaskCompletes(task);
-            if (task.IsFaulted)
-            {
-                // Propagate the failing exception by re-throwing it.
-                ExceptionDispatchInfo.Capture(task.Exception).Throw();
-            }
-
-            return task.Result;
-        }
-
-        /// <summary>
         /// Blocks the currently executing operation until the task completes.
         /// </summary>
-        internal void WaitUntilTaskCompletes(Task task, int millisecondsTimeout = -1,
-            CancellationToken cancellationToken = default)
+        internal void WaitUntilTaskCompletes(Task task)
         {
             if (!task.IsCompleted)
             {
@@ -719,7 +686,6 @@ namespace Microsoft.Coyote.Runtime
                 else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
                     this.DelayOperation();
-                    task.Wait(millisecondsTimeout, cancellationToken);
                 }
             }
         }
@@ -774,24 +740,6 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
                 this.ControlledTasks.TryAdd(task, null);
-            }
-        }
-
-        /// <summary>
-        /// Callback invoked when the <see cref="TaskAwaiter.GetResult"/> is called.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal void OnWaitTask(Task task)
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                this.WaitUntilTaskCompletes(task);
-            }
-            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                this.DelayOperation();
             }
         }
 
@@ -867,7 +815,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> Scheduling the next operation of '{0}' (rid: '{1}').", next.Name, this.Id);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling the next operation of '{0}'.", next.Name);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -1089,8 +1037,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<CoyoteDebug> Starting the operation of '{0}' on thread '{1}' (rid: '{2}').",
-                    op.Name, Thread.CurrentThread.ManagedThreadId, this.Id);
+                IO.Debug.WriteLine("<CoyoteDebug> Starting the operation of '{0}' on thread '{1}'.",
+                    op.Name, Thread.CurrentThread.ManagedThreadId);
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
@@ -1638,9 +1586,7 @@ namespace Microsoft.Coyote.Runtime
                     "testing, so it can interfere with the ability to reproduce bug traces.";
                 if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
-                    this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                     this.Logger.WriteLine($"<TestLog> {message}");
-                    IO.Debug.WriteLine($"<CoyoteDebug> StackTrace: \n{new StackTrace()}");
                 }
                 else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
@@ -1673,9 +1619,7 @@ namespace Microsoft.Coyote.Runtime
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
-                        this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                         this.Logger.WriteLine($"<TestLog> {message}");
-                        IO.Debug.WriteLine($"<CoyoteDebug> StackTrace: \n{new StackTrace()}");
                     }
                     else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {

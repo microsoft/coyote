@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -388,12 +389,12 @@ namespace Microsoft.Coyote.Rewriting.Types
         public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                return task.Wait(millisecondsTimeout, cancellationToken);
+                runtime.WaitUntilTaskCompletes(task);
             }
 
-            return runtime.WaitTaskCompletes(task, millisecondsTimeout, cancellationToken);
+            return task.Wait(millisecondsTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -432,12 +433,12 @@ namespace Microsoft.Coyote.Rewriting.Types
         public static TResult get_Result(Task<TResult> task)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                return task.Result;
+                runtime.WaitUntilTaskCompletes(task);
             }
 
-            return runtime.WaitTaskCompletes(task);
+            return task.Result;
         }
 #pragma warning restore CA1707 // Remove the underscores from member name
 #pragma warning restore SA1300 // Element should begin with an uppercase letter

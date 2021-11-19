@@ -1181,43 +1181,42 @@ namespace Microsoft.Coyote.Actors
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
                 var op = actor.Operation;
-                this.Runtime.TaskFactory.StartNew(
-                    async state =>
+                this.Runtime.TaskFactory.StartNew(async state =>
+                {
+                    try
                     {
-                        try
+                        if (isFresh)
                         {
-                            if (isFresh)
-                            {
-                                await actor.InitializeAsync(initialEvent);
-                            }
+                            await actor.InitializeAsync(initialEvent);
+                        }
 
-                            await actor.RunEventHandlerAsync();
-                            if (syncCaller != null)
-                            {
-                                this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
-                            }
+                        await actor.RunEventHandlerAsync();
+                        if (syncCaller != null)
+                        {
+                            this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                        }
 
-                            if (!actor.IsHalted)
-                            {
-                                this.ResetProgramCounter(actor);
-                            }
-                        }
-                        catch (Exception ex)
+                        if (!actor.IsHalted)
                         {
-                            this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                            this.ResetProgramCounter(actor);
                         }
-                        finally
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                    }
+                    finally
+                    {
+                        if (actor.IsHalted)
                         {
-                            if (actor.IsHalted)
-                            {
-                                this.ActorMap.TryRemove(actor.Id, out Actor _);
-                            }
+                            this.ActorMap.TryRemove(actor.Id, out Actor _);
                         }
-                    },
-                    op,
-                    default,
-                    this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    this.Runtime.TaskFactory.Scheduler);
+                    }
+                },
+                op,
+                default,
+                this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                this.Runtime.TaskFactory.Scheduler);
             }
 
             /// <summary>

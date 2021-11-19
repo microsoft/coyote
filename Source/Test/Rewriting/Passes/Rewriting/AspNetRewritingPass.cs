@@ -21,6 +21,39 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
+        protected internal override void VisitMethod(MethodDefinition method)
+        {
+            bool isControllerMethod = false;
+            if (method.CustomAttributes.Count > 0)
+            {
+                // Search for a method with a unit testing framework attribute.
+                foreach (var attr in method.CustomAttributes)
+                {
+                    // if (attr.AttributeType.FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute")
+                    // {
+                    //     isTestMethod = true;
+                    //     break;
+                    // }
+                }
+            }
+
+            if (isControllerMethod)
+            {
+                // Debug.WriteLine($"............. [-] test method '{method.Name}'");
+
+                // MethodDefinition newMethod = CloneMethod(method);
+                // this.RewriteTestMethod(method, newMethod);
+
+                // method.DeclaringType.Methods.Add(newMethod);
+
+                // Debug.WriteLine($"............. [+] systematic test method '{method.Name}'");
+                // Debug.WriteLine($"............. [+] test method '{newMethod.Name}'");
+            }
+
+            base.VisitMethod(method);
+        }
+
+        /// <inheritdoc/>
         protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method is null)
@@ -70,7 +103,7 @@ namespace Microsoft.Coyote.Rewriting
                 string fullName = genericType.ElementType.FullName;
                 if (fullName == CachedNameProvider.WebApplicationFactoryFullName)
                 {
-                    type = this.Module.ImportReference(typeof(Types.WebApplicationFactory));
+                    type = this.Module.ImportReference(typeof(Types.WebApplication));
                 }
             }
 

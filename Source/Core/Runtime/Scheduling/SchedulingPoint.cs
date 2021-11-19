@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Default, false, true);
+                runtime.ScheduleNextOperation(AsyncOperationType.Default);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Yield, true, true);
+                runtime.ScheduleNextOperation(AsyncOperationType.Yield, isYielding: true);
             }
         }
 

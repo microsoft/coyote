@@ -335,7 +335,8 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// execution unless the wait is cancelled.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WaitAny(Task[] tasks, CancellationToken cancellationToken) => WaitAny(tasks, Timeout.Infinite, cancellationToken);
+        public static int WaitAny(Task[] tasks, CancellationToken cancellationToken) =>
+            WaitAny(tasks, Timeout.Infinite, cancellationToken);
 
         /// <summary>
         /// Waits for any of the provided <see cref="Task"/> objects to complete
@@ -384,10 +385,16 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// Waits for the specified <see cref="Task"/> to complete execution. The wait terminates if a timeout interval
         /// elapses or a cancellation token is canceled before the task completes.
         /// </summary>
-        public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WaitTaskCompletes(task) :
-            task.Wait(millisecondsTimeout, cancellationToken);
+        public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return task.Wait(millisecondsTimeout, cancellationToken);
+            }
+
+            return runtime.WaitTaskCompletes(task, millisecondsTimeout, cancellationToken);
+        }
 
         /// <summary>
         /// Returns a <see cref="TaskAwaiter"/> for the specified <see cref="Task"/>.
@@ -422,8 +429,16 @@ namespace Microsoft.Coyote.Rewriting.Types
 #pragma warning disable CA1707 // Remove the underscores from member name
 #pragma warning disable SA1300 // Element should begin with an uppercase letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static TResult get_Result(Task<TResult> task) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WaitTaskCompletes(task) : task.Result;
+        public static TResult get_Result(Task<TResult> task)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return task.Result;
+            }
+
+            return runtime.WaitTaskCompletes(task);
+        }
 #pragma warning restore CA1707 // Remove the underscores from member name
 #pragma warning restore SA1300 // Element should begin with an uppercase letter
 #pragma warning restore IDE1006 // Naming Styles

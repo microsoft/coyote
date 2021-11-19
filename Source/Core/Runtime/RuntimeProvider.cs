@@ -81,30 +81,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Tries to set the runtime with the specified identifier to the current thread
-        /// execution context, if there is not one already set.
-        /// </summary>
-        /// <returns>True if the runtime was set, else false.</returns>
-        /// <remarks>
-        /// This method is intended for compiler use rather than use directly in code.
-        /// </remarks>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public static bool TrySetCurrent(Guid runtimeId)
-        {
-            lock (SyncObject)
-            {
-                if (SynchronizationContext.Current is null &&
-                    Runtimes.TryGetValue(runtimeId, out CoyoteRuntime runtime))
-                {
-                    runtime.SetThreadExecutionContext();
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Registers the specified runtime with the provider and returns a
         /// unique identifier that can be used to retrieve the runtime.
         /// </summary>
@@ -122,5 +98,12 @@ namespace Microsoft.Coyote.Runtime
         {
             Runtimes.TryRemove(id, out CoyoteRuntime _);
         }
+
+        /// <summary>
+        /// Tries to get the runtime with the specified identifier, if there is one available.
+        /// </summary>
+        /// <returns>True if the runtime was found, else false.</returns>
+        internal static bool TryGetFromId(Guid runtimeId, out CoyoteRuntime runtime) =>
+            Runtimes.TryGetValue(runtimeId, out runtime) ? true : false;
     }
 }

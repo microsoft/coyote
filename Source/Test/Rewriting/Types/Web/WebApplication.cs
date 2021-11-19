@@ -5,18 +5,51 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+using Microsoft.Coyote.Runtime;
+using WebFramework = Microsoft.AspNetCore.Http;
 using WebTesting = Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Microsoft.Coyote.Rewriting.Types
 {
     /// <summary>
-    /// Provides methods for controlling <see cref="WebApplicationFactory"/> during testing.
+    /// Provides methods for controlling a web application during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class WebApplicationFactory
+    public static class WebApplication
     {
+        /// <summary>
+        /// Controls the specified request.
+        /// </summary>
+        public static Task ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
+        {
+            // TODO: TRY RUNNING INSIDE A CONTROLLED TASK!
+            Console.WriteLine($"===COYOTE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}'");
+            if (context.Request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            {
+                context.Request.Headers.Remove("ms-coyote-runtime-id");
+                Console.WriteLine($"===COYOTE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
+                if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
+                {
+                    return runtime.TaskFactory.StartNew(() =>
+                    {
+                        Console.WriteLine($"===COYOTE INVOKE MIDDLEWARE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
+                        Task task = next.Invoke(context);
+                        runtime.WaitTaskCompletes(task);
+                        Console.WriteLine($"===COYOTE INVOKE MIDDLEWARE DONE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
+                    },
+                    default,
+                    runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    runtime.TaskFactory.Scheduler);
+                }
+            }
+
+            return next.Invoke(context);
+        }
+
         /// <summary>
         /// Creates an instance of <see cref="HttpClient"/> that automatically follows redirects and handles cookies.
         /// </summary>

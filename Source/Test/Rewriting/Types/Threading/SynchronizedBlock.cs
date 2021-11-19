@@ -219,8 +219,6 @@ namespace Microsoft.Coyote.Rewriting.Types
 
             protected override SynchronizedBlock EnterLock()
             {
-                Console.WriteLine($">>> EnterLock from {Task.CurrentId} | {Thread.CurrentThread.ManagedThreadId} | {System.Threading.SynchronizationContext.Current}");
-                Console.WriteLine($"StackTrace: \n{new System.Diagnostics.StackTrace()}");
                 this.IsLockTaken = true;
                 Interlocked.Increment(ref this.UseCount);
 
@@ -228,13 +226,12 @@ namespace Microsoft.Coyote.Rewriting.Types
                 {
                     // If this operation is trying to acquire this lock while it is free, then inject a scheduling
                     // point to give another enabled operation the chance to race and acquire this lock.
-                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Acquire, false, true);
+                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Acquire);
                 }
 
                 if (this.Owner != null)
                 {
                     var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                    Console.WriteLine($">>> EnterLock op '{op}'");
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -259,7 +256,6 @@ namespace Microsoft.Coyote.Rewriting.Types
 
                 // The executing op acquired the lock and can proceed.
                 this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                Console.WriteLine($">>> EnterLock owner '{this.Owner}'");
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }
@@ -304,7 +300,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                 {
                     // Pulses can happen nondeterministically while other operations execute,
                     // which models delays by the OS.
-                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Default, false, true);
+                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Default);
 
                     var pulseOperation = this.PulseQueue.Dequeue();
                     this.Pulse(pulseOperation);
@@ -329,7 +325,8 @@ namespace Microsoft.Coyote.Rewriting.Types
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.", waitingOp.Id, Task.CurrentId);
+                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.",
+                            waitingOp.Id, Task.CurrentId);
                     }
                 }
                 else
@@ -337,7 +334,8 @@ namespace Microsoft.Coyote.Rewriting.Types
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.", waitingOp.Id, Task.CurrentId);
+                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.",
+                            waitingOp.Id, Task.CurrentId);
                     }
 
                     this.WaitQueue.Clear();
@@ -360,7 +358,8 @@ namespace Microsoft.Coyote.Rewriting.Types
                 }
 
                 this.UnlockNextReady();
-                IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' with task id '{1}' is waiting.", op.Id, Task.CurrentId);
+                IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' with task id '{1}' is waiting.",
+                    op.Id, Task.CurrentId);
 
                 // Block this operation and schedule the next enabled operation.
                 this.Resource.Wait();
@@ -419,7 +418,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                     // Only release the lock if the invocation is not reentrant.
                     this.LockCountMap.Remove(op);
                     this.UnlockNextReady();
-                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Release, false, true);
+                    this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Release);
                 }
 
                 int useCount = Interlocked.Decrement(ref this.UseCount);

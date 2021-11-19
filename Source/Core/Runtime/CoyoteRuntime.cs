@@ -651,7 +651,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         if (!task.IsCompleted)
                         {
-                            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
+                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                             op.JoinDependencies.Add(task);
                         }
                     }
@@ -731,7 +731,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
+                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                 op.JoinDependencies.Add(task);
                 op.Status = AsyncOperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(AsyncOperationType.Join);
@@ -867,7 +867,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<ScheduleDebug> Scheduling the next operation of '{0}' (rid: '{1}').", next.Name, this.Id);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling the next operation of '{0}' (rid: '{1}').", next.Name, this.Id);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -884,7 +884,7 @@ namespace Microsoft.Coyote.Runtime
             // At least one operation is blocked, potentially on an uncontrolled operation,
             // so pause the current operation and then retry.
             Thread.Sleep(delay);
-            IO.Debug.WriteLine("<ScheduleDebug> Retrying to enable blocked operations from thread '{0}'.",
+            IO.Debug.WriteLine("<CoyoteDebug> Retrying to enable blocked operations from thread '{0}'.",
                 Thread.CurrentThread.ManagedThreadId);
             retries++;
             delay *= 5;
@@ -904,11 +904,11 @@ namespace Microsoft.Coyote.Runtime
             var ops = this.OperationMap.Values.OrderBy(op => op.Id);
 
             // Enable any blocked operation that has its dependencies already satisfied.
-            IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
+            IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
             foreach (var op in ops)
             {
                 this.TryEnableOperation(op);
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
             }
 
             return ops;
@@ -918,7 +918,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Suppressing scheduling of enabled operations.");
+                IO.Debug.WriteLine("<CoyoteDebug> Suppressing scheduling of enabled operations.");
                 this.IsSchedulingSuppressed = true;
             }
         }
@@ -927,7 +927,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Resuming scheduling of enabled operations.");
+                IO.Debug.WriteLine("<CoyoteDebug> Resuming scheduling of enabled operations.");
                 this.IsSchedulingSuppressed = false;
             }
         }
@@ -946,7 +946,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 // Choose the next delay to inject. The value is in milliseconds.
                 delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
-                IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on thread '{0}' by {1}ms.",
+                IO.Debug.WriteLine("<CoyoteDebug> Delaying the operation that executes on thread '{0}' by {1}ms.",
                     Thread.CurrentThread.ManagedThreadId, delay);
             }
 
@@ -1089,7 +1089,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Starting the operation of '{0}' on thread '{1}' (rid: '{2}').",
+                IO.Debug.WriteLine("<CoyoteDebug> Starting the operation of '{0}' on thread '{1}' (rid: '{2}').",
                     op.Name, Thread.CurrentThread.ManagedThreadId, this.Id);
 
                 // Enable the operation and store it in the async local context.
@@ -1139,10 +1139,10 @@ namespace Microsoft.Coyote.Runtime
 
             while (op != this.ScheduledOperation && this.IsAttached)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Sleeping the operation of '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
                 SyncMonitor.Wait(this.SyncObject);
-                IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Waking up the operation of '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
             }
         }
@@ -1154,7 +1154,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Completed the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Completed the operation of '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
                 op.Status = AsyncOperationStatus.Completed;
             }
@@ -1335,7 +1335,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
+                    IO.Debug.WriteLine($"<CoyoteDebug> {message}");
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
             }
@@ -1640,7 +1640,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                     this.Logger.WriteLine($"<TestLog> {message}");
-                    IO.Debug.WriteLine($"<ScheduleDebug> StackTrace: \n{new StackTrace()}");
+                    IO.Debug.WriteLine($"<CoyoteDebug> StackTrace: \n{new StackTrace()}");
                 }
                 else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
@@ -1675,7 +1675,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         this.Logger.WriteLine($"<TestLog> RUNTIME: {AsyncLocalRuntime.Value?.Id} {SynchronizationContext.Current}");
                         this.Logger.WriteLine($"<TestLog> {message}");
-                        IO.Debug.WriteLine($"<ScheduleDebug> StackTrace: \n{new StackTrace()}");
+                        IO.Debug.WriteLine($"<CoyoteDebug> StackTrace: \n{new StackTrace()}");
                     }
                     else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
@@ -1743,7 +1743,7 @@ namespace Microsoft.Coyote.Runtime
             if (exception is ThreadInterruptedException)
             {
                 // Ignore this exception, its thrown by the runtime.
-                IO.Debug.WriteLine("<ScheduleDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",
+                IO.Debug.WriteLine("<CoyoteDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",
                     Thread.CurrentThread.ManagedThreadId, op.Name);
             }
             else if (op is ActorOperation actorOp)

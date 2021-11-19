@@ -26,20 +26,18 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// </summary>
         public static Task ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
         {
-            // TODO: TRY RUNNING INSIDE A CONTROLLED TASK!
-            Console.WriteLine($"===COYOTE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}'");
-            if (context.Request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            WebFramework.HttpRequest request = context.Request;
+            if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
             {
-                context.Request.Headers.Remove("ms-coyote-runtime-id");
-                Console.WriteLine($"===COYOTE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
+                request.Headers.Remove("ms-coyote-runtime-id");
                 if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
                 {
+                    IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
+                        request.Method, request.Path, runtimeId, Thread.CurrentThread.ManagedThreadId);
                     return runtime.TaskFactory.StartNew(() =>
                     {
-                        Console.WriteLine($"===COYOTE INVOKE MIDDLEWARE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
                         Task task = next.Invoke(context);
                         runtime.WaitTaskCompletes(task);
-                        Console.WriteLine($"===COYOTE INVOKE MIDDLEWARE DONE=== thread '{Thread.CurrentThread.ManagedThreadId}' - '{SynchronizationContext.Current}' - rid '{runtimeId[0]}'");
                     },
                     default,
                     runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,

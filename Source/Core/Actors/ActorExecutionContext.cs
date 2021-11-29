@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.Actors
             // Add a delay point before potentially enqueuing an event.
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.Runtime.DelayOperation(sender.Operation);
+                this.Runtime.DelayOperation(operation: sender.Operation);
             }
 
             EnqueueStatus enqueueStatus = target.Enqueue(e, eventGroup, null);

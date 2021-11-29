@@ -1328,7 +1328,7 @@ namespace Microsoft.Coyote.Runtime
                 AssignAsyncControlFlowRuntime(this);
 
                 // Choose the next delay to inject.
-                int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation);
+                int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation: operation);
 
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, next);
                 Thread.Sleep(next);
@@ -1428,7 +1428,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(maxDelay, out int next, this.CurrentFuzzingState, operation))
+                if (!this.Scheduler.GetNextDelay(maxDelay, out int next, state: this.CurrentFuzzingState, operation: operation))
                 {
                     this.Detach();
                 }

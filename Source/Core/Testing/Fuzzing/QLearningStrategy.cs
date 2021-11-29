@@ -30,8 +30,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         protected readonly new int MaxSteps;
 
-        private readonly Dictionary<int, ulong> TransitionFrequencies;
-
         private readonly double FailureInjectionReward;
 
         private int Epochs;
@@ -49,16 +47,16 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.BasicActionReward = -1;
             this.Epochs = 0;
             this.MaxSteps = maxSteps;
-            this.TransitionFrequencies = new Dictionary<int, ulong>();
             this.FailureInjectionReward = -1000;
         }
 
         internal override bool GetNextDelay(int maxValue, out int next, FuzzingState currentstate = null, AsyncOperation operation = null)
         {
             int state = this.CaptureExecutionStep(currentstate, operation);
+            // Console.WriteLine("Delay: " + state.ToString());
             this.InitializeDelayQValues(state, maxValue);
 
-            next = this.GetNextDelayByPolicy(state, maxValue);
+            next = this.GetNextDelayByPolicy(state, maxValue) * 10;
 
             if (next != 0 && operation != null && currentstate != null)
             {
@@ -104,7 +102,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             {
                 qValues = new Dictionary<int, double>();
                 this.OperationQTable.Add(state, qValues);
-                Console.WriteLine("Adding state {0} to the qtable", state);
             }
 
             for (int i = 0;  i < maxValue; i++)
@@ -112,7 +109,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 if (!qValues.ContainsKey(i))
                 {
                     qValues.Add(i, 0);
-                    Console.WriteLine("Adding delay of {0} ms to state {1}", i, state);
                 }
             }
         }
@@ -186,6 +182,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.Epochs++;
             this.StepCount = 0;
 
+            Console.WriteLine(this.OperationQTable.Count().ToString());
+
             return true;
         }
 
@@ -201,7 +199,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
                 var (_, _, state) = node.Value;
                 var (nextDelay, nextType, nextState) = node.Next.Value;
-                Console.WriteLine("Next state in execution path is {0}", nextState);
 
                 // Compute the max Q value.
                 double maxQ = double.MinValue;
@@ -209,19 +206,16 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 {
                     foreach (var nextOpQValuePair in qValues)
                     {
-                        Console.WriteLine(qValues.Values);
                         if (nextOpQValuePair.Value > maxQ)
                         {
-                            Console.WriteLine(nextOpQValuePair.Value.ToString());
                             maxQ = nextOpQValuePair.Value;
                         }
                     }
                 }
 
-                // Compute the reward. Program states that are visited with higher frequency result into lesser rewards.
-                var freq = this.TransitionFrequencies[nextState];
-                double reward = (nextType == AsyncOperationType.InjectFailure ?
-                    this.FailureInjectionReward : this.BasicActionReward) * freq;
+                // Compute the reward.
+                double reward = nextType == AsyncOperationType.InjectFailure ?
+                    this.FailureInjectionReward : this.BasicActionReward;
                 if (reward > 0)
                 {
                     // The reward has underflowed.

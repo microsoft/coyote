@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="operation">Calling actor.</param>
         /// <returns>True if there is a next delay, else false.</returns>
         internal bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, state, operation);
+            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, state, operation: operation);
 
         internal void NotifyActorToWakeUp(AsyncOperation operation, FuzzingState state) =>
             (this.Strategy as FuzzingStrategy).NotifyActorToWakeUp(operation, state);

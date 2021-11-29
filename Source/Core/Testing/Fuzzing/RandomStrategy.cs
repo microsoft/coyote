@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// The delay has an injection probability of 0.05 and is in the range
         /// of [1, 100] with an upper bound of 5000ms per task.
         /// </remarks>
-        internal override bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null)
+        internal override bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null)
         {
             Guid id = this.GetOperationId();
 

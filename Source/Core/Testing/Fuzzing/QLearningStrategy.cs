@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         private readonly LinkedList<(int, AsyncOperationType?, int)> ExecutionPath;
 
+        private ConcurrentDictionary<string, ActorStatus> OperationStatuses;
+
         private readonly double LearningRate;
 
         private readonly double Gamma;
@@ -41,6 +44,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             this.OperationQTable = new Dictionary<int, Dictionary<int, double>>();
             this.ExecutionPath = new LinkedList<(int, AsyncOperationType?, int)>();
+            this.OperationStatuses = new ConcurrentDictionary<string, ActorStatus>();
             this.PreviousDelayValue = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
@@ -50,40 +54,42 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.FailureInjectionReward = -1000;
         }
 
-        internal override bool GetNextDelay(int maxValue, out int next, FuzzingState currentstate = null, AsyncOperation operation = null)
+        internal override bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null)
         {
-            int state = this.CaptureExecutionStep(currentstate, operation);
-            // Console.WriteLine("Delay: " + state.ToString());
+            Console.WriteLine($">>> GetNextDelay for {operation?.Id} from task {Task.CurrentId}");
+            int state = this.CaptureExecutionStep(operation);
             this.InitializeDelayQValues(state, maxValue);
 
             next = this.GetNextDelayByPolicy(state, maxValue) * 10;
-
-            if (next != 0 && operation != null && currentstate != null)
-            {
-                currentstate.Snooze((operation as ActorOperation).Actor);
-            }
 
             this.PreviousDelayValue = next;
             this.StepCount++;
             return true;
         }
 
-        internal override void NotifyActorToWakeUp(AsyncOperation operation, FuzzingState currentstate)
+        internal override void NotifyActorStatus(AsyncOperation operation, ActorStatus state)
         {
             if (operation != null)
             {
-                currentstate.Wake((operation as ActorOperation).Actor);
-            }
-            else
-            {
-                currentstate.Wake(null);
+                var actor = (operation as ActorOperation).Actor;
+                Console.WriteLine($">>> NotifyActorStatus: {actor.Id} (rl: {actor.Id.RLId}) is {state}");
+                if (this.OperationStatuses.ContainsKey(actor.Id.RLId))
+                {
+                    this.OperationStatuses[actor.Id.RLId] = state;
+                }
+                else
+                {
+                    this.OperationStatuses.TryAdd(actor.Id.RLId, state);
+                }
             }
         }
 
-        internal int CaptureExecutionStep(FuzzingState currentstate, AsyncOperation operation)
+        internal int CaptureExecutionStep(AsyncOperation operation)
         {
-            int state = currentstate.GetHashedState(operation);
+            Console.WriteLine($">>> CaptureExecutionStep:");
+            Console.WriteLine($">>>>> OperationStatuses: {this.OperationStatuses.Count}");
 
+            int state = this.ComputeStateHash();
             if (operation != null)
             {
                 this.ExecutionPath.AddLast((this.PreviousDelayValue, operation.Type, state));
@@ -93,7 +99,26 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.ExecutionPath.AddLast((this.PreviousDelayValue, null, state));
             }
 
+            Console.WriteLine($">>>>> State: {state}");
             return state;
+        }
+
+        private int ComputeStateHash()
+        {
+            unchecked
+            {
+                int hash = 19;
+
+                foreach (var kvp in this.OperationStatuses)
+                {
+                    Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
+                    int operationHash = 31 + kvp.Key.GetHashCode();
+                    operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
+                    hash *= operationHash;
+                }
+
+                return hash;
+            }
         }
 
         internal void InitializeDelayQValues(int state, int maxValue)

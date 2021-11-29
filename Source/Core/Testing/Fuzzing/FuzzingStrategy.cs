@@ -53,12 +53,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
-        /// <param name="state">Current state.</param>
         /// <param name="operation">Calling actor.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal abstract bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null);
+        internal abstract bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null);
 
-        internal virtual void NotifyActorToWakeUp(AsyncOperation operation = null, FuzzingState state = null)
+        internal virtual void NotifyActorStatus(AsyncOperation operation, ActorStatus state)
         {
         }
 

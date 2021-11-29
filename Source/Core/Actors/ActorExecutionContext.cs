@@ -234,6 +234,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal virtual Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup eventGroup)
         {
+            // Add a delay point before potentially enqueuing an event.
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation(operation: creator?.Operation);
+            }
+
             if (!type.IsSubclassOf(typeof(Actor)))
             {
                 this.Assert(false, "Type '{0}' is not an actor.", type.FullName);
@@ -264,8 +270,9 @@ namespace Microsoft.Coyote.Actors
             }
 
             Actor actor = ActorFactory.Create(type);
+            ActorOperation op = new ActorOperation(id.Value, id.Name, actor, this.Runtime);
             IEventQueue eventQueue = new EventQueue(actor);
-            actor.Configure(this, id, null, eventQueue, eventGroup);
+            actor.Configure(this, id, op, eventQueue, eventGroup);
             actor.SetupEventHandlers();
 
             if (!this.ActorMap.TryAdd(id, actor))
@@ -319,6 +326,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup eventGroup, out Actor target)
         {
+            // Add a delay point before potentially enqueuing an event.
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation(operation: sender?.Operation);
+            }
+
             if (e is null)
             {
                 string message = sender != null ?
@@ -356,12 +369,6 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: false);
 
-            // Add a delay point before potentially enqueuing an event.
-            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                this.Runtime.DelayOperation(operation: sender.Operation);
-            }
-
             EnqueueStatus enqueueStatus = target.Enqueue(e, eventGroup, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
@@ -387,6 +394,11 @@ namespace Microsoft.Coyote.Actors
             {
                 try
                 {
+                    if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        this.Runtime.Scheduler.NotifyActorStatus(actor.Operation, Testing.Fuzzing.ActorStatus.ActiveAwake);
+                    }
+
                     if (isFresh)
                     {
                         await actor.InitializeAsync(initialEvent);
@@ -401,6 +413,11 @@ namespace Microsoft.Coyote.Actors
                 }
                 finally
                 {
+                    if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        this.Runtime.Scheduler.NotifyActorStatus(actor.Operation, Testing.Fuzzing.ActorStatus.Inactive);
+                    }
+
                     if (actor.IsHalted)
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
@@ -449,6 +466,11 @@ namespace Microsoft.Coyote.Actors
 
             try
             {
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    this.Runtime.Scheduler.NotifyActorStatus(actor.Operation, Testing.Fuzzing.ActorStatus.ActiveAwake);
+                }
+
                 if (isFresh)
                 {
                     await actor.InitializeAsync(initialEvent);
@@ -463,6 +485,11 @@ namespace Microsoft.Coyote.Actors
             }
             finally
             {
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    this.Runtime.Scheduler.NotifyActorStatus(actor.Operation, Testing.Fuzzing.ActorStatus.Inactive);
+                }
+
                 if (actor.IsHalted)
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);

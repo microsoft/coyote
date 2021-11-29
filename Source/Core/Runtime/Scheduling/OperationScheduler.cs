@@ -159,14 +159,13 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
-        /// <param name="state">Current state.</param>
         /// <param name="operation">Calling actor.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(int maxValue, out int next, FuzzingState state = null, AsyncOperation operation = null) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, state, operation: operation);
+        internal bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next, operation: operation);
 
-        internal void NotifyActorToWakeUp(AsyncOperation operation, FuzzingState state) =>
-            (this.Strategy as FuzzingStrategy).NotifyActorToWakeUp(operation, state);
+        internal void NotifyActorStatus(AsyncOperation operation, ActorStatus state) =>
+            (this.Strategy as FuzzingStrategy).NotifyActorStatus(operation, state);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

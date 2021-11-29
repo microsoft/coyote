@@ -90,11 +90,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
-        /// The current global state during concurrency fuzzing.
-        /// </summary>
-        internal readonly FuzzingState CurrentFuzzingState;
-
-        /// <summary>
         /// Responsible for checking specifications.
         /// </summary>
         private readonly SpecificationEngine SpecificationEngine;
@@ -102,7 +97,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Scheduler that controls the execution of operations during testing.
         /// </summary>
-        private readonly OperationScheduler Scheduler;
+        internal readonly OperationScheduler Scheduler;
 
         /// <summary>
         /// Map from unique ids to asynchronous operations.
@@ -266,8 +261,6 @@ namespace Microsoft.Coyote.Runtime
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
-
-            this.CurrentFuzzingState = new FuzzingState();
 
             Interception.ControlledThread.ClearCache();
         }
@@ -1319,6 +1312,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void DelayOperation(AsyncOperation operation = null)
         {
+            int delay;
             lock (this.SyncObject)
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
@@ -1327,12 +1321,17 @@ namespace Microsoft.Coyote.Runtime
                 // allowing future retrieval in the same asynchronous call stack.
                 AssignAsyncControlFlowRuntime(this);
 
-                // Choose the next delay to inject.
-                int next = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation: operation);
+                // Choose the next delay to inject. The value is in milliseconds.
+                delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation: operation);
+                IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, delay);
+            }
 
-                IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, next);
-                Thread.Sleep(next);
-                this.Scheduler.NotifyActorToWakeUp(operation, this.CurrentFuzzingState);
+            if (delay > 0)
+            {
+                // Only sleep if a non-zero delay was chosen.
+                this.Scheduler.NotifyActorStatus(operation, Testing.Fuzzing.ActorStatus.ActiveSleeping);
+                Thread.Sleep(delay);
+                this.Scheduler.NotifyActorStatus(operation, Testing.Fuzzing.ActorStatus.ActiveAwake);
             }
         }
 
@@ -1428,7 +1427,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(maxDelay, out int next, state: this.CurrentFuzzingState, operation: operation))
+                if (!this.Scheduler.GetNextDelay(maxDelay, out int next, operation: operation))
                 {
                     this.Detach();
                 }

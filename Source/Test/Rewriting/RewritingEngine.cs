@@ -148,8 +148,6 @@ namespace Microsoft.Coyote.Rewriting
                 this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
             }
 
-            this.Passes.AddLast(new AspNetRewritingPass(assemblies, this.Logger));
-
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and

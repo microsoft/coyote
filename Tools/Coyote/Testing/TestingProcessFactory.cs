@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--seed {configuration.RandomGeneratorSeed.Value} ");
             }
 
-            if (configuration.TestIterationsRunToCompletion)
+            if (configuration.RunTestIterationsToCompletion)
             {
                 arguments.Append("--explore ");
             }

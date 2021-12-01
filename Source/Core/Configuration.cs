@@ -111,7 +111,7 @@ namespace Microsoft.Coyote
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
         /// </summary>
         [DataMember]
-        internal bool TestIterationsRunToCompletion;
+        internal bool RunTestIterationsToCompletion;
 
         /// <summary>
         /// The maximum scheduling steps to explore for unfair schedulers.
@@ -367,7 +367,7 @@ namespace Microsoft.Coyote
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
-            this.TestIterationsRunToCompletion = false;
+            this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
@@ -662,7 +662,7 @@ namespace Microsoft.Coyote
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public Configuration WithTestIterationsRunToCompletion(bool runToCompletion = true)
         {
-            this.TestIterationsRunToCompletion = runToCompletion;
+            this.RunTestIterationsToCompletion = runToCompletion;
             return this;
         }
 

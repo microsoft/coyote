@@ -325,7 +325,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.",
+                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, Task.CurrentId);
                     }
                 }
@@ -334,7 +334,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.",
+                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, Task.CurrentId);
                     }
 
@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                 }
 
                 this.UnlockNextReady();
-                IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' with task id '{1}' is waiting.",
+                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' with task id '{1}' is waiting.",
                     op.Id, Task.CurrentId);
 
                 // Block this operation and schedule the next enabled operation.

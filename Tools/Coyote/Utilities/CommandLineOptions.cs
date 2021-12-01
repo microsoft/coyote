@@ -261,7 +261,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.IsConcurrencyFuzzingFallbackEnabled = false;
                     break;
                 case "explore":
-                    configuration.TestIterationsRunToCompletion = true;
+                    configuration.RunTestIterationsToCompletion = true;
                     break;
                 case "seed":
                     configuration.RandomGeneratorSeed = (uint)option.Value;

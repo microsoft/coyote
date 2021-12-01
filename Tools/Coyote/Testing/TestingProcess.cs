@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 await this.SendTestReport();
             }
 
-            if (!this.Configuration.TestIterationsRunToCompletion &&
+            if (!this.Configuration.RunTestIterationsToCompletion &&
                 this.TestingEngine.TestReport.NumOfFoundBugs > 0 &&
                 !this.Configuration.RunAsParallelBugFindingTask)
             {

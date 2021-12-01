@@ -421,7 +421,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                         // Runs the next iteration.
                         bool runNext = this.RunNextIteration(iteration);
-                        if ((!this.Configuration.TestIterationsRunToCompletion && this.TestReport.NumOfFoundBugs > 0) ||
+                        if ((!this.Configuration.RunTestIterationsToCompletion && this.TestReport.NumOfFoundBugs > 0) ||
                             this.Scheduler.IsReplayingSchedule || !runNext)
                         {
                             break;
@@ -585,7 +585,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 if (runtime.IsBugFound && !this.Scheduler.IsReplayingSchedule &&
-                    this.Configuration.TestIterationsRunToCompletion)
+                    this.Configuration.RunTestIterationsToCompletion)
                 {
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
@@ -673,7 +673,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (!this.Configuration.TestIterationsRunToCompletion)
+            if (!this.Configuration.RunTestIterationsToCompletion)
             {
                 // Emits the human readable trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReadableTrace))
@@ -704,7 +704,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 yield return graphPath;
             }
 
-            if (!this.Configuration.TestIterationsRunToCompletion)
+            if (!this.Configuration.RunTestIterationsToCompletion)
             {
                 // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))

@@ -148,7 +148,9 @@ namespace Microsoft.Coyote.Rewriting
                 this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
             }
 
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
             this.Passes.AddLast(new AspNetRewritingPass(assemblies, this.Logger));
+#endif
 
             if (this.Options.IsRewritingUnitTests)
             {

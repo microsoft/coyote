@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -126,3 +127,4 @@ namespace Microsoft.Coyote.Rewriting
         }
     }
 }
+#endif

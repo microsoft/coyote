@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.CompilerServices;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Specifications;
-
 namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>

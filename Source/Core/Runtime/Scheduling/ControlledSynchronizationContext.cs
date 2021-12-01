@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Posting callback from thread '{0}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Posting callback from thread '{0}'.",
                     Thread.CurrentThread.ManagedThreadId);
                 this.Runtime?.Schedule(() => d(state));
             }

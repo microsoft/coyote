@@ -108,10 +108,10 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If true, the tester runs all iterations, even if a bug is found.
+        /// If true, the tester runs all iterations up to a bound, even if a bug is found.
         /// </summary>
         [DataMember]
-        internal bool PerformFullExploration;
+        internal bool RunTestIterationsToCompletion;
 
         /// <summary>
         /// The maximum scheduling steps to explore for unfair schedulers.
@@ -367,7 +367,7 @@ namespace Microsoft.Coyote
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
-            this.PerformFullExploration = false;
+            this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
@@ -649,6 +649,20 @@ namespace Microsoft.Coyote
         public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
         {
             this.IsSchedulingSeedIncremental = isIncremental;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration so that the tester continues running test iterations
+        /// up to a bound, even if a bug is already found.
+        /// </summary>
+        /// <param name="runToCompletion">
+        /// If true, the tester runs all iterations up to a bound, even if a bug is found.
+        /// </param>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public Configuration WithTestIterationsRunToCompletion(bool runToCompletion = true)
+        {
+            this.RunTestIterationsToCompletion = runToCompletion;
             return this;
         }
 

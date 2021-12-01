@@ -146,11 +146,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
             lock (this.SchedulerLock)
             {
-                if (!this.Configuration.PerformFullExploration && this.BugFoundByProcess is null)
+                if (!this.Configuration.RunTestIterationsToCompletion && this.BugFoundByProcess is null)
                 {
                     Console.WriteLine($"... Task {processId} found a bug.");
                     this.BugFoundByProcess = processId;
-                    // must be async relative to this NotifyBugFound handler.
+                    // Must be async relative to this NotifyBugFound handler.
                     Task.Run(() => this.CleanupTestProcesses(processId));
                 }
             }

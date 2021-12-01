@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             return concurrentQueue.IsEmpty;
         }
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Removes all objects from the <see cref="ConcurrentQueue{T}"/>.
         /// </summary>

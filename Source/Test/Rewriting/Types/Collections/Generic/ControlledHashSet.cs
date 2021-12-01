@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashSet<T> Create<T>(SerializationInfo info, StreamingContext context) => new Mock<T>(info, context);
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Initializes a new instance of the <see cref="HashSet{T}"/> class that is empty, but has reserved
         /// space for 'capacity' items and and uses the default equality comparer for the set type.
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             hashSet.UnionWith(other);
         }
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Ensures that this <see cref="HashSet{T}"/> object can hold the specified number of elements without growing.
         /// </summary>
@@ -360,7 +360,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             internal Mock(SerializationInfo info, StreamingContext context)
                 : base(info, context) => this.Setup();
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
             internal Mock(int capacity)
                 : base(capacity) => this.Setup();
 

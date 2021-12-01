@@ -335,20 +335,14 @@ namespace Microsoft.Coyote
             return "net6.0";
 #elif NET5_0
             return "net5.0";
-#elif NET462
-            return "net462";
-#elif NETSTANDARD2_1
-            return "netstandard2.1";
-#elif NETSTANDARD2_0
-            return "netstandard2.0";
-#elif NETSTANDARD
-            return "netstandard";
 #elif NETCOREAPP3_1
             return "netcoreapp3.1";
-#elif NETCOREAPP
-            return "netcoreapp";
-#elif NETFRAMEWORK
+#elif NET
             return "net";
+#elif NETFRAMEWORK
+            return "netframework";
+#elif NETSTANDARD
+            return "netstandard";
 #endif
         }
     }

@@ -36,7 +36,8 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
-    <TargetFrameworks>$(TargetFrameworks);netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(Net5Installed)' and '$(Net5Supported)'">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">

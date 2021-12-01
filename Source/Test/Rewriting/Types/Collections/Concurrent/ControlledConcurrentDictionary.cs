@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             return concurrentDictionary.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not
         /// already exist, or updates a key/value pair in the <see cref="ConcurrentDictionary{TKey, TValue}"/>
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             return concurrentDictionary.GetOrAdd(key, value);
         }
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Adds a key/value pair to the <see cref="ConcurrentDictionary{TKey, TValue}"/> if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.
@@ -225,7 +225,8 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Attempts to get the value associated with the specified key from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
+        /// Attempts to get the value associated with the specified key
+        /// from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
         /// </summary>
         public static bool TryGetValue<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key,
             out TValue value)
@@ -235,7 +236,8 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Attempts to remove and return the value that has the specified key from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
+        /// Attempts to remove and return the value that has the specified key
+        /// from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
         /// </summary>
         public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key,
             out TValue value)
@@ -244,9 +246,10 @@ namespace Microsoft.Coyote.Rewriting.Types
             return concurrentDictionary.TryRemove(key, out value);
         }
 
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET
         /// <summary>
-        /// Attempts to remove and return the value that has the specified key from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
+        /// Attempts to remove and return the value that has the specified key
+        /// from the <see cref="ConcurrentDictionary{TKey, TValue}"/>.
         /// </summary>
         public static bool TryRemove<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary,
             KeyValuePair<TKey, TValue> item)

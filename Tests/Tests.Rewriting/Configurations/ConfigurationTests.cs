@@ -25,6 +25,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             var options = RewritingOptions.ParseFromJSON(configPath);
             Assert.NotNull(options);
+            options = options.Sanitize();
 
             Assert.Equal(Path.Combine(configDirectory, "Input"), options.AssembliesDirectory);
             Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), options.OutputDirectory);
@@ -46,6 +47,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             var options = RewritingOptions.ParseFromJSON(configPath);
             Assert.NotNull(options);
+            options = options.Sanitize();
 
             Assert.Equal(configDirectory, options.AssembliesDirectory);
             Assert.Equal(configDirectory, options.OutputDirectory);

@@ -17,13 +17,13 @@ namespace Microsoft.Coyote.Rewriting.Types
     public static class ControlledList
     {
         /// <summary>
-        /// Creates a new instance of the <see cref="List{T}"/> clas that is empty and has the default initial capacity.
+        /// Creates a new instance of the <see cref="List{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> Create<T>() => new Mock<T>();
 
         /// <summary>
-        /// Creates a new instance of the <see cref="List{T}"/> clas that is empty and has the specified initial capacity.
+        /// Creates a new instance of the <see cref="List{T}"/> class that is empty and has the specified initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> Create<T>(int capacity) => new Mock<T>(capacity);

@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                         request.Method, request.Path, runtimeId, Thread.CurrentThread.ManagedThreadId);
                     return runtime.TaskFactory.StartNew(() =>
                     {
-                        Task task = next.Invoke(context);
+                        Task task = next(context);
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
@@ -47,7 +47,35 @@ namespace Microsoft.Coyote.Rewriting.Types
                 }
             }
 
-            return next.Invoke(context);
+            return next(context);
+        }
+
+        /// <summary>
+        /// Controls the specified request.
+        /// </summary>
+        public static Task ControlRequest(WebFramework.HttpContext context, Func<Task> next)
+        {
+            WebFramework.HttpRequest request = context.Request;
+            if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            {
+                request.Headers.Remove("ms-coyote-runtime-id");
+                if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
+                {
+                    IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
+                        request.Method, request.Path, runtimeId, Thread.CurrentThread.ManagedThreadId);
+                    return runtime.TaskFactory.StartNew(() =>
+                    {
+                        Task task = next();
+                        runtime.WaitUntilTaskCompletes(task);
+                        task.GetAwaiter().GetResult();
+                    },
+                    default,
+                    runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    runtime.TaskFactory.Scheduler);
+                }
+            }
+
+            return next();
         }
 
         /// <summary>

@@ -339,11 +339,6 @@ namespace Microsoft.Coyote
         internal bool EnableTelemetry;
 
         /// <summary>
-        /// The .NET platform version being used.
-        /// </summary>
-        internal string PlatformVersion;
-
-        /// <summary>
         /// Optional location of app that can run as a telemetry server.
         /// </summary>
         internal string TelemetryServerPath;
@@ -404,7 +399,6 @@ namespace Microsoft.Coyote
             this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;
             this.EnableTelemetry = true;
-            this.PlatformVersion = GetPlatformVersion();
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             if (optout is "1" || optout is "true")
@@ -735,26 +729,6 @@ namespace Microsoft.Coyote
         {
             this.IsMonitoringEnabledInInProduction = isEnabled;
             return this;
-        }
-
-        /// <summary>
-        /// Returns the .NET platform version this assembly was compiled for.
-        /// </summary>
-        private static string GetPlatformVersion()
-        {
-#if NET6_0
-            return "net6.0";
-#elif NET5_0
-            return "net5.0";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NET
-            return "net";
-#elif NETFRAMEWORK
-            return "netframework";
-#elif NETSTANDARD
-            return "netstandard";
-#endif
         }
     }
 #pragma warning restore CA1724 // Type names should not match namespaces

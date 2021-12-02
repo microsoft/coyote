@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
@@ -58,7 +59,7 @@ namespace Microsoft.Coyote.Benchmarking
         public Program()
         {
             this.MachineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
-            this.RuntimeVersion = GetRuntimeVersion();
+            this.RuntimeVersion = RuntimeInformation.FrameworkDescription;
         }
 
         private bool ParseCommandLine(string[] args)
@@ -291,7 +292,7 @@ namespace Microsoft.Coyote.Benchmarking
                 times.Add(msPerTest);
             }
 
-            var e = new PerfEntity(this.MachineName, this.RuntimeVersion, this.CommitId, testName, 0)
+            var entity = new PerfEntity(this.MachineName, this.RuntimeVersion, this.CommitId, testName, 0)
             {
                 Time = times.Min(),
                 TimeStdDev = MathHelpers.StandardDeviation(times),
@@ -299,15 +300,15 @@ namespace Microsoft.Coyote.Benchmarking
 
             if (report.Metrics.ContainsKey("CPU"))
             {
-                e.Cpu = report.Metrics["CPU"].Value;
+                entity.Cpu = report.Metrics["CPU"].Value;
             }
 
             if (report.Metrics.ContainsKey("TotalMemory"))
             {
-                e.Memory = report.Metrics["TotalMemory"].Value;
+                entity.Memory = report.Metrics["TotalMemory"].Value;
             }
 
-            results.Add(e);
+            results.Add(entity);
             return results;
         }
 
@@ -377,23 +378,6 @@ namespace Microsoft.Coyote.Benchmarking
             }
 
             return (from f in filters where name.IndexOf(f, StringComparison.OrdinalIgnoreCase) >= 0 select f).Any();
-        }
-
-        public static string GetRuntimeVersion()
-        {
-#if NET6_0
-            return "net6.0";
-#elif NET5_0
-            return "net5.0";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NET
-            return "net";
-#elif NETFRAMEWORK
-            return "netframework";
-#elif NETSTANDARD
-            return "netstandard";
-#endif
         }
 
         private static async Task<string> RunCommandAsync(string cmd, string args)

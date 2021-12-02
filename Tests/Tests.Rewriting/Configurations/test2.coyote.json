@@ -1,6 +1,6 @@
 {
-  "AssembliesPath": "../../../bin/$(Platform)/Configurations",
-  "OutputPath": "../../../bin/$(Platform)/Configurations",
+  "AssembliesPath": "../../../bin/$(TargetFramework)/Configurations",
+  "OutputPath": "../../../bin/$(TargetFramework)/Configurations",
   "IsRewritingConcurrentCollections": false,
   "Assemblies": [
     "Test1.dll",

@@ -14,18 +14,13 @@
     <readme>docs\readme.md</readme>
     <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <dependencies>
-      <group targetFramework=".NETStandard2.0" />
-      <group targetFramework=".NETCoreApp3.1" />
-      <group targetFramework=".NET5.0" />
       <group targetFramework=".NET6.0" />
+      <group targetFramework=".NET5.0" />
+      <group targetFramework=".NETCoreApp3.1" />
       <group targetFramework=".NETFramework4.6.2" />
     </dependencies>
   </metadata>
   <files>
-    <!-- .NET Standard 2.0 -->
-    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.dll" target="lib\netstandard2.0" />
-    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.xml" target="lib\netstandard2.0" />
-    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.pdb" target="lib\netstandard2.0" />
     <!-- .NET 6.0 -->
     <file src="..\..\bin\net6.0\Microsoft.Coyote.dll" target="lib\net6.0" />
     <file src="..\..\bin\net6.0\Microsoft.Coyote.xml" target="lib\net6.0" />

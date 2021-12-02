@@ -52,8 +52,6 @@ namespace Microsoft.Coyote
                 Environment.Exit(1);
             }
 
-            configuration.PlatformVersion = GetPlatformVersion();
-
             if (!configuration.RunAsParallelBugFindingTask)
             {
                 if (firstTime)
@@ -188,9 +186,6 @@ namespace Microsoft.Coyote
         {
             try
             {
-                // Make sure that the platform is assigned from the command line tool
-                // to have the correct version.
-                options.PlatformVersion = configuration.PlatformVersion;
                 if (options.AssemblyPaths.Count is 1)
                 {
                     Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}");
@@ -324,26 +319,6 @@ namespace Microsoft.Coyote
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Returns the .NET platform version this assembly was compiled for.
-        /// </summary>
-        private static string GetPlatformVersion()
-        {
-#if NET6_0
-            return "net6.0";
-#elif NET5_0
-            return "net5.0";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NET
-            return "net";
-#elif NETFRAMEWORK
-            return "netframework";
-#elif NETSTANDARD
-            return "netstandard";
-#endif
         }
     }
 }

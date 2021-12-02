@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -92,25 +94,6 @@ namespace Microsoft.Coyote.Rewriting
         /// True if the rewriter should diff the IL before and after rewriting.
         /// </summary>
         internal bool IsDiffingAssemblyContents { get; set; }
-
-        /// <summary>
-        /// The .NET platform version that Coyote was compiled for.
-        /// </summary>
-        internal string PlatformVersion
-        {
-            get => this.DotnetVersion;
-
-            set
-            {
-                this.DotnetVersion = value;
-                this.ResolveVariables();
-            }
-        }
-
-        /// <summary>
-        /// The .NET platform version that Coyote was compiled for.
-        /// </summary>
-        private string DotnetVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RewritingOptions"/> class.
@@ -246,24 +229,6 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
-        private void ResolveVariables()
-        {
-            this.AssembliesDirectory = this.ResolvePath(this.AssembliesDirectory);
-            this.OutputDirectory = this.ResolvePath(this.OutputDirectory);
-
-            foreach (string path in this.AssemblyPaths.ToArray())
-            {
-                var newPath = this.ResolvePath(path);
-                if (newPath != path)
-                {
-                    this.AssemblyPaths.Remove(path);
-                    this.AssemblyPaths.Add(newPath);
-                }
-            }
-        }
-
-        private string ResolvePath(string path) => path.Replace("$(Platform)", this.PlatformVersion);
-
         /// <summary>
         /// Sanitizes the rewriting options.
         /// </summary>
@@ -282,6 +247,23 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException("Please provide RewritingOptions.AssemblyPaths");
             }
 
+            Console.WriteLine($"Assemblies directory: {this.AssembliesDirectory}");
+            string targetFramework = GetTargetFramework();
+            Console.WriteLine($"targetFramework: {targetFramework}");
+            this.AssembliesDirectory = ResolvePath(this.AssembliesDirectory, targetFramework);
+            this.OutputDirectory = ResolvePath(this.OutputDirectory, targetFramework);
+            foreach (string path in this.AssemblyPaths.ToArray())
+            {
+                var newPath = ResolvePath(path, targetFramework);
+                if (newPath != path)
+                {
+                    this.AssemblyPaths.Remove(path);
+                    this.AssemblyPaths.Add(newPath);
+                }
+            }
+
+            Console.WriteLine($"Assemblies directory: {this.AssembliesDirectory}");
+
             if (this.AssemblyPaths is null || this.AssemblyPaths.Count is 0)
             {
                 // Expand folder to include all DLLs in the path.
@@ -295,6 +277,41 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// Resolves the specified path.
+        /// </summary>
+        private static string ResolvePath(string path, string targetFramework) =>
+            path.Replace("$(TargetFramework)", targetFramework);
+
+        /// <summary>
+        /// Returns the target framework of the executing assembly.
+        /// </summary>
+        private static string GetTargetFramework()
+        {
+            var targetFramework = Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
+                .SingleOrDefault() as TargetFrameworkAttribute;
+            var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, StringSplitOptions.None);
+
+            var resolvedFramework = "$(TargetFramework)";
+            if (tokens != null && tokens.Length is 2)
+            {
+                if (tokens[0] == ".NETCoreApp")
+                {
+                    resolvedFramework = tokens[1] is "v6.0" ? "net6.0" :
+                        tokens[1] is "v5.0" ? "net5.0" :
+                        tokens[1] is "v3.1" ? "netcoreapp3.1" :
+                        resolvedFramework;
+                }
+                else if (tokens[0] == ".NETFramework")
+                {
+                    resolvedFramework = tokens[1] is "v4.6.2" ? "net462" : resolvedFramework;
+                }
+            }
+
+            return resolvedFramework;
         }
 
         /// <summary>

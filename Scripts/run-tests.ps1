@@ -38,7 +38,8 @@ foreach ($kvp in $targets.GetEnumerator()) {
         continue
     }
 
-    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1", "netcoreapp3.1" | Select-Object -expand Name
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | `
+        Where-Object Name -CNotIn "net5.0", "netcoreapp3.1" | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {
@@ -58,7 +59,8 @@ foreach ($kvp in $targets.GetEnumerator()) {
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }
 
-        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target `
+            -filter $filter -logger $logger -framework $f -verbosity $v
     }
 }
 

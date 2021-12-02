@@ -4,7 +4,6 @@
     <AssemblyName>Microsoft.Coyote.Tests.Rewriting.Helpers</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Rewriting.Tests.Helpers</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Library</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

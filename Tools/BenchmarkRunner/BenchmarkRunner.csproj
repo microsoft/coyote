@@ -5,8 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
     <OutputType>Exe</OutputType>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
-    <Framework48Supported>false</Framework48Supported>
+    <Framework462Supported>false</Framework462Supported>
     <NetCore31Supported>false</NetCore31Supported>
     <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn);</NoWarn>

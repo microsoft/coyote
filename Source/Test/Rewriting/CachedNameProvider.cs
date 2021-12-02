@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         internal static string WebApplicationFactoryFullName { get; } = typeof(AspNetCore.Mvc.Testing.WebApplicationFactory<>).FullName;
 #endif
     }

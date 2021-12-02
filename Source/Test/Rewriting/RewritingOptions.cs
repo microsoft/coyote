@@ -247,9 +247,7 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException("Please provide RewritingOptions.AssemblyPaths");
             }
 
-            Console.WriteLine($"Assemblies directory: {this.AssembliesDirectory}");
             string targetFramework = GetTargetFramework();
-            Console.WriteLine($"targetFramework: {targetFramework}");
             this.AssembliesDirectory = ResolvePath(this.AssembliesDirectory, targetFramework);
             this.OutputDirectory = ResolvePath(this.OutputDirectory, targetFramework);
             foreach (string path in this.AssemblyPaths.ToArray())
@@ -261,8 +259,6 @@ namespace Microsoft.Coyote.Rewriting
                     this.AssemblyPaths.Add(newPath);
                 }
             }
-
-            Console.WriteLine($"Assemblies directory: {this.AssembliesDirectory}");
 
             if (this.AssemblyPaths is null || this.AssemblyPaths.Count is 0)
             {

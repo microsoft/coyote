@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Benchmarking
         public string MachineName { get; set; }
 
         /// <summary>
-        /// The .net runtime version used.
+        /// The .NET runtime version used.
         /// </summary>
         public string RuntimeVersion { get; set; }
 
@@ -388,7 +388,7 @@ namespace Microsoft.Coyote.Benchmarking
             this.PartitionKey = string.Format("{0}.{1}", e.MachineName, e.RuntimeVersion);
             this.Id = string.Format("{0}.{1}", e.CommitId, e.TestName);
 
-            // summaryize the data.
+            // Summarize the data.
             double meanTime = MathHelpers.Mean(from i in data select i.Time);
             double meanMemory = MathHelpers.Mean(from i in data select i.Memory);
             double meanCpu = MathHelpers.Mean(from i in data select i.Cpu);
@@ -408,7 +408,7 @@ namespace Microsoft.Coyote.Benchmarking
             double memSlope = MathHelpers.LinearRegression(MathHelpers.ToDataPoints(from i in data select i.Memory)).Slope / meanMemory;
             double cpuSlope = MathHelpers.LinearRegression(MathHelpers.ToDataPoints(from i in data select i.Cpu)).Slope / meanCpu;
 
-            // more than 10% slope we have a problem!
+            // More than 10% slope we have a problem!
             if (timeSlope > 0.1)
             {
                 this.Comments = "Slow down?";
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.Benchmarking
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerfSummary"/> class.
-        /// Needed for retreival.
+        /// Needed for retrieval.
         /// </summary>
         public PerfSummary()
         {
@@ -478,7 +478,7 @@ namespace Microsoft.Coyote.Benchmarking
         public string Id { get; set; }
 
         /// <summary>
-        /// The parition key for the data.
+        /// The partition key for the data.
         /// </summary>
         public string PartitionKey { get; set; }
 

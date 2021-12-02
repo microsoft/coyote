@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task> WhenAny(IEnumerable<Task> tasks) => Task.WhenAny(tasks);
 
-#if NET6_0 || NET5_0
+#if NET
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when either of the
         /// two tasks have completed.

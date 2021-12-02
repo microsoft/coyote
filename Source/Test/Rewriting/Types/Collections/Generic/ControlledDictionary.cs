@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         public static Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity, IEqualityComparer<TKey> comparer) =>
             new Mock<TKey, TValue>(capacity, comparer);
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Initializes a new instance of the <see cref="Dictionary{TKey, TValue}"/> class
         /// that contains elements copied from the specified <see cref="IEnumerable{T}"/>.
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             dictionary.OnDeserialization(sender);
         }
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Ensures that the dictionary can hold up to a specified number of entries without
         /// any further expansion of its backing storage.
@@ -336,7 +336,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             internal Mock(IEqualityComparer<TKey> comparer)
                 : base(comparer) => this.Setup();
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
             internal Mock(IEnumerable<KeyValuePair<TKey, TValue>> collection)
                 : base(collection) => this.Setup();
 

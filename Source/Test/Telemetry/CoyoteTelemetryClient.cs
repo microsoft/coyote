@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.SmartSockets;
@@ -27,7 +28,11 @@ namespace Microsoft.Coyote.Telemetry
         public CoyoteTelemetryClient(Configuration configuration)
         {
             this.Enabled = configuration.EnableTelemetry && !configuration.RunAsParallelBugFindingTask;
-            this.Framework = configuration.PlatformVersion;
+#if NETFRAMEWORK
+            this.Framework = ".NET Framework";
+#else
+            this.Framework = RuntimeInformation.FrameworkDescription;
+#endif
 
             if (this.Enabled)
             {

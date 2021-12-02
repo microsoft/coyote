@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(1, count);
                 Assert.Single(concurrentQueue);
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
                 concurrentQueue.Clear();
                 Assert.Empty(concurrentQueue);
 #endif
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(1, dequeueValue);
                 Assert.Single(concurrentQueue);
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
                 concurrentQueue.Clear();
                 Assert.Empty(concurrentQueue);
 #endif

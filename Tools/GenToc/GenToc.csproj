@@ -4,9 +4,7 @@
     <AssemblyName>GenToc</AssemblyName>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework462Supported>false</Framework462Supported>
-    <Framework48Supported>false</Framework48Supported>
     <NetCore31Supported>false</NetCore31Supported>
     <Net5Supported>false</Net5Supported>
   </PropertyGroup>

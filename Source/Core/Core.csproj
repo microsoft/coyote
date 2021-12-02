@@ -5,11 +5,13 @@
     <RootNamespace>Microsoft.Coyote</RootNamespace>
     <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
-    <CoyoteTargetType>Library</CoyoteTargetType>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 </Project>

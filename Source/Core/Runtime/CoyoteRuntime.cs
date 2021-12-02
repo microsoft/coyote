@@ -1015,7 +1015,7 @@ namespace Microsoft.Coyote.Runtime
                     this.ScheduledOperation = op;
                 }
 
-#if NETSTANDARD2_0 || NETFRAMEWORK
+#if NETFRAMEWORK
                 if (!this.OperationMap.ContainsKey(op.Id))
                 {
                     this.OperationMap.Add(op.Id, op);

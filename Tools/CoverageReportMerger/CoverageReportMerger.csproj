@@ -6,7 +6,6 @@
     <PackageTags>coverage;merger;coyote</PackageTags>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

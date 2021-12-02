@@ -5,7 +5,6 @@
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
     <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
-    <CoyoteTargetType>Library</CoyoteTargetType>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -21,12 +20,12 @@
     <!-- <FrameworkReference Include="Microsoft.AspNetCore.App" /> -->
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.12" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="System.Text.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.21" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.2.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />

@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             var options = RewritingOptions.ParseFromJSON(configPath);
             Assert.NotNull(options);
-            options.PlatformVersion = GetPlatformVersion();
+            options = options.Sanitize();
 
             Assert.Equal(Path.Combine(configDirectory, "Input"), options.AssembliesDirectory);
             Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), options.OutputDirectory);
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             var options = RewritingOptions.ParseFromJSON(configPath);
             Assert.NotNull(options);
-            options.PlatformVersion = GetPlatformVersion();
+            options = options.Sanitize();
 
             Assert.Equal(configDirectory, options.AssembliesDirectory);
             Assert.Equal(configDirectory, options.OutputDirectory);
@@ -67,32 +67,6 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
             string configDirectory = subDirectory is null ? binaryDirectory : Path.Combine(binaryDirectory, subDirectory);
             Assert.True(Directory.Exists(configDirectory), "Directory not found: " + configDirectory);
             return configDirectory;
-        }
-
-        /// <summary>
-        /// Returns the .NET platform version this assembly was compiled for.
-        /// </summary>
-        private static string GetPlatformVersion()
-        {
-#if NET6_0
-            return "net6.0";
-#elif NET5_0
-            return "net5.0";
-#elif NET462
-            return "net462";
-#elif NETSTANDARD2_1
-            return "netstandard2.1";
-#elif NETSTANDARD2_0
-            return "netstandard2.0";
-#elif NETSTANDARD
-            return "netstandard";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NETCOREAPP
-            return "netcoreapp";
-#elif NETFRAMEWORK
-            return "net";
-#endif
         }
     }
 }

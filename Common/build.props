@@ -34,19 +34,11 @@
     <Net5Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</Net5Installed>
     <Net5Installed Condition="'$(BUILD_NET5)'=='yes'">true</Net5Installed>
     <TargetFrameworks>net6.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
-    <TargetFrameworks>$(TargetFrameworks);netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(Net5Installed)' and '$(Net5Supported)'">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
+  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>
-    <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Net5Installed)' and '$(Net5Supported)'">$(TargetFrameworks);net5.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
-    <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Net5Installed)' and '$(Net5Supported)'">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            return false;
+            return base.IsRewritableType(type);
         }
     }
 }

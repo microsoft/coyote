@@ -108,7 +108,14 @@ namespace Microsoft.Coyote.Rewriting
                     instanceParameter = result.Parameters[0];
                 }
 
-                // Try to rewrite the return type.
+                // Try to rewrite the return type only if it matches the original method return type.
+                // TypeReference newReturnType = (result.ReturnType is GenericInstanceType genericReturnType &&
+                //     method.ReturnType is GenericInstanceType genericMethodReturnType &&
+                //     genericReturnType.ElementType.FullName == genericMethodReturnType.ElementType.FullName) ||
+                //     result.ReturnType.FullName == method.ReturnType.FullName ?
+                //     this.RewriteTypeReference(method.ReturnType) : result.ReturnType;
+
+                // Console.WriteLine($"Match: {result.FullName}");
                 TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
@@ -144,7 +151,7 @@ namespace Microsoft.Coyote.Rewriting
                     {
                         var p = resolvedMethod.GenericParameters[i];
                         var j = p.Position + genericArgOffset;
-                        if (j > genericArgs.Count)
+                        if (j >= genericArgs.Count)
                         {
                             throw new InvalidOperationException($"Not enough generic arguments to instantiate method {method}");
                         }

@@ -53,11 +53,5 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string ConcurrentDictionaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
-
-#if NET || NETCOREAPP3_1
-        internal static string HttpClientFullName { get; } = typeof(System.Net.Http.HttpClient).FullName;
-
-        internal static string WebApplicationFactoryFullName { get; } = typeof(AspNetCore.Mvc.Testing.WebApplicationFactory<>).FullName;
-#endif
     }
 }

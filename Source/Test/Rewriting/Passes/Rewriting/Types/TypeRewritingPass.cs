@@ -59,17 +59,17 @@ namespace Microsoft.Coyote.Rewriting
 
             if (options.IsRewritingConcurrentCollections)
             {
-                this.KnownTypes[NameCache.ConcurrentBag] = typeof(Types.Collections.Concurrent.ConcurrentBag);
-                this.KnownTypes[NameCache.ConcurrentDictionary] = typeof(Types.Collections.Concurrent.ConcurrentDictionary);
-                this.KnownTypes[NameCache.ConcurrentQueue] = typeof(Types.Collections.Concurrent.ConcurrentQueue);
-                this.KnownTypes[NameCache.ConcurrentStack] = typeof(Types.Collections.Concurrent.ConcurrentStack);
+                this.KnownTypes[NameCache.ConcurrentBag] = typeof(Types.Collections.Concurrent.ConcurrentBag<>);
+                this.KnownTypes[NameCache.ConcurrentDictionary] = typeof(Types.Collections.Concurrent.ConcurrentDictionary<,>);
+                this.KnownTypes[NameCache.ConcurrentQueue] = typeof(Types.Collections.Concurrent.ConcurrentQueue<>);
+                this.KnownTypes[NameCache.ConcurrentStack] = typeof(Types.Collections.Concurrent.ConcurrentStack<>);
             }
 
             if (options.IsDataRaceCheckingEnabled)
             {
-                this.KnownTypes[NameCache.GenericList] = typeof(Types.Collections.Generic.List);
-                this.KnownTypes[NameCache.GenericDictionary] = typeof(Types.Collections.Generic.Dictionary);
-                this.KnownTypes[NameCache.GenericHashSet] = typeof(Types.Collections.Generic.HashSet);
+                this.KnownTypes[NameCache.GenericList] = typeof(Types.Collections.Generic.List<>);
+                this.KnownTypes[NameCache.GenericDictionary] = typeof(Types.Collections.Generic.Dictionary<,>);
+                this.KnownTypes[NameCache.GenericHashSet] = typeof(Types.Collections.Generic.HashSet<>);
             }
         }
 

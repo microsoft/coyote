@@ -6,12 +6,13 @@ using SystemGenerics = System.Collections.Generic;
 
 namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 {
+#pragma warning disable CA1000 // Do not declare static members on generic types
     /// <summary>
     /// Provides methods for controlling a concurrent stack during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ConcurrentStack
+    public static class ConcurrentStack<T>
     {
         /// <summary>
         /// Gets the number of elements contained in the concurrent stack.
@@ -19,7 +20,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack)
+        public static int get_Count(SystemConcurrent.ConcurrentStack<T> concurrentStack)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -34,7 +35,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static bool get_IsEmpty<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack)
+        public static bool get_IsEmpty(SystemConcurrent.ConcurrentStack<T> concurrentStack)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -46,7 +47,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Removes all objects from the concurrent stack.
         /// </summary>
-        public static void Clear<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack)
+        public static void Clear(SystemConcurrent.ConcurrentStack<T> concurrentStack)
         {
             Helper.Interleave();
             concurrentStack.Clear();
@@ -56,7 +57,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// Copies the concurrent stack elements to an existing one-dimensional array,
         /// starting at the specified array index.
         /// </summary>
-        public static void CopyTo<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] array, int index)
+        public static void CopyTo(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] array, int index)
         {
             Helper.Interleave();
             concurrentStack.CopyTo(array, index);
@@ -65,7 +66,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Returns an enumerator that iterates through the  concurrent stack.
         /// </summary>
-        public static SystemGenerics.IEnumerator<T> GetEnumerator<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack)
+        public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentStack<T> concurrentStack)
         {
             Helper.Interleave();
             return concurrentStack.GetEnumerator();
@@ -74,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Inserts an object at the top of the concurrent stack.
         /// </summary>
-        public static void Push<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T item)
+        public static void Push(SystemConcurrent.ConcurrentStack<T> concurrentStack, T item)
         {
             Helper.Interleave();
             concurrentStack.Push(item);
@@ -83,7 +84,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Inserts multiple objects at the top of the concurrent stack atomically.
         /// </summary>
-        public static void PushRange<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items)
+        public static void PushRange(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items)
         {
             Helper.Interleave();
             concurrentStack.PushRange(items);
@@ -92,7 +93,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Inserts multiple objects at the top of the concurrent stack atomically.
         /// </summary>
-        public static void PushRange<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items, int startIndex, int count)
+        public static void PushRange(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items, int startIndex, int count)
         {
             Helper.Interleave();
             concurrentStack.PushRange(items, startIndex, count);
@@ -101,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Copies the elements stored in the concurrent stack to a new array.
         /// </summary>
-        public static T[] ToArray<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack)
+        public static T[] ToArray(SystemConcurrent.ConcurrentStack<T> concurrentStack)
         {
             Helper.Interleave();
             return concurrentStack.ToArray();
@@ -110,7 +111,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Attempts to return an object from the top of the concurrent stack without removing it.
         /// </summary>
-        public static bool TryPeek<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, out T result)
+        public static bool TryPeek(SystemConcurrent.ConcurrentStack<T> concurrentStack, out T result)
         {
             Helper.Interleave();
             return concurrentStack.TryPeek(out result);
@@ -119,7 +120,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Attempt to pop and return the object at the top of the concurrent stack.
         /// </summary>
-        public static bool TryPop<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, out T result)
+        public static bool TryPop(SystemConcurrent.ConcurrentStack<T> concurrentStack, out T result)
         {
             Helper.Interleave();
             return concurrentStack.TryPop(out result);
@@ -128,7 +129,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Attempts to pop and return multiple objects from the top of the concurrent stack atomically.
         /// </summary>
-        public static int TryPopRange<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items, int startIndex, int count)
+        public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items, int startIndex, int count)
         {
             Helper.Interleave();
             return concurrentStack.TryPopRange(items, startIndex, count);
@@ -137,10 +138,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Attempts to pop and return multiple objects from the top of the concurrent stack atomically.
         /// </summary>
-        public static int TryPopRange<T>(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items)
+        public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> concurrentStack, T[] items)
         {
             Helper.Interleave();
             return concurrentStack.TryPopRange(items);
         }
     }
+#pragma warning restore CA1000 // Do not declare static members on generic types
 }

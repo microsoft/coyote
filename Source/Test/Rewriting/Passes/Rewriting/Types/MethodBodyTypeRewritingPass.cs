@@ -169,7 +169,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
-            Console.WriteLine($"Method: {method.FullName}");
             MethodReference result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
@@ -221,9 +220,10 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             result = module.ImportReference(match);
-            Console.WriteLine($"Match: {result.FullName}");
-            Console.WriteLine($">> Method: {method.Name} ({method.DeclaringType.FullName})");
-            Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
+            // Console.WriteLine($"Method: {method.FullName}");
+            // Console.WriteLine($"Match: {result.FullName}");
+            // Console.WriteLine($">> Method: {method.Name} ({method.DeclaringType.FullName})");
+            // Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
 
             if (!result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
@@ -255,19 +255,19 @@ namespace Microsoft.Coyote.Rewriting
                     instanceParameter = result.Parameters[0];
                 }
 
-                Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericParameter})");
-                Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericParameter})");
-                Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
-                Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
+                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericParameter})");
+                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericParameter})");
+                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
+                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
 
                 // Try to rewrite the return type only if it matches the original method return type.
-                TypeReference newReturnType = (result.ReturnType is GenericInstanceType genericReturnType &&
-                    method.ReturnType is GenericInstanceType genericMethodReturnType &&
-                    genericReturnType.ElementType.FullName == genericMethodReturnType.ElementType.FullName) ||
-                    result.ReturnType.FullName == method.ReturnType.FullName ?
-                    this.RewriteTypeReference(method.ReturnType) : result.ReturnType;
+                // TypeReference newReturnType = (result.ReturnType is GenericInstanceType genericReturnType &&
+                //     method.ReturnType is GenericInstanceType genericMethodReturnType &&
+                //     genericReturnType.ElementType.FullName == genericMethodReturnType.ElementType.FullName) ||
+                //     result.ReturnType.FullName == method.ReturnType.FullName ?
+                //     this.RewriteTypeReference(method.ReturnType) : result.ReturnType;
 
-                // TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
+                TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
                 // TypeReference newReturnType = this.RewriteTypeReference(result.ReturnType);
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.

@@ -6,12 +6,13 @@ using SystemGenerics = System.Collections.Generic;
 
 namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 {
+#pragma warning disable CA1000 // Do not declare static members on generic types
     /// <summary>
     /// Provides methods for controlling a concurrent bag during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ConcurrentBag
+    public static class ConcurrentBag<T>
     {
         /// <summary>
         /// Gets the number of elements contained in the concurrent bag.
@@ -19,7 +20,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag)
+        public static int get_Count(SystemConcurrent.ConcurrentBag<T> concurrentBag)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -34,7 +35,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static bool get_IsEmpty<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag)
+        public static bool get_IsEmpty(SystemConcurrent.ConcurrentBag<T> concurrentBag)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -46,7 +47,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Adds an object to the concurrent bag.
         /// </summary>
-        public static void Add<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag, T item)
+        public static void Add(SystemConcurrent.ConcurrentBag<T> concurrentBag, T item)
         {
             Helper.Interleave();
             concurrentBag.Add(item);
@@ -56,7 +57,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Removes all objects from the concurrent bag.
         /// </summary>
-        public static void Clear<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag)
+        public static void Clear(SystemConcurrent.ConcurrentBag<T> concurrentBag)
         {
             Helper.Interleave();
             concurrentBag.Clear();
@@ -67,7 +68,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// Copies the concurrent bag elements to an existing one-dimensional array,
         /// starting at the specified array index.
         /// </summary>
-        public static void CopyTo<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag, T[] array, int index)
+        public static void CopyTo(SystemConcurrent.ConcurrentBag<T> concurrentBag, T[] array, int index)
         {
             Helper.Interleave();
             concurrentBag.CopyTo(array, index);
@@ -76,7 +77,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Returns an enumerator that iterates through the  concurrent bag.
         /// </summary>
-        public static SystemGenerics.IEnumerator<T> GetEnumerator<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag)
+        public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentBag<T> concurrentBag)
         {
             Helper.Interleave();
             return concurrentBag.GetEnumerator();
@@ -85,7 +86,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Copies the elements stored in the concurrent bag to a new array.
         /// </summary>
-        public static T[] ToArray<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag)
+        public static T[] ToArray(SystemConcurrent.ConcurrentBag<T> concurrentBag)
         {
             Helper.Interleave();
             return concurrentBag.ToArray();
@@ -94,7 +95,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Tries to return an object from the beginning of the concurrent bag without removing it.
         /// </summary>
-        public static bool TryPeek<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag, out T result)
+        public static bool TryPeek(SystemConcurrent.ConcurrentBag<T> concurrentBag, out T result)
         {
             Helper.Interleave();
             return concurrentBag.TryPeek(out result);
@@ -103,10 +104,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// <summary>
         /// Attempts to remove and return an object from the concurrent bag.
         /// </summary>
-        public static bool TryTake<T>(SystemConcurrent.ConcurrentBag<T> concurrentBag, out T result)
+        public static bool TryTake(SystemConcurrent.ConcurrentBag<T> concurrentBag, out T result)
         {
             Helper.Interleave();
             return concurrentBag.TryTake(out result);
         }
     }
+#pragma warning restore CA1000 // Do not declare static members on generic types
 }

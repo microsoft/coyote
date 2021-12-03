@@ -10,82 +10,83 @@ using SystemInterlocked = System.Threading.Interlocked;
 
 namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 {
+#pragma warning disable CA1000 // Do not declare static members on generic types
     /// <summary>
     /// Provides methods for creating generic dictionaries that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class Dictionary
+    public static class Dictionary<TKey, TValue>
     {
         /// <summary>
         /// Initializes a new dictionary instance class that is empty, has the default initial
         /// capacity, and uses the default equality comparer for the key type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>() => new Mock<TKey, TValue>();
+        public static SystemGenerics.Dictionary<TKey, TValue> Create() => new Mock();
 
         /// <summary>
         /// Initializes a new dictionary instance class that contains elements copied from the
         /// specified dictionary and uses the default equality comparer for the key type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IDictionary<TKey, TValue> dictionary) =>
-            new Mock<TKey, TValue>(dictionary);
+            new Mock(dictionary);
 
         /// <summary>
         /// Initializes a new dictionary instance class that is empty, has the default
         /// initial capacity, and uses the specified equality comparer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IEqualityComparer<TKey> comparer) =>
-            new Mock<TKey, TValue>(comparer);
+            new Mock(comparer);
 
         /// <summary>
         /// Initializes a new dictionary instance class that is empty, has the specified initial
         /// capacity, and uses the default equality comparer for the key type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(int capacity) =>
-            new Mock<TKey, TValue>(capacity);
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(int capacity) =>
+            new Mock(capacity);
 
         /// <summary>
         /// Initializes a new dictionary instance class that contains elements copied from the specified dictionary
         /// and uses the specified equality comparer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IDictionary<TKey, TValue> dictionary,
             SystemGenerics.IEqualityComparer<TKey> comparer) =>
-            new Mock<TKey, TValue>(dictionary, comparer);
+            new Mock(dictionary, comparer);
 
         /// <summary>
         /// Initializes a new dictionary instance class that is empty, has the specified initial
         /// capacity, and uses the specified equality comparer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             int capacity, SystemGenerics.IEqualityComparer<TKey> comparer) =>
-            new Mock<TKey, TValue>(capacity, comparer);
+            new Mock(capacity, comparer);
 
 #if NET || NETCOREAPP3_1
         /// <summary>
         /// Initializes a new dictionary instance class that contains elements copied
         /// from the specified enumerable.
         /// </summary>
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IEnumerable<SystemGenerics.KeyValuePair<TKey, TValue>> collection) =>
-            new Mock<TKey, TValue>(collection);
+            new Mock(collection);
 
         /// <summary>
         /// Initializes a new dictionary instance class that contains elements copied
         /// from the specified enumerable and uses the specified equality comparer.
         /// </summary>
-        public static SystemGenerics.Dictionary<TKey, TValue> Create<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IEnumerable<SystemGenerics.KeyValuePair<TKey, TValue>> collection,
             SystemGenerics.IEqualityComparer<TKey> comparer) =>
-            new Mock<TKey, TValue>(collection, comparer);
+            new Mock(collection, comparer);
 #endif
 
         /// <summary>
@@ -94,12 +95,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static TValue get_Item<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
+        public static TValue get_Item(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary[key];
         }
 
@@ -109,13 +110,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static void set_Item<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary,
+        public static void set_Item(SystemGenerics.Dictionary<TKey, TValue> dictionary,
             TKey key, TValue value)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary[key] = value;
         }
 
@@ -125,13 +126,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static SystemGenerics.Dictionary<TKey, TValue>.KeyCollection get_Keys<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue>.KeyCollection get_Keys(
             SystemGenerics.Dictionary<TKey, TValue> dictionary)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.Keys;
         }
 
@@ -141,13 +142,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static SystemGenerics.Dictionary<TKey, TValue>.ValueCollection get_Values<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue>.ValueCollection get_Values(
             SystemGenerics.Dictionary<TKey, TValue> dictionary)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.Values;
         }
 
@@ -157,58 +158,58 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary)
+        public static int get_Count(SystemGenerics.Dictionary<TKey, TValue> dictionary)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.Count;
         }
 
         /// <summary>
         /// Adds the specified key and value to the dictionary.
         /// </summary>
-        public static void Add<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static void Add(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.Add(key, value);
         }
 
         /// <summary>
         /// Removes all keys and values from the dictionary.
         /// </summary>
-        public static void Clear<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary)
+        public static void Clear(SystemGenerics.Dictionary<TKey, TValue> dictionary)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.Clear();
         }
 
         /// <summary>
         /// Determines whether the dictionary contains the specified key.
         /// </summary>
-        public static bool ContainsKey<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
+        public static bool ContainsKey(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.ContainsKey(key);
         }
 
         /// <summary>
         /// Determines whether the dictionary contains a specific value.
         /// </summary>
-        public static bool ContainsValue<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TValue value)
+        public static bool ContainsValue(SystemGenerics.Dictionary<TKey, TValue> dictionary, TValue value)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.ContainsValue(value);
         }
 
         /// <summary>
         /// Returns an enumerator that iterates through the dictionary.
         /// </summary>
-        public static SystemGenerics.Dictionary<TKey, TValue>.Enumerator GetEnumerator<TKey, TValue>(
+        public static SystemGenerics.Dictionary<TKey, TValue>.Enumerator GetEnumerator(
             SystemGenerics.Dictionary<TKey, TValue> dictionary)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.GetEnumerator();
         }
 
@@ -216,19 +217,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Removes the value with the specified key from the dictionary,
         /// and copies the element to the value parameter.
         /// </summary>
-        public static bool Remove<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
+        public static bool Remove(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             return dictionary.Remove(key);
         }
 
         /// <summary>
         /// Gets the value associated with the specified key.
         /// </summary>
-        public static bool TryGetValue<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary,
+        public static bool TryGetValue(SystemGenerics.Dictionary<TKey, TValue> dictionary,
             TKey key, out TValue value)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(false);
+            (dictionary as Mock)?.CheckDataRace(false);
             return dictionary.TryGetValue(key, out value);
         }
 
@@ -236,10 +237,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed
         /// to serialize the dictionary instance.
         /// </summary>
-        public static void GetObjectData<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary,
+        public static void GetObjectData(SystemGenerics.Dictionary<TKey, TValue> dictionary,
             SerializationInfo info, StreamingContext context)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.GetObjectData(info, context);
         }
 
@@ -247,9 +248,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Implements the <see cref="ISerializable"/> interface and raises
         /// the deserialization event when the deserialization is complete.
         /// </summary>
-        public static void OnDeserialization<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, object sender)
+        public static void OnDeserialization(SystemGenerics.Dictionary<TKey, TValue> dictionary, object sender)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.OnDeserialization(sender);
         }
 
@@ -258,18 +259,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Ensures that the dictionary can hold up to a specified number of entries without
         /// any further expansion of its backing storage.
         /// </summary>
-        public static void EnsureCapacity<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, int size)
+        public static void EnsureCapacity(SystemGenerics.Dictionary<TKey, TValue> dictionary, int size)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.EnsureCapacity(size);
         }
 
         /// <summary>
         /// Removes the value with the specified key from the dictionary.
         /// </summary>
-        public static bool Remove<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, out TValue value)
+        public static bool Remove(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, out TValue value)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             return dictionary.Remove(key, out value);
         }
 
@@ -277,9 +278,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Sets the capacity of this dictionary to what it would be if it had been originally
         /// initialized with all its entries.
         /// </summary>
-        public static void TrimExcess<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary)
+        public static void TrimExcess(SystemGenerics.Dictionary<TKey, TValue> dictionary)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.TrimExcess();
         }
 
@@ -287,18 +288,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Sets the capacity of this dictionary to hold up a specified number of entries
         /// without any further expansion of its backing storage.
         /// </summary>
-        public static void TrimExcess<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, int size)
+        public static void TrimExcess(SystemGenerics.Dictionary<TKey, TValue> dictionary, int size)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             dictionary.TrimExcess(size);
         }
 
         /// <summary>
         /// Attempts to add the specified key and value to the dictionary.
         /// </summary>
-        public static bool TryAdd<TKey, TValue>(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static bool TryAdd(SystemGenerics.Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
-            (dictionary as Mock<TKey, TValue>)?.CheckDataRace(true);
+            (dictionary as Mock)?.CheckDataRace(true);
             return dictionary.TryAdd(key, value);
         }
 #endif
@@ -308,7 +309,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        private class Mock<TKey, TValue> : SystemGenerics.Dictionary<TKey, TValue>
+        private class Mock : SystemGenerics.Dictionary<TKey, TValue>
         {
             /// <summary>
             /// Count of read accesses to the dictionary.
@@ -321,7 +322,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             private volatile int WriterCount;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Mock{TKey, TValue}"/> class.
+            /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
             internal Mock()
                 : base() => this.Setup();
@@ -405,4 +406,5 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             }
         }
     }
+#pragma warning restore CA1000 // Do not declare static members on generic types
 }

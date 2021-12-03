@@ -20,40 +20,40 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
 
         internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
-        internal static string TaskFullName { get; } = typeof(SystemTasks.Task).FullName;
-        internal static string GenericTaskFullName { get; } = typeof(SystemTasks.Task<>).FullName;
+        internal static string Task { get; } = typeof(SystemTasks.Task).FullName;
+        internal static string GenericTask { get; } = typeof(SystemTasks.Task<>).FullName;
 
         internal static string GenericTaskCompletionSourceName { get; } = typeof(SystemTasks.TaskCompletionSource<>).Name;
-        internal static string GenericTaskCompletionSourceFullName { get; } = typeof(SystemTasks.TaskCompletionSource<>).FullName;
+        internal static string GenericTaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource<>).FullName;
 
         internal static string AsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Name;
-        internal static string AsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
-        internal static string GenericAsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
+        internal static string AsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
+        internal static string GenericAsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
 
         internal static string TaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter).Name;
-        internal static string TaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
-        internal static string GenericTaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
-        internal static string ConfiguredTaskAwaitableFullName { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;
-        internal static string GenericConfiguredTaskAwaitableFullName { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName;
-        internal static string ConfiguredTaskAwaiterFullName { get; } =
+        internal static string TaskAwaiter { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
+        internal static string GenericTaskAwaiter { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
+        internal static string ConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;
+        internal static string GenericConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName;
+        internal static string ConfiguredTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName + "/ConfiguredTaskAwaiter";
-        internal static string GenericConfiguredTaskAwaiterFullName { get; } =
+        internal static string GenericConfiguredTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName + "/ConfiguredTaskAwaiter";
 
-        internal static string TaskExtensionsFullName { get; } = typeof(SystemTasks.TaskExtensions).FullName;
-        internal static string TaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory).FullName;
-        internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
-        internal static string TaskParallelFullName { get; } = typeof(SystemTasks.Parallel).FullName;
+        internal static string TaskExtensions { get; } = typeof(SystemTasks.TaskExtensions).FullName;
+        internal static string TaskFactory { get; } = typeof(SystemTasks.TaskFactory).FullName;
+        internal static string GenericTaskFactory { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
+        internal static string TaskParallel { get; } = typeof(SystemTasks.Parallel).FullName;
 
-        internal static string MonitorFullName { get; } = typeof(SystemThreading.Monitor).FullName;
+        internal static string Monitor { get; } = typeof(SystemThreading.Monitor).FullName;
 
-        internal static string GenericListFullName { get; } = typeof(SystemGenericCollections.List<>).FullName;
-        internal static string GenericDictionaryFullName { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;
-        internal static string GenericHashSetFullName { get; } = typeof(SystemGenericCollections.HashSet<>).FullName;
+        internal static string GenericList { get; } = typeof(SystemGenericCollections.List<>).FullName;
+        internal static string GenericDictionary { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;
+        internal static string GenericHashSet { get; } = typeof(SystemGenericCollections.HashSet<>).FullName;
 
-        internal static string ConcurrentBagFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentBag<>).FullName;
-        internal static string ConcurrentDictionaryFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
-        internal static string ConcurrentQueueFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
-        internal static string ConcurrentStackFullName { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
+        internal static string ConcurrentBag { get; } = typeof(SystemConcurrentCollections.ConcurrentBag<>).FullName;
+        internal static string ConcurrentDictionary { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
+        internal static string ConcurrentQueue { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
+        internal static string ConcurrentStack { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
     }
 }

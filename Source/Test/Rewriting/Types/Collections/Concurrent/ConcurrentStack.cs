@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ControlledConcurrentStack
+    public static class ConcurrentStack
     {
         /// <summary>
         /// Gets the number of elements contained in the concurrent stack.

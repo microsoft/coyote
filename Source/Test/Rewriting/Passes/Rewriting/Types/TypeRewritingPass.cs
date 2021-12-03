@@ -29,48 +29,47 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes = new Dictionary<string, Type>();
 
             // Populate the map with the known compiler types.
-            this.KnownTypes[NameCache.AsyncTaskMethodBuilderFullName] =
+            this.KnownTypes[NameCache.AsyncTaskMethodBuilder] =
                 typeof(Runtime.CompilerServices.AsyncTaskMethodBuilder);
-            this.KnownTypes[NameCache.GenericAsyncTaskMethodBuilderFullName] =
+            this.KnownTypes[NameCache.GenericAsyncTaskMethodBuilder] =
                 typeof(Runtime.CompilerServices.AsyncTaskMethodBuilder<>);
-            this.KnownTypes[NameCache.TaskAwaiterFullName] = typeof(Runtime.CompilerServices.TaskAwaiter);
-            this.KnownTypes[NameCache.GenericTaskAwaiterFullName] = typeof(Runtime.CompilerServices.TaskAwaiter<>);
-            this.KnownTypes[NameCache.ConfiguredTaskAwaitableFullName] =
+            this.KnownTypes[NameCache.TaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter);
+            this.KnownTypes[NameCache.GenericTaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter<>);
+            this.KnownTypes[NameCache.ConfiguredTaskAwaitable] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable);
-            this.KnownTypes[NameCache.GenericConfiguredTaskAwaitableFullName] =
+            this.KnownTypes[NameCache.GenericConfiguredTaskAwaitable] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
-            this.KnownTypes[NameCache.ConfiguredTaskAwaiterFullName] =
+            this.KnownTypes[NameCache.ConfiguredTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable);
-            this.KnownTypes[NameCache.GenericConfiguredTaskAwaiterFullName] =
+            this.KnownTypes[NameCache.GenericConfiguredTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
 
             // Populate the map with the default task-based types.
-            this.KnownTypes[NameCache.TaskFullName] = typeof(Types.Threading.Tasks.Task);
-            this.KnownTypes[NameCache.GenericTaskFullName] = typeof(Types.Threading.Tasks.Task<>);
-            this.KnownTypes[NameCache.GenericTaskCompletionSourceFullName] =
+            this.KnownTypes[NameCache.Task] = typeof(Types.Threading.Tasks.Task);
+            this.KnownTypes[NameCache.GenericTask] = typeof(Types.Threading.Tasks.Task<>);
+            this.KnownTypes[NameCache.GenericTaskCompletionSource] =
                 typeof(Types.Threading.Tasks.TaskCompletionSource<>);
-            this.KnownTypes[NameCache.TaskExtensionsFullName] = typeof(Types.TaskExtensions);
-            this.KnownTypes[NameCache.TaskFactoryFullName] = typeof(Types.Threading.Tasks.TaskFactory);
-            this.KnownTypes[NameCache.GenericTaskFactoryFullName] = typeof(Types.Threading.Tasks.TaskFactory<>);
-            this.KnownTypes[NameCache.TaskParallelFullName] = typeof(Types.Threading.Tasks.Parallel);
+            this.KnownTypes[NameCache.TaskExtensions] = typeof(Types.TaskExtensions);
+            this.KnownTypes[NameCache.TaskFactory] = typeof(Types.Threading.Tasks.TaskFactory);
+            this.KnownTypes[NameCache.GenericTaskFactory] = typeof(Types.Threading.Tasks.TaskFactory<>);
+            this.KnownTypes[NameCache.TaskParallel] = typeof(Types.Threading.Tasks.Parallel);
 
             // Populate the map with the known synchronization types.
-            this.KnownTypes[NameCache.MonitorFullName] = typeof(Types.Threading.Monitor);
+            this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
 
             if (options.IsRewritingConcurrentCollections)
             {
-                this.KnownTypes[NameCache.ConcurrentBagFullName] = typeof(Types.Collections.Concurrent.ControlledConcurrentBag);
-                this.KnownTypes[NameCache.ConcurrentDictionaryFullName] =
-                    typeof(Types.Collections.Concurrent.ControlledConcurrentDictionary);
-                this.KnownTypes[NameCache.ConcurrentQueueFullName] = typeof(Types.Collections.Concurrent.ControlledConcurrentQueue);
-                this.KnownTypes[NameCache.ConcurrentStackFullName] = typeof(Types.Collections.Concurrent.ControlledConcurrentStack);
+                this.KnownTypes[NameCache.ConcurrentBag] = typeof(Types.Collections.Concurrent.ConcurrentBag);
+                this.KnownTypes[NameCache.ConcurrentDictionary] = typeof(Types.Collections.Concurrent.ConcurrentDictionary);
+                this.KnownTypes[NameCache.ConcurrentQueue] = typeof(Types.Collections.Concurrent.ConcurrentQueue);
+                this.KnownTypes[NameCache.ConcurrentStack] = typeof(Types.Collections.Concurrent.ConcurrentStack);
             }
 
             if (options.IsDataRaceCheckingEnabled)
             {
-                this.KnownTypes[NameCache.GenericListFullName] = typeof(Types.Collections.Generic.List);
-                this.KnownTypes[NameCache.GenericDictionaryFullName] = typeof(Types.Collections.Generic.Dictionary);
-                this.KnownTypes[NameCache.GenericHashSetFullName] = typeof(Types.Collections.Generic.HashSet);
+                this.KnownTypes[NameCache.GenericList] = typeof(Types.Collections.Generic.List);
+                this.KnownTypes[NameCache.GenericDictionary] = typeof(Types.Collections.Generic.Dictionary);
+                this.KnownTypes[NameCache.GenericHashSet] = typeof(Types.Collections.Generic.HashSet);
             }
         }
 

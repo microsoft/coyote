@@ -270,6 +270,9 @@ namespace Microsoft.Coyote.Rewriting
                 TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
                 // TypeReference newReturnType = this.RewriteTypeReference(result.ReturnType);
 
+                // Console.WriteLine($"1: {result.FullName}");
+                // Console.WriteLine($">> newReturnType: {newReturnType}");
+
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
                 result = new MethodReference(result.Name, newReturnType, newDeclaringType)
                 {
@@ -277,6 +280,8 @@ namespace Microsoft.Coyote.Rewriting
                     ExplicitThis = result.ExplicitThis,
                     CallingConvention = result.CallingConvention
                 };
+
+                // Console.WriteLine($"2: {result.FullName}");
 
                 if (resolvedMethod.HasGenericParameters)
                 {
@@ -317,6 +322,8 @@ namespace Microsoft.Coyote.Rewriting
                     result = genericMethodInstance;
                 }
 
+                // Console.WriteLine($"3: {result.FullName}");
+
                 // Set the instance parameter of the method, if any.
                 if (instanceParameter != null)
                 {
@@ -330,6 +337,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
+            // Console.WriteLine($"4: {result.FullName}");
             return module.ImportReference(result);
         }
 

@@ -69,12 +69,6 @@ namespace Microsoft.Coyote.Rewriting
                 this.KnownTypes[NameCache.GenericDictionaryFullName] = typeof(Types.Collections.Generic.Dictionary);
                 this.KnownTypes[NameCache.GenericHashSetFullName] = typeof(Types.Collections.Generic.HashSet);
             }
-
-#if NET || NETCOREAPP3_1
-            // Populate the map with the default known web types.
-            this.KnownTypes[NameCache.HttpClientFullName] = typeof(Types.Net.Http.HttpClient);
-            this.KnownTypes[NameCache.WebApplicationFactoryFullName] = typeof(Types.Web.WebApplication);
-#endif
         }
 
         /// <summary>

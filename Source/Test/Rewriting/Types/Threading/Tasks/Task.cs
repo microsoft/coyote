@@ -5,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
+
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
-using SystemTasks = System.Threading.Tasks;
-
-using SystemTaskFactory = System.Threading.Tasks.TaskFactory;
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemTask = System.Threading.Tasks.Task;
+using SystemTaskFactory = System.Threading.Tasks.TaskFactory;
+using SystemTasks = System.Threading.Tasks;
 using SystemTimeout = System.Threading.Timeout;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks

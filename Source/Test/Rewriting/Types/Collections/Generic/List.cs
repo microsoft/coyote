@@ -4,8 +4,8 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
-using SystemGenerics = System.Collections.Generic;
 
+using SystemGenerics = System.Collections.Generic;
 using SystemInterlocked = System.Threading.Interlocked;
 
 namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic

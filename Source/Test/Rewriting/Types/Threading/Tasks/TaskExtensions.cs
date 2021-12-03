@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Runtime;
+
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
-using SystemTasks = System.Threading.Tasks;
-
 using SystemTask = System.Threading.Tasks.Task;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting.Types
 {

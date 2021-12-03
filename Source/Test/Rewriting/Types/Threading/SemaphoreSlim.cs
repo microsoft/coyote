@@ -3,11 +3,11 @@
 
 using System;
 using Microsoft.Coyote.Runtime;
-using SystemTasks = System.Threading.Tasks;
 
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemSemaphoreSlim = System.Threading.SemaphoreSlim;
 using SystemTask = System.Threading.Tasks.Task;
+using SystemTasks = System.Threading.Tasks;
 using SystemTimeout = System.Threading.Timeout;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading

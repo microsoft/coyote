@@ -3,12 +3,12 @@
 
 using System;
 using Microsoft.Coyote.Runtime;
-using SystemTasks = System.Threading.Tasks;
 
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;
 using SystemTaskCreationOptions = System.Threading.Tasks.TaskCreationOptions;
+using SystemTasks = System.Threading.Tasks;
 using SystemTaskScheduler = System.Threading.Tasks.TaskScheduler;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks

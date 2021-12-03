@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaiterFullName] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
 
-            // Populate the map with the default known types.
+            // Populate the map with the default task-based types.
             this.KnownTypes[NameCache.TaskFullName] = typeof(Types.Threading.Tasks.Task);
             this.KnownTypes[NameCache.GenericTaskFullName] = typeof(Types.Threading.Tasks.Task<>);
             this.KnownTypes[NameCache.GenericTaskCompletionSourceFullName] =
@@ -53,6 +53,9 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.TaskFactoryFullName] = typeof(Types.Threading.Tasks.TaskFactory);
             this.KnownTypes[NameCache.GenericTaskFactoryFullName] = typeof(Types.Threading.Tasks.TaskFactory<>);
             this.KnownTypes[NameCache.TaskParallelFullName] = typeof(Types.Threading.Tasks.Parallel);
+
+            // Populate the map with the known synchronization types.
+            this.KnownTypes[NameCache.MonitorFullName] = typeof(Types.Threading.Monitor);
 
             if (options.IsRewritingConcurrentCollections)
             {

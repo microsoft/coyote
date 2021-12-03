@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// This method also checks the use case where we are converting an instance method into a static method.
         /// In such a case case, we are inserting a first parameter that has the same type as the declaring type
-        /// of the original method. For example we can convert `task.Wait()` to `ControlledTask.Wait(task)`.
+        /// of the original method.
         /// </remarks>
         private static bool CheckMethodSignaturesMatch(MethodDefinition originalMethod, MethodDefinition newMethod)
         {
@@ -316,13 +316,13 @@ namespace Microsoft.Coyote.Rewriting
 
         /// <summary>
         /// Returns true if the specified <see cref="MethodReference"/> can be resolved,
-        /// as well as the resolved method definition, else return false.
+        /// as well as return the resolved method definition, else return false.
         /// </summary>
         protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
         {
             try
             {
-                resolved = method.Resolve();
+                resolved = method?.Resolve();
             }
             catch
             {
@@ -331,9 +331,9 @@ namespace Microsoft.Coyote.Rewriting
 
             if (resolved is null)
             {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +
-                    "The method is either unsupported by Coyote, an external method not being rewritten, " +
-                    "or the .NET platform of Coyote and the target assembly do not match.");
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
+                    "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
                 return false;
             }
 
@@ -341,18 +341,29 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Returns the resolved definition of the specified <see cref="TypeReference"/>.
+        /// Returns true if the specified <see cref="TypeReference"/> can be resolved,
+        /// as well as return the resolved type definition, else return false.
         /// </summary>
-        protected static TypeDefinition Resolve(TypeReference type)
+        protected bool TryResolve(TypeReference type, out TypeDefinition resolved)
         {
-            TypeDefinition result = type?.Resolve();
-            if (result is null)
+            try
             {
-                throw new InvalidOperationException($"Error resolving '{type.FullName}' type. Please check that " +
-                    "the .NET platform of coyote and the target assembly match.");
+                resolved = type?.Resolve();
+            }
+            catch
+            {
+                resolved = null;
             }
 
-            return result;
+            if (resolved is null)
+            {
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
+                    "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -405,33 +416,60 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is a foreign type.
+        /// Checks if the specified type is a visited type.
         /// </summary>
-        protected bool IsForeignType(TypeDefinition type)
+        /// <remarks>
+        /// Any type from an assembly being visited is a visited type.
+        /// </remarks>
+        protected bool IsVisitedType(TypeDefinition type)
         {
             if (type != null)
             {
-                // Any type from an assembly being visited is not a foreign type.
                 if (type.Module == this.Module ||
                     this.VisitedAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
                 {
-                    return false;
-                }
-
-                // Any type from the Coyote assemblies is not a foreign type.
-                string modulePath = Path.GetFileName(type.Module.FileName);
-                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
-                {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a foreign type.
+        /// </summary>
+        /// <remarks>
+        /// Any type not visited that is not a runtime type is a foreign type.
+        /// </remarks>
+        protected bool IsForeignType(TypeDefinition type) =>
+            !this.IsVisitedType(type) && !IsRuntimeType(type);
+
+        /// <summary>
+        /// Checks if the specified type is a runtime type.
+        /// </summary>
+        /// <remarks>
+        /// Any type from the Coyote assemblies is a runtime type.
+        /// </remarks>
+        protected static bool IsRuntimeType(TypeDefinition type)
+        {
+            if (type != null)
+            {
+                string modulePath = Path.GetFileName(type.Module.FileName);
+                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Checks if the specified type is a system type.
         /// </summary>
+        /// <remarks>
+        /// Any type in the system namespace is a system type.
+        /// </remarks>
         protected static bool IsSystemType(TypeDefinition type)
         {
             if (type != null)
@@ -442,7 +480,6 @@ namespace Microsoft.Coyote.Rewriting
                     declaringType = declaringType.DeclaringType;
                 }
 
-                // Any type in the 'System' namespace is a system type.
                 if (declaringType.Namespace is "System" || declaringType.Namespace.StartsWith("System."))
                 {
                     return true;

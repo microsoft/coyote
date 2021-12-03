@@ -5,15 +5,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+using Microsoft.Coyote.Rewriting.Types.Net.Http;
 using Microsoft.Coyote.Runtime;
 using WebFramework = Microsoft.AspNetCore.Http;
 using WebTesting = Microsoft.AspNetCore.Mvc.Testing;
 
-namespace Microsoft.Coyote.Rewriting.Types
+using SystemDelegatingHandler = System.Net.Http.DelegatingHandler;
+using SystemHttpClient = System.Net.Http.HttpClient;
+using SystemTask = System.Threading.Tasks.Task;
+using SystemTaskCreationOptions = System.Threading.Tasks.TaskCreationOptions;
+using SystemThread = System.Threading.Thread;
+
+namespace Microsoft.Coyote.Rewriting.Types.Web
 {
     /// <summary>
     /// Provides methods for controlling a web application during testing.
@@ -25,7 +29,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Controls the specified request.
         /// </summary>
-        public static Task ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
+        public static SystemTask ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
         {
             WebFramework.HttpRequest request = context.Request;
             if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
@@ -34,15 +38,15 @@ namespace Microsoft.Coyote.Rewriting.Types
                 if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
                 {
                     IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                        request.Method, request.Path, runtimeId, Thread.CurrentThread.ManagedThreadId);
+                        request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
                     return runtime.TaskFactory.StartNew(() =>
                     {
-                        Task task = next(context);
+                        SystemTask task = next(context);
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
                     default,
-                    runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                     runtime.TaskFactory.Scheduler);
                 }
             }
@@ -53,7 +57,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Controls the specified request.
         /// </summary>
-        public static Task ControlRequest(WebFramework.HttpContext context, Func<Task> next)
+        public static SystemTask ControlRequest(WebFramework.HttpContext context, Func<SystemTask> next)
         {
             WebFramework.HttpRequest request = context.Request;
             if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
@@ -62,15 +66,15 @@ namespace Microsoft.Coyote.Rewriting.Types
                 if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
                 {
                     IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                        request.Method, request.Path, runtimeId, Thread.CurrentThread.ManagedThreadId);
+                        request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
                     return runtime.TaskFactory.StartNew(() =>
                     {
-                        Task task = next();
+                        SystemTask task = next();
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
                     default,
-                    runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                     runtime.TaskFactory.Scheduler);
                 }
             }
@@ -79,38 +83,38 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="HttpClient"/> that automatically follows redirects and handles cookies.
+        /// Creates an instance of an HTTP client that automatically follows redirects and handles cookies.
         /// </summary>
-        public static HttpClient CreateClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory)
+        public static SystemHttpClient CreateClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory)
             where TEntryPoint : class => CreateClient(factory, factory.ClientOptions);
 
         /// <summary>
-        /// Creates an instance of <see cref="HttpClient"/> that automatically follows redirects and handles cookies.
+        /// Creates an instance of an HTTP client that automatically follows redirects and handles cookies.
         /// </summary>
-        public static HttpClient CreateClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory,
+        public static SystemHttpClient CreateClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory,
             WebTesting.WebApplicationFactoryClientOptions options)
             where TEntryPoint : class =>
             CreateDefaultClient(factory, options.BaseAddress, CreateHandlers(options).ToArray());
 
         /// <summary>
-        /// Creates a new instance of an <see cref="HttpClient"/> that can be used to send <see cref="HttpRequestMessage"/>
-        /// to the server. The base address of the <see cref="HttpClient"/> instance will be set to http://localhost.
+        /// Creates a new instance of an HTTP client that can be used to send an HTTP request message to
+        /// the server. The base address of the HTTP client instance will be set to http://localhost.
         /// </summary>
-        public static HttpClient CreateDefaultClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory,
-            params DelegatingHandler[] handlers)
+        public static SystemHttpClient CreateDefaultClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory,
+            params SystemDelegatingHandler[] handlers)
             where TEntryPoint : class
         {
             var delegatingHandlers = handlers.ToList();
-            delegatingHandlers.Insert(0, ControlledHttpMessageHandler.Create());
+            delegatingHandlers.Insert(0, HttpMessageHandler.Create());
             return factory.CreateDefaultClient(delegatingHandlers.ToArray());
         }
 
         /// <summary>
-        /// Creates a new instance of an <see cref="HttpClient"/> that can be used to
-        /// send <see cref="HttpRequestMessage"/> to the server.
+        /// Creates a new instance of an HTTP client that can be used to send an HTTP request message to the server.
         /// </summary>
-        public static HttpClient CreateDefaultClient<TEntryPoint>(WebTesting.WebApplicationFactory<TEntryPoint> factory,
-            Uri baseAddress, params DelegatingHandler[] handlers)
+        public static SystemHttpClient CreateDefaultClient<TEntryPoint>(
+            WebTesting.WebApplicationFactory<TEntryPoint> factory, Uri baseAddress,
+            params SystemDelegatingHandler[] handlers)
             where TEntryPoint : class
         {
             var client = CreateDefaultClient(factory, handlers);
@@ -118,7 +122,8 @@ namespace Microsoft.Coyote.Rewriting.Types
             return client;
         }
 
-        private static IEnumerable<DelegatingHandler> CreateHandlers(WebTesting.WebApplicationFactoryClientOptions options)
+        private static IEnumerable<SystemDelegatingHandler> CreateHandlers(
+            WebTesting.WebApplicationFactoryClientOptions options)
         {
             if (options.AllowAutoRedirect)
             {

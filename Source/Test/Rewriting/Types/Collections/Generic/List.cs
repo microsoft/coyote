@@ -2,38 +2,40 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Microsoft.Coyote.Runtime;
+using SystemGenerics = System.Collections.Generic;
 
-namespace Microsoft.Coyote.Rewriting.Types
+using SystemInterlocked = System.Threading.Interlocked;
+
+namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 {
     /// <summary>
     /// Provides methods for creating generic lists that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ControlledList
+    public static class List
     {
         /// <summary>
-        /// Creates a new instance of the <see cref="List{T}"/> class that is empty and has the default initial capacity.
+        /// Creates a new list instance that is empty and has the default initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>() => new Mock<T>();
+        public static SystemGenerics.List<T> Create<T>() => new Mock<T>();
 
         /// <summary>
-        /// Creates a new instance of the <see cref="List{T}"/> class that is empty and has the specified initial capacity.
+        /// Creates a new list instance that is empty and has the specified initial capacity.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>(int capacity) => new Mock<T>(capacity);
+        public static SystemGenerics.List<T> Create<T>(int capacity) => new Mock<T>(capacity);
 
         /// <summary>
-        /// Creates a new instance of the <see cref="List{T}"/> class that contains elements copied from the specified
-        /// collection and has sufficient capacity to accommodate the number of elements copied.
+        /// Creates a new list instance that contains elements copied from the specified collection
+        /// and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Create<T>(IEnumerable<T> collection) => new Mock<T>(collection);
+        public static SystemGenerics.List<T> Create<T>(SystemGenerics.IEnumerable<T> collection) =>
+            new Mock<T>(collection);
 
         /// <summary>
         /// Gets the element at the specified index.
@@ -41,7 +43,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static T get_Item<T>(List<T> list, int index)
+        public static T get_Item<T>(SystemGenerics.List<T> list, int index)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -56,7 +58,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static void set_Item<T>(List<T> list, int index, T value)
+        public static void set_Item<T>(SystemGenerics.List<T> list, int index, T value)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -66,12 +68,12 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Returns the number of elements contained in the <see cref="List{T}"/>.
+        /// Returns the number of elements contained in the list.
         /// </summary>
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count<T>(List<T> list)
+        public static int get_Count<T>(SystemGenerics.List<T> list)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -86,7 +88,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Capacity<T>(List<T> list)
+        public static int get_Capacity<T>(SystemGenerics.List<T> list)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -101,7 +103,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static void set_Capacity<T>(List<T> list, int value)
+        public static void set_Capacity<T>(SystemGenerics.List<T> list, int value)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -111,116 +113,116 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Adds an object to the end of the <see cref="List{T}"/>.
+        /// Adds an object to the end of the list.
         /// </summary>
-        public static void Add<T>(List<T> list, T item)
+        public static void Add<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Add(item);
         }
 
         /// <summary>
-        /// Adds the elements of the specified collection to the end of the <see cref="List{T}"/>.
+        /// Adds the elements of the specified collection to the end of the list.
         /// </summary>
-        public static void AddRange<T>(List<T> list, IEnumerable<T> collection)
+        public static void AddRange<T>(SystemGenerics.List<T> list, SystemGenerics.IEnumerable<T> collection)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.AddRange(collection);
         }
 
         /// <summary>
-        /// Searches the entire sorted <see cref="List{T}"/> for an element using
-        /// the default comparer and returns the zero-based index of the element.
+        /// Searches the entire sorted list for an element using the default
+        /// comparer and returns the zero-based index of the element.
         /// </summary>
-        public static void BinarySearch<T>(List<T> list, T item)
+        public static void BinarySearch<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.BinarySearch(item);
         }
 
         /// <summary>
-        /// Searches the entire sorted <see cref="List{T}"/> for an element using
-        /// the specified comparer and returns the zero-based index of the element.
+        /// Searches the entire sorted list for an element using the specified
+        /// comparer and returns the zero-based index of the element.
         /// </summary>
-        public static void BinarySearch<T>(List<T> list, T item, IComparer<T> comparer)
+        public static void BinarySearch<T>(SystemGenerics.List<T> list, T item, SystemGenerics.IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.BinarySearch(item, comparer);
         }
 
         /// <summary>
-        /// Searches a range of elements in the sorted <see cref="List{T}"/> for an element using
-        /// the specified comparer and returns the zero-based index of the element.
+        /// Searches a range of elements in the sorted list for an element using the
+        /// specified comparer and returns the zero-based index of the element.
         /// </summary>
-        public static void BinarySearch<T>(List<T> list, int index, int count, T item, IComparer<T> comparer)
+        public static void BinarySearch<T>(SystemGenerics.List<T> list, int index, int count, T item, SystemGenerics.IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.BinarySearch(index, count, item, comparer);
         }
 
         /// <summary>
-        /// Removes all elements from the <see cref="List{T}"/>.
+        /// Removes all elements from the list.
         /// </summary>
-        public static void Clear<T>(List<T> list)
+        public static void Clear<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Clear();
         }
 
         /// <summary>
-        /// Determines whether an element is in the <see cref="List{T}"/>.
+        /// Determines whether an element is in the list.
         /// </summary>
-        public static bool Contains<T>(List<T> list, T item)
+        public static bool Contains<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.Contains(item);
         }
 
         /// <summary>
-        /// Converts the elements in the current <see cref="List{T}"/> to another
-        /// type, and returns a list containing the converted elements.
+        /// Converts the elements in the current list to another type,
+        /// and returns a list containing the converted elements.
         /// </summary>
-        public static List<TOutput> ConvertAll<T, TOutput>(List<T> list, Converter<T, TOutput> converter)
+        public static SystemGenerics.List<TOutput> ConvertAll<T, TOutput>(SystemGenerics.List<T> list, Converter<T, TOutput> converter)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.ConvertAll(converter);
         }
 
         /// <summary>
-        /// Copies the entire <see cref="List{T}"/> to a compatible one-dimensional
-        /// array, starting at the beginning of the target array.
+        /// Copies the entire list to a compatible one-dimensional array,
+        /// starting at the beginning of the target array.
         /// </summary>
-        public static void CopyTo<T>(List<T> list, T[] array)
+        public static void CopyTo<T>(SystemGenerics.List<T> list, T[] array)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.CopyTo(array);
         }
 
         /// <summary>
-        /// Copies the entire <see cref="List{T}"/> to a compatible one-dimensional
-        /// array, starting at the specified index of the target array.
+        /// Copies the entire list to a compatible one-dimensional array,
+        /// starting at the specified index of the target array.
         /// </summary>
-        public static void CopyTo<T>(List<T> list, T[] array, int arrayIndex)
+        public static void CopyTo<T>(SystemGenerics.List<T> list, T[] array, int arrayIndex)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
-        /// Copies a range of elements from the <see cref="List{T}"/> to a compatible
-        /// one-dimensional array, starting at the specified index of the target array.
+        /// Copies a range of elements from the list to a compatible one-dimensional array,
+        /// starting at the specified index of the target array.
         /// </summary>
-        public static void CopyTo<T>(List<T> list, int index, T[] array, int arrayIndex, int count)
+        public static void CopyTo<T>(SystemGenerics.List<T> list, int index, T[] array, int arrayIndex, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.CopyTo(index, array, arrayIndex, count);
         }
 
         /// <summary>
-        /// Determines whether the <see cref="List{T}"/> contains elements that
-        /// match the conditions defined by the specified predicate.
+        /// Determines whether the list contains elements that match the
+        /// conditions defined by the specified predicate.
         /// </summary>
-        public static bool Exists<T>(List<T> list, Predicate<T> match)
+        public static bool Exists<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.Exists(match);
@@ -228,9 +230,9 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
-        /// predicate, and returns the first occurrence within the entire <see cref="List{T}"/>.
+        /// predicate, and returns the first occurrence within the entire list.
         /// </summary>
-        public static T Find<T>(List<T> list, Predicate<T> match)
+        public static T Find<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.Find(match);
@@ -239,7 +241,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Retrieves all the elements that match the conditions defined by the specified predicate.
         /// </summary>
-        public static List<T> FindAll<T>(List<T> list, Predicate<T> match)
+        public static SystemGenerics.List<T> FindAll<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindAll(match);
@@ -248,22 +250,21 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the zero-based index of the first occurrence within the
-        /// range of elements in the <see cref="List{T}"/> that starts at the specified
-        /// index and contains the specified number of elements.
+        /// range of elements in the list that starts at the specified index and contains
+        /// the specified number of elements.
         /// </summary>
-        public static int FindIndex<T>(List<T> list, int startIndex, int count, Predicate<T> match)
+        public static int FindIndex<T>(SystemGenerics.List<T> list, int startIndex, int count, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindIndex(startIndex, count, match);
         }
 
         /// <summary>
-        /// Searches for an element that matches the conditions defined by the specified
-        /// predicate, and returns the zero-based index of the first occurrence within the
-        /// range of elements in the <see cref="List{T}"/> that extends from the specified
-        /// index to the last element.
+        /// Searches for an element that matches the conditions defined by the specified predicate,
+        /// and returns the zero-based index of the first occurrence within the range of elements
+        /// in the list that extends from the specified index to the last element.
         /// </summary>
-        public static int FindIndex<T>(List<T> list, int startIndex, Predicate<T> match)
+        public static int FindIndex<T>(SystemGenerics.List<T> list, int startIndex, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindIndex(startIndex, match);
@@ -272,9 +273,9 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the zero-based index of the first occurrence within the
-        /// entire <see cref="List{T}"/>.
+        /// entire list.
         /// </summary>
-        public static int FindIndex<T>(List<T> list, Predicate<T> match)
+        public static int FindIndex<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindIndex(match);
@@ -282,9 +283,9 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
-        /// predicate, and returns the last occurrence within the entire <see cref="List{T}"/>.
+        /// predicate, and returns the last occurrence within the entire list.
         /// </summary>
-        public static T FindLast<T>(List<T> list, Predicate<T> match)
+        public static T FindLast<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindLast(match);
@@ -293,10 +294,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the zero-based index of the last occurrence within the
-        /// range of elements in the <see cref="List{T}"/> that contains the specified
+        /// range of elements in the list that contains the specified
         /// number of elements and ends at the specified index.
         /// </summary>
-        public static int FindLastIndex<T>(List<T> list, int startIndex, int count, Predicate<T> match)
+        public static int FindLastIndex<T>(SystemGenerics.List<T> list, int startIndex, int count, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindLastIndex(startIndex, count, match);
@@ -305,10 +306,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the zero-based index of the last occurrence within the
-        /// range of elements in the <see cref="List{T}"/> that extends from the first
+        /// range of elements in the list that extends from the first
         /// element to the specified index.
         /// </summary>
-        public static int FindLastIndex<T>(List<T> list, int startIndex, Predicate<T> match)
+        public static int FindLastIndex<T>(SystemGenerics.List<T> list, int startIndex, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindLastIndex(startIndex, match);
@@ -317,36 +318,36 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches for an element that matches the conditions defined by the specified
         /// predicate, and returns the zero-based index of the last occurrence within the
-        /// entire <see cref="List{T}"/>.
+        /// entire list.
         /// </summary>
-        public static int FindLastIndex<T>(List<T> list, Predicate<T> match)
+        public static int FindLastIndex<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.FindLastIndex(match);
         }
 
         /// <summary>
-        /// Performs the specified action on each element of the <see cref="List{T}"/>.
+        /// Performs the specified action on each element of the list.
         /// </summary>
-        public static void ForEach<T>(List<T> list, Action<T> action)
+        public static void ForEach<T>(SystemGenerics.List<T> list, Action<T> action)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             list.ForEach(action);
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the <see cref="List{T}"/>.
+        /// Returns an enumerator that iterates through the list.
         /// </summary>
-        public static List<T>.Enumerator GetEnumerator<T>(List<T> list)
+        public static SystemGenerics.List<T>.Enumerator GetEnumerator<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.GetEnumerator();
         }
 
         /// <summary>
-        /// Creates a shallow copy of a range of elements in the source <see cref="List{T}"/>.
+        /// Creates a shallow copy of a range of elements in the source list.
         /// </summary>
-        public static List<T> GetRange<T>(List<T> list, int index, int count)
+        public static SystemGenerics.List<T> GetRange<T>(SystemGenerics.List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.GetRange(index, count);
@@ -354,21 +355,21 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for the specified object and returns the zero-based index of the first
-        /// occurrence within the range of elements in the <see cref="List{T}"/> that starts
-        /// at the specified index and contains the specified number of elements.
+        /// occurrence within the range of elements in the list that starts at the specified
+        /// index and contains the specified number of elements.
         /// </summary>
-        public static int IndexOf<T>(List<T> list, T item, int index, int count)
+        public static int IndexOf<T>(SystemGenerics.List<T> list, T item, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.IndexOf(item, index, count);
         }
 
         /// <summary>
-        /// Searches for the specified object and returns the zero-based index of the first
-        /// occurrence within the range of elements in the <see cref="List{T}"/> that extends
-        /// from the specified index to the last element.
+        /// Searches for the specified object and returns the zero-based index of the
+        /// first occurrence within the range of elements in the list that extends from
+        /// the specified index to the last element.
         /// </summary>
-        public static int IndexOf<T>(List<T> list, T item, int index)
+        public static int IndexOf<T>(SystemGenerics.List<T> list, T item, int index)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.IndexOf(item, index);
@@ -376,28 +377,29 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for the specified object and returns the zero-based index of the first
-        /// occurrence within the entire <see cref="List{T}"/>.
+        /// occurrence within the entire list.
         /// </summary>
-        public static int IndexOf<T>(List<T> list, T item)
+        public static int IndexOf<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.IndexOf(item);
         }
 
         /// <summary>
-        /// Inserts an element into the <see cref="List{T}"/> at the specified index.
+        /// Inserts an element into the list at the specified index.
         /// </summary>
-        public static void Insert<T>(List<T> list, int index, T item)
+        public static void Insert<T>(SystemGenerics.List<T> list, int index, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Insert(index, item);
         }
 
         /// <summary>
-        /// Inserts the elements of a collection into the <see cref="List{T}"/>
+        /// Inserts the elements of a collection into the list
         /// at the specified index.
         /// </summary>
-        public static void InsertRange<T>(List<T> list, int index, IEnumerable<T> collection)
+        public static void InsertRange<T>(SystemGenerics.List<T> list, int index,
+            SystemGenerics.IEnumerable<T> collection)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.InsertRange(index, collection);
@@ -405,9 +407,9 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for the specified object and returns the zero-based index of the last
-        /// occurrence within the entire <see cref="List{T}"/>.
+        /// occurrence within the entire list.
         /// </summary>
-        public static int LastIndexOf<T>(List<T> list, T item)
+        public static int LastIndexOf<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.LastIndexOf(item);
@@ -415,10 +417,10 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for the specified object and returns the zero-based index of the last
-        /// occurrence within the range of elements in the <see cref="List{T}"/> that extends
-        /// from the first element to the specified index.
+        /// occurrence within the range of elements in the list that extends from the first
+        /// element to the specified index.
         /// </summary>
-        public static int LastIndexOf<T>(List<T> list, T item, int index)
+        public static int LastIndexOf<T>(SystemGenerics.List<T> list, T item, int index)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.LastIndexOf(item, index);
@@ -426,19 +428,19 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Searches for the specified object and returns the zero-based index of the last
-        /// occurrence within the range of elements in the <see cref="List{T}"/> that contains
-        /// the specified number of elements and ends at the specified index.
+        /// occurrence within the range of elements in the list that contains the specified
+        /// number of elements and ends at the specified index.
         /// </summary>
-        public static int LastIndexOf<T>(List<T> list, T item, int index, int count)
+        public static int LastIndexOf<T>(SystemGenerics.List<T> list, T item, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.LastIndexOf(item, index, count);
         }
 
         /// <summary>
-        /// Removes the first occurrence of a specific object from the <see cref="List{T}"/>.
+        /// Removes the first occurrence of a specific object from the list.
         /// </summary>
-        public static bool Remove<T>(List<T> list, T item)
+        public static bool Remove<T>(SystemGenerics.List<T> list, T item)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             return list.Remove(item);
@@ -447,25 +449,25 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Removes all the elements that match the conditions defined by the specified predicate.
         /// </summary>
-        public static int RemoveAll<T>(List<T> list, Predicate<T> match)
+        public static int RemoveAll<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             return list.RemoveAll(match);
         }
 
         /// <summary>
-        /// Removes the element at the specified index of the <see cref="List{T}"/>.
+        /// Removes the element at the specified index of the list.
         /// </summary>
-        public static void RemoveAt<T>(List<T> list, int index)
+        public static void RemoveAt<T>(SystemGenerics.List<T> list, int index)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.RemoveAt(index);
         }
 
         /// <summary>
-        /// Removes a range of elements from the <see cref="List{T}"/>.
+        /// Removes a range of elements from the list.
         /// </summary>
-        public static void RemoveRange<T>(List<T> list, int index, int count)
+        public static void RemoveRange<T>(SystemGenerics.List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.RemoveRange(index, count);
@@ -474,92 +476,91 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Reverses the order of the elements in the specified range.
         /// </summary>
-        public static void Reverse<T>(List<T> list, int index, int count)
+        public static void Reverse<T>(SystemGenerics.List<T> list, int index, int count)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Reverse(index, count);
         }
 
         /// <summary>
-        /// Reverses the order of the elements in the entire <see cref="List{T}"/>.
+        /// Reverses the order of the elements in the entire list.
         /// </summary>
-        public static void Reverse<T>(List<T> list)
+        public static void Reverse<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Reverse();
         }
 
         /// <summary>
-        /// Sorts the elements in the entire <see cref="List{T}"/> using the
-        /// specified <see cref="Comparison{T}"/>.
+        /// Sorts the elements in the entire list using the specified <see cref="Comparison{T}"/>.
         /// </summary>
-        public static void Sort<T>(List<T> list, Comparison<T> comparison)
+        public static void Sort<T>(SystemGenerics.List<T> list, Comparison<T> comparison)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Sort(comparison);
         }
 
         /// <summary>
-        /// Sorts the elements in a range of elements in <see cref="List{T}"/>
-        /// using the specified comparer.
+        /// Sorts the elements in a range of elements in list using the specified comparer.
         /// </summary>
-        public static void Sort<T>(List<T> list, int index, int count, IComparer<T> comparer)
+        public static void Sort<T>(SystemGenerics.List<T> list, int index, int count,
+            SystemGenerics.IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Sort(index, count, comparer);
         }
 
         /// <summary>
-        /// Sorts the elements in the entire <see cref="List{T}"/> using the default comparer.
+        /// Sorts the elements in the entire list using the default comparer.
         /// </summary>
-        public static void Sort<T>(List<T> list)
+        public static void Sort<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Sort();
         }
 
         /// <summary>
-        /// Sorts the elements in the entire <see cref="List{T}"/> using the specified comparer.
+        /// Sorts the elements in the entire list using the specified comparer.
         /// </summary>
-        public static void Sort<T>(List<T> list, IComparer<T> comparer)
+        public static void Sort<T>(SystemGenerics.List<T> list, SystemGenerics.IComparer<T> comparer)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.Sort(comparer);
         }
 
         /// <summary>
-        /// Copies the elements of the <see cref="List{T}"/> to a new array.
+        /// Copies the elements of the list to a new array.
         /// </summary>
-        public static T[] ToArray<T>(List<T> list)
+        public static T[] ToArray<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.ToArray();
         }
 
         /// <summary>
-        /// Sets the capacity to the actual number of elements in the <see cref="List{T}"/>,
+        /// Sets the capacity to the actual number of elements in the list,
         /// if that number is less than a threshold value.
         /// </summary>
-        public static void TrimExcess<T>(List<T> list)
+        public static void TrimExcess<T>(SystemGenerics.List<T> list)
         {
             (list as Mock<T>)?.CheckDataRace(true);
             list.TrimExcess();
         }
 
         /// <summary>
-        /// Determines whether every element in the <see cref="List{T}"/> matches
+        /// Determines whether every element in the list matches
         /// the conditions defined by the specified predicate.
         /// </summary>
-        public static bool TrueForAll<T>(List<T> list, Predicate<T> match)
+        public static bool TrueForAll<T>(SystemGenerics.List<T> list, Predicate<T> match)
         {
             (list as Mock<T>)?.CheckDataRace(false);
             return list.TrueForAll(match);
         }
 
         /// <summary>
-        /// Implements a <see cref="List{T}"/> that can be controlled during testing.
+        /// Implements a list that can be controlled during testing.
         /// </summary>
-        private class Mock<T> : List<T>
+        private class Mock<T> : SystemGenerics.List<T>
         {
             /// <summary>
             /// Count of read accesses to the list.
@@ -580,7 +581,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock{T}"/> class.
             /// </summary>
-            internal Mock(IEnumerable<T> collection)
+            internal Mock(SystemGenerics.IEnumerable<T> collection)
                 : base(collection) => this.Setup();
 
             /// <summary>
@@ -606,9 +607,11 @@ namespace Microsoft.Coyote.Rewriting.Types
                 var runtime = CoyoteRuntime.Current;
                 if (isWriteAccess)
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found write/write data race on '{typeof(List<T>)}'.");
-                    runtime.Assert(this.ReaderCount is 0, $"Found read/write data race on '{typeof(List<T>)}'.");
-                    Interlocked.Increment(ref this.WriterCount);
+                    runtime.Assert(this.WriterCount is 0,
+                        $"Found write/write data race on '{typeof(SystemGenerics.List<T>)}'.");
+                    runtime.Assert(this.ReaderCount is 0,
+                        $"Found read/write data race on '{typeof(SystemGenerics.List<T>)}'.");
+                    SystemInterlocked.Increment(ref this.WriterCount);
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
@@ -619,12 +622,13 @@ namespace Microsoft.Coyote.Rewriting.Types
                         runtime.DelayOperation();
                     }
 
-                    Interlocked.Decrement(ref this.WriterCount);
+                    SystemInterlocked.Decrement(ref this.WriterCount);
                 }
                 else
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found read/write data race on '{typeof(List<T>)}'.");
-                    Interlocked.Increment(ref this.ReaderCount);
+                    runtime.Assert(this.WriterCount is 0,
+                        $"Found read/write data race on '{typeof(SystemGenerics.List<T>)}'.");
+                    SystemInterlocked.Increment(ref this.ReaderCount);
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
@@ -635,7 +639,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                         runtime.DelayOperation();
                     }
 
-                    Interlocked.Decrement(ref this.ReaderCount);
+                    SystemInterlocked.Decrement(ref this.ReaderCount);
                 }
             }
         }

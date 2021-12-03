@@ -2,81 +2,88 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Threading;
 using Microsoft.Coyote.Runtime;
+using SystemGenerics = System.Collections.Generic;
 
-namespace Microsoft.Coyote.Rewriting.Types
+using SystemInterlocked = System.Threading.Interlocked;
+
+namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 {
     /// <summary>
     /// Provides methods for creating generic hashsets that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ControlledHashSet
+    public static class HashSet
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class
-        /// that is empty and uses the default equality comparer for the set type.
+        /// Initializes a hash set instance class that is empty and uses the
+        /// default equality comparer for the set type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>() => new Mock<T>();
+        public static SystemGenerics.HashSet<T> Create<T>() => new Mock<T>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class that uses the default equality
-        /// comparer for the set type, contains elements copied from the specified collection, and has
-        /// sufficient capacity to accommodate the number of elements copied.
+        /// Initializes a hash set instance class that uses the default equality comparer
+        /// for the set type, contains elements copied from the specified collection, and
+        /// has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(IEnumerable<T> collection) => new Mock<T>(collection);
+        public static SystemGenerics.HashSet<T> Create<T>(SystemGenerics.IEnumerable<T> collection) =>
+            new Mock<T>(collection);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class
-        /// that is empty and uses the default equality comparer for the set type.
+        /// Initializes a hash set instance class that is empty and uses the default
+        /// equality comparer for the set type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(IEqualityComparer<T> comparer) => new Mock<T>(comparer);
+        public static SystemGenerics.HashSet<T> Create<T>(SystemGenerics.IEqualityComparer<T> comparer) =>
+            new Mock<T>(comparer);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class that uses the specidifed equality
-        /// comparer for the set type, contains elements copied from the specified collection, and has
-        /// sufficient capacity to accommodate the number of elements copied.
+        /// Initializes a hash set instance class that uses the specified equality comparer for the
+        /// set type, contains elements copied from the specified collection, and has sufficient
+        /// capacity to accommodate the number of elements copied.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(IEnumerable<T> collection, IEqualityComparer<T> comparer) =>
+        public static SystemGenerics.HashSet<T> Create<T>(SystemGenerics.IEnumerable<T> collection,
+            SystemGenerics.IEqualityComparer<T> comparer) =>
             new Mock<T>(collection, comparer);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class with serialized data.
+        /// Initializes a hash set instance class with serialized data.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(SerializationInfo info, StreamingContext context) => new Mock<T>(info, context);
+        public static SystemGenerics.HashSet<T> Create<T>(SerializationInfo info, StreamingContext context) =>
+            new Mock<T>(info, context);
 
 #if NET || NETCOREAPP3_1
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class that is empty, but has reserved
+        /// Initializes a hash set instance class that is empty, but has reserved
         /// space for 'capacity' items and and uses the default equality comparer for the set type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(int capacity) => new Mock<T>(capacity);
+        public static SystemGenerics.HashSet<T> Create<T>(int capacity) => new Mock<T>(capacity);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HashSet{T}"/> class that uses the specified
+        /// Initializes a hash set instance class that uses the specified
         /// equality comparer for the set type, and has sufficient capacity to accommodate 'capacity' elements.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashSet<T> Create<T>(int capacity, IEqualityComparer<T> comparer) => new Mock<T>(capacity, comparer);
+        public static SystemGenerics.HashSet<T> Create<T>(int capacity,
+            SystemGenerics.IEqualityComparer<T> comparer) =>
+            new Mock<T>(capacity, comparer);
 #endif
 
         /// <summary>
-        /// Gets the <see cref="IEqualityComparer{T}"/> object that is used to determine equality for the values in the set.
+        /// Gets the equality comparer object that is used to determine equality for the values in the set.
         /// </summary>
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static IEqualityComparer<T> get_Comparer<T>(HashSet<T> hashSet)
+        public static SystemGenerics.IEqualityComparer<T> get_Comparer<T>(SystemGenerics.HashSet<T> hashSet)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -86,12 +93,12 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Gets the number of elements that are contained in the <see cref="HashSet{T}"/>.
+        /// Gets the number of elements that are contained in the hash set.
         /// </summary>
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count<T>(HashSet<T> hashSet)
+        public static int get_Count<T>(SystemGenerics.HashSet<T> hashSet)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
@@ -101,72 +108,72 @@ namespace Microsoft.Coyote.Rewriting.Types
         }
 
         /// <summary>
-        /// Adds the specified element to the <see cref="HashSet{T}"/>.
+        /// Adds the specified element to the hash set.
         /// </summary>
-        public static bool Add<T>(HashSet<T> hashSet, T item)
+        public static bool Add<T>(SystemGenerics.HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             return hashSet.Add(item);
         }
 
         /// <summary>
-        /// Removes all elements from a <see cref="HashSet{T}"/> object.
+        /// Removes all elements from a hash set object.
         /// </summary>
-        public static void Clear<T>(HashSet<T> hashSet)
+        public static void Clear<T>(SystemGenerics.HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             hashSet.Clear();
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object contains the specified element.
+        /// Determines whether a hash set object contains the specified element.
         /// </summary>
-        public static bool Contains<T>(HashSet<T> hashSet, T item)
+        public static bool Contains<T>(SystemGenerics.HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.Contains(item);
         }
 
         /// <summary>
-        /// Copies the elements of a <see cref="HashSet{T}"/> object to an array.
+        /// Copies the elements of a hash set object to an array.
         /// </summary>
-        public static void CopyTo<T>(HashSet<T> hashSet, T[] array)
+        public static void CopyTo<T>(SystemGenerics.HashSet<T> hashSet, T[] array)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.CopyTo(array);
         }
 
         /// <summary>
-        /// Copies the elements of a <see cref="HashSet{T}"/> object to an array, starting at the specified array index.
+        /// Copies the elements of a hash set object to an array, starting at the specified array index.
         /// </summary>
-        public static void CopyTo<T>(HashSet<T> hashSet, T[] array, int arrayIndex)
+        public static void CopyTo<T>(SystemGenerics.HashSet<T> hashSet, T[] array, int arrayIndex)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
-        /// Copies the specified number of elements of a <see cref="HashSet{T}"/> object to an array, starting at the specified array index.
+        /// Copies the specified number of elements of a hash set object to an array, starting at the specified array index.
         /// </summary>
-        public static void CopyTo<T>(HashSet<T> hashSet, T[] array, int arrayIndex, int count)
+        public static void CopyTo<T>(SystemGenerics.HashSet<T> hashSet, T[] array, int arrayIndex, int count)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.CopyTo(array, arrayIndex, count);
         }
 
         /// <summary>
-        /// Removes all elements in the specified collection from the current <see cref="HashSet{T}"/> object.
+        /// Removes all elements in the specified collection from the current hash set object.
         /// </summary>
-        public static void ExceptWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static void ExceptWith<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             hashSet.ExceptWith(other);
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through a <see cref="HashSet{T}"/> object.
+        /// Returns an enumerator that iterates through a hash set object.
         /// </summary>
-        public static HashSet<T>.Enumerator GetEnumerator<T>(HashSet<T> hashSet)
+        public static SystemGenerics.HashSet<T>.Enumerator GetEnumerator<T>(SystemGenerics.HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.GetEnumerator();
@@ -174,55 +181,56 @@ namespace Microsoft.Coyote.Rewriting.Types
 
         /// <summary>
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed to
-        /// serialize a <see cref="HashSet{T}"/> object.
+        /// serialize a hash set object.
         /// </summary>
-        public static void GetObjectData<T>(HashSet<T> hashSet, SerializationInfo info, StreamingContext context)
+        public static void GetObjectData<T>(SystemGenerics.HashSet<T> hashSet, SerializationInfo info,
+            StreamingContext context)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.GetObjectData(info, context);
         }
 
         /// <summary>
-        /// Modifies the current <see cref="HashSet{T}"/> object to contain only elements that are present
+        /// Modifies the current hash set object to contain only elements that are present
         /// in that object and in the specified collection.
         /// </summary>
-        public static void IntersecWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static void IntersecWith<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             hashSet.IntersectWith(other);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object is a proper subset of the specified collection.
+        /// Determines whether a hash set object is a proper subset of the specified collection.
         /// </summary>
-        public static bool IsProperSubsetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool IsProperSubsetOf<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.IsProperSubsetOf(other);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object is a proper superset of the specified collection.
+        /// Determines whether a hash set object is a proper superset of the specified collection.
         /// </summary>
-        public static bool IsProperSupersetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool IsProperSupersetOf<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.IsProperSupersetOf(other);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object is a subset of the specified collection.
+        /// Determines whether a hash set object is a subset of the specified collection.
         /// </summary>
-        public static bool IsSubsetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool IsSubsetOf<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.IsSubsetOf(other);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object is a superset of the specified collection.
+        /// Determines whether a hash set object is a superset of the specified collection.
         /// </summary>
-        public static bool IsSupersetOf<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool IsSupersetOf<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.IsSupersetOf(other);
@@ -231,75 +239,76 @@ namespace Microsoft.Coyote.Rewriting.Types
         // TODO: Is this requried?
 
         /// <summary>
-        /// Implements the <see cref="ISerializable"/> interface and raises the deserialization event when the deserialization is complete.
+        /// Implements the <see cref="ISerializable"/> interface and raises the deserialization
+        /// event when the deserialization is complete.
         /// </summary>
-        public static void OnDeserialization<T>(HashSet<T> hashSet, object sender)
+        public static void OnDeserialization<T>(SystemGenerics.HashSet<T> hashSet, object sender)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.OnDeserialization(sender);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object and a specified collection share common elements.
+        /// Determines whether a hash set object and a specified collection share common elements.
         /// </summary>
-        public static bool Overlaps<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool Overlaps<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.Overlaps(other);
         }
 
         /// <summary>
-        /// Removes the specified element from a <see cref="HashSet{T}"/> object.
+        /// Removes the specified element from a hash set object.
         /// </summary>
-        public static bool Remove<T>(HashSet<T> hashSet, T item)
+        public static bool Remove<T>(SystemGenerics.HashSet<T> hashSet, T item)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             return hashSet.Remove(item);
         }
 
         /// <summary>
-        /// Removes the specified element from a <see cref="HashSet{T}"/> object.
+        /// Removes the specified element from a hash set object.
         /// </summary>
-        public static int RemoveWhere<T>(HashSet<T> hashSet, Predicate<T> match)
+        public static int RemoveWhere<T>(SystemGenerics.HashSet<T> hashSet, Predicate<T> match)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             return hashSet.RemoveWhere(match);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="HashSet{T}"/> object and the specified collection contain the same elements.
+        /// Determines whether a hash set object and the specified collection contain the same elements.
         /// </summary>
-        public static bool SetEquals<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static bool SetEquals<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.SetEquals(other);
         }
 
         /// <summary>
-        /// Modifies the current <see cref="HashSet{T}"/> object to contain only elements that are present either in
+        /// Modifies the current hash set object to contain only elements that are present either in
         /// that object or in the specified collection, but not both.
         /// </summary>
-        public static void SymmetricExceptWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static void SymmetricExceptWith<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             hashSet.SymmetricExceptWith(other);
         }
 
         /// <summary>
-        /// Sets the capacity of a <see cref="HashSet{T}"/> object to the actual number of elements it
+        /// Sets the capacity of a hash set object to the actual number of elements it
         /// contains, rounded up to a nearby, implementation-specific value.
         /// </summary>
-        public static void TrimExcess<T>(HashSet<T> hashSet)
+        public static void TrimExcess<T>(SystemGenerics.HashSet<T> hashSet)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             hashSet.TrimExcess();
         }
 
         /// <summary>
-        /// Modifies the current <see cref="HashSet{T}"/> object to contain all elements that are
+        /// Modifies the current hash set object to contain all elements that are
         /// present in itself, the specified collection, or both.
         /// </summary>
-        public static void UnionWith<T>(HashSet<T> hashSet, IEnumerable<T> other)
+        public static void UnionWith<T>(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
         {
             (hashSet as Mock<T>)?.CheckDataRace(true);
             hashSet.UnionWith(other);
@@ -307,9 +316,9 @@ namespace Microsoft.Coyote.Rewriting.Types
 
 #if NET || NETCOREAPP3_1
         /// <summary>
-        /// Ensures that this <see cref="HashSet{T}"/> object can hold the specified number of elements without growing.
+        /// Ensures that this hash set object can hold the specified number of elements without growing.
         /// </summary>
-        public static int EnsureCapacity<T>(HashSet<T> hashSet, int capacity)
+        public static int EnsureCapacity<T>(SystemGenerics.HashSet<T> hashSet, int capacity)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.EnsureCapacity(capacity);
@@ -318,7 +327,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Searches the set for a given value and returns the equal value it finds, if any.
         /// </summary>
-        public static bool TryGetValue<T>(HashSet<T> hashSet, T equalValue, out T actualValue)
+        public static bool TryGetValue<T>(SystemGenerics.HashSet<T> hashSet, T equalValue, out T actualValue)
         {
             (hashSet as Mock<T>)?.CheckDataRace(false);
             return hashSet.TryGetValue(equalValue, out actualValue);
@@ -326,11 +335,11 @@ namespace Microsoft.Coyote.Rewriting.Types
 #endif
 
         /// <summary>
-        /// Implements a <see cref="HashSet{T}"/> that can be controlled during testing.
+        /// Implements a hash set that can be controlled during testing.
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        private class Mock<T> : HashSet<T>
+        private class Mock<T> : SystemGenerics.HashSet<T>
         {
             /// <summary>
             /// Count of read accesses to the dictionary.
@@ -348,13 +357,13 @@ namespace Microsoft.Coyote.Rewriting.Types
             internal Mock()
                 : base() => this.Setup();
 
-            internal Mock(IEnumerable<T> collection)
+            internal Mock(SystemGenerics.IEnumerable<T> collection)
                 : base(collection) => this.Setup();
 
-            internal Mock(IEnumerable<T> collection, IEqualityComparer<T> comparer)
+            internal Mock(SystemGenerics.IEnumerable<T> collection, SystemGenerics.IEqualityComparer<T> comparer)
                 : base(collection, comparer) => this.Setup();
 
-            internal Mock(IEqualityComparer<T> comparer)
+            internal Mock(SystemGenerics.IEqualityComparer<T> comparer)
                 : base(comparer) => this.Setup();
 
             internal Mock(SerializationInfo info, StreamingContext context)
@@ -364,7 +373,7 @@ namespace Microsoft.Coyote.Rewriting.Types
             internal Mock(int capacity)
                 : base(capacity) => this.Setup();
 
-            internal Mock(int capacity, IEqualityComparer<T> comparer)
+            internal Mock(int capacity, SystemGenerics.IEqualityComparer<T> comparer)
                 : base(capacity, comparer) => this.Setup();
 #endif
 
@@ -397,20 +406,23 @@ namespace Microsoft.Coyote.Rewriting.Types
 
                 if (isWriteAccess)
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found write/write data race on '{typeof(HashSet<T>)}'.");
-                    runtime.Assert(this.ReaderCount is 0, $"Found read/write data race on '{typeof(HashSet<T>)}'.");
+                    runtime.Assert(this.WriterCount is 0,
+                        $"Found write/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
+                    runtime.Assert(this.ReaderCount is 0,
+                        $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
 
-                    Interlocked.Increment(ref this.WriterCount);
+                    SystemInterlocked.Increment(ref this.WriterCount);
                     Interleave();
-                    Interlocked.Decrement(ref this.WriterCount);
+                    SystemInterlocked.Decrement(ref this.WriterCount);
                 }
                 else
                 {
-                    runtime.Assert(this.WriterCount is 0, $"Found read/write data race on '{typeof(HashSet<T>)}'.");
+                    runtime.Assert(this.WriterCount is 0,
+                        $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
 
-                    Interlocked.Increment(ref this.ReaderCount);
+                    SystemInterlocked.Increment(ref this.ReaderCount);
                     Interleave();
-                    Interlocked.Decrement(ref this.ReaderCount);
+                    SystemInterlocked.Decrement(ref this.ReaderCount);
                 }
             }
         }

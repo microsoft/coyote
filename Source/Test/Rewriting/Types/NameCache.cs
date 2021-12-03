@@ -8,12 +8,12 @@ using SystemGenericCollections = System.Collections.Generic;
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
 
-namespace Microsoft.Coyote.Rewriting
+namespace Microsoft.Coyote.Rewriting.Types
 {
     /// <summary>
-    /// Provider of cached names for known types.
+    /// Cache of known types that can be rewritten.
     /// </summary>
-    internal static class CachedNameProvider
+    internal static class NameCache
     {
         internal static string RuntimeCompilerNamespace { get; } = typeof(RuntimeCompiler.AsyncTaskMethodBuilder).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
@@ -39,14 +39,11 @@ namespace Microsoft.Coyote.Rewriting
             typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName + "/ConfiguredTaskAwaiter";
         internal static string GenericConfiguredTaskAwaiterFullName { get; } =
             typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName + "/ConfiguredTaskAwaiter";
-        internal static string YieldAwaitableFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;
-        internal static string YieldAwaiterFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
 
         internal static string TaskExtensionsFullName { get; } = typeof(SystemTasks.TaskExtensions).FullName;
         internal static string TaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory).FullName;
         internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
         internal static string TaskParallelFullName { get; } = typeof(SystemTasks.Parallel).FullName;
-        internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
 
         internal static string GenericListFullName { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionaryFullName { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;

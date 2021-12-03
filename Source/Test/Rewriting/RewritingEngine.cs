@@ -129,26 +129,13 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void InitializePasses(IEnumerable<AssemblyInfo> assemblies)
         {
-            this.Passes.AddFirst(new TaskRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new MonitorRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
-
-            if (this.Options.IsRewritingThreads)
-            {
-                this.Passes.AddLast(new ThreadingRewritingPass(assemblies, this.Logger));
-            }
-
-            if (this.Options.IsRewritingConcurrentCollections)
-            {
-                this.Passes.AddLast(new ConcurrentCollectionRewritingPass(assemblies, this.Logger));
-            }
-
-            if (this.Options.IsDataRaceCheckingEnabled)
-            {
-                this.Passes.AddLast(new DataRaceCheckingRewritingPass(assemblies, this.Logger));
-            }
+            // Add the default type rewriting passes. We must first rewrite member types,
+            // such as fields and method signatures, before we can rewrite the method bodies.
+            this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.Logger));
+            this.Passes.AddFirst(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.Logger));
 
 #if NET || NETCOREAPP3_1
+            // Add a rewriting pass for taking control of ASP.NET applications.
             this.Passes.AddLast(new AspNetRewritingPass(assemblies, this.Logger));
 #endif
 
@@ -161,6 +148,10 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
             this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
+
+            // Add a pass that rewrites exception handlers to make sure that any exceptions
+            // used internally by the runtime are not consumed by the user code.
+            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
 
             if (this.Options.IsLoggingAssemblyContents || this.Options.IsDiffingAssemblyContents)
             {

@@ -78,7 +78,8 @@ namespace Microsoft.Coyote.Rewriting
             var assemblyResolver = new DefaultAssemblyResolver();
 
             // Add known search directories for resolving assemblies.
-            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(Types.ControlledTask).Assembly.Location));
+            assemblyResolver.AddSearchDirectory(
+                Path.GetDirectoryName(typeof(Types.Threading.Tasks.Task).Assembly.Location));
             assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
             if (this.Options.DependencySearchPaths != null)
             {

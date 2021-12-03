@@ -28,6 +28,40 @@ namespace Microsoft.Coyote.Rewriting
         {
         }
 
+        /// <summary>
+        /// Finds the matching method in the specified declaring type, if any.
+        /// </summary>
+        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
+            string name, params TypeReference[] parameterTypes)
+        {
+            Console.WriteLine($"FindMatchingMethodInDeclaringType: {declaringType.FullName}");
+            foreach (var match in declaringType.Methods)
+            {
+                Console.WriteLine($" >>> : {match.FullName}");
+                if (match.Name == name && match.Parameters.Count == parameterTypes.Length)
+                {
+                    bool matches = true;
+                    // Check if the parameters match.
+                    for (int i = 0, n = match.Parameters.Count; matches && i < n; i++)
+                    {
+                        var p = match.Parameters[i];
+                        var q = parameterTypes[i];
+                        if (p.ParameterType.FullName != q.FullName)
+                        {
+                            matches = false;
+                        }
+                    }
+
+                    if (matches)
+                    {
+                        return match;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         protected static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
         {
             if (self.GenericParameters.Count != arguments.Length)

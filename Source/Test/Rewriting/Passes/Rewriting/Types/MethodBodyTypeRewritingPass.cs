@@ -167,12 +167,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the specified <see cref="MethodReference"/>.
         /// </summary>
-        /// <param name="method">The method reference to rewrite.</param>
-        /// <param name="module">The module definition that is being visited.</param>
-        /// <param name="matchName">Optional method name to match.</param>
-        /// <returns>The rewritten method, or the original if it was not changed.</returns>
         private MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
         {
+            Console.WriteLine($"Method: {method.FullName}");
             MethodReference result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
@@ -202,7 +199,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // Try to rewrite the declaring type.
-            TypeReference newDeclaringType = this.RewriteMethodDeclaringTypeReference(method);
+            TypeReference newDeclaringType = this.RewriteDeclaringTypeReference(method);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.
@@ -224,7 +221,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             result = module.ImportReference(match);
-            Console.WriteLine($"Method: {method.FullName}");
             Console.WriteLine($"Match: {result.FullName}");
             Console.WriteLine($">> Method: {method.Name} ({method.DeclaringType.FullName})");
             Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
@@ -340,30 +336,15 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the specified <see cref="ParameterDefinition"/>.
         /// </summary>
-        /// <param name="parameter">The parameter definition to rewrite.</param>
-        /// <returns>The rewritten parameter definition, or the original if it was not changed.</returns>
         private ParameterDefinition RewriteParameterDefinition(ParameterDefinition parameter) =>
             new ParameterDefinition(parameter.Name, parameter.Attributes, this.RewriteTypeReference(parameter.ParameterType));
 
         /// <summary>
         /// Rewrites the declaring <see cref="TypeReference"/> of the specified <see cref="MethodReference"/>.
         /// </summary>
-        /// <param name="method">The method with the declaring type to rewrite.</param>
-        /// <returns>The rewritten declaring type, or the original if it was not changed.</returns>
-        private TypeReference RewriteMethodDeclaringTypeReference(MethodReference method)
+        private TypeReference RewriteDeclaringTypeReference(MethodReference method)
         {
             TypeReference type = method.DeclaringType;
-            // if (IsSupportedTaskType(type))
-            // {
-            //     // Special rules apply for `Task` and `TaskCompletionSource` methods, which are replaced
-            //     // with their `Task` and `ControlledTaskCompletionSource` counterparts.
-            //     if (IsSupportedTaskMethod(type.Name, method.Name) ||
-            //         type.Name.StartsWith(NameCache.GenericTaskCompletionSourceName))
-            //     {
-            //         type = this.RewriteTaskType(type);
-            //     }
-            // }
-            // else
             if (this.TryRewriteType(type, out TypeReference newDeclaringType) &&
                 this.TryResolve(newDeclaringType, out TypeDefinition _))
             {
@@ -376,12 +357,11 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the specified <see cref="TypeReference"/>.
         /// </summary>
-        /// <param name="type">The type reference to rewrite.</param>
-        /// <returns>The rewritten type reference, or the original if it was not changed.</returns>
         private TypeReference RewriteTypeReference(TypeReference type)
         {
             if (this.TryRewriteType(type, out TypeReference newType) &&
-                this.TryResolve(newType, out TypeDefinition _))
+                this.TryResolve(newType, out TypeDefinition newTypeDefinition) &&
+                !IsStaticType(newTypeDefinition))
             {
                 type = newType;
             }
@@ -389,127 +369,117 @@ namespace Microsoft.Coyote.Rewriting
             return type;
         }
 
-        // /// <summary>
-        // /// Returns the rewritten type for the specified <see cref="SystemTasks"/> type, or returns the original
-        // /// if there is nothing to rewrite.
-        // /// </summary>
-        // private TypeReference RewriteTaskType(TypeReference type, bool isRoot = true)
-        // {
-        //     TypeReference result = type;
-        //     string fullName = type.FullName;
-        //     if (type is GenericInstanceType genericType)
-        //     {
-        //         TypeReference elementType = this.RewriteTaskType(genericType.ElementType, false);
-        //         result = this.RewriteCompilerType(genericType, elementType);
-        //     }
-        //     else if (fullName == NameCache.TaskFullName)
-        //     {
-        //         result = this.Module.ImportReference(typeof(Types.Task));
-        //     }
-        //     else if (fullName == NameCache.GenericTaskFullName)
-        //     {
-        //         result = this.Module.ImportReference(typeof(Types.Task<>), type);
-        //     }
-        //     else if (fullName == NameCache.GenericTaskCompletionSourceFullName)
-        //     {
-        //         result = this.Module.ImportReference(typeof(Types.ControlledTaskCompletionSource<>), type);
-        //     }
-        //     if (isRoot && result != type)
-        //     {
-        //         // Try resolve the new type.
-        //         Resolve(result);
-        //     }
-        //     return result;
-        // }
+        /// <summary>
+        /// Finds the matching method in the specified declaring type, if any.
+        /// </summary>
+        private static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
+            MethodDefinition method, string matchName = null)
+        {
+            foreach (var match in declaringType.Methods)
+            {
+                if (match.Name == matchName && CheckMethodParametersMatch(method, match))
+                {
+                    return match;
+                }
+                else if (CheckMethodSignaturesMatch(method, match))
+                {
+                    return match;
+                }
+            }
 
-        // /// <summary>
-        // /// Tries to return the rewritten type for the specified <see cref="SystemCompiler"/> type, or returns
-        // /// false if there is nothing to rewrite.
-        // /// </summary>
-        // private bool TryRewriteCompilerType(TypeReference type, out TypeReference result)
-        // {
-        //     result = this.RewriteCompilerType(type);
-        //     return result.FullName != type.FullName;
-        // }
+            return null;
+        }
 
-        // /// <summary>
-        // /// Returns the rewritten type for the specified <see cref="SystemCompiler"/> type, or returns the original
-        // /// if there is nothing to rewrite.
-        // /// </summary>
-        // private TypeReference RewriteCompilerType(TypeReference type, bool isRoot = true)
-        // {
-        //     TypeReference result = type;
-        //     string fullName = type.FullName;
-        //     if (type is GenericInstanceType genericType)
-        //     {
-        //         TypeReference elementType = this.RewriteCompilerType(genericType.ElementType, false);
-        //         result = this.RewriteCompilerType(genericType, elementType);
-        //         result = this.Module.ImportReference(result);
-        //     }
-        //     else
-        //     {
-        //         if (SupportedTypes.TryGetValue(fullName, out Type coyoteType))
-        //         {
-        //             if (coyoteType.IsGenericType)
-        //             {
-        //                 result = this.Module.ImportReference(coyoteType, type);
-        //             }
-        //             else
-        //             {
-        //                 result = this.Module.ImportReference(coyoteType);
-        //             }
-        //         }
-        //     }
-        //     if (isRoot && result != type)
-        //     {
-        //         // Try resolve the new type.
-        //         Resolve(result);
-        //     }
-        //     return result;
-        // }
+        /// <summary>
+        /// Checks if the parameters of the two specified methods match.
+        /// </summary>
+        private static bool CheckMethodParametersMatch(MethodDefinition left, MethodDefinition right)
+        {
+            if (left.Parameters.Count != right.Parameters.Count)
+            {
+                return false;
+            }
 
-        // /// <summary>
-        // /// Returns the rewritten type for the specified generic <see cref="SystemCompiler"/> type, or returns
-        // /// the original if there is nothing to rewrite.
-        // /// </summary>
-        // private TypeReference RewriteCompilerType(GenericInstanceType type, TypeReference elementType)
-        // {
-        //     GenericInstanceType result = type;
-        //     if (type.ElementType.FullName != elementType.FullName)
-        //     {
-        //         // Try to rewrite the arguments of the generic type.
-        //         result = this.Module.ImportReference(elementType) as GenericInstanceType;
-        //         for (int idx = 0; idx < type.GenericArguments.Count; idx++)
-        //         {
-        //             result.GenericArguments[idx] = this.RewriteCompilerType(type.GenericArguments[idx], false);
-        //         }
-        //     }
-        //     return this.Module.ImportReference(result);
-        // }
+            for (int idx = 0; idx < right.Parameters.Count; idx++)
+            {
+                var leftParam = left.Parameters[idx];
+                var rightParam = right.Parameters[idx];
+                // TODO: make sure all necessary checks are in place!
+                if ((leftParam.ParameterType.FullName != rightParam.ParameterType.FullName) ||
+                    (leftParam.Name != rightParam.Name) ||
+                    (leftParam.IsIn && !rightParam.IsIn) ||
+                    (leftParam.IsOut && !rightParam.IsOut))
+                {
+                    return false;
+                }
+            }
 
-        // /// <summary>
-        // /// Checks if the specified type is a supported task type.
-        // /// </summary>
-        // private static bool IsSupportedTaskType(TypeReference type) =>
-        //     type.Namespace == NameCache.SystemTasksNamespace &&
-        //     (type.Name == NameCache.TaskName || type.Name.StartsWith("Task`") ||
-        //     type.Name.StartsWith("TaskCompletionSource`"));
+            return true;
+        }
 
-        // /// <summary>
-        // /// Checks if the <see cref="SystemTasks.Task"/> method with the specified name is supported.
-        // /// </summary>
-        // private static bool IsSupportedTaskMethod(string typeName, string methodName) =>
-        //     typeName.StartsWith(NameCache.TaskName) &&
-        //     (methodName == "get_Factory" ||
-        //     methodName == "get_Result" ||
-        //     methodName == nameof(Types.Task.Run) ||
-        //     methodName == nameof(Types.Task.Delay) ||
-        //     methodName == nameof(Types.Task.WhenAll) ||
-        //     methodName == nameof(Types.Task.WhenAny) ||
-        //     methodName == nameof(Types.Task.WaitAll) ||
-        //     methodName == nameof(Types.Task.WaitAny) ||
-        //     methodName == nameof(Types.Task.Wait) ||
-        //     methodName == nameof(Types.Task.GetAwaiter) ||
-        //     methodName == nameof(Types.Task.ConfigureAwait));
+        /// <summary>
+        /// Checks if the signatures of the original and the replacement methods match.
+        /// </summary>
+        /// <remarks>
+        /// This method also checks the use case where we are converting an instance method into a static method.
+        /// In such a case case, we are inserting a first parameter that has the same type as the declaring type
+        /// of the original method.
+        /// </remarks>
+        private static bool CheckMethodSignaturesMatch(MethodDefinition originalMethod, MethodDefinition newMethod)
+        {
+            // TODO: This method should be now generic enough that we can also use in future transformers, for similar checks.
+            // This static method conversion is not specific to Tasks, and we can move it in a new helper API in the future.
+
+            // Check if the method properties match. We check 'IsStatic' later as we need to do additional checks
+            // in cases where we are replacing an instance method with a static method.
+            // TODO: make sure all necessary checks are in place!
+            if (originalMethod.Name != newMethod.Name ||
+                originalMethod.IsConstructor != newMethod.IsConstructor ||
+                originalMethod.ReturnType.IsGenericInstance != newMethod.ReturnType.IsGenericInstance ||
+                originalMethod.IsPublic != newMethod.IsPublic ||
+                originalMethod.IsPrivate != newMethod.IsPrivate ||
+                originalMethod.IsAssembly != newMethod.IsAssembly ||
+                originalMethod.IsFamilyAndAssembly != newMethod.IsFamilyAndAssembly)
+            {
+                return false;
+            }
+
+            // Check if we are converting the original method into a static method.
+            bool isConvertedToStatic = !originalMethod.IsStatic && newMethod.IsStatic;
+            int parameterCountDiff = newMethod.Parameters.Count - originalMethod.Parameters.Count;
+            if (isConvertedToStatic)
+            {
+                // We are expecting one extra parameter in the static method in index '0', and the type
+                // of this parameter must be the same as the declaring type of the original method.
+                if (parameterCountDiff != 1 || newMethod.Parameters[0].ParameterType == originalMethod.DeclaringType)
+                {
+                    return false;
+                }
+            }
+            else if (originalMethod.IsStatic != newMethod.IsStatic || parameterCountDiff != 0)
+            {
+                // The static properties or the parameter counts do not match.
+                return false;
+            }
+
+            // Check if the parameters match.
+            for (int idx = 0; idx < originalMethod.Parameters.Count; idx++)
+            {
+                // If we are converting to static, we have one extra parameter, so skip it.
+                var newParameter = newMethod.Parameters[isConvertedToStatic ? idx + 1 : idx];
+                var originalParameter = originalMethod.Parameters[idx];
+
+                // TODO: make sure all necessary checks are in place!
+                if ((newParameter.ParameterType.FullName != originalParameter.ParameterType.FullName) ||
+                    (newParameter.Name != originalParameter.Name) ||
+                    (newParameter.IsIn && !originalParameter.IsIn) ||
+                    (newParameter.IsOut && !originalParameter.IsOut))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

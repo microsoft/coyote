@@ -24,6 +24,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
     public static class Task
     {
         /// <summary>
+        /// Gets a task that has already completed successfully.
+        /// </summary>
+        public static SystemTask CompletedTask { get; } = SystemTask.CompletedTask;
+
+        /// <summary>
         /// Provides access to factory methods for creating controlled task and generic task instances.
         /// </summary>
         public static SystemTaskFactory Factory { get; } = new SystemTaskFactory();

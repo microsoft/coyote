@@ -259,7 +259,6 @@ namespace Microsoft.Coyote.Runtime
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
 
-            IO.Debug.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> NEW RUNTIME on thread '{Thread.CurrentThread.ManagedThreadId}': {this.Id}:\n{new StackTrace()}");
             this.Configuration = configuration;
             this.Scheduler = scheduler;
             this.IsRunning = true;

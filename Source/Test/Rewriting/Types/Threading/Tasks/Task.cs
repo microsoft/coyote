@@ -412,6 +412,35 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         }
 
         /// <summary>
+        /// Creates a task that has completed successfully with the specified result.
+        /// </summary>
+        public static SystemTasks.Task<TResult> FromResult<TResult>(TResult result) =>
+            SystemTask.FromResult(result);
+
+        /// <summary>
+        /// Creates a task that has completed due to cancellation with the specified cancellation token.
+        /// </summary>
+        public static SystemTask FromCanceled(SystemCancellationToken cancellationToken) =>
+            SystemTask.FromCanceled(cancellationToken);
+
+        /// <summary>
+        /// Creates a task that has completed due to cancellation with the specified cancellation token.
+        /// </summary>
+        public static SystemTasks.Task<TResult> FromCanceled<TResult>(SystemCancellationToken cancellationToken) =>
+            SystemTask.FromCanceled<TResult>(cancellationToken);
+
+        /// <summary>
+        /// Creates a task that has completed with the specified exception.
+        /// </summary>
+        public static SystemTask FromException(Exception exception) => SystemTask.FromException(exception);
+
+        /// <summary>
+        /// Creates a task that has completed with the specified exception.
+        /// </summary>
+        public static SystemTasks.Task<TResult> FromException<TResult>(Exception exception) =>
+            SystemTask.FromException<TResult>(exception);
+
+        /// <summary>
         /// Returns a task awaiter for the specified task.
         /// </summary>
         public static TaskAwaiter GetAwaiter(SystemTask task) => new TaskAwaiter(task);

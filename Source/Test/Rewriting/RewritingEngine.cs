@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Rewriting
             // Add the default type rewriting passes. We must first rewrite member types,
             // such as fields and method signatures, before we can rewrite the method bodies.
             this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.Logger));
-            this.Passes.AddFirst(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.Logger));
+            this.Passes.AddLast(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.Logger));
 
             if (this.Options.IsRewritingUnitTests)
             {

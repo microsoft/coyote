@@ -33,7 +33,8 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             if (this.TryRewriteType(variable.VariableType, out TypeReference newVariableType) &&
-                this.TryResolve(newVariableType, out TypeDefinition _))
+                this.TryResolve(newVariableType, out TypeDefinition newVariableDefinition) &&
+                !IsStaticType(newVariableDefinition))
             {
                 Debug.WriteLine($"............. [-] variable '{variable.VariableType}'");
                 variable.VariableType = newVariableType;

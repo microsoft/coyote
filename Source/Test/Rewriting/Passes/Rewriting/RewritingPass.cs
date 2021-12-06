@@ -7,6 +7,7 @@ using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using Mono.Collections.Generic;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -34,10 +35,8 @@ namespace Microsoft.Coyote.Rewriting
         protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
             string name, params TypeReference[] parameterTypes)
         {
-            Console.WriteLine($"FindMatchingMethodInDeclaringType: {declaringType.FullName}");
             foreach (var match in declaringType.Methods)
             {
-                Console.WriteLine($" >>> : {match.FullName}");
                 if (match.Name == name && match.Parameters.Count == parameterTypes.Length)
                 {
                     bool matches = true;
@@ -62,14 +61,26 @@ namespace Microsoft.Coyote.Rewriting
             return null;
         }
 
-        protected static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
+        protected static TypeReference MakeGenericType(TypeReference type, TypeReference argument)
         {
-            if (self.GenericParameters.Count != arguments.Length)
+            if (type.GenericParameters.Count != 1)
             {
                 throw new ArgumentException();
             }
 
-            var instance = new GenericInstanceType(self);
+            var instance = new GenericInstanceType(type);
+            instance.GenericArguments.Add(argument);
+            return instance;
+        }
+
+        protected static TypeReference MakeGenericType(TypeReference type, Collection<TypeReference> arguments)
+        {
+            if (type.GenericParameters.Count != arguments.Count)
+            {
+                throw new ArgumentException();
+            }
+
+            var instance = new GenericInstanceType(type);
             foreach (var argument in arguments)
             {
                 instance.GenericArguments.Add(argument);
@@ -78,19 +89,15 @@ namespace Microsoft.Coyote.Rewriting
             return instance;
         }
 
-        protected static MethodReference MakeGenericMethod(MethodReference self, params TypeReference[] arguments)
+        protected static MethodReference MakeGenericMethod(MethodReference method, TypeReference argument)
         {
-            if (self.GenericParameters.Count != arguments.Length)
+            if (method.GenericParameters.Count != 1)
             {
                 throw new ArgumentException();
             }
 
-            var instance = new GenericInstanceMethod(self);
-            foreach (var argument in arguments)
-            {
-                instance.GenericArguments.Add(argument);
-            }
-
+            var instance = new GenericInstanceMethod(method);
+            instance.GenericArguments.Add(argument);
             return instance;
         }
 

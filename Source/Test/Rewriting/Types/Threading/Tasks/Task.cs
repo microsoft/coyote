@@ -10,6 +10,8 @@ using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemTask = System.Threading.Tasks.Task;
+using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;
+using SystemTaskCreationOptions = System.Threading.Tasks.TaskCreationOptions;
 using SystemTaskFactory = System.Threading.Tasks.TaskFactory;
 using SystemTasks = System.Threading.Tasks;
 using SystemTimeout = System.Threading.Timeout;
@@ -29,9 +31,26 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static SystemTask CompletedTask { get; } = SystemTask.CompletedTask;
 
         /// <summary>
+        /// The default task factory.
+        /// </summary>
+        private static SystemTaskFactory DefaultFactory = new SystemTaskFactory();
+
+        /// <summary>
         /// Provides access to factory methods for creating controlled task and generic task instances.
         /// </summary>
-        public static SystemTaskFactory Factory { get; } = new SystemTaskFactory();
+        public static SystemTaskFactory Factory
+        {
+            get
+            {
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    return DefaultFactory;
+                }
+
+                return runtime.TaskFactory;
+            }
+        }
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a task object that
@@ -54,7 +73,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var taskFactory = runtime.TaskFactory;
             return taskFactory.StartNew(action, cancellationToken,
-                taskFactory.CreationOptions | SystemTasks.TaskCreationOptions.DenyChildAttach,
+                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                 taskFactory.Scheduler);
         }
 
@@ -80,7 +99,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var taskFactory = runtime.TaskFactory;
             return taskFactory.StartNew(function, cancellationToken,
-                taskFactory.CreationOptions | SystemTasks.TaskCreationOptions.DenyChildAttach,
+                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                 taskFactory.Scheduler);
         }
 
@@ -106,7 +125,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var taskFactory = runtime.TaskFactory;
             return taskFactory.StartNew(function, cancellationToken,
-                taskFactory.CreationOptions | SystemTasks.TaskCreationOptions.DenyChildAttach,
+                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                 taskFactory.Scheduler).Unwrap();
         }
 
@@ -133,7 +152,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var taskFactory = runtime.TaskFactory;
             return taskFactory.StartNew(function, cancellationToken,
-                taskFactory.CreationOptions | SystemTasks.TaskCreationOptions.DenyChildAttach,
+                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                 taskFactory.Scheduler).Unwrap();
         }
 
@@ -462,10 +481,29 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
     {
 #pragma warning disable CA1000 // Do not declare static members on generic types
         /// <summary>
-        /// Provides access to factory methods for creating controlled task
-        /// and generic task instances.
+        /// The default generic task factory.
         /// </summary>
-        public static SystemTasks.TaskFactory<TResult> Factory { get; } = new SystemTasks.TaskFactory<TResult>();
+        private static SystemTasks.TaskFactory<TResult> DefaultFactory = new SystemTasks.TaskFactory<TResult>();
+
+        /// <summary>
+        /// Provides access to factory methods for creating controlled generic task instances.
+        /// </summary>
+        public static SystemTasks.TaskFactory<TResult> Factory
+        {
+            get
+            {
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    return DefaultFactory;
+                }
+
+                // TODO: cache this per runtime.
+                return new SystemTasks.TaskFactory<TResult>(SystemCancellationToken.None,
+                    SystemTaskCreationOptions.HideScheduler, SystemTaskContinuationOptions.HideScheduler,
+                    runtime.ControlledTaskScheduler);
+            }
+        }
 
         /// <summary>
         /// Gets the result value of the specified generic task.

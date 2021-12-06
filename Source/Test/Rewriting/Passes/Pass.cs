@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// The current assembly being visited.
         /// </summary>
-        protected AssemblyDefinition Assembly { get; private set; }
+        protected AssemblyInfo Assembly { get; private set; }
 
         /// <summary>
         /// The current module being visited.
@@ -66,10 +66,10 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="AssemblyDefinition"/>.
+        /// Visits the specified <see cref="AssemblyInfo"/>.
         /// </summary>
-        /// <param name="assembly">The assembly definition to visit.</param>
-        protected internal virtual void VisitAssembly(AssemblyDefinition assembly)
+        /// <param name="assembly">The assembly to visit.</param>
+        protected internal virtual void VisitAssembly(AssemblyInfo assembly)
         {
             this.Assembly = assembly;
             this.Module = null;
@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.Rewriting
         /// Returns true if the specified <see cref="MethodReference"/> can be resolved,
         /// as well as return the resolved method definition, else return false.
         /// </summary>
-        protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
+        protected bool TryResolve(MethodReference method, out MethodDefinition resolved, bool logError = true)
         {
             try
             {
@@ -181,25 +181,24 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch
             {
+                if (logError)
+                {
+                    this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
+                        "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
+                        ".NET platform of Coyote and the target assembly do not match.");
+                }
+
                 resolved = null;
             }
 
-            if (resolved is null)
-            {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
-                    "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
-                    ".NET platform of Coyote and the target assembly do not match.");
-                return false;
-            }
-
-            return true;
+            return resolved != null;
         }
 
         /// <summary>
         /// Returns true if the specified <see cref="TypeReference"/> can be resolved,
         /// as well as return the resolved type definition, else return false.
         /// </summary>
-        protected bool TryResolve(TypeReference type, out TypeDefinition resolved)
+        protected bool TryResolve(TypeReference type, out TypeDefinition resolved, bool logError = true)
         {
             try
             {
@@ -207,18 +206,17 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch
             {
+                if (logError)
+                {
+                    this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
+                        "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
+                        ".NET platform of Coyote and the target assembly do not match.");
+                }
+
                 resolved = null;
             }
 
-            if (resolved is null)
-            {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
-                    "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
-                    ".NET platform of Coyote and the target assembly do not match.");
-                return false;
-            }
-
-            return true;
+            return resolved != null;
         }
 
         /// <summary>

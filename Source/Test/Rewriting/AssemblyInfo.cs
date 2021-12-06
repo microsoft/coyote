@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         internal void Invoke(Pass pass)
         {
-            pass.VisitAssembly(this.Definition);
+            pass.VisitAssembly(this);
             foreach (var module in this.Definition.Modules)
             {
                 Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");

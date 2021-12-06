@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task scheduler for this task factory.
         /// </summary>
-        public SystemTaskScheduler Scheduler => SystemTask.Factory.Scheduler;
+        public SystemTaskScheduler Scheduler => Task.Factory.Scheduler;
 
         /// <summary>
         /// Creates and starts a task.
@@ -54,10 +54,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public SystemTask StartNew(Action action, SystemCancellationToken cancellationToken) =>
-            SystemTask.Factory.StartNew(action, cancellationToken, SystemTaskCreationOptions.None,
-                CoyoteRuntime.IsExecutionControlled ?
-                CoyoteRuntime.Current.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        public SystemTask StartNew(Action action, SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(action, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a task.
@@ -79,13 +83,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates and starts a task.
         /// </summary>
         public SystemTask StartNew(Action<object> action, object state) =>
-            this.StartNew(action, state, default, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+            this.StartNew(action, state, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public SystemTask StartNew(Action<object> action, object state, SystemCancellationToken cancellationToken) =>
-            this.StartNew(action, state, cancellationToken, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+        public SystemTask StartNew(Action<object> action, object state, SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(action, state, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a task.
@@ -112,9 +122,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Creates and starts a generic task.
         /// </summary>
-        public SystemTasks.Task<TResult> StartNew<TResult>(Func<TResult> function, SystemCancellationToken cancellationToken) =>
-            SystemTask.Factory.StartNew(function, cancellationToken, SystemTaskCreationOptions.None, CoyoteRuntime.IsExecutionControlled ?
-                CoyoteRuntime.Current.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        public SystemTasks.Task<TResult> StartNew<TResult>(Func<TResult> function, SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(function, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a generic task.
@@ -136,14 +151,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates and starts a generic task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew<TResult>(Func<object, TResult> function, object state) =>
-            this.StartNew(function, state, default, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+            this.StartNew(function, state, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a generic task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew<TResult>(Func<object, TResult> function, object state,
-            SystemCancellationToken cancellationToken) =>
-            this.StartNew(function, state, cancellationToken, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+            SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(function, state, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a generic task.
@@ -676,75 +697,93 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task continuation options for this task factory.
         /// </summary>
-        public SystemTaskContinuationOptions ContinuationOptions => SystemTasks.Task<TResult>.Factory.ContinuationOptions;
+        public SystemTaskContinuationOptions ContinuationOptions => SystemTask.Factory.ContinuationOptions;
 
         /// <summary>
         /// The default task cancellation token for this task factory.
         /// </summary>
-        public SystemCancellationToken CancellationToken => SystemTasks.Task<TResult>.Factory.CancellationToken;
+        public SystemCancellationToken CancellationToken => SystemTask.Factory.CancellationToken;
 
         /// <summary>
         /// The default task creation options for this task factory.
         /// </summary>
-        public SystemTaskCreationOptions CreationOptions => SystemTasks.Task<TResult>.Factory.CreationOptions;
+        public SystemTaskCreationOptions CreationOptions => SystemTask.Factory.CreationOptions;
 
         /// <summary>
         /// The default task scheduler for this task factory.
         /// </summary>
-        public SystemTaskScheduler Scheduler => SystemTasks.Task<TResult>.Factory.Scheduler;
+        public SystemTaskScheduler Scheduler => Task.Factory.Scheduler;
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<TResult> function) =>
-            Task.Factory.StartNew(function);
+            this.StartNew(function, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public SystemTasks.Task<TResult> StartNew(Func<TResult> function, SystemCancellationToken cancellationToken) =>
-            Task.Factory.StartNew(function, cancellationToken);
+        public SystemTasks.Task<TResult> StartNew(Func<TResult> function, SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(function, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<TResult> function, SystemTaskCreationOptions creationOptions) =>
-            Task.Factory.StartNew(function, creationOptions);
+            this.StartNew(function, default, creationOptions, SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<TResult> function, SystemCancellationToken cancellationToken,
-             SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler) =>
-            Task.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
+             SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler)
+        {
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTask.Factory.StartNew));
+            return SystemTask.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<object, TResult> function, object state) =>
-            Task.Factory.StartNew(function, state);
+            this.StartNew(function, state, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<object, TResult> function, object state,
-            SystemCancellationToken cancellationToken) =>
-            Task.Factory.StartNew(function, state, cancellationToken);
+            SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var isControlled = runtime.SchedulingPolicy != SchedulingPolicy.None;
+            return SystemTask.Factory.StartNew(function, state, cancellationToken,
+                isControlled ? SystemTaskCreationOptions.HideScheduler : SystemTaskCreationOptions.None,
+                isControlled ? runtime.ControlledTaskScheduler : SystemTaskScheduler.Default);
+        }
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<object, TResult> function, object state,
             SystemTaskCreationOptions creationOptions) =>
-            Task.Factory.StartNew(function, state, creationOptions);
+            this.StartNew(function, state, default, creationOptions, SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public SystemTasks.Task<TResult> StartNew(Func<object, TResult> function, object state,
-            SystemCancellationToken cancellationToken,
-            SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler) =>
-            Task.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
+            SystemCancellationToken cancellationToken, SystemTaskCreationOptions creationOptions,
+            SystemTaskScheduler scheduler)
+        {
+            ExceptionProvider.ThrowUncontrolledInvocationException(nameof(SystemTask.Factory.StartNew));
+            return SystemTask.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that starts when a set of specified tasks has completed.

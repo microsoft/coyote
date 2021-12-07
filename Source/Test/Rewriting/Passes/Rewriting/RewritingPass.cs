@@ -32,35 +32,75 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Finds the matching method in the specified declaring type, if any.
         /// </summary>
-        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
-            string name, params TypeReference[] parameterTypes)
+        protected static MethodDefinition FindMethod(string name, TypeDefinition declaringType,
+            params TypeReference[] parameterTypes)
         {
-            foreach (var match in declaringType.Methods)
+            MethodDefinition match = null;
+            foreach (var method in declaringType.Methods)
             {
-                if (match.Name == name && match.Parameters.Count == parameterTypes.Length)
+                if (method.Name == name && method.Parameters.Count == parameterTypes.Length)
                 {
-                    bool matches = true;
-                    // Check if the parameters match.
-                    for (int i = 0, n = match.Parameters.Count; matches && i < n; i++)
+                    bool isMatch = true;
+                    for (int i = 0; isMatch && i < method.Parameters.Count; i++)
                     {
-                        var p = match.Parameters[i];
-                        var q = parameterTypes[i];
-                        if (p.ParameterType.FullName != q.FullName)
+                        var left = parameterTypes[i];
+                        var right = method.Parameters[i].ParameterType;
+                        if (left is GenericParameter genLeft && right is GenericParameter genRight &&
+                            genLeft.Type == genRight.Type && genLeft.Position == genRight.Position)
                         {
-                            matches = false;
+                            // If they are generic parameters, then the types (Type or Method) and
+                            // generic positions must match.
+                            continue;
                         }
+                        else if (!left.IsGenericParameter && !right.IsGenericParameter &&
+                            left.FullName == right.FullName)
+                        {
+                            // If they are non-generic parameter, then the types must match.
+                            continue;
+                        }
+
+                        isMatch = false;
                     }
 
-                    if (matches)
+                    if (isMatch)
                     {
-                        return match;
+                        match = method;
+                        break;
                     }
                 }
             }
 
-            return null;
+            return match;
         }
 
+        /// <summary>
+        /// Creates a new generic method with the specified generic argument.
+        /// </summary>
+        protected static MethodReference MakeGenericMethod(MethodReference method, TypeReference argument)
+        {
+            if (method.GenericParameters.Count != 1)
+            {
+                throw new ArgumentException();
+            }
+
+            var instance = new GenericInstanceMethod(method);
+            instance.GenericArguments.Add(argument);
+            return instance;
+        }
+
+        /// <summary>
+        /// Creates a new generic type with the specified generic arguments and parameter provider.
+        /// </summary>
+        protected TypeReference MakeGenericType(TypeDefinition type, Collection<TypeReference> arguments,
+            IGenericParameterProvider context)
+        {
+            TypeReference importedType = this.Module.ImportReference(type, context);
+            return MakeGenericType(importedType, arguments);
+        }
+
+        /// <summary>
+        /// Creates a new generic type with the specified generic argument.
+        /// </summary>
         protected static TypeReference MakeGenericType(TypeReference type, TypeReference argument)
         {
             if (type.GenericParameters.Count != 1)
@@ -73,6 +113,9 @@ namespace Microsoft.Coyote.Rewriting
             return instance;
         }
 
+        /// <summary>
+        /// Creates a new generic type with the specified generic arguments.
+        /// </summary>
         protected static TypeReference MakeGenericType(TypeReference type, Collection<TypeReference> arguments)
         {
             if (type.GenericParameters.Count != arguments.Count)
@@ -89,16 +132,27 @@ namespace Microsoft.Coyote.Rewriting
             return instance;
         }
 
-        protected static MethodReference MakeGenericMethod(MethodReference method, TypeReference argument)
+        /// <summary>
+        /// Creates a new generic type with the generic arguments of the original type,
+        /// if it is a generic type.
+        /// </summary>
+        protected TypeReference TryMakeGenericType(TypeReference type, TypeReference originalType,
+            IGenericParameterProvider context)
         {
-            if (method.GenericParameters.Count != 1)
+            TypeReference result;
+            if (type.IsGenericInstance &&
+                this.TryResolve(type, out TypeDefinition typeDefinition))
             {
-                throw new ArgumentException();
+                result = originalType is GenericInstanceType originalGenericType ?
+                    this.MakeGenericType(typeDefinition, originalGenericType.GenericArguments, context) :
+                    type;
+            }
+            else
+            {
+                result = type.IsGenericParameter ? originalType : type;
             }
 
-            var instance = new GenericInstanceMethod(method);
-            instance.GenericArguments.Add(argument);
-            return instance;
+            return result;
         }
 
         /// <summary>

@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitNewobjInstruction(Instruction instruction)
         {
             MethodReference constructor = instruction.Operand as MethodReference;
-            MethodReference newMethod = this.RewriteMethodReference(constructor, this.Module, "Create");
+            MethodReference newMethod = this.RewriteMethodReference(constructor, "Create");
             if (constructor.FullName != newMethod.FullName &&
                 this.TryResolve(constructor, out MethodDefinition _))
             {
@@ -146,10 +146,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
-            MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
-            // Console.WriteLine($"RESULT: {newMethod.FullName}");
-            // Console.WriteLine($"  {method.FullName != newMethod.FullName}");
-
+            MethodReference newMethod = this.RewriteMethodReference(method);
             if (method.FullName != newMethod.FullName &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
@@ -165,15 +162,16 @@ namespace Microsoft.Coyote.Rewriting
                 instruction = newInstruction;
             }
 
-            // Console.WriteLine($" fail");
             return instruction;
         }
 
         /// <summary>
         /// Rewrites the specified <see cref="MethodReference"/>.
         /// </summary>
-        private MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module, string matchName = null)
+        private MethodReference RewriteMethodReference(MethodReference method, string matchName = null)
         {
+            Console.WriteLine($"Method: {method.FullName}");
+            Console.WriteLine($"  >>> Method: {method.Name} ({method.DeclaringType.FullName})");
             MethodReference result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
@@ -183,6 +181,8 @@ namespace Microsoft.Coyote.Rewriting
 
             if (!this.TryResolve(method, out MethodDefinition resolvedMethod, false))
             {
+                Console.WriteLine($"  >>> CANNOT RESOLVE -- is it rewritten?");
+
                 // Check if this method signature has been rewritten and, if it has, find the
                 // rewritten method. The signature does not include the return type according
                 // to C# rules, but the return type may have also been rewritten which is why
@@ -194,8 +194,7 @@ namespace Microsoft.Coyote.Rewriting
                     paramTypes.Add(this.RewriteTypeReference(p.ParameterType));
                 }
 
-                MethodDefinition match = FindMatchingMethodInDeclaringType(resolvedDeclaringType,
-                    method.Name, paramTypes.ToArray());
+                MethodDefinition match = FindMethod(method.Name, resolvedDeclaringType, paramTypes.ToArray());
                 if (!this.TryResolve(match, out resolvedMethod))
                 {
                     // Unable to resolve the method or a rewritten version of this method.
@@ -220,9 +219,7 @@ namespace Microsoft.Coyote.Rewriting
             //     return result;
             // }
 
-            // Console.WriteLine($"Method: {method.FullName}");
-            // Console.WriteLine($"  >>> Method: {method.Name} ({method.DeclaringType.FullName})");
-            // Console.WriteLine($"  >>> isRewritingDeclaringType: {isRewritingDeclaringType}");
+            Console.WriteLine($"  >>> isRewritingDeclaringType: {isRewritingDeclaringType}");
 
             if (isRewritingDeclaringType)
             {
@@ -236,9 +233,12 @@ namespace Microsoft.Coyote.Rewriting
                     return result;
                 }
 
-                result = module.ImportReference(resolvedNewMethod);
-                // Console.WriteLine($"Match: {result.FullName}");
-                // Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
+                result = this.Module.ImportReference(resolvedNewMethod);
+                Console.WriteLine($"Match: {result.FullName}");
+                Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
+
+                Console.WriteLine($"resolvedMethod: {resolvedMethod}");
+                Console.WriteLine($"resolvedNewMethod: {resolvedNewMethod}");
             }
 
             if (!result.HasThis && !newDeclaringType.IsGenericInstance &&
@@ -265,52 +265,31 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
-                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericParameter})");
-                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericParameter})");
-                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
-                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
+                Console.WriteLine($">> result.ReturnType: {result.ReturnType}");
+                Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericParameter}) ({method.ReturnType.GenericParameters.Count})");
+                Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.HasGenericParameters}) ({method.ReturnType.GenericParameters.Count})");
+                Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericParameter}) ({result.ReturnType.GenericParameters.Count})");
+                Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.HasGenericParameters}) ({result.ReturnType.GenericParameters.Count})");
+                Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
+                Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
 
                 // Try rewrite the return type only if the declaring type is not being rewritten,
                 // else assign the generic arguments if the return type is generic.
                 TypeReference newReturnType = isRewritingDeclaringType ?
-                    (result.ReturnType.IsGenericParameter || result.ReturnType.IsGenericInstance ?
-                    this.Module.ImportReference(result.ReturnType, method) : result.ReturnType) :
+                    this.TryMakeGenericType(result.ReturnType, method.ReturnType, method) :
                     this.RewriteTypeReference(method.ReturnType);
-                // Console.WriteLine($">> newReturnType: {newReturnType}");
+
+                Console.WriteLine($">> newReturnType: {newReturnType}");
+                Console.WriteLine($">> method.Parameters: {method.HasParameters}");
+                Console.WriteLine($">> result.Parameters: {result.HasParameters}");
+                Console.WriteLine($">> method.Parameters: {method.Parameters.Count}");
+                Console.WriteLine($">> result.Parameters: {result.Parameters.Count}");
+                Console.WriteLine($">> newReturnType: {newReturnType}");
 
                 // Rewrite the parameters of the method, if any.
-                Collection<ParameterDefinition> newParameters = isRewritingDeclaringType ?
-                    result.Parameters : method.Parameters;
-                for (int i = 0; i < newParameters.Count; i++)
-                {
-                    // Try rewrite the parameter only if the declaring type is not being rewritten,
-                    // else assign the generic arguments if the parameter is generic.
-                    ParameterDefinition parameter = newParameters[i];
-                    newParameters[i] = isRewritingDeclaringType ?
-                        (parameter.ParameterType.IsGenericParameter || parameter.ParameterType.IsGenericInstance ?
-                        this.RewriteParameterDefinition(parameter, method) : parameter) :
-                        this.RewriteParameterDefinition(parameter);
-                }
-
-                // There is an extra initial parameter when converting an instance to a static method.
-                // if (resolvedMethod.Parameters.Count != resolvedNewMethod.Parameters.Count)
-                // if (resolvedMethod.Parameters.Count != result.Parameters.Count)
-                // {
-                //     result.Parameters.Insert(0, result.Parameters[0]);
-                // }
-
-                // Try to rewrite the return type only if it matches the original method return type.
-                // TypeReference newReturnType = (result.ReturnType is GenericInstanceType genericReturnType &&
-                //     method.ReturnType is GenericInstanceType genericMethodReturnType &&
-                //     genericReturnType.ElementType.FullName == genericMethodReturnType.ElementType.FullName) ||
-                //     result.ReturnType.FullName == method.ReturnType.FullName ?
-                //     this.RewriteTypeReference(method.ReturnType) : result.ReturnType;
-
-                // TypeReference newReturnType = this.RewriteTypeReference(method.ReturnType);
-                // TypeReference newReturnType = this.RewriteTypeReference(result.ReturnType);
-
-                // Console.WriteLine($"1: {result.FullName}");
-                // Console.WriteLine($">> newReturnType: {newReturnType}");
+                // Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(result,
+                //     method.Parameters, isRewritingDeclaringType, method);
+                Console.WriteLine($"1: {result.FullName}");
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
                 result = new MethodReference(result.Name, newReturnType, newDeclaringType)
@@ -320,42 +299,52 @@ namespace Microsoft.Coyote.Rewriting
                     CallingConvention = result.CallingConvention
                 };
 
-                // Console.WriteLine($"2: {result.FullName}");
-
                 if (resolvedMethod.HasGenericParameters)
                 {
                     // Need to rewrite the generic method to instantiate the correct generic parameter types.
-                    result = this.RewriteGenericInstanceMethod(result, resolvedMethod.GenericParameters,
-                        (method as GenericInstanceMethod)?.GenericArguments);
+                    result = this.RewriteGenericMethodArguments(result, method.Parameters, resolvedMethod.GenericParameters,
+                        (method as GenericInstanceMethod)?.GenericArguments, isRewritingDeclaringType, method);
                 }
-
-                // Console.WriteLine($"3: {result.FullName}");
-
-                // Set the remaining parameters of the method, if any.
-                foreach (var parameter in newParameters)
+                else
                 {
-                    result.Parameters.Add(parameter);
+                    // Rewrite the parameters of the method, if any.
+                    Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(result,
+                        method.Parameters, isRewritingDeclaringType, method);
+
+                    // Set the remaining parameters of the method, if any.
+                    foreach (var parameter in newParameters)
+                    {
+                        result.Parameters.Add(parameter);
+                    }
                 }
+
+                Console.WriteLine($"2: {result.FullName}");
             }
 
-            return module.ImportReference(result);
+            return this.Module.ImportReference(result);
         }
 
         /// <summary>
-        /// Rewrites the specified generic <see cref="MethodReference"/>.
+        /// Rewrites the generic arguments of the specified <see cref="MethodReference"/>.
         /// </summary>
-        private GenericInstanceMethod RewriteGenericInstanceMethod(MethodReference genericMethod,
-            Collection<GenericParameter> genericParameters, Collection<TypeReference> extraGenericArguments = null)
+        private GenericInstanceMethod RewriteGenericMethodArguments(MethodReference method,
+            Collection<ParameterDefinition> originalParameters, Collection<GenericParameter> originalGenericParameters,
+            Collection<TypeReference> extraGenericArguments, bool rewriteTypes,
+            IGenericParameterProvider context = null)
         {
-            var genericMethodInstance = new GenericInstanceMethod(genericMethod);
-            var genericArgs = new List<TypeReference>();
-            int genericArgOffset = 0;
+            // Rewrite the parameters of the method, if any.
+            Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(method,
+                originalParameters, rewriteTypes, context);
 
-            if (genericMethod.DeclaringType is GenericInstanceType genericDeclaringType)
+            var genericMethodInstance = new GenericInstanceMethod(method);
+            var genericArgs = new List<TypeReference>();
+            int offset = 0;
+
+            if (method.DeclaringType is GenericInstanceType genericDeclaringType)
             {
                 // Populate the generic arguments with the generic declaring type arguments.
                 genericArgs.AddRange(genericDeclaringType.GenericArguments);
-                genericArgOffset = genericDeclaringType.GenericArguments.Count;
+                offset = genericDeclaringType.GenericArguments.Count;
             }
 
             if (extraGenericArguments != null)
@@ -364,22 +353,100 @@ namespace Microsoft.Coyote.Rewriting
                 genericArgs.AddRange(extraGenericArguments);
             }
 
-            for (int i = 0; i < genericParameters.Count; i++)
+            for (int i = 0; i < originalGenericParameters.Count; i++)
             {
-                var p = genericParameters[i];
-                var j = p.Position + genericArgOffset;
+                var p = originalGenericParameters[i];
+                var j = p.Position + offset;
                 if (j >= genericArgs.Count)
                 {
-                    throw new InvalidOperationException($"Not enough generic arguments to instantiate '{genericMethod}'.");
+                    throw new InvalidOperationException($"Not enough generic arguments to instantiate '{method}'.");
                 }
 
                 GenericParameter parameter = new GenericParameter(p.Name, genericMethodInstance);
-                genericMethod.GenericParameters.Add(parameter);
+                method.GenericParameters.Add(parameter);
                 genericMethodInstance.GenericParameters.Add(parameter);
                 genericMethodInstance.GenericArguments.Add(this.RewriteTypeReference(genericArgs[j]));
             }
 
+            // Set the remaining parameters of the method, if any.
+            foreach (var parameter in newParameters)
+            {
+                method.Parameters.Add(parameter);
+            }
+
             return genericMethodInstance;
+        }
+
+        /// <summary>
+        /// Rewrites the parameters of the specified <see cref="MethodReference"/>.
+        /// </summary>
+        private Collection<ParameterDefinition> RewriteMethodParameters(MethodReference method,
+            Collection<ParameterDefinition> originalParameters, bool rewriteTypes,
+            IGenericParameterProvider context = null)
+        {
+            var result = new Collection<ParameterDefinition>();
+            Console.WriteLine($">> parameter-count: {originalParameters.Count}");
+            Console.WriteLine($">> parameter-new-count: {method.Parameters.Count}");
+
+            // If there is an offset, then we are rewriting a static method that includes
+            // one extra parameter for passing the owner of the instance method.
+            int offset = method.Parameters.Count - originalParameters.Count;
+            for (int i = 0; i < offset; i++)
+            {
+                ParameterDefinition parameter = method.Parameters[i];
+                Console.WriteLine($">> parameter-special: {parameter.ParameterType} {parameter.Name}");
+                if (parameter.ParameterType is GenericInstanceType genericInstanceType)
+                {
+                    Console.WriteLine($">> parameter-special-generic: {genericInstanceType.ElementType} {genericInstanceType.GenericArguments.Count} {genericInstanceType.GenericParameters.Count}");
+                    foreach (var genericArg in genericInstanceType.GenericArguments)
+                    {
+                        Console.WriteLine($"  >>> {genericArg}");
+                    }
+                }
+
+                result.Add(parameter);
+            }
+
+            for (int i = 0; i < originalParameters.Count; i++)
+            {
+                ParameterDefinition newParameter = method.Parameters[i + offset];
+                ParameterDefinition parameter = originalParameters[i];
+
+                Console.WriteLine($">> parameter-new: {newParameter}");
+                Console.WriteLine($">> parameter-old: {parameter}");
+
+                // Try rewrite the parameter only if the declaring type is not being rewritten,
+                // else assign the generic arguments if the parameter is generic.
+                TypeReference newParameterType = rewriteTypes ?
+                    this.RewriteTypeReference(parameter.ParameterType) :
+                    this.TryMakeGenericType(newParameter.ParameterType, parameter.ParameterType, context);
+
+                result.Add(new ParameterDefinition(newParameter.Name, newParameter.Attributes, newParameterType));
+            }
+
+            foreach (var parameter in result)
+            {
+                Console.WriteLine($">> newParameters: {parameter.ParameterType}");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Rewrites the generic arguments of the specified <see cref="TypeReference"/>.
+        /// </summary>
+        private TypeReference RewriteTypeReferenceGenericArguments(TypeReference type,
+            Collection<TypeReference> genericArguments, IGenericParameterProvider context = null)
+        {
+            if (this.TryResolve(type, out TypeDefinition typeDefinition))
+            {
+                TypeReference importedType = this.Module.ImportReference(typeDefinition, context);
+                return MakeGenericType(importedType, genericArguments);
+            }
+            else
+            {
+                return type;
+            }
         }
 
         /// <summary>

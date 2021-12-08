@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Rewriting.Tests
 {
-    public class TaskTypeRewritingTests : BaseRewritingTest
+    public class TaskRewritingTests : BaseRewritingTest
     {
-        public TaskTypeRewritingTests(ITestOutputHelper output)
+        public TaskRewritingTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -17,37 +17,25 @@ namespace Microsoft.Coyote.Rewriting.Tests
         [Fact(Timeout = 5000)]
         public void TestTaskWhenAllRewriting()
         {
-            this.Test(() =>
-            {
-                Task.WhenAll(default(Task));
-            });
+            Task.WhenAll(default(Task));
         }
 
         [Fact(Timeout = 5000)]
         public void TestGenericTaskWhenAllRewriting()
         {
-            this.Test(() =>
-            {
-                Task.WhenAll(default(Task<int>));
-            });
+            Task.WhenAll(default(Task<int>));
         }
 
         [Fact(Timeout = 5000)]
         public void TestTaskWhenAnyRewriting()
         {
-            this.Test(() =>
-            {
-                Task.WhenAny(default(Task));
-            });
+            Task.WhenAny(default(Task));
         }
 
         [Fact(Timeout = 5000)]
         public void TestGenericTaskWhenAnyRewriting()
         {
-            this.Test(() =>
-            {
-                Task.WhenAny(default(Task<int>));
-            });
+            Task.WhenAny(default(Task<int>));
         }
     }
 }

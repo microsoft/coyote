@@ -111,7 +111,8 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($"GenericArguments: {newGenericType.GenericArguments.Count}");
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
-                    newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx], options));
+                    newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx],
+                        options & ~Options.AllowStaticRewrittenType));
                 }
 
                 // Console.WriteLine($"1-4: {newGenericType} ({newGenericType.Module})");
@@ -210,8 +211,8 @@ namespace Microsoft.Coyote.Rewriting
         protected enum Options
         {
             None = 0,
-            AllowStaticRewrittenType = 1,
-            SkipRootType = 2
+            AllowStaticRewrittenType = 1 << 0,
+            SkipRootType = 1 << 1
         }
     }
 }

@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Rewriting.Tests
 {
-    public class MethodSignatureTests : BaseRewritingTest
+    public class MethodSignatureRewritingTests : BaseRewritingTest
     {
-        public MethodSignatureTests(ITestOutputHelper output)
+        public MethodSignatureRewritingTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -20,19 +20,13 @@ namespace Microsoft.Coyote.Rewriting.Tests
         [Fact(Timeout = 5000)]
         public void TestRewritingTaskAwaiterInMethodSignature()
         {
-            this.Test(() =>
-            {
-                GetTaskAwaiter(default(TaskAwaiter));
-            });
+            GetTaskAwaiter(default(TaskAwaiter));
         }
 
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericTaskAwaiterInMethodSignature()
         {
-            this.Test(() =>
-            {
-                GetGenericTaskAwaiter<int>(default(TaskAwaiter<int>));
-            });
+            GetGenericTaskAwaiter<int>(default(TaskAwaiter<int>));
         }
     }
 }

@@ -18,91 +18,61 @@ namespace Microsoft.Coyote.Rewriting.Tests
         [Fact(Timeout = 5000)]
         public void TestEmptyObjectArrayRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<object>();
-            });
+            _ = System.Array.Empty<object>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyNestedObjectArrayRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<object[]>();
-            });
+            _ = System.Array.Empty<object[]>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyTaskRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<Task>();
-            });
+            _ = System.Array.Empty<Task>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<Task<int>>();
-            });
+            _ = System.Array.Empty<Task<int>>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskWithTaskAwaiterRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<Task<TaskAwaiter>>();
-            });
+            _ = System.Array.Empty<Task<TaskAwaiter>>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskWithGenericTaskAwaiterRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<Task<TaskAwaiter<int>>>();
-            });
+            _ = System.Array.Empty<Task<TaskAwaiter<int>>>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyTaskAwaiterRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<TaskAwaiter>();
-            });
+            _ = System.Array.Empty<TaskAwaiter>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskAwaiterRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<TaskAwaiter<int>>();
-            });
+            _ = System.Array.Empty<TaskAwaiter<int>>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskAwaiterWithTaskRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<TaskAwaiter<Task>>();
-            });
+            _ = System.Array.Empty<TaskAwaiter<Task>>();
         }
 
         [Fact(Timeout = 5000)]
         public void TestEmptyGenericTaskAwaiterWithGenericTaskRewriting()
         {
-            this.Test(() =>
-            {
-                _ = System.Array.Empty<TaskAwaiter<Task<int>>>();
-            });
+            _ = System.Array.Empty<TaskAwaiter<Task<int>>>();
         }
     }
 }

@@ -120,56 +120,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Creates a new generic type with the generic arguments of the original type,
-        /// if it is a generic type.
-        /// </summary>
-        protected TypeReference TryMakeGenericType(TypeReference type, TypeReference originalType)
-        {
-            TypeReference result;
-            if (type.IsGenericInstance &&
-                this.TryResolve(type, out TypeDefinition typeDefinition))
-            {
-                result = originalType is GenericInstanceType originalGenericType ?
-                    this.MakeGenericType(typeDefinition, originalGenericType.GenericArguments) :
-                    type;
-            }
-            else
-            {
-                result = type.IsGenericParameter ? originalType : type;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Creates a new generic type with the specified generic arguments and parameter provider.
-        /// </summary>
-        protected GenericInstanceType MakeGenericType(TypeReference type, Collection<TypeReference> arguments)
-        {
-            if (type.Module != this.Module)
-            {
-                type = type.IsGenericInstance ?
-                    this.Module.ImportReference(type, type.DeclaringType) :
-                    this.Module.ImportReference(type);
-            }
-
-            // Console.WriteLine($"MakeGenericType: {type} ({type.Module})");
-            // Console.WriteLine($"MakeGenericType: {type.GenericParameters.Count} ({arguments.Count})");
-            if (type.GenericParameters.Count != arguments.Count)
-            {
-                throw new ArgumentException();
-            }
-
-            var instance = new GenericInstanceType(type);
-            foreach (var argument in arguments)
-            {
-                instance.GenericArguments.Add(argument);
-            }
-
-            return instance;
-        }
-
-        /// <summary>
         /// Fixes the instruction offsets of the specified method.
         /// </summary>
         internal static void FixInstructionOffsets(MethodDefinition method)

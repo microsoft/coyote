@@ -97,27 +97,27 @@ namespace Microsoft.Coyote.Rewriting
                 TypeReference newElementType = this.RewriteType(genericType.ElementType, allowStatic);
                 // Console.WriteLine($"1-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
-                     this.MakeGenericType(newElementType, genericType.GenericArguments);
+                     new GenericInstanceType(newElementType);
                 // GenericInstanceType newGenericType = newElementType.FullName == genericType.ElementType.FullName ?
                 //     genericType : this.Module.ImportReference(newElementType) as GenericInstanceType;
                 // GenericInstanceType newGenericType = this.MakeGenericType(newElementType, genericType.GenericArguments, genericType);
                 // GenericInstanceType newGenericType = new GenericInstanceType(newElementType);
-                // Console.WriteLine($"1-2: {newGenericType} ({newGenericType.Module})");
+                // Console.WriteLine($"1-3: {newGenericType} ({newGenericType.Module})");
                 // Console.WriteLine($"GenericParameters: {newGenericType.GenericParameters.Count}");
                 // Console.WriteLine($"GenericArguments: {newGenericType.GenericArguments.Count}");
 
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
-                    newGenericType.GenericArguments[idx] = this.RewriteType(genericType.GenericArguments[idx], allowStatic);
+                    newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx], allowStatic));
                 }
 
-                // Console.WriteLine($"1-3: {newGenericType} ({newGenericType.Module})");
+                // Console.WriteLine($"1-4: {newGenericType} ({newGenericType.Module})");
                 result = newGenericType;
                 // result = this.Module.ImportReference(newGenericType, genericType);
                 // result = newGenericType.Module != this.Module ?
                 //     this.Module.ImportReference(newGenericType, genericType) :
                 //     newGenericType;
-                // Console.WriteLine($"1-4: {result} ({result.Module})");
+                // Console.WriteLine($"1-5: {result} ({result.Module})");
             }
             else if (type is ArrayType arrayType)
             {
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($"3-4: {newArrayType} ({newArrayType?.Module}) ({newArrayType.Dimensions.Count})");
                 result = newArrayType;
             }
-            else if (!type.IsGenericParameter)
+            else if (!type.IsGenericParameter && !type.IsByReference)
             {
                 // Console.WriteLine($"2-1: {type.GetType()}");
                 if (this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&

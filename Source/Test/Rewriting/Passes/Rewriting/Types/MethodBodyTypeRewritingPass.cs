@@ -268,11 +268,8 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
                 // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
 
-                // Try rewrite the return type only if the declaring type is not being rewritten,
-                // else assign the generic arguments if the return type is generic.
-                TypeReference newReturnType = isRewritingDeclaringType ?
-                    this.TryMakeGenericType(result.ReturnType, resolvedMethod.ReturnType) :
-                    this.RewriteTypeReference(resolvedMethod.ReturnType);
+                // Try rewrite the return type.
+                TypeReference newReturnType = this.RewriteTypeReference(resolvedMethod.ReturnType);
 
                 // Console.WriteLine($">> newReturnType: {newReturnType} ({newReturnType.Module})");
                 // Console.WriteLine($">> method.Parameters: {method.HasParameters}");
@@ -287,7 +284,6 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($">> method.GenericParameters: {method.GenericParameters.Count}");
                 // Console.WriteLine($">> result.GenericParameters: {result.GenericParameters.Count}");
                 // Console.WriteLine($">> resolvedMethod.GenericParameters: {resolvedMethod.GenericParameters.Count}");
-                // Console.WriteLine($">> newReturnType: {newReturnType}");
 
                 // Rewrite the parameters of the method, if any.
                 // Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(result,
@@ -415,12 +411,8 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($">> parameter-type-contains-gen: {parameter.ParameterType.ContainsGenericParameter}");
                 // Console.WriteLine($">> parameter-type-gen-count: {parameter.ParameterType.GenericParameters.Count}");
 
-                // Try rewrite the parameter only if the declaring type is a non-runtime type,
-                // else assign the generic arguments if the parameter is generic.
-                TypeReference newParameterType;
-                newParameterType = IsRuntimeType(method.DeclaringType) ?
-                    this.TryMakeGenericType(parameter.ParameterType, parameter.ParameterType) :
-                    this.RewriteTypeReference(parameter.ParameterType);
+                // Try rewrite the parameter type.
+                TypeReference newParameterType = this.RewriteTypeReference(parameter.ParameterType);
                 // Console.WriteLine($">> newParameterType: {newParameterType} ({newParameterType.Module})");
 
                 ParameterDefinition newParameter = new ParameterDefinition(parameter.Name,

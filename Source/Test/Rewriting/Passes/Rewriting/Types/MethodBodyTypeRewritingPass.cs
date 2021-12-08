@@ -206,7 +206,8 @@ namespace Microsoft.Coyote.Rewriting
             // Console.WriteLine($"  >>> resolvedMethod: {resolvedMethod} ({resolvedMethod.HasGenericParameters})");
 
             // Try to rewrite the declaring type.
-            TypeReference newDeclaringType = this.RewriteTypeReference(method.DeclaringType, true);
+            TypeReference newDeclaringType = this.RewriteTypeReference(method.DeclaringType,
+                Options.AllowStaticRewrittenType);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.
@@ -215,9 +216,9 @@ namespace Microsoft.Coyote.Rewriting
 
             // Console.WriteLine($"  >>> newDeclaringType: {newDeclaringType}");
 
-            bool isRewritingDeclaringType = IsRuntimeType(resolvedNewDeclaringType);
-            // Console.WriteLine($"  >>> isRewritingDeclaringType: {isRewritingDeclaringType}");
-            if (isRewritingDeclaringType)
+            bool isDeclaringTypeRewritten = IsRuntimeType(resolvedNewDeclaringType);
+            // Console.WriteLine($"  >>> isDeclaringTypeRewritten: {isDeclaringTypeRewritten}");
+            if (isDeclaringTypeRewritten)
             {
                 // The declaring type is being rewritten, so only rewrite the return and
                 // parameter types if they are generic.
@@ -268,8 +269,10 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
                 // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
 
-                // Try rewrite the return type.
-                TypeReference newReturnType = this.RewriteTypeReference(resolvedMethod.ReturnType);
+                // Try rewrite the return only if the declaring type is a non-runtime type,
+                // else assign the generic arguments if the parameter is generic.
+                TypeReference newReturnType = this.RewriteTypeReference(resolvedMethod.ReturnType,
+                    isDeclaringTypeRewritten ? Options.SkipRootType : Options.None);
 
                 // Console.WriteLine($">> newReturnType: {newReturnType} ({newReturnType.Module})");
                 // Console.WriteLine($">> method.Parameters: {method.HasParameters}");
@@ -411,8 +414,11 @@ namespace Microsoft.Coyote.Rewriting
                 // Console.WriteLine($">> parameter-type-contains-gen: {parameter.ParameterType.ContainsGenericParameter}");
                 // Console.WriteLine($">> parameter-type-gen-count: {parameter.ParameterType.GenericParameters.Count}");
 
-                // Try rewrite the parameter type.
-                TypeReference newParameterType = this.RewriteTypeReference(parameter.ParameterType);
+                // Try rewrite the parameter only if the declaring type is a non-runtime type,
+                // else assign the generic arguments if the parameter is generic.
+                bool isDeclaringTypeRewritten = IsRuntimeType(method.DeclaringType);
+                TypeReference newParameterType = this.RewriteTypeReference(parameter.ParameterType,
+                    IsRuntimeType(method.DeclaringType) ? Options.SkipRootType : Options.None);
                 // Console.WriteLine($">> newParameterType: {newParameterType} ({newParameterType.Module})");
 
                 ParameterDefinition newParameter = new ParameterDefinition(parameter.Name,
@@ -427,9 +433,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the specified <see cref="TypeReference"/>.
         /// </summary>
-        private TypeReference RewriteTypeReference(TypeReference type, bool allowStatic = false)
+        private TypeReference RewriteTypeReference(TypeReference type, Options options = Options.None)
         {
-            if (this.TryRewriteType(type, out TypeReference newType, allowStatic) &&
+            if (this.TryRewriteType(type, options, out TypeReference newType) &&
                 this.TryResolve(newType, out TypeDefinition _))
             {
                 // Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>> type1: {type} ({type.Module})");

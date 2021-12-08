@@ -77,9 +77,16 @@ namespace Microsoft.Coyote.Rewriting
         /// Tries to return the rewritten type for the specified type, or returns false
         /// if there is nothing to rewrite.
         /// </summary>
-        protected bool TryRewriteType(TypeReference type, out TypeReference result, bool allowStatic = false)
+        protected bool TryRewriteType(TypeReference type, out TypeReference result) =>
+            this.TryRewriteType(type, Options.None, out result);
+
+        /// <summary>
+        /// Tries to return the rewritten type for the specified type and with the specified
+        /// rewriting options, or returns false if there is nothing to rewrite.
+        /// </summary>
+        protected bool TryRewriteType(TypeReference type, Options options, out TypeReference result)
         {
-            result = this.RewriteType(type, allowStatic);
+            result = this.RewriteType(type, options, options.HasFlag(Options.SkipRootType));
             return result.FullName != type.FullName || result.Module != type.Module;
         }
 
@@ -87,37 +94,28 @@ namespace Microsoft.Coyote.Rewriting
         /// Returns the rewritten type for the specified type, or returns the original
         /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference RewriteType(TypeReference type, bool allowStatic)
+        private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport = false)
         {
             TypeReference result = type;
             // Console.WriteLine($"Rewriting type {type.FullName}");
             if (type is GenericInstanceType genericType)
             {
-                // Console.WriteLine($"1-1: {genericType} ({genericType.Module})");
-                TypeReference newElementType = this.RewriteType(genericType.ElementType, allowStatic);
+                // Console.WriteLine($"1-1: {genericType} {genericType.ElementType.GetType()} ({genericType.Module})");
+                TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options, onlyImport);
                 // Console.WriteLine($"1-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
                      new GenericInstanceType(newElementType);
-                // GenericInstanceType newGenericType = newElementType.FullName == genericType.ElementType.FullName ?
-                //     genericType : this.Module.ImportReference(newElementType) as GenericInstanceType;
-                // GenericInstanceType newGenericType = this.MakeGenericType(newElementType, genericType.GenericArguments, genericType);
-                // GenericInstanceType newGenericType = new GenericInstanceType(newElementType);
+
                 // Console.WriteLine($"1-3: {newGenericType} ({newGenericType.Module})");
                 // Console.WriteLine($"GenericParameters: {newGenericType.GenericParameters.Count}");
                 // Console.WriteLine($"GenericArguments: {newGenericType.GenericArguments.Count}");
-
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
-                    newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx], allowStatic));
+                    newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx], options));
                 }
 
                 // Console.WriteLine($"1-4: {newGenericType} ({newGenericType.Module})");
-                result = newGenericType;
-                // result = this.Module.ImportReference(newGenericType, genericType);
-                // result = newGenericType.Module != this.Module ?
-                //     this.Module.ImportReference(newGenericType, genericType) :
-                //     newGenericType;
-                // Console.WriteLine($"1-5: {result} ({result.Module})");
+                return newGenericType;
             }
             else if (type is ArrayType arrayType)
             {
@@ -127,7 +125,9 @@ namespace Microsoft.Coyote.Rewriting
                     // Console.WriteLine($"3-2: {dimension.IsSized} {dimension.LowerBound} {dimension.UpperBound}");
                 }
 
-                TypeReference newElementType = this.RewriteType(arrayType.ElementType, allowStatic);
+                TypeReference newElementType = arrayType.ElementType.IsGenericInstance ?
+                    this.RewriteType(arrayType.ElementType, options, onlyImport) :
+                    this.RewriteAndImportType(arrayType.ElementType, options, onlyImport);
                 // Console.WriteLine($"3-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
                 foreach (var dimension in newArrayType.Dimensions)
@@ -136,29 +136,49 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 // Console.WriteLine($"3-4: {newArrayType} ({newArrayType?.Module}) ({newArrayType.Dimensions.Count})");
-                result = newArrayType;
+                return newArrayType;
             }
-            else if (!type.IsGenericParameter && !type.IsByReference)
+
+            return this.RewriteAndImportType(type, options, onlyImport);
+        }
+
+        /// <summary>
+        /// Returns the rewritten type for the specified type, or returns the original
+        /// if there is nothing to rewrite.
+        /// </summary>
+        private TypeReference RewriteAndImportType(TypeReference type, Options options, bool onlyImport = false)
+        {
+            TypeReference result = type;
+            // Console.WriteLine($"RW-1: {type.GetType()}");
+            if (!type.IsGenericParameter && !type.IsByReference)
             {
-                // Console.WriteLine($"2-1: {type.GetType()}");
-                if (this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&
-                    (allowStatic || !newType.IsSealed || !newType.IsAbstract))
+                // Rewrite the type if it is a known type. If the rewritten type is static,
+                // then only allow if this is a declaring type.
+                if (!onlyImport && this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&
+                    IsRewrittenTypeAllowed(newType, options))
                 {
-                    // Console.WriteLine($"2-2 {newType} ({newType.Module})");
+                    // Console.WriteLine($"RW-2 {newType} ({newType.Module})");
                     result = this.Module.ImportReference(newType);
-                    // Console.WriteLine($"2-3: {result} ({result.Module})");
+                    // Console.WriteLine($"RW-3: {result} ({result.Module})");
                 }
                 else if (type.Module != this.Module)
                 {
-                    // Console.WriteLine($"2-4 {type} ({type.Module})");
+                    // Import the type to the current module.
+                    // Console.WriteLine($"RW-4 {type} ({type.Module})");
                     result = this.Module.ImportReference(type);
-                    // Console.WriteLine($"2-5: {result} ({result.Module})");
+                    // Console.WriteLine($"RW-5: {result} ({result.Module})");
                 }
             }
 
-            // Console.WriteLine($"4: {result} ({result.Module})");
             return result;
         }
+
+        /// <summary>
+        /// Checks if the specified rewritten type is allowed.
+        /// </summary>
+        private static bool IsRewrittenTypeAllowed(Type type, Options options) =>
+            type.IsSealed && type.IsAbstract ? options.HasFlag(Options.AllowStaticRewrittenType) :
+            true;
 
         /// <summary>
         /// Checks if the specified type is a rewritable type.
@@ -181,6 +201,17 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Options for rewriting a type.
+        /// </summary>
+        [Flags]
+        protected enum Options
+        {
+            None = 0,
+            AllowStaticRewrittenType = 1,
+            SkipRootType = 2
         }
     }
 }

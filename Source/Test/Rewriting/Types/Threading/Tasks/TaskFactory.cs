@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task continuation options for this task factory.
         /// </summary>
-        public static SystemTaskContinuationOptions get_ContinuationOptions(SystemTaskFactory factory)
+        public static SystemTaskContinuationOptions get_ContinuationOptions(SystemTasks.TaskFactory<TResult> factory)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task cancellation token for this task factory.
         /// </summary>
-        public static SystemCancellationToken get_CancellationToken(SystemTaskFactory factory)
+        public static SystemCancellationToken get_CancellationToken(SystemTasks.TaskFactory<TResult> factory)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task creation options for this task factory.
         /// </summary>
-        public static SystemTaskCreationOptions get_CreationOptions(SystemTaskFactory factory)
+        public static SystemTaskCreationOptions get_CreationOptions(SystemTasks.TaskFactory<TResult> factory)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The default task scheduler for this task factory.
         /// </summary>
-        public static SystemTaskScheduler get_Scheduler(SystemTaskFactory factory)
+        public static SystemTaskScheduler get_Scheduler(SystemTasks.TaskFactory<TResult> factory)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)
@@ -247,14 +247,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public static SystemTasks.Task<TResult> StartNew(SystemTaskFactory factory, Func<TResult> function) =>
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory, Func<TResult> function) =>
             StartNew(factory, function, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public static SystemTasks.Task<TResult> StartNew(SystemTaskFactory factory, Func<TResult> function,
-            SystemCancellationToken cancellationToken)
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<TResult> function, SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)
@@ -269,16 +269,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public static SystemTasks.Task<TResult> StartNew(SystemTaskFactory factory,
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
             Func<object, TResult> function, object state) =>
             StartNew(factory, function, state, SystemCancellationToken.None);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public static SystemTasks.Task<TResult> StartNew(SystemTaskFactory factory,
-            Func<object, TResult> function, object state,
-            SystemCancellationToken cancellationToken)
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.None)

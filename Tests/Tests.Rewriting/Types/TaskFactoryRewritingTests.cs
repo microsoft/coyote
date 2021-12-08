@@ -16,9 +16,21 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskFactoryStartNewRewriting()
+        public void TestRewritingTaskFactoryStartNew()
         {
             Task.Factory.StartNew(() => { });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingGenericTaskFactoryStartNew()
+        {
+            Task<int>.Factory.StartNew(() => 1);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingNestedGenericTaskFactoryStartNew()
+        {
+            Task<Task<int>>.Factory.StartNew(() => Task.FromResult(1));
         }
 #pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }

@@ -16,13 +16,13 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestActionRewriting()
+        public void TestRewritingAction()
         {
             _ = new Action<Task>(task => { });
         }
 
         [Fact(Timeout = 5000)]
-        public void TestFuncRewriting()
+        public void TestRewritingFunc()
         {
             _ = new Func<Task>(() => Task.CompletedTask);
         }

@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -181,14 +179,14 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch
             {
-                if (logError)
-                {
-                    this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
-                        "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
-                        ".NET platform of Coyote and the target assembly do not match.");
-                }
-
                 resolved = null;
+            }
+
+            if (logError && resolved is null && method != null)
+            {
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
+                    "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
             }
 
             return resolved != null;
@@ -206,14 +204,14 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch
             {
-                if (logError)
-                {
-                    this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
-                        "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
-                        ".NET platform of Coyote and the target assembly do not match.");
-                }
-
                 resolved = null;
+            }
+
+            if (logError && resolved is null && type != null)
+            {
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
+                    "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
             }
 
             return resolved != null;
@@ -274,7 +272,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type from an assembly being visited is a visited type.
         /// </remarks>
-        protected bool IsVisitedType(TypeDefinition type)
+        protected bool IsVisitedType(TypeReference type)
         {
             if (type != null)
             {
@@ -294,7 +292,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type not visited that is not a runtime type is a foreign type.
         /// </remarks>
-        protected bool IsForeignType(TypeDefinition type) =>
+        protected bool IsForeignType(TypeReference type) =>
             !this.IsVisitedType(type) && !IsRuntimeType(type);
 
         /// <summary>
@@ -303,12 +301,18 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type from the Coyote assemblies is a runtime type.
         /// </remarks>
-        protected static bool IsRuntimeType(TypeDefinition type)
+        protected static bool IsRuntimeType(TypeReference type)
         {
             if (type != null)
             {
-                string modulePath = Path.GetFileName(type.Module.FileName);
-                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
+                TypeReference declaringType = type;
+                while (declaringType.IsNested)
+                {
+                    declaringType = declaringType.DeclaringType;
+                }
+
+                if (declaringType.Namespace is "Microsoft.Coyote" ||
+                    declaringType.Namespace.StartsWith("Microsoft.Coyote."))
                 {
                     return true;
                 }
@@ -323,11 +327,11 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type in the system namespace is a system type.
         /// </remarks>
-        protected static bool IsSystemType(TypeDefinition type)
+        protected static bool IsSystemType(TypeReference type)
         {
             if (type != null)
             {
-                TypeDefinition declaringType = type;
+                TypeReference declaringType = type;
                 while (declaringType.IsNested)
                 {
                     declaringType = declaringType.DeclaringType;

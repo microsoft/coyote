@@ -77,58 +77,87 @@ namespace Microsoft.Coyote.Rewriting
         /// Tries to return the rewritten type for the specified type, or returns false
         /// if there is nothing to rewrite.
         /// </summary>
-        protected bool TryRewriteType(TypeReference type, out TypeReference result)
+        protected bool TryRewriteType(TypeReference type, out TypeReference result, bool allowStatic = false)
         {
-            result = this.RewriteType(type);
-            return result.FullName != type.FullName;
+            result = this.RewriteType(type, allowStatic);
+            return result.FullName != type.FullName || result.Module != type.Module;
         }
 
         /// <summary>
         /// Returns the rewritten type for the specified type, or returns the original
         /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference RewriteType(TypeReference type)
+        private TypeReference RewriteType(TypeReference type, bool allowStatic)
         {
             TypeReference result = type;
-
-            string fullName = type.FullName;
+            // Console.WriteLine($"Rewriting type {type.FullName}");
             if (type is GenericInstanceType genericType)
             {
-                TypeReference elementType = this.RewriteType(genericType.ElementType);
-                result = this.RewriteType(genericType, elementType);
-                result = this.Module.ImportReference(result);
-            }
-            else
-            {
-                if (this.KnownTypes.TryGetValue(fullName, out Type newType))
+                // Console.WriteLine($"1-1: {genericType} ({genericType.Module})");
+                TypeReference newElementType = this.RewriteType(genericType.ElementType, allowStatic);
+                // Console.WriteLine($"1-2: {newElementType} ({newElementType.GenericParameters.Count})");
+                GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
+                     this.MakeGenericType(newElementType, genericType.GenericArguments);
+                // GenericInstanceType newGenericType = newElementType.FullName == genericType.ElementType.FullName ?
+                //     genericType : this.Module.ImportReference(newElementType) as GenericInstanceType;
+                // GenericInstanceType newGenericType = this.MakeGenericType(newElementType, genericType.GenericArguments, genericType);
+                // GenericInstanceType newGenericType = new GenericInstanceType(newElementType);
+                // Console.WriteLine($"1-2: {newGenericType} ({newGenericType.Module})");
+                // Console.WriteLine($"GenericParameters: {newGenericType.GenericParameters.Count}");
+                // Console.WriteLine($"GenericArguments: {newGenericType.GenericArguments.Count}");
+
+                for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
-                    result = newType.IsGenericType ?
-                        this.Module.ImportReference(newType, type) :
-                        this.Module.ImportReference(newType);
+                    newGenericType.GenericArguments[idx] = this.RewriteType(genericType.GenericArguments[idx], allowStatic);
+                }
+
+                // Console.WriteLine($"1-3: {newGenericType} ({newGenericType.Module})");
+                result = newGenericType;
+                // result = this.Module.ImportReference(newGenericType, genericType);
+                // result = newGenericType.Module != this.Module ?
+                //     this.Module.ImportReference(newGenericType, genericType) :
+                //     newGenericType;
+                // Console.WriteLine($"1-4: {result} ({result.Module})");
+            }
+            else if (type is ArrayType arrayType)
+            {
+                // Console.WriteLine($"3-1: {arrayType} ({arrayType.Dimensions.Count})");
+                foreach (var dimension in arrayType.Dimensions)
+                {
+                    // Console.WriteLine($"3-2: {dimension.IsSized} {dimension.LowerBound} {dimension.UpperBound}");
+                }
+
+                TypeReference newElementType = this.RewriteType(arrayType.ElementType, allowStatic);
+                // Console.WriteLine($"3-2: {newElementType} ({newElementType.GenericParameters.Count})");
+                ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
+                foreach (var dimension in newArrayType.Dimensions)
+                {
+                    // Console.WriteLine($"3-3: {dimension.IsSized} {dimension.LowerBound} {dimension.UpperBound}");
+                }
+
+                // Console.WriteLine($"3-4: {newArrayType} ({newArrayType?.Module}) ({newArrayType.Dimensions.Count})");
+                result = newArrayType;
+            }
+            else if (!type.IsGenericParameter)
+            {
+                // Console.WriteLine($"2-1: {type.GetType()}");
+                if (this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&
+                    (allowStatic || !newType.IsSealed || !newType.IsAbstract))
+                {
+                    // Console.WriteLine($"2-2 {newType} ({newType.Module})");
+                    result = this.Module.ImportReference(newType);
+                    // Console.WriteLine($"2-3: {result} ({result.Module})");
+                }
+                else if (type.Module != this.Module)
+                {
+                    // Console.WriteLine($"2-4 {type} ({type.Module})");
+                    result = this.Module.ImportReference(type);
+                    // Console.WriteLine($"2-5: {result} ({result.Module})");
                 }
             }
 
+            // Console.WriteLine($"4: {result} ({result.Module})");
             return result;
-        }
-
-        /// <summary>
-        /// Returns the rewritten type for the specified generic type, or returns the original
-        /// if there is nothing to rewrite.
-        /// </summary>
-        private TypeReference RewriteType(GenericInstanceType type, TypeReference elementType)
-        {
-            GenericInstanceType result = type;
-            if (type.ElementType.FullName != elementType.FullName)
-            {
-                // Try to rewrite the arguments of the generic type.
-                result = this.Module.ImportReference(elementType) as GenericInstanceType;
-                for (int idx = 0; idx < type.GenericArguments.Count; idx++)
-                {
-                    result.GenericArguments[idx] = this.RewriteType(type.GenericArguments[idx]);
-                }
-            }
-
-            return this.Module.ImportReference(result);
         }
 
         /// <summary>
@@ -153,10 +182,5 @@ namespace Microsoft.Coyote.Rewriting
 
             return false;
         }
-
-        /// <summary>
-        /// Returns true if the specified type is a static type.
-        /// </summary>
-        protected static bool IsStaticType(TypeDefinition type) => type.IsSealed && type.IsAbstract;
     }
 }

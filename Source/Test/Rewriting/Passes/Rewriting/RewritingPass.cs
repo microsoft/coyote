@@ -38,6 +38,12 @@ namespace Microsoft.Coyote.Rewriting
             MethodDefinition match = null;
             foreach (var method in declaringType.Methods)
             {
+                // Console.WriteLine($"  FindMethod {method} ({method.HasGenericParameters})");
+                foreach (var parameter in method.GenericParameters)
+                {
+                    // Console.WriteLine($"  gen:  {parameter}");
+                }
+
                 if (method.Name == name && method.Parameters.Count == parameterTypes.Length)
                 {
                     bool isMatch = true;
@@ -45,11 +51,21 @@ namespace Microsoft.Coyote.Rewriting
                     {
                         var left = parameterTypes[i];
                         var right = method.Parameters[i].ParameterType;
-                        if (left is GenericParameter genLeft && right is GenericParameter genRight &&
-                            genLeft.Type == genRight.Type && genLeft.Position == genRight.Position)
+                        // Console.WriteLine($"     >>>>> {left} vs {right}");
+                        // Console.WriteLine($"     >>>>> {left.IsGenericInstance} vs {right.IsGenericInstance}");
+                        // Console.WriteLine($"     >>>>> {(left as GenericInstanceType)?.GenericArguments.Count} vs {(right as GenericInstanceType)?.GenericArguments.Count}");
+                        if (left is GenericParameter leftGP && right is GenericParameter rightGP &&
+                            leftGP.Type == rightGP.Type && leftGP.Position == rightGP.Position)
                         {
                             // If they are generic parameters, then the types (Type or Method) and
                             // generic positions must match.
+                            continue;
+                        }
+                        else if (left is GenericInstanceType leftGT && right is GenericInstanceType rightGT &&
+                            leftGT.ElementType.FullName == rightGT.ElementType.FullName &&
+                            leftGT.GenericArguments.Count == rightGT.GenericArguments.Count)
+                        {
+                            // If they are generic types, then the element type and number of arguments must match.
                             continue;
                         }
                         else if (!left.IsGenericParameter && !right.IsGenericParameter &&
@@ -89,16 +105,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Creates a new generic type with the specified generic arguments and parameter provider.
-        /// </summary>
-        protected TypeReference MakeGenericType(TypeDefinition type, Collection<TypeReference> arguments,
-            IGenericParameterProvider context)
-        {
-            TypeReference importedType = this.Module.ImportReference(type, context);
-            return MakeGenericType(importedType, arguments);
-        }
-
-        /// <summary>
         /// Creates a new generic type with the specified generic argument.
         /// </summary>
         protected static TypeReference MakeGenericType(TypeReference type, TypeReference argument)
@@ -114,10 +120,41 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Creates a new generic type with the specified generic arguments.
+        /// Creates a new generic type with the generic arguments of the original type,
+        /// if it is a generic type.
         /// </summary>
-        protected static TypeReference MakeGenericType(TypeReference type, Collection<TypeReference> arguments)
+        protected TypeReference TryMakeGenericType(TypeReference type, TypeReference originalType)
         {
+            TypeReference result;
+            if (type.IsGenericInstance &&
+                this.TryResolve(type, out TypeDefinition typeDefinition))
+            {
+                result = originalType is GenericInstanceType originalGenericType ?
+                    this.MakeGenericType(typeDefinition, originalGenericType.GenericArguments) :
+                    type;
+            }
+            else
+            {
+                result = type.IsGenericParameter ? originalType : type;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a new generic type with the specified generic arguments and parameter provider.
+        /// </summary>
+        protected GenericInstanceType MakeGenericType(TypeReference type, Collection<TypeReference> arguments)
+        {
+            if (type.Module != this.Module)
+            {
+                type = type.IsGenericInstance ?
+                    this.Module.ImportReference(type, type.DeclaringType) :
+                    this.Module.ImportReference(type);
+            }
+
+            // Console.WriteLine($"MakeGenericType: {type} ({type.Module})");
+            // Console.WriteLine($"MakeGenericType: {type.GenericParameters.Count} ({arguments.Count})");
             if (type.GenericParameters.Count != arguments.Count)
             {
                 throw new ArgumentException();
@@ -130,29 +167,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return instance;
-        }
-
-        /// <summary>
-        /// Creates a new generic type with the generic arguments of the original type,
-        /// if it is a generic type.
-        /// </summary>
-        protected TypeReference TryMakeGenericType(TypeReference type, TypeReference originalType,
-            IGenericParameterProvider context)
-        {
-            TypeReference result;
-            if (type.IsGenericInstance &&
-                this.TryResolve(type, out TypeDefinition typeDefinition))
-            {
-                result = originalType is GenericInstanceType originalGenericType ?
-                    this.MakeGenericType(typeDefinition, originalGenericType.GenericArguments, context) :
-                    type;
-            }
-            else
-            {
-                result = type.IsGenericParameter ? originalType : type;
-            }
-
-            return result;
         }
 
         /// <summary>

@@ -136,6 +136,11 @@ namespace Microsoft.Coyote.Actors
         protected virtual int HashedState => 0;
 
         /// <summary>
+        /// The latest hashed state of the actor.
+        /// </summary>
+        private int LatestHashedState = 0;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Actor"/> class.
         /// </summary>
         protected Actor()
@@ -518,6 +523,9 @@ namespace Microsoft.Coyote.Actors
             {
                 while (this.CurrentStatus != Status.Halted && this.Context.IsRunning)
                 {
+                    // We want to use C# Interlocked exchange API to thread safely write.
+                    this.LatestHashedState = this.ComputeHashState();
+
                     // Add a delay point before dequeuing an event.
                     if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
@@ -778,7 +786,39 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of this actor.
         /// </summary>
-        internal virtual int GetHashedState()
+        internal virtual int GetHashedState(bool isCurrentOperation = true)
+        {
+            // If it is fuzzing and it is not the current operation being fuzzed.
+            if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing && !isCurrentOperation)
+            {
+                    // We want to use C# Interlocked exchange API to thread safely read.
+                    return this.LatestHashedState;   
+            }
+
+            unchecked
+            {
+                var hash = 19;
+                hash = (hash * 31) + this.GetType().GetHashCode();
+                hash = (hash * 31) + this.Id.Value.GetHashCode();
+                hash = (hash * 31) + this.IsHalted.GetHashCode();
+                hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
+                hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
+                hash = (hash * 31) + this.Inbox.GetCachedState();
+
+                if (this.HashedState != 0)
+                {
+                    // Adds the user-defined hashed state.
+                    hash = (hash * 31) + this.HashedState;
+                }
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Computes the hashed state of this actor.
+        /// </summary>
+        protected virtual int ComputeHashState()
         {
             unchecked
             {

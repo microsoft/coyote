@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.Coyote.Rewriting.Types.Net.Http;
 using Microsoft.Coyote.Runtime;
 
@@ -127,12 +126,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         {
             if (options.AllowAutoRedirect)
             {
-                yield return new RedirectHandler(options.MaxAutomaticRedirections);
+                yield return new WebTesting.Handlers.RedirectHandler(options.MaxAutomaticRedirections);
             }
 
             if (options.HandleCookies)
             {
-                yield return new CookieContainerHandler();
+                yield return new WebTesting.Handlers.CookieContainerHandler();
             }
         }
     }

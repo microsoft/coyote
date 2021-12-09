@@ -56,6 +56,12 @@ namespace Microsoft.Coyote.Rewriting
             // Populate the map with the known synchronization types.
             this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
 
+#if NET || NETCOREAPP3_1
+            // Populate the map with the known HTTP and web-related types.
+            this.KnownTypes[NameCache.HttpClient] = typeof(Types.Net.Http.HttpClient);
+            this.KnownTypes[NameCache.WebApplicationFactory] = typeof(Types.Web.WebApplication);
+#endif
+
             if (options.IsRewritingConcurrentCollections)
             {
                 this.KnownTypes[NameCache.ConcurrentBag] = typeof(Types.Collections.Concurrent.ConcurrentBag<>);

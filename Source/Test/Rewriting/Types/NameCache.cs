@@ -5,8 +5,14 @@ using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemConcurrentCollections = System.Collections.Concurrent;
 using SystemGenericCollections = System.Collections.Generic;
+#if NET || NETCOREAPP3_1
+using SystemNetHttp = System.Net.Http;
+#endif
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
+#if NET || NETCOREAPP3_1
+using WebTesting = Microsoft.AspNetCore.Mvc.Testing;
+#endif
 
 namespace Microsoft.Coyote.Rewriting.Types
 {
@@ -56,9 +62,9 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string ConcurrentStack { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
 
 #if NET || NETCOREAPP3_1
-        internal static string HttpClientFullName { get; } = typeof(System.Net.Http.HttpClient).FullName;
+        internal static string HttpClient { get; } = typeof(SystemNetHttp.HttpClient).FullName;
 
-        internal static string WebApplicationFactoryFullName { get; } = typeof(AspNetCore.Mvc.Testing.WebApplicationFactory<>).FullName;
+        internal static string WebApplicationFactory { get; } = typeof(WebTesting.WebApplicationFactory<>).FullName;
 #endif
     }
 }

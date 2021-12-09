@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type from an assembly being visited is a visited type.
         /// </remarks>
-        protected bool IsVisitedType(TypeReference type)
+        protected bool IsVisitedType(TypeDefinition type)
         {
             if (type != null)
             {
@@ -287,13 +287,12 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is a foreign type.
+        /// Checks if the specified type is a runtime type.
         /// </summary>
         /// <remarks>
-        /// Any type not visited that is not a runtime type is a foreign type.
+        /// Any type from the Coyote assemblies is a runtime type.
         /// </remarks>
-        protected bool IsForeignType(TypeReference type) =>
-            !this.IsVisitedType(type) && !IsRuntimeType(type);
+        protected static bool IsRuntimeType(TypeReference type) => IsRuntimeType(type?.Resolve());
 
         /// <summary>
         /// Checks if the specified type is a runtime type.
@@ -301,24 +300,31 @@ namespace Microsoft.Coyote.Rewriting
         /// <remarks>
         /// Any type from the Coyote assemblies is a runtime type.
         /// </remarks>
-        protected static bool IsRuntimeType(TypeReference type)
+        protected static bool IsRuntimeType(TypeDefinition type)
         {
             if (type != null)
             {
-                TypeReference declaringType = type;
-                while (declaringType.IsNested)
-                {
-                    declaringType = declaringType.DeclaringType;
-                }
-
-                if (declaringType.Namespace is "Microsoft.Coyote" ||
-                    declaringType.Namespace.StartsWith("Microsoft.Coyote."))
+                // Any type from the Coyote assemblies is not a foreign type.
+                string module = type.Module.Name;
+                if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a foreign type.
+        /// </summary>
+        /// <remarks>
+        /// Any type not visited that is not a runtime type is a foreign type.
+        /// </remarks>
+        protected bool IsForeignType(TypeReference type)
+        {
+            TypeDefinition resolvedType = type?.Resolve();
+            return !this.IsVisitedType(resolvedType) && !IsRuntimeType(resolvedType);
         }
 
         /// <summary>

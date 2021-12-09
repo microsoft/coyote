@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting.Types;
 using Mono.Cecil;
@@ -194,8 +193,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (type != null)
             {
-                string modulePath = Path.GetFileName(type.Module.FileName);
-                if (modulePath is "Microsoft.AspNetCore.Mvc.Testing.dll")
+                if (type.Module.Name is "Microsoft.AspNetCore.Mvc.Testing.dll")
                 {
                     return true;
                 }

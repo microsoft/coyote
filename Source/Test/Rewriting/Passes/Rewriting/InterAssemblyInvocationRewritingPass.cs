@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 instruction.Operand is MethodReference methodReference &&
-                this.IsForeignType(methodReference.DeclaringType.Resolve()))
+                this.IsForeignType(methodReference.DeclaringType))
             {
                 TypeDefinition resolvedReturnType = methodReference.ReturnType.Resolve();
                 if (IsTaskType(resolvedReturnType, NameCache.TaskName, NameCache.SystemTasksNamespace))

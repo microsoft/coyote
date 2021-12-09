@@ -109,6 +109,7 @@ namespace Microsoft.Coyote.Rewriting
         internal static IEnumerable<AssemblyInfo> LoadAssembliesToRewrite(RewritingOptions options,
             AssemblyResolveEventHandler handler)
         {
+            Console.WriteLine($"Loading assemblies to rewrite...");
             // Add all explicitly requested assemblies.
             var assemblies = new HashSet<AssemblyInfo>();
             foreach (string path in options.AssemblyPaths)
@@ -122,6 +123,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     assemblies.Add(new AssemblyInfo(name, path, options, handler));
+                    Console.WriteLine($"  loading {name}");
                 }
             }
 
@@ -304,6 +306,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void LoadDependencies(HashSet<AssemblyInfo> assemblies, AssemblyResolveEventHandler handler)
         {
+            Console.WriteLine($"Loading dependencies of '{this.Name}'...");
             // Get the directory associated with this assembly.
             var assemblyDir = Path.GetDirectoryName(this.FilePath);
 
@@ -316,6 +319,7 @@ namespace Microsoft.Coyote.Rewriting
                 foreach (var reference in assembly.Definition.Modules.SelectMany(module => module.AssemblyReferences))
                 {
                     var fileName = reference.Name + ".dll";
+                    Console.WriteLine($" ??? {fileName}");
                     var path = Path.Combine(assemblyDir, fileName);
                     if (File.Exists(path) && !this.Options.IsAssemblyIgnored(fileName))
                     {
@@ -330,6 +334,7 @@ namespace Microsoft.Coyote.Rewriting
 
                         if (dependency != null)
                         {
+                            Console.WriteLine($"  {dependency.Name}");
                             this.Dependencies.Add(dependency);
                         }
                     }

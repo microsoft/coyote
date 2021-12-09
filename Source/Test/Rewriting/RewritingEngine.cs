@@ -134,6 +134,11 @@ namespace Microsoft.Coyote.Rewriting
             this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.Logger));
             this.Passes.AddLast(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.Logger));
 
+#if NET || NETCOREAPP3_1
+            // Add a rewriting pass for taking control of ASP.NET applications.
+            this.Passes.AddLast(new AspNetRewritingPass(assemblies, this.Logger));
+#endif
+
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and

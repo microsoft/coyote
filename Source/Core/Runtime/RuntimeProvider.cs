@@ -98,5 +98,12 @@ namespace Microsoft.Coyote.Runtime
         {
             Runtimes.TryRemove(id, out CoyoteRuntime _);
         }
+
+        /// <summary>
+        /// Tries to get the runtime with the specified identifier, if there is one available.
+        /// </summary>
+        /// <returns>True if the runtime was found, else false.</returns>
+        internal static bool TryGetFromId(Guid runtimeId, out CoyoteRuntime runtime) =>
+            Runtimes.TryGetValue(runtimeId, out runtime) ? true : false;
     }
 }

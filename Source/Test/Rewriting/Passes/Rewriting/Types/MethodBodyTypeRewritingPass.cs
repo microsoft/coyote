@@ -4,13 +4,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Rewriting.Types;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
-using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
-using SystemCompiler = System.Runtime.CompilerServices;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -121,9 +117,8 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitNewobjInstruction(Instruction instruction)
         {
             MethodReference constructor = instruction.Operand as MethodReference;
-            MethodReference newMethod = this.RewriteMethodReference(constructor, "Create");
-            if (constructor.FullName != newMethod.FullName &&
-                this.TryResolve(constructor, out MethodDefinition _))
+            if (this.TryRewriteMethodReference(constructor, "Create", out MethodReference newMethod) &&
+                this.TryResolve(newMethod, out MethodDefinition _))
             {
                 // Create and return the new instruction.
                 Instruction newInstruction = Instruction.Create(OpCodes.Call, newMethod);
@@ -145,8 +140,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
-            MethodReference newMethod = this.RewriteMethodReference(method);
-            if (method.FullName != newMethod.FullName &&
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
                 // Create and return the new instruction.
@@ -165,33 +159,41 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified <see cref="MethodReference"/>.
+        /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
-        private MethodReference RewriteMethodReference(MethodReference method, string matchName = null)
+        private bool TryRewriteMethodReference(MethodReference method, out MethodReference result) =>
+            this.TryRewriteMethodReference(method, null, out result);
+
+        /// <summary>
+        /// Tries to rewrite the specified <see cref="MethodReference"/>.
+        /// </summary>
+        private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result)
         {
             // Console.WriteLine($"\n\n[ENTRY] Method: {method.FullName}");
             // Console.WriteLine($"  >>> Method: {method.Name} ({method.DeclaringType}) ({method.DeclaringType.Module})");
-            MethodReference result = method;
+            result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
             {
-                return result;
+                return false;
             }
 
             // Console.WriteLine($"  >>> resolvedDeclaringType {resolvedDeclaringType} ({resolvedDeclaringType.Module})");
+            // Variable that is passed by reference to rewriting methods keeping
+            // track if any type in the method was rewritten.
+            bool isRewritten = false;
             if (!this.TryResolve(method, out MethodDefinition resolvedMethod, false))
             {
                 // Console.WriteLine($"  >>> CANNOT RESOLVE -- is it rewritten?");
 
-                // Check if this method signature has been rewritten and, if it has, find the
-                // rewritten method. The signature does not include the return type according
-                // to C# rules, but the return type may have also been rewritten which is why
-                // it is imperative here that we find the correct new definition.
+                // Check if this method signature has been rewritten in the dependency assembly and,
+                // if it has, find the rewritten method. The signature does not include the return
+                // type according to C# rules, so we do not take it into account.
                 List<TypeReference> paramTypes = new List<TypeReference>();
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
                     var p = method.Parameters[i];
-                    paramTypes.Add(this.RewriteTypeReference(p.ParameterType));
+                    paramTypes.Add(this.RewriteType(p.ParameterType, Options.None));
                 }
 
                 MethodDefinition match = FindMethod(method.Name, resolvedDeclaringType, paramTypes.ToArray());
@@ -199,22 +201,24 @@ namespace Microsoft.Coyote.Rewriting
                 if (!this.TryResolve(match, out resolvedMethod))
                 {
                     // Unable to resolve the method or a rewritten version of this method.
-                    return result;
+                    return false;
                 }
+
+                isRewritten = true;
             }
 
             // Console.WriteLine($"  >>> resolvedMethod: {resolvedMethod} ({resolvedMethod.HasGenericParameters})");
 
             // Try to rewrite the declaring type.
-            TypeReference newDeclaringType = this.RewriteTypeReference(method.DeclaringType,
-                Options.AllowStaticRewrittenType);
+            TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,
+                Options.AllowStaticRewrittenType, ref isRewritten);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.
-                return result;
+                return false;
             }
 
-            // Console.WriteLine($"  >>> newDeclaringType: {newDeclaringType}");
+            // Console.WriteLine($"  >>> newDeclaringType: {newDeclaringType} (isRewritten {isRewritten})");
 
             bool isDeclaringTypeRewritten = IsRuntimeType(resolvedNewDeclaringType);
             // Console.WriteLine($"  >>> isDeclaringTypeRewritten: {isDeclaringTypeRewritten}");
@@ -226,7 +230,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (!TryFindMethod(resolvedNewDeclaringType, resolvedMethod, matchName, out resolvedMethod))
                 {
                     // No matching method found.
-                    return result;
+                    return false;
                 }
 
                 // TODO: is this needed?
@@ -271,10 +275,10 @@ namespace Microsoft.Coyote.Rewriting
 
                 // Try rewrite the return only if the declaring type is a non-runtime type,
                 // else assign the generic arguments if the parameter is generic.
-                TypeReference newReturnType = this.RewriteTypeReference(resolvedMethod.ReturnType,
-                    isDeclaringTypeRewritten ? Options.SkipRootType : Options.None);
+                TypeReference newReturnType = this.RewriteType(resolvedMethod.ReturnType,
+                    isDeclaringTypeRewritten ? Options.SkipRootType : Options.None, ref isRewritten);
 
-                // Console.WriteLine($">> newReturnType: {newReturnType} ({newReturnType.Module})");
+                // Console.WriteLine($">> newReturnType: {newReturnType} ({newReturnType.Module}) (isRewritten {isRewritten})");
                 // Console.WriteLine($">> method.Parameters: {method.HasParameters}");
                 // Console.WriteLine($">> method.GenParameters: {method.HasParameters}");
                 // Console.WriteLine($">> result.Parameters: {result.HasParameters}");
@@ -291,7 +295,7 @@ namespace Microsoft.Coyote.Rewriting
                 // Rewrite the parameters of the method, if any.
                 // Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(result,
                 //     method.Parameters, isRewritingDeclaringType, method);
-                // Console.WriteLine($"1: {result.FullName}");
+                // Console.WriteLine($"1: {result.FullName} (isRewritten {isRewritten})");
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
                 result = new MethodReference(result.Name, newReturnType, newDeclaringType)
@@ -301,7 +305,7 @@ namespace Microsoft.Coyote.Rewriting
                     CallingConvention = result.CallingConvention
                 };
 
-                // Console.WriteLine($"2: {result.FullName}");
+                // Console.WriteLine($"2: {result.FullName} (isRewritten {isRewritten})");
 
                 if (resolvedMethod.HasGenericParameters)
                 {
@@ -327,46 +331,23 @@ namespace Microsoft.Coyote.Rewriting
 
                     // Need to rewrite the generic method to instantiate the correct generic parameter types.
                     result = this.RewriteGenericArguments(result, resolvedMethod.GenericParameters,
-                        (method as GenericInstanceMethod)?.GenericArguments);
+                        (method as GenericInstanceMethod)?.GenericArguments, ref isRewritten);
                 }
 
                 // Rewrite the parameters of the method, if any.
-                result = this.RewriteParameters(result, resolvedMethod.Parameters);
-                // Console.WriteLine($"4: {result.FullName}");
+                result = this.RewriteParameters(result, resolvedMethod.Parameters, ref isRewritten);
+                // Console.WriteLine($"4: {result.FullName} (isRewritten {isRewritten})");
             }
 
-            var x = this.Module.ImportReference(result);
-            // Console.WriteLine($"=== declaring: {x.DeclaringType} ({x.DeclaringType.Module})");
-            // Console.WriteLine($"=== return: {x.ReturnType} ({x.ReturnType.Module})");
-            foreach (var k in x.Parameters)
-            {
-                // Console.WriteLine($"  === param: {k.ParameterType} ({k.ParameterType.Module})");
-            }
-
-            if (x is GenericInstanceMethod xx)
-            {
-                foreach (var k in xx.GenericParameters)
-                {
-                    // Console.WriteLine($"  === genparam: {k} ({k.Module})");
-                }
-
-                foreach (var k in xx.GenericArguments)
-                {
-                    // Console.WriteLine($"  === genarg: {k} ({k.Module})");
-                }
-            }
-
-            // Console.WriteLine($"  === DONE");
-            TypeDefinition resultDeclaringType = x.DeclaringType.Resolve();
-            // Console.WriteLine($"  === {resultDeclaringType}");
-            return x;
+            result = this.Module.ImportReference(result);
+            return isRewritten;
         }
 
         /// <summary>
         /// Rewrites the generic arguments of the specified <see cref="MethodReference"/>.
         /// </summary>
-        private MethodReference RewriteGenericArguments(MethodReference method,
-            Collection<GenericParameter> genericParameters, Collection<TypeReference> genericArguments)
+        private MethodReference RewriteGenericArguments(MethodReference method, Collection<GenericParameter> genericParameters,
+            Collection<TypeReference> genericArguments, ref bool isRewritten)
         {
             // Console.WriteLine($">> HI?!");
             var genericMethod = new GenericInstanceMethod(method);
@@ -384,7 +365,7 @@ namespace Microsoft.Coyote.Rewriting
                 method.GenericParameters.Add(parameter);
                 genericMethod.GenericParameters.Add(parameter);
 
-                TypeReference newArgType = this.RewriteTypeReference(genericArguments[i]);
+                TypeReference newArgType = this.RewriteType(genericArguments[i], Options.None, ref isRewritten);
                 genericMethod.GenericArguments.Add(newArgType);
                 // Console.WriteLine($">> gen-arg: {genericMethod.GenericArguments[i]}");
             }
@@ -395,7 +376,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the parameters of the specified <see cref="MethodReference"/>.
         /// </summary>
-        private MethodReference RewriteParameters(MethodReference method, Collection<ParameterDefinition> parameters)
+        private MethodReference RewriteParameters(MethodReference method, Collection<ParameterDefinition> parameters,
+            ref bool isRewritten)
         {
             // Console.WriteLine($">> HELLO?!");
             // Console.WriteLine($">> method: {method}");
@@ -417,8 +399,8 @@ namespace Microsoft.Coyote.Rewriting
                 // Try rewrite the parameter only if the declaring type is a non-runtime type,
                 // else assign the generic arguments if the parameter is generic.
                 bool isDeclaringTypeRewritten = IsRuntimeType(method.DeclaringType);
-                TypeReference newParameterType = this.RewriteTypeReference(parameter.ParameterType,
-                    IsRuntimeType(method.DeclaringType) ? Options.SkipRootType : Options.None);
+                TypeReference newParameterType = this.RewriteType(parameter.ParameterType,
+                    IsRuntimeType(method.DeclaringType) ? Options.SkipRootType : Options.None, ref isRewritten);
                 // Console.WriteLine($">> newParameterType: {newParameterType} ({newParameterType.Module})");
 
                 ParameterDefinition newParameter = new ParameterDefinition(parameter.Name,
@@ -428,22 +410,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return method;
-        }
-
-        /// <summary>
-        /// Rewrites the specified <see cref="TypeReference"/>.
-        /// </summary>
-        private TypeReference RewriteTypeReference(TypeReference type, Options options = Options.None)
-        {
-            if (this.TryRewriteType(type, options, out TypeReference newType) &&
-                this.TryResolve(newType, out TypeDefinition _))
-            {
-                // Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>> type1: {type} ({type.Module})");
-                type = newType;
-            }
-
-            // Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>> type2: {type} ({type.Module})");
-            return type;
         }
 
         /// <summary>

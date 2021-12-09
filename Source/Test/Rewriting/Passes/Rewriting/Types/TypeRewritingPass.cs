@@ -73,6 +73,26 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Returns the rewritten type for the specified type and with the specified rewriting
+        /// options, or returns the original type if there is nothing to rewrite.
+        /// </summary>
+        protected TypeReference RewriteType(TypeReference type, Options options)
+        {
+            this.TryRewriteType(type, options, out TypeReference result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the rewritten type for the specified type and with the specified rewriting
+        /// options, or returns the original type if there is nothing to rewrite.
+        /// </summary>
+        protected TypeReference RewriteType(TypeReference type, Options options, ref bool isRewritten)
+        {
+            isRewritten |= this.TryRewriteType(type, options, out TypeReference result);
+            return result;
+        }
+
+        /// <summary>
         /// Tries to return the rewritten type for the specified type, or returns false
         /// if there is nothing to rewrite.
         /// </summary>
@@ -83,24 +103,26 @@ namespace Microsoft.Coyote.Rewriting
         /// Tries to return the rewritten type for the specified type and with the specified
         /// rewriting options, or returns false if there is nothing to rewrite.
         /// </summary>
-        protected bool TryRewriteType(TypeReference type, Options options, out TypeReference result)
+        private bool TryRewriteType(TypeReference type, Options options, out TypeReference result)
         {
-            result = this.RewriteType(type, options, options.HasFlag(Options.SkipRootType));
-            return result.FullName != type.FullName || result.Module != type.Module;
+            bool isRewritten = false;
+            result = this.RewriteType(type, options, options.HasFlag(Options.SkipRootType), ref isRewritten);
+            return isRewritten;
         }
 
         /// <summary>
         /// Returns the rewritten type for the specified type, or returns the original
         /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport = false)
+        private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport, ref bool isRewritten)
         {
             TypeReference result = type;
             // Console.WriteLine($"Rewriting type {type.FullName}");
             if (type is GenericInstanceType genericType)
             {
                 // Console.WriteLine($"1-1: {genericType} {genericType.ElementType.GetType()} ({genericType.Module})");
-                TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options, onlyImport);
+                TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options,
+                    onlyImport, ref isRewritten);
                 // Console.WriteLine($"1-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
                      new GenericInstanceType(newElementType);
@@ -111,7 +133,7 @@ namespace Microsoft.Coyote.Rewriting
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
                     newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx],
-                        options & ~Options.AllowStaticRewrittenType));
+                        options & ~Options.AllowStaticRewrittenType, false, ref isRewritten));
                 }
 
                 // Console.WriteLine($"1-4: {newGenericType} ({newGenericType.Module})");
@@ -126,8 +148,8 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 TypeReference newElementType = arrayType.ElementType.IsGenericInstance ?
-                    this.RewriteType(arrayType.ElementType, options, onlyImport) :
-                    this.RewriteAndImportType(arrayType.ElementType, options, onlyImport);
+                    this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten) :
+                    this.RewriteAndImportType(arrayType.ElementType, options, onlyImport, ref isRewritten);
                 // Console.WriteLine($"3-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
                 foreach (var dimension in newArrayType.Dimensions)
@@ -139,14 +161,15 @@ namespace Microsoft.Coyote.Rewriting
                 return newArrayType;
             }
 
-            return this.RewriteAndImportType(type, options, onlyImport);
+            return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten);
         }
 
         /// <summary>
         /// Returns the rewritten type for the specified type, or returns the original
         /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference RewriteAndImportType(TypeReference type, Options options, bool onlyImport = false)
+        private TypeReference RewriteAndImportType(TypeReference type, Options options, bool onlyImport,
+            ref bool isRewritten)
         {
             TypeReference result = type;
             // Console.WriteLine($"RW-1: {type.GetType()}");
@@ -159,6 +182,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     // Console.WriteLine($"RW-2 {newType} ({newType.Module})");
                     result = this.Module.ImportReference(newType);
+                    isRewritten = true;
                     // Console.WriteLine($"RW-3: {result} ({result.Module})");
                 }
                 else if (type.Module != this.Module)

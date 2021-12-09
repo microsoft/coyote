@@ -374,7 +374,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Configuration.SchedulingStrategy is "pct" ||
                 this.Configuration.SchedulingStrategy is "fairpct" ||
                 this.Configuration.SchedulingStrategy is "probabilistic" ||
-                this.Configuration.SchedulingStrategy is "rl")
+                this.Configuration.SchedulingStrategy is "rl" ||
+                this.Configuration.SchedulingStrategy is "portfolio")
             {
                 options = $" (seed:{this.Scheduler.ValueGenerator.Seed})";
             }

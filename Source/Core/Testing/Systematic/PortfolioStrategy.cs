@@ -76,6 +76,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool InitializeNextIteration(uint iteration)
         {
             this.currentIterationNumber = iteration;
+            uint currentStrategyIteration = this.currentIterationNumber / this.NumberOfstrategiesInPortfolio;
+            int currentStrategyIndex = (int)(this.currentIterationNumber % this.NumberOfstrategiesInPortfolio);
+            this.StrategiesPortfolio[currentStrategyIndex].InitializeNextIteration(currentStrategyIteration);
             return true;
         }
 

@@ -34,7 +34,7 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Build Coyote projects
-        run: ./Scripts/build.ps1
+        run: ./Scripts/build.ps1 -all_frameworks $true
         shell: pwsh
       - name: Validate Coyote Rewriting
         if: ${{ matrix.platform == 'windows-latest' }}

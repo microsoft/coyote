@@ -15,6 +15,7 @@ param(
 
 Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 
+$all_frameworks = (Get-Variable "framework").Attributes.ValidValues
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
     "testing" = "Tests.BugFinding"
@@ -37,6 +38,9 @@ foreach ($kvp in $targets.GetEnumerator()) {
     if (($test -ne "all") -and ($test -ne $($kvp.Name))) {
         continue
     }
+
+    $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | `
+        Where-Object Name -CIn $all_frameworks | Select-Object -expand Name
 
     foreach ($f in $frameworks) {
         if (($framework -ne "all") -and ($f -ne $framework)) {

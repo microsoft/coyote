@@ -4,8 +4,7 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",
-    [bool]$local = $true,
-    [switch]$latest
+    [bool]$all_frameworks = $false
 )
 
 $ScriptDir = $PSScriptRoot
@@ -39,25 +38,22 @@ Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
-if ($local) {
-    if ($version_net4 -and -not $latest) {
+if ($all_frameworks) {
+    # Build any supported .NET versions that are installed on this machine.
+    if ($version_net4) {
         # Build .NET Framework 4.x as well as the latest version.
         $command = $command + " /p:BUILD_NET462=yes"
     }
 
-    if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version -and -not $latest) {
+    if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {
         # Build .NET Core 3.1 as well as the latest version.
         $command = $command + " /p:BUILD_NETCORE31=yes"
     }
 
-    if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version -and -not $latest) {
+    if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version) {
         # Build .NET 5.0 as well as the latest version.
         $command = $command + " /p:BUILD_NET5=yes"
     }
-}
-else {
-    # Build all supported .NET versions.
-    $command = $command + " /p:BUILD_ALL_SUPPORTED_NET_VERSIONS=yes"
 }
 
 $error_msg = "Failed to build Coyote"

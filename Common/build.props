@@ -21,17 +21,14 @@
     <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
     <Framework462Supported Condition="'$(Framework462Supported)'==''">true</Framework462Supported>
     <Framework462Installed>false</Framework462Installed>
-    <Framework462Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</Framework462Installed>
     <Framework462Installed Condition="'$(BUILD_NET462)'=='yes'">true</Framework462Installed>
     <NetCore31Supported Condition="'$(NetCore31Supported)'==''">true</NetCore31Supported>
     <NetCore31Installed>false</NetCore31Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
-    <NetCore31Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</NetCore31Installed>
     <NetCore31Installed Condition="'$(BUILD_NETCORE31)'=='yes'">true</NetCore31Installed>
     <Net5Supported Condition="'$(Net5Supported)'==''">true</Net5Supported>
     <Net5Installed>false</Net5Installed>
     <Net5Installed Condition="$(GlobalVersion.StartsWith('5.0'))">true</Net5Installed>
-    <Net5Installed Condition="'$(BUILD_ALL_SUPPORTED_NET_VERSIONS)'=='yes'">true</Net5Installed>
     <Net5Installed Condition="'$(BUILD_NET5)'=='yes'">true</Net5Installed>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>

@@ -30,14 +30,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
-    - name: Setup .NET 5.0 SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '5.0.x'
-    - name: Setup .NET Core 3.1 SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
     - name: Set environment variables
       run: echo "COYOTE_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
     # Initializes the CodeQL tools for scanning.
@@ -50,7 +42,7 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
     - name: Build Coyote projects
-      run: ./Scripts/build.ps1 -local $false
+      run: ./Scripts/build.ps1
       shell: pwsh
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

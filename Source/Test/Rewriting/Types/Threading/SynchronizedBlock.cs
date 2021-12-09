@@ -4,18 +4,20 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Coyote.Rewriting.Types.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using SystemMonitor = System.Threading.Monitor;
 
-namespace Microsoft.Coyote.Rewriting.Types
+using SystemInterlocked = System.Threading.Interlocked;
+using SystemMonitor = System.Threading.Monitor;
+using SystemSynchronizationLockException = System.Threading.SynchronizationLockException;
+using SystemTask = System.Threading.Tasks.Task;
+
+namespace Microsoft.Coyote.Rewriting.Types.Threading
 {
     /// <summary>
     /// Provides a mechanism that synchronizes access to objects. It is implemented as a thin wrapper
-    /// on <see cref="SystemMonitor"/>. During testing, the implementation is automatically replaced
-    /// with a controlled mocked version. It can be used as a replacement of the lock keyword to allow
-    /// systematic testing.
+    /// on monitor. During testing, the implementation is automatically replaced with a controlled
+    /// mocked version. It can be used as a replacement of the lock keyword to allow systematic testing.
     /// </summary>
     internal class SynchronizedBlock : IDisposable
     {
@@ -32,7 +34,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
         /// </summary>
-        /// <param name="syncObject">The sync object to serialize access to.</param>
         protected SynchronizedBlock(object syncObject)
         {
             this.SyncObject = syncObject;
@@ -42,14 +43,12 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// Creates a new <see cref="SynchronizedBlock"/> for synchronizing access
         /// to the specified object and enters the lock.
         /// </summary>
-        /// <returns>The synchronized block.</returns>
         internal static SynchronizedBlock Lock(object syncObject) => CoyoteRuntime.IsExecutionControlled ?
             Mock.Create(syncObject).EnterLock() : new SynchronizedBlock(syncObject).EnterLock();
 
         /// <summary>
         /// Enters the lock.
         /// </summary>
-        /// <returns>The synchronized block.</returns>
         protected virtual SynchronizedBlock EnterLock()
         {
             SystemMonitor.Enter(this.SyncObject, ref this.IsLockTaken);
@@ -70,8 +69,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// Releases the lock on an object and blocks the current thread until it reacquires
         /// the lock.
         /// </summary>
-        /// <returns>True if the call returned because the caller reacquired the lock for the specified
-        /// object. This method does not return if the lock is not reacquired.</returns>
         internal virtual bool Wait() => SystemMonitor.Wait(this.SyncObject);
 
         /// <summary>
@@ -79,10 +76,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// the lock. If the specified time-out interval elapses, the thread enters the ready
         /// queue.
         /// </summary>
-        /// <param name="millisecondsTimeout">The number of milliseconds to wait before the thread enters the ready queue.</param>
-        /// <returns>True if the lock was reacquired before the specified time elapsed; false if the
-        /// lock was reacquired after the specified time elapsed. The method does not return
-        /// until the lock is reacquired.</returns>
         internal virtual bool Wait(int millisecondsTimeout) => SystemMonitor.Wait(this.SyncObject, millisecondsTimeout);
 
         /// <summary>
@@ -90,11 +83,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// the lock. If the specified time-out interval elapses, the thread enters the ready
         /// queue.
         /// </summary>
-        /// <param name="timeout">A System.TimeSpan representing the amount of time to wait before the thread enters
-        /// the ready queue.</param>
-        /// <returns>True if the lock was reacquired before the specified time elapsed; false if the
-        /// lock was reacquired after the specified time elapsed. The method does not return
-        /// until the lock is reacquired.</returns>
         internal virtual bool Wait(TimeSpan timeout) => SystemMonitor.Wait(this.SyncObject, timeout);
 
         /// <summary>
@@ -212,15 +200,12 @@ namespace Microsoft.Coyote.Rewriting.Types
                 return false;
             }
 
-            /// <summary>
-            /// For use by ControlledMonitor only.
-            /// </summary>
             internal void Lock() => this.EnterLock();
 
             protected override SynchronizedBlock EnterLock()
             {
                 this.IsLockTaken = true;
-                Interlocked.Increment(ref this.UseCount);
+                SystemInterlocked.Increment(ref this.UseCount);
 
                 if (this.Owner is null)
                 {
@@ -277,7 +262,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                 var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
                 if (this.Owner != op)
                 {
-                    throw new SynchronizationLockException();
+                    throw new SystemSynchronizationLockException();
                 }
 
                 // Pulse has a delay in the operating system, we can simulate that here
@@ -287,7 +272,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                 {
                     // Create a task for draining the queue. To optimize the testing performance,
                     // we create and maintain a single task to perform this role.
-                    ControlledTask.Run(this.DrainPulseQueue);
+                    Task.Run(this.DrainPulseQueue);
                 }
             }
 
@@ -326,7 +311,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
                         IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, Task.CurrentId);
+                            waitingOp.Id, SystemTask.CurrentId);
                     }
                 }
                 else
@@ -335,7 +320,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                     {
                         this.ReadyQueue.Add(waitingOp);
                         IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, Task.CurrentId);
+                            waitingOp.Id, SystemTask.CurrentId);
                     }
 
                     this.WaitQueue.Clear();
@@ -348,7 +333,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                 var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
                 if (this.Owner != op)
                 {
-                    throw new SynchronizationLockException();
+                    throw new SystemSynchronizationLockException();
                 }
 
                 this.ReadyQueue.Remove(op);
@@ -359,7 +344,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 
                 this.UnlockNextReady();
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' with task id '{1}' is waiting.",
-                    op.Id, Task.CurrentId);
+                    op.Id, SystemTask.CurrentId);
 
                 // Block this operation and schedule the next enabled operation.
                 this.Resource.Wait();
@@ -391,7 +376,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 
             /// <summary>
             /// Assigns the lock to the next operation waiting in the ready queue, if there is one,
-            /// following the FIFO semantics of <see cref="SystemMonitor"/>.
+            /// following the FIFO semantics of monitor.
             /// </summary>
             private void UnlockNextReady()
             {
@@ -421,7 +406,7 @@ namespace Microsoft.Coyote.Rewriting.Types
                     this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Release);
                 }
 
-                int useCount = Interlocked.Decrement(ref this.UseCount);
+                int useCount = SystemInterlocked.Decrement(ref this.UseCount);
                 if (useCount is 0 && Cache[this.SyncObject].Value == this)
                 {
                     // It is safe to remove this instance from the cache.

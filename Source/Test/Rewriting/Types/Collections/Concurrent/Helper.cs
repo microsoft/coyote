@@ -3,13 +3,12 @@
 
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Rewriting.Types
+namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 {
     /// <summary>
     /// Provides methods that are common for all concurrent collections during testing.
     /// </summary>
-    /// <remarks>This type is intended for concurrent collections only.</remarks>
-    internal class ConcurrentCollectionHelper
+    internal class Helper
     {
         internal static void Interleave()
         {

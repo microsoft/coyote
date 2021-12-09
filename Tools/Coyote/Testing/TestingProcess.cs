@@ -141,7 +141,14 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (configuration.SchedulingStrategy is "portfolio")
             {
-                TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
+                if (configuration.ParallelBugFindingTasks == 0)
+                {
+                    configuration.SchedulingStrategy = "portfolio";
+                }
+                else
+                {
+                    TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
+                }
             }
 
             if (configuration.RandomGeneratorSeed.HasValue)

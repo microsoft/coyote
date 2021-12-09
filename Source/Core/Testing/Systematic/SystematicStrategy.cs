@@ -50,6 +50,12 @@ namespace Microsoft.Coyote.Testing.Systematic
             {
                 strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
+            else if (configuration.SchedulingStrategy is "portfolio")
+            {
+                var prefixLength = configuration.SafetyPrefixBound is 0 ?
+                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
+                strategy = new PortfolioStrategy(configuration.MaxFairSchedulingSteps, prefixLength, generator);
+            }
 
             return strategy;
         }

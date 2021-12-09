@@ -255,11 +255,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 error = "Replaying a bug trace is not supported in concurrency fuzzing.";
             }
 
-            if (configuration.SchedulingStrategy is "portfolio")
-            {
-                error = "Portfolio testing strategy is only available in parallel testing.";
-            }
-
             if (!string.IsNullOrEmpty(error))
             {
                 if (configuration.DisableEnvironmentExit)

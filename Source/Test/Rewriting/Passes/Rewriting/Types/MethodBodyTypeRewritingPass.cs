@@ -169,8 +169,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result)
         {
-            // Console.WriteLine($"\n\n[ENTRY] Method: {method.FullName}");
-            // Console.WriteLine($"  >>> Method: {method.Name} ({method.DeclaringType}) ({method.DeclaringType.Module})");
             result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
@@ -178,14 +176,11 @@ namespace Microsoft.Coyote.Rewriting
                 return false;
             }
 
-            // Console.WriteLine($"  >>> resolvedDeclaringType {resolvedDeclaringType} ({resolvedDeclaringType.Module})");
             // Variable that is passed by reference to rewriting methods keeping
             // track if any type in the method was rewritten.
             bool isRewritten = false;
             if (!this.TryResolve(method, out MethodDefinition resolvedMethod, false))
             {
-                // Console.WriteLine($"  >>> CANNOT RESOLVE -- is it rewritten?");
-
                 // Check if this method signature has been rewritten in the dependency assembly and,
                 // if it has, find the rewritten method. The signature does not include the return
                 // type according to C# rules, so we do not take it into account.
@@ -197,7 +192,6 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 MethodDefinition match = FindMethod(method.Name, resolvedDeclaringType, paramTypes.ToArray());
-                // Console.WriteLine($"  >>> match: {match}");
                 if (!this.TryResolve(match, out resolvedMethod))
                 {
                     // Unable to resolve the method or a rewritten version of this method.
@@ -206,8 +200,6 @@ namespace Microsoft.Coyote.Rewriting
 
                 isRewritten = true;
             }
-
-            // Console.WriteLine($"  >>> resolvedMethod: {resolvedMethod} ({resolvedMethod.HasGenericParameters})");
 
             // Try to rewrite the declaring type.
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,
@@ -218,10 +210,7 @@ namespace Microsoft.Coyote.Rewriting
                 return false;
             }
 
-            // Console.WriteLine($"  >>> newDeclaringType: {newDeclaringType} (isRewritten {isRewritten})");
-
             bool isDeclaringTypeRewritten = IsRuntimeType(resolvedNewDeclaringType);
-            // Console.WriteLine($"  >>> isDeclaringTypeRewritten: {isDeclaringTypeRewritten}");
             if (isDeclaringTypeRewritten)
             {
                 // The declaring type is being rewritten, so only rewrite the return and
@@ -233,18 +222,13 @@ namespace Microsoft.Coyote.Rewriting
                     return false;
                 }
 
-                // TODO: is this needed?
-                // result = this.Module.ImportReference(resolvedMethod);
                 result = resolvedMethod;
-                // Console.WriteLine($"Match: {result.FullName}");
-                // Console.WriteLine($">> Match: {result.Name} ({result.DeclaringType.FullName})");
-                // Console.WriteLine($"resolvedMethod: {resolvedMethod}");
             }
 
             if (!result.HasThis && !newDeclaringType.IsGenericInstance &&
                 method.HasThis && method.DeclaringType.IsGenericInstance)
             {
-                // TODO: is this ever called?
+                // TODO: is this needed?
 
                 // We are converting from a generic type to a non generic static type, and from a non-generic
                 // method to a generic method, so we need to instantiate the generic method.
@@ -265,37 +249,10 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
-                // Console.WriteLine($">> result.ReturnType: {result.ReturnType}");
-                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericParameter}) ({method.ReturnType.GenericParameters.Count})");
-                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.HasGenericParameters}) ({method.ReturnType.GenericParameters.Count})");
-                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericParameter}) ({result.ReturnType.GenericParameters.Count})");
-                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.HasGenericParameters}) ({result.ReturnType.GenericParameters.Count})");
-                // Console.WriteLine($">> Return: {method.ReturnType} ({method.ReturnType.IsGenericInstance})");
-                // Console.WriteLine($">> Return: {result.ReturnType} ({result.ReturnType.IsGenericInstance})");
-
                 // Try rewrite the return only if the declaring type is a non-runtime type,
                 // else assign the generic arguments if the parameter is generic.
                 TypeReference newReturnType = this.RewriteType(resolvedMethod.ReturnType,
                     isDeclaringTypeRewritten ? Options.SkipRootType : Options.None, ref isRewritten);
-
-                // Console.WriteLine($">> newReturnType: {newReturnType} ({newReturnType.Module}) (isRewritten {isRewritten})");
-                // Console.WriteLine($">> method.Parameters: {method.HasParameters}");
-                // Console.WriteLine($">> method.GenParameters: {method.HasParameters}");
-                // Console.WriteLine($">> result.Parameters: {result.HasParameters}");
-                // Console.WriteLine($">> result.GenParameters: {result.HasGenericParameters}");
-                // Console.WriteLine($">> resolvedMethod.Parameters: {resolvedMethod.HasParameters}");
-                // Console.WriteLine($">> resolvedMethod.GenParameters: {resolvedMethod.HasGenericParameters}");
-                // Console.WriteLine($">> method.Parameters: {method.Parameters.Count}");
-                // Console.WriteLine($">> result.Parameters: {result.Parameters.Count}");
-                // Console.WriteLine($">> resolvedMethod.Parameters: {resolvedMethod.Parameters.Count}");
-                // Console.WriteLine($">> method.GenericParameters: {method.GenericParameters.Count}");
-                // Console.WriteLine($">> result.GenericParameters: {result.GenericParameters.Count}");
-                // Console.WriteLine($">> resolvedMethod.GenericParameters: {resolvedMethod.GenericParameters.Count}");
-
-                // Rewrite the parameters of the method, if any.
-                // Collection<ParameterDefinition> newParameters = this.RewriteMethodParameters(result,
-                //     method.Parameters, isRewritingDeclaringType, method);
-                // Console.WriteLine($"1: {result.FullName} (isRewritten {isRewritten})");
 
                 // Instantiate the method reference to set its generic arguments and parameters, if any.
                 result = new MethodReference(result.Name, newReturnType, newDeclaringType)
@@ -305,30 +262,8 @@ namespace Microsoft.Coyote.Rewriting
                     CallingConvention = result.CallingConvention
                 };
 
-                // Console.WriteLine($"2: {result.FullName} (isRewritten {isRewritten})");
-
                 if (resolvedMethod.HasGenericParameters)
                 {
-                    // Console.WriteLine($"\n\n\n3: =======================================");
-                    // Console.WriteLine($"3: HasGenericParameters: {result.FullName}");
-                    // Console.WriteLine($"3: method: {method.GenericParameters.Count}");
-                    // Console.WriteLine($"3: resolvedMethod: {resolvedMethod.GenericParameters.Count}");
-                    // Console.WriteLine($"3: result: {result.GenericParameters.Count}");
-                    foreach (var gp in method.GenericParameters)
-                    {
-                        // Console.WriteLine($"x-gp: {gp.FullName}");
-                    }
-
-                    foreach (var ga in (method as GenericInstanceMethod)?.GenericArguments)
-                    {
-                        // Console.WriteLine($"x-ga: {ga.FullName}");
-                    }
-
-                    foreach (var gp in resolvedMethod.GenericParameters)
-                    {
-                        // Console.WriteLine($"y-gp: {gp.FullName}");
-                    }
-
                     // Need to rewrite the generic method to instantiate the correct generic parameter types.
                     result = this.RewriteGenericArguments(result, resolvedMethod.GenericParameters,
                         (method as GenericInstanceMethod)?.GenericArguments, ref isRewritten);
@@ -336,7 +271,6 @@ namespace Microsoft.Coyote.Rewriting
 
                 // Rewrite the parameters of the method, if any.
                 result = this.RewriteParameters(result, resolvedMethod.Parameters, ref isRewritten);
-                // Console.WriteLine($"4: {result.FullName} (isRewritten {isRewritten})");
             }
 
             result = this.Module.ImportReference(result);
@@ -349,16 +283,7 @@ namespace Microsoft.Coyote.Rewriting
         private MethodReference RewriteGenericArguments(MethodReference method, Collection<GenericParameter> genericParameters,
             Collection<TypeReference> genericArguments, ref bool isRewritten)
         {
-            // Console.WriteLine($">> HI?!");
             var genericMethod = new GenericInstanceMethod(method);
-
-            // Console.WriteLine($">> method: {method}");
-            // Console.WriteLine($">> method-type: {method.DeclaringType}");
-            // Console.WriteLine($">> old-gen-parameter-count: {method.GenericParameters.Count}");
-            // Console.WriteLine($">> gen-parameter-count: {genericParameters.Count}");
-            // Console.WriteLine($">> old-gen-arg-count: {genericMethod.GenericArguments.Count}");
-            // Console.WriteLine($">> gen-arg-count: {genericArguments.Count}");
-
             for (int i = 0; i < genericArguments.Count; i++)
             {
                 GenericParameter parameter = new GenericParameter(genericParameters[i].Name, genericMethod);
@@ -367,7 +292,6 @@ namespace Microsoft.Coyote.Rewriting
 
                 TypeReference newArgType = this.RewriteType(genericArguments[i], Options.None, ref isRewritten);
                 genericMethod.GenericArguments.Add(newArgType);
-                // Console.WriteLine($">> gen-arg: {genericMethod.GenericArguments[i]}");
             }
 
             return genericMethod;
@@ -379,33 +303,16 @@ namespace Microsoft.Coyote.Rewriting
         private MethodReference RewriteParameters(MethodReference method, Collection<ParameterDefinition> parameters,
             ref bool isRewritten)
         {
-            // Console.WriteLine($">> HELLO?!");
-            // Console.WriteLine($">> method: {method}");
-            // Console.WriteLine($">> method-type: {method.DeclaringType}");
-            // Console.WriteLine($">> old-parameter-count: {method.Parameters.Count}");
-            // Console.WriteLine($">> old-gen-parameter-count: {method.GenericParameters.Count}");
-            // Console.WriteLine($">> parameter-count: {parameters.Count}");
-
             for (int i = 0; i < parameters.Count; i++)
             {
-                ParameterDefinition parameter = parameters[i];
-                // Console.WriteLine($">> parameter: {parameter}");
-                // Console.WriteLine($">> parameter-name: {parameter.Name}");
-                // Console.WriteLine($">> parameter-type: {parameter.ParameterType}");
-                // Console.WriteLine($">> parameter-type-has-gen: {parameter.ParameterType.HasGenericParameters}");
-                // Console.WriteLine($">> parameter-type-contains-gen: {parameter.ParameterType.ContainsGenericParameter}");
-                // Console.WriteLine($">> parameter-type-gen-count: {parameter.ParameterType.GenericParameters.Count}");
-
                 // Try rewrite the parameter only if the declaring type is a non-runtime type,
                 // else assign the generic arguments if the parameter is generic.
+                ParameterDefinition parameter = parameters[i];
                 bool isDeclaringTypeRewritten = IsRuntimeType(method.DeclaringType);
                 TypeReference newParameterType = this.RewriteType(parameter.ParameterType,
                     IsRuntimeType(method.DeclaringType) ? Options.SkipRootType : Options.None, ref isRewritten);
-                // Console.WriteLine($">> newParameterType: {newParameterType} ({newParameterType.Module})");
-
                 ParameterDefinition newParameter = new ParameterDefinition(parameter.Name,
                     parameter.Attributes, newParameterType);
-                // Console.WriteLine($">> newParameter: {newParameter.ParameterType} ({newParameter.ParameterType.Module})");
                 method.Parameters.Add(newParameter);
             }
 
@@ -469,12 +376,9 @@ namespace Microsoft.Coyote.Rewriting
         /// </remarks>
         private static bool CheckMethodSignaturesMatch(MethodDefinition originalMethod, MethodDefinition newMethod)
         {
-            // TODO: This method should be now generic enough that we can also use in future transformers, for similar checks.
-            // This static method conversion is not specific to Tasks, and we can move it in a new helper API in the future.
-
+            // TODO: make sure all necessary checks are in place!
             // Check if the method properties match. We check 'IsStatic' later as we need to do additional checks
             // in cases where we are replacing an instance method with a static method.
-            // TODO: make sure all necessary checks are in place!
             if (originalMethod.Name != newMethod.Name ||
                 originalMethod.IsConstructor != newMethod.IsConstructor ||
                 originalMethod.ReturnType.IsGenericInstance != newMethod.ReturnType.IsGenericInstance ||

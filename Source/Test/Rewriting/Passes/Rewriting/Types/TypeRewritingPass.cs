@@ -117,47 +117,26 @@ namespace Microsoft.Coyote.Rewriting
         private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport, ref bool isRewritten)
         {
             TypeReference result = type;
-            // Console.WriteLine($"Rewriting type {type.FullName}");
             if (type is GenericInstanceType genericType)
             {
-                // Console.WriteLine($"1-1: {genericType} {genericType.ElementType.GetType()} ({genericType.Module})");
                 TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options,
                     onlyImport, ref isRewritten);
-                // Console.WriteLine($"1-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
                      new GenericInstanceType(newElementType);
-
-                // Console.WriteLine($"1-3: {newGenericType} ({newGenericType.Module})");
-                // Console.WriteLine($"GenericParameters: {newGenericType.GenericParameters.Count}");
-                // Console.WriteLine($"GenericArguments: {newGenericType.GenericArguments.Count}");
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
                     newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx],
                         options & ~Options.AllowStaticRewrittenType, false, ref isRewritten));
                 }
 
-                // Console.WriteLine($"1-4: {newGenericType} ({newGenericType.Module})");
                 return newGenericType;
             }
             else if (type is ArrayType arrayType)
             {
-                // Console.WriteLine($"3-1: {arrayType} ({arrayType.Dimensions.Count})");
-                foreach (var dimension in arrayType.Dimensions)
-                {
-                    // Console.WriteLine($"3-2: {dimension.IsSized} {dimension.LowerBound} {dimension.UpperBound}");
-                }
-
                 TypeReference newElementType = arrayType.ElementType.IsGenericInstance ?
                     this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten) :
                     this.RewriteAndImportType(arrayType.ElementType, options, onlyImport, ref isRewritten);
-                // Console.WriteLine($"3-2: {newElementType} ({newElementType.GenericParameters.Count})");
                 ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
-                foreach (var dimension in newArrayType.Dimensions)
-                {
-                    // Console.WriteLine($"3-3: {dimension.IsSized} {dimension.LowerBound} {dimension.UpperBound}");
-                }
-
-                // Console.WriteLine($"3-4: {newArrayType} ({newArrayType?.Module}) ({newArrayType.Dimensions.Count})");
                 return newArrayType;
             }
 
@@ -172,7 +151,6 @@ namespace Microsoft.Coyote.Rewriting
             ref bool isRewritten)
         {
             TypeReference result = type;
-            // Console.WriteLine($"RW-1: {type.GetType()}");
             if (!type.IsGenericParameter && !type.IsByReference)
             {
                 // Rewrite the type if it is a known type. If the rewritten type is static,
@@ -180,17 +158,13 @@ namespace Microsoft.Coyote.Rewriting
                 if (!onlyImport && this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&
                     IsRewrittenTypeAllowed(newType, options))
                 {
-                    // Console.WriteLine($"RW-2 {newType} ({newType.Module})");
                     result = this.Module.ImportReference(newType);
                     isRewritten = true;
-                    // Console.WriteLine($"RW-3: {result} ({result.Module})");
                 }
                 else if (type.Module != this.Module)
                 {
                     // Import the type to the current module.
-                    // Console.WriteLine($"RW-4 {type} ({type.Module})");
                     result = this.Module.ImportReference(type);
-                    // Console.WriteLine($"RW-5: {result} ({result.Module})");
                 }
             }
 

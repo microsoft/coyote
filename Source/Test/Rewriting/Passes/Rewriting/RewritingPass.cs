@@ -38,12 +38,6 @@ namespace Microsoft.Coyote.Rewriting
             MethodDefinition match = null;
             foreach (var method in declaringType.Methods)
             {
-                // Console.WriteLine($"  FindMethod {method} ({method.HasGenericParameters})");
-                foreach (var parameter in method.GenericParameters)
-                {
-                    // Console.WriteLine($"  gen:  {parameter}");
-                }
-
                 if (method.Name == name && method.Parameters.Count == parameterTypes.Length)
                 {
                     bool isMatch = true;
@@ -51,9 +45,6 @@ namespace Microsoft.Coyote.Rewriting
                     {
                         var left = parameterTypes[i];
                         var right = method.Parameters[i].ParameterType;
-                        // Console.WriteLine($"     >>>>> {left} vs {right}");
-                        // Console.WriteLine($"     >>>>> {left.IsGenericInstance} vs {right.IsGenericInstance}");
-                        // Console.WriteLine($"     >>>>> {(left as GenericInstanceType)?.GenericArguments.Count} vs {(right as GenericInstanceType)?.GenericArguments.Count}");
                         if (left is GenericParameter leftGP && right is GenericParameter rightGP &&
                             leftGP.Type == rightGP.Type && leftGP.Position == rightGP.Position)
                         {

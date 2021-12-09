@@ -17,25 +17,25 @@ namespace Microsoft.Coyote.Rewriting.Tests
         [Fact(Timeout = 5000)]
         public void TestRewritingTaskWhenAll()
         {
-            Task.WhenAll(default(Task));
+            Task.WhenAll(Task.CompletedTask);
         }
 
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericTaskWhenAll()
         {
-            Task.WhenAll(default(Task<int>));
+            Task.WhenAll(Task.FromResult(1));
         }
 
         [Fact(Timeout = 5000)]
         public void TestRewritingTaskWhenAny()
         {
-            Task.WhenAny(default(Task));
+            Task.WhenAny(Task.CompletedTask);
         }
 
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericTaskWhenAny()
         {
-            Task.WhenAny(default(Task<int>));
+            Task.WhenAny(Task.FromResult(1));
         }
     }
 }

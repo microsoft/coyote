@@ -3,14 +3,15 @@
 
 param(
     [string]$dotnet = "dotnet",
-    [ValidateSet("all", "net6.0", "net5.0", "netcoreapp3.1", "net462")]
-    [string]$framework = "all",
+    [ValidateSet("net6.0", "net5.0", "netcoreapp3.1", "net462")]
+    [string]$framework = "net6.0",
     [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
     [ValidateSet("quiet", "minimal", "normal", "detailed", "diagnostic")]
-    [string]$v = "normal"
+    [string]$v = "normal",
+    [bool]$ci = $false
 )
 
 Import-Module $PSScriptRoot/powershell/common.psm1 -Force
@@ -41,14 +42,12 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
     $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | `
         Where-Object Name -CIn $all_frameworks | Select-Object -expand Name
-
     foreach ($f in $frameworks) {
-        if (($framework -ne "all") -and ($f -ne $framework)) {
+        if ((-not $ci) -and ($f -ne $framework)) {
             continue
         }
 
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-
         if ($f -eq "net6.0") {
             $AssemblyName = GetAssemblyName($target)
             $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "6.0"

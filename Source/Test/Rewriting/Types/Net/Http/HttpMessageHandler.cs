@@ -49,12 +49,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         public static SystemDelegatingHandler CreateWithDefaultHandler() =>
             new HttpMessageHandler(new SystemHttpClientHandler());
 
-#if NET5_0
+#if NET
         /// <summary>
         /// Creates an instance of an HTTP response message based on the information
         /// provided in the HTTP request message.
         /// </summary>
-        protected override SystemHttpResponseMessage Send(SystemHttpRequestMessage request, CancellationToken cancellationToken) =>
+        protected override SystemHttpResponseMessage Send(SystemHttpRequestMessage request,
+            SystemCancellationToken cancellationToken) =>
             base.Send(AssignRuntimeId(request), cancellationToken);
 #endif
 

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.SystematicTesting
             else
             {
                 configuration.SchedulingStrategy = "fairpct";
-                configuration.StrategyBound = 5 * (int)((configuration.TestingProcessId) / 2);
+                configuration.StrategyBound = 5 * (int)(configuration.TestingProcessId / 2);
             }
         }
     }

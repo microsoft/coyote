@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Actors
         /// User-defined hashed state of the actor. Override to improve the
         /// accuracy of stateful techniques during testing.
         /// </summary>
-        protected virtual int HashedState => 0;
+        protected internal virtual int HashedState => 0;
 
         /// <summary>
         /// The latest hashed state of the actor.
@@ -792,7 +792,7 @@ namespace Microsoft.Coyote.Actors
             if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing && !isCurrentOperation)
             {
                     // We want to use C# Interlocked exchange API to thread safely read.
-                    return this.LatestHashedState;   
+                    return this.LatestHashedState;
             }
 
             unchecked

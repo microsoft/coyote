@@ -770,7 +770,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of this state machine.
         /// </summary>
-        internal override int GetHashedState()
+        internal override int GetHashedState(bool isCurrentOperation = true)
         {
             unchecked
             {

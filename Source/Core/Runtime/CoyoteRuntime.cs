@@ -121,6 +121,11 @@ namespace Microsoft.Coyote.Runtime
         private AsyncOperation ScheduledOperation;
 
         /// <summary>
+        /// The current global program state during fuzzing.
+        /// </summary>
+        internal int CurrentHashedState;
+
+        /// <summary>
         /// The root task id.
         /// </summary>
         private readonly int? RootTaskId;
@@ -1320,6 +1325,8 @@ namespace Microsoft.Coyote.Runtime
                 // Update the current asynchronous control flow with the current runtime instance,
                 // allowing future retrieval in the same asynchronous call stack.
                 AssignAsyncControlFlowRuntime(this);
+                // Update the current global state for fuzzing.
+                this.CurrentHashedState = this.GetHashedProgramState();
 
                 // Choose the next delay to inject. The value is in milliseconds.
                 delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation: operation);
@@ -1329,9 +1336,9 @@ namespace Microsoft.Coyote.Runtime
             if (delay > 0)
             {
                 // Only sleep if a non-zero delay was chosen.
-                this.Scheduler.NotifyActorStatus(operation, Testing.Fuzzing.ActorStatus.ActiveSleeping);
+                this.Scheduler.NotifyActorStatus(operation, ActorStatus.ActiveSleeping);
                 Thread.Sleep(delay);
-                this.Scheduler.NotifyActorStatus(operation, Testing.Fuzzing.ActorStatus.ActiveAwake);
+                this.Scheduler.NotifyActorStatus(operation, ActorStatus.ActiveAwake);
             }
         }
 
@@ -1647,7 +1654,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (operation is ActorOperation actorOperation)
                     {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                        int operationHash = 31 + actorOperation.Actor.GetHashedState(false);
                         operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
                         hash *= operationHash;
                     }

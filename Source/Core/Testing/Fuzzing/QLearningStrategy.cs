@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
@@ -25,7 +26,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         private readonly LinkedList<(int, AsyncOperationType?, int)> ExecutionPath;
 
-        private ConcurrentDictionary<string, ActorStatus> OperationStatuses;
+        private readonly ConcurrentDictionary<string, ActorStatus> OperationStatuses;
 
         private readonly double LearningRate;
 
@@ -56,11 +57,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal override bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null)
         {
-            Console.WriteLine($">>> GetNextDelay for {operation?.Id} from task {Task.CurrentId}");
+            // Console.WriteLine($">>> GetNextDelay for {operation?.Id} from task {Task.CurrentId}");
+
             int state = this.CaptureExecutionStep(operation);
             this.InitializeDelayQValues(state, maxValue);
 
-            next = this.GetNextDelayByPolicy(state, maxValue) * 10;
+            next = this.GetNextDelayByPolicy(state, maxValue);
 
             this.PreviousDelayValue = next;
             this.StepCount++;
@@ -72,7 +74,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             if (operation != null)
             {
                 var actor = (operation as ActorOperation).Actor;
-                Console.WriteLine($">>> NotifyActorStatus: {actor.Id} (rl: {actor.Id.RLId}) is {state}");
+                // Console.WriteLine($">>> NotifyActorStatus: {actor.Id} (rl: {actor.Id.RLId}) is {state}");
                 if (this.OperationStatuses.ContainsKey(actor.Id.RLId))
                 {
                     this.OperationStatuses[actor.Id.RLId] = state;
@@ -86,24 +88,29 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal int CaptureExecutionStep(AsyncOperation operation)
         {
-            Console.WriteLine($">>> CaptureExecutionStep:");
-            Console.WriteLine($">>>>> OperationStatuses: {this.OperationStatuses.Count}");
+            // Console.WriteLine($">>> CaptureExecutionStep:");
+            // Console.WriteLine($">>>>> OperationStatuses: {this.OperationStatuses.Count}");
 
-            int state = this.ComputeStateHash();
+            int state = this.ComputeStateHash(operation);
+            // Console.WriteLine($">>>>> check operation type -> before");
             if (operation != null)
             {
+                // Console.WriteLine($">>>>> operation: null -> before");
                 this.ExecutionPath.AddLast((this.PreviousDelayValue, operation.Type, state));
+                // Console.WriteLine($">>>>> operation: null -> after");
             }
             else
             {
+                // Console.WriteLine($">>>>> operation: non-null -> before");
                 this.ExecutionPath.AddLast((this.PreviousDelayValue, null, state));
+                // Console.WriteLine($">>>>> operation: non-null -> after");
             }
 
-            Console.WriteLine($">>>>> State: {state}");
+            // Console.WriteLine($">>>>> State: {state}");
             return state;
         }
 
-        private int ComputeStateHash()
+        private int ComputeStateHash(AsyncOperation operation)
         {
             unchecked
             {
@@ -111,10 +118,21 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
                 foreach (var kvp in this.OperationStatuses)
                 {
-                    Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
+                    // Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
                     int operationHash = 31 + kvp.Key.GetHashCode();
                     operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
                     hash *= operationHash;
+                }
+
+                // Changed the access of HashedState.
+                if (operation != null)
+                {
+                    if ((operation as ActorOperation).Actor.HashedState != 0)
+                    {
+                        // hash = (hash * 31) + (operation as ActorOperation).Actor.HashedState; // Custom-only.
+                        // hash = (hash * 31) + (operation as ActorOperation).Actor.GetHashedState(); // Local + Custom.
+                        // hash = (hash * 31) + (operation as ActorOperation).Actor.Context.Runtime.CurrentHashedState; // Global + Custom.
+                    }
                 }
 
                 return hash;
@@ -207,7 +225,18 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.Epochs++;
             this.StepCount = 0;
 
-            Console.WriteLine(this.OperationQTable.Count().ToString());
+            var sb = new StringBuilder();
+            sb.AppendLine("OperationQTable: ");
+            Console.WriteLine($"OperationQTable size: {this.OperationQTable.Count().ToString()}");
+            foreach (KeyValuePair<int, Dictionary<int, double>> kvp1 in this.OperationQTable)
+            {
+                foreach (KeyValuePair<int, double> kvp2 in kvp1.Value)
+                {
+                    sb.AppendLine($"{kvp1.Key}: {kvp2.Key}, {kvp2.Value}");
+                }
+            }
+
+            Console.WriteLine(sb.ToString());
 
             return true;
         }

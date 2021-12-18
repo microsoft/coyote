@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 

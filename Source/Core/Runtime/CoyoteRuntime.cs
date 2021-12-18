@@ -87,7 +87,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default actor execution context.
         /// </summary>
-        internal readonly ActorExecutionContext DefaultActorExecutionContext;
+        // internal readonly ActorExecutionContext DefaultActorExecutionContext;
+        public ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -230,7 +231,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
+        /// // change point. private.
+        internal CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
             this.Scheduler = scheduler;
@@ -1326,7 +1328,7 @@ namespace Microsoft.Coyote.Runtime
                 // allowing future retrieval in the same asynchronous call stack.
                 AssignAsyncControlFlowRuntime(this);
                 // Update the current global state for fuzzing.
-                this.CurrentHashedState = this.GetHashedProgramState();
+                this.CurrentHashedState = this.GetHashedProgramState(operation);
 
                 // Choose the next delay to inject. The value is in milliseconds.
                 delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay, operation: operation);
@@ -1644,7 +1646,7 @@ namespace Microsoft.Coyote.Runtime
         /// The hash is updated in each execution step.
         /// </remarks>
         [DebuggerStepThrough]
-        private int GetHashedProgramState()
+        private int GetHashedProgramState(AsyncOperation delayCallingOperation = null)
         {
             unchecked
             {
@@ -1652,7 +1654,7 @@ namespace Microsoft.Coyote.Runtime
 
                 foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                 {
-                    if (operation is ActorOperation actorOperation)
+                    if (operation is ActorOperation actorOperation && (operation != delayCallingOperation))
                     {
                         int operationHash = 31 + actorOperation.Actor.GetHashedState(false);
                         operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();

@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                     {
                         // hash = (hash * 31) + (operation as ActorOperation).Actor.HashedState; // Custom-only.
                         // hash = (hash * 31) + (operation as ActorOperation).Actor.GetHashedState(); // Local + Custom.
-                        // hash = (hash * 31) + (operation as ActorOperation).Actor.Context.Runtime.CurrentHashedState; // Global + Custom.
+                        // hash = (hash * 31) + (operation as ActorOperation).Actor.Context.Runtime.CurrentHashedState; // Global + Custom patch.
                     }
                 }
 
@@ -227,13 +227,21 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             var sb = new StringBuilder();
             sb.AppendLine("OperationQTable: ");
-            Console.WriteLine($"OperationQTable size: {this.OperationQTable.Count().ToString()}");
+            Console.WriteLine($"OperationQTable size: {this.OperationQTable.Count()}");
             foreach (KeyValuePair<int, Dictionary<int, double>> kvp1 in this.OperationQTable)
             {
                 foreach (KeyValuePair<int, double> kvp2 in kvp1.Value)
                 {
                     sb.AppendLine($"{kvp1.Key}: {kvp2.Key}, {kvp2.Value}");
                 }
+            }
+
+            sb.Append("ExecutionPath: ");
+            var node = this.ExecutionPath.First;
+            while (node != null)
+            {
+                var value = node.Value;
+                sb.Append($"({value.Item1}, {value.Item3}), ");
             }
 
             Console.WriteLine(sb.ToString());

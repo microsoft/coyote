@@ -27,7 +27,8 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// The execution context of an actor program.
     /// </summary>
-    internal class ActorExecutionContext : IActorRuntime
+    /// // change point. internal.
+    public class ActorExecutionContext : IActorRuntime
     {
         /// <summary>
         /// Object used to synchronize access to the <see cref="OnFailure"/> event.
@@ -131,6 +132,19 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// creating an actor runtime.
+        /// </summary>
+        /// // change point.
+        public static ActorExecutionContext CreateActorRuntime()
+        {
+            Configuration configuration = Configuration.Create();
+            OperationScheduler scheduler = OperationScheduler.Setup(configuration);
+            CoyoteRuntime runtime = new CoyoteRuntime(configuration, scheduler);
+            return new ActorExecutionContext(configuration, runtime, new SpecificationEngine(configuration, runtime),
+                           scheduler.ValueGenerator, new LogWriter(configuration));
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
         internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
@@ -148,7 +162,7 @@ namespace Microsoft.Coyote.Actors
             this.RespActorQuiescence = new TaskCompletionSource<bool>();
         }
 
-        // <inheritdoc/>
+        /// <inheritdoc/>
         public ActorId CreateActorId(Type type, Actor parent = null, string name = null)
         {
             if (parent == null)
@@ -437,7 +451,11 @@ namespace Microsoft.Coyote.Actors
             });
         }
 
-        internal Task AwaitActorQuiescence()
+        /// <summary>
+        /// Waits for all actors to reach quiescence before test ends.
+        /// </summary>
+        /// // change point. internal.
+        public Task AwaitActorQuiescence()
         {
             lock (this.SyncObject)
             {

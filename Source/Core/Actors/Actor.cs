@@ -824,7 +824,7 @@ namespace Microsoft.Coyote.Actors
             {
                 var hash = 19;
                 hash = (hash * 31) + this.GetType().GetHashCode();
-                hash = (hash * 31) + this.Id.Value.GetHashCode();
+                hash = (hash * 31) + this.Id.RLId.GetHashCode();
                 hash = (hash * 31) + this.IsHalted.GetHashCode();
                 hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
                 hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);

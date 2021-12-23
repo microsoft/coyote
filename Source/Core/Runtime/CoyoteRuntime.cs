@@ -87,8 +87,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default actor execution context.
         /// </summary>
-        // internal readonly ActorExecutionContext DefaultActorExecutionContext;
-        public ActorExecutionContext DefaultActorExecutionContext;
+        internal readonly ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
         /// Responsible for checking specifications.
@@ -231,8 +230,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        /// // change point. private.
-        internal CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
+        private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
             this.Scheduler = scheduler;
@@ -1344,6 +1342,20 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        internal static bool MicrosecondSleep(int uS)
+        {
+            int loop_count = 0;
+            int ticks_needed = (int)(uS * (Stopwatch.Frequency / 1000000.0));
+            Stopwatch sw = Stopwatch.StartNew();
+            long start_ticks = sw.ElapsedTicks;
+            while (sw.ElapsedTicks < (start_ticks + ticks_needed))
+            {
+                loop_count++;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Returns a controlled nondeterministic boolean choice.
         /// </summary>
@@ -1435,8 +1447,8 @@ namespace Microsoft.Coyote.Runtime
                 this.CheckIfSchedulingStepsBoundIsReached();
 
                 // Choose the next delay to inject.
-                int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(maxDelay, out int next, operation: operation))
+                int maxTotalDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
+                if (!this.Scheduler.GetNextDelay(maxTotalDelay, out int next, operation: operation))
                 {
                     this.Detach();
                 }

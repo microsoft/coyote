@@ -47,7 +47,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.ExecutionPath = new LinkedList<(int, AsyncOperationType?, int)>();
             this.OperationStatuses = new ConcurrentDictionary<string, ActorStatus>();
             this.PreviousDelayValue = 0;
+            // experiment changes.
             this.LearningRate = 0.3;
+            // this.LearningRate = 0;
             this.Gamma = 0.7;
             this.BasicActionReward = -1;
             this.Epochs = 0;
@@ -60,16 +62,18 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Console.WriteLine($">>> GetNextDelay for {operation?.Id} from task {Task.CurrentId}");
 
             int state = this.CaptureExecutionStep(operation);
-            this.InitializeDelayQValues(state, maxValue);
+            this.InitializeDelayQValues(state, 50);
 
-            next = this.GetNextDelayByPolicy(state, maxValue);
+            next = this.GetNextDelayByPolicy(state, 50);
+
+            // base.GetNextDelay(maxValue, out next, operation);
 
             this.PreviousDelayValue = next;
             this.StepCount++;
             return true;
         }
 
-        internal override void NotifyActorStatus(AsyncOperation operation, ActorStatus state)
+        internal override void NotifyActorStatus(AsyncOperation operation, ActorStatus status)
         {
             if (operation != null)
             {
@@ -77,11 +81,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 // Console.WriteLine($">>> NotifyActorStatus: {actor.Id} (rl: {actor.Id.RLId}) is {state}");
                 if (this.OperationStatuses.ContainsKey(actor.Id.RLId))
                 {
-                    this.OperationStatuses[actor.Id.RLId] = state;
+                    this.OperationStatuses[actor.Id.RLId] = status;
                 }
                 else
                 {
-                    this.OperationStatuses.TryAdd(actor.Id.RLId, state);
+                    this.OperationStatuses.TryAdd(actor.Id.RLId, status);
                 }
             }
         }
@@ -120,7 +124,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 {
                     // Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
                     int operationHash = 31 + kvp.Key.GetHashCode();
-                    operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
+                    operationHash = !(kvp.Value is ActorStatus.Inactive) ? (operationHash * 31) + kvp.Value.GetHashCode() : operationHash;
                     hash *= operationHash;
                 }
 

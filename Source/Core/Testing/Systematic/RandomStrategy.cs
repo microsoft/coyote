@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
@@ -27,6 +28,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         protected int StepCount;
 
+        // experiment changes.
+        // protected int ContextSwitchCount;
+        // protected List<int> ContextSwitchCountList = new List<int>();
+        // protected float AvgContextSwitchCount;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
@@ -42,6 +48,17 @@ namespace Microsoft.Coyote.Testing.Systematic
             // The random strategy just needs to reset the number of scheduled steps during
             // the current iretation.
             this.StepCount = 0;
+            // experiment changes.
+            // this.ContextSwitchCountList.Add(this.ContextSwitchCount);
+            // foreach (var count in this.ContextSwitchCountList)
+            // {
+            //     this.AvgContextSwitchCount += count;
+            // }
+
+            // this.AvgContextSwitchCount /= this.ContextSwitchCountList.Count;
+            // Console.WriteLine($"AvgContextSwitchCount: {this.AvgContextSwitchCount}");
+            // this.AvgContextSwitchCount = 0;
+            // this.ContextSwitchCount = 0;
             return true;
         }
 
@@ -58,6 +75,8 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
+            // experiment changes.
+            // this.ContextSwitchCount++;
 
             this.StepCount++;
             return true;

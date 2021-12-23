@@ -163,11 +163,5 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="log">The previously registered log writer to unregister.</param>
         void RemoveLog(IActorRuntimeLog log);
-
-        /// <summary>
-        /// Awaits actor quiescence before the test ends.
-        /// </summary>
-        /// // change point.
-        public abstract Task AwaitActorQuiescence();
     }
 }

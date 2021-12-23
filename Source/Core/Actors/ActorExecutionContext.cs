@@ -27,8 +27,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// The execution context of an actor program.
     /// </summary>
-    /// // change point. internal.
-    public class ActorExecutionContext : IActorRuntime
+    internal class ActorExecutionContext : IActorRuntime
     {
         /// <summary>
         /// Object used to synchronize access to the <see cref="OnFailure"/> event.
@@ -129,19 +128,6 @@ namespace Microsoft.Coyote.Actors
                     this.Runtime.OnFailure -= value;
                 }
             }
-        }
-
-        /// <summary>
-        /// creating an actor runtime.
-        /// </summary>
-        /// // change point.
-        public static ActorExecutionContext CreateActorRuntime()
-        {
-            Configuration configuration = Configuration.Create();
-            OperationScheduler scheduler = OperationScheduler.Setup(configuration);
-            CoyoteRuntime runtime = new CoyoteRuntime(configuration, scheduler);
-            return new ActorExecutionContext(configuration, runtime, new SpecificationEngine(configuration, runtime),
-                           scheduler.ValueGenerator, new LogWriter(configuration));
         }
 
         /// <summary>
@@ -454,8 +440,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Waits for all actors to reach quiescence before test ends.
         /// </summary>
-        /// // change point. internal.
-        public Task AwaitActorQuiescence()
+        internal Task AwaitActorQuiescence()
         {
             lock (this.SyncObject)
             {

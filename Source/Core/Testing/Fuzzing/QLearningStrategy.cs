@@ -228,6 +228,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.PreviousDelayValue = 0;
             this.Epochs++;
             this.StepCount = 0;
+            // Reset the Root ID counter for actors created with no parents.
+            ActorId.RootIdCounter = 0;
 
             var sb = new StringBuilder();
             sb.AppendLine("OperationQTable: ");

@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        protected internal override void VisitAssembly(AssemblyDefinition assembly)
+        protected internal override void VisitAssembly(AssemblyInfo assembly)
         {
             if (!this.ContentMap.ContainsKey(assembly.FullName))
             {

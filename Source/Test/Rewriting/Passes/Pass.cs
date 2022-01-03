@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -24,7 +22,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// The current assembly being visited.
         /// </summary>
-        protected AssemblyDefinition Assembly { get; private set; }
+        protected AssemblyInfo Assembly { get; private set; }
 
         /// <summary>
         /// The current module being visited.
@@ -66,10 +64,10 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Visits the specified <see cref="AssemblyDefinition"/>.
+        /// Visits the specified <see cref="AssemblyInfo"/>.
         /// </summary>
-        /// <param name="assembly">The assembly definition to visit.</param>
-        protected internal virtual void VisitAssembly(AssemblyDefinition assembly)
+        /// <param name="assembly">The assembly to visit.</param>
+        protected internal virtual void VisitAssembly(AssemblyInfo assembly)
         {
             this.Assembly = assembly;
             this.Module = null;
@@ -170,189 +168,53 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Finds the matching method in the specified declaring type, if any.
-        /// </summary>
-        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
-            MethodDefinition method, string matchName = null)
-        {
-            foreach (var match in declaringType.Methods)
-            {
-                if (match.Name == matchName && CheckMethodParametersMatch(method, match))
-                {
-                    return match;
-                }
-                else if (CheckMethodSignaturesMatch(method, match))
-                {
-                    return match;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Finds the matching method in the specified declaring type, if any.
-        /// </summary>
-        protected static MethodDefinition FindMatchingMethodInDeclaringType(TypeDefinition declaringType,
-            string name, params TypeReference[] parameterTypes)
-        {
-            foreach (var match in declaringType.Methods)
-            {
-                if (match.Name == name && match.Parameters.Count == parameterTypes.Length)
-                {
-                    bool matches = true;
-                    // Check if the parameters match.
-                    for (int i = 0, n = match.Parameters.Count; matches && i < n; i++)
-                    {
-                        var p = match.Parameters[i];
-                        var q = parameterTypes[i];
-                        if (p.ParameterType.FullName != q.FullName)
-                        {
-                            matches = false;
-                        }
-                    }
-
-                    if (matches)
-                    {
-                        return match;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Checks if the signatures of the original and the replacement methods match.
-        /// </summary>
-        /// <remarks>
-        /// This method also checks the use case where we are converting an instance method into a static method.
-        /// In such a case case, we are inserting a first parameter that has the same type as the declaring type
-        /// of the original method. For example we can convert `task.Wait()` to `ControlledTask.Wait(task)`.
-        /// </remarks>
-        private static bool CheckMethodSignaturesMatch(MethodDefinition originalMethod, MethodDefinition newMethod)
-        {
-            // TODO: This method should be now generic enough that we can also use in future transformers, for similar checks.
-            // This static method conversion is not specific to Tasks, and we can move it in a new helper API in the future.
-
-            // Check if the method properties match. We check 'IsStatic' later as we need to do additional checks
-            // in cases where we are replacing an instance method with a static method.
-            // TODO: make sure all necessary checks are in place!
-            if (originalMethod.Name != newMethod.Name ||
-                originalMethod.IsConstructor != newMethod.IsConstructor ||
-                originalMethod.ReturnType.IsGenericInstance != newMethod.ReturnType.IsGenericInstance ||
-                originalMethod.IsPublic != newMethod.IsPublic ||
-                originalMethod.IsPrivate != newMethod.IsPrivate ||
-                originalMethod.IsAssembly != newMethod.IsAssembly ||
-                originalMethod.IsFamilyAndAssembly != newMethod.IsFamilyAndAssembly)
-            {
-                return false;
-            }
-
-            // Check if we are converting the original method into a static method.
-            bool isConvertedToStatic = !originalMethod.IsStatic && newMethod.IsStatic;
-            int parameterCountDiff = newMethod.Parameters.Count - originalMethod.Parameters.Count;
-            if (isConvertedToStatic)
-            {
-                // We are expecting one extra parameter in the static method in index '0', and the type
-                // of this parameter must be the same as the declaring type of the original method.
-                if (parameterCountDiff != 1 || newMethod.Parameters[0].ParameterType == originalMethod.DeclaringType)
-                {
-                    return false;
-                }
-            }
-            else if (originalMethod.IsStatic != newMethod.IsStatic || parameterCountDiff != 0)
-            {
-                // The static properties or the parameter counts do not match.
-                return false;
-            }
-
-            // Check if the parameters match.
-            for (int idx = 0; idx < originalMethod.Parameters.Count; idx++)
-            {
-                // If we are converting to static, we have one extra parameter, so skip it.
-                var newParameter = newMethod.Parameters[isConvertedToStatic ? idx + 1 : idx];
-                var originalParameter = originalMethod.Parameters[idx];
-
-                // TODO: make sure all necessary checks are in place!
-                if ((newParameter.ParameterType.FullName != originalParameter.ParameterType.FullName) ||
-                    (newParameter.Name != originalParameter.Name) ||
-                    (newParameter.IsIn && !originalParameter.IsIn) ||
-                    (newParameter.IsOut && !originalParameter.IsOut))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Checks if the parameters of the two specified methods match.
-        /// </summary>
-        protected static bool CheckMethodParametersMatch(MethodDefinition left, MethodDefinition right)
-        {
-            if (left.Parameters.Count != right.Parameters.Count)
-            {
-                return false;
-            }
-
-            for (int idx = 0; idx < right.Parameters.Count; idx++)
-            {
-                var leftParam = left.Parameters[idx];
-                var rightParam = right.Parameters[idx];
-                // TODO: make sure all necessary checks are in place!
-                if ((leftParam.ParameterType.FullName != rightParam.ParameterType.FullName) ||
-                    (leftParam.Name != rightParam.Name) ||
-                    (leftParam.IsIn && !rightParam.IsIn) ||
-                    (leftParam.IsOut && !rightParam.IsOut))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// Returns true if the specified <see cref="MethodReference"/> can be resolved,
-        /// as well as the resolved method definition, else return false.
+        /// as well as return the resolved method definition, else return false.
         /// </summary>
-        protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
+        protected bool TryResolve(MethodReference method, out MethodDefinition resolved, bool logError = true)
         {
             try
             {
-                resolved = method.Resolve();
+                resolved = method?.Resolve();
             }
             catch
             {
                 resolved = null;
             }
 
-            if (resolved is null)
+            if (logError && resolved is null && method != null)
             {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +
-                    "The method is either unsupported by Coyote, an external method not being rewritten, " +
-                    "or the .NET platform of Coyote and the target assembly do not match.");
-                return false;
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
+                    "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
             }
 
-            return true;
+            return resolved != null;
         }
 
         /// <summary>
-        /// Returns the resolved definition of the specified <see cref="TypeReference"/>.
+        /// Returns true if the specified <see cref="TypeReference"/> can be resolved,
+        /// as well as return the resolved type definition, else return false.
         /// </summary>
-        protected static TypeDefinition Resolve(TypeReference type)
+        protected bool TryResolve(TypeReference type, out TypeDefinition resolved, bool logError = true)
         {
-            TypeDefinition result = type?.Resolve();
-            if (result is null)
+            try
             {
-                throw new InvalidOperationException($"Error resolving '{type.FullName}' type. Please check that " +
-                    "the .NET platform of coyote and the target assembly match.");
+                resolved = type?.Resolve();
+            }
+            catch
+            {
+                resolved = null;
             }
 
-            return result;
+            if (logError && resolved is null && type != null)
+            {
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
+                    "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
+            }
+
+            return resolved != null;
         }
 
         /// <summary>
@@ -405,44 +267,82 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is a foreign type.
+        /// Checks if the specified type is a visited type.
         /// </summary>
-        protected bool IsForeignType(TypeDefinition type)
+        /// <remarks>
+        /// Any type from an assembly being visited is a visited type.
+        /// </remarks>
+        protected bool IsVisitedType(TypeDefinition type)
         {
             if (type != null)
             {
-                // Any type from an assembly being visited is not a foreign type.
                 if (type.Module == this.Module ||
                     this.VisitedAssemblies.Any(assembly => assembly.FilePath == type.Module.FileName))
                 {
-                    return false;
-                }
-
-                // Any type from the Coyote assemblies is not a foreign type.
-                string modulePath = Path.GetFileName(type.Module.FileName);
-                if (modulePath is "Microsoft.Coyote.dll" || modulePath is "Microsoft.Coyote.Test.dll")
-                {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a runtime type.
+        /// </summary>
+        /// <remarks>
+        /// Any type from the Coyote assemblies is a runtime type.
+        /// </remarks>
+        protected static bool IsRuntimeType(TypeReference type) => IsRuntimeType(type?.Resolve());
+
+        /// <summary>
+        /// Checks if the specified type is a runtime type.
+        /// </summary>
+        /// <remarks>
+        /// Any type from the Coyote assemblies is a runtime type.
+        /// </remarks>
+        protected static bool IsRuntimeType(TypeDefinition type)
+        {
+            if (type != null)
+            {
+                // Any type from the Coyote assemblies is not a foreign type.
+                string module = type.Module.Name;
+                if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified type is a foreign type.
+        /// </summary>
+        /// <remarks>
+        /// Any type not visited that is not a runtime type is a foreign type.
+        /// </remarks>
+        protected bool IsForeignType(TypeReference type)
+        {
+            TypeDefinition resolvedType = type?.Resolve();
+            return !this.IsVisitedType(resolvedType) && !IsRuntimeType(resolvedType);
         }
 
         /// <summary>
         /// Checks if the specified type is a system type.
         /// </summary>
-        protected static bool IsSystemType(TypeDefinition type)
+        /// <remarks>
+        /// Any type in the system namespace is a system type.
+        /// </remarks>
+        protected static bool IsSystemType(TypeReference type)
         {
             if (type != null)
             {
-                TypeDefinition declaringType = type;
+                TypeReference declaringType = type;
                 while (declaringType.IsNested)
                 {
                     declaringType = declaringType.DeclaringType;
                 }
 
-                // Any type in the 'System' namespace is a system type.
                 if (declaringType.Namespace is "System" || declaringType.Namespace.StartsWith("System."))
                 {
                     return true;

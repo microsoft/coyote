@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Rewriting.Types;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -186,9 +187,9 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is MethodReference method)
                 {
                     TypeReference type = method.DeclaringType;
-                    if ((type.Namespace == CachedNameProvider.RuntimeCompilerNamespace ||
-                        type.Namespace == CachedNameProvider.SystemCompilerNamespace) &&
-                        (type.Name == CachedNameProvider.AsyncTaskMethodBuilderName ||
+                    if ((type.Namespace == NameCache.RuntimeCompilerNamespace ||
+                        type.Namespace == NameCache.SystemCompilerNamespace) &&
+                        (type.Name == NameCache.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&
                         method.Name is nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
                     {

@@ -19,8 +19,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             this.Test(async () =>
             {
                 await new Helpers.TaskAwaiter();
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(10));
+            });
         }
 
         [Fact(Timeout = 5000)]
@@ -29,8 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             this.Test(async () =>
             {
                 await new Helpers.GenericTaskAwaiter();
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(10));
+            });
         }
 
         [Fact(Timeout = 5000)]
@@ -39,8 +37,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             this.Test(async () =>
             {
                 await new Helpers.TaskAwaiter<int>();
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(10));
+            });
         }
     }
 }

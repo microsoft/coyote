@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Rewriting
             if (this.Configuration.AttachDebugger)
             {
                 var debuggerType = this.Module.ImportReference(typeof(System.Diagnostics.Debugger)).Resolve();
-                launchMethod = FindMatchingMethodInDeclaringType(debuggerType, "Launch");
+                launchMethod = FindMethod("Launch", debuggerType);
             }
 
             TypeReference actionType;
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference createConfigurationMethod = this.Module.ImportReference(
                 resolvedConfigurationType.Methods.FirstOrDefault(m => m.Name is "Create"));
             MethodReference createEngineMethod = this.Module.ImportReference(
-                FindMatchingMethodInDeclaringType(resolvedEngineType, "Create", configurationType, actionType));
+                FindMethod("Create", resolvedEngineType, configurationType, actionType));
 
             // The emitted IL corresponds to a method body such as:
             //   Configuration configuration = Configuration.Create();
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.Rewriting
                 typeRefs.Add(this.Module.ImportReference(t));
             }
 
-            var method = FindMatchingMethodInDeclaringType(typedef, methodName, typeRefs.ToArray());
+            var method = FindMethod(methodName, typedef, typeRefs.ToArray());
             if (method is null)
             {
                 throw new InvalidOperationException(string.Format(

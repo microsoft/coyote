@@ -8,8 +8,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1679,28 +1677,27 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Processes an unhandled exception in the specified asynchronous operation.
         /// </summary>
-        internal void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
+        internal void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception exception)
         {
             string message = null;
-            Exception exception = UnwrapException(ex);
-            if (exception is ThreadInterruptedException)
+            if (UnwrapException(exception) is ThreadInterruptedException)
             {
                 // Ignore this exception, its thrown by the runtime.
                 IO.Debug.WriteLine("<CoyoteDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",
                     Thread.CurrentThread.ManagedThreadId, op.Name);
             }
-            else if (op is ActorOperation actorOp)
-            {
-                message = string.Format(CultureInfo.InvariantCulture,
-                    $"Unhandled exception '{exception.GetType()}' was thrown in actor '{actorOp.Name}', " +
-                    $"'{exception.Source}':\n" +
-                    $"   {exception.Message}\n" +
-                    $"The stack trace is:\n{exception.StackTrace}");
-            }
             else
             {
-                message = $"Unhandled exception. {ex.GetType()}: {ex.Message}\n" +
-                    $"The stack trace is:\n{ex.StackTrace}";
+                string trace = FormatExceptionStackTrace(exception);
+                if (op is ActorOperation actorOp)
+                {
+                    message = string.Format(CultureInfo.InvariantCulture,
+                        $"Unhandled exception in actor '{actorOp.Name}'. {trace}");
+                }
+                else
+                {
+                    message = $"Unhandled exception. {trace}";
+                }
             }
 
             // Complete the failed operation. This is required so that the operation
@@ -1716,20 +1713,31 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Unwraps the specified exception.
         /// </summary>
-        private static Exception UnwrapException(Exception ex)
+        private static Exception UnwrapException(Exception exception)
         {
-            Exception exception = ex;
             while (exception is TargetInvocationException)
             {
                 exception = exception.InnerException;
             }
 
-            if (exception is AggregateException aex)
+            return exception;
+        }
+
+        /// <summary>
+        /// Formats the stack trace of the specified exception.
+        /// </summary>
+        private static string FormatExceptionStackTrace(Exception exception)
+        {
+            string[] lines = exception.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            for (int i = 0; i < lines.Length; i++)
             {
-                exception = aex.InnerException;
+                if (lines[i].StartsWith("   at Microsoft.Coyote.Rewriting", StringComparison.Ordinal))
+                {
+                    lines[i] = string.Empty;
+                }
             }
 
-            return exception;
+            return string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrEmpty(line)));
         }
 
         /// <summary>

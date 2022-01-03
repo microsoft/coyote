@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 #if NET || NETCOREAPP3_1
-using Microsoft.Coyote.Runtime;
-
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemDelegatingHandler = System.Net.Http.DelegatingHandler;
 using SystemHttpClientHandler = System.Net.Http.HttpClientHandler;
@@ -11,7 +9,6 @@ using SystemHttpMessageHandler = System.Net.Http.HttpMessageHandler;
 using SystemHttpRequestMessage = System.Net.Http.HttpRequestMessage;
 using SystemHttpResponseMessage = System.Net.Http.HttpResponseMessage;
 using SystemTasks = System.Threading.Tasks;
-using SystemThread = System.Threading.Thread;
 
 namespace Microsoft.Coyote.Rewriting.Types.Net.Http
 {
@@ -56,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         protected override SystemHttpResponseMessage Send(SystemHttpRequestMessage request,
             SystemCancellationToken cancellationToken) =>
-            base.Send(AssignRuntimeId(request), cancellationToken);
+            base.Send(HttpRequestMessage.WithRuntimeIdHeader(request), cancellationToken);
 #endif
 
         /// <summary>
@@ -65,24 +62,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         protected override SystemTasks.Task<SystemHttpResponseMessage> SendAsync(SystemHttpRequestMessage request,
             SystemCancellationToken cancellationToken) =>
-            base.SendAsync(AssignRuntimeId(request), cancellationToken);
-
-        /// <summary>
-        /// Assigns the current runtime id to the headers of the specified request.
-        /// </summary>
-        private static SystemHttpRequestMessage AssignRuntimeId(SystemHttpRequestMessage request)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                string runtimeId = runtime.Id.ToString();
-                IO.Debug.WriteLine("<CoyoteDebug> Assigned runtime id '{0}' to '{1} {2}' request from thread '{3}'.",
-                    runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
-                request.Headers.Add("ms-coyote-runtime-id", runtimeId);
-            }
-
-            return request;
-        }
+            base.SendAsync(HttpRequestMessage.WithRuntimeIdHeader(request), cancellationToken);
     }
 }
 #endif

@@ -63,6 +63,7 @@ namespace Microsoft.Coyote.Rewriting.Types
 
 #if NET || NETCOREAPP3_1
         internal static string HttpClient { get; } = typeof(SystemNetHttp.HttpClient).FullName;
+        internal static string HttpRequestMessage { get; } = typeof(SystemNetHttp.HttpRequestMessage).FullName;
 
         internal static string WebApplicationFactory { get; } = typeof(WebTesting.WebApplicationFactory<>).FullName;
 #endif

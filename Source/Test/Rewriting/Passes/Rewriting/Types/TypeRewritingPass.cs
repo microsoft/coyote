@@ -59,6 +59,7 @@ namespace Microsoft.Coyote.Rewriting
 #if NET || NETCOREAPP3_1
             // Populate the map with the known HTTP and web-related types.
             this.KnownTypes[NameCache.HttpClient] = typeof(Types.Net.Http.HttpClient);
+            this.KnownTypes[NameCache.HttpRequestMessage] = typeof(Types.Net.Http.HttpRequestMessage);
             this.KnownTypes[NameCache.WebApplicationFactory] = typeof(Types.Web.WebApplication);
 #endif
 

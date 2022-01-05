@@ -31,7 +31,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         public static SystemTask ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
         {
             WebFramework.HttpRequest request = context.Request;
-            if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
+            if (request != null && request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
             {
                 request.Headers.Remove("ms-coyote-runtime-id");
                 if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
@@ -49,6 +50,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                     runtime.TaskFactory.Scheduler);
                 }
             }
+            else
+            {
+                IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
+                // return SystemTask.FromException(new InvalidOperationException("Runtime header not found."));
+            }
 
             return next(context);
         }
@@ -59,7 +65,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         public static SystemTask ControlRequest(WebFramework.HttpContext context, Func<SystemTask> next)
         {
             WebFramework.HttpRequest request = context.Request;
-            if (request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
+            if (request != null && request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
             {
                 request.Headers.Remove("ms-coyote-runtime-id");
                 if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
@@ -76,6 +83,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                     runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                     runtime.TaskFactory.Scheduler);
                 }
+            }
+            else
+            {
+                IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
+                // return SystemTask.FromException(new InvalidOperationException("Runtime header not found."));
             }
 
             return next();

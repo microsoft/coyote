@@ -34,6 +34,9 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string AsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Name;
         internal static string AsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
         internal static string GenericAsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
+        internal static string AsyncValueTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder).Name;
+        internal static string AsyncValueTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder).FullName;
+        internal static string GenericAsyncValueTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder<>).FullName;
 
         internal static string TaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter).Name;
         internal static string TaskAwaiter { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;

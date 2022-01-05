@@ -256,6 +256,7 @@ namespace Microsoft.Coyote.Runtime
         {
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
+            System.Console.WriteLine($">>>> NEW RUNTIME {this.Id}");
 
             this.Configuration = configuration;
             this.Scheduler = scheduler;
@@ -760,7 +761,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Cannot schedule the next operation if the scheduler is not attached,
                     // or if the scheduling policy is not systematic.
-                    return;
+                    goto Done;
                 }
 
                 var current = this.GetExecutingOperation<AsyncOperation>();
@@ -768,7 +769,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Cannot schedule the next operation if there is no controlled operation
                     // executing on the current thread.
-                    return;
+                    goto Done;
                 }
 
                 if (current != this.ScheduledOperation)
@@ -781,7 +782,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.IsSchedulingSuppressed && current.Status is AsyncOperationStatus.Enabled)
                 {
                     // Suppress the interleaving.
-                    return;
+                    goto Done;
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -1179,6 +1180,7 @@ namespace Microsoft.Coyote.Runtime
                 if (op is null)
                 {
                     this.NotifyUncontrolledCurrentThread();
+                    System.Console.WriteLine($">>>> TEST-mid {this.Id}: {new System.Diagnostics.StackTrace()}");
                 }
 
                 return op is TAsyncOperation expected ? expected : default;
@@ -1555,7 +1557,11 @@ namespace Microsoft.Coyote.Runtime
                 // most likely crash the program, but we try to fail as cleanly and fast as possible.
                 string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not intercepted and " +
                     "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                {
+                    this.Logger.WriteLine($"<TestLog> {message}");
+                }
+                else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
                     this.Logger.WriteLine($"<TestLog> {message}");
                     this.IsUncontrolledConcurrencyDetected = true;

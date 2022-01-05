@@ -11,7 +11,7 @@ using Xunit;
 using Xunit.Abstractions;
 
 using Monitor = System.Threading.Monitor;
-using SynchronizedBlock = Microsoft.Coyote.Rewriting.Types.Threading.SynchronizedBlock;
+using SynchronizedBlock = Microsoft.Coyote.Rewriting.Types.Threading.Monitor.SynchronizedBlock;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {

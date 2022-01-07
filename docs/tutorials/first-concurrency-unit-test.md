@@ -364,7 +364,7 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ... Scheduling statistics:
 ..... Explored 26 schedules: 26 fair and 0 unfair.
 ..... Found 3.85% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
+..... Number of scheduling decisions in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
 ... Elapsed 0.1574494 sec.
 ```
 

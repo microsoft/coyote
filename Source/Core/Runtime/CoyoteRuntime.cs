@@ -854,8 +854,22 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
             foreach (var op in ops)
             {
-                this.TryEnableOperation(op);
-                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                var previousStatus = op.Status;
+                if (previousStatus != AsyncOperationStatus.None &&
+                    previousStatus != AsyncOperationStatus.Enabled &&
+                    previousStatus != AsyncOperationStatus.Completed)
+                {
+                    this.TryEnableOperation(op);
+                    if (previousStatus == op.Status)
+                    {
+                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                    }
+                    else
+                    {
+                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.",
+                            op.Id, previousStatus, op.Status);
+                    }
+                }
             }
 
             return ops;
@@ -1115,51 +1129,48 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableOperation(AsyncOperation op)
         {
-            if (op.Status != AsyncOperationStatus.Enabled)
+            if (op.Status is AsyncOperationStatus.Delayed && op is TaskOperation delayedOp)
             {
-                if (op.Status is AsyncOperationStatus.Delayed && op is TaskOperation delayedOp)
+                if (delayedOp.Timeout > 0)
                 {
-                    if (delayedOp.Timeout > 0)
-                    {
-                        delayedOp.Timeout--;
-                    }
-
-                    // The task operation is delayed, so it is enabled either if the delay completes
-                    // or if no other operation is enabled.
-
-                    if (delayedOp.Timeout is 0 ||
-                        !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
-                    {
-                        delayedOp.Timeout = 0;
-                        delayedOp.Status = AsyncOperationStatus.Enabled;
-                        return true;
-                    }
-
-                    return false;
+                    delayedOp.Timeout--;
                 }
 
-                // If this is the root operation, then only try enable it if all actor operations (if any) are
-                // completed. This is required because in tests that include actors, actors can execute without
-                // the main task explicitly waiting for them to terminate or reach quiescence. Otherwise, if the
-                // root operation was enabled, the test can terminate early.
-                if (op.Id is 0 && this.OperationMap.Any(
-                    kvp => kvp.Value is ActorOperation && kvp.Value.Status != AsyncOperationStatus.Completed))
-                {
-                    return false;
-                }
+                // The task operation is delayed, so it is enabled either if the delay completes
+                // or if no other operation is enabled.
 
-                // If this is a task operation blocked on other tasks, then check if the
-                // necessary tasks are completed.
-                if (op is TaskOperation taskOp &&
-                    ((taskOp.Status is AsyncOperationStatus.BlockedOnWaitAll &&
-                    taskOp.JoinDependencies.All(task => task.IsCompleted)) ||
-                    (taskOp.Status is AsyncOperationStatus.BlockedOnWaitAny &&
-                    taskOp.JoinDependencies.Any(task => task.IsCompleted))))
+                if (delayedOp.Timeout is 0 ||
+                    !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
                 {
-                    taskOp.JoinDependencies.Clear();
-                    taskOp.Status = AsyncOperationStatus.Enabled;
+                    delayedOp.Timeout = 0;
+                    delayedOp.Status = AsyncOperationStatus.Enabled;
                     return true;
                 }
+
+                return false;
+            }
+
+            // If this is the root operation, then only try enable it if all actor operations (if any) are
+            // completed. This is required because in tests that include actors, actors can execute without
+            // the main task explicitly waiting for them to terminate or reach quiescence. Otherwise, if the
+            // root operation was enabled, the test can terminate early.
+            if (op.Id is 0 && this.OperationMap.Any(
+                kvp => kvp.Value is ActorOperation && kvp.Value.Status != AsyncOperationStatus.Completed))
+            {
+                return false;
+            }
+
+            // If this is a task operation blocked on other tasks, then check if the
+            // necessary tasks are completed.
+            if (op is TaskOperation taskOp &&
+                ((taskOp.Status is AsyncOperationStatus.BlockedOnWaitAll &&
+                taskOp.JoinDependencies.All(task => task.IsCompleted)) ||
+                (taskOp.Status is AsyncOperationStatus.BlockedOnWaitAny &&
+                taskOp.JoinDependencies.Any(task => task.IsCompleted))))
+            {
+                taskOp.JoinDependencies.Clear();
+                taskOp.Status = AsyncOperationStatus.Enabled;
+                return true;
             }
 
             return false;
@@ -1753,8 +1764,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.Scheduler.StepCount,
-                    this.Scheduler.IsMaxStepsReached, this.Scheduler.IsScheduleFair);
+                report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.OperationMap.Count,
+                    this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached, this.Scheduler.IsScheduleFair);
                 if (this.IsBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);

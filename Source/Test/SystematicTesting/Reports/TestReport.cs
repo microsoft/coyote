@@ -59,50 +59,61 @@ namespace Microsoft.Coyote.SystematicTesting
         public HashSet<string> UncontrolledInvocations { get; internal set; }
 
         /// <summary>
-        /// The min explored scheduling steps in average,
-        /// in fair tests.
+        /// The min number of controlled operations.
+        /// </summary>
+        [DataMember]
+        public int MinControlledOperations { get; internal set; }
+
+        /// <summary>
+        /// The max number of controlled operations.
+        /// </summary>
+        [DataMember]
+        public int MaxControlledOperations { get; internal set; }
+
+        /// <summary>
+        /// The total number of controlled operations.
+        /// </summary>
+        [DataMember]
+        public int TotalControlledOperations { get; internal set; }
+
+        /// <summary>
+        /// The min explored scheduling steps in fair tests.
         /// </summary>
         [DataMember]
         public int MinExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// The max explored scheduling steps in average,
-        /// in fair tests.
+        /// The max explored scheduling steps in fair tests.
         /// </summary>
         [DataMember]
         public int MaxExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// The total explored scheduling steps (across
-        /// all testing iterations), in fair tests.
+        /// The total explored scheduling steps (across all testing iterations) in fair tests.
         /// </summary>
         [DataMember]
         public int TotalExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// Number of times the fair max steps bound was hit,
-        /// in fair tests.
+        /// Number of times the fair max steps bound was hit in fair tests.
         /// </summary>
         [DataMember]
         public int MaxFairStepsHitInFairTests { get; internal set; }
 
         /// <summary>
-        /// Number of times the unfair max steps bound was hit,
-        /// in fair tests.
+        /// Number of times the unfair max steps bound was hit in fair tests.
         /// </summary>
         [DataMember]
         public int MaxUnfairStepsHitInFairTests { get; internal set; }
 
         /// <summary>
-        /// Number of times the unfair max steps bound was hit,
-        /// in unfair tests.
+        /// Number of times the unfair max steps bound was hit in unfair tests.
         /// </summary>
         [DataMember]
         public int MaxUnfairStepsHitInUnfairTests { get; internal set; }
 
         /// <summary>
-        /// Set of internal errors. If no internal errors
-        /// occurred, then this set is empty.
+        /// Set of internal errors. If no internal errors occurred, then this set is empty.
         /// </summary>
         [DataMember]
         public HashSet<string> InternalErrors { get; internal set; }
@@ -132,6 +143,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.BugReports = new HashSet<string>();
             this.UncontrolledInvocations = new HashSet<string>();
 
+            this.MinControlledOperations = -1;
+            this.MaxControlledOperations = -1;
+            this.TotalControlledOperations = 0;
             this.MinExploredFairSteps = -1;
             this.MaxExploredFairSteps = -1;
             this.TotalExploredFairSteps = 0;
@@ -145,13 +159,26 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int scheduledSteps,
-            bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations,
+            int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
             {
                 this.NumOfFoundBugs++;
                 this.BugReports.Add(bugReport);
+            }
+
+            this.TotalControlledOperations += numOperations;
+
+            if (this.MinControlledOperations < 0 ||
+                this.MinControlledOperations > numOperations)
+            {
+                this.MinControlledOperations = numOperations;
+            }
+
+            if (this.MaxControlledOperations < numOperations)
+            {
+                this.MaxControlledOperations = numOperations;
             }
 
             if (isScheduleFair)
@@ -222,6 +249,20 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.BugReports.UnionWith(testReport.BugReports);
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
+
+                if (testReport.MinControlledOperations >= 0 &&
+                    (this.MinControlledOperations < 0 ||
+                    this.MinControlledOperations > testReport.MinControlledOperations))
+                {
+                    this.MinControlledOperations = testReport.MinControlledOperations;
+                }
+
+                if (this.MaxControlledOperations < testReport.MaxControlledOperations)
+                {
+                    this.MaxControlledOperations = testReport.MaxControlledOperations;
+                }
+
+                this.TotalControlledOperations += testReport.TotalControlledOperations;
 
                 this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
                 this.NumOfExploredUnfairSchedules += testReport.NumOfExploredUnfairSchedules;
@@ -307,17 +348,27 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.NumOfFoundBugs * 100.0 / totalExploredSchedules);
             }
 
-            if (this.NumOfExploredFairSchedules > 0)
+            if (this.TotalControlledOperations > 0)
             {
-                int averageExploredFairSteps = this.TotalExploredFairSteps /
-                    this.NumOfExploredFairSchedules;
-
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Number of scheduling points in fair terminating schedules: {1} (min), {2} (avg), {3} (max).",
+                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.TotalControlledOperations,
+                    this.TotalControlledOperations is 1 ? string.Empty : "s",
+                    this.MinControlledOperations,
+                    (int)(this.TotalControlledOperations / totalExploredSchedules),
+                    this.MaxControlledOperations);
+            }
+
+            if (this.NumOfExploredFairSchedules > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Number of scheduling decisions in fair terminating schedules: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredFairSteps < 0 ? 0 : this.MinExploredFairSteps,
-                    averageExploredFairSteps,
+                    (int)(this.TotalExploredFairSteps / this.NumOfExploredFairSchedules),
                     this.MaxExploredFairSteps < 0 ? 0 : this.MaxExploredFairSteps);
 
                 if (configuration.MaxUnfairSchedulingSteps > 0 &&

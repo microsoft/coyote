@@ -140,6 +140,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, TaskOperation> ControlledTasks;
 
         /// <summary>
+        /// Provider for controlled task delays.
+        /// </summary>
+        private readonly TaskDelayProvider DelayProvider;
+
+        /// <summary>
         /// The program schedule trace.
         /// </summary>
         internal ScheduleTrace ScheduleTrace;
@@ -296,6 +301,7 @@ namespace Microsoft.Coyote.Runtime
             this.SyncContext = new ControlledSynchronizationContext(this);
             this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
+            this.DelayProvider = new TaskDelayProvider();
 
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
@@ -538,6 +544,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
+#pragma warning disable CA1801 // Parameter not used
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             if (delay.TotalMilliseconds is 0)
@@ -550,29 +557,26 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
-                if (timeout is 0)
-                {
-                    // If the delay is 0, then complete synchronously.
-                    return Task.CompletedTask;
-                }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                TaskOperation op = this.CreateTaskOperation(timeout);
-                return this.TaskFactory.StartNew(state =>
-                {
-                    var delayedOp = state as TaskOperation;
-                    delayedOp.Status = AsyncOperationStatus.Delayed;
-                    this.ScheduleNextOperation(AsyncOperationType.Yield);
-                },
-                op,
-                cancellationToken,
-                this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                this.TaskFactory.Scheduler);
+                // TaskOperation op = this.CreateTaskOperation(timeout);
+                // return this.TaskFactory.StartNew(state =>
+                //     {
+                //         var delayedOp = state as TaskOperation;
+                //         delayedOp.Status = AsyncOperationStatus.Delayed;
+                //         this.ScheduleNextOperation(AsyncOperationType.Yield);
+                //     },
+                //     op,
+                //     cancellationToken,
+                //     this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                //     this.TaskFactory.Scheduler);
+                return this.DelayProvider.CreateDelay(timeout);
             }
 
             return Task.Delay(TimeSpan.FromMilliseconds(
                 this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay)));
         }
+#pragma warning restore CA1801 // Parameter not used
 
         /// <summary>
         /// Waits for all of the provided controlled task objects to complete execution within
@@ -847,6 +851,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private IOrderedEnumerable<AsyncOperation> EnableAndGetOrderedOperations()
         {
+            // Progress any delays.
+            this.DelayProvider.ProgressDelays(!this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled));
+
             // Get and order the operations by their id.
             var ops = this.OperationMap.Values.OrderBy(op => op.Id);
 
@@ -1129,26 +1136,23 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableOperation(AsyncOperation op)
         {
-            if (op.Status is AsyncOperationStatus.Delayed && op is TaskOperation delayedOp)
-            {
-                if (delayedOp.Timeout > 0)
-                {
-                    delayedOp.Timeout--;
-                }
-
-                // The task operation is delayed, so it is enabled either if the delay completes
-                // or if no other operation is enabled.
-
-                if (delayedOp.Timeout is 0 ||
-                    !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
-                {
-                    delayedOp.Timeout = 0;
-                    delayedOp.Status = AsyncOperationStatus.Enabled;
-                    return true;
-                }
-
-                return false;
-            }
+            // if (op.Status is AsyncOperationStatus.Delayed && op is TaskOperation delayedOp)
+            // {
+            //     if (delayedOp.Timeout > 0)
+            //     {
+            //         delayedOp.Timeout--;
+            //     }
+            //     // The task operation is delayed, so it is enabled either if the delay completes
+            //     // or if no other operation is enabled.
+            //     if (delayedOp.Timeout is 0 ||
+            //         !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
+            //     {
+            //         delayedOp.Timeout = 0;
+            //         delayedOp.Status = AsyncOperationStatus.Enabled;
+            //         return true;
+            //     }
+            //     return false;
+            // }
 
             // If this is the root operation, then only try enable it if all actor operations (if any) are
             // completed. This is required because in tests that include actors, actors can execute without

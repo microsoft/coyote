@@ -59,12 +59,16 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public void GetResult()
         {
+            IO.Debug.WriteLine("<TaskAwaiter> Get result of '{0}' from thread '{1}'.",
+                this.AwaitedTask.Id, Thread.CurrentThread.ManagedThreadId);
             if (SynchronizationContext.Current is ControlledSynchronizationContext context)
             {
                 context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             }
 
             this.Awaiter.GetResult();
+            IO.Debug.WriteLine("<TaskAwaiter> Got result of '{0}' from thread '{1}'.",
+                this.AwaitedTask.Id, Thread.CurrentThread.ManagedThreadId);
         }
 
         /// <summary>
@@ -77,7 +81,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            IO.Debug.WriteLine("<TaskAwaiter> Completed '{0}' from thread '{1}'.",
+                this.AwaitedTask.Id, Thread.CurrentThread.ManagedThreadId);
+            this.Awaiter.UnsafeOnCompleted(continuation);
+        }
 
         /// <summary>
         /// Wraps the specified task awaiter.

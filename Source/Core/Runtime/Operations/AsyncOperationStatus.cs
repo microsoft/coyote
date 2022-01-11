@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The operation is delayed.
         /// </summary>
-        Delayed,
+        // Delayed,
 
         /// <summary>
         /// The operation is completed.

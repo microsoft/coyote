@@ -1,3 +1,10 @@
+## v1.4.2
+- Added support for the `net6.0` target.
+- The `TestingEngine` is now giving a warning if the DLL being tested has not been rewritten.
+- The number of controlled operations are now reported as part of test statistics.
+- Improvements, optimizations and bug-fixes in binary rewriting.
+- Support for dumping the rewritten IL diff to a file through `--dump-il-diff`.
+
 ## v1.4.1
 - Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during
   testing to increase usability. This feature is enabled by default and can be disabled via the

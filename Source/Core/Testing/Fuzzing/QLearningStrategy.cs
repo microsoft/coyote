@@ -48,8 +48,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.OperationStatuses = new ConcurrentDictionary<string, ActorStatus>();
             this.PreviousDelayValue = 0;
             // experiment changes.
-            this.LearningRate = 0.3;
-            // this.LearningRate = 0;
+            // this.LearningRate = 0.3;
+            this.LearningRate = 0;
             this.Gamma = 0.7;
             this.BasicActionReward = -1;
             this.Epochs = 0;
@@ -62,13 +62,14 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Console.WriteLine($">>> GetNextDelay for {operation?.Id} from task {Task.CurrentId}");
 
             int state = this.CaptureExecutionStep(operation);
-            this.InitializeDelayQValues(state, 50);
+            this.InitializeDelayQValues(state, 44);
 
-            next = this.GetNextDelayByPolicy(state, 50);
+            // implementation for microseconds.
+            next = this.GetNextDelayByPolicy(state, 44) - 39;
 
             // base.GetNextDelay(maxValue, out next, operation);
 
-            this.PreviousDelayValue = next;
+            this.PreviousDelayValue = next + 39;
             this.StepCount++;
             return true;
         }
@@ -123,19 +124,22 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 foreach (var kvp in this.OperationStatuses)
                 {
                     // Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
-                    int operationHash = 31 + kvp.Key.GetHashCode();
-                    operationHash = !(kvp.Value is ActorStatus.Inactive) ? (operationHash * 31) + kvp.Value.GetHashCode() : operationHash;
-                    hash *= operationHash;
+                    // int operationHash = 31 + kvp.Key.GetHashCode();
+                    // removing inactive actors from statehash
+                    // operationHash = !(kvp.Value is ActorStatus.Inactive) ? (operationHash * 31) + kvp.Value.GetHashCode() : operationHash;
+                    // including inactive actors in statehash
+                    // operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
+                    // hash *= operationHash;
                 }
 
                 // Changed the access of HashedState.
                 if (operation != null)
                 {
+                    hash = (hash * 31) + (operation as ActorOperation).Actor.GetHashedState(); // Local
+                    // hash = (hash * 31) + (operation as ActorOperation).Actor.Context.Runtime.CurrentHashedState; // Global
                     if ((operation as ActorOperation).Actor.HashedState != 0)
                     {
                         // hash = (hash * 31) + (operation as ActorOperation).Actor.HashedState; // Custom-only.
-                        // hash = (hash * 31) + (operation as ActorOperation).Actor.GetHashedState(); // Local + Custom.
-                        // hash = (hash * 31) + (operation as ActorOperation).Actor.Context.Runtime.CurrentHashedState; // Global + Custom patch.
                     }
                 }
 
@@ -231,26 +235,26 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Reset the Root ID counter for actors created with no parents.
             ActorId.RootIdCounter = 0;
 
-            var sb = new StringBuilder();
-            sb.AppendLine("OperationQTable: ");
+            // var sb = new StringBuilder();
+            // sb.AppendLine("OperationQTable: ");
             Console.WriteLine($"OperationQTable size: {this.OperationQTable.Count()}");
-            foreach (KeyValuePair<int, Dictionary<int, double>> kvp1 in this.OperationQTable)
-            {
-                foreach (KeyValuePair<int, double> kvp2 in kvp1.Value)
-                {
-                    sb.AppendLine($"{kvp1.Key}: {kvp2.Key}, {kvp2.Value}");
-                }
-            }
+            // foreach (KeyValuePair<int, Dictionary<int, double>> kvp1 in this.OperationQTable)
+            // {
+            //     foreach (KeyValuePair<int, double> kvp2 in kvp1.Value)
+            //     {
+            //         sb.AppendLine($"{kvp1.Key}: {kvp2.Key}, {kvp2.Value}");
+            //     }
+            // }
 
-            sb.Append("ExecutionPath: ");
-            var node = this.ExecutionPath.First;
-            while (node != null)
-            {
-                var value = node.Value;
-                sb.Append($"({value.Item1}, {value.Item3}), ");
-            }
+            // sb.Append("ExecutionPath: ");
+            // var node = this.ExecutionPath.First;
+            // while (node != null)
+            // {
+            //     var value = node.Value;
+            //     sb.Append($"({value.Item1}, {value.Item3}), ");
+            // }
 
-            Console.WriteLine(sb.ToString());
+            // Console.WriteLine(sb.ToString());
 
             return true;
         }

@@ -1333,6 +1333,14 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<ScheduleDebug> Delaying the operation that executes on task '{0}' by {1}ms.", Task.CurrentId, delay);
             }
 
+            if (delay < 0)
+            {
+                // Only sleep if a non-zero delay was chosen.
+                this.Scheduler.NotifyActorStatus(operation, ActorStatus.ActiveSleeping);
+                MicrosecondSleep(delay * -1 * 200);
+                this.Scheduler.NotifyActorStatus(operation, ActorStatus.ActiveAwake);
+            }
+
             if (delay > 0)
             {
                 // Only sleep if a non-zero delay was chosen.
@@ -1668,7 +1676,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (operation is ActorOperation actorOperation && (operation != delayCallingOperation))
                     {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState(false);
+                        int operationHash = (operation != delayCallingOperation) ? 31 + actorOperation.Actor.GetHashedState(false) : 31 + actorOperation.Actor.GetHashedState();
                         operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
                         hash *= operationHash;
                     }

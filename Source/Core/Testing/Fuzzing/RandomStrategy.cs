@@ -61,15 +61,16 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             // Ensure that the max delay per task is less than 5000ms.
             int maxDelay = this.TotalTaskDelayMap.GetOrAdd(id, 0);
-            if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
+            // if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
             {
                 // There is a 0.05 probability for a 1-100ms delay.
-                next = this.RandomValueGenerator.Next(100) + 1;
+                next = this.RandomValueGenerator.Next(5) + 1;
             }
-            else
-            {
-                next = 0;
-            }
+
+            // else
+            // {
+            //     next = 0;
+            // }
 
             if (next > 0)
             {

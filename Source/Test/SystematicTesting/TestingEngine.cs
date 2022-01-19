@@ -454,6 +454,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private bool RunNextIteration(uint iteration)
         {
+            var x = new Profiler();
+
             if (!this.Scheduler.InitializeNextIteration(iteration))
             {
                 // The next iteration cannot run, so stop exploring.
@@ -510,9 +512,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
+                x.StartMeasuringExecutionTime();
+
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
                 runtime.WaitAsync().Wait();
+                x.StopMeasuringExecutionTime();
 
                 // Invokes the user-specified iteration disposal method.
                 this.TestMethodInfo.DisposeCurrentIteration();
@@ -581,6 +586,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtime?.Dispose();
             }
 
+            Console.WriteLine(x.ResultsMs());
             return true;
         }
 

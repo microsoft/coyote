@@ -37,5 +37,11 @@ namespace Microsoft.Coyote
         /// </summary>
         public double Results() =>
             this.StopWatch != null ? this.StopWatch.Elapsed.TotalSeconds : 0;
+
+        /// <summary>
+        /// Returns profiling results.
+        /// </summary>
+        public double ResultsMs() =>
+            this.StopWatch != null ? this.StopWatch.Elapsed.TotalMilliseconds : 0;
     }
 }

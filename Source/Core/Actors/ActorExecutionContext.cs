@@ -405,7 +405,7 @@ namespace Microsoft.Coyote.Actors
                     {
                         // Remove the actor from the set of enabled actors.
                         this.EnabledActors.Remove(actor.Id);
-                        if (this.NotifyLastActorCreated && this.EnabledActors.Count == 0)
+                        if (this.NotifyLastActorCreated && this.EnabledActors.Count is 0)
                         {
                             this.QuiescenceCompletionSource.TrySetResult(true);
                         }
@@ -450,7 +450,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     // Remove the actor from the set of enabled actors.
                     this.EnabledActors.Remove(actor.Id);
-                    if (this.NotifyLastActorCreated && this.EnabledActors.Count == 0)
+                    if (this.NotifyLastActorCreated && this.EnabledActors.Count is 0)
                     {
                         this.QuiescenceCompletionSource.TrySetResult(true);
                     }
@@ -856,7 +856,7 @@ namespace Microsoft.Coyote.Actors
         {
             lock (this.SyncObject)
             {
-                if (!(this.EnabledActors.Count == 0))
+                if (this.EnabledActors.Count > 0)
                 {
                     this.NotifyLastActorCreated = true;
                     return this.QuiescenceCompletionSource.Task;

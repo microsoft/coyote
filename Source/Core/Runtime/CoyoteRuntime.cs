@@ -355,9 +355,12 @@ namespace Microsoft.Coyote.Runtime
                     this.WaitUntilTaskCompletes(op, task);
                     task.GetAwaiter().GetResult();
 
-                    // Wait for any actors to reach quiescence and propagate any exceptions.
-                    this.WaitUntilTaskCompletes(op, actorQuiescenceTask);
-                    actorQuiescenceTask.GetAwaiter().GetResult();
+                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        // Wait for any actors to reach quiescence and propagate any exceptions.
+                        this.WaitUntilTaskCompletes(op, actorQuiescenceTask);
+                        actorQuiescenceTask.GetAwaiter().GetResult();
+                    }
 
                     this.CompleteOperation(op);
 

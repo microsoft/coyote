@@ -58,21 +58,6 @@ namespace Microsoft.Coyote.Actors
         internal HashSet<ActorId> EnabledActors;
 
         /// <summary>
-        /// Data structure containing information regarding testing coverage.
-        /// </summary>
-        internal readonly CoverageInfo CoverageInfo;
-
-        /// <summary>
-        /// Responsible for generating random values.
-        /// </summary>
-        private readonly IRandomValueGenerator ValueGenerator;
-
-        /// <summary>
-        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
-        /// </summary>
-        internal readonly LogWriter LogWriter;
-
-        /// <summary>
         /// Completes when actor quiescence is reached.
         /// </summary>
         internal TaskCompletionSource<bool> QuiescenceCompletionSource;
@@ -86,6 +71,21 @@ namespace Microsoft.Coyote.Actors
         /// Synchronizes access to the logic checking for actor quiescence.
         /// </summary>
         private readonly object QuiescenceSyncObject;
+
+        /// <summary>
+        /// Data structure containing information regarding testing coverage.
+        /// </summary>
+        internal readonly CoverageInfo CoverageInfo;
+
+        /// <summary>
+        /// Responsible for generating random values.
+        /// </summary>
+        private readonly IRandomValueGenerator ValueGenerator;
+
+        /// <summary>
+        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
+        /// </summary>
+        internal readonly LogWriter LogWriter;
 
         /// <inheritdoc/>
         public ILogger Logger
@@ -142,11 +142,11 @@ namespace Microsoft.Coyote.Actors
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
+            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
+            this.IsActorQuiescenceAwaited = false;
             this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
-            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
-            this.IsActorQuiescenceAwaited = false;
             this.QuiescenceSyncObject = new object();
         }
 

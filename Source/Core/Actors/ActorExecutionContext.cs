@@ -53,6 +53,26 @@ namespace Microsoft.Coyote.Actors
         protected readonly ConcurrentDictionary<ActorId, Actor> ActorMap;
 
         /// <summary>
+        /// Set of enabled actors.
+        /// </summary>
+        internal HashSet<ActorId> EnabledActors;
+
+        /// <summary>
+        /// Completes when actor quiescence is reached.
+        /// </summary>
+        internal TaskCompletionSource<bool> QuiescenceCompletionSource;
+
+        /// <summary>
+        /// True if the runtime is waiting for actor quiescence.
+        /// </summary>
+        private bool IsActorQuiescenceAwaited;
+
+        /// <summary>
+        /// Synchronizes access to the logic checking for actor quiescence.
+        /// </summary>
+        private readonly object QuiescenceSyncObject;
+
+        /// <summary>
         /// Data structure containing information regarding testing coverage.
         /// </summary>
         internal readonly CoverageInfo CoverageInfo;
@@ -121,9 +141,13 @@ namespace Microsoft.Coyote.Actors
             this.Runtime = runtime;
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
+            this.EnabledActors = new HashSet<ActorId>();
+            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
+            this.IsActorQuiescenceAwaited = false;
             this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
+            this.QuiescenceSyncObject = new object();
         }
 
         /// <inheritdoc/>
@@ -205,6 +229,11 @@ namespace Microsoft.Coyote.Actors
             if (!type.IsSubclassOf(typeof(Actor)))
             {
                 this.Assert(false, "Type '{0}' is not an actor.", type.FullName);
+            }
+
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation();
             }
 
             if (id is null)
@@ -300,8 +329,12 @@ namespace Microsoft.Coyote.Actors
                 string message = (sender != null) ?
                     string.Format("{0} is sending event {1} to a null actor.", sender.Id.ToString(), e.ToString())
                     : string.Format("Cannot send event {0} to a null actor.", e.ToString());
-
                 this.Assert(false, message);
+            }
+
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation();
             }
 
             target = this.GetActorWithId<Actor>(targetId);
@@ -339,6 +372,14 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh)
         {
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Add(actor.Id);
+                }
+            }
+
             Task.Run(async () =>
             {
                 try
@@ -361,6 +402,18 @@ namespace Microsoft.Coyote.Actors
                     {
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
                     }
+
+                    if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        lock (this.QuiescenceSyncObject)
+                        {
+                            this.EnabledActors.Remove(actor.Id);
+                            if (this.IsActorQuiescenceAwaited && this.EnabledActors.Count is 0)
+                            {
+                                this.QuiescenceCompletionSource.TrySetResult(true);
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -370,6 +423,14 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task RunActorEventHandlerAsync(Actor actor, Event initialEvent, bool isFresh)
         {
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Add(actor.Id);
+                }
+            }
+
             try
             {
                 if (isFresh)
@@ -389,6 +450,18 @@ namespace Microsoft.Coyote.Actors
                 if (actor.IsHalted)
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
+                }
+
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    lock (this.QuiescenceSyncObject)
+                    {
+                        this.EnabledActors.Remove(actor.Id);
+                        if (this.IsActorQuiescenceAwaited && this.EnabledActors.Count is 0)
+                        {
+                            this.QuiescenceCompletionSource.TrySetResult(true);
+                        }
+                    }
                 }
             }
         }
@@ -784,6 +857,25 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
+        /// <summary>
+        /// Returns a task that completes once all actors reach quiescence.
+        /// </summary>
+        internal Task WaitUntilQuiescenceAsync()
+        {
+            lock (this.QuiescenceSyncObject)
+            {
+                if (this.EnabledActors.Count > 0)
+                {
+                    this.IsActorQuiescenceAwaited = true;
+                    return this.QuiescenceCompletionSource.Task;
+                }
+                else
+                {
+                    return Task.CompletedTask;
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public void Stop() => this.Runtime.ForceStop();
 
@@ -795,6 +887,7 @@ namespace Microsoft.Coyote.Actors
             if (disposing)
             {
                 this.ActorMap.Clear();
+                this.EnabledActors.Clear();
             }
         }
 

@@ -8,8 +8,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -329,9 +327,11 @@ namespace Microsoft.Coyote.Runtime
                     this.StartOperation(op);
 
                     Task task = Task.CompletedTask;
+                    Task actorQuiescenceTask = Task.CompletedTask;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
                         actionWithRuntime(this.DefaultActorExecutionContext);
+                        actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
                     }
                     else if (testMethod is Action action)
                     {
@@ -340,6 +340,7 @@ namespace Microsoft.Coyote.Runtime
                     else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
                         task = functionWithRuntime(this.DefaultActorExecutionContext);
+                        actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
                     }
                     else if (testMethod is Func<Task> function)
                     {
@@ -353,6 +354,13 @@ namespace Microsoft.Coyote.Runtime
                     // Wait for the task to complete and propagate any exceptions.
                     this.WaitUntilTaskCompletes(op, task);
                     task.GetAwaiter().GetResult();
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        // Wait for any actors to reach quiescence and propagate any exceptions.
+                        this.WaitUntilTaskCompletes(op, actorQuiescenceTask);
+                        actorQuiescenceTask.GetAwaiter().GetResult();
+                    }
 
                     this.CompleteOperation(op);
 

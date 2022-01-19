@@ -913,6 +913,11 @@ namespace Microsoft.Coyote.Runtime
             int delay;
             lock (this.SyncObject)
             {
+                if (!this.IsAttached)
+                {
+                    throw new ThreadInterruptedException();
+                }
+
                 // Choose the next delay to inject. The value is in milliseconds.
                 delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
                 IO.Debug.WriteLine("<CoyoteDebug> Delaying the operation that executes on thread '{0}' by {1}ms.",

@@ -702,7 +702,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void WaitUntilTaskCompletes(TaskOperation op, Task task)
         {
-            if (!task.IsCompleted && this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                 op.JoinDependencies.Add(task);

@@ -78,14 +78,14 @@ namespace Microsoft.Coyote.Actors
         internal TaskCompletionSource<bool> QuiescenceCompletionSource;
 
         /// <summary>
-        /// Notifies when all the queued actors have been created.
+        /// True if the runtime is waiting for actor quiescence.
         /// </summary>
-        internal bool NotifyLastActorCreated;
+        private bool IsActorQuiescenceAwaited;
 
         /// <summary>
         /// Synchronizes access to the logic checking for actor quiescence.
         /// </summary>
-        private readonly object SyncObject;
+        private readonly object QuiescenceSyncObject;
 
         /// <inheritdoc/>
         public ILogger Logger
@@ -146,8 +146,8 @@ namespace Microsoft.Coyote.Actors
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
-            this.NotifyLastActorCreated = false;
-            this.SyncObject = new object();
+            this.IsActorQuiescenceAwaited = false;
+            this.QuiescenceSyncObject = new object();
         }
 
         /// <inheritdoc/>
@@ -372,10 +372,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh)
         {
-            lock (this.SyncObject)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                // Add the actor to the set of enabled actors.
-                this.EnabledActors.Add(actor.Id);
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Add(actor.Id);
+                }
             }
 
             Task.Run(async () =>
@@ -401,13 +403,15 @@ namespace Microsoft.Coyote.Actors
                         this.ActorMap.TryRemove(actor.Id, out Actor _);
                     }
 
-                    lock (this.SyncObject)
+                    if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
-                        // Remove the actor from the set of enabled actors.
-                        this.EnabledActors.Remove(actor.Id);
-                        if (this.NotifyLastActorCreated && this.EnabledActors.Count is 0)
+                        lock (this.QuiescenceSyncObject)
                         {
-                            this.QuiescenceCompletionSource.TrySetResult(true);
+                            this.EnabledActors.Remove(actor.Id);
+                            if (this.IsActorQuiescenceAwaited && this.EnabledActors.Count is 0)
+                            {
+                                this.QuiescenceCompletionSource.TrySetResult(true);
+                            }
                         }
                     }
                 }
@@ -419,10 +423,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task RunActorEventHandlerAsync(Actor actor, Event initialEvent, bool isFresh)
         {
-            lock (this.SyncObject)
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                // Add the actor to the set of enabled actors.
-                this.EnabledActors.Add(actor.Id);
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Add(actor.Id);
+                }
             }
 
             try
@@ -446,13 +452,15 @@ namespace Microsoft.Coyote.Actors
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
                 }
 
-                lock (this.SyncObject)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
-                    // Remove the actor from the set of enabled actors.
-                    this.EnabledActors.Remove(actor.Id);
-                    if (this.NotifyLastActorCreated && this.EnabledActors.Count is 0)
+                    lock (this.QuiescenceSyncObject)
                     {
-                        this.QuiescenceCompletionSource.TrySetResult(true);
+                        this.EnabledActors.Remove(actor.Id);
+                        if (this.IsActorQuiescenceAwaited && this.EnabledActors.Count is 0)
+                        {
+                            this.QuiescenceCompletionSource.TrySetResult(true);
+                        }
                     }
                 }
             }
@@ -850,15 +858,15 @@ namespace Microsoft.Coyote.Actors
         public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
         /// <summary>
-        /// Waits for all actors to reach quiescence.
+        /// Returns a task that completes once all actors reach quiescence.
         /// </summary>
         internal Task WaitUntilQuiescenceAsync()
         {
-            lock (this.SyncObject)
+            lock (this.QuiescenceSyncObject)
             {
                 if (this.EnabledActors.Count > 0)
                 {
-                    this.NotifyLastActorCreated = true;
+                    this.IsActorQuiescenceAwaited = true;
                     return this.QuiescenceCompletionSource.Task;
                 }
                 else

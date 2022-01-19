@@ -887,6 +887,7 @@ namespace Microsoft.Coyote.Actors
             if (disposing)
             {
                 this.ActorMap.Clear();
+                this.EnabledActors.Clear();
             }
         }
 

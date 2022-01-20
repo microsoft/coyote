@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// The path that is being executed during the current iteration. Each
         /// step of the execution is represented by an operation and a value
-        /// represented the program state after the operation executed.
+        /// representing the program state after the operation executed.
         /// </summary>
         private readonly LinkedList<(ulong op, AsyncOperationType type, int state)> ExecutionPath;
 
@@ -62,14 +62,14 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly ulong MinIntegerChoiceOpValue;
 
         /// <summary>
-        /// The failure injection reward.
-        /// </summary>
-        private readonly double FailureInjectionReward;
-
-        /// <summary>
         /// The basic action reward.
         /// </summary>
         private readonly double BasicActionReward;
+
+        /// <summary>
+        /// The failure injection reward.
+        /// </summary>
+        private readonly double FailureInjectionReward;
 
         /// <summary>
         /// The number of explored executions.
@@ -92,8 +92,8 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.TrueChoiceOpValue = ulong.MaxValue;
             this.FalseChoiceOpValue = ulong.MaxValue - 1;
             this.MinIntegerChoiceOpValue = ulong.MaxValue - 2;
-            this.FailureInjectionReward = -1000;
             this.BasicActionReward = -1;
+            this.FailureInjectionReward = -1000;
             this.Epochs = 0;
         }
 
@@ -343,11 +343,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
             this.LearnQValues();

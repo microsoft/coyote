@@ -578,8 +578,15 @@ namespace Microsoft.Coyote.Runtime
                 this.TaskFactory.Scheduler);
             }
 
+            var current = this.GetExecutingOperation<AsyncOperation>();
+            if (current is null)
+            {
+                // Cannot fuzz the delay of an uncontrolled operation.
+                return Task.Delay(delay, cancellationToken);
+            }
+
             return Task.Delay(TimeSpan.FromMilliseconds(
-                this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay)));
+                this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay)));
         }
 
         /// <summary>
@@ -822,7 +829,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> Scheduling the next operation of '{0}'.", next.Name);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}'.", next.Name);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -910,7 +917,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void DelayOperation()
         {
-            int delay;
+            int delay = 0;
             lock (this.SyncObject)
             {
                 if (!this.IsAttached)
@@ -918,10 +925,14 @@ namespace Microsoft.Coyote.Runtime
                     throw new ThreadInterruptedException();
                 }
 
-                // Choose the next delay to inject. The value is in milliseconds.
-                delay = this.GetNondeterministicDelay((int)this.Configuration.TimeoutDelay);
-                IO.Debug.WriteLine("<CoyoteDebug> Delaying the operation that executes on thread '{0}' by {1}ms.",
-                    Thread.CurrentThread.ManagedThreadId, delay);
+                var current = this.GetExecutingOperation<AsyncOperation>();
+                if (current != null)
+                {
+                    // Choose the next delay to inject. The value is in milliseconds.
+                    delay = this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay);
+                    IO.Debug.WriteLine("<CoyoteDebug> Delaying operation '{0}' on thread '{1}' by {2}ms.",
+                        current.Name, Thread.CurrentThread.ManagedThreadId, delay);
+                }
             }
 
             if (delay > 0)
@@ -1008,9 +1019,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns a controlled nondeterministic delay.
+        /// Returns a controlled nondeterministic delay for the specified operation.
         /// </summary>
-        internal int GetNondeterministicDelay(int maxValue)
+        private int GetNondeterministicDelay(AsyncOperation op, int maxValue)
         {
             lock (this.SyncObject)
             {
@@ -1019,7 +1030,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(maxDelay, out int next))
+                if (!this.Scheduler.GetNextDelay(op, maxDelay, out int next))
                 {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
@@ -1063,7 +1074,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<CoyoteDebug> Starting the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Starting operation '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
 
                 // Enable the operation and store it in the async local context.
@@ -1113,10 +1124,10 @@ namespace Microsoft.Coyote.Runtime
 
             while (op != this.ScheduledOperation && this.IsAttached)
             {
-                IO.Debug.WriteLine("<CoyoteDebug> Sleeping the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Sleeping operation '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
                 SyncMonitor.Wait(this.SyncObject);
-                IO.Debug.WriteLine("<CoyoteDebug> Waking up the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Waking up operation '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
             }
         }
@@ -1128,7 +1139,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<CoyoteDebug> Completed the operation of '{0}' on thread '{1}'.",
+                IO.Debug.WriteLine("<CoyoteDebug> Completed operation '{0}' on thread '{1}'.",
                     op.Name, Thread.CurrentThread.ManagedThreadId);
                 op.Status = AsyncOperationStatus.Completed;
             }

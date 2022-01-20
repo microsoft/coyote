@@ -359,14 +359,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private void LearnQValues()
         {
-            var pathBuilder = new System.Text.StringBuilder();
-
             int idx = 0;
             var node = this.ExecutionPath.First;
             while (node?.Next != null)
             {
-                pathBuilder.Append($"{node.Value.op},");
-
                 var (_, _, state) = node.Value;
                 var (nextOp, nextType, nextState) = node.Next.Value;
 

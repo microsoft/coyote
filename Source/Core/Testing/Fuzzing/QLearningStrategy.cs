@@ -27,11 +27,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         private readonly LinkedList<(int delay, int state)> ExecutionPath;
 
         /// <summary>
-        /// Map of operation ids to their current activity status.
-        /// </summary>
-        private readonly ConcurrentDictionary<string, ActivityStatus> ActivityStatusMap;
-
-        /// <summary>
         /// The previously chosen delay.
         /// </summary>
         private int PreviousDelay;
@@ -65,7 +60,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             this.OperationQTable = new Dictionary<int, Dictionary<int, double>>();
             this.ExecutionPath = new LinkedList<(int, int)>();
-            this.ActivityStatusMap = new ConcurrentDictionary<string, ActivityStatus>();
             this.PreviousDelay = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
@@ -74,9 +68,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            int maxValue, out int next)
         {
-            int state = this.CaptureExecutionStep(current);
+            int state = this.CaptureExecutionStep(ops, current);
             this.InitializeDelayQValues(state, maxValue);
 
             next = this.GetNextDelayByPolicy(state, maxValue);
@@ -85,14 +80,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.StepCount++;
             return true;
         }
-
-        // /// <summary>
-        // /// Notifies the activity status of the current operation.
-        // /// </summary>
-        // // internal override void NotifyActivityStatus(AsyncOperation current, ActivityStatus status)
-        // // {
-        // //     this.ActivityStatusMap.AddOrUpdate(current.Name, status, (id, old) => status);
-        // // }
 
         /// <summary>
         /// Returns the next delay by drawing from the probability distribution
@@ -167,9 +154,15 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// Captures metadata related to the current execution step, and returns
         /// a value representing the current program state.
         /// </summary>
-        private int CaptureExecutionStep(AsyncOperation operation)
+        private int CaptureExecutionStep(IEnumerable<AsyncOperation> ops, AsyncOperation operation)
         {
             int state = ComputeStateHash(operation);
+
+            Console.WriteLine($">---> {operation.Name}: state: {state}");
+            foreach (var op in ops)
+            {
+                Console.WriteLine($"  |---> {op.Name}: status: {op.Status}");
+            }
 
             // Update the list of chosen delays with the current state.
             this.ExecutionPath.AddLast((this.PreviousDelay, state));
@@ -188,7 +181,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 // Add the hash of the current operation.
                 hash = (hash * 31) + operation.Name.GetHashCode();
 
-                // foreach (var kvp in this.ActivityStatusMap)
+                // foreach (var kvp in this.OperationStatusMap)
                 // {
                 //     // Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
                 //     // int operationHash = 31 + kvp.Key.GetHashCode();
@@ -240,13 +233,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         private void LearnQValues()
         {
-            var pathBuilder = new System.Text.StringBuilder();
+            // var pathBuilder = new System.Text.StringBuilder();
 
             int idx = 0;
             var node = this.ExecutionPath.First;
             while (node?.Next != null)
             {
-                pathBuilder.Append($"{node.Value.delay},");
+                // pathBuilder.Append($"({node.Value.delay},{node.Value.state}), ");
 
                 var (_, state) = node.Value;
                 var (nextDelay, nextState) = node.Next.Value;
@@ -284,16 +277,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 node = node.Next;
                 idx++;
             }
+
+            Console.WriteLine($"Visited {this.OperationQTable.Count} states.");
+            // Console.WriteLine(pathBuilder.ToString());
         }
 
         /// <inheritdoc/>
         internal override string GetDescription() => $"RL[seed '{this.RandomValueGenerator.Seed}']";
-
-        private enum ActivityStatus
-        {
-            ActiveAwake,
-            ActiveSleeping,
-            Inactive
-        }
     }
 }

@@ -39,11 +39,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             switch (configuration.SchedulingStrategy)
             {
+                case "rl":
+                    return new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
                 case "pct":
                     return new PCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
                 default:
-                    // return new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
-                    return new BoundedRandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                    // return new BoundedRandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                    return new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
             }
         }
 

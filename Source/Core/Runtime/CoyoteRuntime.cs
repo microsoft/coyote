@@ -1296,7 +1296,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         if (operation is ActorOperation actorOperation)
                         {
-                            int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                            int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
                             operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
                             hash *= operationHash;
                         }
@@ -1317,7 +1317,13 @@ namespace Microsoft.Coyote.Runtime
                     foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Name))
                     {
                         Console.WriteLine($"  |---> {operation.Name}: status: {operation.Status}");
-                        hash *= 31 + operation.Status.GetHashCode();
+                        int operationHash = 31 + operation.Status.GetHashCode();
+                        if (operation is ActorOperation actorOperation)
+                        {
+                            operationHash = (operationHash * 31) + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
+                        }
+
+                        hash *= operationHash;
                     }
                 }
 

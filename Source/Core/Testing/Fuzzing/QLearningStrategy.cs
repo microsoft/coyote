@@ -67,12 +67,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            int maxValue, out int next)
         {
-            int state = this.CaptureExecutionStep(current);
+            int state = this.CaptureExecutionStep(ops, current);
             this.InitializeDelayQValues(state, maxValue);
 
-            next = this.GetNextDelayByPolicy(state, maxValue);
+            next = this.GetNextDelayByPolicy(state);
             this.PreviousDelay = next;
 
             this.StepCount++;
@@ -83,15 +84,18 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// Returns the next delay by drawing from the probability distribution
         /// over the specified state and range of delays.
         /// </summary>
-        private int GetNextDelayByPolicy(int state, int maxValue)
+        private int GetNextDelayByPolicy(int state)
         {
-            var qValues = new List<double>(maxValue);
-            for (int i = 0; i < maxValue; i++)
+            var delays = new List<int>();
+            var qValues = new List<double>();
+            foreach (var pair in this.OperationQTable[state])
             {
-                qValues.Add(this.OperationQTable[state][i]);
+                delays.Add(pair.Key);
+                qValues.Add(pair.Value);
             }
 
-            return this.ChooseQValueIndexFromDistribution(qValues);
+            int idx = this.ChooseQValueIndexFromDistribution(qValues);
+            return delays[idx];
         }
 
         /// <summary>
@@ -152,14 +156,38 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// Captures metadata related to the current execution step, and returns
         /// a value representing the current program state.
         /// </summary>
-        private int CaptureExecutionStep(AsyncOperation current)
+        private int CaptureExecutionStep(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
-            int state = current.HashedProgramState;
+            int state = ComputeProgramState(ops, current);
             Console.WriteLine($">---> {current.Name}: state: {state}");
 
             // Update the list of chosen delays with the current state.
             this.ExecutionPath.AddLast((this.PreviousDelay, state));
             return state;
+        }
+
+        /// <summary>
+        /// Computes the current program state.
+        /// </summary>
+        private static int ComputeProgramState(IEnumerable<AsyncOperation> ops, AsyncOperation current)
+        {
+            unchecked
+            {
+                int hash = 19;
+                // Add the hash of the current operation.
+                var pre = hash;
+                hash = (hash * 31) + current.Name.GetHashCode();
+                hash = pre;
+
+                // Add the hash of the status of each operation.
+                foreach (var op in ops.OrderBy(op => op.Name))
+                {
+                    Console.WriteLine($"  |---> {op.Name}: status: {op.Status}");
+                    hash *= 31 + op.GetHashedState(SchedulingPolicy.Fuzzing);
+                }
+
+                return hash;
+            }
         }
 
         /// <summary>
@@ -174,7 +202,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.OperationQTable.Add(state, qValues);
             }
 
-            for (int i = 0; i < maxValue; i++)
+            for (int i = 0; i <= maxValue; i += maxValue)
             {
                 if (!qValues.ContainsKey(i))
                 {

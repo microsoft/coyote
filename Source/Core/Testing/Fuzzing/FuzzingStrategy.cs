@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -52,11 +53,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Returns the next delay.
         /// </summary>
+        /// <param name="ops">Operations executing during the current test iteration.</param>
         /// <param name="current">The operation requesting the delay.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal abstract bool GetNextDelay(AsyncOperation current, int maxValue, out int next);
+        internal abstract bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            int maxValue, out int next);
 
         /// <summary>
         /// Returns the current operation id.

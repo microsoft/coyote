@@ -23,5 +23,8 @@ namespace Microsoft.Coyote.Actors
         {
             this.Actor = actor;
         }
+
+        /// <inheritdoc/>
+        internal override int GetHashedState(SchedulingPolicy policy) => this.Actor.GetHashedState(policy);
     }
 }

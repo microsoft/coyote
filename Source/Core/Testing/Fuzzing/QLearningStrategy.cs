@@ -18,17 +18,25 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         private readonly Dictionary<int, Dictionary<int, double>> OperationQTable;
 
-        /// <summary>
-        /// The path that is being executed during the current iteration. Each
-        /// step of the execution is represented by a delay value and a value
-        /// representing the program state after the delay happened.
-        /// </summary>
-        private readonly LinkedList<(int delay, int state)> ExecutionPath;
+        private readonly HashSet<int> UniqueStates;
 
         /// <summary>
-        /// The previously chosen delay.
+        /// The path that is being executed during the current iteration. Each step
+        /// of the execution is represented by an operation requesting a delay, the
+        /// chosen delay value and a value representing the program state after the
+        /// delay happened.
         /// </summary>
-        private int PreviousDelay;
+        private readonly LinkedList<(string op, int delay, int state)> ExecutionPath;
+
+        /// <summary>
+        /// Map from operations to number of steps they are currently delayed.
+        /// </summary>
+        private readonly Dictionary<string, ulong> DelayedOperationSteps;
+
+        /// <summary>
+        /// The last delayed operation.
+        /// </summary>
+        private (string op, int delay) LastDelayedOperation;
 
         /// <summary>
         /// The value of the learning rate.
@@ -58,8 +66,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             : base(maxSteps, random)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<int, double>>();
-            this.ExecutionPath = new LinkedList<(int, int)>();
-            this.PreviousDelay = 0;
+            this.UniqueStates = new HashSet<int>();
+            this.ExecutionPath = new LinkedList<(string, int, int)>();
+            this.DelayedOperationSteps = new Dictionary<string, ulong>();
+            this.LastDelayedOperation = ("Task(0)", 0);
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
             this.BasicActionReward = -1;
@@ -74,7 +84,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.InitializeDelayQValues(state, maxValue);
 
             next = this.GetNextDelayByPolicy(state);
-            this.PreviousDelay = next;
+            this.LastDelayedOperation = (current.Name, next);
 
             this.StepCount++;
             return true;
@@ -158,32 +168,63 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         private int CaptureExecutionStep(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
-            int state = ComputeProgramState(ops, current);
+            this.UpdateDelayedOperationSteps(ops);
+
+            int state = this.ComputeProgramState(ops, current);
             Console.WriteLine($">---> {current.Name}: state: {state}");
 
-            // Update the list of chosen delays with the current state.
-            this.ExecutionPath.AddLast((this.PreviousDelay, state));
+            // Update the execution path with the current state.
+            this.ExecutionPath.AddLast((this.LastDelayedOperation.op, this.LastDelayedOperation.delay, state));
             return state;
+        }
+
+        /// <summary>
+        /// Computes the number of steps that each operation has been delayed.
+        /// </summary>
+        private void UpdateDelayedOperationSteps(IEnumerable<AsyncOperation> ops)
+        {
+            foreach (var op in ops.OrderBy(op => op.Name))
+            {
+                if (!this.DelayedOperationSteps.ContainsKey(op.Name))
+                {
+                    this.DelayedOperationSteps.Add(op.Name, 0);
+                }
+
+                if (op.Status is AsyncOperationStatus.Delayed)
+                {
+                    this.DelayedOperationSteps[op.Name]++;
+                }
+                else
+                {
+                    this.DelayedOperationSteps[op.Name] = 0;
+                }
+
+                Console.WriteLine($"  |---> {op.Name}: delayed: {this.DelayedOperationSteps[op.Name]}");
+            }
         }
 
         /// <summary>
         /// Computes the current program state.
         /// </summary>
-        private static int ComputeProgramState(IEnumerable<AsyncOperation> ops, AsyncOperation current)
+        private int ComputeProgramState(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
             unchecked
             {
                 int hash = 19;
+
                 // Add the hash of the current operation.
                 var pre = hash;
                 hash = (hash * 31) + current.Name.GetHashCode();
                 hash = pre;
 
-                // Add the hash of the status of each operation.
+                // Add the hash of each operation.
                 foreach (var op in ops.OrderBy(op => op.Name))
                 {
                     Console.WriteLine($"  |---> {op.Name}: status: {op.Status}");
-                    hash *= 31 + op.GetHashedState(SchedulingPolicy.Fuzzing);
+                    int operationHash = 31 + op.GetHashedState(SchedulingPolicy.Fuzzing);
+                    this.UniqueStates.Add(op.GetHashedState(SchedulingPolicy.Fuzzing));
+                    operationHash = (operationHash * 31) + this.DelayedOperationSteps[op.Name].GetHashCode();
+                    hash *= operationHash;
                 }
 
                 return hash;
@@ -216,7 +257,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             this.LearnQValues();
             this.ExecutionPath.Clear();
-            this.PreviousDelay = 0;
+            this.DelayedOperationSteps.Clear();
+            this.LastDelayedOperation = ("Task(0)", 0);
             this.Epochs++;
 
             return base.InitializeNextIteration(iteration);
@@ -235,8 +277,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             {
                 // pathBuilder.Append($"({node.Value.delay},{node.Value.state}), ");
 
-                var (_, state) = node.Value;
-                var (nextDelay, nextState) = node.Next.Value;
+                var (_, _, state) = node.Value;
+                var (nextOp, nextDelay, nextState) = node.Next.Value;
 
                 // Compute the max Q value.
                 double maxQ = double.MinValue;
@@ -273,6 +315,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
 
             Console.WriteLine($"Visited {this.OperationQTable.Count} states.");
+            Console.WriteLine($"Found {this.UniqueStates.Count} unique custom states.");
             // Console.WriteLine(pathBuilder.ToString());
         }
 

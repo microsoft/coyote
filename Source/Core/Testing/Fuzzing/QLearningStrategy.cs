@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
@@ -68,10 +67,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
         {
-            int state = this.CaptureExecutionStep(ops, current);
+            int state = this.CaptureExecutionStep(current);
             this.InitializeDelayQValues(state, maxValue);
 
             next = this.GetNextDelayByPolicy(state, maxValue);
@@ -154,46 +152,14 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// Captures metadata related to the current execution step, and returns
         /// a value representing the current program state.
         /// </summary>
-        private int CaptureExecutionStep(IEnumerable<AsyncOperation> ops, AsyncOperation operation)
+        private int CaptureExecutionStep(AsyncOperation current)
         {
-            int state = ComputeStateHash(operation);
-
-            Console.WriteLine($">---> {operation.Name}: state: {state}");
-            foreach (var op in ops)
-            {
-                Console.WriteLine($"  |---> {op.Name}: status: {op.Status}");
-            }
+            int state = current.HashedProgramState;
+            Console.WriteLine($">---> {current.Name}: state: {state}");
 
             // Update the list of chosen delays with the current state.
             this.ExecutionPath.AddLast((this.PreviousDelay, state));
             return state;
-        }
-
-        /// <summary>
-        /// Computes a hash representing the current program state.
-        /// </summary>
-        private static int ComputeStateHash(AsyncOperation operation)
-        {
-            unchecked
-            {
-                int hash = 19;
-
-                // Add the hash of the current operation.
-                hash = (hash * 31) + operation.Name.GetHashCode();
-
-                // foreach (var kvp in this.OperationStatusMap)
-                // {
-                //     // Console.WriteLine($">>>>>>> Hashing: id {kvp.Key} - status {kvp.Value}");
-                //     // int operationHash = 31 + kvp.Key.GetHashCode();
-                //     // removing inactive actors from statehash
-                //     // operationHash = !(kvp.Value is ActorStatus.Inactive) ? (operationHash * 31) + kvp.Value.GetHashCode() : operationHash;
-                //     // including inactive actors in statehash
-                //     // operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
-                //     // hash *= operationHash;
-                // }
-
-                return hash;
-            }
         }
 
         /// <summary>

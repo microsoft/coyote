@@ -810,7 +810,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    current.HashedProgramState = this.GetHashedProgramState();
+                    current.HashedProgramState = this.GetHashedProgramState(current);
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
@@ -971,7 +971,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState(this.ScheduledOperation);
                 }
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
@@ -1009,7 +1009,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState(this.ScheduledOperation);
                 }
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
@@ -1032,9 +1032,15 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
+                if (this.Configuration.IsProgramStateHashingEnabled)
+                {
+                    // Update the operation with the hashed program state.
+                    op.HashedProgramState = this.GetHashedProgramState(op);
+                }
+
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, out int next))
+                if (!this.Scheduler.GetNextDelay(op, maxDelay, out int next))
                 {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
@@ -1278,27 +1284,43 @@ namespace Microsoft.Coyote.Runtime
         /// The hash is updated in each execution step.
         /// </remarks>
         [DebuggerStepThrough]
-        private int GetHashedProgramState()
+        private int GetHashedProgramState(AsyncOperation current)
         {
             unchecked
             {
                 int hash = 19;
 
-                foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
+                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
-                    if (operation is ActorOperation actorOperation)
+                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                     {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState();
-                        operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
-                        hash *= operationHash;
+                        if (operation is ActorOperation actorOperation)
+                        {
+                            int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                            operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
+                            hash *= operationHash;
+                        }
+                        else if (operation is TaskOperation taskOperation)
+                        {
+                            hash *= 31 + taskOperation.Type.GetHashCode();
+                        }
                     }
-                    else if (operation is TaskOperation taskOperation)
+
+                    hash = (hash * 31) + this.SpecificationEngine.GetHashedMonitorState();
+                }
+                else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    // Add the hash of the current operation.
+                    hash = (hash * 31) + current.Name.GetHashCode();
+
+                    // Add the hash of the status of each operation.
+                    foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Name))
                     {
-                        hash *= 31 + taskOperation.Type.GetHashCode();
+                        Console.WriteLine($"  |---> {operation.Name}: status: {operation.Status}");
+                        hash *= 31 + operation.Status.GetHashCode();
                     }
                 }
 
-                hash = (hash * 31) + this.SpecificationEngine.GetHashedMonitorState();
                 return hash;
             }
         }

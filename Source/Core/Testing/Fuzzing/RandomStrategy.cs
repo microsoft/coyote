@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
@@ -43,8 +42,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.StepCount++;

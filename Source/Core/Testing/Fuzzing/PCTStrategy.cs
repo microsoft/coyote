@@ -77,8 +77,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
 

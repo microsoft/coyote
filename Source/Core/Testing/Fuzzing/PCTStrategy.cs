@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
@@ -76,7 +77,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(int maxValue, out int next)
+        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
 

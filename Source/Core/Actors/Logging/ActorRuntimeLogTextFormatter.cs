@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"task '{Task.CurrentId}'";
+            var source = creatorName ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"task '{Task.CurrentId}'";
+            var source = creatorName ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnCreateTimer(TimerInfo info)
         {
             string text;
-            var source = info.OwnerId?.Name ?? $"task '{Task.CurrentId}'";
+            var source = info.OwnerId?.Name ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             if (info.Period.TotalMilliseconds >= 0)
             {
                 text = $"<TimerLog> Timer '{info}' (due-time:{info.DueTime.TotalMilliseconds}ms; " +
@@ -327,7 +327,9 @@ namespace Microsoft.Coyote.Actors
         {
             var eventGroupIdMsg = eventGroupId != Guid.Empty ? $" (event group '{eventGroupId}')" : string.Empty;
             var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
-            var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" : $"task '{Task.CurrentId}'";
+            var sender = senderName != null ?
+                senderStateName != null ? $"{senderName} in state '{senderStateName}'" : $"{senderName}" :
+                $"Thread '{Thread.CurrentThread.ManagedThreadId}'";
             var eventName = e.GetType().FullName;
             var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{eventGroupIdMsg}.";
             this.Logger.WriteLine(text);
@@ -344,7 +346,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnStopTimer(TimerInfo info)
         {
-            var source = info.OwnerId?.Name ?? $"task '{Task.CurrentId}'";
+            var source = info.OwnerId?.Name ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             var text = $"<TimerLog> Timer '{info}' was stopped and disposed by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -412,7 +414,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnRandom(object result, string callerName, string callerType)
         {
-            var source = callerName ?? $"Task '{Task.CurrentId}'";
+            var source = callerName ?? $"Thread '{Thread.CurrentThread.ManagedThreadId}'";
             var text = $"<RandomLog> {source} nondeterministically chose '{result}'.";
             this.Logger.WriteLine(text);
         }

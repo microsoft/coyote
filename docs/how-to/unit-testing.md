@@ -130,7 +130,7 @@ at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
-<StrategyLog> Number of scheduling points in fair terminating schedules: 
+<StrategyLog> Number of scheduling decisions in fair terminating schedules: 
               3 (min), 3 (avg), 3 (max).
 ```
 

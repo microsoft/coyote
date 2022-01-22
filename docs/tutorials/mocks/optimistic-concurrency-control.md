@@ -279,7 +279,7 @@ The test succeeds.
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
+..... Number of scheduling decisions in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
 ... Elapsed 0.2354834 sec.
 ```
 

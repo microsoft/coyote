@@ -92,7 +92,7 @@ a bug very fast. This bug is caused due to a very similar race condition that ma
 ... Scheduling statistics:
 ..... Explored 3 schedules: 3 fair and 0 unfair.
 ..... Found 33.33% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 24 (min), 27 (avg), 31 (max).
+..... Number of scheduling decisions in fair terminating schedules: 24 (min), 27 (avg), 31 (max).
 ... Elapsed 0.444569 sec.
 ```
 
@@ -257,7 +257,7 @@ The test passed without reporting any bugs which gives you confidence in the cor
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 100 schedules: 100 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 12 (min), 23 (avg), 35 (max).
+..... Number of scheduling decisions in fair terminating schedules: 12 (min), 23 (avg), 35 (max).
 ... Elapsed 0.2443369 sec.
 ```
 

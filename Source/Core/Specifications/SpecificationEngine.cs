@@ -138,17 +138,17 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                {
+                    // TODO: check if its safe to invoke the monitor with a lock during systematic testing.
+                    monitor.MonitorEvent(e, senderName, senderType, senderStateName);
+                }
+                else
                 {
                     lock (monitor)
                     {
                         monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                     }
-                }
-                else
-                {
-                    // TODO: check if its safe to invoke the monitor with a lock during systematic testing.
-                    monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                 }
             }
         }

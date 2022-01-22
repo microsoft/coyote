@@ -39,7 +39,7 @@ The `coyote test` tool will produce output, ending with something like the follo
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 40 schedules: 40 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 153 (min), 457 (avg), 1066 (max).
+..... Number of scheduling decisions in fair terminating schedules: 153 (min), 457 (avg), 1066 (max).
 ..... Exceeded the max-steps bound of '200' in 95.00% of the fair schedules.
 ... Elapsed 1.4882005 sec.
 . Done
@@ -62,7 +62,7 @@ This time the output will be something like:
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 40 schedules: 40 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 88 (min), 657 (avg), 2411 (max).
+..... Number of scheduling decisions in fair terminating schedules: 88 (min), 657 (avg), 2411 (max).
 ..... Exceeded the max-steps bound of '1000' in 27.50% of the fair schedules.
 ... Elapsed 3.3885497 sec.
 . Done

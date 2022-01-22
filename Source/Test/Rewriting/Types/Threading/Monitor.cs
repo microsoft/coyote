@@ -476,9 +476,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 // The executing op acquired the lock and can proceed.
-                System.Console.WriteLine($">>>> TEST-1 ?!?!");
                 this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                System.Console.WriteLine($">>>> TEST-2: {this.Owner}");
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }

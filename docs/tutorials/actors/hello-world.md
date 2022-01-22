@@ -84,7 +84,7 @@ Starting TestingProcessScheduler in process 16432
 ... Scheduling statistics:
 ..... Explored 2 schedules: 2 fair and 0 unfair.
 ..... Found 50.00% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 23 (min), 30 (avg), 37 (max).
+..... Number of scheduling decisions in fair terminating schedules: 23 (min), 30 (avg), 37 (max).
 ... Elapsed 0.1819877 sec.
 . Done
 ```

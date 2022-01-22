@@ -146,9 +146,9 @@ namespace Microsoft.Coyote.Actors.Tests
 <MonitorLog> TestMonitor enters state 'Init'.
 <MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnSetup' in state 'Init'.
-<CreateLog> M() was created by task ''.
+<CreateLog> M() was created by thread ''.
 <CreateLog> N() was created by M().
-<SendLog> M() in state '' sent event 'E' to N().
+<SendLog> M() sent event 'E' to N().
 <EnqueueLog> N() enqueued event 'E'.
 <StateLog> N() enters state 'Init'.
 <ActionLog> N() invoked action 'OnInitEntry' in state 'Init'.

@@ -936,7 +936,7 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            // Only sleep the executing operation if a non-zero delay was .
+            // Only sleep the executing operation if a non-zero delay was chosen.
             if (delay > 0 && current != null)
             {
                 var previousStatus = current.Status;

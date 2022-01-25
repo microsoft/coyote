@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 
@@ -28,6 +27,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         private readonly ConcurrentDictionary<string, ActorStatus> OperationStatuses;
 
+        private Dictionary<string, int> OperationActivationTimes;
+
+        private Dictionary<int, int> RelativeDelays;
+
         private readonly double LearningRate;
 
         private readonly double Gamma;
@@ -40,21 +43,24 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         private readonly int BasicActionReward;
 
+        private Stopwatch sw;
+
         internal QLearningStrategy(int maxSteps, IRandomValueGenerator random)
             : base(maxSteps, random)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<int, double>>();
             this.ExecutionPath = new LinkedList<(int, AsyncOperationType?, int)>();
             this.OperationStatuses = new ConcurrentDictionary<string, ActorStatus>();
+            this.OperationActivationTimes = new Dictionary<string, int>();
+            this.RelativeDelays = new Dictionary<int, int>();
             this.PreviousDelayValue = 0;
-            // experiment changes.
-            // this.LearningRate = 0.3;
-            this.LearningRate = 0;
+            this.LearningRate = 0.3;
             this.Gamma = 0.7;
             this.BasicActionReward = -1;
             this.Epochs = 0;
             this.MaxSteps = maxSteps;
             this.FailureInjectionReward = -1000;
+            this.sw = Stopwatch.StartNew();
         }
 
         internal override bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null)
@@ -67,7 +73,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // implementation for microseconds.
             next = this.GetNextDelayByPolicy(state, 44) - 39;
 
-            // base.GetNextDelay(maxValue, out next, operation);
+            if (operation != null)
+            {
+                var activationTime = (int)((this.sw.ElapsedTicks * 40000) / Stopwatch.Frequency) + (next <= 0 ? (next / -1) : next * 40);
+                var actor = (operation as ActorOperation).Actor;
+                this.OperationActivationTimes[actor.Id.RLId] = activationTime;
+            }
 
             this.PreviousDelayValue = next + 39;
             this.StepCount++;
@@ -131,6 +142,23 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                     // operationHash = (operationHash * 31) + kvp.Value.GetHashCode();
                     // hash *= operationHash;
                 }
+
+                // int operationHash = 31;
+
+                // Include the order of activation in the statehash
+                // foreach (var kvp in this.OperationActivationTimes.OrderBy(x => x.Value))
+                // {
+                //     operationHash = (operationHash * 31) + kvp.Key.GetHashCode();
+                //     Console.WriteLine(kvp.Value);
+                // }
+
+                // Include the first actor to activate in the statehash)
+                // if (this.OperationActivationTimes.Count() > 1)
+                // {
+                //     hash = (hash * 31) + this.OperationActivationTimes.OrderBy(x => x.Value).Skip(1).First().Key.GetHashCode();
+                // }
+
+                // hash *= operationHash;
 
                 // Changed the access of HashedState.
                 if (operation != null)
@@ -234,6 +262,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.StepCount = 0;
             // Reset the Root ID counter for actors created with no parents.
             ActorId.RootIdCounter = 0;
+            this.sw.Restart();
 
             // var sb = new StringBuilder();
             // sb.AppendLine("OperationQTable: ");

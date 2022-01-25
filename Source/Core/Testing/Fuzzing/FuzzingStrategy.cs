@@ -44,7 +44,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 case "pct":
                     return new PCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
                 default:
-                    return new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                    // return new RandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                    return new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
             }
         }
 

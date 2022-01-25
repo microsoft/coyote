@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <inheritdoc/>
         /// <remarks>
         /// The delay has an injection probability of 0.05 and is in the range
-        /// of [1, 100] with an upper bound of 5000ms per task.
+        /// of [0, 100] with an upper bound of 5000ms per task.
         /// </remarks>
         internal override bool GetNextDelay(int maxValue, out int next, AsyncOperation operation = null)
         {
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // if (maxDelay < 5000 && this.RandomValueGenerator.NextDouble() < 0.05)
             {
                 // There is a 0.05 probability for a 1-100ms delay.
-                next = this.RandomValueGenerator.Next(5) + 1;
+                next = this.RandomValueGenerator.Next(5);
             }
 
             // else

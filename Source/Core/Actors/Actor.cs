@@ -526,12 +526,6 @@ namespace Microsoft.Coyote.Actors
                     // We want to use C# Interlocked exchange API to thread safely write.
                     this.LatestHashedState = this.ComputeHashState();
 
-                    // Add a delay point before dequeuing an event.
-                    if (this.Context.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        this.Context.Runtime.DelayOperation(operation: this.Operation);
-                    }
-
                     (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) = this.Inbox.Dequeue();
                     lastDequeueStatus = status;
 

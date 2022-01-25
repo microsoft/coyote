@@ -163,6 +163,11 @@ namespace Microsoft.Coyote.Runtime
         private long OperationIdCounter;
 
         /// <summary>
+        /// The operation count at the last scheduling point.
+        /// </summary>
+        private uint LatestOperationCount;
+
+        /// <summary>
         /// Records if the runtime is running.
         /// </summary>
         internal volatile bool IsRunning;
@@ -266,6 +271,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsBugFound = false;
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
+            this.LatestOperationCount = 1;
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, AsyncOperation>();
@@ -691,7 +697,7 @@ namespace Microsoft.Coyote.Runtime
                     // TODO: support timeouts and cancellation tokens.
                     if (!this.ControlledTasks.ContainsKey(task))
                     {
-                        this.NotifyUncontrolledTaskWait(task.Id);
+                        this.NotifyUncontrolledTaskWait(task);
                     }
 
                     var op = this.GetExecutingOperation<TaskOperation>();
@@ -812,6 +818,9 @@ namespace Microsoft.Coyote.Runtime
                     // Update the current operation with the hashed program state.
                     current.HashedProgramState = this.GetHashedProgramState();
                 }
+
+                // Update the number of controlled operations before this scheduling point.
+                this.LatestOperationCount = (uint)this.OperationMap.Count;
 
                 // Choose the next operation to schedule, if there is one enabled.
                 IOrderedEnumerable<AsyncOperation> ops = this.EnableAndGetOrderedOperations();
@@ -1202,6 +1211,35 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Try to resolve the uncontrolled concurrency by pausing the scheduled operation.
+        /// </summary>
+        private void TryResolveUncontrolledConcurrency(Task task)
+        {
+            int retries = 0;
+            int delay = 10;
+            while (!task.IsCompleted && retries < 5)
+            {
+                Thread.Sleep(delay);
+                lock (this.SyncObject)
+                {
+                    IO.Debug.WriteLine("<CoyoteDebug> Trying to resolve uncontrolled concurrency at thread '{0}'.",
+                        Thread.CurrentThread.ManagedThreadId);
+                    if (this.OperationMap.Count > this.LatestOperationCount)
+                    {
+                        // The uncontrolled concurrency created a new controlled operation,
+                        // so we can resume executing the current operation.
+                        IO.Debug.WriteLine($"<CoyoteDebug> New operation was created from uncontrolled concurrency ({this.OperationMap.Count} vs {this.LatestOperationCount}).",
+                            Thread.CurrentThread.ManagedThreadId);
+                        break;
+                    }
+                }
+
+                retries++;
+                delay *= 5;
+            }
         }
 
         /// <summary>
@@ -1611,7 +1649,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an uncontrolled task is being waited.
         /// </summary>
-        private void NotifyUncontrolledTaskWait(int taskId)
+        private void NotifyUncontrolledTaskWait(Task task)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
@@ -1619,11 +1657,12 @@ namespace Microsoft.Coyote.Runtime
                 // uncontrolled task to ease the user debugging experience.
                 // Report the invalid operation and then throw it to fail the current thread. This will
                 // most likely crash the program, but we try to fail as cleanly and fast as possible.
-                string message = $"Waiting task '{taskId}' that is not intercepted and controlled during " +
+                string message = $"Waiting task '{task.Id}' that is not intercepted and controlled during " +
                     "testing, so it can interfere with the ability to reproduce bug traces.";
                 if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     this.Logger.WriteLine($"<TestLog> {message}");
+                    this.TryResolveUncontrolledConcurrency(task);
                 }
                 else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
@@ -1657,6 +1696,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
+                        this.TryResolveUncontrolledConcurrency(task);
                     }
                     else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
@@ -1897,6 +1937,7 @@ namespace Microsoft.Coyote.Runtime
                 RuntimeProvider.Deregister(this.Id);
 
                 this.OperationIdCounter = 0;
+                this.LatestOperationCount = 1;
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();
                 this.ControlledThreads.Clear();

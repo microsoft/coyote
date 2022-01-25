@@ -49,6 +49,11 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns the hashed state of this operation for the specified policy.
+        /// </summary>
+        internal virtual int GetHashedState(SchedulingPolicy policy) => 0;
+
+        /// <summary>
         /// Determines whether the specified object is equal to the current object.
         /// </summary>
         public override bool Equals(object obj)

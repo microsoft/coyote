@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
@@ -55,7 +56,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// The delay has an injection probability of 0.05 and is in the range of [10, maxValue * 10]
         /// with an increment of 10 and an upper bound of 5000ms per operation.
         /// </remarks>
-        internal override bool GetNextDelay(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
 

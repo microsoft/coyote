@@ -918,6 +918,7 @@ namespace Microsoft.Coyote.Runtime
         internal void DelayOperation()
         {
             int delay = 0;
+            AsyncOperation current = null;
             lock (this.SyncObject)
             {
                 if (!this.IsAttached)
@@ -925,7 +926,7 @@ namespace Microsoft.Coyote.Runtime
                     throw new ThreadInterruptedException();
                 }
 
-                var current = this.GetExecutingOperation<AsyncOperation>();
+                current = this.GetExecutingOperation<AsyncOperation>();
                 if (current != null)
                 {
                     // Choose the next delay to inject. The value is in milliseconds.
@@ -935,10 +936,13 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            if (delay > 0)
+            // Only sleep the executing operation if a non-zero delay was chosen.
+            if (delay > 0 && current != null)
             {
-                // Only sleep if a non-zero delay was chosen.
+                var previousStatus = current.Status;
+                current.Status = AsyncOperationStatus.Delayed;
                 Thread.Sleep(delay);
+                current.Status = previousStatus;
             }
         }
 
@@ -1030,7 +1034,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(op, maxDelay, out int next))
+                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, out int next))
                 {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
@@ -1251,7 +1255,7 @@ namespace Microsoft.Coyote.Runtime
         /// This operation is thread safe because the systematic testing
         /// runtime serializes the execution.
         /// </remarks>
-        internal IEnumerable<AsyncOperation> GetRegisteredOperations()
+        private IEnumerable<AsyncOperation> GetRegisteredOperations()
         {
             lock (this.SyncObject)
             {
@@ -1279,12 +1283,11 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-
                 foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
                 {
                     if (operation is ActorOperation actorOperation)
                     {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState();
+                        int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
                         operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
                         hash *= operationHash;
                     }

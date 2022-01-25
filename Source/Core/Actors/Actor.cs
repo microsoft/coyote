@@ -740,17 +740,20 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of this actor.
         /// </summary>
-        internal virtual int GetHashedState()
+        internal virtual int GetHashedState(SchedulingPolicy policy)
         {
             unchecked
             {
                 var hash = 19;
-                hash = (hash * 31) + this.GetType().GetHashCode();
-                hash = (hash * 31) + this.Id.Value.GetHashCode();
-                hash = (hash * 31) + this.IsHalted.GetHashCode();
-                hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
-                hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
-                hash = (hash * 31) + this.Inbox.GetCachedState();
+                if (policy is SchedulingPolicy.Systematic)
+                {
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+                    hash = (hash * 31) + this.Id.Value.GetHashCode();
+                    hash = (hash * 31) + this.IsHalted.GetHashCode();
+                    hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
+                    hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
+                    hash = (hash * 31) + this.Inbox.GetCachedState();
+                }
 
                 if (this.HashedState != 0)
                 {

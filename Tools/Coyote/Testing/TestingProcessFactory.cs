@@ -85,9 +85,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (!configuration.IsPartiallyControlledConcurrencyEnabled)
+            if (configuration.IsPartiallyControlledConcurrencyEnabled)
             {
-                arguments.Append("--disable-partial-control ");
+                arguments.Append("--enable-partial-control ");
             }
 
             if (configuration.IsConcurrencyFuzzingEnabled)

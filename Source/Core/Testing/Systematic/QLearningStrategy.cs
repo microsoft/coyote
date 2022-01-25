@@ -32,9 +32,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly Dictionary<int, ulong> TransitionFrequencies;
 
         /// <summary>
-        /// The previously chosen operation.
+        /// The last chosen operation.
         /// </summary>
-        private ulong PreviousOperation;
+        private ulong LastOperation;
 
         /// <summary>
         /// The value of the learning rate.
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
             this.ExecutionPath = new LinkedList<(ulong, AsyncOperationType, int)>();
             this.TransitionFrequencies = new Dictionary<int, ulong>();
-            this.PreviousOperation = 0;
+            this.LastOperation = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
             this.TrueChoiceOpValue = ulong.MaxValue;
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.InitializeOperationQValues(state, ops);
 
             next = this.GetNextOperationByPolicy(state, ops);
-            this.PreviousOperation = next.Id;
+            this.LastOperation = next.Id;
 
             this.StepCount++;
             return true;
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             next = this.GetNextBooleanChoiceByPolicy(state);
 
-            this.PreviousOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
+            this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
             this.StepCount++;
             return true;
         }
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
 
-            this.PreviousOperation = this.MinIntegerChoiceOpValue - (ulong)next;
+            this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
             this.StepCount++;
             return true;
         }
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             int state = current.HashedProgramState;
 
             // Update the execution path with the current state.
-            this.ExecutionPath.AddLast((this.PreviousOperation, current.Type, state));
+            this.ExecutionPath.AddLast((this.LastOperation, current.Type, state));
 
             if (!this.TransitionFrequencies.ContainsKey(state))
             {
@@ -348,7 +348,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             this.LearnQValues();
             this.ExecutionPath.Clear();
-            this.PreviousOperation = 0;
+            this.LastOperation = 0;
             this.Epochs++;
 
             return base.InitializeNextIteration(iteration);
@@ -359,14 +359,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private void LearnQValues()
         {
-            var pathBuilder = new System.Text.StringBuilder();
-
             int idx = 0;
             var node = this.ExecutionPath.First;
             while (node?.Next != null)
             {
-                pathBuilder.Append($"{node.Value.op},");
-
                 var (_, _, state) = node.Value;
                 var (nextOp, nextType, nextState) = node.Next.Value;
 

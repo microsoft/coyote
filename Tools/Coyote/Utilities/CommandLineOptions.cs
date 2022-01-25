@@ -88,7 +88,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
             advancedGroup.AddArgument("disable-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
-            advancedGroup.AddArgument("disable-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
+            advancedGroup.AddArgument("enable-partial-control", null, "Enable partial control concurrency during systematic testing", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
@@ -250,8 +250,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
-                case "disable-partial-control":
-                    configuration.IsPartiallyControlledConcurrencyEnabled = false;
+                case "enable-partial-control":
+                    configuration.IsPartiallyControlledConcurrencyEnabled = true;
                     break;
                 case "concurrency-fuzzing":
                 case "no-repro":

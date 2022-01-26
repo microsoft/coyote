@@ -44,11 +44,24 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         /// <inheritdoc/>
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+            int maxValue, bool positiveDelay, out int next)
         {
-            next = this.RandomValueGenerator.Next(maxValue);
+            if (positiveDelay)
+            {
+                next = this.RandomValueGenerator.Next(maxValue - 1) + 1;
+            }
+            else
+            {
+                next = this.RandomValueGenerator.Next(maxValue);
+            }
+
             this.StepCount++;
             return true;
+        }
+
+        internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
+        {
+            return this.RandomValueGenerator.Next(2) is 0 ? true : false;
         }
 
         /// <inheritdoc/>

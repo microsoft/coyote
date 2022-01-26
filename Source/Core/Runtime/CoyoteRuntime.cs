@@ -911,11 +911,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Delays the currently executing operation for a nondeterministically chosen amount of time.
         /// </summary>
+        /// <param name="positiveDelay"> Choice to keep delays positive.</param>
         /// <remarks>
         /// The delay is chosen nondeterministically by an underlying fuzzing strategy.
         /// If a delay of 0 is chosen, then the operation is not delayed.
         /// </remarks>
-        internal void DelayOperation()
+        internal void DelayOperation(bool positiveDelay = false)
         {
             int delay = 0;
             AsyncOperation current = null;
@@ -930,19 +931,25 @@ namespace Microsoft.Coyote.Runtime
                 if (current != null)
                 {
                     // Choose the next delay to inject. The value is in milliseconds.
-                    delay = this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay);
+                    delay = this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay, positiveDelay);
                     IO.Debug.WriteLine("<CoyoteDebug> Delaying operation '{0}' on thread '{1}' by {2}ms.",
                         current.Name, Thread.CurrentThread.ManagedThreadId, delay);
                 }
             }
 
-            // Only sleep the executing operation if a non-zero delay was .
+            // Only sleep the executing operation if a non-zero delay was chosen.
             if (delay > 0 && current != null)
             {
                 var previousStatus = current.Status;
                 current.Status = AsyncOperationStatus.Delayed;
                 Thread.Sleep(delay);
                 current.Status = previousStatus;
+            }
+
+            // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
+            if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
+            {
+                this.DelayOperation(true);
             }
         }
 
@@ -1025,16 +1032,21 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns a controlled nondeterministic delay for the specified operation.
         /// </summary>
-        private int GetNondeterministicDelay(AsyncOperation op, int maxValue)
+        private int GetNondeterministicDelay(AsyncOperation op, int maxValue, bool positiveDelay = false)
         {
             lock (this.SyncObject)
             {
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
+                if (this.OperationMap.Values.Where(v => v.Status is AsyncOperationStatus.Enabled).Count() is 1)
+                {
+                    return 0;
+                }
+
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, out int next))
+                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, positiveDelay, out int next))
                 {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }

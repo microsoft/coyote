@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// with an increment of 10 and an upper bound of 5000ms per operation.
         /// </remarks>
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+            int maxValue, bool positiveDelay, out int next)
         {
             Guid id = this.GetOperationId();
 
@@ -82,6 +82,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             this.StepCount++;
             return true;
+        }
+
+        internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
+        {
+            return this.RandomValueGenerator.Next(2) is 0 ? true : false;
         }
 
         /// <inheritdoc/>

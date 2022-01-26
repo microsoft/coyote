@@ -3,119 +3,228 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// A probabilistic fuzzing strategy.
+    /// A probabilistic priority-based scheduling strategy.
     /// </summary>
-    internal class PCTStrategy : FuzzingStrategy
+    /// <remarks>
+    /// This strategy is described in the following paper:
+    /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
+    /// </remarks>
+    internal sealed class PCTStrategy : FuzzingStrategy
     {
         /// <summary>
         /// Random value generator.
         /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
+        private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
         /// The maximum number of steps to explore.
         /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
-        /// The maximum number of steps after which we should reshuffle the probabilities.
-        /// </summary>
-        protected readonly int PriorityChangePoints;
-
-        /// <summary>
-        /// Set of low priority operations.
-        /// </summary>
-        /// <remarks>
-        /// Tasks in this set will experience more delay.
-        /// </remarks>
-        private readonly List<Guid> LowPrioritySet;
-
-        /// <summary>
-        /// Set of high priority operations.
-        /// </summary>
-        private readonly List<Guid> HighPrioritySet;
-
-        /// <summary>
-        /// Probability with which operations should be alloted to the low priority set.
-        /// </summary>
-        private double LowPriorityProbability;
+        private readonly int MaxSteps;
 
         /// <summary>
         /// The number of exploration steps.
         /// </summary>
-        protected int StepCount;
+        private int StepCount;
+
+        /// <summary>
+        /// Max number of priority switch points.
+        /// </summary>
+        private readonly int MaxPrioritySwitchPoints;
+
+        /// <summary>
+        /// Approximate length of the schedule across all iterations.
+        /// </summary>
+        private int ScheduleLength;
+
+        /// <summary>
+        /// List of prioritized operations.
+        /// </summary>
+        private readonly List<AsyncOperation> PrioritizedOperations;
+
+        /// <summary>
+        /// Scheduling points in the current execution where a priority change should occur.
+        /// </summary>
+        private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(int maxDelays, IRandomValueGenerator random, int priorityChangePoints)
+        internal PCTStrategy(int maxSteps, IRandomValueGenerator generator, int maxPrioritySwitchPoints)
         {
-            this.RandomValueGenerator = random;
-            this.MaxSteps = maxDelays;
-            this.PriorityChangePoints = priorityChangePoints;
-            this.HighPrioritySet = new List<Guid>();
-            this.LowPrioritySet = new List<Guid>();
-            this.LowPriorityProbability = 0;
+            this.RandomValueGenerator = generator;
+            this.MaxSteps = maxSteps;
+            this.StepCount = 0;
+            this.ScheduleLength = 0;
+            this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
+            this.PrioritizedOperations = new List<AsyncOperation>();
+            this.PriorityChangePoints = new HashSet<int>();
         }
 
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            this.StepCount = 0;
-            this.LowPrioritySet.Clear();
-            this.HighPrioritySet.Clear();
+            // The first iteration has no knowledge of the execution, so only initialize from the second
+            // iteration and onwards. Note that although we could initialize the first length based on a
+            // heuristic, its not worth it, as the strategy will typically explore thousands of iterations,
+            // plus its also interesting to explore a schedule with no forced priority switch points.
+            if (iteration > 0)
+            {
+                this.ScheduleLength = Math.Max(this.ScheduleLength, this.StepCount);
+                this.StepCount = 0;
 
-            // Change the probability of a task to be assigned to the low priority set after each iteration.
-            this.LowPriorityProbability = this.LowPriorityProbability >= 0.8 ? 0 : this.LowPriorityProbability + 0.1;
+                this.PrioritizedOperations.Clear();
+                this.PriorityChangePoints.Clear();
+
+                var range = Enumerable.Range(0, this.ScheduleLength);
+                foreach (int point in this.Shuffle(range).Take(this.MaxPrioritySwitchPoints))
+                {
+                    this.PriorityChangePoints.Add(point);
+                }
+
+                this.DebugPrintPriorityChangePoints();
+            }
 
             return true;
         }
 
-        /// <inheritdoc/>
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, out int next)
+            int maxValue, bool positiveDelay, out int next)
         {
-            Guid id = this.GetOperationId();
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
 
-            this.StepCount++;
-
-            // Reshuffle the probabilities after every (this.MaxSteps / this.PriorityChangePoints) steps.
-            if (this.StepCount % (this.MaxSteps / this.PriorityChangePoints) == 0)
+            if (positiveDelay)
             {
-                this.LowPrioritySet.Clear();
-                this.HighPrioritySet.Clear();
-            }
-
-            // If this task is not assigned to any priority set, then randomly assign it to one of the two sets.
-            if (!this.LowPrioritySet.Contains(id) && !this.HighPrioritySet.Contains(id))
-            {
-                if (this.RandomValueGenerator.NextDouble() < this.LowPriorityProbability)
-                {
-                    this.LowPrioritySet.Add(id);
-                }
-                else
-                {
-                    this.HighPrioritySet.Add(id);
-                }
-            }
-
-            // Choose a random delay if this task is in the low priority set.
-            if (this.LowPrioritySet.Contains(id))
-            {
-                next = this.RandomValueGenerator.Next(maxValue) * 5;
+                next = this.RandomValueGenerator.Next(maxValue - 1) + 1;
             }
             else
             {
-                next = 0;
+                next = this.RandomValueGenerator.Next(maxValue);
             }
 
             return true;
         }
+
+        internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
+        {
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
+
+            if (highestEnabledOperation.Equals(current))
+            {
+                return true;
+            }
+
+            return this.RandomValueGenerator.Next(2) is 0 ? true : false;
+        }
+
+        /// <inheritdoc/>
+        internal bool UpdateAndGetHighestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            out AsyncOperation highestEnabledOperation)
+        {
+            highestEnabledOperation = null;
+            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            if (enabledOps.Count is 0)
+            {
+                return false;
+            }
+
+            this.SetNewOperationPriorities(enabledOps, current);
+            this.DeprioritizeEnabledOperationWithHighestPriority(enabledOps);
+            this.DebugPrintOperationPriorityList();
+
+            highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
+            return true;
+        }
+
+        /// <summary>
+        /// Sets the priority of new operations, if there are any.
+        /// </summary>
+        private void SetNewOperationPriorities(List<AsyncOperation> ops, AsyncOperation current)
+        {
+            if (this.PrioritizedOperations.Count is 0)
+            {
+                this.PrioritizedOperations.Add(current);
+            }
+
+            // Randomize the priority of all new operations.
+            foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
+            {
+                // Randomly choose a priority for this operation.
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
+                this.PrioritizedOperations.Insert(index, op);
+                Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
+            }
+        }
+
+        /// <summary>
+        /// Deprioritizes the enabled operation with the highest priority, if there is a
+        /// priotity change point installed on the current execution step.
+        /// </summary>
+        private void DeprioritizeEnabledOperationWithHighestPriority(List<AsyncOperation> ops)
+        {
+            if (ops.Count <= 1)
+            {
+                // Nothing to do, there is only one enabled operation available.
+                return;
+            }
+
+            AsyncOperation deprioritizedOperation = null;
+            if (this.PriorityChangePoints.Contains(this.StepCount))
+            {
+                // This scheduling step was chosen as a priority switch point.
+                deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
+                Debug.WriteLine("<PCTLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
+            }
+
+            if (deprioritizedOperation != null)
+            {
+                // Deprioritize the operation by putting it in the end of the list.
+                this.PrioritizedOperations.Remove(deprioritizedOperation);
+                this.PrioritizedOperations.Add(deprioritizedOperation);
+            }
+        }
+
+        /// <summary>
+        /// Returns the enabled operation with the highest priority.
+        /// </summary>
+        private AsyncOperation GetEnabledOperationWithHighestPriority(List<AsyncOperation> ops)
+        {
+            foreach (var entity in this.PrioritizedOperations)
+            {
+                if (ops.Any(m => m == entity))
+                {
+                    return entity;
+                }
+            }
+
+            return null;
+        }
+
+        // /// <inheritdoc/>
+        // internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        // {
+        //     next = false;
+        //     if (this.RandomValueGenerator.Next(maxValue) is 0)
+        //     {
+        //         next = true;
+        //     }
+        //     this.StepCount++;
+        //     return true;
+        // }
+
+        // /// <inheritdoc/>
+        // internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        // {
+        //     next = this.RandomValueGenerator.Next(maxValue);
+        //     this.StepCount++;
+        //     return true;
+        // }
 
         /// <inheritdoc/>
         internal override int GetStepCount() => this.StepCount;
@@ -132,9 +241,79 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool IsFair() => true;
+        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"pct[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription()
+        {
+            var text = $"pct[seed '" + this.RandomValueGenerator.Seed + "']";
+            return text;
+        }
+
+        /// <summary>
+        /// Shuffles the specified range using the Fisher-Yates algorithm.
+        /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle.
+        /// </remarks>
+        private IList<int> Shuffle(IEnumerable<int> range)
+        {
+            var result = new List<int>(range);
+            for (int idx = result.Count - 1; idx >= 1; idx--)
+            {
+                int point = this.RandomValueGenerator.Next(result.Count);
+                int temp = result[idx];
+                result[idx] = result[point];
+                result[point] = temp;
+            }
+
+            return result;
+        }
+
+        // /// <inheritdoc/>
+        // internal override void Reset()
+        // {
+        //     this.ScheduleLength = 0;
+        //     this.StepCount = 0;
+        //     this.PrioritizedOperations.Clear();
+        //     this.PriorityChangePoints.Clear();
+        // }
+
+        /// <summary>
+        /// Print the operation priority list, if debug is enabled.
+        /// </summary>
+        private void DebugPrintOperationPriorityList()
+        {
+            if (Debug.IsEnabled)
+            {
+                Debug.Write("<PCTLog> operation priority list: ");
+                for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
+                {
+                    if (idx < this.PrioritizedOperations.Count - 1)
+                    {
+                        Debug.Write("'{0}', ", this.PrioritizedOperations[idx].Name);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("'{0}'.", this.PrioritizedOperations[idx].Name);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Print the priority change points, if debug is enabled.
+        /// </summary>
+        private void DebugPrintPriorityChangePoints()
+        {
+            if (Debug.IsEnabled)
+            {
+                // Sort them before printing for readability.
+                var sortedChangePoints = this.PriorityChangePoints.ToArray();
+                Array.Sort(sortedChangePoints);
+                Debug.WriteLine("<PCTLog> next priority change points ('{0}' in total): {1}",
+                    sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
+            }
+        }
     }
 }

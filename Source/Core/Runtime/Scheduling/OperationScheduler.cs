@@ -167,10 +167,19 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="ops">Operations executing during the current test iteration.</param>
         /// <param name="current">The operation requesting the delay.</param>
         /// <param name="maxValue">The max value.</param>
+        /// <param name="positiveDelay">Choice for positive delays.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current, int maxValue, out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
+        internal bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current, int maxValue, bool positiveDelay, out int next) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, positiveDelay, out next);
+
+        /// <summary>
+        /// Chooses whether to delay the current operation for longer.
+        /// </summary>
+        /// <param name="ops">Operations executing during the current test iteration.</param>
+        /// <param name="current">The operation requesting the delay.</param>
+        internal bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current) =>
+            (this.Strategy as FuzzingStrategy).GetNextRecursiveDelayChoice(ops, current);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

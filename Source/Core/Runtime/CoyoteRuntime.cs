@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.Runtime
         {
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
-            System.Console.WriteLine($">>>> NEW RUNTIME {this.Id}");
+            IO.Debug.WriteLine($">>>> NEW RUNTIME {this.Id}");
 
             this.Configuration = configuration;
             this.Scheduler = scheduler;
@@ -1220,10 +1220,9 @@ namespace Microsoft.Coyote.Runtime
         private void TryResolveUncontrolledConcurrency(Task task)
         {
             int retries = 0;
-            int delay = 10;
             while (!task.IsCompleted && retries < 5)
             {
-                Thread.Sleep(delay);
+                Thread.Sleep((int)this.Configuration.TimeoutDelay);
                 lock (this.SyncObject)
                 {
                     IO.Debug.WriteLine("<CoyoteDebug> Trying to resolve uncontrolled concurrency at thread '{0}'.",
@@ -1239,7 +1238,6 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 retries++;
-                delay *= 5;
             }
         }
 

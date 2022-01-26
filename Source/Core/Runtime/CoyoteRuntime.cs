@@ -768,11 +768,12 @@ namespace Microsoft.Coyote.Runtime
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
         /// <param name="type">Type of the operation.</param>
+        /// <param name="isExplicit">True if this is an explicit interleaving, else false.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(AsyncOperationType type, bool isYielding = false)
+        internal void ScheduleNextOperation(AsyncOperationType type, bool isExplicit = false, bool isYielding = false)
         {
             int retries = 0;
             int delay = 10;
@@ -802,9 +803,10 @@ namespace Microsoft.Coyote.Runtime
                     goto Done;
                 }
 
-                if (this.IsSchedulingSuppressed && current.Status is AsyncOperationStatus.Enabled)
+                if (!isExplicit && this.IsSchedulingSuppressed && current.Status is AsyncOperationStatus.Enabled)
                 {
                     // Suppress the interleaving.
+                    IO.Debug.WriteLine("<CoyoteDebug> Supressing interleaving of operation '{0}'.", current.Name);
                     goto Done;
                 }
 
@@ -1836,6 +1838,15 @@ namespace Microsoft.Coyote.Runtime
             }
 
             this.OnFailure?.Invoke(exception);
+        }
+
+        internal void LogStuff()
+        {
+            lock (this.SyncObject)
+            {
+                Console.WriteLine($"Ops: {this.OperationMap.Count}");
+                Console.WriteLine($"Steps: {this.Scheduler.StepCount}");
+            }
         }
 
         /// <summary>

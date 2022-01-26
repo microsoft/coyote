@@ -472,7 +472,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 return false;
             }
 
-            if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
+            // if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
             {
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
 
@@ -573,6 +573,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetOut(stdOut);
                     Console.SetError(stdErr);
                 }
+
+                runtime.LogStuff();
 
                 if (runtime.IsUncontrolledConcurrencyDetected)
                 {

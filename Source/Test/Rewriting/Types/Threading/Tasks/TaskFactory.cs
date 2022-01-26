@@ -89,88 +89,164 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates and starts a task.
         /// </summary>
         public static SystemTask StartNew(SystemTaskFactory factory, Action action) =>
-            StartNew(factory, action, SystemCancellationToken.None);
+            StartNew(factory, action, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
-        public static SystemTask StartNew(SystemTaskFactory factory, Action action, SystemCancellationToken cancellationToken)
+        public static SystemTask StartNew(SystemTaskFactory factory, Action action,
+            SystemCancellationToken cancellationToken) =>
+            StartNew(factory, action, cancellationToken, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTask StartNew(SystemTaskFactory factory, Action action,
+            SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, action, SystemCancellationToken.None, creationOptions, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTask StartNew(SystemTaskFactory factory, Action action, SystemCancellationToken cancellationToken,
+            SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(action, cancellationToken);
+                return factory.StartNew(action, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(action, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public static SystemTask StartNew(SystemTaskFactory factory, Action<object> action, object state) =>
-            StartNew(factory, action, state, SystemCancellationToken.None);
+            StartNew(factory, action, state, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public static SystemTask StartNew(SystemTaskFactory factory, Action<object> action, object state,
-            SystemCancellationToken cancellationToken)
+            SystemCancellationToken cancellationToken) =>
+            StartNew(factory, action, state, cancellationToken, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTask StartNew(SystemTaskFactory factory, Action<object> action, object state,
+            SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, action, state, SystemCancellationToken.None, creationOptions, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTask StartNew(SystemTaskFactory factory, Action<object> action, object state,
+            SystemCancellationToken cancellationToken, SystemTaskCreationOptions creationOptions,
+            SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(action, state, cancellationToken);
+                return factory.StartNew(action, state, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(action, state, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
 
         /// <summary>
-        /// Creates and starts a generic task.
+        /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory, Func<TResult> function) =>
-            StartNew(factory, function, SystemCancellationToken.None);
+            StartNew(factory, function, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
-        /// Creates and starts a generic task.
+        /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory, Func<TResult> function,
-            SystemCancellationToken cancellationToken)
+            SystemCancellationToken cancellationToken) =>
+            StartNew(factory, function, cancellationToken, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory, Func<TResult> function,
+            SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, function, SystemCancellationToken.None, creationOptions, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory, Func<TResult> function,
+            SystemCancellationToken cancellationToken, SystemTaskCreationOptions creationOptions,
+            SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(function, cancellationToken);
+                return factory.StartNew(function, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(function, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
 
         /// <summary>
-        /// Creates and starts a generic task.
+        /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory,
             Func<object, TResult> function, object state) =>
-            StartNew(factory, function, state, SystemCancellationToken.None);
+            StartNew(factory, function, state, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
-        /// Creates and starts a generic task.
+        /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory,
-            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken)
+            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken) =>
+            StartNew(factory, function, state, cancellationToken, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory,
+            Func<object, TResult> function, object state, SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, function, state, SystemCancellationToken.None, creationOptions,
+            SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew<TResult>(SystemTaskFactory factory,
+            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken,
+            SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(function, state, cancellationToken);
+                return factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(function, state, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
     }
 
@@ -248,22 +324,40 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory, Func<TResult> function) =>
-            StartNew(factory, function, SystemCancellationToken.None);
+            StartNew(factory, function, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
-            Func<TResult> function, SystemCancellationToken cancellationToken)
+            Func<TResult> function, SystemCancellationToken cancellationToken) =>
+            StartNew(factory, function, cancellationToken, SystemTaskCreationOptions.None, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<TResult> function, SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, function, SystemCancellationToken.None, creationOptions, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<TResult> function, SystemCancellationToken cancellationToken,
+            SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(function, cancellationToken);
+                return factory.StartNew(function, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(function, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
 
         /// <summary>
@@ -271,22 +365,41 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
             Func<object, TResult> function, object state) =>
-            StartNew(factory, function, state, SystemCancellationToken.None);
+            StartNew(factory, function, state, SystemCancellationToken.None, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
 
         /// <summary>
         /// Creates and starts a task.
         /// </summary>
         public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
-            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken)
+            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken) =>
+            StartNew(factory, function, state, cancellationToken, SystemTaskCreationOptions.None,
+                SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<object, TResult> function, object state, SystemTaskCreationOptions creationOptions) =>
+            StartNew(factory, function, state, SystemCancellationToken.None, creationOptions, SystemTaskScheduler.Default);
+
+        /// <summary>
+        /// Creates and starts a task.
+        /// </summary>
+        public static SystemTasks.Task<TResult> StartNew(SystemTasks.TaskFactory<TResult> factory,
+            Func<object, TResult> function, object state, SystemCancellationToken cancellationToken,
+            SystemTaskCreationOptions creationOptions, SystemTaskScheduler scheduler)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None ||
+                scheduler.GetType() != SystemTaskScheduler.Default.GetType())
             {
-                return factory.StartNew(function, state, cancellationToken);
+                return factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
             }
 
             return runtime.TaskFactory.StartNew(function, state, cancellationToken,
-                runtime.TaskFactory.CreationOptions, runtime.TaskFactory.Scheduler);
+                runtime.TaskFactory.CreationOptions | creationOptions,
+                runtime.TaskFactory.Scheduler);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }

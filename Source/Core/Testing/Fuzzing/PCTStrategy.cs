@@ -97,9 +97,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             int maxValue, bool positiveDelay, out int next)
         {
-            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
+            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
 
-            if (positiveDelay)
+            // if (positiveDelay)
+            if (lowestEnabledOperation.Equals(current))
             {
                 next = this.RandomValueGenerator.Next(maxValue - 1) + 1;
             }
@@ -113,9 +114,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
-            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
+            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
 
-            if (highestEnabledOperation.Equals(current))
+            if (lowestEnabledOperation.Equals(current))
             {
                 return true;
             }
@@ -124,10 +125,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal bool UpdateAndGetHighestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            out AsyncOperation highestEnabledOperation)
+        internal bool UpdateAndGetLowestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            out AsyncOperation lowestEnabledOperation)
         {
-            highestEnabledOperation = null;
+            lowestEnabledOperation = null;
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOps.Count is 0)
             {
@@ -138,7 +139,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.DeprioritizeEnabledOperationWithHighestPriority(enabledOps);
             this.DebugPrintOperationPriorityList();
 
-            highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
+            lowestEnabledOperation = this.GetEnabledOperationWithLowestPriority(enabledOps);
             return true;
         }
 
@@ -155,8 +156,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Randomize the priority of all new operations.
             foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
             {
-                // Randomly choose a priority for this operation.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
+                // Randomly choose a priority for this operation between the lowest and the highest priority.
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count - 1) + 1;
                 this.PrioritizedOperations.Insert(index, op);
                 Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
             }
@@ -188,6 +189,22 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.PrioritizedOperations.Remove(deprioritizedOperation);
                 this.PrioritizedOperations.Add(deprioritizedOperation);
             }
+        }
+
+        /// <summary>
+        /// Returns the enabled operation with the lowest priority.
+        /// </summary>
+        private AsyncOperation GetEnabledOperationWithLowestPriority(List<AsyncOperation> ops)
+        {
+            foreach (var entity in this.PrioritizedOperations.Reverse<AsyncOperation>())
+            {
+                if (ops.Any(m => m == entity))
+                {
+                    return entity;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

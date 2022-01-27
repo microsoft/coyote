@@ -918,6 +918,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void DelayOperation(bool positiveDelay = false)
         {
+            RecursiveDelay:
             int delay = 0;
             AsyncOperation current = null;
             lock (this.SyncObject)
@@ -944,12 +945,12 @@ namespace Microsoft.Coyote.Runtime
                 current.Status = AsyncOperationStatus.Delayed;
                 Thread.Sleep(delay);
                 current.Status = previousStatus;
-            }
-
-            // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
-            if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
-            {
-                this.DelayOperation(true);
+                goto RecursiveDelay;
+                // // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
+                // if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
+                // {
+                //     this.DelayOperation(true);
+                // }
             }
         }
 

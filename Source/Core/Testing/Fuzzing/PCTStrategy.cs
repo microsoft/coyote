@@ -97,13 +97,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             int maxValue, bool positiveDelay, out int next)
         {
+            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
+
             // if the number of delayed operations exceeds k, then don't delay the current operation. k has been chosen to be 1.
             if (ops.Where(op => op.Status is AsyncOperationStatus.Delayed).Count() > 1)
             {
                 next = 0;
             }
-
-            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
 
             // if (positiveDelay)
             if (lowestEnabledOperation.Equals(current))
@@ -115,6 +115,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 next = this.RandomValueGenerator.Next(maxValue);
             }
 
+            this.StepCount++;
             return true;
         }
 

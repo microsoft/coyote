@@ -39,14 +39,15 @@ namespace Microsoft.Coyote.Utilities
             basicGroup.AddArgument("break", "b", "Attaches the debugger and also adds a breakpoint when an assertion fails (disabled during parallel testing)", typeof(bool));
             basicGroup.AddArgument("version", null, "Show tool version", typeof(bool));
 
-            var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
+            var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
             testingGroup.AddArgument("timeout", "t", "Timeout in seconds after which no more testing iterations will run (disabled by default)", typeof(uint));
-            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
+            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
+            testingGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during systematic testing", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
@@ -425,6 +426,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "deadlock-timeout":
                     configuration.DeadlockTimeout = (uint)option.Value;
+                    break;
+                case "uncontrolled-concurrency-timeout":
+                    configuration.UncontrolledConcurrencyTimeout = (uint)option.Value;
                     break;
                 case "max-steps":
                     {

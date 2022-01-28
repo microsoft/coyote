@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             public override bool Wait(int millisecondsTimeout, SystemCancellationToken cancellationToken)
             {
                 // TODO: support cancellations during testing.
-                this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
+                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Join);
 
                 // We need this loop, because when a resource gets released it notifies all asynchronous
                 // operations waiting to acquire it, even if such an operation is still blocked.
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 // This must be called outside the context of the semaphore, because it notifies
                 // the scheduler to try schedule another asynchronous operation that could in turn
                 // try to acquire this semaphore causing a deadlock.
-                this.Resource.Runtime.ScheduleNextOperation(AsyncOperationType.Release);
+                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Release);
             }
         }
     }

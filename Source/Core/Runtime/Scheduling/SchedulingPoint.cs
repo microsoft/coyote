@@ -13,19 +13,19 @@ namespace Microsoft.Coyote.Runtime
     public static class SchedulingPoint
     {
         /// <summary>
-        /// Explores a possible interleaving with another operation during testing.
+        /// Explores a possible interleaving with another controlled operation.
         /// </summary>
         public static void Interleave()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Default, isExplicit: true);
+                runtime.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
             }
         }
 
         /// <summary>
-        /// Yields execution to another operation during testing.
+        /// Yields execution to another controlled operation.
         /// </summary>
         /// <remarks>
         /// Invoking this method can lower the scheduling priority of the currently executing
@@ -36,12 +36,12 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Yield, isExplicit: true, isYielding: true);
+                runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
             }
         }
 
         /// <summary>
-        /// Suppresses interleavings during testing until <see cref="Resume"/> is invoked.
+        /// Suppresses interleavings until <see cref="Resume"/> is invoked.
         /// </summary>
         /// <remarks>
         /// This method does not suppress interleavings that happen when an operation is waiting
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Resumes interleavings during testing due to an invoked <see cref="Suppress"/>.
+        /// Resumes interleavings that were suppressed by invoking <see cref="Suppress"/>.
         /// </summary>
         public static void Resume()
         {

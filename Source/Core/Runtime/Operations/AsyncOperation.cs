@@ -27,9 +27,9 @@ namespace Microsoft.Coyote.Runtime
         internal AsyncOperationStatus Status;
 
         /// <summary>
-        /// The type of the operation.
+        /// The type of the last encountered scheduling point.
         /// </summary>
-        internal AsyncOperationType Type;
+        internal SchedulingPointType SchedulingPoint;
 
         /// <summary>
         /// A value that represents the hashed program state when
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Runtime
             this.Id = operationId;
             this.Name = name;
             this.Status = AsyncOperationStatus.None;
-            this.Type = AsyncOperationType.Start;
+            this.SchedulingPoint = SchedulingPointType.Start;
         }
 
         /// <summary>

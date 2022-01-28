@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,18 +24,12 @@ namespace Microsoft.Coyote.Runtime
         public static void ThrowIfThreadInterruptedException(object exception)
         {
             // TODO: only re-throw an exception thrown by the runtime upon detach.
-            if (exception is ThreadInterruptedException)
+            Exception ex = exception as Exception;
+            if (ex?.GetBaseException() is ThreadInterruptedException)
             {
-                throw (Exception)exception;
-            }
-
-            if (exception is Exception ex)
-            {
-                // Look inside in case this is some sort of auto-wrapped AggregateException.
-                if (ex.InnerException != null)
-                {
-                    ThrowIfThreadInterruptedException(ex.InnerException);
-                }
+                IO.Debug.WriteLine("=====> ThreadInterruptedException thrown by the runtime:\n1-{0}\n2-{1}",
+                    ex, new System.Diagnostics.StackTrace());
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
         }
 

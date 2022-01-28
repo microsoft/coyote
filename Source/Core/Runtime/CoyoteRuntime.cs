@@ -1815,7 +1815,7 @@ namespace Microsoft.Coyote.Runtime
         internal void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception exception)
         {
             string message = null;
-            if (UnwrapException(exception) is ThreadInterruptedException)
+            if (exception.GetBaseException() is ThreadInterruptedException)
             {
                 // Ignore this exception, its thrown by the runtime.
                 IO.Debug.WriteLine("<CoyoteDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",
@@ -1843,19 +1843,6 @@ namespace Microsoft.Coyote.Runtime
                 // Report the unhandled exception.
                 this.NotifyUnhandledException(exception, message);
             }
-        }
-
-        /// <summary>
-        /// Unwraps the specified exception.
-        /// </summary>
-        private static Exception UnwrapException(Exception exception)
-        {
-            while (exception is TargetInvocationException)
-            {
-                exception = exception.InnerException;
-            }
-
-            return exception;
         }
 
         /// <summary>

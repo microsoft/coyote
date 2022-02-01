@@ -1,6 +1,6 @@
 # SchedulingPoint.Interleave method
 
-Explores a possible interleaving with another operation during testing.
+Explores a possible interleaving with another controlled operation.
 
 ```csharp
 public static void Interleave()

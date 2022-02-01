@@ -1,9 +1,9 @@
-# TestReport.MaxUnfairStepsHitInFairTests property
+# TestReport.TotalControlledOperations property
 
-Number of times the unfair max steps bound was hit in fair tests.
+The total number of controlled operations.
 
 ```csharp
-public int MaxUnfairStepsHitInFairTests { get; }
+public int TotalControlledOperations { get; }
 ```
 
 ## See Also

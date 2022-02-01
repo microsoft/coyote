@@ -45,6 +45,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay
         - name: WithDeadlockTimeout
           link: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout
+        - name: WithUncontrolledConcurrencyTimeout
+          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
         - name: WithIncrementalSeedGenerationEnabled
@@ -71,22 +73,18 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
         - name: MaxFairSchedulingSteps
           link: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
-        - name: StrategyBound
-          link: ref/Microsoft.Coyote/Configuration/StrategyBound
         - name: TimeoutDelay
           link: ref/Microsoft.Coyote/Configuration/TimeoutDelay
+        - name: DeadlockTimeout
+          link: ref/Microsoft.Coyote/Configuration/DeadlockTimeout
+        - name: UncontrolledConcurrencyTimeout
+          link: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout
         - name: LivenessTemperatureThreshold
           link: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
         - name: IsVerbose
           link: ref/Microsoft.Coyote/Configuration/IsVerbose
         - name: LogLevel
           link: ref/Microsoft.Coyote/Configuration/LogLevel
-        - name: ReportActivityCoverage
-          link: ref/Microsoft.Coyote/Configuration/ReportActivityCoverage
-        - name: IsDgmlGraphEnabled
-          link: ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled
-        - name: IsXmlLogEnabled
-          link: ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled
     - name: Microsoft.Coyote.Actors
       link: ref/Microsoft.Coyote.ActorsNamespace
       subfolderitems:
@@ -995,6 +993,12 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
         - name: UncontrolledInvocations
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/UncontrolledInvocations
+        - name: MinControlledOperations
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinControlledOperations
+        - name: MaxControlledOperations
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxControlledOperations
+        - name: TotalControlledOperations
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalControlledOperations
         - name: MinExploredFairSteps
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
         - name: MaxExploredFairSteps

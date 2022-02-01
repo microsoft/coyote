@@ -1,6 +1,6 @@
 # Configuration.WithDeadlockTimeout method
 
-Updates the DeadlockTimeout value that controls how much time the deadlock monitor should wait during concurrency fuzzing before reporting a potential deadlock.
+Updates the value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock.
 
 ```csharp
 public Configuration WithDeadlockTimeout(uint timeout)
@@ -8,7 +8,7 @@ public Configuration WithDeadlockTimeout(uint timeout)
 
 | parameter | description |
 | --- | --- |
-| timeout | The deadlock timeout value in milliseconds. |
+| timeout | The timeout value in milliseconds, which by default is 5000. |
 
 ## Remarks
 

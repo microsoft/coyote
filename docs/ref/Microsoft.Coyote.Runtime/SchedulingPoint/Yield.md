@@ -1,6 +1,6 @@
 # SchedulingPoint.Yield method
 
-Yields execution to another operation during testing.
+Yields execution to another controlled operation.
 
 ```csharp
 public static void Yield()

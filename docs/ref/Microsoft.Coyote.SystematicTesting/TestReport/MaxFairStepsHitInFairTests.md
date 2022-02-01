@@ -1,6 +1,6 @@
 # TestReport.MaxFairStepsHitInFairTests property
 
-Number of times the fair max steps bound was hit, in fair tests.
+Number of times the fair max steps bound was hit in fair tests.
 
 ```csharp
 public int MaxFairStepsHitInFairTests { get; }

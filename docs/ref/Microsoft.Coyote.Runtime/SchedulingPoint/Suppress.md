@@ -1,6 +1,6 @@
 # SchedulingPoint.Suppress method
 
-Suppresses interleavings during testing until [`Resume`](Resume.md) is invoked.
+Suppresses interleavings until [`Resume`](Resume.md) is invoked.
 
 ```csharp
 public static void Suppress()

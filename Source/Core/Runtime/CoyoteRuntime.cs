@@ -446,7 +446,7 @@ namespace Microsoft.Coyote.Runtime
 
                     callback();
                     this.CompleteOperation(op);
-                    this.ScheduleNextOperation(AsyncOperationType.Stop);
+                    this.ScheduleNextOperation(SchedulingPointType.Stop);
                 }
                 catch (Exception ex)
                 {
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.Runtime
             this.WaitOperationStart(op);
             if (this.ControlledThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
             {
-                this.ScheduleNextOperation(AsyncOperationType.Create);
+                this.ScheduleNextOperation(SchedulingPointType.Create);
             }
         }
 
@@ -510,7 +510,7 @@ namespace Microsoft.Coyote.Runtime
                     this.ControlledTaskScheduler.ExecuteTask(task);
 
                     this.CompleteOperation(op);
-                    this.ScheduleNextOperation(AsyncOperationType.Stop);
+                    this.ScheduleNextOperation(SchedulingPointType.Stop);
                 }
                 catch (Exception ex)
                 {
@@ -536,7 +536,7 @@ namespace Microsoft.Coyote.Runtime
             this.WaitOperationStart(op);
             if (this.ControlledThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
             {
-                this.ScheduleNextOperation(AsyncOperationType.Create);
+                this.ScheduleNextOperation(SchedulingPointType.Create);
             }
         }
 
@@ -570,7 +570,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     var delayedOp = state as TaskOperation;
                     delayedOp.Status = AsyncOperationStatus.Delayed;
-                    this.ScheduleNextOperation(AsyncOperationType.Yield);
+                    this.ScheduleNextOperation(SchedulingPointType.Yield);
                 },
                 op,
                 cancellationToken,
@@ -673,7 +673,7 @@ namespace Microsoft.Coyote.Runtime
                     if (op.JoinDependencies.Count > 0)
                     {
                         op.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                        this.ScheduleNextOperation(AsyncOperationType.Join);
+                        this.ScheduleNextOperation(SchedulingPointType.Join);
                     }
                 }
             }
@@ -714,7 +714,7 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                 op.JoinDependencies.Add(task);
                 op.Status = AsyncOperationStatus.BlockedOnWaitAll;
-                this.ScheduleNextOperation(AsyncOperationType.Join);
+                this.ScheduleNextOperation(SchedulingPointType.Join);
             }
         }
 
@@ -765,7 +765,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(AsyncOperationType type, bool isYielding = false)
+        internal void ScheduleNextOperation(SchedulingPointType type, bool isYielding = false)
         {
             int retries = 0;
             int delay = 10;
@@ -804,8 +804,8 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
-                // Update the operation type.
-                current.Type = type;
+                // Update metadata related to this scheduling point.
+                current.SchedulingPoint = type;
 
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
@@ -1288,12 +1288,12 @@ namespace Microsoft.Coyote.Runtime
                     if (operation is ActorOperation actorOperation)
                     {
                         int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
-                        operationHash = (operationHash * 31) + actorOperation.Type.GetHashCode();
+                        operationHash = (operationHash * 31) + actorOperation.SchedulingPoint.GetHashCode();
                         hash *= operationHash;
                     }
                     else if (operation is TaskOperation taskOperation)
                     {
-                        hash *= 31 + taskOperation.Type.GetHashCode();
+                        hash *= 31 + taskOperation.SchedulingPoint.GetHashCode();
                     }
                 }
 

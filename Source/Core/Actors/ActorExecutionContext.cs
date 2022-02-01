@@ -1047,7 +1047,7 @@ namespace Microsoft.Coyote.Actors
 
                 // Using ulong.MaxValue because a Create operation cannot specify
                 // the id of its target, because the id does not exist yet.
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Create);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Create);
                 this.ResetProgramCounter(creator);
 
                 if (id is null)
@@ -1189,7 +1189,7 @@ namespace Microsoft.Coyote.Actors
                     "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                     e.GetType().FullName, targetId.Value);
 
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Send);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Send);
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
@@ -1371,7 +1371,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     // Skip the scheduling point, as this is the first dequeue of the event handler,
                     // to avoid unnecessary context switches.
-                    this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                    this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                     this.ResetProgramCounter(actor);
                 }
 
@@ -1382,14 +1382,14 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogDefaultEventDequeued(Actor actor)
             {
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal override void LogDefaultEventHandlerCheck(Actor actor) =>
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Default);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Default);
 
             /// <inheritdoc/>
             internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
@@ -1408,7 +1408,7 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
             {
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Halt);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Halt);
                 this.LogWriter.LogHalt(actor.Id, inboxSize);
             }
 
@@ -1428,7 +1428,7 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
                 this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
 
@@ -1446,7 +1446,7 @@ namespace Microsoft.Coyote.Actors
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 }
 
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Join);
                 this.ResetProgramCounter(actor);
             }
 

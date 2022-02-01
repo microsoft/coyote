@@ -1721,7 +1721,7 @@ namespace Microsoft.Coyote.Runtime
         {
             string message = null;
             Exception exception = UnwrapException(ex);
-            if (exception is ThreadInterruptedException)
+            if (exception.GetBaseException() is ThreadInterruptedException)
             {
                 // Ignore this exception, its thrown by the runtime.
                 IO.Debug.WriteLine("<CoyoteDebug> Controlled thread '{0}' executing operation '{1}' was interrupted.",

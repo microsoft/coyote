@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var taskFactory = runtime.TaskFactory;
             return taskFactory.StartNew(action, cancellationToken,
-                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach | SystemTaskCreationOptions.RunContinuationsAsynchronously,
+                taskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
                 taskFactory.Scheduler);
         }
 

@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.SystematicTesting
             arguments.Append($"--deadlock-timeout {configuration.DeadlockTimeout} ");
             arguments.Append($"--uncontrolled-concurrency-timeout {configuration.UncontrolledConcurrencyTimeout} ");
 
-            if (configuration.ReportCodeCoverage && configuration.ReportActivityCoverage)
+            if (configuration.ReportCodeCoverage && configuration.IsActivityCoverageReported)
             {
                 arguments.Append("--coverage ");
             }
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 arguments.Append("--coverage code ");
             }
-            else if (configuration.ReportActivityCoverage)
+            else if (configuration.IsActivityCoverageReported)
             {
                 arguments.Append("--coverage activity ");
             }

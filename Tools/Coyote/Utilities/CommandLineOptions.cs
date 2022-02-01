@@ -372,7 +372,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     if (option.Value is null)
                     {
                         configuration.ReportCodeCoverage = true;
-                        configuration.ReportActivityCoverage = true;
+                        configuration.IsActivityCoverageReported = true;
                     }
                     else
                     {
@@ -384,10 +384,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                                     configuration.ReportCodeCoverage = true;
                                     break;
                                 case "activity":
-                                    configuration.ReportActivityCoverage = true;
+                                    configuration.IsActivityCoverageReported = true;
                                     break;
                                 case "activity-debug":
-                                    configuration.ReportActivityCoverage = true;
+                                    configuration.IsActivityCoverageReported = true;
                                     configuration.DebugActivityCoverage = true;
                                     break;
                                 default:

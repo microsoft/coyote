@@ -128,7 +128,7 @@ nav:
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
         - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
-        - WithActivityCoverageEnabled: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled.md
+        - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
         - WithDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md

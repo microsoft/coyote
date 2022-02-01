@@ -22,7 +22,7 @@ public class Configuration
 | [TestingIterations](Configuration/TestingIterations.md) { get; } | Number of testing iterations. |
 | [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). |
 | [UncontrolledConcurrencyTimeout](Configuration/UncontrolledConcurrencyTimeout.md) { get; } | Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration. This value is in milliseconds. |
-| [WithActivityCoverageEnabled](Configuration/WithActivityCoverageEnabled.md)(…) | Updates the configuration with activity coverage enabled or disabled. |
+| [WithActivityCoverageReported](Configuration/WithActivityCoverageReported.md)(…) | Updates the configuration to enable or disable reporting activity coverage. |
 | [WithConcurrencyFuzzingEnabled](Configuration/WithConcurrencyFuzzingEnabled.md)(…) | Updates the configuration with concurrency fuzzing enabled or disabled. |
 | [WithConcurrencyFuzzingFallbackEnabled](Configuration/WithConcurrencyFuzzingFallbackEnabled.md)(…) | Updates the configuration with concurrency fuzzing fallback enabled or disabled. |
 | [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. |

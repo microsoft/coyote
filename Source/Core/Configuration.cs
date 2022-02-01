@@ -244,7 +244,7 @@ namespace Microsoft.Coyote
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
-        internal bool ReportActivityCoverage;
+        internal bool IsActivityCoverageReported;
 
         /// <summary>
         /// Enables activity coverage debugging.
@@ -394,7 +394,7 @@ namespace Microsoft.Coyote
             this.ScheduleTrace = string.Empty;
 
             this.ReportCodeCoverage = false;
-            this.ReportActivityCoverage = false;
+            this.IsActivityCoverageReported = false;
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
@@ -704,12 +704,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with activity coverage enabled or disabled.
+        /// Updates the configuration to enable or disable reporting activity coverage.
         /// </summary>
         /// <param name="isEnabled">If true, then enables activity coverage.</param>
-        public Configuration WithActivityCoverageEnabled(bool isEnabled = true)
+        public Configuration WithActivityCoverageReported(bool isEnabled = true)
         {
-            this.ReportActivityCoverage = isEnabled;
+            this.IsActivityCoverageReported = isEnabled;
             return this;
         }
 

@@ -53,8 +53,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled
         - name: WithVerbosityEnabled
           link: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
-        - name: WithActivityCoverageEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled
+        - name: WithActivityCoverageReported
+          link: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported
         - name: WithDgmlGraphEnabled
           link: ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled
         - name: WithXmlLogEnabled

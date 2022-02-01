@@ -1,9 +1,9 @@
-# Configuration.WithActivityCoverageEnabled method
+# Configuration.WithActivityCoverageReported method
 
-Updates the configuration with activity coverage enabled or disabled.
+Updates the configuration to enable or disable reporting activity coverage.
 
 ```csharp
-public Configuration WithActivityCoverageEnabled(bool isEnabled = true)
+public Configuration WithActivityCoverageReported(bool isEnabled = true)
 ```
 
 | parameter | description |

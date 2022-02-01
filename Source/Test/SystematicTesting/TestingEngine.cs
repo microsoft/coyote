@@ -746,7 +746,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <summary>
         /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
-        /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.ReportActivityCoverage"/> by setting up the
+        /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.IsActivityCoverageReported"/> by setting up the
         /// LogWriters on the given <see cref="IActorRuntime"/> object.
         /// </summary>
         private void InitializeCustomActorLogging(IActorRuntime runtime)
@@ -760,16 +760,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.ReportActivityCoverage)
+            if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.IsActivityCoverageReported)
             {
                 // Registers an activity coverage graph builder.
                 runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false)
                 {
-                    CollapseMachineInstances = this.Configuration.ReportActivityCoverage
+                    CollapseMachineInstances = this.Configuration.IsActivityCoverageReported
                 });
             }
 
-            if (this.Configuration.ReportActivityCoverage)
+            if (this.Configuration.IsActivityCoverageReported)
             {
                 // Need this additional logger to get the event coverage report correct
                 runtime.RegisterLog(new ActorRuntimeLogEventCoverage());
@@ -827,7 +827,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             TestReport report = new TestReport(this.Configuration);
             runtime.PopulateTestReport(report);
-            if (this.Configuration.ReportActivityCoverage)
+            if (this.Configuration.IsActivityCoverageReported)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;
             }

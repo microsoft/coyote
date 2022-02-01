@@ -4,67 +4,67 @@
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// The type of an asynchronous operation.
+    /// The type of a scheduling point.
     /// </summary>
-    internal enum AsyncOperationType
+    internal enum SchedulingPointType
     {
         /// <summary>
-        /// An asynchronous operation performs a default context switch.
+        /// The default scheduling point type.
         /// </summary>
         Default = 0,
 
         /// <summary>
-        /// An asynchronous operation starts executing.
+        /// A controlled operation starts executing.
         /// </summary>
         Start,
 
         /// <summary>
-        /// An asynchronous operation creates another asynchronous operation.
+        /// A controlled operation was created.
         /// </summary>
         Create,
 
         /// <summary>
-        /// An asynchronous operation sends an event.
+        /// A controlled operation sends an event.
         /// </summary>
         Send,
 
         /// <summary>
-        /// An asynchronous operation receives an event.
+        /// A controlled operation receives an event.
         /// </summary>
         Receive,
 
         /// <summary>
-        /// An asynchronous operation halts executing.
+        /// A controlled operation halts executing.
         /// </summary>
         Halt,
 
         /// <summary>
-        /// An asynchronous operation stops executing.
+        /// A controlled operation stops executing.
         /// </summary>
         Stop,
 
         /// <summary>
-        /// An asynchronous operation yields.
+        /// A controlled operation yields its execution.
         /// </summary>
         Yield,
 
         /// <summary>
-        /// An asynchronous operation acquires a synchronized resource.
+        /// A controlled operation acquires a synchronized resource.
         /// </summary>
         Acquire,
 
         /// <summary>
-        /// An asynchronous operation releases a synchronized resource.
+        /// A controlled operation releases a synchronized resource.
         /// </summary>
         Release,
 
         /// <summary>
-        /// An asynchronous operation waits for another asynchronous operation to stop.
+        /// A controlled operation waits for another operation to stop.
         /// </summary>
         Join,
 
         /// <summary>
-        /// An asynchronous task is injecting a failure to another task.
+        /// A controlled operation injects a failure.
         /// </summary>
         InjectFailure
     }

@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// step of the execution is represented by an operation and a value
         /// representing the program state after the operation executed.
         /// </summary>
-        private readonly LinkedList<(ulong op, AsyncOperationType type, int state)> ExecutionPath;
+        private readonly LinkedList<(ulong op, SchedulingPointType sp, int state)> ExecutionPath;
 
         /// <summary>
         /// Map from values representing program states to their transition
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             : base(maxSteps, random)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
-            this.ExecutionPath = new LinkedList<(ulong, AsyncOperationType, int)>();
+            this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();
             this.TransitionFrequencies = new Dictionary<int, ulong>();
             this.LastOperation = 0;
             this.LearningRate = 0.3;
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             int state = current.HashedProgramState;
 
             // Update the execution path with the current state.
-            this.ExecutionPath.AddLast((this.LastOperation, current.Type, state));
+            this.ExecutionPath.AddLast((this.LastOperation, current.SchedulingPoint, state));
 
             if (!this.TransitionFrequencies.ContainsKey(state))
             {
@@ -364,7 +364,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             while (node?.Next != null)
             {
                 var (_, _, state) = node.Value;
-                var (nextOp, nextType, nextState) = node.Next.Value;
+                var (nextOp, nextSp, nextState) = node.Next.Value;
 
                 // Compute the max Q value.
                 double maxQ = double.MinValue;
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 // Compute the reward. Program states that are visited with higher frequency result into lesser rewards.
                 var freq = this.TransitionFrequencies[nextState];
-                double reward = (nextType == AsyncOperationType.InjectFailure ?
+                double reward = (nextSp == SchedulingPointType.InjectFailure ?
                     this.FailureInjectionReward : this.BasicActionReward) * freq;
                 if (reward > 0)
                 {

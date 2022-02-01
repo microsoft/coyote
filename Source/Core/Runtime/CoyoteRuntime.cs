@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// True if interleavings of enabled operations are suppressed, else false.
         /// </summary>
-        private bool IsSchedulingSuppressed;
+        private bool IsSchedulerSuppressed;
 
         /// <summary>
         /// True if the last scheduling point was postponed. This happens if an uncontrolled
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.Runtime
             this.OperationIdCounter = 0;
             this.IsRunning = true;
             this.IsAttached = true;
-            this.IsSchedulingSuppressed = false;
+            this.IsSchedulerSuppressed = false;
             this.IsUncontrolledConcurrencyDetected = false;
             this.IsLastSchedulingPointPostponed = false;
             this.IsBugFound = false;
@@ -822,7 +822,7 @@ namespace Microsoft.Coyote.Runtime
                     return;
                 }
 
-                if (this.IsSchedulingSuppressed && !this.IsLastSchedulingPointPostponed &&
+                if (this.IsSchedulerSuppressed && !this.IsLastSchedulingPointPostponed &&
                     isSuppressible && current.Status is AsyncOperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
@@ -937,7 +937,7 @@ namespace Microsoft.Coyote.Runtime
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Suppressing scheduling of enabled operations.");
-                this.IsSchedulingSuppressed = true;
+                this.IsSchedulerSuppressed = true;
             }
         }
 
@@ -949,7 +949,7 @@ namespace Microsoft.Coyote.Runtime
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Resuming scheduling of enabled operations.");
-                this.IsSchedulingSuppressed = false;
+                this.IsSchedulerSuppressed = false;
             }
         }
 

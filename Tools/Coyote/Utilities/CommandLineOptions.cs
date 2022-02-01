@@ -43,10 +43,11 @@ namespace Microsoft.Coyote.Utilities
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
             testingGroup.AddArgument("timeout", "t", "Timeout in seconds after which no more testing iterations will run (disabled by default)", typeof(uint));
-            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
+            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
+            testingGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during testing", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
@@ -87,8 +88,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
             advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
-            advancedGroup.AddArgument("disable-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
-            advancedGroup.AddArgument("disable-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
+            advancedGroup.AddArgument("no-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
+            advancedGroup.AddArgument("no-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
@@ -250,14 +251,14 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
-                case "disable-partial-control":
-                    configuration.IsPartiallyControlledConcurrencyEnabled = false;
-                    break;
                 case "concurrency-fuzzing":
                 case "no-repro":
                     configuration.IsConcurrencyFuzzingEnabled = true;
                     break;
-                case "disable-fuzzing-fallback":
+                case "no-partial-control":
+                    configuration.IsPartiallyControlledConcurrencyEnabled = false;
+                    break;
+                case "no-fuzzing-fallback":
                     configuration.IsConcurrencyFuzzingFallbackEnabled = false;
                     break;
                 case "explore":
@@ -371,7 +372,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     if (option.Value is null)
                     {
                         configuration.ReportCodeCoverage = true;
-                        configuration.ReportActivityCoverage = true;
+                        configuration.IsActivityCoverageReported = true;
                     }
                     else
                     {
@@ -383,10 +384,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                                     configuration.ReportCodeCoverage = true;
                                     break;
                                 case "activity":
-                                    configuration.ReportActivityCoverage = true;
+                                    configuration.IsActivityCoverageReported = true;
                                     break;
                                 case "activity-debug":
-                                    configuration.ReportActivityCoverage = true;
+                                    configuration.IsActivityCoverageReported = true;
                                     configuration.DebugActivityCoverage = true;
                                     break;
                                 default:
@@ -425,6 +426,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "deadlock-timeout":
                     configuration.DeadlockTimeout = (uint)option.Value;
+                    break;
+                case "uncontrolled-concurrency-timeout":
+                    configuration.UncontrolledConcurrencyTimeout = (uint)option.Value;
                     break;
                 case "max-steps":
                     {

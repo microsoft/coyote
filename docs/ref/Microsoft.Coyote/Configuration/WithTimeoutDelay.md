@@ -1,6 +1,6 @@
 # Configuration.WithTimeoutDelay method
 
-Updates the [`TimeoutDelay`](TimeoutDelay.md) value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing.
+Updates the value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing.
 
 ```csharp
 public Configuration WithTimeoutDelay(uint delay)
@@ -8,7 +8,7 @@ public Configuration WithTimeoutDelay(uint delay)
 
 | parameter | description |
 | --- | --- |
-| delay | The timeout delay during testing. |
+| delay | The timeout delay during testing, which by default is 10. |
 
 ## Remarks
 

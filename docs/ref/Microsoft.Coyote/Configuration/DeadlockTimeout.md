@@ -1,9 +1,9 @@
-# Configuration.IsXmlLogEnabled property
+# Configuration.DeadlockTimeout property
 
-Produce an XML formatted runtime log file.
+Value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. This value is in milliseconds.
 
 ```csharp
-public bool IsXmlLogEnabled { get; }
+public uint DeadlockTimeout { get; }
 ```
 
 ## See Also

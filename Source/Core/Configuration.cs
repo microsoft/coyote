@@ -144,24 +144,30 @@ namespace Microsoft.Coyote
         /// A strategy-specific bound.
         /// </summary>
         [DataMember]
-        public int StrategyBound { get; internal set; }
+        internal int StrategyBound;
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time <see cref="Task.Delay(int)"/>
-        /// or a built-in timer is scheduled during systematic testing. Decrease the value to increase the
+        /// Value that controls the probability of triggering a timeout each time an operation gets delayed
+        /// or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the
         /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
-        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this
-        /// value is 10.
+        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
 
         /// <summary>
-        /// Value that controls how much time the deadlock monitor should wait during concurrency fuzzing before
-        /// reporting a potential deadlock. This value is in milliseconds, and by default is 5000.
+        /// Value that controls how much time the deadlock monitor should wait during concurrency testing
+        /// before reporting a potential deadlock. This value is in milliseconds.
         /// </summary>
         [DataMember]
-        internal uint DeadlockTimeout;
+        public uint DeadlockTimeout { get; internal set; }
+
+        /// <summary>
+        /// Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve
+        /// before continuing exploration. This value is in milliseconds.
+        /// </summary>
+        [DataMember]
+        public uint UncontrolledConcurrencyTimeout { get; internal set; }
 
         /// <summary>
         /// Safety prefix bound. By default it is 0.
@@ -238,7 +244,7 @@ namespace Microsoft.Coyote
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
-        public bool ReportActivityCoverage { get; internal set; }
+        internal bool IsActivityCoverageReported;
 
         /// <summary>
         /// Enables activity coverage debugging.
@@ -257,13 +263,13 @@ namespace Microsoft.Coyote
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        public bool IsDgmlGraphEnabled { get; internal set; }
+        internal bool IsDgmlGraphEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
         /// </summary>
         [DataMember]
-        public bool IsXmlLogEnabled { get; internal set; }
+        internal bool IsXmlLogEnabled;
 
         /// <summary>
         /// If specified, requests a custom runtime log to be used instead of the default.
@@ -376,6 +382,7 @@ namespace Microsoft.Coyote
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 5000;
+            this.UncontrolledConcurrencyTimeout = 10;
             this.SafetyPrefixBound = 0;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -387,7 +394,7 @@ namespace Microsoft.Coyote
             this.ScheduleTrace = string.Empty;
 
             this.ReportCodeCoverage = false;
-            this.ReportActivityCoverage = false;
+            this.IsActivityCoverageReported = false;
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
@@ -598,11 +605,10 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the <see cref="TimeoutDelay"/> value that controls the probability of triggering
-        /// a timeout each time <see cref="Task.Delay(int)"/> or a built-in timer is scheduled during
-        /// systematic testing.
+        /// Updates the value that controls the probability of triggering a timeout each time an
+        /// operation gets delayed or a built-in timer gets scheduled during systematic testing.
         /// </summary>
-        /// <param name="delay">The timeout delay during testing.</param>
+        /// <param name="delay">The timeout delay during testing, which by default is 10.</param>
         /// <remarks>
         /// Increase the value to decrease the probability. This value is not a unit of time.
         /// </remarks>
@@ -613,16 +619,30 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the <see cref="DeadlockTimeout"/> value that controls how much time the deadlock monitor
-        /// should wait during concurrency fuzzing before reporting a potential deadlock.
+        /// Updates the value that controls how much time the deadlock monitor should
+        /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The deadlock timeout value in milliseconds.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 5000.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>
         public Configuration WithDeadlockTimeout(uint timeout)
         {
             this.DeadlockTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls how much time the runtime should wait for
+        /// uncontrolled concurrency to resolve before continuing exploration.
+        /// </summary>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 10.</param>
+        /// <remarks>
+        /// Increase the value to give more time to try resolve uncontrolled concurrency.
+        /// </remarks>
+        public Configuration WithUncontrolledConcurrencyTimeout(uint timeout)
+        {
+            this.UncontrolledConcurrencyTimeout = timeout;
             return this;
         }
 
@@ -684,12 +704,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with activity coverage enabled or disabled.
+        /// Updates the configuration to enable or disable reporting activity coverage.
         /// </summary>
         /// <param name="isEnabled">If true, then enables activity coverage.</param>
-        public Configuration WithActivityCoverageEnabled(bool isEnabled = true)
+        public Configuration WithActivityCoverageReported(bool isEnabled = true)
         {
-            this.ReportActivityCoverage = isEnabled;
+            this.IsActivityCoverageReported = isEnabled;
             return this;
         }
 

@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Specifications
             }
 
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic
-                && this.Configuration.ReportActivityCoverage)
+                && this.Configuration.IsActivityCoverageReported)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
             }

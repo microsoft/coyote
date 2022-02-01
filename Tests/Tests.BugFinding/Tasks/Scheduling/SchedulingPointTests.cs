@@ -96,7 +96,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     value = 2;
                 });
 
-                SchedulingPoint.Interleave();
                 SchedulingPoint.Resume();
 
                 value = 1;
@@ -108,7 +107,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSuppressAndResumeTaskInterleaving()
+        public void TestAvoidSuppressTaskInterleaving()
         {
             this.TestWithError(async r =>
             {
@@ -120,8 +119,32 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     value = 2;
                 });
 
-                SchedulingPoint.Resume();
                 SchedulingPoint.Interleave();
+                SchedulingPoint.Resume();
+
+                value = 1;
+                await t;
+
+                Specification.Assert(value is 2, $"Value is {value}.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Value is 1.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSuppressAndResumeTaskInterleaving()
+        {
+            this.TestWithError(async r =>
+            {
+                int value = 0;
+
+                SchedulingPoint.Suppress();
+                SchedulingPoint.Resume();
+                var t = Task.Run(() =>
+                {
+                    value = 2;
+                });
 
                 value = 1;
                 await t;

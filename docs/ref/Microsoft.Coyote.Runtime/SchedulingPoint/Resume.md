@@ -1,6 +1,6 @@
 # SchedulingPoint.Resume method
 
-Resumes interleavings during testing due to an invoked [`Suppress`](Suppress.md).
+Resumes interleavings that were suppressed by invoking [`Suppress`](Suppress.md).
 
 ```csharp
 public static void Resume()

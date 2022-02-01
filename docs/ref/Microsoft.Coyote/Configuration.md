@@ -11,23 +11,21 @@ public class Configuration
 | name | description |
 | --- | --- |
 | static [Create](Configuration/Create.md)() | Creates a new configuration with default values. |
-| [IsDgmlGraphEnabled](Configuration/IsDgmlGraphEnabled.md) { get; } | If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found. This is different from a coverage activity graph, as it will also show actor instances. |
+| [DeadlockTimeout](Configuration/DeadlockTimeout.md) { get; } | Value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. This value is in milliseconds. |
 | [IsVerbose](Configuration/IsVerbose.md) { get; } | If true, then messages are logged. |
-| [IsXmlLogEnabled](Configuration/IsXmlLogEnabled.md) { get; } | Produce an XML formatted runtime log file. |
 | [LivenessTemperatureThreshold](Configuration/LivenessTemperatureThreshold.md) { get; } | The liveness temperature threshold. If it is 0 then it is disabled. By default this value is assigned to [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps.md) / 2. |
 | [LogLevel](Configuration/LogLevel.md) { get; } | The level of detail to provide in verbose logging. |
 | [MaxFairSchedulingSteps](Configuration/MaxFairSchedulingSteps.md) { get; } | The maximum scheduling steps to explore for fair schedulers. By default this is set to 100,000 steps. |
 | [MaxUnfairSchedulingSteps](Configuration/MaxUnfairSchedulingSteps.md) { get; } | The maximum scheduling steps to explore for unfair schedulers. By default this is set to 10,000 steps. |
 | [RandomGeneratorSeed](Configuration/RandomGeneratorSeed.md) { get; } | Custom seed to be used by the random value generator. By default, this value is null indicating that no seed has been set. |
-| [ReportActivityCoverage](Configuration/ReportActivityCoverage.md) { get; } | Enables activity coverage reporting of a Coyote program. |
 | [SchedulingStrategy](Configuration/SchedulingStrategy.md) { get; } | The systematic testing strategy to use. |
-| [StrategyBound](Configuration/StrategyBound.md) { get; } | A strategy-specific bound. |
 | [TestingIterations](Configuration/TestingIterations.md) { get; } | Number of testing iterations. |
-| [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this value is 10. |
-| [WithActivityCoverageEnabled](Configuration/WithActivityCoverageEnabled.md)(…) | Updates the configuration with activity coverage enabled or disabled. |
+| [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). |
+| [UncontrolledConcurrencyTimeout](Configuration/UncontrolledConcurrencyTimeout.md) { get; } | Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration. This value is in milliseconds. |
+| [WithActivityCoverageReported](Configuration/WithActivityCoverageReported.md)(…) | Updates the configuration to enable or disable reporting activity coverage. |
 | [WithConcurrencyFuzzingEnabled](Configuration/WithConcurrencyFuzzingEnabled.md)(…) | Updates the configuration with concurrency fuzzing enabled or disabled. |
 | [WithConcurrencyFuzzingFallbackEnabled](Configuration/WithConcurrencyFuzzingFallbackEnabled.md)(…) | Updates the configuration with concurrency fuzzing fallback enabled or disabled. |
-| [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the DeadlockTimeout value that controls how much time the deadlock monitor should wait during concurrency fuzzing before reporting a potential deadlock. |
+| [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. |
 | [WithDgmlGraphEnabled](Configuration/WithDgmlGraphEnabled.md)(…) | Updates the configuration with DGML graph generation enabled or disabled. |
 | [WithIncrementalSeedGenerationEnabled](Configuration/WithIncrementalSeedGenerationEnabled.md)(…) | Updates the configuration with incremental seed generation enabled or disabled. |
 | [WithLivenessTemperatureThreshold](Configuration/WithLivenessTemperatureThreshold.md)(…) | Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking. It is not recommended to explicitly set this value, instead use the default value which is assigned to [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps.md) / 2. |
@@ -43,7 +41,8 @@ public class Configuration
 | [WithTelemetryEnabled](Configuration/WithTelemetryEnabled.md)(…) | Updates the configuration with telemetry enabled or disabled. |
 | [WithTestingIterations](Configuration/WithTestingIterations.md)(…) | Updates the configuration with the specified number of iterations to run during systematic testing. |
 | [WithTestingTimeout](Configuration/WithTestingTimeout.md)(…) | Updates the configuration with the specified systematic testing timeout in seconds. |
-| [WithTimeoutDelay](Configuration/WithTimeoutDelay.md)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay.md) value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing. |
+| [WithTimeoutDelay](Configuration/WithTimeoutDelay.md)(…) | Updates the value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. |
+| [WithUncontrolledConcurrencyTimeout](Configuration/WithUncontrolledConcurrencyTimeout.md)(…) | Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration with verbose output enabled or disabled. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled.md)(…) | Updates the configuration with XML log generation enabled or disabled. |
 

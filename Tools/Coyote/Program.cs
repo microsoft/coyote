@@ -130,7 +130,7 @@ namespace Microsoft.Coyote
                 return;
             }
 
-            if (configuration.ReportCodeCoverage || configuration.ReportActivityCoverage)
+            if (configuration.ReportCodeCoverage || configuration.IsActivityCoverageReported)
             {
                 // This has to be here because both forms of coverage require it.
                 CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);

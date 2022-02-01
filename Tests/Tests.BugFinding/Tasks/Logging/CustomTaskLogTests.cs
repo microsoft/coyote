@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             var config = this.GetConfiguration().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
-                runtime.Logger.WriteLine("Hi mom!");
+                runtime.Logger.WriteLine("Hello world!");
             });
 
             engine.Logger = log;
@@ -38,16 +38,16 @@ namespace Microsoft.Coyote.BugFinding.Tests
             result = result.RemoveNonDeterministicValues();
             var expected = @"... Task 0 is using 'random' strategy (seed:4005173804).
 ..... Iteration #1
-<TestLog> Running test.
-Hi mom!
+<TestLog> Running test on thread ''.
+Hello world!
 <TestLog> Exploration finished [reached the end of the test method].
 ..... Iteration #2
-<TestLog> Running test.
-Hi mom!
+<TestLog> Running test on thread ''.
+Hello world!
 <TestLog> Exploration finished [reached the end of the test method].
 ..... Iteration #3
-<TestLog> Running test.
-Hi mom!
+<TestLog> Running test on thread ''.
+Hello world!
 <TestLog> Exploration finished [reached the end of the test method].
 ";
             expected = expected.RemoveNonDeterministicValues();
@@ -89,7 +89,7 @@ Hi mom!
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
-                string expected = @"<TestLog> Running test.
+                string expected = @"<TestLog> Running test on thread ''.
 Task '' is running.
 Task '' completed.
 Task '' is running.

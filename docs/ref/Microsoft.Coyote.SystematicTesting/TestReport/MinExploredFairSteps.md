@@ -1,6 +1,6 @@
 # TestReport.MinExploredFairSteps property
 
-The min explored scheduling steps in average, in fair tests.
+The min explored scheduling steps in fair tests.
 
 ```csharp
 public int MinExploredFairSteps { get; }

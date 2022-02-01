@@ -628,7 +628,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 return;
             }
 
-            if (this.Configuration.ReportActivityCoverage)
+            if (this.Configuration.IsActivityCoverageReported)
             {
                 Console.WriteLine($"... Emitting coverage reports:");
                 Reporter.EmitTestingCoverageReport(this.GlobalTestReport);

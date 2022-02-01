@@ -1,6 +1,6 @@
 # TestReport.MaxUnfairStepsHitInUnfairTests property
 
-Number of times the unfair max steps bound was hit, in unfair tests.
+Number of times the unfair max steps bound was hit in unfair tests.
 
 ```csharp
 public int MaxUnfairStepsHitInUnfairTests { get; }

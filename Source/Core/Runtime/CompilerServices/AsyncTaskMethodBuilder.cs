@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}' and runtime '{2}'",
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}' and runtime '{2}'.",
                 Thread.CurrentThread.ManagedThreadId, SynchronizationContext.Current, this.Runtime?.Id);
             this.MethodBuilder.Start(ref stateMachine);
         }
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}' and runtime '{2}'",
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from thread '{0}' with context '{1}' and runtime '{2}'.",
                 Thread.CurrentThread.ManagedThreadId, SynchronizationContext.Current, this.Runtime?.Id);
             this.MethodBuilder.Start(ref stateMachine);
         }

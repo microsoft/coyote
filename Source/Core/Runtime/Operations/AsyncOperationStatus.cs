@@ -19,6 +19,11 @@ namespace Microsoft.Coyote.Runtime
         Enabled,
 
         /// <summary>
+        /// The operation is disabled.
+        /// </summary>
+        Disabled,
+
+        /// <summary>
         /// The operation is waiting for all of its dependencies to complete.
         /// </summary>
         BlockedOnWaitAll,

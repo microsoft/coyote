@@ -39,6 +39,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 {
                     IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
                         request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
+                    CoyoteRuntime.AsyncLocalDebugInfo.Value = $"{request.Method} {request.Path}";
                     return runtime.TaskFactory.StartNew(() =>
                     {
                         SystemTask task = next(context);
@@ -73,6 +74,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 {
                     IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
                         request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
+                    CoyoteRuntime.AsyncLocalDebugInfo.Value = $"{request.Method} {request.Path}";
                     return runtime.TaskFactory.StartNew(() =>
                     {
                         SystemTask task = next();

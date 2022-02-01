@@ -37,6 +37,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal int HashedProgramState;
 
+        internal int Thread;
+
+        internal string Msg;
+
+        internal string StackTrace;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
         /// </summary>
@@ -46,6 +52,18 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = AsyncOperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
+            this.Thread = -1;
+            this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;
+            if (this.Msg.Length > 0)
+            {
+                IO.Debug.WriteLine($"---> Created Op '{this.Id}' with msg '{this.Msg}' from thread '{System.Threading.Thread.CurrentThread.ManagedThreadId}'");
+            }
+            else
+            {
+                IO.Debug.WriteLine($"---> Created Op '{this.Id}' from thread '{System.Threading.Thread.CurrentThread.ManagedThreadId}'");
+            }
+
+            this.StackTrace = new System.Diagnostics.StackTrace().ToString();
         }
 
         /// <summary>

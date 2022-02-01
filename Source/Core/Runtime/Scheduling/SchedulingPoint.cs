@@ -68,5 +68,53 @@ namespace Microsoft.Coyote.Runtime
                 runtime.ResumeScheduling();
             }
         }
+
+        /// <summary>
+        /// Enable a previously disabled operation.
+        /// </summary>
+        public static void Enable(string msg)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.EnableOps(msg);
+            }
+        }
+
+        /// <summary>
+        /// Disabled the current operation with the specified message.
+        /// </summary>
+        public static void Disable()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.DisableCurrentOp();
+            }
+        }
+
+        /// <summary>
+        /// Prints debug information and optionally fails.
+        /// </summary>
+        public static void SetDebugInfo(string msg)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.SetDebugInfo(msg);
+            }
+        }
+
+        /// <summary>
+        /// Prints debug information and optionally fails.
+        /// </summary>
+        public static void WriteDebugInfo(bool fail)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.WriteDebugInfo(fail);
+            }
+        }
     }
 }

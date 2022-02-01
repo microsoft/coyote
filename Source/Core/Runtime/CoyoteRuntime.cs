@@ -39,6 +39,12 @@ namespace Microsoft.Coyote.Runtime
             new ThreadLocal<CoyoteRuntime>(false);
 
         /// <summary>
+        /// For debugging purposes.
+        /// </summary>
+        internal static readonly AsyncLocal<string> AsyncLocalDebugInfo =
+            new AsyncLocal<string>();
+
+        /// <summary>
         /// Provides access to the runtime associated with each async local context, or null
         /// if the current async local context has no associated runtime.
         /// </summary>
@@ -784,17 +790,13 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void ScheduleNextOperation(SchedulingPointType type, bool isSuppressible = true, bool isYielding = false)
         {
-            int retries = 0;
-            int delay = 10;
-
-        Schedule:
             lock (this.SyncObject)
             {
                 if (!this.IsAttached || this.SchedulingPolicy != SchedulingPolicy.Systematic)
                 {
                     // Cannot schedule the next operation if the scheduler is not attached,
                     // or if the scheduling policy is not systematic.
-                    goto Done;
+                    return;
                 }
 
                 if (type is SchedulingPointType.Create)
@@ -807,7 +809,7 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine("<CoyoteDebug> Postponing scheduling point in uncontrolled thread '{0}'.",
                             Thread.CurrentThread.ManagedThreadId);
                         this.IsLastSchedulingPointPostponed = true;
-                        goto Done;
+                        return;
                     }
                 }
 
@@ -816,14 +818,14 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Cannot schedule the next operation if there is no controlled operation
                     // executing on the current thread.
-                    goto Done;
+                    return;
                 }
 
                 if (current != this.ScheduledOperation)
                 {
                     // The currently executing operation is not scheduled, so send it to sleep.
                     this.PauseOperation(current);
-                    goto Done;
+                    return;
                 }
 
                 if (this.IsSchedulingSuppressed && !this.IsLastSchedulingPointPostponed &&
@@ -831,7 +833,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Suppress the scheduling point.
                     IO.Debug.WriteLine("<CoyoteDebug> Supressing interleaving at operation '{0}'.", current.Name);
-                    goto Done;
+                    return;
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -847,23 +849,18 @@ namespace Microsoft.Coyote.Runtime
                     current.HashedProgramState = this.GetHashedProgramState();
                 }
 
-                // Choose the next operation to schedule, if there is one enabled.
-                IOrderedEnumerable<AsyncOperation> ops = this.EnableAndGetOrderedOperations();
+                // Try to enable any operations with satisfied dependencies before asking the
+                // scheduler to choose the next one to schedule.
+                this.TryEnableAndOrderOperations(out IOrderedEnumerable<AsyncOperation> ops);
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
                 {
-                    if (this.Configuration.IsPartiallyControlledConcurrencyEnabled && retries < 5)
-                    {
-                        // The scheduler needs to retry choosing a next operation in the presence of
-                        // uncontrolled concurrency. In this case, we implement a simple retry logic.
-                        goto Retry;
-                    }
-
                     // Check if the execution has deadlocked.
                     this.CheckIfExecutionHasDeadlocked(ops);
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}'.", next.Name);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}' (tid: {1}, msg: {2}).", next.Name, next.Thread, next.Msg);
+                this.WriteDebugInfo(false);
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -872,60 +869,93 @@ namespace Microsoft.Coyote.Runtime
                     SyncMonitor.PulseAll(this.SyncObject);
                     this.PauseOperation(current);
                 }
-
-                goto Done;
             }
-
-        Retry:
-            // At least one operation is blocked, potentially on an uncontrolled operation,
-            // so pause the current operation and then retry.
-            Thread.Sleep(delay);
-            IO.Debug.WriteLine("<CoyoteDebug> Retrying to enable blocked operations from thread '{0}'.",
-                Thread.CurrentThread.ManagedThreadId);
-            retries++;
-            delay *= 5;
-            goto Schedule;
-
-        Done:
-            return;
         }
 
         /// <summary>
-        /// Returns the operations ordered by their id, after trying to enable any blocked operation
-        /// that has its dependencies already satisfied.
+        /// Tries to enable any operations that have their dependencies satisfied. It returns
+        /// true if there is at least one operation enabled, else false. It also returns the
+        /// list of operations ordered by their id.
         /// </summary>
-        private IOrderedEnumerable<AsyncOperation> EnableAndGetOrderedOperations()
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// </remarks>
+        private bool TryEnableAndOrderOperations(out IOrderedEnumerable<AsyncOperation> ops)
         {
-            // Get and order the operations by their id.
-            var ops = this.OperationMap.Values.OrderBy(op => op.Id);
+            int enabledOpsCount = 0;
+            ops = null;
 
-            // Enable any blocked operation that has its dependencies already satisfied.
-            IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
-            IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.",
-                ops.Count(op => op.Status is AsyncOperationStatus.Enabled));
-            foreach (var op in ops)
+            // If partial controlled concurrency is enabled, and there are no operations enabled,
+            // then retry multiple times before giving up.
+            int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
+            int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
+            while (attempts > 0)
             {
-                var previousStatus = op.Status;
-                if (previousStatus != AsyncOperationStatus.None &&
-                    previousStatus != AsyncOperationStatus.Enabled &&
-                    previousStatus != AsyncOperationStatus.Completed)
+                // Get and order the operations by their id.
+                ops = this.OperationMap.Values.OrderBy(op => op.Id);
+
+                // Enable any blocked operation that has its dependencies already satisfied.
+                IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
+                int disabledCount = 0;
+                foreach (var op in ops)
                 {
-                    this.TryEnableOperation(op);
-                    if (previousStatus == op.Status)
+                    var previousStatus = op.Status;
+                    if (previousStatus != AsyncOperationStatus.None &&
+                        previousStatus != AsyncOperationStatus.Enabled &&
+                        previousStatus != AsyncOperationStatus.Completed)
                     {
-                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
-                    }
-                    else
-                    {
-                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.",
-                            op.Id, previousStatus, op.Status);
+                        if (previousStatus is AsyncOperationStatus.Disabled)
+                        {
+                            disabledCount++;
+                        }
+
+                        this.TryEnableOperation(op);
+                        if (previousStatus == op.Status)
+                        {
+                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                        }
+                        else
+                        {
+                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.",
+                                op.Id, previousStatus, op.Status);
+                        }
                     }
                 }
+
+                enabledOpsCount = ops.Count(op => op.Status is AsyncOperationStatus.Enabled);
+                if (enabledOpsCount is 0 && this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                {
+                    if (disabledCount > 0)
+                    {
+                        IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS!");
+                    }
+
+                    // Implement a simple retry logic to try resolve uncontrolled concurrency.
+                    IO.Debug.WriteLine(
+                        "<CoyoteDebug> !!! Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
+                        this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
+                    SyncMonitor.Wait(this.SyncObject, delay);
+                    attempts--;
+                    delay *= 2;
+                    continue;
+                }
+
+                break;
             }
 
-            return ops;
+            IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
+            if (enabledOpsCount is 0)
+            {
+                this.WriteDebugInfo(false);
+            }
+
+            return enabledOpsCount > 0;
         }
 
+        /// <summary>
+        /// Suppresses scheduling points until <see cref="ResumeScheduling"/> is invoked,
+        /// unless a scheduling point must occur naturally.
+        /// </summary>
         internal void SuppressScheduling()
         {
             lock (this.SyncObject)
@@ -935,12 +965,112 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        /// <summary>
+        /// Resumes scheduling points that were suppressed by invoking <see cref="SuppressScheduling"/>.
+        /// </summary>
         internal void ResumeScheduling()
         {
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Resuming scheduling of enabled operations.");
                 this.IsSchedulingSuppressed = false;
+            }
+        }
+
+        internal void EnableOps(string msg)
+        {
+            lock (this.SyncObject)
+            {
+                foreach (var op in this.OperationMap)
+                {
+                    if (op.Value.Status is AsyncOperationStatus.Disabled &&
+                        (string.IsNullOrEmpty(msg) || op.Value.Msg.Contains(msg)))
+                    {
+                        IO.Debug.WriteLine($"--- Enabling Op: {op.Value.Name} (tid: {op.Value.Thread})");
+                        IO.Debug.WriteLine($" |_ Msg: {op.Value.Msg}");
+                        IO.Debug.WriteLine($" |_ Stack Trace: {op.Value.StackTrace}");
+                        op.Value.Status = AsyncOperationStatus.Enabled;
+                    }
+                }
+            }
+        }
+
+        internal void DisableCurrentOp()
+        {
+            lock (this.SyncObject)
+            {
+                var currentOp = ExecutingOperation.Value;
+                if (currentOp != null && currentOp.Status is AsyncOperationStatus.Enabled)
+                {
+                    IO.Debug.WriteLine($"--- Disabling Op: {currentOp.Name} (tid: {currentOp.Thread})");
+                    IO.Debug.WriteLine($" |_ Msg: {currentOp.Msg}");
+                    IO.Debug.WriteLine($" |_ Stack Trace: {currentOp.StackTrace}");
+                    currentOp.Status = AsyncOperationStatus.Disabled;
+                }
+            }
+        }
+
+        internal void SetDebugInfo(string msg)
+        {
+            lock (this.SyncObject)
+            {
+                var currentOp = ExecutingOperation.Value;
+                if (currentOp != null)
+                {
+                    IO.Debug.WriteLine("--- SET DEBUG INFO ---");
+                    IO.Debug.WriteLine($"--- Current Op: {currentOp.Name} (tid: {currentOp.Thread})");
+                    var oldMsg = currentOp.Msg;
+                    currentOp.Msg = $"{msg} ({oldMsg})";
+                    IO.Debug.WriteLine($" |_ Old msg: {oldMsg}");
+                    IO.Debug.WriteLine($" |_ New msg: {currentOp.Msg}");
+                    IO.Debug.WriteLine($" |_ Stack Trace: {currentOp.StackTrace}");
+                }
+            }
+        }
+
+        internal void WriteDebugInfo(bool fail)
+        {
+            lock (this.SyncObject)
+            {
+                IO.Debug.WriteLine("--- DEBUG INFO ---");
+                var currentOp = ExecutingOperation.Value;
+                var enabledOps = this.OperationMap.Where(op => op.Value.Status is AsyncOperationStatus.Enabled);
+                var disabledOps = this.OperationMap.Where(op => op.Value.Status is AsyncOperationStatus.Disabled);
+                var blockedOps = this.OperationMap.Where(op => op.Value.Status is AsyncOperationStatus.BlockedOnWaitAll || op.Value.Status is AsyncOperationStatus.BlockedOnWaitAny);
+                IO.Debug.WriteLine($"--- Current Op: {currentOp?.Name} (tid: {currentOp?.Thread}, msg: {currentOp?.Msg})");
+                IO.Debug.WriteLine($"--- Enabled Ops: {enabledOps.Count()}");
+                IO.Debug.WriteLine($"--- Disabled Ops: {disabledOps.Count()}");
+                IO.Debug.WriteLine($"--- Blocked Ops: {blockedOps.Count()}");
+                IO.Debug.WriteLine($"--- Enabled PUT: {enabledOps.Where(op => op.Value.Msg.Contains("PUT /")).Count()}");
+                IO.Debug.WriteLine($"--- Enabled GET: {enabledOps.Where(op => op.Value.Msg.Contains("GET /")).Count()}");
+                IO.Debug.WriteLine($"--- Enabled DELETE: {enabledOps.Where(op => op.Value.Msg.Contains("DELETE /")).Count()}");
+                IO.Debug.WriteLine($"--- Enabled PATCH: {enabledOps.Where(op => op.Value.Msg.Contains("PATCH /")).Count()}");
+
+                foreach (var op in enabledOps)
+                {
+                    IO.Debug.WriteLine("   |_ Operation '{0}' (tid: {1}, msg: {2}) has status '{3}': {4}",
+                        op.Key, op.Value.Thread, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                }
+
+                foreach (var op in disabledOps)
+                {
+                    IO.Debug.WriteLine("   |_ Operation '{0}' (tid: {1}, msg: {2}) has status '{3}': {4}",
+                        op.Key, op.Value.Thread, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                }
+
+                foreach (var op in this.OperationMap.Where(
+                    op => op.Value.Status != AsyncOperationStatus.Enabled &&
+                    op.Value.Status != AsyncOperationStatus.Disabled &&
+                    op.Value.Status != AsyncOperationStatus.Completed))
+                {
+                    IO.Debug.WriteLine("   |_ Operation '{0}' (tid: {1}, msg: {2}) has status '{3}': {4}",
+                        op.Key, op.Value.Thread, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                }
+
+                if (fail)
+                {
+                    this.Detach(SchedulerDetachmentReason.BoundReached);
+                }
             }
         }
 
@@ -1113,6 +1243,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
+                op.Thread = Thread.CurrentThread.ManagedThreadId;
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
                     SyncMonitor.PulseAll(this.SyncObject);

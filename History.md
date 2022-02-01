@@ -8,7 +8,7 @@
 ## v1.4.1
 - Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during
   testing to increase usability. This feature is enabled by default and can be disabled via the
-  `disable-fuzzing-fallback` command line option (or
+  `no-fuzzing-fallback` command line option (or
   `Configuration.WithConcurrencyFuzzingFallbackEnabled`).
 - Added a new JSON test report that lists any detected invocations of uncontrolled methods.
 - The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to

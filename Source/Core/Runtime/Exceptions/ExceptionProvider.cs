@@ -24,11 +24,8 @@ namespace Microsoft.Coyote.Runtime
         public static void ThrowIfThreadInterruptedException(object exception)
         {
             // TODO: only re-throw an exception thrown by the runtime upon detach.
-            Exception ex = exception as Exception;
-            if (ex?.GetBaseException() is ThreadInterruptedException)
+            if ((exception as Exception)?.GetBaseException() is ThreadInterruptedException ex)
             {
-                IO.Debug.WriteLine("=====> ThreadInterruptedException thrown by the runtime:\n1-{0}\n2-{1}",
-                    ex, new System.Diagnostics.StackTrace());
                 ExceptionDispatchInfo.Capture(ex).Throw();
             }
         }

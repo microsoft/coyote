@@ -1945,7 +1945,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception exception)
         {
-            string message = null;
+            // Complete the failed operation. This is required so that the operation
+            // does not throw if it detaches.
+            op.Status = AsyncOperationStatus.Completed;
             if (exception.GetBaseException() is ThreadInterruptedException)
             {
                 // Ignore this exception, its thrown by the runtime.
@@ -1954,6 +1956,7 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
+                string message;
                 string trace = FormatExceptionStackTrace(exception);
                 if (op is ActorOperation actorOp)
                 {
@@ -1964,13 +1967,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     message = $"Unhandled exception. {trace}";
                 }
-            }
 
-            // Complete the failed operation. This is required so that the operation
-            // does not throw if it detaches.
-            op.Status = AsyncOperationStatus.Completed;
-            if (message != null)
-            {
                 // Report the unhandled exception.
                 this.NotifyUnhandledException(exception, message);
             }

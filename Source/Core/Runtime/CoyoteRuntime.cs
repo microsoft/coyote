@@ -201,15 +201,6 @@ namespace Microsoft.Coyote.Runtime
         private bool IsLastSchedulingPointPostponed;
 
         /// <summary>
-        /// True if the last scheduling point was postponed. This happens if an uncontrolled
-        /// thread created a new controlled operation and tried to schedule it, but this can
-        /// only happen from a controlled thread. If this value is set, the runtime will try
-        /// to invoke the scheduler from a controlled thread before resuming executing the
-        /// currently scheduled operation, which can potentially increase coverage.
-        /// </summary>
-        private bool IsLastSchedulingPointPostponed;
-
-        /// <summary>
         /// True if uncontrolled concurrency was detected, else false.
         /// </summary>
         internal bool IsUncontrolledConcurrencyDetected { get; private set; }
@@ -1306,52 +1297,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Pauses the scheduled controlled operation until either the uncontrolled task completes,
-        /// it tries to invoke an uncontrolled scheduling point, or the timeout expires.
-        /// </summary>
-        /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
-        /// </remarks>
-        private void TryPauseAndResolveUncontrolledTask(Task task)
-        {
-            AsyncOperation op = ExecutingOperation.Value;
-            if (op != null)
-            {
-                // A scheduling point from an uncontrolled thread has not been postponed yet, so pause the execution
-                // of the current operation to try give time to the uncontrolled concurrency to be resolved.
-                if (!this.IsLastSchedulingPointPostponed)
-                {
-                    IO.Debug.WriteLine(
-                        "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
-                        op.Name, Thread.CurrentThread.ManagedThreadId);
-                    int retries = 0;
-                    int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
-                    while (retries < 5 && !task.IsCompleted)
-                    {
-                        SyncMonitor.Wait(this.SyncObject, delay);
-                        if (this.IsLastSchedulingPointPostponed)
-                        {
-                            // A scheduling point from an uncontrolled thread has been postponed,
-                            // so stop trying to resolve the uncontrolled concurrency.
-                            break;
-                        }
-
-                        retries++;
-                        delay *= 2;
-                    }
-                }
-
-                if (this.IsLastSchedulingPointPostponed)
-                {
-                    IO.Debug.WriteLine(
-                        "<CoyoteDebug> Resuming operation '{0}' on thread '{1}' with uncontrolled concurrency resolved.",
-                        op.Name, Thread.CurrentThread.ManagedThreadId);
-                    this.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
-                }
-            }
-        }
-
-        /// <summary>
         /// Completes the specified operation.
         /// </summary>
         private void CompleteOperation(AsyncOperation op)
@@ -1421,7 +1366,7 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Pauses the scheduled controlled operation until either the uncontrolled task completes,
-        /// tries to invoke an uncontrolled scheduling point, or the timeout expires.
+        /// it tries to invoke an uncontrolled scheduling point, or the timeout expires.
         /// </summary>
         /// <remarks>
         /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.

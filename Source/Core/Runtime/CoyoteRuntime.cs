@@ -2004,15 +2004,6 @@ namespace Microsoft.Coyote.Runtime
             this.OnFailure?.Invoke(exception);
         }
 
-        internal void LogStuff()
-        {
-            lock (this.SyncObject)
-            {
-                Console.WriteLine($"Ops: {this.OperationMap.Count}");
-                Console.WriteLine($"Steps: {this.Scheduler.StepCount}");
-            }
-        }
-
         /// <summary>
         /// Populates the specified test report.
         /// </summary>

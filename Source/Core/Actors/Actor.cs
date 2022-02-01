@@ -707,7 +707,7 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is System.Threading.ThreadInterruptedException)
+            if (innerException.GetBaseException() is ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
@@ -1085,7 +1085,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>True if the exception was handled, else false if it should continue to get thrown.</returns>
         private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
-            if (ex is System.Threading.ThreadInterruptedException)
+            if (ex.GetBaseException() is ThreadInterruptedException)
             {
                 // Internal exception used during testing.
                 return false;

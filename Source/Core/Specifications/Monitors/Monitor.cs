@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
@@ -463,9 +464,9 @@ namespace Microsoft.Coyote.Specifications
                     innerException = innerException.InnerException;
                 }
 
-                if (innerException is System.Threading.ThreadInterruptedException)
+                if (innerException.GetBaseException() is System.Threading.ThreadInterruptedException threadEx)
                 {
-                    throw;
+                    ExceptionDispatchInfo.Capture(threadEx).Throw();
                 }
                 else
                 {

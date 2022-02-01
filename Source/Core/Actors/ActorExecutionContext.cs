@@ -742,7 +742,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Builds the coverage graph information, if any. This information is only available
-        /// when <see cref="Configuration.ReportActivityCoverage"/> is enabled.
+        /// when <see cref="Configuration.IsActivityCoverageReported"/> is enabled.
         /// </summary>
         internal CoverageInfo BuildCoverageInfo()
         {
@@ -1088,7 +1088,7 @@ namespace Microsoft.Coyote.Actors
                     throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
                 }
 
-                if (this.Configuration.ReportActivityCoverage)
+                if (this.Configuration.IsActivityCoverageReported)
                 {
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }

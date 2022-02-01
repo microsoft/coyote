@@ -124,10 +124,11 @@ nav:
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
+        - WithUncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
         - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
-        - WithActivityCoverageEnabled: ref/Microsoft.Coyote/Configuration/WithActivityCoverageEnabled.md
+        - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
         - WithDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
@@ -137,14 +138,12 @@ nav:
         - RandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed.md
         - MaxUnfairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps.md
         - MaxFairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps.md
-        - StrategyBound: ref/Microsoft.Coyote/Configuration/StrategyBound.md
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
+        - DeadlockTimeout: ref/Microsoft.Coyote/Configuration/DeadlockTimeout.md
+        - UncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout.md
         - LivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold.md
         - IsVerbose: ref/Microsoft.Coyote/Configuration/IsVerbose.md
         - LogLevel: ref/Microsoft.Coyote/Configuration/LogLevel.md
-        - ReportActivityCoverage: ref/Microsoft.Coyote/Configuration/ReportActivityCoverage.md
-        - IsDgmlGraphEnabled: ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled.md
-        - IsXmlLogEnabled: ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled.md
     - Microsoft.Coyote.Actors:
       - Namespace Overview: ref/Microsoft.Coyote.ActorsNamespace.md
       - Actor:
@@ -636,6 +635,9 @@ nav:
         - NumOfFoundBugs: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs.md
         - BugReports: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports.md
         - UncontrolledInvocations: ref/Microsoft.Coyote.SystematicTesting/TestReport/UncontrolledInvocations.md
+        - MinControlledOperations: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinControlledOperations.md
+        - MaxControlledOperations: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxControlledOperations.md
+        - TotalControlledOperations: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalControlledOperations.md
         - MinExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps.md
         - MaxExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps.md
         - TotalExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps.md

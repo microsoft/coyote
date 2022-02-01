@@ -1,6 +1,6 @@
 # TestReport.TotalExploredFairSteps property
 
-The total explored scheduling steps (across all testing iterations), in fair tests.
+The total explored scheduling steps (across all testing iterations) in fair tests.
 
 ```csharp
 public int TotalExploredFairSteps { get; }

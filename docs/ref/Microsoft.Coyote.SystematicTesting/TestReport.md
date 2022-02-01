@@ -15,15 +15,18 @@ public class TestReport
 | [Configuration](TestReport/Configuration.md) { get; } | Configuration of the program-under-test. |
 | [CoverageInfo](TestReport/CoverageInfo.md) { get; } | Information regarding code coverage. |
 | [InternalErrors](TestReport/InternalErrors.md) { get; } | Set of internal errors. If no internal errors occurred, then this set is empty. |
-| [MaxExploredFairSteps](TestReport/MaxExploredFairSteps.md) { get; } | The max explored scheduling steps in average, in fair tests. |
-| [MaxFairStepsHitInFairTests](TestReport/MaxFairStepsHitInFairTests.md) { get; } | Number of times the fair max steps bound was hit, in fair tests. |
-| [MaxUnfairStepsHitInFairTests](TestReport/MaxUnfairStepsHitInFairTests.md) { get; } | Number of times the unfair max steps bound was hit, in fair tests. |
-| [MaxUnfairStepsHitInUnfairTests](TestReport/MaxUnfairStepsHitInUnfairTests.md) { get; } | Number of times the unfair max steps bound was hit, in unfair tests. |
-| [MinExploredFairSteps](TestReport/MinExploredFairSteps.md) { get; } | The min explored scheduling steps in average, in fair tests. |
+| [MaxControlledOperations](TestReport/MaxControlledOperations.md) { get; } | The max number of controlled operations. |
+| [MaxExploredFairSteps](TestReport/MaxExploredFairSteps.md) { get; } | The max explored scheduling steps in fair tests. |
+| [MaxFairStepsHitInFairTests](TestReport/MaxFairStepsHitInFairTests.md) { get; } | Number of times the fair max steps bound was hit in fair tests. |
+| [MaxUnfairStepsHitInFairTests](TestReport/MaxUnfairStepsHitInFairTests.md) { get; } | Number of times the unfair max steps bound was hit in fair tests. |
+| [MaxUnfairStepsHitInUnfairTests](TestReport/MaxUnfairStepsHitInUnfairTests.md) { get; } | Number of times the unfair max steps bound was hit in unfair tests. |
+| [MinControlledOperations](TestReport/MinControlledOperations.md) { get; } | The min number of controlled operations. |
+| [MinExploredFairSteps](TestReport/MinExploredFairSteps.md) { get; } | The min explored scheduling steps in fair tests. |
 | [NumOfExploredFairSchedules](TestReport/NumOfExploredFairSchedules.md) { get; } | Number of explored fair schedules. |
 | [NumOfExploredUnfairSchedules](TestReport/NumOfExploredUnfairSchedules.md) { get; } | Number of explored unfair schedules. |
 | [NumOfFoundBugs](TestReport/NumOfFoundBugs.md) { get; } | Number of found bugs. |
-| [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored scheduling steps (across all testing iterations), in fair tests. |
+| [TotalControlledOperations](TestReport/TotalControlledOperations.md) { get; } | The total number of controlled operations. |
+| [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored scheduling steps (across all testing iterations) in fair tests. |
 | [UncontrolledInvocations](TestReport/UncontrolledInvocations.md) { get; } | Set of uncontrolled invocations. |
 | [Clone](TestReport/Clone.md)() | Clones the test report. |
 | [GetText](TestReport/GetText.md)(…) | Returns the testing report as a string, given a configuration and an optional prefix. |

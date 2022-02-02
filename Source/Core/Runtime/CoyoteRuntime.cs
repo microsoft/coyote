@@ -936,21 +936,22 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine("<CoyoteDebug> Delaying operation '{0}' on thread '{1}' by {2}ms.",
                         current.Name, Thread.CurrentThread.ManagedThreadId, delay);
                 }
-            }
 
-            // Only sleep the executing operation if a non-zero delay was chosen.
-            if (delay > 0 && current != null)
-            {
-                var previousStatus = current.Status;
-                current.Status = AsyncOperationStatus.Delayed;
-                Thread.Sleep(delay);
-                current.Status = previousStatus;
-                goto RecursiveDelay;
-                // // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
-                // if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
-                // {
-                //     this.DelayOperation(true);
-                // }
+                // Only sleep the executing operation if a non-zero delay was chosen.
+                if (delay > 0 && current != null)
+                {
+                    var previousStatus = current.Status;
+                    current.Status = AsyncOperationStatus.Delayed;
+                    // Thread.Sleep(delay);
+                    SyncMonitor.Wait(this.SyncObject, delay);
+                    current.Status = previousStatus;
+                    goto RecursiveDelay;
+                    // // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
+                    // if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
+                    // {
+                    //     this.DelayOperation(true);
+                    // }
+                }
             }
         }
 

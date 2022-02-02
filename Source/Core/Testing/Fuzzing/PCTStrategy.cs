@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
 
             // if the number of delayed operations exceeds k, then don't delay the current operation. k has been chosen to be 1.
-            if (ops.Where(op => op.Status is AsyncOperationStatus.Delayed).Count() > 1)
+            if (ops.Where(op => op.Status is AsyncOperationStatus.Delayed).Count() == 1)
             {
                 next = 0;
             }

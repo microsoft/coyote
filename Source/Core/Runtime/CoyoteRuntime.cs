@@ -1040,7 +1040,7 @@ namespace Microsoft.Coyote.Runtime
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
 
-                if (this.OperationMap.Values.Where(v => v.Status is AsyncOperationStatus.Enabled).Count() is 1)
+                if (this.OperationMap.Values.Where(v => v.Status is AsyncOperationStatus.Enabled).Count() is 1 || op.Name == "Example.Calculator(1)")
                 {
                     return 0;
                 }

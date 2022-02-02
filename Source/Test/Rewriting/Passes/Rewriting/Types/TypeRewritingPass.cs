@@ -46,8 +46,10 @@ namespace Microsoft.Coyote.Rewriting
             // Populate the map with the default task-based types.
             this.KnownTypes[NameCache.Task] = typeof(Types.Threading.Tasks.Task);
             this.KnownTypes[NameCache.GenericTask] = typeof(Types.Threading.Tasks.Task<>);
-            this.KnownTypes[NameCache.GenericTaskCompletionSource] =
-                typeof(Types.Threading.Tasks.TaskCompletionSource<>);
+#if NET
+            this.KnownTypes[NameCache.TaskCompletionSource] = typeof(Types.Threading.Tasks.TaskCompletionSource);
+#endif
+            this.KnownTypes[NameCache.GenericTaskCompletionSource] = typeof(Types.Threading.Tasks.TaskCompletionSource<>);
             this.KnownTypes[NameCache.TaskExtensions] = typeof(Types.TaskExtensions);
             this.KnownTypes[NameCache.TaskFactory] = typeof(Types.Threading.Tasks.TaskFactory);
             this.KnownTypes[NameCache.GenericTaskFactory] = typeof(Types.Threading.Tasks.TaskFactory<>);

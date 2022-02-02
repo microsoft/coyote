@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, bool positiveDelay, out int next)
+            int maxValue, bool positiveDelay, bool isRecursive, out int next)
         {
             this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation lowestEnabledOperation);
 
@@ -112,10 +112,14 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
             else
             {
-                next = this.RandomValueGenerator.Next(maxValue);
+                next = 0;
             }
 
-            this.StepCount++;
+            if (!isRecursive)
+            {
+                this.StepCount++;
+            }
+
             return true;
         }
 

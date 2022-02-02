@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         /// <inheritdoc/>
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, bool positiveDelay, out int next)
+            int maxValue, bool positiveDelay, bool isRecursive, out int next)
         {
             int state = this.CaptureExecutionStep(ops, current);
             this.InitializeDelayQValues(state, maxValue);

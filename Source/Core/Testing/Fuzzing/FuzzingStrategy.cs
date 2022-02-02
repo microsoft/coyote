@@ -57,10 +57,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <param name="current">The operation requesting the delay.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="positiveDelay">Choice for positive delays.</param>
+        /// <param name="isRecursive">...</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
         internal abstract bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            int maxValue, bool positiveDelay, out int next);
+            int maxValue, bool positiveDelay, bool isRecursive, out int next);
 
         /// <summary>
         /// Returns a boolean choice to delay the current operation further.

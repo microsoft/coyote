@@ -918,8 +918,9 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void DelayOperation(bool positiveDelay = false)
         {
-            RecursiveDelay:
+        RecursiveDelay:
             int delay = 0;
+            int numDelays = 0;
             AsyncOperation current = null;
             lock (this.SyncObject)
             {
@@ -932,7 +933,8 @@ namespace Microsoft.Coyote.Runtime
                 if (current != null)
                 {
                     // Choose the next delay to inject. The value is in milliseconds.
-                    delay = this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay, positiveDelay);
+                    delay = this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay,
+                        numDelays > 0, positiveDelay);
                     IO.Debug.WriteLine("<CoyoteDebug> Delaying operation '{0}' on thread '{1}' by {2}ms.",
                         current.Name, Thread.CurrentThread.ManagedThreadId, delay);
                 }
@@ -945,6 +947,7 @@ namespace Microsoft.Coyote.Runtime
                     // Thread.Sleep(delay);
                     SyncMonitor.Wait(this.SyncObject, delay);
                     current.Status = previousStatus;
+                    numDelays++;
                     goto RecursiveDelay;
                     // // Choose whether to delay the executing operation for longer. If true, positively delay the operation.
                     // if (this.Scheduler.GetNextRecursiveDelayChoice(this.OperationMap.Values, current))
@@ -1034,7 +1037,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns a controlled nondeterministic delay for the specified operation.
         /// </summary>
-        private int GetNondeterministicDelay(AsyncOperation op, int maxValue, bool positiveDelay = false)
+        private int GetNondeterministicDelay(AsyncOperation op, int maxValue, bool isRecursive = false, bool positiveDelay = false)
         {
             lock (this.SyncObject)
             {
@@ -1048,7 +1051,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Choose the next delay to inject.
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
-                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, positiveDelay, out int next))
+                if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, positiveDelay, isRecursive, out int next))
                 {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }

@@ -168,10 +168,12 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="current">The operation requesting the delay.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="positiveDelay">Choice for positive delays.</param>
+        /// <param name="isRecursive">...</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current, int maxValue, bool positiveDelay, out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, positiveDelay, out next);
+        internal bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current, int maxValue,
+            bool positiveDelay, bool isRecursive, out int next) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, positiveDelay, isRecursive, out next);
 
         /// <summary>
         /// Chooses whether to delay the current operation for longer.

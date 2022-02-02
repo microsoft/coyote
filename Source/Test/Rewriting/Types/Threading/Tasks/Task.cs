@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
-
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemCancellationToken = System.Threading.CancellationToken;

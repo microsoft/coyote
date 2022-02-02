@@ -38,6 +38,8 @@ namespace Microsoft.Coyote.Rewriting
                 typeof(Runtime.CompilerServices.AsyncValueTaskMethodBuilder<>);
             this.KnownTypes[NameCache.TaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter);
             this.KnownTypes[NameCache.GenericTaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter<>);
+            this.KnownTypes[NameCache.ValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter);
+            this.KnownTypes[NameCache.GenericValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter<>);
             this.KnownTypes[NameCache.ConfiguredTaskAwaitable] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable);
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaitable] =
@@ -46,10 +48,20 @@ namespace Microsoft.Coyote.Rewriting
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter);
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter);
+            this.KnownTypes[NameCache.ConfiguredValueTaskAwaitable] =
+                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable);
+            this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaitable] =
+                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>);
+            this.KnownTypes[NameCache.ConfiguredValueTaskAwaiter] =
+                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter);
+            this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaiter] =
+                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>.ConfiguredValueTaskAwaiter);
 
             // Populate the map with the default task-based types.
             this.KnownTypes[NameCache.Task] = typeof(Types.Threading.Tasks.Task);
             this.KnownTypes[NameCache.GenericTask] = typeof(Types.Threading.Tasks.Task<>);
+            this.KnownTypes[NameCache.ValueTask] = typeof(Types.Threading.Tasks.ValueTask);
+            this.KnownTypes[NameCache.GenericValueTask] = typeof(Types.Threading.Tasks.ValueTask<>);
 #if NET
             this.KnownTypes[NameCache.TaskCompletionSource] = typeof(Types.Threading.Tasks.TaskCompletionSource);
 #endif
@@ -144,6 +156,14 @@ namespace Microsoft.Coyote.Rewriting
                     this.RewriteAndImportType(arrayType.ElementType, options, onlyImport, ref isRewritten);
                 ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
                 return newArrayType;
+            }
+            else if (type is ByReferenceType refType)
+            {
+                TypeReference newElementType = refType.ElementType.IsGenericInstance ?
+                    this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten) :
+                    this.RewriteAndImportType(refType.ElementType, options, onlyImport, ref isRewritten);
+                ByReferenceType newReferenceType = new ByReferenceType(newElementType);
+                return newReferenceType;
             }
 
             return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten);

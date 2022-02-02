@@ -40,11 +40,20 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
-                    Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
-                // TODO: is it required to cache the value task?
-                // this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
-                return this.MethodBuilder.Task;
+                var builderTask = this.MethodBuilder.Task;
+                if (ValueTaskAwaiter.TryGetTask(ref builderTask, out Task innerTask))
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
+                        innerTask.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                    this.Runtime?.OnTaskCompletionSourceGetTask(innerTask);
+                }
+                else
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
+                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                }
+
+                return builderTask;
             }
         }
 
@@ -155,11 +164,20 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
-                    Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
-                // TODO: is it required to cache the value task?
-                // this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
-                return this.MethodBuilder.Task;
+                var builderTask = this.MethodBuilder.Task;
+                if (ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out Task<TResult> task))
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
+                        task.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                    this.Runtime?.OnTaskCompletionSourceGetTask(task);
+                }
+                else
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
+                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                }
+
+                return builderTask;
             }
         }
 

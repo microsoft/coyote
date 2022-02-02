@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
+using SystemTask = System.Threading.Tasks.Task;
 using SystemTasks = System.Threading.Tasks;
 using SystemValueTask = System.Threading.Tasks.ValueTask;
 
@@ -23,9 +24,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         // the generic ValueTaskAwaiter<> as ValueTaskAwaiter.
 
         /// <summary>
-        /// The value task being awaited.
+        /// The inner task being awaited.
         /// </summary>
-        private readonly SystemValueTask AwaitedTask;
+        private readonly SystemTask AwaitedTask;
 
         /// <summary>
         /// The value task awaiter.
@@ -40,18 +41,20 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter"/> struct.
         /// </summary>
-        internal ValueTaskAwaiter(in SystemValueTask awaitedTask)
+        internal ValueTaskAwaiter(ref SystemValueTask awaitedTask)
         {
-            this.AwaitedTask = awaitedTask;
+            this.AwaitedTask = ValueTaskAwaiter.TryGetTask(ref awaitedTask, out Task innerTask) ?
+                innerTask : null;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter"/> struct.
         /// </summary>
-        private ValueTaskAwaiter(in SystemValueTask awaitedTask, SystemCompiler.ValueTaskAwaiter awaiter)
+        private ValueTaskAwaiter(ref SystemValueTask awaitedTask, SystemCompiler.ValueTaskAwaiter awaiter)
         {
-            this.AwaitedTask = awaitedTask;
+            this.AwaitedTask = ValueTaskAwaiter.TryGetTask(ref awaitedTask, out Task innerTask) ?
+                innerTask : null;
             this.Awaiter = awaiter;
         }
 
@@ -60,9 +63,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public void GetResult()
         {
-            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+            if (this.AwaitedTask != null && SynchronizationContext.Current is ControlledSynchronizationContext context)
             {
-                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask.AsTask());
+                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             }
 
             this.Awaiter.GetResult();
@@ -88,7 +91,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             // Access the task being awaited through reflection.
             var field = awaiter.GetType().GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance);
             var awaitedTask = (ValueTask)field?.GetValue(awaiter);
-            return new ValueTaskAwaiter(in awaitedTask, awaiter);
+            return new ValueTaskAwaiter(ref awaitedTask, awaiter);
         }
 
         /// <summary>
@@ -99,7 +102,32 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             // Access the generic task being awaited through reflection.
             var field = awaiter.GetType().GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance);
             var awaitedTask = (ValueTask<TResult>)field?.GetValue(awaiter);
-            return new ValueTaskAwaiter<TResult>(in awaitedTask, awaiter);
+            return new ValueTaskAwaiter<TResult>(ref awaitedTask, awaiter);
+        }
+
+        /// <summary>
+        /// Tries to safely retrieve the payload of a value task if that payload is an asynchronous task.
+        /// If the payload is a <see cref="SystemTasks.Sources.IValueTaskSource"/>, then it returns null.
+        /// </summary>
+        internal static bool TryGetTask(ref SystemValueTask task, out SystemTask payload)
+        {
+            // Access the payload through reflection.
+            var field = task.GetType().GetField("_obj", BindingFlags.NonPublic | BindingFlags.Instance);
+            payload = field?.GetValueDirect(__makeref(task)) as SystemTask;
+            return payload != null;
+        }
+
+        /// <summary>
+        /// Tries to safely retrieve the payload of a value task if that payload is an asynchronous task.
+        /// If the payload is a <see cref="SystemTasks.Sources.IValueTaskSource"/>, then it returns null.
+        /// </summary>
+        internal static bool TryGetTask<TResult>(ref SystemTasks.ValueTask<TResult> task,
+            out SystemTasks.Task<TResult> payload)
+        {
+            // Access the payload through reflection.
+            var field = task.GetType().GetField("_obj", BindingFlags.NonPublic | BindingFlags.Instance);
+            payload = field?.GetValueDirect(__makeref(task)) as SystemTasks.Task<TResult>;
+            return payload != null;
         }
     }
 
@@ -115,9 +143,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         // the generic ValueTaskAwaiter<> as ValueTaskAwaiter.
 
         /// <summary>
-        /// The value task being awaited.
+        /// The inner task being awaited.
         /// </summary>
-        private readonly SystemTasks.ValueTask<TResult> AwaitedTask;
+        private readonly SystemTasks.Task<TResult> AwaitedTask;
 
         /// <summary>
         /// The value task awaiter.
@@ -132,19 +160,21 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal ValueTaskAwaiter(in SystemTasks.ValueTask<TResult> awaitedTask)
+        internal ValueTaskAwaiter(ref SystemTasks.ValueTask<TResult> awaitedTask)
         {
-            this.AwaitedTask = awaitedTask;
+            this.AwaitedTask = ValueTaskAwaiter.TryGetTask<TResult>(ref awaitedTask, out Task<TResult> innerTask) ?
+                innerTask : null;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal ValueTaskAwaiter(in SystemTasks.ValueTask<TResult> awaitedTask,
+        internal ValueTaskAwaiter(ref SystemTasks.ValueTask<TResult> awaitedTask,
             SystemCompiler.ValueTaskAwaiter<TResult> awaiter)
         {
-            this.AwaitedTask = awaitedTask;
+            this.AwaitedTask = ValueTaskAwaiter.TryGetTask<TResult>(ref awaitedTask, out Task<TResult> innerTask) ?
+                innerTask : null;
             this.Awaiter = awaiter;
         }
 
@@ -153,9 +183,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public TResult GetResult()
         {
-            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+            if (this.AwaitedTask != null && SynchronizationContext.Current is ControlledSynchronizationContext context)
             {
-                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask.AsTask());
+                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             }
 
             return this.Awaiter.GetResult();

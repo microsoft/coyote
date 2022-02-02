@@ -4,13 +4,12 @@
 using System;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
-
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemTask = System.Threading.Tasks.Task;
-using SystemValueTask = System.Threading.Tasks.ValueTask;
 using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;
 using SystemTaskCreationOptions = System.Threading.Tasks.TaskCreationOptions;
 using SystemTasks = System.Threading.Tasks;
+using SystemValueTask = System.Threading.Tasks.ValueTask;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 {
@@ -58,19 +57,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Retrieves a task object that represents this value task.
         /// </summary>
-        public static SystemTask AsTask(SystemValueTask task) => task.AsTask();
+        public static SystemTask AsTask(in SystemValueTask task) => task.AsTask();
 
         /// <summary>
         /// Returns a value task awaiter for the specified task.
         /// </summary>
-        public static ValueTaskAwaiter GetAwaiter(SystemValueTask task) => new ValueTaskAwaiter(in task);
+        public static ValueTaskAwaiter GetAwaiter(ref SystemValueTask task) => new ValueTaskAwaiter(ref task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        public static ConfiguredValueTaskAwaitable ConfigureAwait(SystemValueTask task,
-            bool continueOnCapturedContext) =>
-            new ConfiguredValueTaskAwaitable(in task, continueOnCapturedContext);
+        public static ConfiguredValueTaskAwaitable ConfigureAwait(
+            ref SystemValueTask task, bool continueOnCapturedContext) =>
+            new ConfiguredValueTaskAwaitable(ref task, continueOnCapturedContext);
     }
 
     /// <summary>
@@ -112,12 +111,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 #pragma warning disable CA1707 // Remove the underscores from member name
 #pragma warning disable SA1300 // Element should begin with an uppercase letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static TResult get_Result(SystemTasks.ValueTask<TResult> task)
+        public static TResult get_Result(ref SystemTasks.ValueTask<TResult> task)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                ValueTaskAwaiter.TryGetTask<TResult>(ref task, out SystemTasks.Task<TResult> innerTask))
             {
-                runtime.WaitUntilTaskCompletes(task.AsTask());
+                runtime.WaitUntilTaskCompletes(innerTask);
             }
 
             return task.Result;
@@ -129,20 +129,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Retrieves a task object that represents this value task.
         /// </summary>
-        public static SystemTasks.Task<TResult> AsTask(SystemTasks.ValueTask<TResult> task) => task.AsTask();
+        public static SystemTasks.Task<TResult> AsTask(in SystemTasks.ValueTask<TResult> task) => task.AsTask();
 
         /// <summary>
         /// Returns a generic task awaiter for the specified generic task.
         /// </summary>
-        public static ValueTaskAwaiter<TResult> GetAwaiter(SystemTasks.ValueTask<TResult> task) =>
-            new ValueTaskAwaiter<TResult>(in task);
+        public static ValueTaskAwaiter<TResult> GetAwaiter(ref SystemTasks.ValueTask<TResult> task) =>
+            new ValueTaskAwaiter<TResult>(ref task);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
         public static ConfiguredValueTaskAwaitable<TResult> ConfigureAwait(
-            SystemTasks.ValueTask<TResult> task, bool continueOnCapturedContext) =>
-            new ConfiguredValueTaskAwaitable<TResult>(in task, continueOnCapturedContext);
+            ref SystemTasks.ValueTask<TResult> task, bool continueOnCapturedContext) =>
+            new ConfiguredValueTaskAwaitable<TResult>(ref task, continueOnCapturedContext);
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

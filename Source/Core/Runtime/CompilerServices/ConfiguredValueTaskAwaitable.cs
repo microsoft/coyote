@@ -25,9 +25,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaitable"/> struct.
         /// </summary>
-        internal ConfiguredValueTaskAwaitable(in ValueTask awaitedTask, bool continueOnCapturedContext)
+        internal ConfiguredValueTaskAwaitable(ref ValueTask awaitedTask, bool continueOnCapturedContext)
         {
-            this.Awaiter = new ConfiguredValueTaskAwaiter(in awaitedTask, continueOnCapturedContext);
+            this.Awaiter = new ConfiguredValueTaskAwaiter(ref awaitedTask, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public struct ConfiguredValueTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
-            /// The value task being awaited.
+            /// The inner task being awaited.
             /// </summary>
-            private readonly ValueTask AwaitedTask;
+            private readonly Task AwaitedTask;
 
             /// <summary>
             /// The value task awaiter.
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredValueTaskAwaiter(in ValueTask awaitedTask, bool continueOnCapturedContext)
+            internal ConfiguredValueTaskAwaiter(ref ValueTask awaitedTask, bool continueOnCapturedContext)
             {
                 if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
@@ -68,7 +68,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     continueOnCapturedContext = true;
                 }
 
-                this.AwaitedTask = awaitedTask;
+                this.AwaitedTask = ValueTaskAwaiter.TryGetTask(ref awaitedTask, out Task innerTask) ?
+                    innerTask : null;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
             }
 
@@ -77,9 +78,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             public void GetResult()
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+                if (this.AwaitedTask != null && SynchronizationContext.Current is ControlledSynchronizationContext context)
                 {
-                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask.AsTask());
+                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 }
 
                 this.Awaiter.GetResult();
@@ -115,9 +116,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaitable{TResult}"/> struct.
         /// </summary>
-        internal ConfiguredValueTaskAwaitable(in ValueTask<TResult> awaitedTask, bool continueOnCapturedContext)
+        internal ConfiguredValueTaskAwaitable(ref ValueTask<TResult> awaitedTask, bool continueOnCapturedContext)
         {
-            this.Awaiter = new ConfiguredValueTaskAwaiter(in awaitedTask, continueOnCapturedContext);
+            this.Awaiter = new ConfiguredValueTaskAwaiter(ref awaitedTask, continueOnCapturedContext);
         }
 
         /// <summary>
@@ -133,9 +134,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public struct ConfiguredValueTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
-            /// The value task being awaited.
+            /// The inner task being awaited.
             /// </summary>
-            private readonly ValueTask<TResult> AwaitedTask;
+            private readonly Task<TResult> AwaitedTask;
 
             /// <summary>
             /// The value task awaiter.
@@ -150,7 +151,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredValueTaskAwaiter(in ValueTask<TResult> awaitedTask, bool continueOnCapturedContext)
+            internal ConfiguredValueTaskAwaiter(ref ValueTask<TResult> awaitedTask, bool continueOnCapturedContext)
             {
                 if (SynchronizationContext.Current is ControlledSynchronizationContext)
                 {
@@ -158,7 +159,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     continueOnCapturedContext = true;
                 }
 
-                this.AwaitedTask = awaitedTask;
+                this.AwaitedTask = ValueTaskAwaiter.TryGetTask<TResult>(ref awaitedTask, out Task<TResult> innerTask) ?
+                    innerTask : null;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
             }
 
@@ -167,9 +169,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             public TResult GetResult()
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
+                if (this.AwaitedTask != null && SynchronizationContext.Current is ControlledSynchronizationContext context)
                 {
-                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask.AsTask());
+                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 }
 
                 return this.Awaiter.GetResult();

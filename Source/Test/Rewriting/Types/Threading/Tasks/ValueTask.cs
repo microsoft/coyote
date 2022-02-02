@@ -20,6 +20,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class ValueTask
     {
+#if NET
         /// <summary>
         /// Gets a value task that has already completed successfully.
         /// </summary>
@@ -53,6 +54,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         public static SystemTasks.ValueTask<TResult> FromException<TResult>(Exception exception) =>
             SystemValueTask.FromException<TResult>(exception);
+#endif
 
         /// <summary>
         /// Retrieves a task object that represents this value task.

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +10,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {
-    public class TaskCompletionSourceTests : BaseBugFindingTest
+    public class GenericTaskCompletionSourceTests : BaseBugFindingTest
     {
-        public TaskCompletionSourceTests(ITestOutputHelper output)
+        public GenericTaskCompletionSourceTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -23,11 +22,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
-                tcs.SetResult();
-                await tcs.Task;
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetResult(3);
+                int result = await tcs.Task;
                 Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -39,13 +39,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
-                tcs.SetResult();
-                bool check = tcs.TrySetResult();
-                await tcs.Task;
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetResult(3);
+                bool check = tcs.TrySetResult(5);
+                int result = await tcs.Task;
                 Specification.Assert(!check, "Cannot set result again.");
                 Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -57,20 +58,21 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
-                    await tcs.Task;
+                    return await tcs.Task;
                 });
 
                 var task2 = Task.Run(() =>
                 {
-                    tcs.SetResult();
+                    tcs.SetResult(3);
                 });
 
-                await task1;
+                int result = await task1;
                 Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
@@ -80,20 +82,21 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
-                    await tcs.Task;
+                    return await tcs.Task;
                 });
 
                 var task2 = Task.Run(() =>
                 {
-                    tcs.SetResult();
+                    tcs.SetResult(3);
                 });
 
-                await task1;
+                int result = await task1;
                 Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
@@ -103,21 +106,25 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
-                    await tcs.Task;
+                    return await tcs.Task;
                 });
 
                 var task2 = Task.Run(async () =>
                 {
-                    await tcs.Task;
+                    return await tcs.Task;
                 });
 
-                tcs.SetResult();
+                tcs.SetResult(3);
                 await Task.WhenAll(task1, task2);
+                int result1 = task1.Result;
+                int result2 = task2.Result;
                 Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result1 is 3, "Found unexpected value {0}.", result1);
+                Specification.Assert(result2 is 3, "Found unexpected value {0}.", result2);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
@@ -127,13 +134,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 tcs.SetCanceled();
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -144,6 +152,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -155,14 +164,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 tcs.SetCanceled();
                 bool check = tcs.TrySetCanceled();
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -174,6 +184,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -185,16 +196,17 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetCanceled();
                 });
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -205,6 +217,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
@@ -214,13 +227,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 tcs.SetException(new InvalidOperationException());
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -231,6 +245,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -242,14 +257,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 tcs.SetException(new InvalidOperationException());
                 bool check = tcs.TrySetException(new NotImplementedException());
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -261,6 +277,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
             },
             expectedError: "Reached test assertion.",
@@ -272,16 +289,17 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetException(new InvalidOperationException());
                 });
 
+                int result = default;
                 Exception exception = null;
                 try
                 {
-                    await tcs.Task;
+                    result = await tcs.Task;
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -292,6 +310,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "Threw unexpected exception {0}.", exception.GetType());
                 Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
+                Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
@@ -301,13 +320,13 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(() =>
             {
-                var tcs = new TaskCompletionSource();
-                tcs.SetResult();
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetResult(3);
 
                 Exception exception = null;
                 try
                 {
-                    tcs.SetResult();
+                    tcs.SetResult(3);
                 }
                 catch (Exception ex) when (!(ex is ThreadInterruptedException))
                 {
@@ -327,8 +346,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(() =>
             {
-                var tcs = new TaskCompletionSource();
-                tcs.SetResult();
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetResult(3);
 
                 Exception exception = null;
                 try
@@ -353,8 +372,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(() =>
             {
-                var tcs = new TaskCompletionSource();
-                tcs.SetResult();
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetResult(3);
 
                 Exception exception = null;
                 try
@@ -379,9 +398,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var tcs = new TaskCompletionSource();
+                var tcs = new TaskCompletionSource<int>();
                 var task = tcs.Task;
-                tcs.SetResult();
+                tcs.SetResult(3);
                 Specification.Assert(tcs.Task.IsCompleted, "Task is not completed.");
                 await task;
                 Specification.Assert(task.IsCompleted, "Task is not completed.");
@@ -392,4 +411,3 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
     }
 }
-#endif

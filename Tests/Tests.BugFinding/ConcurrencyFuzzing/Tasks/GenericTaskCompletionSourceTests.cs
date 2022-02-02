@@ -1,15 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET
 using Microsoft.Coyote.Runtime;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
 {
-    public class TaskCompletionSourceTests : Tests.TaskCompletionSourceTests
+    public class GenericTaskCompletionSourceTests : Tests.GenericTaskCompletionSourceTests
     {
-        public TaskCompletionSourceTests(ITestOutputHelper output)
+        public GenericTaskCompletionSourceTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -22,4 +21,3 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
         }
     }
 }
-#endif

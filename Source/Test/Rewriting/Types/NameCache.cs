@@ -28,10 +28,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string Task { get; } = typeof(SystemTasks.Task).FullName;
         internal static string GenericTask { get; } = typeof(SystemTasks.Task<>).FullName;
-        internal static string GenericTaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource<>).FullName;
 #if NET
         internal static string TaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource).FullName;
 #endif
+        internal static string GenericTaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource<>).FullName;
 
         internal static string AsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Name;
         internal static string AsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;

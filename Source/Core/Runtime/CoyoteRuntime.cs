@@ -1376,7 +1376,7 @@ namespace Microsoft.Coyote.Runtime
             AsyncOperation op = ExecutingOperation.Value;
             if (op != null)
             {
-                // A scheduling point from an uncontrolled thread has not been postponed, so pause the execution
+                // A scheduling point from an uncontrolled thread has not been postponed yet, so pause the execution
                 // of the current operation to try give time to the uncontrolled concurrency to be resolved.
                 if (!this.IsLastSchedulingPointPostponed)
                 {
@@ -1390,7 +1390,7 @@ namespace Microsoft.Coyote.Runtime
                         SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.IsLastSchedulingPointPostponed)
                         {
-                            // A scheduling point from uncontrolled thread has been postponed,
+                            // A scheduling point from an uncontrolled thread has been postponed,
                             // so stop trying to resolve the uncontrolled concurrency.
                             break;
                         }

@@ -11,7 +11,6 @@ using SystemTask = System.Threading.Tasks.Task;
 using SystemTaskCompletionSource = System.Threading.Tasks.TaskCompletionSource;
 #endif
 using SystemTasks = System.Threading.Tasks;
-using SystemThreading = System.Threading;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 {

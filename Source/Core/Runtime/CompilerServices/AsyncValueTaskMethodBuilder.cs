@@ -7,19 +7,18 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
-    /// Represents a builder for asynchronous methods that return a controlled task.
+    /// Represents a builder for asynchronous methods that return a controlled value task.
     /// This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [StructLayout(LayoutKind.Auto)]
-    public struct AsyncTaskMethodBuilder
+    public struct AsyncValueTaskMethodBuilder
     {
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
@@ -27,40 +26,50 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// The task builder to which most operations are delegated.
+        /// The value task builder to which most operations are delegated.
         /// </summary>
 #pragma warning disable IDE0044 // Add readonly modifier
-        private SystemCompiler.AsyncTaskMethodBuilder MethodBuilder;
+        private SystemCompiler.AsyncValueTaskMethodBuilder MethodBuilder;
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
-        /// Gets the task for this builder.
+        /// Gets the value task for this builder.
         /// </summary>
-        public Task Task
+        public ValueTask Task
         {
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from thread '{1}' (isCompleted {2}).",
-                    this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
-                this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
-                return this.MethodBuilder.Task;
+                var builderTask = this.MethodBuilder.Task;
+                if (ValueTaskAwaiter.TryGetTask(ref builderTask, out Task innerTask))
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
+                        innerTask.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                    this.Runtime?.OnTaskCompletionSourceGetTask(innerTask);
+                }
+                else
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
+                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                }
+
+                return builderTask;
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
+        /// Initializes a new instance of the <see cref="AsyncValueTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
+        private AsyncValueTaskMethodBuilder(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
         /// <summary>
-        /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
+        /// Creates an instance of the <see cref="AsyncValueTaskMethodBuilder"/> struct.
         /// </summary>
-        public static AsyncTaskMethodBuilder Create()
+        public static AsyncValueTaskMethodBuilder Create()
         {
             CoyoteRuntime runtime = null;
             if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
@@ -69,7 +78,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 runtime = controlledContext.Runtime;
             }
 
-            return new AsyncTaskMethodBuilder(runtime);
+            return new AsyncValueTaskMethodBuilder(runtime);
         }
 
         /// <summary>
@@ -95,8 +104,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public void SetResult()
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from thread '{1}'.",
-                this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of value task from thread '{0}'.",
+                Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult();
         }
 
@@ -133,7 +142,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [StructLayout(LayoutKind.Auto)]
-    public struct AsyncTaskMethodBuilder<TResult>
+    public struct AsyncValueTaskMethodBuilder<TResult>
     {
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
@@ -141,41 +150,51 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// The task builder to which most operations are delegated.
+        /// The value task builder to which most operations are delegated.
         /// </summary>
 #pragma warning disable IDE0044 // Add readonly modifier
-        private SystemCompiler.AsyncTaskMethodBuilder<TResult> MethodBuilder;
+        private SystemCompiler.AsyncValueTaskMethodBuilder<TResult> MethodBuilder;
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
-        /// Gets the task for this builder.
+        /// Gets the value task for this builder.
         /// </summary>
-        public Task<TResult> Task
+        public ValueTask<TResult> Task
         {
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from thread '{1}' (isCompleted {2}).",
-                    this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId, this.MethodBuilder.Task.IsCompleted);
-                this.Runtime?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
-                return this.MethodBuilder.Task;
+                var builderTask = this.MethodBuilder.Task;
+                if (ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out Task<TResult> task))
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
+                        task.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                    this.Runtime?.OnTaskCompletionSourceGetTask(task);
+                }
+                else
+                {
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
+                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
+                }
+
+                return builderTask;
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
+        /// Initializes a new instance of the <see cref="AsyncValueTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
+        private AsyncValueTaskMethodBuilder(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
         /// <summary>
-        /// Creates an instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
+        /// Creates an instance of the <see cref="AsyncValueTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
-        public static AsyncTaskMethodBuilder<TResult> Create()
+        public static AsyncValueTaskMethodBuilder<TResult> Create()
         {
             CoyoteRuntime runtime = null;
             if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
@@ -184,7 +203,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 runtime = controlledContext.Runtime;
             }
 
-            return new AsyncTaskMethodBuilder<TResult>(runtime);
+            return new AsyncValueTaskMethodBuilder<TResult>(runtime);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
@@ -212,8 +231,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <param name="result">The result to use to complete the task.</param>
         public void SetResult(TResult result)
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from thread '{1}'.",
-                this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of value task from thread '{0}'.",
+                Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult(result);
         }
 

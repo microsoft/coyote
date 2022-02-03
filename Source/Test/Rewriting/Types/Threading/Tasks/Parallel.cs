@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
-
 using SystemParallel = System.Threading.Tasks.Parallel;
 using SystemParallelLoopResult = System.Threading.Tasks.ParallelLoopResult;
 using SystemParallelLoopState = System.Threading.Tasks.ParallelLoopState;

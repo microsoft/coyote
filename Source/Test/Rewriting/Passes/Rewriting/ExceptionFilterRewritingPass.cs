@@ -189,9 +189,12 @@ namespace Microsoft.Coyote.Rewriting
                     TypeReference type = method.DeclaringType;
                     if ((type.Namespace == NameCache.RuntimeCompilerNamespace ||
                         type.Namespace == NameCache.SystemCompilerNamespace) &&
-                        (type.Name == NameCache.AsyncTaskMethodBuilderName ||
-                        type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&
-                        method.Name is nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
+                        ((type.Name == NameCache.AsyncTaskMethodBuilderName ||
+                        type.Name.StartsWith("AsyncTaskMethodBuilder`")) ||
+                        (type.Name == NameCache.AsyncValueTaskMethodBuilderName ||
+                        type.Name.StartsWith("AsyncValueTaskMethodBuilder`"))) &&
+                        (method.Name is nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException) ||
+                        method.Name is nameof(SystemCompiler.AsyncValueTaskMethodBuilder.SetException)))
                     {
                         return true;
                     }

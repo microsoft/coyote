@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Runtime;
-
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemTask = System.Threading.Tasks.Task;

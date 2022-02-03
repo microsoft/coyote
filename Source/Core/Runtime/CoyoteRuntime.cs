@@ -1587,7 +1587,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void CheckIfReturnedTaskIsUncontrolled(Task task, string methodName)
         {
-            if (!task.IsCompleted && !this.ControlledTasks.ContainsKey(task))
+            if (task != null && !task.IsCompleted && !this.ControlledTasks.ContainsKey(task))
             {
                 this.NotifyUncontrolledTaskReturned(task, methodName);
             }

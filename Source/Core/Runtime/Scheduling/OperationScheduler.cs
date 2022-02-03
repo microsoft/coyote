@@ -130,15 +130,15 @@ namespace Microsoft.Coyote.Runtime
         internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
 
         /// <summary>
-        /// Returns the next asynchronous operation to schedule.
+        /// Returns the next controlled operation to schedule.
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next) =>
+        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next) =>
             (this.Strategy as SystematicStrategy).GetNextOperation(ops, current, isYielding, out next);
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next) =>
+        internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next) =>
             (this.Strategy as SystematicStrategy).GetNextBooleanChoice(current, maxValue, out next);
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next) =>
+        internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next) =>
             (this.Strategy as SystematicStrategy).GetNextIntegerChoice(current, maxValue, out next);
 
         /// <summary>
@@ -169,7 +169,8 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current, int maxValue, out int next) =>
+        internal bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            int maxValue, out int next) =>
             (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
 
         /// <summary>

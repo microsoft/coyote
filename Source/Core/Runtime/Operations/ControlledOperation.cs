@@ -6,9 +6,9 @@ using System;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Represents an abstract asynchronous operation that can be controlled during systematic testing.
+    /// Represents an abstract operation that can be controlled during systematic testing.
     /// </summary>
-    internal abstract class AsyncOperation : IEquatable<AsyncOperation>
+    internal abstract class ControlledOperation : IEquatable<ControlledOperation>
     {
         /// <summary>
         /// The unique id of the operation.
@@ -22,9 +22,9 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// The status of the operation. An operation can be scheduled only
-        /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
+        /// if it is <see cref="OperationStatus.Enabled"/>.
         /// </summary>
-        internal AsyncOperationStatus Status;
+        internal OperationStatus Status;
 
         /// <summary>
         /// The type of the last encountered scheduling point.
@@ -38,13 +38,13 @@ namespace Microsoft.Coyote.Runtime
         internal int HashedProgramState;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
+        /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal AsyncOperation(ulong operationId, string name)
+        internal ControlledOperation(ulong operationId, string name)
         {
             this.Id = operationId;
             this.Name = name;
-            this.Status = AsyncOperationStatus.None;
+            this.Status = OperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is AsyncOperation op)
+            if (obj is ControlledOperation op)
             {
                 return this.Id == op.Id;
             }
@@ -77,15 +77,15 @@ namespace Microsoft.Coyote.Runtime
         public override string ToString() => this.Name;
 
         /// <summary>
-        /// Indicates whether the specified <see cref="AsyncOperation"/> is equal
-        /// to the current <see cref="AsyncOperation"/>.
+        /// Indicates whether the specified <see cref="ControlledOperation"/> is equal
+        /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
-        public bool Equals(AsyncOperation other) => this.Equals((object)other);
+        public bool Equals(ControlledOperation other) => this.Equals((object)other);
 
         /// <summary>
-        /// Indicates whether the specified <see cref="AsyncOperation"/> is equal
-        /// to the current <see cref="AsyncOperation"/>.
+        /// Indicates whether the specified <see cref="ControlledOperation"/> is equal
+        /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
-        bool IEquatable<AsyncOperation>.Equals(AsyncOperation other) => this.Equals(other);
+        bool IEquatable<ControlledOperation>.Equals(ControlledOperation other) => this.Equals(other);
     }
 }

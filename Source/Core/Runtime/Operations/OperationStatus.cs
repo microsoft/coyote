@@ -4,9 +4,9 @@
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// The status of an asynchronous operation.
+    /// The status of a controlled operation.
     /// </summary>
-    internal enum AsyncOperationStatus
+    internal enum OperationStatus
     {
         /// <summary>
         /// The operation does not have a status yet.

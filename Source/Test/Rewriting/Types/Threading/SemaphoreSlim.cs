@@ -226,8 +226,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 while (this.CurrentCount is 0)
                 {
                     // The resource is not available yet, notify the scheduler that the executing
-                    // asynchronous operation is blocked, so that it cannot be scheduled during
-                    // systematic testing exploration, which could deadlock.
+                    // operation is blocked, so that it cannot be scheduled during systematic testing
+                    // exploration, which could deadlock.
                     this.Resource.Wait();
                 }
 
@@ -270,8 +270,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.Resource.SignalAll();
 
                 // This must be called outside the context of the semaphore, because it notifies
-                // the scheduler to try schedule another asynchronous operation that could in turn
-                // try to acquire this semaphore causing a deadlock.
+                // the scheduler to try schedule another operation that could in turn try to
+                // acquire this semaphore causing a deadlock.
                 this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Release);
             }
         }

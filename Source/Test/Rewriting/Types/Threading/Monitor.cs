@@ -360,17 +360,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// The current owner of this synchronization object.
             /// </summary>
-            private AsyncOperation Owner;
+            private ControlledOperation Owner;
 
             /// <summary>
             /// Wait queue of asynchronous operations.
             /// </summary>
-            private readonly List<AsyncOperation> WaitQueue;
+            private readonly List<ControlledOperation> WaitQueue;
 
             /// <summary>
             /// Ready queue of asynchronous operations.
             /// </summary>
-            private readonly List<AsyncOperation> ReadyQueue;
+            private readonly List<ControlledOperation> ReadyQueue;
 
             /// <summary>
             /// Queue of nondeterministically buffered pulse operations to be performed after releasing
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// be acquired more than one times by the same owner. A count > 1 indicates that the
             /// invocation by the current owner is reentrant.
             /// </summary>
-            private readonly Dictionary<AsyncOperation, int> LockCountMap;
+            private readonly Dictionary<ControlledOperation, int> LockCountMap;
 
             /// <summary>
             /// Used to reference count accesses to this synchronized block
@@ -403,10 +403,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 this.SyncObject = syncObject;
                 this.Resource = new Resource();
-                this.WaitQueue = new List<AsyncOperation>();
-                this.ReadyQueue = new List<AsyncOperation>();
+                this.WaitQueue = new List<ControlledOperation>();
+                this.ReadyQueue = new List<ControlledOperation>();
                 this.PulseQueue = new Queue<PulseOperation>();
-                this.LockCountMap = new Dictionary<AsyncOperation, int>();
+                this.LockCountMap = new Dictionary<ControlledOperation, int>();
                 this.UseCount = 0;
             }
 
@@ -431,7 +431,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                     return this.Owner == op;
                 }
 
@@ -452,7 +452,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 // The executing op acquired the lock and can proceed.
-                this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                this.Owner = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }
@@ -499,7 +499,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             private void SchedulePulse(PulseOperation pulseOperation)
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
@@ -573,7 +573,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal bool Wait()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
@@ -640,7 +640,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 if (this.ReadyQueue.Count > 0)
                 {
                     // If there is a operation waiting in the ready queue, then signal it.
-                    AsyncOperation op = this.ReadyQueue[0];
+                    ControlledOperation op = this.ReadyQueue[0];
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
                     this.Resource.Signal(op);
@@ -649,7 +649,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
             internal void Exit()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
                 this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
 
                 this.LockCountMap[op]--;

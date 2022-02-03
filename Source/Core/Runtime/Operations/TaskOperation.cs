@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Represents an asynchronous task operation that can be controlled during systematic testing.
+    /// Represents a task operation that can be controlled during systematic testing.
     /// </summary>
-    internal class TaskOperation : AsyncOperation
+    internal class TaskOperation : ControlledOperation
     {
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks

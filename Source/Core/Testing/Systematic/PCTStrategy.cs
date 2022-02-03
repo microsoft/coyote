@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// List of prioritized operations.
         /// </summary>
-        private readonly List<AsyncOperation> PrioritizedOperations;
+        private readonly List<ControlledOperation> PrioritizedOperations;
 
         /// <summary>
         /// Scheduling points in the current execution where a priority change should occur.
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.StepCount = 0;
             this.ScheduleLength = 0;
             this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
-            this.PrioritizedOperations = new List<AsyncOperation>();
+            this.PrioritizedOperations = new List<ControlledOperation>();
             this.PriorityChangePoints = new HashSet<int>();
         }
 
@@ -95,11 +95,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
             next = null;
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
             if (enabledOps.Count is 0)
             {
                 return false;
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.DeprioritizeEnabledOperationWithHighestPriority(enabledOps, current, isYielding);
             this.DebugPrintOperationPriorityList();
 
-            AsyncOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
+            ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
             next = enabledOps.First(op => op.Equals(highestEnabledOperation));
             this.StepCount++;
             return true;
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Sets the priority of new operations, if there are any.
         /// </summary>
-        private void SetNewOperationPriorities(List<AsyncOperation> ops, AsyncOperation current)
+        private void SetNewOperationPriorities(List<ControlledOperation> ops, ControlledOperation current)
         {
             if (this.PrioritizedOperations.Count is 0)
             {
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Deprioritizes the enabled operation with the highest priority, if there is a
         /// priotity change point installed on the current execution step.
         /// </summary>
-        private void DeprioritizeEnabledOperationWithHighestPriority(List<AsyncOperation> ops, AsyncOperation current, bool isYielding)
+        private void DeprioritizeEnabledOperationWithHighestPriority(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
         {
             if (ops.Count <= 1)
             {
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return;
             }
 
-            AsyncOperation deprioritizedOperation = null;
+            ControlledOperation deprioritizedOperation = null;
             if (this.PriorityChangePoints.Contains(this.StepCount))
             {
                 // This scheduling step was chosen as a priority switch point.
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Returns the enabled operation with the highest priority.
         /// </summary>
-        private AsyncOperation GetEnabledOperationWithHighestPriority(List<AsyncOperation> ops)
+        private ControlledOperation GetEnabledOperationWithHighestPriority(List<ControlledOperation> ops)
         {
             foreach (var entity in this.PrioritizedOperations)
             {
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
             next = false;
             if (this.RandomValueGenerator.Next(maxValue) is 0)
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.StepCount++;

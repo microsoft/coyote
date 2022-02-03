@@ -5,7 +5,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
-
 using SystemHttpMethod = System.Net.Http.HttpMethod;
 using SystemHttpRequestMessage = System.Net.Http.HttpRequestMessage;
 using SystemThread = System.Threading.Thread;
@@ -45,13 +44,16 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         internal static SystemHttpRequestMessage WithRuntimeIdHeader(SystemHttpRequestMessage request)
         {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None && !request.Headers.Contains("ms-coyote-runtime-id"))
+            if (request != null)
             {
-                string runtimeId = runtime.Id.ToString();
-                IO.Debug.WriteLine("<CoyoteDebug> Assigned runtime id '{0}' to '{1} {2}' request from thread '{3}'.",
-                    runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
-                request.Headers.Add("ms-coyote-runtime-id", runtimeId);
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None && !request.Headers.Contains("ms-coyote-runtime-id"))
+                {
+                    string runtimeId = runtime.Id.ToString();
+                    IO.Debug.WriteLine("<CoyoteDebug> Assigned runtime id '{0}' to '{1} {2}' request from thread '{3}'.",
+                        runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
+                    request.Headers.Add("ms-coyote-runtime-id", runtimeId);
+                }
             }
 
             return request;

@@ -3,7 +3,6 @@
 
 #if NET || NETCOREAPP3_1
 using System.Runtime.CompilerServices;
-
 using SystemHttpClient = System.Net.Http.HttpClient;
 using SystemHttpMessageHandler = System.Net.Http.HttpMessageHandler;
 

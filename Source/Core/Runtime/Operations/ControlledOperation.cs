@@ -38,11 +38,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly HashSet<object> Dependencies;
 
         /// <summary>
-        /// True if at least one of the dependencies is uncontrolled, else false.
-        /// </summary>
-        internal bool IsDependencyUncontrolled;
-
-        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>

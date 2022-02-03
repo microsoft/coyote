@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Map from controlled tasks to their corresponding operations.
         /// </summary>
-        private readonly ConcurrentDictionary<Task, TaskOperation> ControlledTasks;
+        private readonly ConcurrentDictionary<Task, ControlledOperation> ControlledTasks;
 
         /// <summary>
         /// Set of known uncontrolled tasks.
@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.Runtime
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
             this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
-            this.ControlledTasks = new ConcurrentDictionary<Task, TaskOperation>();
+            this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new HashSet<Task>();
             this.UncontrolledInvocations = new HashSet<string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.Runtime
                 Thread.CurrentThread.ManagedThreadId);
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
-            TaskOperation op = this.CreateTaskOperation();
+            ControlledOperation op = this.CreateControlledOperation();
             var thread = new Thread(() =>
             {
                 try
@@ -417,14 +417,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a new task operation.
+        /// Creates a new controlled operation with an optional delay.
         /// </summary>
-        private TaskOperation CreateTaskOperation(uint delay = 0)
+        private ControlledOperation CreateControlledOperation(uint delay = 0)
         {
             ulong operationId = this.GetNextOperationId();
-            TaskOperation op = delay > 0 ?
-                new TaskOperation(operationId, $"TaskDelay({operationId})", delay) :
-                new TaskOperation(operationId, $"Task({operationId})", 0);
+            ControlledOperation op = delay > 0 ?
+                new DelayOperation(operationId, $"Delay({operationId})", delay) :
+                new ControlledOperation(operationId, $"Op({operationId})");
             this.RegisterOperation(op);
             return op;
         }
@@ -442,7 +442,7 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            TaskOperation op = this.CreateTaskOperation();
+            ControlledOperation op = this.CreateControlledOperation();
             var thread = new Thread(() =>
             {
                 try
@@ -504,7 +504,8 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            TaskOperation op = task.AsyncState as TaskOperation ?? this.CreateTaskOperation();
+            // Check if an existing controlled operation is stored in the state of the task.
+            ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation();
             var thread = new Thread(() =>
             {
                 try
@@ -580,10 +581,10 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                TaskOperation op = this.CreateTaskOperation(timeout);
+                ControlledOperation op = this.CreateControlledOperation(timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
-                    var delayedOp = state as TaskOperation;
+                    var delayedOp = state as ControlledOperation;
                     delayedOp.Status = OperationStatus.Delayed;
                     this.ScheduleNextOperation(SchedulingPointType.Yield);
                 },
@@ -620,7 +621,7 @@ namespace Microsoft.Coyote.Runtime
                 return true;
             }
 
-            var callerOp = this.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<ControlledOperation>();
             this.WaitUntilTasksComplete(callerOp, tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -646,7 +647,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            var callerOp = this.GetExecutingOperation<TaskOperation>();
+            var callerOp = this.GetExecutingOperation<ControlledOperation>();
             this.WaitUntilTasksComplete(callerOp, tasks, waitAll: false);
 
             int result = -1;
@@ -666,12 +667,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Blocks the specified operation until all or any of the tasks complete.
         /// </summary>
-        private void WaitUntilTasksComplete(TaskOperation op, Task[] tasks, bool waitAll)
+        private void WaitUntilTasksComplete(ControlledOperation op, Task[] tasks, bool waitAll)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
-                // tasks are not completed. If that is the case, then we add all tasks to `JoinDependencies` and wait
+                // tasks are not completed. If that is the case, then we add all tasks to `Dependencies` and wait
                 // at least one to complete. If, however, even one task is completed, then we should not wait, as it
                 // can cause potential deadlocks.
                 if (waitAll || tasks.All(task => !task.IsCompleted))
@@ -681,11 +682,11 @@ namespace Microsoft.Coyote.Runtime
                         if (!task.IsCompleted)
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
-                            op.JoinDependencies.Add(task);
+                            op.Dependencies.Add(task);
                         }
                     }
 
-                    if (op.JoinDependencies.Count > 0)
+                    if (op.Dependencies.Count > 0)
                     {
                         op.Status = waitAll ? OperationStatus.BlockedOnWaitAll : OperationStatus.BlockedOnWaitAny;
                         this.ScheduleNextOperation(SchedulingPointType.Join);
@@ -709,7 +710,7 @@ namespace Microsoft.Coyote.Runtime
                         this.NotifyUncontrolledTaskWait(task);
                     }
 
-                    var op = this.GetExecutingOperation<TaskOperation>();
+                    var op = this.GetExecutingOperation<ControlledOperation>();
                     this.WaitUntilTaskCompletes(op, task);
                 }
                 else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
@@ -722,12 +723,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Blocks the specified operation until the task completes.
         /// </summary>
-        internal void WaitUntilTaskCompletes(TaskOperation op, Task task)
+        internal void WaitUntilTaskCompletes(ControlledOperation op, Task task)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
-                op.JoinDependencies.Add(task);
+                op.Dependencies.Add(task);
                 op.Status = OperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(SchedulingPointType.Join);
             }
@@ -739,7 +740,7 @@ namespace Microsoft.Coyote.Runtime
         internal Task UnwrapTask(Task<Task> task)
         {
             var unwrappedTask = task.Unwrap();
-            if (this.ControlledTasks.TryGetValue(task, out TaskOperation op))
+            if (this.ControlledTasks.TryGetValue(task, out ControlledOperation op))
             {
                 this.ControlledTasks.TryAdd(unwrappedTask, op);
             }
@@ -753,7 +754,7 @@ namespace Microsoft.Coyote.Runtime
         internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task)
         {
             var unwrappedTask = task.Unwrap();
-            if (this.ControlledTasks.TryGetValue(task, out TaskOperation op))
+            if (this.ControlledTasks.TryGetValue(task, out ControlledOperation op))
             {
                 this.ControlledTasks.TryAdd(unwrappedTask, op);
             }
@@ -874,8 +875,6 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableAndOrderOperations(out IOrderedEnumerable<ControlledOperation> ops)
         {
-            // If partial controlled concurrency is enabled, and there are no operations enabled,
-            // then retry multiple times before giving up.
             int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
             int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
             int enabledOpsCount = 0;
@@ -906,7 +905,10 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                if (enabledOpsCount is 0 && this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                // If partial controlled concurrency is enabled, and there are no operations enabled,
+                // or there are operations with uncontrolled dependencies, then retry multiple times.
+                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled &&
+                    enabledOpsCount is 0)
                 {
                     // Implement a simple retry logic to try resolve uncontrolled concurrency.
                     IO.Debug.WriteLine(
@@ -1188,27 +1190,27 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Tries to enable the specified operation.
+        /// Tries to enable the specified operation, if its dependencies have been satisfied.
         /// </summary>
         /// <remarks>
         /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
         /// </remarks>
         private bool TryEnableOperation(ControlledOperation op)
         {
-            if (op.Status is OperationStatus.Delayed && op is TaskOperation delayedOp)
+            if (op.Status is OperationStatus.Delayed && op is DelayOperation delayedOp)
             {
-                if (delayedOp.Timeout > 0)
+                if (delayedOp.Delay > 0)
                 {
-                    delayedOp.Timeout--;
+                    delayedOp.Delay--;
                 }
 
-                // The task operation is delayed, so it is enabled either if the delay completes
+                // The operation is delayed, so it is enabled either if the delay completes
                 // or if no other operation is enabled.
 
-                if (delayedOp.Timeout is 0 ||
+                if (delayedOp.Delay is 0 ||
                     !this.OperationMap.Any(kvp => kvp.Value.Status is OperationStatus.Enabled))
                 {
-                    delayedOp.Timeout = 0;
+                    delayedOp.Delay = 0;
                     delayedOp.Status = OperationStatus.Enabled;
                     return true;
                 }
@@ -1226,16 +1228,14 @@ namespace Microsoft.Coyote.Runtime
                 return false;
             }
 
-            // If this is a task operation blocked on other tasks, then check if the
-            // necessary tasks are completed.
-            if (op is TaskOperation taskOp &&
-                ((taskOp.Status is OperationStatus.BlockedOnWaitAll &&
-                taskOp.JoinDependencies.All(task => task.IsCompleted)) ||
-                (taskOp.Status is OperationStatus.BlockedOnWaitAny &&
-                taskOp.JoinDependencies.Any(task => task.IsCompleted))))
+            // If the operation is blocked on one or more tasks, then check if the tasks have completed.
+            if ((op.Status is OperationStatus.BlockedOnWaitAll &&
+                op.Dependencies.All(dependency => dependency is Task task && task.IsCompleted)) ||
+                (op.Status is OperationStatus.BlockedOnWaitAny &&
+                op.Dependencies.Any(dependency => dependency is Task task && task.IsCompleted)))
             {
-                taskOp.JoinDependencies.Clear();
-                taskOp.Status = OperationStatus.Enabled;
+                op.Dependencies.Clear();
+                op.Status = OperationStatus.Enabled;
                 return true;
             }
 
@@ -1375,9 +1375,9 @@ namespace Microsoft.Coyote.Runtime
                         operationHash = (operationHash * 31) + actorOperation.SchedulingPoint.GetHashCode();
                         hash *= operationHash;
                     }
-                    else if (operation is TaskOperation taskOperation)
+                    else
                     {
-                        hash *= 31 + taskOperation.SchedulingPoint.GetHashCode();
+                        hash *= 31 + operation.SchedulingPoint.GetHashCode();
                     }
                 }
 

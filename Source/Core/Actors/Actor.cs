@@ -1005,7 +1005,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.Status = AsyncOperationStatus.BlockedOnReceive;
+                this.Operation.Status = OperationStatus.BlockedOnReceive;
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -1026,7 +1026,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.Status = AsyncOperationStatus.Enabled;
+                this.Operation.Status = OperationStatus.Enabled;
             }
         }
 

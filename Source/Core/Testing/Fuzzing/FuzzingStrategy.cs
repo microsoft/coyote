@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal abstract bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+        internal abstract bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next);
 
         /// <summary>

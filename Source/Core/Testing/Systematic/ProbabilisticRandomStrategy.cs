@@ -28,10 +28,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
             if (enabledOps.Count is 0)
             {
                 next = null;
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             if (enabledOps.Count > 1)
             {
-                if (!this.ShouldCurrentMachineChange() && current.Status is AsyncOperationStatus.Enabled)
+                if (!this.ShouldCurrentMachineChange() && current.Status is OperationStatus.Enabled)
                 {
                     next = current;
                     return true;

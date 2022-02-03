@@ -77,6 +77,24 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalControlledOperations { get; internal set; }
 
         /// <summary>
+        /// The min degree of concurrency.
+        /// </summary>
+        [DataMember]
+        public int MinConcurrencyDegree { get; internal set; }
+
+        /// <summary>
+        /// The max degree of concurrency.
+        /// </summary>
+        [DataMember]
+        public int MaxConcurrencyDegree { get; internal set; }
+
+        /// <summary>
+        /// The total degree of concurrency (across all testing iterations).
+        /// </summary>
+        [DataMember]
+        public int TotalConcurrencyDegree { get; internal set; }
+
+        /// <summary>
         /// The min explored scheduling steps in fair tests.
         /// </summary>
         [DataMember]
@@ -146,6 +164,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinControlledOperations = -1;
             this.MaxControlledOperations = -1;
             this.TotalControlledOperations = 0;
+            this.MinConcurrencyDegree = -1;
+            this.MaxConcurrencyDegree = -1;
+            this.TotalConcurrencyDegree = 0;
             this.MinExploredFairSteps = -1;
             this.MaxExploredFairSteps = -1;
             this.TotalExploredFairSteps = 0;
@@ -160,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <inheritdoc/>
         void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations,
-            int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
+            int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
             {
@@ -169,32 +190,30 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.TotalControlledOperations += numOperations;
-
+            this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, numOperations);
             if (this.MinControlledOperations < 0 ||
                 this.MinControlledOperations > numOperations)
             {
                 this.MinControlledOperations = numOperations;
             }
 
-            if (this.MaxControlledOperations < numOperations)
+            this.TotalConcurrencyDegree += concurrencyDegree;
+            this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, concurrencyDegree);
+            if (this.MinConcurrencyDegree < 0 ||
+                this.MinConcurrencyDegree > concurrencyDegree)
             {
-                this.MaxControlledOperations = numOperations;
+                this.MinConcurrencyDegree = concurrencyDegree;
             }
 
             if (isScheduleFair)
             {
                 this.NumOfExploredFairSchedules++;
                 this.TotalExploredFairSteps += scheduledSteps;
-
+                this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, scheduledSteps);
                 if (this.MinExploredFairSteps < 0 ||
                     this.MinExploredFairSteps > scheduledSteps)
                 {
                     this.MinExploredFairSteps = scheduledSteps;
-                }
-
-                if (this.MaxExploredFairSteps < scheduledSteps)
-                {
-                    this.MaxExploredFairSteps = scheduledSteps;
                 }
 
                 if (isMaxScheduledStepsBoundReached)
@@ -250,6 +269,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.BugReports.UnionWith(testReport.BugReports);
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
 
+                this.TotalControlledOperations += testReport.TotalControlledOperations;
+                this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, testReport.MaxControlledOperations);
                 if (testReport.MinControlledOperations >= 0 &&
                     (this.MinControlledOperations < 0 ||
                     this.MinControlledOperations > testReport.MinControlledOperations))
@@ -257,16 +278,18 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations = testReport.MinControlledOperations;
                 }
 
-                if (this.MaxControlledOperations < testReport.MaxControlledOperations)
+                this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
+                this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, testReport.MaxConcurrencyDegree);
+                if (testReport.MinConcurrencyDegree >= 0 &&
+                    (this.MinConcurrencyDegree < 0 ||
+                    this.MinConcurrencyDegree > testReport.MinConcurrencyDegree))
                 {
-                    this.MaxControlledOperations = testReport.MaxControlledOperations;
+                    this.MinConcurrencyDegree = testReport.MinConcurrencyDegree;
                 }
-
-                this.TotalControlledOperations += testReport.TotalControlledOperations;
 
                 this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
                 this.NumOfExploredUnfairSchedules += testReport.NumOfExploredUnfairSchedules;
-
+                this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, testReport.MaxExploredFairSteps);
                 if (testReport.MinExploredFairSteps >= 0 &&
                     (this.MinExploredFairSteps < 0 ||
                     this.MinExploredFairSteps > testReport.MinExploredFairSteps))
@@ -274,13 +297,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinExploredFairSteps = testReport.MinExploredFairSteps;
                 }
 
-                if (this.MaxExploredFairSteps < testReport.MaxExploredFairSteps)
-                {
-                    this.MaxExploredFairSteps = testReport.MaxExploredFairSteps;
-                }
-
                 this.TotalExploredFairSteps += testReport.TotalExploredFairSteps;
-
                 this.MaxFairStepsHitInFairTests += testReport.MaxFairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInFairTests += testReport.MaxUnfairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInUnfairTests += testReport.MaxUnfairStepsHitInUnfairTests;
@@ -359,6 +376,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations,
                     (int)(this.TotalControlledOperations / totalExploredSchedules),
                     this.MaxControlledOperations);
+            }
+
+            if (this.TotalConcurrencyDegree > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Degree of concurrency: {1} (min), {2} (avg), {3} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.MinConcurrencyDegree,
+                    (int)(this.TotalConcurrencyDegree / totalExploredSchedules),
+                    this.MaxConcurrencyDegree);
             }
 
             if (this.NumOfExploredFairSchedules > 0)

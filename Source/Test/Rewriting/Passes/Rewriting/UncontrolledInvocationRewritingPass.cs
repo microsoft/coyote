@@ -118,11 +118,6 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     return true;
                 }
-
-                // else if (type.Name is nameof(System.Threading.Tasks.ValueTask))
-                // {
-                //     return true;
-                // }
             }
             else if (type.Namespace.StartsWith(typeof(System.Threading.Thread).Namespace))
             {

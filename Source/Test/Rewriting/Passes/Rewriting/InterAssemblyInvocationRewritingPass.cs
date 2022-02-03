@@ -39,15 +39,29 @@ namespace Microsoft.Coyote.Rewriting
                 this.IsForeignType(methodReference.DeclaringType))
             {
                 TypeDefinition resolvedReturnType = methodReference.ReturnType.Resolve();
-                if (IsTaskType(resolvedReturnType, NameCache.TaskName, NameCache.SystemTasksNamespace) ||
-                    IsTaskType(resolvedReturnType, NameCache.ValueTaskName, NameCache.SystemTasksNamespace))
+                if (IsTaskType(resolvedReturnType, NameCache.TaskName, NameCache.SystemTasksNamespace))
                 {
                     string methodName = GetFullyQualifiedMethodName(methodReference);
-                    Debug.WriteLine($"............. [+] injected returned uncontrolled task assertion for method '{methodName}'");
+                    Debug.WriteLine($"............. [+] returned uncontrolled task assertion for method '{methodName}'");
 
                     var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                     MethodReference providerMethod = providerType.Methods.FirstOrDefault(
                         m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedTaskNotControlled));
+                    providerMethod = this.Module.ImportReference(providerMethod);
+
+                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));
+                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
+                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
+                    this.IsMethodBodyModified = true;
+                }
+                else if (IsTaskType(resolvedReturnType, NameCache.ValueTaskName, NameCache.SystemTasksNamespace))
+                {
+                    string methodName = GetFullyQualifiedMethodName(methodReference);
+                    Debug.WriteLine($"............. [+] returned uncontrolled value task assertion for method '{methodName}'");
+
+                    var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                        m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedValueTaskNotControlled));
                     providerMethod = this.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));

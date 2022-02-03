@@ -59,7 +59,6 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
-            this.IsDependencyUncontrolled = false;
             this.Thread = -1;
             this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;
             if (this.Msg.Length > 0)

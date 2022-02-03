@@ -102,6 +102,7 @@ Task '' completed.
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
 <StrategyLog> Controlled 3 operations: 3 (), 3 (), 3 ().
+<StrategyLog> Degree of concurrency: 2 (), 2 (), 2 ().
 <StrategyLog> Number of scheduling decisions in fair terminating schedules: 4 (), 4 (), 4 ().";
 
                 string actual = engine.ReadableTrace.ToString();

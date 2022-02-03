@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Represents an abstract operation that can be controlled during systematic testing.
+    /// Represents an operation that can be controlled during testing.
     /// </summary>
-    internal abstract class ControlledOperation : IEquatable<ControlledOperation>
+    internal class ControlledOperation : IEquatable<ControlledOperation>
     {
         /// <summary>
         /// The unique id of the operation.
@@ -32,6 +33,16 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPointType SchedulingPoint;
 
         /// <summary>
+        /// Set of dependencies that must get satisfied before this operation can resume executing.
+        /// </summary>
+        internal readonly HashSet<object> Dependencies;
+
+        /// <summary>
+        /// True if at least one of the dependencies is uncontrolled, else false.
+        /// </summary>
+        internal bool IsDependencyUncontrolled;
+
+        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>
@@ -52,6 +63,8 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = OperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
+            this.Dependencies = new HashSet<object>();
+            this.IsDependencyUncontrolled = false;
             this.Thread = -1;
             this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;
             if (this.Msg.Length > 0)

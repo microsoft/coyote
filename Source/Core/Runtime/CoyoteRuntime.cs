@@ -211,7 +211,7 @@ namespace Microsoft.Coyote.Runtime
             SchedulingPolicy.None;
 
         /// <summary>
-        /// The max number of operations that can be scheduled at one time.
+        /// The max number of operations that were enabled at the same time.
         /// </summary>
         private uint MaxConcurrencyDegree;
 

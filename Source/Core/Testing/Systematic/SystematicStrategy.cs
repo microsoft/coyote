@@ -55,15 +55,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Returns the next asynchronous operation to schedule.
+        /// Returns the next controlled operation to schedule.
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next);
+        internal abstract bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next);
+        internal abstract bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
+        internal abstract bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next);
 
         /// <summary>
         /// Resets the strategy.

@@ -690,6 +690,10 @@ namespace Microsoft.Coyote.Runtime
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                             op.Dependencies.Add(task);
+                            if (!this.ControlledTasks.ContainsKey(task))
+                            {
+                                op.IsDependencyUncontrolled = true;
+                            }
                         }
                     }
 
@@ -736,6 +740,11 @@ namespace Microsoft.Coyote.Runtime
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                 op.Dependencies.Add(task);
+                if (!this.ControlledTasks.ContainsKey(task))
+                {
+                    op.IsDependencyUncontrolled = true;
+                }
+
                 op.Status = OperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(SchedulingPointType.Join);
             }
@@ -891,6 +900,7 @@ namespace Microsoft.Coyote.Runtime
                 // Enable any blocked operation that has its dependencies already satisfied.
                 IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
                 int disabledCount = 0;
+                bool isDependencyUncontrolled = false;
                 foreach (var op in this.OperationMap.Values)
                 {
                     var previousStatus = op.Status;
@@ -910,6 +920,7 @@ namespace Microsoft.Coyote.Runtime
                         if (previousStatus == op.Status)
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                            isDependencyUncontrolled |= op.IsDependencyUncontrolled;
                         }
                         else
                         {
@@ -929,6 +940,11 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS!");
                     }
 
+                    if (isDependencyUncontrolled)
+                    {
+                        IO.Debug.WriteLine($"<CoyoteDebug> UNCONTROLLED DEPENDENCY!");
+                    }
+
                     // Implement a simple retry logic to try resolve uncontrolled concurrency.
                     IO.Debug.WriteLine(
                         "<CoyoteDebug> !!! Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
@@ -945,6 +961,7 @@ namespace Microsoft.Coyote.Runtime
             // Get and order the operations by their id.
             ops = this.OperationMap.Values.OrderBy(op => op.Id);
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
+            IO.Debug.WriteLine("<CoyoteDebug> Remaining {0} attempts.", attempts);
             if (enabledOpsCount is 0)
             {
                 this.WriteDebugInfo(false);
@@ -1357,6 +1374,7 @@ namespace Microsoft.Coyote.Runtime
                 op.Dependencies.Any(dependency => dependency is Task task && task.IsCompleted)))
             {
                 op.Dependencies.Clear();
+                op.IsDependencyUncontrolled = false;
                 op.Status = OperationStatus.Enabled;
                 return true;
             }

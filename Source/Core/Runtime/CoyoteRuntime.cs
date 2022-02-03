@@ -1295,8 +1295,8 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
-            where TAsyncOperation : ControlledOperation
+        internal TControlledOperation GetExecutingOperation<TControlledOperation>()
+            where TControlledOperation : ControlledOperation
         {
             lock (this.SyncObject)
             {
@@ -1306,7 +1306,7 @@ namespace Microsoft.Coyote.Runtime
                     this.NotifyUncontrolledCurrentThread();
                 }
 
-                return op is TAsyncOperation expected ? expected : default;
+                return op is TControlledOperation expected ? expected : default;
             }
         }
 
@@ -1317,13 +1317,13 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal TAsyncOperation GetOperationWithId<TAsyncOperation>(ulong id)
-            where TAsyncOperation : ControlledOperation
+        internal TControlledOperation GetOperationWithId<TControlledOperation>(ulong id)
+            where TControlledOperation : ControlledOperation
         {
             lock (this.SyncObject)
             {
                 if (this.OperationMap.TryGetValue(id, out ControlledOperation op) &&
-                    op is TAsyncOperation expected)
+                    op is TControlledOperation expected)
                 {
                     return expected;
                 }

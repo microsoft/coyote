@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Gets a value that indicates whether the controlled task has completed.
             /// </summary>
-            public bool IsCompleted => this.AwaitedTask.IsCompleted;
+            public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Gets a value that indicates whether the controlled task has completed.
             /// </summary>
-            public bool IsCompleted => this.AwaitedTask.IsCompleted;
+            public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.

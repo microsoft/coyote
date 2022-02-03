@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets a value that indicates whether the controlled value task has completed.
         /// </summary>
-        public bool IsCompleted => this.Awaiter.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter"/> struct.
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets a value that indicates whether the controlled value task has completed.
         /// </summary>
-        public bool IsCompleted => this.Awaiter.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter{TResult}"/> struct.

@@ -217,6 +217,11 @@ namespace Microsoft.Coyote.Runtime
             SchedulingPolicy.None;
 
         /// <summary>
+        /// The max number of operations that were enabled at the same time.
+        /// </summary>
+        private uint MaxConcurrencyDegree;
+
+        /// <summary>
         /// True if a bug was found, else false.
         /// </summary>
         internal bool IsBugFound { get; private set; }
@@ -285,6 +290,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsSchedulerSuppressed = false;
             this.IsUncontrolledConcurrencyDetected = false;
             this.IsLastSchedulingPointPostponed = false;
+            this.MaxConcurrencyDegree = 0;
             this.IsBugFound = false;
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
@@ -894,7 +900,7 @@ namespace Microsoft.Coyote.Runtime
         {
             int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
             int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
-            int enabledOpsCount = 0;
+            uint enabledOpsCount = 0;
             while (attempts > 0)
             {
                 // Enable any blocked operation that has its dependencies already satisfied.
@@ -967,6 +973,7 @@ namespace Microsoft.Coyote.Runtime
                 this.WriteDebugInfo(false);
             }
 
+            this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
             return enabledOpsCount > 0;
         }
 
@@ -2029,7 +2036,8 @@ namespace Microsoft.Coyote.Runtime
             lock (this.SyncObject)
             {
                 report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.OperationMap.Count,
-                    this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached, this.Scheduler.IsScheduleFair);
+                    (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
+                    this.Scheduler.IsScheduleFair);
                 if (this.IsBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);

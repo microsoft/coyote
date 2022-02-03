@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Coyote.Runtime;
-
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;

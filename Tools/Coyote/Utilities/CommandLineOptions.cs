@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Utilities
             basicGroup.AddArgument("break", "b", "Attaches the debugger and also adds a breakpoint when an assertion fails (disabled during parallel testing)", typeof(bool));
             basicGroup.AddArgument("version", null, "Show tool version", typeof(bool));
 
-            var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
+            var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
             testingGroup.AddArgument("timeout", "t", "Timeout in seconds after which no more testing iterations will run (disabled by default)", typeof(uint));

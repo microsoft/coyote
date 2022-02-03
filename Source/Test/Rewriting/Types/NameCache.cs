@@ -5,6 +5,9 @@ using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemConcurrentCollections = System.Collections.Concurrent;
 using SystemGenericCollections = System.Collections.Generic;
+#if NET || NETCOREAPP3_1
+using SystemNetHttp = System.Net.Http;
+#endif
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
 
@@ -73,5 +76,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string ConcurrentDictionary { get; } = typeof(SystemConcurrentCollections.ConcurrentDictionary<,>).FullName;
         internal static string ConcurrentQueue { get; } = typeof(SystemConcurrentCollections.ConcurrentQueue<>).FullName;
         internal static string ConcurrentStack { get; } = typeof(SystemConcurrentCollections.ConcurrentStack<>).FullName;
+
+#if NET || NETCOREAPP3_1
+        internal static string HttpClient { get; } = typeof(SystemNetHttp.HttpClient).FullName;
+        internal static string HttpRequestMessage { get; } = typeof(SystemNetHttp.HttpRequestMessage).FullName;
+#endif
     }
 }

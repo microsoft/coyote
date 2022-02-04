@@ -898,10 +898,9 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableAndOrderOperations(out IOrderedEnumerable<ControlledOperation> ops)
         {
-            int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
-            int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
             uint enabledOpsCount = 0;
-            while (attempts > 0)
+            int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
+            while (enabledOpsCount is 0 && attempts > 0)
             {
                 // Enable any blocked operation that has its dependencies already satisfied.
                 IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
@@ -910,11 +909,8 @@ namespace Microsoft.Coyote.Runtime
                 foreach (var op in this.OperationMap.Values)
                 {
                     var previousStatus = op.Status;
-                    if (previousStatus is OperationStatus.Enabled)
-                    {
-                        enabledOpsCount++;
-                    }
-                    else if (previousStatus != OperationStatus.None &&
+                    if (previousStatus != OperationStatus.None &&
+                        previousStatus != OperationStatus.Enabled &&
                         previousStatus != OperationStatus.Completed)
                     {
                         if (previousStatus is OperationStatus.Disabled)
@@ -934,12 +930,17 @@ namespace Microsoft.Coyote.Runtime
                                 op.Id, previousStatus, op.Status);
                         }
                     }
+
+                    if (op.Status is OperationStatus.Enabled)
+                    {
+                        enabledOpsCount++;
+                    }
                 }
 
                 // If partial controlled concurrency is enabled, and there are no operations enabled,
                 // or there are operations with uncontrolled dependencies, then retry multiple times.
-                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled &&
-                    enabledOpsCount is 0)
+                attempts--;
+                if (enabledOpsCount is 0 && attempts > 0)
                 {
                     if (disabledCount > 0)
                     {
@@ -955,19 +956,13 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine(
                         "<CoyoteDebug> !!! Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
                         this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
-                    SyncMonitor.Wait(this.SyncObject, delay);
-                    attempts--;
-                    delay *= 2;
-                    continue;
+                    SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
                 }
-
-                break;
             }
 
             // Get and order the operations by their id.
             ops = this.OperationMap.Values.OrderBy(op => op.Id);
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
-            IO.Debug.WriteLine("<CoyoteDebug> Remaining {0} attempts.", attempts);
             if (enabledOpsCount is 0)
             {
                 this.WriteDebugInfo(false);

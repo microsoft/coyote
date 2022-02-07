@@ -937,16 +937,16 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
+                if (enabledOpsCount is 0 && disabledCount > 0)
+                {
+                    IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS!");
+                }
+
                 // If partial controlled concurrency is enabled, and there are no operations enabled,
                 // or there are operations with uncontrolled dependencies, then retry multiple times.
                 attempts--;
                 if (enabledOpsCount is 0 && attempts > 0)
                 {
-                    if (disabledCount > 0)
-                    {
-                        IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS!");
-                    }
-
                     if (isDependencyUncontrolled)
                     {
                         IO.Debug.WriteLine($"<CoyoteDebug> UNCONTROLLED DEPENDENCY!");
@@ -957,12 +957,18 @@ namespace Microsoft.Coyote.Runtime
                         "<CoyoteDebug> !!! Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
                         this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
                     SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
+                    enabledOpsCount = 0;
+                }
+                else if (isDependencyUncontrolled)
+                {
+                    IO.Debug.WriteLine($"<CoyoteDebug> SKIP UNCONTROLLED DEPENDENCY!");
                 }
             }
 
             // Get and order the operations by their id.
             ops = this.OperationMap.Values.OrderBy(op => op.Id);
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
+            IO.Debug.WriteLine("<CoyoteDebug> There are {0} attempts.", attempts);
             if (enabledOpsCount is 0)
             {
                 this.WriteDebugInfo(false);

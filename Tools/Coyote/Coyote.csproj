@@ -8,6 +8,7 @@
     <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

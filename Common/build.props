@@ -22,6 +22,7 @@
     <Framework462Supported Condition="'$(Framework462Supported)'==''">true</Framework462Supported>
     <Framework462Installed>false</Framework462Installed>
     <Framework462Installed Condition="'$(BUILD_NET462)'=='yes'">true</Framework462Installed>
+    <NetStandard2Supported Condition="'$(NetStandard2Supported)'==''">true</NetStandard2Supported>
     <NetCore31Supported Condition="'$(NetCore31Supported)'==''">true</NetCore31Supported>
     <NetCore31Installed>false</NetCore31Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
@@ -31,6 +32,7 @@
     <Net5Installed Condition="$(GlobalVersion.StartsWith('5.0'))">true</Net5Installed>
     <Net5Installed Condition="'$(BUILD_NET5)'=='yes'">true</Net5Installed>
     <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NetStandard2Supported)'">$(TargetFrameworks);netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(Net5Installed)' and '$(Net5Supported)'">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>

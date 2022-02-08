@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
     <OutputType>Exe</OutputType>
     <OutputPath>.\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
     <Framework462Supported>false</Framework462Supported>
     <NetCore31Supported>false</NetCore31Supported>
     <Net5Supported>false</Net5Supported>

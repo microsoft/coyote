@@ -6,6 +6,7 @@
     <PackageTags>coverage;merger;coyote</PackageTags>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

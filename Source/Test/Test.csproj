@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
     <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

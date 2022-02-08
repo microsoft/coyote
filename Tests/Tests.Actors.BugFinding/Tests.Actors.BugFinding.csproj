@@ -4,6 +4,7 @@
     <AssemblyName>Microsoft.Coyote.Tests.Actors.BugFinding</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.BugFinding.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
     <NetCore31Supported>false</NetCore31Supported>
     <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>

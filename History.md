@@ -1,3 +1,11 @@
+## v1.4.3
+- Added support for the `netstandard2.0` target.
+- Support for rewriting the non-generic `TaskCompletionSource` type.
+- Support for rewriting the `ValueTask` type (but `IValueTaskSource` is not supported).
+- Improvements to concurrency fuzzing, especially for actor-based programs.
+- Improvements to how thread interrupts are handled at the end of each test iteration.
+- Tests now report the degree of concurrency and number of controlled operations.
+
 ## v1.4.2
 - Added support for the `net6.0` target.
 - The `TestingEngine` is now giving a warning if the DLL being tested has not been rewritten.

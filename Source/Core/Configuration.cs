@@ -382,7 +382,7 @@ namespace Microsoft.Coyote
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 5000;
-            this.UncontrolledConcurrencyTimeout = 5;
+            this.UncontrolledConcurrencyTimeout = 2;
             this.SafetyPrefixBound = 0;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -636,7 +636,7 @@ namespace Microsoft.Coyote
         /// Updates the value that controls how much time the runtime should wait for
         /// uncontrolled concurrency to resolve before continuing exploration.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 5.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 2.</param>
         /// <remarks>
         /// Increase the value to give more time to try resolve uncontrolled concurrency.
         /// </remarks>

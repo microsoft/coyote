@@ -38,6 +38,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly HashSet<object> Dependencies;
 
         /// <summary>
+        /// True if the source of this operations is uncontrolled, else false.
+        /// </summary>
+        internal bool IsSourceUncontrolled;
+
+        /// <summary>
         /// True if at least one of the dependencies is uncontrolled, else false.
         /// </summary>
         internal bool IsDependencyUncontrolled;
@@ -64,6 +69,7 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
+            this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
             this.Thread = -1;
             this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;

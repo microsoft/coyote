@@ -20,6 +20,22 @@ using SyncMonitor = System.Threading.Monitor;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
+    /// RuntimeStats.
+    /// </summary>
+    public static class RuntimeStats
+    {
+        /// <summary>
+        /// NumOnlyDisabledOperations.
+        /// </summary>
+        public static int NumOnlyDisabledOperations { get; internal set; } = 0;
+
+        /// <summary>
+        /// NumOnlyDisabledOperations.
+        /// </summary>
+        public static int NumOnlyResolvedDisabledOperations { get; internal set; } = 0;
+    }
+
+    /// <summary>
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
@@ -456,6 +472,12 @@ namespace Microsoft.Coyote.Runtime
             }
 
             ControlledOperation op = this.CreateControlledOperation();
+            string currentThreadName = Thread.CurrentThread.Name;
+            if (currentThreadName is null || !this.ControlledThreads.ContainsKey(currentThreadName))
+            {
+                op.IsSourceUncontrolled = true;
+            }
+
             var thread = new Thread(() =>
             {
                 try
@@ -899,7 +921,7 @@ namespace Microsoft.Coyote.Runtime
         private bool TryEnableAndOrderOperations(out IOrderedEnumerable<ControlledOperation> ops)
         {
             uint enabledOpsCount = 0;
-            int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
+            int attempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 10 : 1;
             while (enabledOpsCount is 0 && attempts > 0)
             {
                 // Enable any blocked operation that has its dependencies already satisfied.
@@ -922,7 +944,12 @@ namespace Microsoft.Coyote.Runtime
                         if (previousStatus == op.Status)
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
-                            isDependencyUncontrolled |= op.IsDependencyUncontrolled;
+                            // isDependencyUncontrolled |= op.IsDependencyUncontrolled;
+                            if (previousStatus is OperationStatus.Disabled && op.IsSourceUncontrolled)
+                            {
+                                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is disabled with uncontrolled parent.", op.Id);
+                                isDependencyUncontrolled |= op.IsDependencyUncontrolled;
+                            }
                         }
                         else
                         {
@@ -939,7 +966,14 @@ namespace Microsoft.Coyote.Runtime
 
                 if (enabledOpsCount is 0 && disabledCount > 0)
                 {
+                    IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS?");
+                    RuntimeStats.NumOnlyDisabledOperations++;
+                }
+
+                if (enabledOpsCount is 0 && disabledCount > 0 && isDependencyUncontrolled)
+                {
                     IO.Debug.WriteLine($"<CoyoteDebug> {disabledCount} DISABLED OPS!");
+                    RuntimeStats.NumOnlyResolvedDisabledOperations++;
                 }
 
                 // If partial controlled concurrency is enabled, and there are no operations enabled,
@@ -1410,10 +1444,9 @@ namespace Microsoft.Coyote.Runtime
                         "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
                         op.Name, Thread.CurrentThread.ManagedThreadId);
                     int retries = 0;
-                    int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
-                    while (retries < 5 && !task.IsCompleted)
+                    while (retries < 10 && !task.IsCompleted)
                     {
-                        SyncMonitor.Wait(this.SyncObject, delay);
+                        SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
                         if (this.IsLastSchedulingPointPostponed)
                         {
                             // A scheduling point from an uncontrolled thread has been postponed,
@@ -1422,7 +1455,6 @@ namespace Microsoft.Coyote.Runtime
                         }
 
                         retries++;
-                        delay *= 2;
                     }
                 }
 
@@ -1604,6 +1636,20 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
 #endif
         internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
+
+        /// <summary>
+        /// Returns true if the current thread is uncontrolled, else false.
+        /// </summary>
+        internal bool IsCurrentThreadUncontrolled()
+        {
+            string currentThreadName = Thread.CurrentThread.Name;
+            if (currentThreadName is null || !this.ControlledThreads.ContainsKey(currentThreadName))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Checks if the task returned from the specified method is uncontrolled.

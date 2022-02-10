@@ -96,6 +96,11 @@ namespace Microsoft.Coyote.Runtime
             this.Status is OperationStatus.BlockedOnResource;
 
         /// <summary>
+        /// Returns true if this is the root operation, else false.
+        /// </summary>
+        internal bool IsRoot() => this.Id is 0;
+
+        /// <summary>
         /// Returns the hashed state of this operation for the specified policy.
         /// </summary>
         internal virtual int GetHashedState(SchedulingPolicy policy) => 0;

@@ -918,6 +918,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableAndOrderOperations(ControlledOperation current, out IOrderedEnumerable<ControlledOperation> ops)
         {
+            IO.Debug.WriteLine("<CoyoteDebug> ===============================");
             if (current.Status is OperationStatus.Completed && current.IsSourceUncontrolled)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is completed with uncontrolled source.", current.Id);
@@ -925,6 +926,7 @@ namespace Microsoft.Coyote.Runtime
 
             uint enabledOpsCount = 0;
             int attempt = 0;
+            // int disabledOpsCount = 0;
             int maxAttempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 10 : 1;
             while (true)
             {
@@ -945,11 +947,6 @@ namespace Microsoft.Coyote.Runtime
                         previousStatus != OperationStatus.Enabled &&
                         previousStatus != OperationStatus.Completed)
                     {
-                        if (previousStatus is OperationStatus.Disabled)
-                        {
-                            disabledOpsCount++;
-                        }
-
                         this.TryEnableOperation(op);
                         if (previousStatus == op.Status)
                         {
@@ -962,6 +959,12 @@ namespace Microsoft.Coyote.Runtime
                                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is blocked with uncontrolled dependency.", op.Id);
                                 isAnyDependencyUnresolved |= op.IsDependencyUncontrolled;
                                 // }
+                            }
+
+                            if (previousStatus is OperationStatus.Disabled)
+                            {
+                                // op.Status = OperationStatus.Enabled;
+                                disabledOpsCount++;
                             }
                         }
                         else
@@ -994,6 +997,13 @@ namespace Microsoft.Coyote.Runtime
 
                 IO.Debug.WriteLine($"<CoyoteDebug> {enabledOpsCount} ENABLED OPS");
                 IO.Debug.WriteLine($"<CoyoteDebug> {statusChanges} STATUS CHANGES");
+                IO.Debug.WriteLine($"<CoyoteDebug> isUnresolved {isUnresolved}");
+
+                if (enabledOpsCount == disabledOpsCount && disabledOpsCount > 0)
+                {
+                    IO.Debug.WriteLine($"<CoyoteDebug> ONLY {disabledOpsCount} DISABLED OPS...");
+                    RuntimeStats.NumOnlyDisabledOperations++;
+                }
 
                 if (enabledOpsCount is 0 && disabledOpsCount > 0)
                 {
@@ -1001,7 +1011,7 @@ namespace Microsoft.Coyote.Runtime
                     RuntimeStats.NumOnlyDisabledOperations++;
                 }
 
-                if (enabledOpsCount is 0 && disabledOpsCount > 0 && isConcurrencyUnresolved)
+                if (enabledOpsCount is 0 && disabledOpsCount > 0 && isUnresolved)
                 {
                     IO.Debug.WriteLine($"<CoyoteDebug> {disabledOpsCount} DISABLED OPS!");
                     RuntimeStats.NumOnlyResolvedDisabledOperations++;
@@ -1438,7 +1448,7 @@ namespace Microsoft.Coyote.Runtime
             // completed. This is required because in tests that include actors, actors can execute without
             // the main task explicitly waiting for them to terminate or reach quiescence. Otherwise, if the
             // root operation was enabled, the test can terminate early.
-            if (op.Id is 0 && this.OperationMap.Any(
+            if (op.IsRoot() && this.OperationMap.Any(
                 kvp => kvp.Value is ActorOperation && kvp.Value.Status != OperationStatus.Completed))
             {
                 return false;
@@ -1718,9 +1728,9 @@ namespace Microsoft.Coyote.Runtime
             // To simplify the error message, remove the root operation, unless it is the only one that is blocked.
             if (totalCount > 1)
             {
-                blockedOnReceiveOperations.RemoveAll(op => op.Id is 0);
-                blockedOnWaitOperations.RemoveAll(op => op.Id is 0);
-                blockedOnResources.RemoveAll(op => op.Id is 0);
+                blockedOnReceiveOperations.RemoveAll(op => op.IsRoot());
+                blockedOnWaitOperations.RemoveAll(op => op.IsRoot());
+                blockedOnResources.RemoveAll(op => op.IsRoot());
             }
 
             var msg = new StringBuilder("Deadlock detected.");

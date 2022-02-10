@@ -86,6 +86,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns true if the operation is waiting one or more dependencies
+        /// before it can resume its execution, else false.
+        /// </summary>
+        internal bool IsWaitingDependency() =>
+            this.Status is OperationStatus.BlockedOnWaitAll ||
+            this.Status is OperationStatus.BlockedOnWaitAny ||
+            this.Status is OperationStatus.BlockedOnReceive ||
+            this.Status is OperationStatus.BlockedOnResource;
+
+        /// <summary>
         /// Returns the hashed state of this operation for the specified policy.
         /// </summary>
         internal virtual int GetHashedState(SchedulingPolicy policy) => 0;

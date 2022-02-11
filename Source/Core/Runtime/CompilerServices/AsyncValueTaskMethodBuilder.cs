@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             IO.Debug.WriteLine("<AsyncBuilder> Assigned state machine value task '{0}' from thread '{1}'.",
                 builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.OnAsyncStateMachineAwaitOnCompleted(builderTask);
+            this.Runtime.OnAsyncStateMachineScheduleMoveNext(builderTask);
         }
     }
 
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             IO.Debug.WriteLine("<AsyncBuilder> Assigned state machine value task '{0}' from thread '{1}'.",
                 builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.OnAsyncStateMachineAwaitOnCompleted(builderTask);
+            this.Runtime.OnAsyncStateMachineScheduleMoveNext(builderTask);
         }
     }
 }

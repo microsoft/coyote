@@ -775,7 +775,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Callback invoked when the continuation of an asynchronous state machine is scheduled.
         /// </summary>
-        internal void OnAsyncStateMachineAwaitOnCompleted(Task builderTask)
+        internal void OnAsyncStateMachineScheduleMoveNext(Task builderTask)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
@@ -784,9 +784,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the task of a task completion source is accessed.
+        /// Registers the specified task as a known controlled task.
         /// </summary>
-        internal void OnTaskCompletionSourceGetTask(Task task)
+        internal void RegisterKnownControlledTask(Task task)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
@@ -872,7 +872,6 @@ namespace Microsoft.Coyote.Runtime
                     ops = ops.OrderBy(op => op.Id);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> OPS TYPE: {0}.", ops.GetType());
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
                 {
                     // Check if the execution has deadlocked.

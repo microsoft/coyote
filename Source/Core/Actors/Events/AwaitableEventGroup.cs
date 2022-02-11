@@ -54,10 +54,7 @@ namespace Microsoft.Coyote.Actors
             : base(id, name)
         {
             this.Tcs = new TaskCompletionSource<T>();
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.OnTaskCompletionSourceGetTask(this.Tcs.Task);
-            }
+            CoyoteRuntime.Current?.RegisterKnownControlledTask(this.Tcs.Task);
         }
 
         /// <summary>

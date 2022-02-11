@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTask Unwrap(this SystemTasks.Task<SystemTask> task) =>
-        CoyoteRuntime.IsExecutionControlled ?
+            CoyoteRuntime.IsExecutionControlled ?
             CoyoteRuntime.Current.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
 
         /// <summary>

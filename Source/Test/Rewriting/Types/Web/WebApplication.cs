@@ -43,6 +43,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                     return runtime.TaskFactory.StartNew(() =>
                     {
                         SystemTask task = next(context);
+                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
@@ -78,6 +79,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                     return runtime.TaskFactory.StartNew(() =>
                     {
                         SystemTask task = next();
+                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },

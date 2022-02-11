@@ -35,27 +35,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets the value task for this builder.
         /// </summary>
-        public ValueTask Task
-        {
-            [DebuggerHidden]
-            get
-            {
-                var builderTask = this.MethodBuilder.Task;
-                if (ValueTaskAwaiter.TryGetTask(ref builderTask, out Task innerTask))
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
-                        innerTask.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
-                    this.Runtime?.OnTaskCompletionSourceGetTask(innerTask);
-                }
-                else
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
-                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
-                }
-
-                return builderTask;
-            }
-        }
+        public ValueTask Task => this.MethodBuilder.Task;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncValueTaskMethodBuilder"/> struct.
@@ -71,13 +51,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public static AsyncValueTaskMethodBuilder Create()
         {
-            CoyoteRuntime runtime = null;
-            if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
-                controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                runtime = controlledContext.Runtime;
-            }
-
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
             return new AsyncValueTaskMethodBuilder(runtime);
         }
 
@@ -121,8 +95,18 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : INotifyCompletion
-            where TStateMachine : IAsyncStateMachine =>
+            where TStateMachine : IAsyncStateMachine
+        {
+            var builderTask = this.MethodBuilder.Task;
+            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
+                controlledAwaiter.IsTaskControlled() &&
+                ValueTaskAwaiter.TryGetTask(ref builderTask, out Task innerTask))
+            {
+                this.RegisterStateMachineTask(innerTask);
+            }
+
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -131,8 +115,28 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
-            where TStateMachine : IAsyncStateMachine =>
+            where TStateMachine : IAsyncStateMachine
+        {
+            var builderTask = this.MethodBuilder.Task;
+            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
+                controlledAwaiter.IsTaskControlled() &&
+                ValueTaskAwaiter.TryGetTask(ref builderTask, out Task innerTask))
+            {
+                this.RegisterStateMachineTask(innerTask);
+            }
+
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+        }
+
+        /// <summary>
+        /// Registers the state machine task with the runtime.
+        /// </summary>
+        private void RegisterStateMachineTask(Task builderTask)
+        {
+            IO.Debug.WriteLine("<AsyncBuilder> Register state machine value task '{0}' from thread '{1}'.",
+                builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+            this.Runtime.OnAsyncStateMachineAwaitOnCompleted(builderTask);
+        }
     }
 
     /// <summary>
@@ -159,27 +163,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets the value task for this builder.
         /// </summary>
-        public ValueTask<TResult> Task
-        {
-            [DebuggerHidden]
-            get
-            {
-                var builderTask = this.MethodBuilder.Task;
-                if (ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out Task<TResult> task))
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task '{0}' from thread '{1}' (isCompleted {2}).",
-                        task.Id, Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
-                    this.Runtime?.OnTaskCompletionSourceGetTask(task);
-                }
-                else
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder value task from thread '{0}' (isCompleted {1}).",
-                        Thread.CurrentThread.ManagedThreadId, builderTask.IsCompleted);
-                }
-
-                return builderTask;
-            }
-        }
+        public ValueTask<TResult> Task => this.MethodBuilder.Task;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncValueTaskMethodBuilder{TResult}"/> struct.
@@ -196,13 +180,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 #pragma warning disable CA1000 // Do not declare static members on generic types
         public static AsyncValueTaskMethodBuilder<TResult> Create()
         {
-            CoyoteRuntime runtime = null;
-            if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
-                controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                runtime = controlledContext.Runtime;
-            }
-
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
             return new AsyncValueTaskMethodBuilder<TResult>(runtime);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
@@ -248,8 +226,18 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
                 where TAwaiter : INotifyCompletion
-                where TStateMachine : IAsyncStateMachine =>
+                where TStateMachine : IAsyncStateMachine
+        {
+            var builderTask = this.MethodBuilder.Task;
+            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
+                controlledAwaiter.IsTaskControlled() &&
+                ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out Task<TResult> innerTask))
+            {
+                this.RegisterStateMachineTask(innerTask);
+            }
+
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -258,7 +246,27 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
-            where TStateMachine : IAsyncStateMachine =>
+            where TStateMachine : IAsyncStateMachine
+        {
+            var builderTask = this.MethodBuilder.Task;
+            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
+                controlledAwaiter.IsTaskControlled() &&
+                ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out Task<TResult> innerTask))
+            {
+                this.RegisterStateMachineTask(innerTask);
+            }
+
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+        }
+
+        /// <summary>
+        /// Registers the state machine task with the runtime.
+        /// </summary>
+        private void RegisterStateMachineTask(Task<TResult> builderTask)
+        {
+            IO.Debug.WriteLine("<AsyncBuilder> Register state machine value task '{0}' from thread '{1}'.",
+                builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+            this.Runtime.OnAsyncStateMachineAwaitOnCompleted(builderTask);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
             else if (configuration.SchedulingStrategy is "random")
             {
-                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+                strategy = new NewRandomStrategy(configuration.MaxFairSchedulingSteps, generator);
             }
             else if (configuration.SchedulingStrategy is "pct")
             {

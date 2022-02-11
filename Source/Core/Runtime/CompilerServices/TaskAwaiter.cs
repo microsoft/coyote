@@ -4,19 +4,18 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
+using SystemTask = System.Threading.Tasks.Task;
 using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
-    /// Implements a <see cref="Task"/> awaiter. This type is intended for compiler use only.
+    /// Implements a task awaiter. This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -24,12 +23,17 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// The task being awaited.
         /// </summary>
-        private readonly SystemTasks.Task AwaitedTask;
+        internal readonly SystemTask AwaitedTask;
 
         /// <summary>
         /// The task awaiter.
         /// </summary>
         private readonly SystemCompiler.TaskAwaiter Awaiter;
+
+        /// <summary>
+        /// The runtime controlling this awaiter.
+        /// </summary>
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
@@ -39,19 +43,23 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        internal TaskAwaiter(SystemTasks.Task awaitedTask)
+        internal TaskAwaiter(SystemTask awaitedTask)
         {
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
+            this.Runtime = runtime;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        private TaskAwaiter(SystemTasks.Task awaitedTask, SystemCompiler.TaskAwaiter awaiter)
+        private TaskAwaiter(SystemTask awaitedTask, ref SystemCompiler.TaskAwaiter awaiter)
         {
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaiter;
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
+            this.Runtime = runtime;
         }
 
         /// <summary>
@@ -59,11 +67,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public void GetResult()
         {
-            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
-            {
-                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
-            }
-
+            this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             this.Awaiter.GetResult();
         }
 
@@ -79,6 +83,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
 
+        /// <inheritdoc/>
+        bool IControlledAwaiter.IsTaskControlled() =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
+
         /// <summary>
         /// Wraps the specified task awaiter.
         /// </summary>
@@ -86,8 +94,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             // Access the task being awaited through reflection.
             var field = awaiter.GetType().GetField("m_task", BindingFlags.NonPublic | BindingFlags.Instance);
-            var awaitedTask = (Task)field?.GetValue(awaiter);
-            return new TaskAwaiter(awaitedTask, awaiter);
+            var awaitedTask = (SystemTask)field?.GetValue(awaiter);
+            return new TaskAwaiter(awaitedTask, ref awaiter);
         }
 
         /// <summary>
@@ -97,18 +105,18 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             // Access the generic task being awaited through reflection.
             var field = awaiter.GetType().GetField("m_task", BindingFlags.NonPublic | BindingFlags.Instance);
-            var awaitedTask = (Task<TResult>)field?.GetValue(awaiter);
-            return new TaskAwaiter<TResult>(awaitedTask, awaiter);
+            var awaitedTask = (SystemTasks.Task<TResult>)field?.GetValue(awaiter);
+            return new TaskAwaiter<TResult>(awaitedTask, ref awaiter);
         }
     }
 
     /// <summary>
-    /// Implements a <see cref="Task"/> awaiter. This type is intended for compiler use only.
+    /// Implements a generic task awaiter. This type is intended for compiler use only.
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter<TResult> : ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter<TResult> : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -116,12 +124,17 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// The task being awaited.
         /// </summary>
-        private readonly SystemTasks.Task<TResult> AwaitedTask;
+        internal readonly SystemTasks.Task<TResult> AwaitedTask;
 
         /// <summary>
         /// The task awaiter.
         /// </summary>
         private readonly SystemCompiler.TaskAwaiter<TResult> Awaiter;
+
+        /// <summary>
+        /// The runtime controlling this awaiter.
+        /// </summary>
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
@@ -135,15 +148,19 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
+            this.Runtime = runtime;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal TaskAwaiter(SystemTasks.Task<TResult> awaitedTask, SystemCompiler.TaskAwaiter<TResult> awaiter)
+        internal TaskAwaiter(SystemTasks.Task<TResult> awaitedTask, ref SystemCompiler.TaskAwaiter<TResult> awaiter)
         {
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaiter;
+            RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
+            this.Runtime = runtime;
         }
 
         /// <summary>
@@ -151,11 +168,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public TResult GetResult()
         {
-            if (SynchronizationContext.Current is ControlledSynchronizationContext context)
-            {
-                context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
-            }
-
+            this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             return this.Awaiter.GetResult();
         }
 
@@ -170,5 +183,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
+
+        /// <inheritdoc/>
+        bool IControlledAwaiter.IsTaskControlled() =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
     }
 }

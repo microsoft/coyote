@@ -100,6 +100,23 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Tries to get the runtime from the current synchronization context, if there is one available.
+        /// </summary>
+        /// <returns>True if the runtime was found, else false.</returns>
+        internal static bool TryGetFromSynchronizationContext(out CoyoteRuntime runtime)
+        {
+            if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
+                controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                runtime = controlledContext.Runtime;
+                return true;
+            }
+
+            runtime = null;
+            return false;
+        }
+
+        /// <summary>
         /// Tries to get the runtime with the specified identifier, if there is one available.
         /// </summary>
         /// <returns>True if the runtime was found, else false.</returns>

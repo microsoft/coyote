@@ -118,14 +118,14 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(
-                    m => m.Name == "Wrap" && m.HasGenericParameters);
+                    m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap) && m.HasGenericParameters);
                 MethodReference wrapReference = this.Module.ImportReference(genericMethod);
                 wrapMethod = MakeGenericMethod(wrapReference, argType);
             }
             else
             {
                 wrapMethod = providerType.Methods.FirstOrDefault(
-                m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap));
+                    m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap));
             }
 
             return this.Module.ImportReference(wrapMethod);

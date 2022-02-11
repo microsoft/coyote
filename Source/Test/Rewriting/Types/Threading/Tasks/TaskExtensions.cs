@@ -20,17 +20,31 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// Creates a proxy task that represents the asynchronous operation of a task.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTask Unwrap(this SystemTasks.Task<SystemTask> task) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
+        public static SystemTask Unwrap(this SystemTasks.Task<SystemTask> task)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return SystemTasks.TaskExtensions.Unwrap(task);
+            }
+
+            return runtime.UnwrapTask(task);
+        }
 
         /// <summary>
         /// Creates a proxy generic task that represents the asynchronous operation of a task.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<TResult> Unwrap<TResult>(
-            this SystemTasks.Task<SystemTasks.Task<TResult>> task) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.UnwrapTask(task) : SystemTasks.TaskExtensions.Unwrap(task);
+            this SystemTasks.Task<SystemTasks.Task<TResult>> task)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                return SystemTasks.TaskExtensions.Unwrap(task);
+            }
+
+            return runtime.UnwrapTask(task);
+        }
     }
 }

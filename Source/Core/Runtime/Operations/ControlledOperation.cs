@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Runtime
         internal readonly HashSet<object> Dependencies;
 
         /// <summary>
-        /// True if the source of this operations is uncontrolled, else false.
+        /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
 
@@ -73,8 +73,7 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsRoot() => this.Id is 0;
 
         /// <summary>
-        /// Returns true if the operation is blocked one or more dependencies
-        /// before it can resume its execution, else false.
+        /// Returns true if the operation is currently blocked, else false.
         /// </summary>
         internal bool IsBlocked() =>
             this.Status is OperationStatus.BlockedOnWaitAll ||

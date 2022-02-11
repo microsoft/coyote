@@ -3,14 +3,14 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
+using SystemTask = System.Threading.Tasks.Task;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
-    /// Provides an awaitable object that is the outcome of invoking <see cref="Task.ConfigureAwait"/>.
+    /// Provides an awaitable object that is the outcome of invoking <see cref="SystemTask.ConfigureAwait"/>.
     /// This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(Task awaitedTask, bool continueOnCapturedContext)
+        internal ConfiguredTaskAwaitable(SystemTask awaitedTask, bool continueOnCapturedContext)
         {
             this.Awaiter = new ConfiguredTaskAwaiter(awaitedTask, continueOnCapturedContext);
         }
@@ -40,17 +40,22 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
+        public struct ConfiguredTaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The task being awaited.
             /// </summary>
-            private readonly Task AwaitedTask;
+            private readonly SystemTask AwaitedTask;
 
             /// <summary>
             /// The task awaiter.
             /// </summary>
             private readonly SystemCompiler.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter Awaiter;
+
+            /// <summary>
+            /// The runtime controlling this awaiter.
+            /// </summary>
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// Gets a value that indicates whether the controlled task has completed.
@@ -60,9 +65,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(Task awaitedTask, bool continueOnCapturedContext)
+            internal ConfiguredTaskAwaiter(SystemTask awaitedTask, bool continueOnCapturedContext)
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext)
+                if (RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime))
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;
@@ -70,6 +75,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 this.AwaitedTask = awaitedTask;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
+                this.Runtime = runtime;
             }
 
             /// <summary>
@@ -77,11 +83,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             public void GetResult()
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
-                {
-                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
-                }
-
+                this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 this.Awaiter.GetResult();
             }
 
@@ -96,11 +98,15 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
+
+            /// <inheritdoc/>
+            bool IControlledAwaiter.IsTaskControlled() =>
+                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
         }
     }
 
     /// <summary>
-    /// Provides an awaitable object that enables configured awaits on a <see cref="Task{TResult}"/>.
+    /// Provides an awaitable object that enables configured awaits on a <see cref="SystemTasks.Task{TResult}"/>.
     /// This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
@@ -115,7 +121,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable{TResult}"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(Task<TResult> awaitedTask, bool continueOnCapturedContext)
+        internal ConfiguredTaskAwaitable(SystemTasks.Task<TResult> awaitedTask, bool continueOnCapturedContext)
         {
             this.Awaiter = new ConfiguredTaskAwaiter(awaitedTask, continueOnCapturedContext);
         }
@@ -130,17 +136,22 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
+        public struct ConfiguredTaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The task being awaited.
             /// </summary>
-            private readonly Task<TResult> AwaitedTask;
+            private readonly SystemTasks.Task<TResult> AwaitedTask;
 
             /// <summary>
             /// The task awaiter.
             /// </summary>
             private readonly SystemCompiler.ConfiguredTaskAwaitable<TResult>.ConfiguredTaskAwaiter Awaiter;
+
+            /// <summary>
+            /// The runtime controlling this awaiter.
+            /// </summary>
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// Gets a value that indicates whether the controlled task has completed.
@@ -150,9 +161,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(Task<TResult> awaitedTask, bool continueOnCapturedContext)
+            internal ConfiguredTaskAwaiter(SystemTasks.Task<TResult> awaitedTask, bool continueOnCapturedContext)
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext)
+                if (RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime))
                 {
                     // Force the continuation to run on the current context so that it can be controlled.
                     continueOnCapturedContext = true;
@@ -160,6 +171,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 this.AwaitedTask = awaitedTask;
                 this.Awaiter = awaitedTask.ConfigureAwait(continueOnCapturedContext).GetAwaiter();
+                this.Runtime = runtime;
             }
 
             /// <summary>
@@ -167,11 +179,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             public TResult GetResult()
             {
-                if (SynchronizationContext.Current is ControlledSynchronizationContext context)
-                {
-                    context.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
-                }
-
+                this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
                 return this.Awaiter.GetResult();
             }
 
@@ -186,6 +194,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
+
+            /// <inheritdoc/>
+            bool IControlledAwaiter.IsTaskControlled() =>
+                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
         }
     }
 }

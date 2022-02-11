@@ -38,6 +38,16 @@ namespace Microsoft.Coyote.Runtime
         internal readonly HashSet<object> Dependencies;
 
         /// <summary>
+        /// True if the source of this operation is uncontrolled, else false.
+        /// </summary>
+        internal bool IsSourceUncontrolled;
+
+        /// <summary>
+        /// True if at least one of the dependencies is uncontrolled, else false.
+        /// </summary>
+        internal bool IsAnyDependencyUncontrolled;
+
+        /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>
@@ -53,6 +63,41 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.SchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
+            this.IsSourceUncontrolled = false;
+            this.IsAnyDependencyUncontrolled = false;
+        }
+
+        /// <summary>
+        /// Returns true if this is the root operation, else false.
+        /// </summary>
+        internal bool IsRoot() => this.Id is 0;
+
+        /// <summary>
+        /// Returns true if the operation is currently blocked, else false.
+        /// </summary>
+        internal bool IsBlocked() =>
+            this.Status is OperationStatus.BlockedOnWaitAll ||
+            this.Status is OperationStatus.BlockedOnWaitAny ||
+            this.Status is OperationStatus.BlockedOnReceive ||
+            this.Status is OperationStatus.BlockedOnResource;
+
+        /// <summary>
+        /// Sets the specified dependency.
+        /// </summary>
+        internal void SetDependency(object dependency, bool isControlled)
+        {
+            this.Dependencies.Add(dependency);
+            this.IsAnyDependencyUncontrolled |= !isControlled;
+        }
+
+        /// <summary>
+        /// Unblocks the operation by clearing its dependencies.
+        /// </summary>
+        internal void Unblock()
+        {
+            this.Dependencies.Clear();
+            this.IsAnyDependencyUncontrolled = false;
+            this.Status = OperationStatus.Enabled;
         }
 
         /// <summary>

@@ -608,7 +608,7 @@ namespace Microsoft.Coyote.Actors
                         task = taskFunc();
                     }
 
-                    this.OnWaitTask(task, cachedAction.MethodInfo.Name);
+                    this.OnWaitTask(task);
                     await task;
                 }
                 else if (cachedAction.Handler is Action<Event> actionWithEvent)
@@ -662,7 +662,7 @@ namespace Microsoft.Coyote.Actors
                     task = this.OnEventUnhandledAsync(e, currentState);
                 }
 
-                this.OnWaitTask(task, callbackType);
+                this.OnWaitTask(task);
                 await task;
             }
             catch (Exception ex) when (this.OnExceptionHandler(ex, callbackType, e))
@@ -989,11 +989,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when the actor is waiting for the specified task to complete.
         /// </summary>
-        internal void OnWaitTask(Task task, string methodName)
+        private void OnWaitTask(Task task)
         {
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
-                this.Context.Runtime.CheckIfReturnedTaskIsUncontrolled(task, methodName);
+                this.Context.Runtime.RegisterKnownControlledTask(task);
                 this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
             }
         }

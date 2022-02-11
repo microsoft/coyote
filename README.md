@@ -1,14 +1,13 @@
-<div align="center">
-  <h2><img src="docs/assets/images/logo_coyote.svg" width="70%"></h2>
-</div>
+![Coyote logo](docs/assets/images/logo_coyote.svg)
+***
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/microsoft/coyote)
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/coyote_dev?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=coyote_dev)
 
 ![CodeQL](https://github.com/microsoft/coyote/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/build-test.yml/badge.svg?branch=main)
+***
 
 Coyote is a .NET library and tool designed to help ensure that your code is free of concurrency bugs.
 

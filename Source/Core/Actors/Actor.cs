@@ -994,7 +994,6 @@ namespace Microsoft.Coyote.Actors
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
                 this.Context.Runtime.RegisterKnownControlledTask(task);
-                // this.Context.Runtime.CheckIfReturnedTaskIsUncontrolled(task, methodName);
                 this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
             }
         }

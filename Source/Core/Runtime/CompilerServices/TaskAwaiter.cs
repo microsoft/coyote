@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// The task being awaited.
         /// </summary>
-        internal readonly SystemTask AwaitedTask;
+        private readonly SystemTask AwaitedTask;
 
         /// <summary>
         /// The task awaiter.

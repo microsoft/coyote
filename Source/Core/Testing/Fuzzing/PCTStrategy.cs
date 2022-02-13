@@ -107,15 +107,20 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             Console.WriteLine($"Current operation: {current.Name}");
 
-            // if all operations except current have acquired statuses that are perpetually blocked, then assign zero delay
+            // Assign zero delay if one of the following is satisfied:
+            // 1. all operations except current have acquired statuses that are perpetually blocked
+            // 2. the current step is not a priority switch point and one operation is already delayed
             if (ops.Where(op => !op.Equals(current) &&
-                (op.Status is AsyncOperationStatus.Delayed || op.Status is AsyncOperationStatus.Enabled)).Count() is 0)
+                (op.Status is AsyncOperationStatus.Delayed || op.Status is AsyncOperationStatus.Enabled)).Count() is 0
+                || (!this.PriorityChangePoints.Contains(this.StepCount) && ops.Where(op => op.Status is AsyncOperationStatus.Delayed).Count() is 1))
             {
                 next = 0;
                 // Count as step only if the operation belongs to the benchmark
                 this.StepCount += (current.Name is "'Task(0)'") ? 0 : 1;
                 return true;
             }
+
+            Console.WriteLine($"Critical OpCount: {ops.Where(op => !op.Equals(current) && (op.Status is AsyncOperationStatus.Delayed || op.Status is AsyncOperationStatus.Enabled)).Count()}");
 
             // if the operation has not yet asked a critical delay request, include it as a potential operation
             // (critical request status: false).

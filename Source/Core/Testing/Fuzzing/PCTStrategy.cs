@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
             {
                 // Randomly choose a priority for this operation between the lowest and the highest priority.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count - 1) + 1;
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
                 this.PrioritizedOperations.Insert(index, op);
                 Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
             }

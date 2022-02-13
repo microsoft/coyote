@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
 
             // if the operation has not yet asked a critical delay request, include it as a potential operation
-            // (critical request status: false). 
+            // (critical request status: false).
             // If it has been included already, then update its critical request status to true
             if (!isRecursive)
             {
@@ -136,11 +136,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Console.WriteLine($"OpId: {current.Id} Status: {current.Status}");
 
             // Update the priority list with new operations and return the highest priority operation
-            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
 
-            // Console.WriteLine($"{HighestEnabledOperation.Name}");
+            // Console.WriteLine($"{highestEnabledOperation.Name}");
 
-            // if the current operation is making a non-critical request (request for delay before creation) then assign zero delay. 
+            // if the current operation is making a non-critical request (request for delay before creation) then assign zero delay.
             // In a message passing system operation creation delay does not make a difference.
             if (!this.CriticalDelayRequest[current])
             {
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
 
             // Assign zero delay if the current operation is the highest enabled operation otherwise delay it.
-            if (HighestEnabledOperation.Equals(current))
+            if (highestEnabledOperation.Equals(current))
             {
                 next = 0;
             }
@@ -173,9 +173,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
-            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation highestEnabledOperation);
 
-            if (HighestEnabledOperation.Equals(current))
+            if (highestEnabledOperation.Equals(current))
             {
                 return true;
             }
@@ -185,12 +185,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         /// <inheritdoc/>
         internal bool UpdateAndGetHighestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            out AsyncOperation HighestEnabledOperation)
+            out AsyncOperation highestEnabledOperation)
         {
-            HighestEnabledOperation = null;
+            highestEnabledOperation = null;
             // enumerate all operations which are either sleeping or enabled and have made a critical delay request so far.
             var criticalOps = ops.Where(op
-                => (op.Status is AsyncOperationStatus.Enabled || op.Status is AsyncOperationStatus.Delayed) && 
+                => (op.Status is AsyncOperationStatus.Enabled || op.Status is AsyncOperationStatus.Delayed) &&
                     this.CriticalDelayRequest.ContainsKey(op) && this.CriticalDelayRequest[op]).ToList();
 
             if (criticalOps.Count is 0)
@@ -202,8 +202,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             this.DeprioritizeEnabledOperationWithHighestPriority(criticalOps);
             this.DebugPrintOperationPriorityList();
 
-            // HighestEnabledOperation = this.GetEnabledOperationWithLowestPriority(criticalOps); // Case: (n-1) PCT
-            HighestEnabledOperation = this.GetEnabledOperationWithHighestPriority(criticalOps); // Case: (1) PCT
+            // highestEnabledOperation = this.GetEnabledOperationWithLowestPriority(criticalOps); // Case: (n-1) PCT
+            highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(criticalOps); // Case: (1) PCT
             return true;
         }
 

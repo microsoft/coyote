@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // Console.WriteLine($"OpId: {current.Id} Status: {current.Status}");
 
             // Update the priority list with new operations and return the highest priority operation
-            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
 
             // Console.WriteLine($"{HighestEnabledOperation.Name}");
 
@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
         internal override bool GetNextRecursiveDelayChoice(IEnumerable<AsyncOperation> ops, AsyncOperation current)
         {
-            this.UpdateAndGetLowestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
+            this.UpdateAndGetHighestPriorityEnabledOperation(ops, current, out AsyncOperation HighestEnabledOperation);
 
             if (HighestEnabledOperation.Equals(current))
             {
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal bool UpdateAndGetLowestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+        internal bool UpdateAndGetHighestPriorityEnabledOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             out AsyncOperation HighestEnabledOperation)
         {
             HighestEnabledOperation = null;

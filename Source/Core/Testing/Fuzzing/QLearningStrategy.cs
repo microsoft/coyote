@@ -77,7 +77,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             next = this.GetNextDelayByPolicy(state, maxValue);
             this.PreviousDelay = next;
 
-            this.StepCount++;
+            if (!isRecursive)
+            {
+                this.StepCount++;
+            }
+
             return true;
         }
 

@@ -79,7 +79,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
                 this.TotalTaskDelayMap.TryUpdate(id, maxDelay + next, maxDelay);
             }
 
-            this.StepCount++;
+            if (!isRecursive)
+            {
+                this.StepCount++;
+            }
+
             return true;
         }
 

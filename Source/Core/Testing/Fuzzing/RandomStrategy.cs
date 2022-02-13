@@ -46,16 +46,13 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         internal override bool GetNextDelay(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             int maxValue, bool positiveDelay, bool isRecursive, out int next)
         {
-            if (positiveDelay)
+            next = this.RandomValueGenerator.Next(maxValue);
+
+            if (!isRecursive)
             {
-                next = this.RandomValueGenerator.Next(maxValue - 1) + 1;
-            }
-            else
-            {
-                next = this.RandomValueGenerator.Next(maxValue);
+                this.StepCount++;
             }
 
-            this.StepCount++;
             return true;
         }
 

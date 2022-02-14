@@ -1,4 +1,4 @@
-![Coyote logo](https://raw.githubusercontent.com/microsoft/coyote/pdeligia/partialcontrol/docs/assets/images/logo_coyote.svg)
+![Coyote logo](https://raw.githubusercontent.com/microsoft/coyote/main/docs/assets/images/logo_coyote.svg)
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

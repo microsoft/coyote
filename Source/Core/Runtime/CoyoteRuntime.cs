@@ -1396,6 +1396,21 @@ namespace Microsoft.Coyote.Runtime
                 break;
             }
 
+            uint y = 0;
+            foreach (var x in this.OperationMap.Values)
+            {
+                if (x.Status is OperationStatus.Disabled)
+                {
+                    // x.Status = OperationStatus.Enabled;
+                    y++;
+                }
+            }
+
+            if (enabledOpsCount == y)
+            {
+                RuntimeStats.NumOnlyDisabledOperations++;
+            }
+
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
             return enabledOpsCount > 0;

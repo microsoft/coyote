@@ -1476,7 +1476,7 @@ namespace Microsoft.Coyote.Runtime
                     int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
                     while (retries++ < 10 && !task.IsCompleted)
                     {
-                        SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
+                        SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.IsLastSchedulingPointPostponed)
                         {
                             // A scheduling point from an uncontrolled thread has been postponed,

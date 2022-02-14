@@ -33,11 +33,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static SystemTask get_Task(SystemTaskCompletionSource tcs)
         {
             var task = tcs.Task;
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.OnTaskCompletionSourceGetTask(task);
-            }
-
+            CoyoteRuntime.Current?.RegisterKnownControlledTask(task);
             return task;
         }
 #pragma warning restore CA1707 // Remove the underscores from member name
@@ -123,11 +119,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static SystemTasks.Task<TResult> get_Task(SystemTasks.TaskCompletionSource<TResult> tcs)
         {
             var task = tcs.Task;
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                CoyoteRuntime.Current.OnTaskCompletionSourceGetTask(task);
-            }
-
+            CoyoteRuntime.Current?.RegisterKnownControlledTask(task);
             return task;
         }
 #pragma warning restore CA1707 // Remove the underscores from member name

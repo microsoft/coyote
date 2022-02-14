@@ -38,14 +38,14 @@ namespace Microsoft.Coyote.Runtime
         internal readonly HashSet<object> Dependencies;
 
         /// <summary>
-        /// True if the source of this operations is uncontrolled, else false.
+        /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
 
         /// <summary>
         /// True if at least one of the dependencies is uncontrolled, else false.
         /// </summary>
-        internal bool IsDependencyUncontrolled;
+        internal bool IsAnyDependencyUncontrolled;
 
         /// <summary>
         /// A value that represents the hashed program state when
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Runtime
             this.SchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
             this.IsSourceUncontrolled = false;
-            this.IsDependencyUncontrolled = false;
+            this.IsAnyDependencyUncontrolled = false;
             this.Thread = -1;
             this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;
             if (this.Msg.Length > 0)
@@ -86,19 +86,37 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns true if the operation is waiting one or more dependencies
-        /// before it can resume its execution, else false.
+        /// Returns true if this is the root operation, else false.
         /// </summary>
-        internal bool IsWaitingDependency() =>
+        internal bool IsRoot() => this.Id is 0;
+
+        /// <summary>
+        /// Returns true if the operation is currently blocked, else false.
+        /// </summary>
+        internal bool IsBlocked() =>
             this.Status is OperationStatus.BlockedOnWaitAll ||
             this.Status is OperationStatus.BlockedOnWaitAny ||
             this.Status is OperationStatus.BlockedOnReceive ||
             this.Status is OperationStatus.BlockedOnResource;
 
         /// <summary>
-        /// Returns true if this is the root operation, else false.
+        /// Sets the specified dependency.
         /// </summary>
-        internal bool IsRoot() => this.Id is 0;
+        internal void SetDependency(object dependency, bool isControlled)
+        {
+            this.Dependencies.Add(dependency);
+            this.IsAnyDependencyUncontrolled |= !isControlled;
+        }
+
+        /// <summary>
+        /// Unblocks the operation by clearing its dependencies.
+        /// </summary>
+        internal void Unblock()
+        {
+            this.Dependencies.Clear();
+            this.IsAnyDependencyUncontrolled = false;
+            this.Status = OperationStatus.Enabled;
+        }
 
         /// <summary>
         /// Returns the hashed state of this operation for the specified policy.

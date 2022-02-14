@@ -715,11 +715,7 @@ namespace Microsoft.Coyote.Runtime
                         if (!task.IsCompleted)
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
-                            op.Dependencies.Add(task);
-                            if (!this.ControlledTasks.ContainsKey(task))
-                            {
-                                op.IsDependencyUncontrolled = true;
-                            }
+                            op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                         }
                     }
 
@@ -765,12 +761,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
-                op.Dependencies.Add(task);
-                if (!this.ControlledTasks.ContainsKey(task))
-                {
-                    op.IsDependencyUncontrolled = true;
-                }
-
+                op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                 op.Status = OperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(SchedulingPointType.Join);
             }
@@ -807,7 +798,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Callback invoked when the continuation of an asynchronous state machine is scheduled.
         /// </summary>
-        internal void OnAsyncStateMachineAwaitOnCompleted(Task builderTask)
+        internal void OnAsyncStateMachineScheduleMoveNext(Task builderTask)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
@@ -816,9 +807,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback invoked when the task of a task completion source is accessed.
+        /// Registers the specified task as a known controlled task.
         /// </summary>
-        internal void OnTaskCompletionSourceGetTask(Task task)
+        internal void RegisterKnownControlledTask(Task task)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
@@ -897,7 +888,13 @@ namespace Microsoft.Coyote.Runtime
 
                 // Try to enable any operations with satisfied dependencies before asking the
                 // scheduler to choose the next one to schedule.
-                this.TryEnableAndOrderOperations(current, out IOrderedEnumerable<ControlledOperation> ops);
+                IEnumerable<ControlledOperation> ops = this.OperationMap.Values;
+                if (this.TryEnableOperationsWithSatisfiedDependencies(current))
+                {
+                    // Order the operations by their id.
+                    ops = ops.OrderBy(op => op.Id);
+                }
+
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
                 {
                     // Check if the execution has deadlocked.
@@ -916,217 +913,6 @@ namespace Microsoft.Coyote.Runtime
                     this.PauseOperation(current);
                 }
             }
-        }
-
-        /// <summary>
-        /// Tries to enable any operations that have their dependencies satisfied. It returns
-        /// true if there is at least one operation enabled, else false. It also returns the
-        /// list of operations ordered by their id.
-        /// </summary>
-        /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
-        /// </remarks>
-        private bool TryEnableAndOrderOperations(ControlledOperation current, out IOrderedEnumerable<ControlledOperation> ops)
-        {
-            StringBuilder sb = new StringBuilder();
-            IO.Debug.WriteLine("<CoyoteDebug> ===============================");
-            sb.AppendLine("<CoyoteDebug> ===============================");
-            if (current.Status is OperationStatus.Completed && current.IsSourceUncontrolled)
-            {
-                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is completed with uncontrolled source.", current.Id);
-            }
-
-            // This value is true if the current operation just completed and has uncontrolled source.
-            bool isSourceUnresolved = current.Status is OperationStatus.Completed && current.IsSourceUncontrolled;
-
-            uint enabledOpsCount = 0;
-            int foo = 0;
-            int attempt = 0;
-            // int disabledOpsCount = 0;
-            int maxAttempts = this.Configuration.IsPartiallyControlledConcurrencyEnabled ? 5 : 1;
-            uint accumulatedDelay = 0;
-            while (true)
-            {
-                uint previousEnabledOpsCount = enabledOpsCount;
-                enabledOpsCount = 0;
-                foo = 0;
-
-                // Enable any blocked operation that has its dependencies already satisfied.
-                IO.Debug.WriteLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
-                sb.AppendLine("<CoyoteDebug> Enabling any blocked operation with satisfied dependencies.");
-
-                uint statusChanges = 0;
-                int disabledOpsCount = 0;
-                bool isRootDependencyUnresolved = false;
-                bool isAnyDependencyUnresolved = false;
-                foreach (var op in this.OperationMap.Values)
-                {
-                    var previousStatus = op.Status;
-                    if (previousStatus != OperationStatus.None &&
-                        previousStatus != OperationStatus.Enabled &&
-                        previousStatus != OperationStatus.Completed)
-                    {
-                        this.TryEnableOperation(op);
-                        if (previousStatus == op.Status)
-                        {
-                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Name, op.Status);
-                            sb.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
-                            if (op.IsWaitingDependency())
-                            {
-                                foreach (var dep in op.Dependencies)
-                                {
-                                    IO.Debug.WriteLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
-                                    sb.AppendLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
-                                }
-                            }
-
-                            if (op.IsWaitingDependency() && op.IsDependencyUncontrolled)
-                            {
-                                IO.Debug.WriteLine("          |_ Op '{0}' is blocked with uncontrolled dependency.", op.Name);
-                                sb.AppendFormat("          |_ Op '{0}' is blocked with uncontrolled dependency.\n", op.Name);
-                                if (op.IsRoot())
-                                {
-                                    isRootDependencyUnresolved = true;
-                                }
-                                else
-                                {
-                                    isAnyDependencyUnresolved = true;
-                                }
-                            }
-
-                            if (previousStatus is OperationStatus.Disabled)
-                            {
-                                // op.Status = OperationStatus.Enabled;
-                                disabledOpsCount++;
-                            }
-                        }
-                        else
-                        {
-                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.",
-                                op.Name, previousStatus, op.Status);
-                            sb.AppendFormat("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.\n",
-                                op.Name, previousStatus, op.Status);
-                            statusChanges++;
-                        }
-                    }
-
-                    if (op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled)
-                    {
-                        enabledOpsCount++;
-                    }
-                }
-
-                if (attempt == maxAttempts - 1 && enabledOpsCount == disabledOpsCount)
-                {
-                    foreach (var op in this.OperationMap.Values)
-                    {
-                        if (op.Status is OperationStatus.Delayed)
-                        {
-                            op.Status = OperationStatus.Enabled;
-                        }
-                    }
-                }
-
-                foo = disabledOpsCount;
-                if (attempt is 0 && enabledOpsCount == disabledOpsCount && disabledOpsCount > 0)
-                {
-                    IO.Debug.WriteLine($"<CoyoteDebug> ONLY {disabledOpsCount} DISABLED OPS?");
-                    sb.AppendLine($"<CoyoteDebug> ONLY {disabledOpsCount} DISABLED OPS?");
-                }
-
-                // TODO: do we need the max of all attempts?
-                // Compute the delta of enabled operations from the previous attempt.
-                uint enabledOpsDelta = attempt is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
-                IO.Debug.WriteLine($"<CoyoteDebug> Delta: {enabledOpsDelta} + {statusChanges}");
-                sb.AppendLine($"<CoyoteDebug> Delta: {enabledOpsDelta} + {statusChanges}");
-
-                // The source of the current operation is unresolved if the operation is completed,
-                // it has an uncontrolled source, and the delta of enabled operations is 0.
-
-                bool isNoEnabledOpsCaseResolved = (enabledOpsCount is 0 || enabledOpsCount == disabledOpsCount) &&
-                    (isSourceUnresolved || isAnyDependencyUnresolved || isRootDependencyUnresolved);
-                // bool isSomeEnabledOpsCaseResolved = enabledOpsCount > 0 &&
-                //     (isAnyDependencyUnresolved || (isSourceUnresolved && !isRootDependencyUnresolved));
-                // bool isSomeEnabledOpsCaseResolved = enabledOpsCount > 0 &&
-                //     (isAnyDependencyUnresolved || (isSourceUnresolved && isAnyDependencyUnresolved && !isRootDependencyUnresolved));
-                bool isSomeEnabledOpsCaseResolved = enabledOpsCount > 0 &&
-                    (isAnyDependencyUnresolved || (isSourceUnresolved && isAnyDependencyUnresolved));
-                // bool isSomeEnabledOpsCaseResolved = enabledOpsCount > 0 &&
-                //     (isSourceUnresolved || isAnyDependencyUnresolved);
-                bool isConcurrencyUnresolved = enabledOpsDelta is 0 && statusChanges is 0 &&
-                    (isNoEnabledOpsCaseResolved || isSomeEnabledOpsCaseResolved);
-
-                IO.Debug.WriteLine($"<CoyoteDebug> {enabledOpsCount} ENABLED OPS");
-                IO.Debug.WriteLine($"<CoyoteDebug> isConcurrencyUnresolved {isConcurrencyUnresolved}");
-                sb.AppendLine($"<CoyoteDebug> {enabledOpsCount} ENABLED OPS");
-                sb.AppendLine($"<CoyoteDebug> isConcurrencyUnresolved {isConcurrencyUnresolved}");
-
-                // bool isResolved = enabledOpsCount > 1 ? true : enabledOpsCount is 1 && !isSourceUnresolved;
-                // Retry if there is uncontrolled concurrency and partial controlled concurrency is enabled.
-                if (++attempt < maxAttempts && isConcurrencyUnresolved)
-                {
-                    // Implement a simple retry logic to try resolve uncontrolled concurrency.
-                    IO.Debug.WriteLine(
-                        "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
-                        this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
-                    sb.AppendFormat(
-                        "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.\n",
-                        this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
-                    SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
-                    accumulatedDelay += this.Configuration.UncontrolledConcurrencyTimeout;
-                    if (enabledOpsCount is 0 && accumulatedDelay < this.Configuration.DeadlockTimeout)
-                    {
-                        // Increase the retries to allow the potential deadlock to resolve.
-                        maxAttempts++;
-                    }
-
-                    continue;
-                }
-
-                if (attempt == maxAttempts && isConcurrencyUnresolved)
-                {
-                    if (isSourceUnresolved)
-                    {
-                        IO.Debug.WriteLine($"<CoyoteDebug> UNRESOLVED SOURCE!");
-                        sb.AppendLine($"<CoyoteDebug> UNRESOLVED SOURCE!");
-                    }
-
-                    if (isRootDependencyUnresolved || isAnyDependencyUnresolved)
-                    {
-                        IO.Debug.WriteLine($"<CoyoteDebug> UNRESOLVED DEPENDENCY!");
-                        sb.AppendLine($"<CoyoteDebug> UNRESOLVED DEPENDENCY!");
-                    }
-
-                    IO.Debug.WriteLine($"<CoyoteDebug> CONCURRENCY IS STILL UNRESOLVED!");
-                    sb.AppendLine($"<CoyoteDebug> CONCURRENCY IS STILL UNRESOLVED!");
-                }
-
-                if (enabledOpsCount == disabledOpsCount && disabledOpsCount > 0)
-                {
-                    IO.Debug.WriteLine($"<CoyoteDebug> ONLY {disabledOpsCount} DISABLED OPS!");
-                    sb.AppendLine($"<CoyoteDebug> ONLY {disabledOpsCount} DISABLED OPS!");
-                    RuntimeStats.NumOnlyDisabledOperations++;
-                }
-
-                break;
-            }
-
-            // Get and order the operations by their id.
-            ops = this.OperationMap.Values.OrderBy(op => op.Id);
-            IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
-            sb.AppendFormat("<CoyoteDebug> There are {0} enabled operations.\n", enabledOpsCount);
-            IO.Debug.WriteLine("<CoyoteDebug> There were {0} attempts.", attempt);
-            sb.AppendFormat("<CoyoteDebug> There were {0} attempts.\n", attempt);
-            IO.Debug.WriteLine("<CoyoteDebug> ===============================");
-            sb.AppendLine("<CoyoteDebug> ===============================");
-            if (enabledOpsCount is 0)
-            {
-                // this.NotifyAssertionFailure(sb.ToString());
-                // this.WriteDebugInfo(false);
-            }
-
-            this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
-            return enabledOpsCount > 0;
         }
 
         /// <summary>
@@ -1488,6 +1274,134 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Tries to enable any operations that have their dependencies satisfied. It returns
+        /// true if there is at least one operation enabled, else false.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// </remarks>
+        private bool TryEnableOperationsWithSatisfiedDependencies(ControlledOperation current)
+        {
+            IO.Debug.WriteLine("<CoyoteDebug> ===============================");
+            IO.Debug.WriteLine("<CoyoteDebug> Trying to enable any operation with satisfied dependencies.");
+
+            if (current.Status is OperationStatus.Completed && current.IsSourceUncontrolled)
+            {
+                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is completed with uncontrolled source.", current.Id);
+            }
+
+            int retries = 0;
+            uint enabledOpsCount = 0;
+            uint accumulatedDelay = 0;
+            while (true)
+            {
+                // Cache the count of enabled operations from the previous attempt.
+                uint previousEnabledOpsCount = enabledOpsCount;
+                enabledOpsCount = 0;
+
+                uint statusChanges = 0;
+                int disabledOpsCount = 0;
+                bool isRootDependencyUnresolved = false;
+                bool isAnyDependencyUnresolved = false;
+                foreach (var op in this.OperationMap.Values)
+                {
+                    var previousStatus = op.Status;
+                    if (previousStatus != OperationStatus.None &&
+                        previousStatus != OperationStatus.Enabled &&
+                        previousStatus != OperationStatus.Completed)
+                    {
+                        this.TryEnableOperation(op);
+                        if (previousStatus == op.Status)
+                        {
+                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                            if (op.IsBlocked())
+                            {
+                                foreach (var dep in op.Dependencies)
+                                {
+                                    IO.Debug.WriteLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
+                                }
+                            }
+
+                            if (op.IsBlocked() && op.IsAnyDependencyUncontrolled)
+                            {
+                                IO.Debug.WriteLine("          |_ Op '{0}' is blocked with uncontrolled dependency.", op.Name);
+                                if (op.IsRoot())
+                                {
+                                    isRootDependencyUnresolved = true;
+                                }
+                                else
+                                {
+                                    isAnyDependencyUnresolved = true;
+                                }
+                            }
+
+                            if (previousStatus is OperationStatus.Disabled)
+                            {
+                                // op.Status = OperationStatus.Enabled;
+                                disabledOpsCount++;
+                            }
+                        }
+                        else
+                        {
+                            IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' changed status from '{1}' to '{2}'.",
+                                op.Id, previousStatus, op.Status);
+                            statusChanges++;
+                        }
+                    }
+
+                    if (op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled)
+                    {
+                        enabledOpsCount++;
+                    }
+                }
+
+                // Heuristics for handling a partially controlled execution.
+                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                {
+                    // Compute the delta of enabled operations from the previous attempt.
+                    uint enabledOpsDelta = retries is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
+
+                    // This value is true if the current operation just completed and has uncontrolled source.
+                    bool isSourceUnresolved = current.Status is OperationStatus.Completed && current.IsSourceUncontrolled;
+
+                    // We consider the concurrency to be unresolved if there were no new enabled operations
+                    // or status changes in this attempt, and one of the following cases holds:
+                    // - If there are no enabled operations, then the concurrency is unresolved if
+                    //   the current operation was just completed and has uncontrolled source, or
+                    //   if there are any unresolved dependencies.
+                    // - If there are enabled operations, then the concurrency is unresolved if
+                    //   there are any (non-root) unresolved dependencies.
+                    bool isNoEnabledOpsCaseResolved = enabledOpsCount is 0 &&
+                        (isSourceUnresolved || isAnyDependencyUnresolved || isRootDependencyUnresolved);
+                    bool isSomeEnabledOpsCaseResolved = enabledOpsCount > 0 && isAnyDependencyUnresolved;
+                    bool isConcurrencyUnresolved = enabledOpsDelta is 0 && statusChanges is 0 &&
+                        (isNoEnabledOpsCaseResolved || isSomeEnabledOpsCaseResolved);
+
+                    // Retry if there is unresolved concurrency and any retries left, or if there are no enabled
+                    // operations and the accumulated delay is less than the specified deadlock timeout limit.
+                    if ((++retries < 5 && isConcurrencyUnresolved) ||
+                        (enabledOpsCount is 0 && accumulatedDelay < this.Configuration.DeadlockTimeout))
+                    {
+                        // Implement a simple retry logic to try resolve uncontrolled concurrency.
+                        IO.Debug.WriteLine(
+                            "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
+                            this.ScheduledOperation.Name, Thread.CurrentThread.ManagedThreadId);
+                        uint delay = this.Configuration.UncontrolledConcurrencyTimeout;
+                        SyncMonitor.Wait(this.SyncObject, (int)delay);
+                        accumulatedDelay += delay;
+                        continue;
+                    }
+                }
+
+                break;
+            }
+
+            IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
+            this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
+            return enabledOpsCount > 0;
+        }
+
+        /// <summary>
         /// Tries to enable the specified operation, if its dependencies have been satisfied.
         /// </summary>
         /// <remarks>
@@ -1531,9 +1445,7 @@ namespace Microsoft.Coyote.Runtime
                 (op.Status is OperationStatus.BlockedOnWaitAny &&
                 op.Dependencies.Any(dependency => dependency is Task task && task.IsCompleted)))
             {
-                op.Dependencies.Clear();
-                op.IsDependencyUncontrolled = false;
-                op.Status = OperationStatus.Enabled;
+                op.Unblock();
                 return true;
             }
 
@@ -1561,7 +1473,8 @@ namespace Microsoft.Coyote.Runtime
                         "<CoyoteDebug> Pausing operation '{0}' on thread '{1}' to try resolve uncontrolled concurrency.",
                         op.Name, Thread.CurrentThread.ManagedThreadId);
                     int retries = 0;
-                    while (retries < 10 && !task.IsCompleted)
+                    int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
+                    while (retries++ < 10 && !task.IsCompleted)
                     {
                         SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
                         if (this.IsLastSchedulingPointPostponed)
@@ -1570,8 +1483,6 @@ namespace Microsoft.Coyote.Runtime
                             // so stop trying to resolve the uncontrolled concurrency.
                             break;
                         }
-
-                        retries++;
                     }
                 }
 
@@ -1879,7 +1790,7 @@ namespace Microsoft.Coyote.Runtime
                     op.Status != OperationStatus.Completed)
                 {
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
-                    if (op.IsWaitingDependency())
+                    if (op.IsBlocked())
                     {
                         foreach (var dep in op.Dependencies)
                         {
@@ -1887,7 +1798,7 @@ namespace Microsoft.Coyote.Runtime
                         }
                     }
 
-                    if (op.IsWaitingDependency() && op.IsDependencyUncontrolled)
+                    if (op.IsBlocked() && op.IsAnyDependencyUncontrolled)
                     {
                         msg.AppendFormat("          |_ Op '{0}' is blocked with uncontrolled dependency.\n", op.Name);
                     }

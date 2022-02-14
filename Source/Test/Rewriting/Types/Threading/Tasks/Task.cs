@@ -327,10 +327,16 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
         public static bool WaitAll(SystemTask[] tasks, int millisecondsTimeout,
-            SystemCancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WaitAllTasksComplete(tasks) :
-            SystemTask.WaitAll(tasks, millisecondsTimeout, cancellationToken);
+            SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                return runtime.WaitAllTasksComplete(tasks);
+            }
+
+            return SystemTask.WaitAll(tasks, millisecondsTimeout, cancellationToken);
+        }
 
         /// <summary>
         /// Waits for any of the provided task objects to complete execution.
@@ -373,10 +379,16 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
         public static int WaitAny(SystemTask[] tasks, int millisecondsTimeout,
-            SystemCancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.WaitAnyTaskCompletes(tasks) :
-            SystemTask.WaitAny(tasks, millisecondsTimeout, cancellationToken);
+            SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                return runtime.WaitAnyTaskCompletes(tasks);
+            }
+
+            return SystemTask.WaitAny(tasks, millisecondsTimeout, cancellationToken);
+        }
 
         /// <summary>
         /// Waits for the specified task to complete execution.

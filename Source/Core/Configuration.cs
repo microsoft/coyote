@@ -636,7 +636,7 @@ namespace Microsoft.Coyote
         /// Updates the value that controls how much time the runtime should wait for
         /// uncontrolled concurrency to resolve before continuing exploration.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 2.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 1.</param>
         /// <remarks>
         /// Increase the value to give more time to try resolve uncontrolled concurrency.
         /// </remarks>

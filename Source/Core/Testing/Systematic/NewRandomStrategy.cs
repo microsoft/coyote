@@ -65,36 +65,35 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             // Find operations with schedule that has not been seen yet.
             // var newOps = enabledOps.Where(op => !this.KnownSchedules.Contains(op.Schedule)).ToList();
-            if (enabledOps.Count > 1)
-            {
-                var newOps = new List<ControlledOperation>();
-                foreach (var op in enabledOps)
-                {
-                    var potentialSchedule = this.CurrentSchedule + $" | {current.Id}";
-                    System.Console.WriteLine($">>>>> Potential schedule for '{op.Id}': {potentialSchedule}");
-                    if (!this.KnownSchedules.Contains(potentialSchedule))
-                    {
-                        newOps.Add(op);
-                    }
-                }
-
-                if (newOps.Count > 0)
-                {
-                    System.Console.WriteLine($">>>>> Filtering ops to '{newOps.Count}' from '{enabledOps.Count}'.");
-                    enabledOps = newOps;
-                }
-            }
+            // if (enabledOps.Count > 1)
+            // {
+            //     var newOps = new List<ControlledOperation>();
+            //     foreach (var op in enabledOps)
+            //     {
+            //         var potentialSchedule = this.CurrentSchedule + $" | {current.Id}";
+            //         System.Console.WriteLine($">>>>> Potential schedule for '{op.Id}': {potentialSchedule}");
+            //         if (!this.KnownSchedules.Contains(potentialSchedule))
+            //         {
+            //             newOps.Add(op);
+            //         }
+            //     }
+            //     if (newOps.Count > 0)
+            //     {
+            //         System.Console.WriteLine($">>>>> Filtering ops to '{newOps.Count}' from '{enabledOps.Count}'.");
+            //         enabledOps = newOps;
+            //     }
+            // }
 
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
             if (string.IsNullOrEmpty(this.CurrentSchedule))
             {
-                this.CurrentSchedule = $"{current.Id}";
+                this.CurrentSchedule = $"{current.Id} ({current.Msg})";
             }
             else
             {
-                this.CurrentSchedule += $" | {current.Id}";
+                this.CurrentSchedule += $" | {current.Id} ({current.Msg})";
             }
 
             System.Console.WriteLine($">>> Schedule so far: {this.CurrentSchedule}");

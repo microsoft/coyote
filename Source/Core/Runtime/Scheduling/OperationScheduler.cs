@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The installed program exploration strategy.
         /// </summary>
-        private ExplorationStrategy Strategy;
+        internal ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed replay strategy, if any.
@@ -85,10 +85,10 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Wrap the strategy inside a liveness checking strategy.
-                if (this.Configuration.IsLivenessCheckingEnabled)
-                {
-                    this.Strategy = new TemperatureCheckingStrategy(this.Configuration, this.Strategy as SystematicStrategy);
-                }
+                // if (this.Configuration.IsLivenessCheckingEnabled)
+                // {
+                //     this.Strategy = new TemperatureCheckingStrategy(this.Configuration, this.Strategy as SystematicStrategy);
+                // }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {

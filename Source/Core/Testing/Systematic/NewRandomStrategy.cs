@@ -31,6 +31,12 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         private string CurrentSchedule;
 
+        private List<(ControlledOperation, int, string, string, int)> ExecutionPath;
+
+        private Dictionary<string, string> OperationDebugInfo;
+
+        private int Phase = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NewRandomStrategy"/> class.
         /// </summary>
@@ -40,6 +46,8 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.MaxSteps = maxSteps;
             this.KnownSchedules = new HashSet<string>();
             this.CurrentSchedule = string.Empty;
+            this.ExecutionPath = new List<(ControlledOperation, int, string, string, int)>();
+            this.OperationDebugInfo = new Dictionary<string, string>();
         }
 
         /// <inheritdoc/>
@@ -49,6 +57,9 @@ namespace Microsoft.Coyote.Testing.Systematic
             // the current iretation.
             this.StepCount = 0;
             this.CurrentSchedule = string.Empty;
+            this.ExecutionPath.Clear();
+            this.OperationDebugInfo.Clear();
+            this.Phase = 0;
             return true;
         }
 
@@ -87,22 +98,80 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            if (string.IsNullOrEmpty(this.CurrentSchedule))
+            this.ProcessSchedule(next, ops);
+            this.StepCount++;
+            return true;
+        }
+
+        private void ProcessSchedule(ControlledOperation op, IEnumerable<ControlledOperation> ops)
+        {
+            if (!this.OperationDebugInfo.TryGetValue(op.Msg ?? string.Empty, out string msg))
             {
-                this.CurrentSchedule = $"{current.Id} ({current.Msg})";
+                if (op.Msg.Length > 25)
+                {
+                    msg = op.Msg.Substring(0, 25);
+                }
+                else
+                {
+                    msg = op.Msg;
+                }
+
+                msg = $"M{this.OperationDebugInfo.Count} ({msg})";
+                this.OperationDebugInfo.Add(op.Msg, msg);
+            }
+
+            string disabled = string.Empty;
+            foreach (var dop in ops.Where(o => o.Status is OperationStatus.Disabled))
+            {
+                this.OperationDebugInfo.TryGetValue(dop.Msg ?? string.Empty, out string msgDisabled);
+                disabled += $" [{dop.Name} ({msgDisabled})]";
+            }
+
+            if (this.ExecutionPath.Count is 0)
+            {
+                this.ExecutionPath.Add((op, 0, msg, disabled, this.Phase));
             }
             else
             {
-                this.CurrentSchedule += $" | {current.Id} ({current.Msg})";
+                var last = this.ExecutionPath.Last();
+                if (last.Item1.Id == op.Id)
+                {
+                    this.ExecutionPath[this.ExecutionPath.Count - 1] = (op, last.Item2 + 1, msg, disabled, this.Phase);
+                }
+                else
+                {
+                    this.ExecutionPath.Add((op, 0, msg, disabled, this.Phase));
+                }
             }
 
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < this.ExecutionPath.Count; i++)
+            {
+                var step = this.ExecutionPath[i];
+                if (i > 0 && step.Item5 != this.ExecutionPath[i - 1].Item5)
+                {
+                    sb.AppendLine($"===== PHASE {step.Item5} =====");
+                }
+
+                if (!string.IsNullOrEmpty(step.Item4))
+                {
+                    disabled = $" - Disabled: {step.Item4}";
+                }
+
+                sb.AppendLine($"{step.Item1.Name} ({step.Item2}, {step.Item3}){disabled}");
+            }
+
+            this.CurrentSchedule = sb.ToString();
             System.Console.WriteLine($">>> Schedule so far: {this.CurrentSchedule}");
             this.KnownSchedules.Add(this.CurrentSchedule);
-            System.Console.WriteLine($">>> Visited '{this.KnownSchedules.Count}' schedules so far.");
             RuntimeStats.NumVisitedSchedules = this.KnownSchedules.Count;
+            System.Console.WriteLine($">>> Visited '{this.KnownSchedules.Count}' schedules so far.");
+        }
 
-            this.StepCount++;
-            return true;
+        internal void MoveNextPhase(int phase)
+        {
+            System.Console.WriteLine($">>> Moved to phase '{this.Phase}'.");
+            this.Phase = phase;
         }
 
         /// <inheritdoc/>

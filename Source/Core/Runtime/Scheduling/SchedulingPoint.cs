@@ -94,6 +94,18 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Move to the next phase (for debugging).
+        /// </summary>
+        public static void NextPhase(int phase)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                runtime.MoveNextPhase(phase);
+            }
+        }
+
+        /// <summary>
         /// Prints debug information and optionally fails.
         /// </summary>
         public static void SetDebugInfo(string msg)

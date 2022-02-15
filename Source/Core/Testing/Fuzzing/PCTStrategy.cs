@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             // if (positiveDelay)
             if (lowestEnabledOperation.Equals(current))
             {
-                next = this.RandomValueGenerator.Next(maxValue - 1) + 1;
+                next = 1;
             }
             else
             {

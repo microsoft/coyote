@@ -14,6 +14,11 @@ namespace Microsoft.Coyote.Runtime
         Default = 0,
 
         /// <summary>
+        /// An explicit scheduling point.
+        /// </summary>
+        Explicit,
+
+        /// <summary>
         /// A controlled operation started executing.
         /// </summary>
         Start,

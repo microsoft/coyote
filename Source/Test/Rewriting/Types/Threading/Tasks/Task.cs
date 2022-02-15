@@ -481,6 +481,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static ConfiguredTaskAwaitable ConfigureAwait(SystemTask task,
             bool continueOnCapturedContext) =>
             new ConfiguredTaskAwaitable(task, continueOnCapturedContext);
+
+        /// <summary>
+        /// Creates an awaitable that asynchronously yields back to the current context when awaited.
+        /// </summary>
+        public static YieldAwaitable Yield() => new YieldAwaitable(default);
     }
 
     /// <summary>

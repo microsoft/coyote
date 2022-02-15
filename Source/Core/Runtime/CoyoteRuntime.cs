@@ -463,71 +463,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Schedules the specified callback to be executed asynchronously.
+        /// Schedules the specified task to execute asynchronously.
         /// </summary>
-        internal void Schedule(Action callback)
-        {
-            lock (this.SyncObject)
-            {
-                if (!this.IsAttached)
-                {
-                    return;
-                }
-            }
-
-            ControlledOperation op = this.CreateControlledOperation();
-            var thread = new Thread(() =>
-            {
-                try
-                {
-                    // Install the runtime to the execution context of the current thread.
-                    this.SetThreadExecutionContext();
-
-                    // Update the controlled thread with the currently executing operation,
-                    // allowing future retrieval in the same controlled thread.
-                    ExecutingOperation.Value = op;
-
-                    this.StartOperation(op);
-
-                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        this.DelayOperation();
-                    }
-
-                    callback();
-                    this.CompleteOperation(op);
-                    this.ScheduleNextOperation(SchedulingPointType.Stop);
-                }
-                catch (Exception ex)
-                {
-                    this.ProcessUnhandledExceptionInOperation(op, ex);
-                }
-                finally
-                {
-                    // Clean the thread local state.
-                    ExecutingOperation.Value = null;
-                    AsyncLocalRuntime.Value = null;
-                    ThreadLocalRuntime.Value = null;
-                }
-            });
-
-            thread.Name = Guid.NewGuid().ToString();
-            thread.IsBackground = true;
-
-            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
-            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
-            this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
-
-            thread.Start();
-
-            this.WaitOperationStart(op);
-            this.ScheduleNextOperation(SchedulingPointType.Create);
-        }
-
-        /// <summary>
-        /// Schedules the specified task to be executed asynchronously.
-        /// </summary>
-        internal void ScheduleTask(Task task)
+        internal void Schedule(Task task)
         {
             lock (this.SyncObject)
             {
@@ -560,7 +498,7 @@ namespace Microsoft.Coyote.Runtime
                     this.ControlledTaskScheduler.ExecuteTask(task);
 
                     this.CompleteOperation(op);
-                    this.ScheduleNextOperation(SchedulingPointType.Stop);
+                    this.ScheduleNextOperation(SchedulingPointType.Complete);
                 }
                 catch (Exception ex)
                 {
@@ -582,6 +520,68 @@ namespace Microsoft.Coyote.Runtime
             this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
             this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
             this.ControlledTasks.TryAdd(task, op);
+
+            thread.Start();
+
+            this.WaitOperationStart(op);
+            this.ScheduleNextOperation(SchedulingPointType.Create);
+        }
+
+        /// <summary>
+        /// Schedules the specified callback to execute asynchronously.
+        /// </summary>
+        internal void Schedule(Action callback)
+        {
+            lock (this.SyncObject)
+            {
+                if (!this.IsAttached)
+                {
+                    return;
+                }
+            }
+
+            ControlledOperation op = this.CreateControlledOperation();
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    // Install the runtime to the execution context of the current thread.
+                    this.SetThreadExecutionContext();
+
+                    // Update the controlled thread with the currently executing operation,
+                    // allowing future retrieval in the same controlled thread.
+                    ExecutingOperation.Value = op;
+
+                    this.StartOperation(op);
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        this.DelayOperation();
+                    }
+
+                    callback();
+                    this.CompleteOperation(op);
+                    this.ScheduleNextOperation(SchedulingPointType.Complete);
+                }
+                catch (Exception ex)
+                {
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
+                }
+                finally
+                {
+                    // Clean the thread local state.
+                    ExecutingOperation.Value = null;
+                    AsyncLocalRuntime.Value = null;
+                    ThreadLocalRuntime.Value = null;
+                }
+            });
+
+            thread.Name = Guid.NewGuid().ToString();
+            thread.IsBackground = true;
+
+            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
+            this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
 
             thread.Start();
 
@@ -722,7 +722,7 @@ namespace Microsoft.Coyote.Runtime
                     if (op.Dependencies.Count > 0)
                     {
                         op.Status = waitAll ? OperationStatus.BlockedOnWaitAll : OperationStatus.BlockedOnWaitAny;
-                        this.ScheduleNextOperation(SchedulingPointType.Join);
+                        this.ScheduleNextOperation(SchedulingPointType.Wait);
                     }
                 }
             }
@@ -763,7 +763,7 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
                 op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                 op.Status = OperationStatus.BlockedOnWaitAll;
-                this.ScheduleNextOperation(SchedulingPointType.Join);
+                this.ScheduleNextOperation(SchedulingPointType.Wait);
             }
         }
 

@@ -1446,7 +1446,7 @@ namespace Microsoft.Coyote.Actors
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 }
 
-                this.Runtime.ScheduleNextOperation(SchedulingPointType.Join);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
                 this.ResetProgramCounter(actor);
             }
 

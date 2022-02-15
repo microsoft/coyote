@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Runtime
         Default = 0,
 
         /// <summary>
-        /// A controlled operation starts executing.
+        /// A controlled operation started executing.
         /// </summary>
         Start,
 
@@ -24,47 +24,52 @@ namespace Microsoft.Coyote.Runtime
         Create,
 
         /// <summary>
-        /// A controlled operation sends an event.
+        /// A controlled operation scheduled its continuation.
         /// </summary>
-        Send,
+        ContinueWith,
 
         /// <summary>
-        /// A controlled operation receives an event.
+        /// A controlled operation is blocked until one or more dependencies are satisfied.
         /// </summary>
-        Receive,
+        Wait,
 
         /// <summary>
-        /// A controlled operation halts executing.
-        /// </summary>
-        Halt,
-
-        /// <summary>
-        /// A controlled operation stops executing.
-        /// </summary>
-        Stop,
-
-        /// <summary>
-        /// A controlled operation yields its execution.
+        /// A controlled operation yielded its execution.
         /// </summary>
         Yield,
 
         /// <summary>
-        /// A controlled operation acquires a synchronized resource.
+        /// A controlled operation acquired a synchronized resource.
         /// </summary>
         Acquire,
 
         /// <summary>
-        /// A controlled operation releases a synchronized resource.
+        /// A controlled operation released a synchronized resource.
         /// </summary>
         Release,
 
         /// <summary>
-        /// A controlled operation waits for another operation to stop.
+        /// A controlled operation sent an event.
         /// </summary>
-        Join,
+        Send,
 
         /// <summary>
-        /// A controlled operation injects a failure.
+        /// A controlled operation received an event.
+        /// </summary>
+        Receive,
+
+        /// <summary>
+        /// A controlled operation halted executing.
+        /// </summary>
+        Halt,
+
+        /// <summary>
+        /// A controlled operation completed its execution.
+        /// </summary>
+        Complete,
+
+        /// <summary>
+        /// A controlled operation injected a failure.
         /// </summary>
         InjectFailure
     }

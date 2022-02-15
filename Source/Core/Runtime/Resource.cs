@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Runtime
             var op = this.Runtime.GetExecutingOperation<ControlledOperation>();
             op.Status = OperationStatus.BlockedOnResource;
             this.AwaitingOperations.Add(op);
-            this.Runtime.ScheduleNextOperation(SchedulingPointType.Join);
+            this.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
         }
 
         /// <summary>

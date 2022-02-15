@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Runtime
         {
             IO.Debug.WriteLine("<CoyoteDebug> Enqueuing task '{0}' from thread '{1}'.",
                 task.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.ScheduleTask(task);
+            this.Runtime.Schedule(task);
         }
 
         /// <inheritdoc/>

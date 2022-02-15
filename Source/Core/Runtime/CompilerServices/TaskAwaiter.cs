@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// The task being awaited.
         /// </summary>
-        private readonly SystemTask AwaitedTask;
+        internal readonly SystemTask AwaitedTask;
 
         /// <summary>
         /// The task awaiter.
@@ -39,6 +39,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter.IsControlled =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
@@ -83,10 +87,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
 
-        /// <inheritdoc/>
-        bool IControlledAwaiter.IsTaskControlled() =>
-            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
-
         /// <summary>
         /// Wraps the specified task awaiter.
         /// </summary>
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter<TResult> : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter<TResult> : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -140,6 +140,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter.IsControlled =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
@@ -183,9 +187,5 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
-
-        /// <inheritdoc/>
-        bool IControlledAwaiter.IsTaskControlled() =>
-            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
     }
 }

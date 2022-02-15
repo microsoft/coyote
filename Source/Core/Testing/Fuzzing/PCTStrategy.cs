@@ -103,6 +103,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             if (ops.Where(op => op.Status is AsyncOperationStatus.Delayed).Count() == 1)
             {
                 next = 0;
+                return true;
             }
 
             // if (positiveDelay)

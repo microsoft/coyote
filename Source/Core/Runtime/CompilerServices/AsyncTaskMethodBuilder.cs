@@ -97,8 +97,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
@@ -115,8 +115,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
@@ -224,8 +224,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 where TAwaiter : INotifyCompletion
                 where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
@@ -242,8 +242,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }

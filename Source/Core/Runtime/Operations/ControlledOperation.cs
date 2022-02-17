@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
             this.StackTrace = new System.Diagnostics.StackTrace().ToString();
 
             // Assign this operation as a member of this group.
-            group.RegisterMember(this);
+            this.Group.RegisterMember(this);
         }
 
         /// <summary>

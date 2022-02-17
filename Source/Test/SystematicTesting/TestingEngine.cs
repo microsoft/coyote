@@ -345,7 +345,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
-                    "possibly in a test method. Please use /debug /v:2 to print more information.");
+                    "possibly in a test method. Please enable debug verbosity to print more information.");
                 }
             }
             catch (Exception ex)

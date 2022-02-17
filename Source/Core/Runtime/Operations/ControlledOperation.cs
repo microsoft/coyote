@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Represents an operation that can be controlled during testing.
     /// </summary>
-    internal class ControlledOperation : IEquatable<ControlledOperation>
+    internal class ControlledOperation : IEquatable<ControlledOperation>, IDisposable
     {
         /// <summary>
         /// The unique id of the operation.
@@ -28,14 +28,20 @@ namespace Microsoft.Coyote.Runtime
         internal OperationStatus Status;
 
         /// <summary>
-        /// The type of the last encountered scheduling point.
+        /// The group that this operation has membership. This can be used
+        /// by the scheduler to optimize exploration.
         /// </summary>
-        internal SchedulingPointType SchedulingPoint;
+        internal readonly OperationGroup Group;
 
         /// <summary>
         /// Set of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
         internal readonly HashSet<object> Dependencies;
+
+        /// <summary>
+        /// The type of the last encountered scheduling point.
+        /// </summary>
+        internal SchedulingPointType SchedulingPoint;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -53,51 +59,44 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal int HashedProgramState;
 
-        internal int Thread;
-
         internal string Msg;
 
         internal string StackTrace;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
+        /// True if this is the root operation, else false.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name)
-        {
-            this.Id = operationId;
-            this.Name = name;
-            this.Status = OperationStatus.None;
-            this.SchedulingPoint = SchedulingPointType.Start;
-            this.Dependencies = new HashSet<object>();
-            this.IsSourceUncontrolled = false;
-            this.IsAnyDependencyUncontrolled = false;
-            this.Thread = -1;
-            this.Msg = CoyoteRuntime.AsyncLocalDebugInfo.Value ?? string.Empty;
-            if (this.Msg.Length > 0)
-            {
-                IO.Debug.WriteLine($"---> Created Op '{this.Id}' with msg '{this.Msg}' from thread '{System.Threading.Thread.CurrentThread.ManagedThreadId}'");
-            }
-            else
-            {
-                IO.Debug.WriteLine($"---> Created Op '{this.Id}' from thread '{System.Threading.Thread.CurrentThread.ManagedThreadId}'");
-            }
-
-            this.StackTrace = new System.Diagnostics.StackTrace().ToString();
-        }
+        internal bool IsRoot => this.Id is 0;
 
         /// <summary>
-        /// Returns true if this is the root operation, else false.
+        /// True if this operation is currently blocked, else false.
         /// </summary>
-        internal bool IsRoot() => this.Id is 0;
-
-        /// <summary>
-        /// Returns true if the operation is currently blocked, else false.
-        /// </summary>
-        internal bool IsBlocked() =>
+        internal bool IsBlocked =>
             this.Status is OperationStatus.BlockedOnWaitAll ||
             this.Status is OperationStatus.BlockedOnWaitAny ||
             this.Status is OperationStatus.BlockedOnReceive ||
             this.Status is OperationStatus.BlockedOnResource;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
+        /// </summary>
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
+        {
+            this.Id = operationId;
+            this.Name = name;
+            this.Status = OperationStatus.None;
+            this.Group = group ?? OperationGroup.Create(this);
+            this.SchedulingPoint = SchedulingPointType.Start;
+            this.Dependencies = new HashSet<object>();
+            this.IsSourceUncontrolled = false;
+            this.IsAnyDependencyUncontrolled = false;
+
+            this.Msg = this.Group.Owner.Msg ?? string.Empty;
+            this.StackTrace = new System.Diagnostics.StackTrace().ToString();
+
+            // Assign this operation as a member of this group.
+            group.RegisterMember(this);
+        }
 
         /// <summary>
         /// Sets the specified dependency.
@@ -142,7 +141,7 @@ namespace Microsoft.Coyote.Runtime
         public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
-        /// Returns a string that represents the current actor id.
+        /// Returns a string that represents the current operation id.
         /// </summary>
         public override string ToString() => this.Name;
 
@@ -157,5 +156,13 @@ namespace Microsoft.Coyote.Runtime
         /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
         bool IEquatable<ControlledOperation>.Equals(ControlledOperation other) => this.Equals(other);
+
+        /// <summary>
+        /// Disposes the contents of this object.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dependencies.Clear();
+        }
     }
 }

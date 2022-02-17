@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
                 {
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
-                        runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                        runtime.ScheduleNextOperation(SchedulingPointType.Interleave);
                     }
                     else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {

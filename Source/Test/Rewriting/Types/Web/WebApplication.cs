@@ -32,30 +32,28 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         {
             WebFramework.HttpRequest request = context.Request;
             IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
-            if (request != null && request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
             {
-                request.Headers.Remove("ms-coyote-runtime-id");
-                if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
+                IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
+                    request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
+                TryExtractSourceOperation(request, runtime, out ControlledOperation source);
+                var op = HttpOperation.Create(request.Method, request.Path, runtime, source);
+                OperationGroup.SetCurrent(op.Group);
+                return runtime.TaskFactory.StartNew(state =>
                 {
-                    IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                        request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
-                    CoyoteRuntime.AsyncLocalDebugInfo.Value = $"{request.Method} {request.Path}";
-                    return runtime.TaskFactory.StartNew(() =>
-                    {
-                        SystemTask task = next(context);
-                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
-                        runtime.WaitUntilTaskCompletes(task);
-                        task.GetAwaiter().GetResult();
-                    },
-                    default,
-                    runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
-                    runtime.TaskFactory.Scheduler);
-                }
+                    SystemTask task = next(context);
+                    IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
+                    runtime.WaitUntilTaskCompletes(task);
+                    task.GetAwaiter().GetResult();
+                },
+                op,
+                default,
+                runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
+                runtime.TaskFactory.Scheduler);
             }
             else
             {
                 IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
-                // return SystemTask.FromException(new InvalidOperationException("Runtime header not found."));
             }
 
             return next(context);
@@ -68,30 +66,28 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         {
             WebFramework.HttpRequest request = context.Request;
             IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
-            if (request != null && request.Headers.TryGetValue("ms-coyote-runtime-id", out var runtimeId))
+            if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
             {
-                request.Headers.Remove("ms-coyote-runtime-id");
-                if (RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out CoyoteRuntime runtime))
+                IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
+                    request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
+                TryExtractSourceOperation(request, runtime, out ControlledOperation source);
+                var op = HttpOperation.Create(request.Method, request.Path, runtime, source);
+                OperationGroup.SetCurrent(op.Group);
+                return runtime.TaskFactory.StartNew(state =>
                 {
-                    IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                        request.Method, request.Path, runtimeId, SystemThread.CurrentThread.ManagedThreadId);
-                    CoyoteRuntime.AsyncLocalDebugInfo.Value = $"{request.Method} {request.Path}";
-                    return runtime.TaskFactory.StartNew(() =>
-                    {
-                        SystemTask task = next();
-                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
-                        runtime.WaitUntilTaskCompletes(task);
-                        task.GetAwaiter().GetResult();
-                    },
-                    default,
-                    runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
-                    runtime.TaskFactory.Scheduler);
-                }
+                    SystemTask task = next();
+                    IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
+                    runtime.WaitUntilTaskCompletes(task);
+                    task.GetAwaiter().GetResult();
+                },
+                op,
+                default,
+                runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
+                runtime.TaskFactory.Scheduler);
             }
             else
             {
                 IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
-                // return SystemTask.FromException(new InvalidOperationException("Runtime header not found."));
             }
 
             return next();
@@ -149,6 +145,51 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
             {
                 yield return new WebTesting.Handlers.CookieContainerHandler();
             }
+        }
+
+        /// <summary>
+        /// Tries to return the runtime instance that has the identifier defined in the value
+        /// of the <see cref="HttpRequestHeader.RuntimeId"/> header of the specified request,
+        /// if there is such a header available.
+        /// </summary>
+        /// <remarks>
+        /// The header is removed from the request after the runtime is retrieved.
+        /// </remarks>
+        private static bool TryExtractRuntime(WebFramework.HttpRequest request, out CoyoteRuntime runtime)
+        {
+            if (request.Headers.TryGetValue(HttpRequestHeader.RuntimeId, out var runtimeId) &&
+                System.Guid.TryParse(runtimeId, out Guid value))
+            {
+                request.Headers.Remove(HttpRequestHeader.RuntimeId);
+                RuntimeProvider.TryGetFromId(System.Guid.Parse(runtimeId), out runtime);
+                return true;
+            }
+
+            runtime = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to return the source operation that has the identifier defined in the value
+        /// of the <see cref="HttpRequestHeader.SourceOperationId"/> header of the specified
+        /// request, if there is such a header available.
+        /// </summary>
+        /// <remarks>
+        /// The header is removed from the request after the operation is retrieved.
+        /// </remarks>
+        private static bool TryExtractSourceOperation(WebFramework.HttpRequest request, CoyoteRuntime runtime,
+            out ControlledOperation op)
+        {
+            if (request.Headers.TryGetValue(HttpRequestHeader.SourceOperationId, out var sourceOpId) &&
+                ulong.TryParse(sourceOpId, out ulong value))
+            {
+                request.Headers.Remove(HttpRequestHeader.SourceOperationId);
+                op = runtime.GetOperationWithId(value);
+                return true;
+            }
+
+            op = null;
+            return false;
         }
     }
 }

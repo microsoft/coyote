@@ -11,12 +11,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default scheduling point type.
         /// </summary>
-        Default = 0,
-
-        /// <summary>
-        /// An explicit scheduling point.
-        /// </summary>
-        Explicit,
+        None = 0,
 
         /// <summary>
         /// A controlled operation started executing.
@@ -34,14 +29,19 @@ namespace Microsoft.Coyote.Runtime
         ContinueWith,
 
         /// <summary>
+        /// A controlled operation yielded its execution.
+        /// </summary>
+        Interleave,
+
+        /// <summary>
+        /// A controlled operation lowered its priority and yielded its execution.
+        /// </summary>
+        Yield,
+
+        /// <summary>
         /// A controlled operation is blocked until one or more dependencies are satisfied.
         /// </summary>
         Wait,
-
-        /// <summary>
-        /// A controlled operation yielded its execution.
-        /// </summary>
-        Yield,
 
         /// <summary>
         /// A controlled operation acquired a synchronized resource.

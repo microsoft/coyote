@@ -31,9 +31,11 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         private string CurrentSchedule;
 
-        private List<(ControlledOperation, int, string, string, int)> ExecutionPath;
+        private List<(string name, int seq, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, string disabledOps, int phase, bool isForced)> ExecutionPath;
 
         private Dictionary<string, string> OperationDebugInfo;
+
+        private HashSet<OperationGroup> Groups;
 
         private int Phase = 0;
 
@@ -46,8 +48,9 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.MaxSteps = maxSteps;
             this.KnownSchedules = new HashSet<string>();
             this.CurrentSchedule = string.Empty;
-            this.ExecutionPath = new List<(ControlledOperation, int, string, string, int)>();
+            this.ExecutionPath = new List<(string, int, int, SchedulingPointType, OperationGroup, string, string, int, bool)>();
             this.OperationDebugInfo = new Dictionary<string, string>();
+            this.Groups = new HashSet<OperationGroup>();
         }
 
         /// <inheritdoc/>
@@ -59,6 +62,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.CurrentSchedule = string.Empty;
             this.ExecutionPath.Clear();
             this.OperationDebugInfo.Clear();
+            this.Groups.Clear();
             this.Phase = 0;
             return true;
         }
@@ -95,17 +99,43 @@ namespace Microsoft.Coyote.Testing.Systematic
             //     }
             // }
 
+            bool isForced = false;
+            // If explicit, and there is an operation group, then choose a random operation in the same group.
+            if (current.SchedulingPoint != SchedulingPointType.Interleave &&
+                current.SchedulingPoint != SchedulingPointType.Yield)
+            {
+                // Choose an operation that has the same group as the operation that just completed.
+                if (current.Group != null)
+                {
+                    System.Console.WriteLine($">>>>> SCHEDULE NEXT: {current.Name} (o: {current.Group.Owner}, g: {current.Group})");
+                    var groupOps = enabledOps.Where(op => current.Group.IsMember(op)).ToList();
+                    System.Console.WriteLine($">>>>> groupOps: {groupOps.Count}");
+                    foreach (var op in groupOps)
+                    {
+                        System.Console.WriteLine($">>>>>>>> groupOp: {op.Name} (o: {op.Group.Owner}, g: {op.Group})");
+                    }
+
+                    // if (groupOps.Count > 0)
+                    // {
+                    //     enabledOps = groupOps;
+                    //     isForced = true;
+                    // }
+                }
+            }
+
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            this.ProcessSchedule(next, ops);
+            this.ProcessSchedule(current.SchedulingPoint, next, ops, isForced);
             this.StepCount++;
             return true;
         }
 
-        private void ProcessSchedule(ControlledOperation op, IEnumerable<ControlledOperation> ops)
+        private void ProcessSchedule(SchedulingPointType spType, ControlledOperation op,
+            IEnumerable<ControlledOperation> ops, bool isForced)
         {
-            if (!this.OperationDebugInfo.TryGetValue(op.Msg ?? string.Empty, out string msg))
+            string msg = op.Msg;
+            if (!string.IsNullOrEmpty(msg) && !this.OperationDebugInfo.TryGetValue(op.Msg ?? string.Empty, out msg))
             {
                 if (op.Msg.Length > 25)
                 {
@@ -116,7 +146,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     msg = op.Msg;
                 }
 
-                msg = $"M{this.OperationDebugInfo.Count} ({msg})";
+                msg = $"REQ{this.OperationDebugInfo.Count} ({msg})";
                 this.OperationDebugInfo.Add(op.Msg, msg);
             }
 
@@ -124,41 +154,91 @@ namespace Microsoft.Coyote.Testing.Systematic
             foreach (var dop in ops.Where(o => o.Status is OperationStatus.Disabled))
             {
                 this.OperationDebugInfo.TryGetValue(dop.Msg ?? string.Empty, out string msgDisabled);
-                disabled += $" [{dop.Name} ({msgDisabled})]";
+                disabled += $" {dop.Name}";
+            }
+
+            var count = ops.Count(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled);
+            foreach (var xop in ops.Where(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled))
+            {
+                if (xop.Group != null)
+                {
+                    this.Groups.Add(xop.Group);
+                }
             }
 
             if (this.ExecutionPath.Count is 0)
             {
-                this.ExecutionPath.Add((op, 0, msg, disabled, this.Phase));
+                this.ExecutionPath.Add((op.Name, 0, count, spType, op.Group, msg, disabled, this.Phase, isForced));
             }
             else
             {
                 var last = this.ExecutionPath.Last();
-                if (last.Item1.Id == op.Id)
+                if (last.name == op.Name)
                 {
-                    this.ExecutionPath[this.ExecutionPath.Count - 1] = (op, last.Item2 + 1, msg, disabled, this.Phase);
+                    this.ExecutionPath[this.ExecutionPath.Count - 1] = (op.Name, last.seq + 1, count, spType,
+                        op.Group, msg, disabled, this.Phase, last.isForced || isForced);
                 }
                 else
                 {
-                    this.ExecutionPath.Add((op, 0, msg, disabled, this.Phase));
+                    this.ExecutionPath.Add((op.Name, 0, count, spType, op.Group, msg, disabled, this.Phase, isForced));
                 }
             }
 
+            var groups = new HashSet<OperationGroup>();
             var sb = new System.Text.StringBuilder();
             for (int i = 0; i < this.ExecutionPath.Count; i++)
             {
                 var step = this.ExecutionPath[i];
-                if (i > 0 && step.Item5 != this.ExecutionPath[i - 1].Item5)
+                if (i > 0 && step.phase != this.ExecutionPath[i - 1].phase)
                 {
-                    sb.AppendLine($"===== PHASE {step.Item5} =====");
+                    sb.AppendLine($"===== NEXT PHASE =====");
+                    sb.AppendLine($"Phase: {step.phase}");
+                    sb.AppendLine($"{groups.Count} scheduled groups:");
+                    foreach (var g in groups)
+                    {
+                        sb.AppendLine($"  |_ {g}({g.Owner})");
+                    }
+
+                    this.Groups.RemoveWhere(g => groups.Contains(g));
+                    sb.AppendLine($"{this.Groups.Count} remaining groups:");
+                    foreach (var g in this.Groups)
+                    {
+                        sb.AppendLine($"  |_ {g}({g.Owner})");
+                    }
+
+                    sb.AppendLine($"Length: {this.StepCount + 1}");
+                    sb.AppendLine($"S-Length: {this.ExecutionPath.Count}");
+                    sb.AppendLine($"======================");
+                    groups.Clear();
+                    this.Groups.Clear();
                 }
 
-                if (!string.IsNullOrEmpty(step.Item4))
+                string group = string.Empty;
+                if (step.group != null)
                 {
-                    disabled = $" - Disabled: {step.Item4}";
+                    group = $" - GRP[{step.group}({step.group.Owner})]";
+                    groups.Add(step.group);
                 }
 
-                sb.AppendLine($"{step.Item1.Name} ({step.Item2}, {step.Item3}){disabled}");
+                string disabledInfo = string.Empty;
+                if (!string.IsNullOrEmpty(step.disabledOps))
+                {
+                    disabledInfo = $" - DIS[{step.disabledOps}]";
+                }
+
+                string debug = string.Empty;
+                if (!string.IsNullOrEmpty(step.debug))
+                {
+                    debug = $" - DBG[{step.debug}]";
+                }
+
+                string isStepForced = string.Empty;
+                if (step.isForced)
+                {
+                    isStepForced = $" - FORCED";
+                }
+
+                sb.AppendLine($"{step.name} - SEQ[{step.seq}] - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{disabledInfo}{debug}{isStepForced}");
             }
 
             this.CurrentSchedule = sb.ToString();

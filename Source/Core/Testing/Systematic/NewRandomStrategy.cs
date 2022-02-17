@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled && !op.Group.IsDisabled).ToList();
             if (enabledOps.Count is 0)
             {
                 next = null;
@@ -154,8 +154,8 @@ namespace Microsoft.Coyote.Testing.Systematic
                 this.OperationDebugInfo.Add(op.Msg, msg);
             }
 
-            var count = ops.Count(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled);
-            foreach (var xop in ops.Where(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled))
+            var count = ops.Count(op => op.Status is OperationStatus.Enabled);
+            foreach (var xop in ops.Where(op => op.Status is OperationStatus.Enabled))
             {
                 if (xop.Group != null)
                 {
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     gSet.Add(xop.Group);
                 }
 
-                if (xop.Status is OperationStatus.Disabled)
+                if (xop.Group.IsDisabled)
                 {
                     if (!this.DisabledOps.TryGetValue(this.Phase, out HashSet<ControlledOperation> dSet))
                     {

@@ -942,15 +942,17 @@ namespace Microsoft.Coyote.Runtime
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine($"=========== ENABLE OPS ===========");
+                IO.Debug.WriteLine($"--- Connector: {connector}");
                 foreach (var group in this.OperationGroups.Where(group => group.IsDisabled))
                 {
-                    if (group.Owner.Connector.Contains(connector))
+                    if (group.Any(op => op.Connector.Equals(connector)))
                     {
                         IO.Debug.WriteLine($"--- Enabling group: {group} - o {group.Owner} ({group.Owner.Msg}))");
                         group.IsDisabled = false;
                         foreach (var member in group.Where(op => op.Status != OperationStatus.Completed))
                         {
                             IO.Debug.WriteLine($"--- Enabling member op: {member.Name} ({member.Group})");
+                            IO.Debug.WriteLine($" |_ Status: {member.Status}");
                             IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
                             IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
                         }
@@ -962,6 +964,7 @@ namespace Microsoft.Coyote.Runtime
                 foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
                 {
                     IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
+                    IO.Debug.WriteLine($" |_ Status: {op.Status}");
                     IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
                     IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
                     IO.Debug.WriteLine($" |_ Group: {op.Group}");
@@ -980,6 +983,7 @@ namespace Microsoft.Coyote.Runtime
                 foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
                 {
                     IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
+                    IO.Debug.WriteLine($" |_ Status: {op.Status}");
                     IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
                     IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
                     IO.Debug.WriteLine($" |_ Group: {op.Group}");
@@ -989,11 +993,13 @@ namespace Microsoft.Coyote.Runtime
                 var currentOp = ExecutingOperation.Value;
                 if (currentOp != null && currentOp.Status is OperationStatus.Enabled && !currentOp.Group.IsDisabled)
                 {
+                    IO.Debug.WriteLine($"--- Current op: {currentOp} - c {currentOp.Connector}");
                     IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Owner.Msg}))");
                     currentOp.Group.IsDisabled = true;
                     foreach (var member in currentOp.Group.Where(op => op.Status != OperationStatus.Completed))
                     {
                         IO.Debug.WriteLine($"--- Disabling op: {member.Name} ({member.Group})");
+                        IO.Debug.WriteLine($" |_ Status: {member.Status}");
                         IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
                         IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
                     }
@@ -1034,8 +1040,9 @@ namespace Microsoft.Coyote.Runtime
                 {
                     IO.Debug.WriteLine("--- DEBUG INFO ---");
                     var currentOp = ExecutingOperation.Value;
-                    var enabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Enabled);
-                    var disabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Disabled);
+                    var enabledOps = this.OperationMap.Where(
+                        op => op.Value.Status is OperationStatus.Enabled && !op.Value.Group.IsDisabled);
+                    var disabledOps = this.OperationMap.Where(op => op.Value.Group.IsDisabled);
                     var blockedOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.BlockedOnWaitAll || op.Value.Status is OperationStatus.BlockedOnWaitAny || op.Value.Status is OperationStatus.BlockedOnContinuation);
                     IO.Debug.WriteLine($"--- Current Op: {currentOp?.Name} (msg: {currentOp?.Msg})");
                     IO.Debug.WriteLine($"--- Enabled Ops: {enabledOps.Count()}");
@@ -1060,7 +1067,6 @@ namespace Microsoft.Coyote.Runtime
 
                     foreach (var op in this.OperationMap.Where(
                         op => op.Value.Status != OperationStatus.Enabled &&
-                        op.Value.Status != OperationStatus.Disabled &&
                         op.Value.Status != OperationStatus.Completed))
                     {
                         IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
@@ -1338,7 +1344,6 @@ namespace Microsoft.Coyote.Runtime
                 enabledOpsCount = 0;
 
                 uint statusChanges = 0;
-                int disabledOpsCount = 0;
                 bool isRootDependencyUnresolved = false;
                 bool isAnyDependencyUnresolved = false;
                 foreach (var op in this.OperationMap.Values)
@@ -1372,12 +1377,6 @@ namespace Microsoft.Coyote.Runtime
                                     isAnyDependencyUnresolved = true;
                                 }
                             }
-
-                            if (previousStatus is OperationStatus.Disabled)
-                            {
-                                // op.Status = OperationStatus.Enabled;
-                                disabledOpsCount++;
-                            }
                         }
                         else
                         {
@@ -1387,7 +1386,7 @@ namespace Microsoft.Coyote.Runtime
                         }
                     }
 
-                    if (op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled)
+                    if (op.Status is OperationStatus.Enabled)
                     {
                         enabledOpsCount++;
                     }
@@ -1437,9 +1436,8 @@ namespace Microsoft.Coyote.Runtime
             uint y = 0;
             foreach (var x in this.OperationMap.Values)
             {
-                if (x.Status is OperationStatus.Disabled)
+                if (x.Status is OperationStatus.Enabled && x.Group.IsDisabled)
                 {
-                    // x.Status = OperationStatus.Enabled;
                     y++;
                 }
             }
@@ -1872,10 +1870,12 @@ namespace Microsoft.Coyote.Runtime
             foreach (var op in ops)
             {
                 if (op.Status != OperationStatus.None &&
-                    op.Status != OperationStatus.Enabled &&
+                    (op.Status != OperationStatus.Enabled || op.Group.IsDisabled) &&
                     op.Status != OperationStatus.Completed)
                 {
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
+                    msg.AppendFormat("          |_ is-disabled '{0}'.\n", op.Group.IsDisabled);
+                    msg.AppendFormat("          |_ connector '{0}'.\n", op.Connector);
                     msg.AppendFormat("          |_ msg '{0}'.\n", op.Msg);
                     msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
                     msg.AppendFormat("          |_ owner '{0}'.\n", op.Group.Owner);

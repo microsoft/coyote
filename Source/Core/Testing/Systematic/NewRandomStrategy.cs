@@ -31,11 +31,13 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         private string CurrentSchedule;
 
-        private List<(string name, int seq, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, string disabledOps, int phase, bool isForced)> ExecutionPath;
+        private List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, bool isForced)> ExecutionPath;
 
         private Dictionary<string, string> OperationDebugInfo;
 
-        private HashSet<OperationGroup> Groups;
+        private Dictionary<int, HashSet<OperationGroup>> Groups;
+
+        private Dictionary<int, HashSet<ControlledOperation>> DisabledOps;
 
         private int Phase = 0;
 
@@ -48,9 +50,10 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.MaxSteps = maxSteps;
             this.KnownSchedules = new HashSet<string>();
             this.CurrentSchedule = string.Empty;
-            this.ExecutionPath = new List<(string, int, int, SchedulingPointType, OperationGroup, string, string, int, bool)>();
+            this.ExecutionPath = new List<(string, int, SchedulingPointType, OperationGroup, string, int, bool)>();
             this.OperationDebugInfo = new Dictionary<string, string>();
-            this.Groups = new HashSet<OperationGroup>();
+            this.Groups = new Dictionary<int, HashSet<OperationGroup>>();
+            this.DisabledOps = new Dictionary<int, HashSet<ControlledOperation>>();
         }
 
         /// <inheritdoc/>
@@ -63,6 +66,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.ExecutionPath.Clear();
             this.OperationDebugInfo.Clear();
             this.Groups.Clear();
+            this.DisabledOps.Clear();
             this.Phase = 0;
             return true;
         }
@@ -115,11 +119,11 @@ namespace Microsoft.Coyote.Testing.Systematic
                         System.Console.WriteLine($">>>>>>>> groupOp: {op.Name} (o: {op.Group.Owner}, g: {op.Group})");
                     }
 
-                    // if (groupOps.Count > 0)
-                    // {
-                    //     enabledOps = groupOps;
-                    //     isForced = true;
-                    // }
+                    if (groupOps.Count > 0)
+                    {
+                        enabledOps = groupOps;
+                        isForced = true;
+                    }
                 }
             }
 
@@ -150,39 +154,33 @@ namespace Microsoft.Coyote.Testing.Systematic
                 this.OperationDebugInfo.Add(op.Msg, msg);
             }
 
-            string disabled = string.Empty;
-            foreach (var dop in ops.Where(o => o.Status is OperationStatus.Disabled))
-            {
-                this.OperationDebugInfo.TryGetValue(dop.Msg ?? string.Empty, out string msgDisabled);
-                disabled += $" {dop.Name}";
-            }
-
             var count = ops.Count(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled);
             foreach (var xop in ops.Where(op => op.Status is OperationStatus.Enabled || op.Status is OperationStatus.Disabled))
             {
                 if (xop.Group != null)
                 {
-                    this.Groups.Add(xop.Group);
+                    if (!this.Groups.TryGetValue(this.Phase, out HashSet<OperationGroup> gSet))
+                    {
+                        gSet = new HashSet<OperationGroup>();
+                        this.Groups.Add(this.Phase, gSet);
+                    }
+
+                    gSet.Add(xop.Group);
+                }
+
+                if (xop.Status is OperationStatus.Disabled)
+                {
+                    if (!this.DisabledOps.TryGetValue(this.Phase, out HashSet<ControlledOperation> dSet))
+                    {
+                        dSet = new HashSet<ControlledOperation>();
+                        this.DisabledOps.Add(this.Phase, dSet);
+                    }
+
+                    dSet.Add(xop);
                 }
             }
 
-            if (this.ExecutionPath.Count is 0)
-            {
-                this.ExecutionPath.Add((op.Name, 0, count, spType, op.Group, msg, disabled, this.Phase, isForced));
-            }
-            else
-            {
-                var last = this.ExecutionPath.Last();
-                if (last.name == op.Name)
-                {
-                    this.ExecutionPath[this.ExecutionPath.Count - 1] = (op.Name, last.seq + 1, count, spType,
-                        op.Group, msg, disabled, this.Phase, last.isForced || isForced);
-                }
-                else
-                {
-                    this.ExecutionPath.Add((op.Name, 0, count, spType, op.Group, msg, disabled, this.Phase, isForced));
-                }
-            }
+            this.ExecutionPath.Add((op.Name, count, spType, op.Group, msg, this.Phase, isForced));
 
             var groups = new HashSet<OperationGroup>();
             var sb = new System.Text.StringBuilder();
@@ -191,26 +189,40 @@ namespace Microsoft.Coyote.Testing.Systematic
                 var step = this.ExecutionPath[i];
                 if (i > 0 && step.phase != this.ExecutionPath[i - 1].phase)
                 {
-                    sb.AppendLine($"===== NEXT PHASE =====");
-                    sb.AppendLine($"Phase: {step.phase}");
+                    int phase = step.phase - 1;
+                    sb.AppendLine($"===== CHANGE PHASE =====");
+                    sb.AppendLine($"Phase: {phase}");
                     sb.AppendLine($"{groups.Count} scheduled groups:");
                     foreach (var g in groups)
                     {
                         sb.AppendLine($"  |_ {g}({g.Owner})");
                     }
 
-                    this.Groups.RemoveWhere(g => groups.Contains(g));
-                    sb.AppendLine($"{this.Groups.Count} remaining groups:");
-                    foreach (var g in this.Groups)
+                    if (this.Groups.TryGetValue(phase, out HashSet<OperationGroup> gSet))
                     {
-                        sb.AppendLine($"  |_ {g}({g.Owner})");
+                        var set = gSet.Where(g => !groups.Contains(g)).ToList();
+                        if (set.Count > 0)
+                        {
+                            sb.AppendLine($"{set.Count} remaining groups:");
+                            foreach (var g in set)
+                            {
+                                sb.AppendLine($"  |_ {g}({g.Owner})");
+                            }
+                        }
                     }
 
-                    sb.AppendLine($"Length: {this.StepCount + 1}");
-                    sb.AppendLine($"S-Length: {this.ExecutionPath.Count}");
+                    if (this.DisabledOps.TryGetValue(phase, out HashSet<ControlledOperation> dSet))
+                    {
+                        sb.AppendLine($"{dSet.Count} disabled ops:");
+                        foreach (var d in dSet)
+                        {
+                            sb.AppendLine($"  |_ {d} : g {d.Group} + o {d.Group.Owner} ({d.Group.Owner.Msg}))");
+                        }
+                    }
+
+                    sb.AppendLine($"Length: {i}");
                     sb.AppendLine($"======================");
                     groups.Clear();
-                    this.Groups.Clear();
                 }
 
                 string group = string.Empty;
@@ -218,12 +230,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                 {
                     group = $" - GRP[{step.group}({step.group.Owner})]";
                     groups.Add(step.group);
-                }
-
-                string disabledInfo = string.Empty;
-                if (!string.IsNullOrEmpty(step.disabledOps))
-                {
-                    disabledInfo = $" - DIS[{step.disabledOps}]";
                 }
 
                 string debug = string.Empty;
@@ -238,7 +244,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     isStepForced = $" - FORCED";
                 }
 
-                sb.AppendLine($"{step.name} - SEQ[{step.seq}] - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{disabledInfo}{debug}{isStepForced}");
+                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{isStepForced}");
             }
 
             this.CurrentSchedule = sb.ToString();

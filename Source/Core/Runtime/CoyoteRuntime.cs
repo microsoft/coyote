@@ -937,21 +937,37 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal void EnableOps(string msg)
+        internal void EnableOps(string connector)
         {
             lock (this.SyncObject)
             {
-                foreach (var op in this.OperationMap)
+                IO.Debug.WriteLine($"=========== ENABLE OPS ===========");
+                foreach (var group in this.OperationGroups.Where(group => group.IsDisabled))
                 {
-                    if (op.Value.Status is OperationStatus.Disabled &&
-                        (string.IsNullOrEmpty(msg) || op.Value.Msg.Contains(msg)))
+                    if (group.Owner.Connector.Contains(connector))
                     {
-                        // IO.Debug.WriteLine($"--- Enabling Op: {op.Value.Name} (tid: {op.Value.Thread})");
-                        // IO.Debug.WriteLine($" |_ Msg: {op.Value.Msg}");
-                        // IO.Debug.WriteLine($" |_ Stack Trace: {op.Value.StackTrace}");
-                        op.Value.Status = OperationStatus.Enabled;
+                        IO.Debug.WriteLine($"--- Enabling group: {group} - o {group.Owner} ({group.Owner.Msg}))");
+                        group.IsDisabled = false;
+                        foreach (var member in group.Where(op => op.Status != OperationStatus.Completed))
+                        {
+                            IO.Debug.WriteLine($"--- Enabling member op: {member.Name} ({member.Group})");
+                            IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
+                            IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
+                        }
                     }
                 }
+
+                IO.Debug.WriteLine($"==================================");
+                IO.Debug.WriteLine($"--- Remaining disabled ops:");
+                foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
+                {
+                    IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
+                    IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
+                    IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
+                    IO.Debug.WriteLine($" |_ Group: {op.Group}");
+                }
+
+                IO.Debug.WriteLine($"======== DONE ENABLE OPS =========");
             }
         }
 
@@ -959,14 +975,31 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                var currentOp = ExecutingOperation.Value;
-                if (currentOp != null && currentOp.Status is OperationStatus.Enabled)
+                IO.Debug.WriteLine($"========== DISABLE OPS ===========");
+                IO.Debug.WriteLine($"--- Already disabled ops:");
+                foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
                 {
-                    // IO.Debug.WriteLine($"--- Disabling Op: {currentOp.Name} (tid: {currentOp.Thread})");
-                    // IO.Debug.WriteLine($" |_ Msg: {currentOp.Msg}");
-                    // IO.Debug.WriteLine($" |_ Stack Trace: {currentOp.StackTrace}");
-                    currentOp.Status = OperationStatus.Disabled;
+                    IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
+                    IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
+                    IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
+                    IO.Debug.WriteLine($" |_ Group: {op.Group}");
                 }
+
+                IO.Debug.WriteLine($"==================================");
+                var currentOp = ExecutingOperation.Value;
+                if (currentOp != null && currentOp.Status is OperationStatus.Enabled && !currentOp.Group.IsDisabled)
+                {
+                    IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Owner.Msg}))");
+                    currentOp.Group.IsDisabled = true;
+                    foreach (var member in currentOp.Group.Where(op => op.Status != OperationStatus.Completed))
+                    {
+                        IO.Debug.WriteLine($"--- Disabling op: {member.Name} ({member.Group})");
+                        IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
+                        IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
+                    }
+                }
+
+                IO.Debug.WriteLine($"======== DONE DISABLE OPS ========");
             }
         }
 
@@ -981,20 +1014,14 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal void SetDebugInfo(string msg)
+        internal void SetDebugInfo(string connector)
         {
             lock (this.SyncObject)
             {
                 var currentOp = ExecutingOperation.Value;
                 if (currentOp != null)
                 {
-                    // IO.Debug.WriteLine("--- SET DEBUG INFO ---");
-                    // IO.Debug.WriteLine($"--- Current Op: {currentOp.Name} (tid: {currentOp.Thread})");
-                    var oldMsg = currentOp.Msg;
-                    currentOp.Msg = $"{msg} ({oldMsg})";
-                    // IO.Debug.WriteLine($" |_ Old msg: {oldMsg}");
-                    // IO.Debug.WriteLine($" |_ New msg: {currentOp.Msg}");
-                    // IO.Debug.WriteLine($" |_ Stack Trace: {currentOp.StackTrace}");
+                    currentOp.Connector = connector;
                 }
             }
         }
@@ -1003,43 +1030,45 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("--- DEBUG INFO ---");
-                var currentOp = ExecutingOperation.Value;
-                var enabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Enabled);
-                var disabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Disabled);
-                var blockedOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.BlockedOnWaitAll || op.Value.Status is OperationStatus.BlockedOnWaitAny || op.Value.Status is OperationStatus.BlockedOnContinuation);
-                IO.Debug.WriteLine($"--- Current Op: {currentOp?.Name} (msg: {currentOp?.Msg})");
-                IO.Debug.WriteLine($"--- Enabled Ops: {enabledOps.Count()}");
-                IO.Debug.WriteLine($"--- Disabled Ops: {disabledOps.Count()}");
-                IO.Debug.WriteLine($"--- Blocked Ops: {blockedOps.Count()}");
-                IO.Debug.WriteLine($"--- Enabled PUT: {enabledOps.Where(op => op.Value.Msg.Contains("PUT /")).Count()}");
-                IO.Debug.WriteLine($"--- Enabled GET: {enabledOps.Where(op => op.Value.Msg.Contains("GET /")).Count()}");
-                IO.Debug.WriteLine($"--- Enabled DELETE: {enabledOps.Where(op => op.Value.Msg.Contains("DELETE /")).Count()}");
-                IO.Debug.WriteLine($"--- Enabled PATCH: {enabledOps.Where(op => op.Value.Msg.Contains("PATCH /")).Count()}");
-
-                foreach (var op in enabledOps)
-                {
-                    IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                        op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                }
-
-                foreach (var op in disabledOps)
-                {
-                    IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                        op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                }
-
-                foreach (var op in this.OperationMap.Where(
-                    op => op.Value.Status != OperationStatus.Enabled &&
-                    op.Value.Status != OperationStatus.Disabled &&
-                    op.Value.Status != OperationStatus.Completed))
-                {
-                    IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                        op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                }
-
                 if (fail)
                 {
+                    IO.Debug.WriteLine("--- DEBUG INFO ---");
+                    var currentOp = ExecutingOperation.Value;
+                    var enabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Enabled);
+                    var disabledOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.Disabled);
+                    var blockedOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.BlockedOnWaitAll || op.Value.Status is OperationStatus.BlockedOnWaitAny || op.Value.Status is OperationStatus.BlockedOnContinuation);
+                    IO.Debug.WriteLine($"--- Current Op: {currentOp?.Name} (msg: {currentOp?.Msg})");
+                    IO.Debug.WriteLine($"--- Enabled Ops: {enabledOps.Count()}");
+                    IO.Debug.WriteLine($"--- Disabled Ops: {disabledOps.Count()}");
+                    IO.Debug.WriteLine($"--- Blocked Ops: {blockedOps.Count()}");
+                    IO.Debug.WriteLine($"--- Enabled PUT: {enabledOps.Where(op => op.Value.Msg.Contains("PUT /")).Count()}");
+                    IO.Debug.WriteLine($"--- Enabled GET: {enabledOps.Where(op => op.Value.Msg.Contains("GET /")).Count()}");
+                    IO.Debug.WriteLine($"--- Enabled DELETE: {enabledOps.Where(op => op.Value.Msg.Contains("DELETE /")).Count()}");
+                    IO.Debug.WriteLine($"--- Enabled PATCH: {enabledOps.Where(op => op.Value.Msg.Contains("PATCH /")).Count()}");
+
+                    foreach (var op in enabledOps)
+                    {
+                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
+                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                    }
+
+                    foreach (var op in disabledOps)
+                    {
+                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
+                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                    }
+
+                    foreach (var op in this.OperationMap.Where(
+                        op => op.Value.Status != OperationStatus.Enabled &&
+                        op.Value.Status != OperationStatus.Disabled &&
+                        op.Value.Status != OperationStatus.Completed))
+                    {
+                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
+                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
+                    }
+
+                // if (fail)
+                // {
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
             }
@@ -1847,22 +1876,25 @@ namespace Microsoft.Coyote.Runtime
                     op.Status != OperationStatus.Completed)
                 {
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
+                    msg.AppendFormat("          |_ msg '{0}'.\n", op.Msg);
+                    msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
+                    msg.AppendFormat("          |_ owner '{0}'.\n", op.Group.Owner);
+                    if (op.IsSourceUncontrolled)
+                    {
+                        msg.AppendFormat("          |_ Has uncontrolled source.\n", op.Name);
+                    }
+
+                    if (op.IsBlocked && op.IsAnyDependencyUncontrolled)
+                    {
+                        msg.AppendFormat("          |_ Is blocked with uncontrolled dependency.\n", op.Name);
+                    }
+
                     if (op.IsBlocked)
                     {
                         foreach (var dep in op.Dependencies)
                         {
                             msg.AppendLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
                         }
-                    }
-
-                    if (op.IsBlocked && op.IsAnyDependencyUncontrolled)
-                    {
-                        msg.AppendFormat("          |_ Op '{0}' is blocked with uncontrolled dependency.\n", op.Name);
-                    }
-
-                    if (op.IsSourceUncontrolled)
-                    {
-                        msg.AppendFormat("          |_ Op '{0}' has uncontrolled source.\n", op.Name);
                     }
                 }
             }

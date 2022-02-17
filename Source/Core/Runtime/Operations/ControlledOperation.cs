@@ -59,7 +59,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal int HashedProgramState;
 
-        internal string Msg;
+        protected internal string Msg { get; protected set; }
+
+        internal string Connector;
 
         internal string StackTrace;
 
@@ -92,6 +94,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsAnyDependencyUncontrolled = false;
 
             this.Msg = this.Group.Owner.Msg ?? string.Empty;
+            this.Connector = string.Empty;
             this.StackTrace = new System.Diagnostics.StackTrace().ToString();
 
             // Assign this operation as a member of this group.

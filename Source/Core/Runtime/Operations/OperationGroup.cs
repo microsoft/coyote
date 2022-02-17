@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -10,7 +11,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Represents a group of controlled operations that can be scheduled during testing.
     /// </summary>
-    internal class OperationGroup : IEquatable<OperationGroup>, IDisposable
+    internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>, IDisposable
     {
         /// <summary>
         /// Provides access to the operation group associated with each async local context,
@@ -39,6 +40,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
 
+        internal bool IsDisabled;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
@@ -47,6 +50,7 @@ namespace Microsoft.Coyote.Runtime
             this.Id = Guid.NewGuid();
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
+            this.IsDisabled = false;
             Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name}");
         }
 
@@ -61,9 +65,25 @@ namespace Microsoft.Coyote.Runtime
         internal void RegisterMember(ControlledOperation member)
         {
             // => this.Members.Add(member);
-            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name}");
+            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name} ({member.Msg})");
             this.Members.Add(member);
         }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the members of this group.
+        /// </summary>
+        public IEnumerator<ControlledOperation> GetEnumerator()
+        {
+            foreach (ControlledOperation op in this.Members)
+            {
+                yield return op;
+            }
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the members of this group.
+        /// </summary>
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         /// <summary>
         /// Returns true if the specified operation is a member of this group, else false.

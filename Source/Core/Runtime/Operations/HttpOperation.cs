@@ -36,10 +36,14 @@ namespace Microsoft.Coyote.Runtime
         {
             // Assign the group of the source operation, if its owner is also an HTTP operation.
             OperationGroup group = source?.Group.Owner is HttpOperation httpSource ? httpSource.Group : null;
+            group = null;
 
             ulong operationId = runtime.GetNextOperationId();
             var op = new HttpOperation(operationId, method, path, group);
-            op.Msg = $"({method} {path})";
+            if (op == op.Group.Owner)
+            {
+                op.Msg = $"({method} {path})";
+            }
 
             System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Owner.Msg})");
             runtime.RegisterOperation(op);

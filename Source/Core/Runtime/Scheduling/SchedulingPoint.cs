@@ -118,14 +118,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Prints debug information and optionally fails.
+        /// Fails.
         /// </summary>
-        public static void WriteDebugInfo(bool fail)
+        public static void Fail()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.WriteDebugInfo(fail);
+                runtime.Fail();
             }
         }
     }

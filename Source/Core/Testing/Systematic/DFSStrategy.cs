@@ -19,11 +19,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly int MaxSteps;
 
         /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        private int StepCount;
-
-        /// <summary>
         /// Stack of scheduling choices.
         /// </summary>
         private readonly List<List<SChoice>> ScheduleStack;

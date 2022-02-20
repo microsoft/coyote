@@ -40,6 +40,11 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
+        /// The explored schedule trace.
+        /// </summary>
+        internal ScheduleTrace Trace { get; private set; }
+
+        /// <summary>
         /// The count of exploration steps in the current iteration.
         /// </summary>
         internal int StepCount => this.Strategy.GetStepCount();
@@ -127,7 +132,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="iteration">The id of the next iteration.</param>
         /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
-        internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
+        internal bool InitializeNextIteration(uint iteration)
+        {
+            this.Trace?.Dispose();
+            this.Trace = new ScheduleTrace();
+            return this.Strategy.InitializeNextIteration(iteration);
+        }
 
         /// <summary>
         /// Returns the next controlled operation to schedule.
@@ -138,8 +148,18 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            bool isYielding, out ControlledOperation next) =>
-            (this.Strategy as SystematicStrategy).GetNextOperation(ops, current, isYielding, out next);
+            bool isYielding, out ControlledOperation next)
+        {
+            if (this.Strategy is SystematicStrategy systematicStrategy &&
+                systematicStrategy.GetNextOperation(ops, current, isYielding, out next))
+            {
+                this.Trace.AddSchedulingChoice(next.Id);
+                return true;
+            }
+
+            next = null;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -148,8 +168,18 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next) =>
-            (this.Strategy as SystematicStrategy).GetNextBooleanChoice(current, maxValue, out next);
+        internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
+        {
+            if (this.Strategy is SystematicStrategy systematicStrategy &&
+                systematicStrategy.GetNextBooleanChoice(current, maxValue, out next))
+            {
+                this.Trace.AddNondeterministicBooleanChoice(next);
+                return true;
+            }
+
+            next = false;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next integer choice.
@@ -158,8 +188,18 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next) =>
-            (this.Strategy as SystematicStrategy).GetNextIntegerChoice(current, maxValue, out next);
+        internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        {
+            if (this.Strategy is SystematicStrategy systematicStrategy &&
+                systematicStrategy.GetNextIntegerChoice(current, maxValue, out next))
+            {
+                this.Trace.AddNondeterministicIntegerChoice(next);
+                return true;
+            }
+
+            next = 0;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next delay.

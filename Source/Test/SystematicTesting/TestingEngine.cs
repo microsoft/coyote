@@ -560,7 +560,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
-                        this.ReproducibleTrace = runtime.ScheduleTrace.Serialize(
+                        this.ReproducibleTrace = this.Scheduler.Trace.Serialize(
                             this.Configuration, this.Scheduler.IsScheduleFair);
                     }
                 }

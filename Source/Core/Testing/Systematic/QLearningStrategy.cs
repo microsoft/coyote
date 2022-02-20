@@ -11,6 +11,10 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A probabilistic scheduling strategy that uses Q-learning.
     /// </summary>
+    /// <remarks>
+    /// This strategy is described in the following paper:
+    /// https://dl.acm.org/doi/10.1145/3428298.
+    /// </remarks>
     internal sealed class QLearningStrategy : RandomStrategy
     {
         /// <summary>

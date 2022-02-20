@@ -42,10 +42,18 @@ namespace Microsoft.Coyote.Runtime
             var op = new HttpOperation(operationId, method, path, group);
             if (op == op.Group.Owner)
             {
-                op.Msg = $"({method} {path})";
+                op.Group.Msg = $"({method} {path})";
+                if (source?.Group.Owner is HttpOperation httpSource2)
+                {
+                    op.Group.RootId = httpSource2.Group.RootId;
+                }
+                else
+                {
+                    op.Group.RootId = op.Group.Id;
+                }
             }
 
-            System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Owner.Msg})");
+            System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Msg} | {op.Group.RootId})");
             runtime.RegisterOperation(op);
             if (runtime.GetExecutingOperation() is null)
             {

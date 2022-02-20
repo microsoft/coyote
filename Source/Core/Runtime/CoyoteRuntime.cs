@@ -74,10 +74,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The runtime executing the current operation.
         /// </summary>
-        internal static CoyoteRuntime Current
-        {
-            get => ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.DefaultRuntime;
-        }
+        internal static CoyoteRuntime Current =>
+            ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.DefaultRuntime;
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -166,11 +164,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<string> UncontrolledInvocations;
 
         /// <summary>
-        /// The program schedule trace.
-        /// </summary>
-        internal readonly ScheduleTrace ScheduleTrace;
-
-        /// <summary>
         /// The currently scheduled operation during systematic testing.
         /// </summary>
         private ControlledOperation ScheduledOperation;
@@ -206,14 +199,14 @@ namespace Microsoft.Coyote.Runtime
         private bool IsSchedulerSuppressed;
 
         /// <summary>
-        /// If this value is not <see cref="SchedulingPointType.None"/>, then it represents
-        /// the last scheduling point that was postponed. This happens if an uncontrolled
-        /// thread created a new controlled operation and tried to schedule it, but this can
-        /// only happen from a controlled thread. If this value is set, the runtime will try
-        /// to invoke the scheduler from a controlled thread before resuming executing the
-        /// currently scheduled operation, which can potentially increase coverage.
+        /// If this value is not null, then it represents the last scheduling point that
+        /// was postponed. This happens if an uncontrolled thread created a new controlled
+        /// operation and tried to schedule it, but this can only happen from a controlled
+        /// thread. If this value is set, the runtime will try to invoke the scheduler from
+        /// a controlled thread before resuming executing the currently scheduled operation,
+        /// which can potentially increase coverage.
         /// </summary>
-        private SchedulingPointType LastPostponedSchedulingPoint;
+        private SchedulingPointType? LastPostponedSchedulingPoint;
 
         /// <summary>
         /// True if uncontrolled concurrency was detected, else false.
@@ -304,7 +297,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsAttached = true;
             this.IsSchedulerSuppressed = false;
             this.IsUncontrolledConcurrencyDetected = false;
-            this.LastPostponedSchedulingPoint = SchedulingPointType.None;
+            this.LastPostponedSchedulingPoint = null;
             this.MaxConcurrencyDegree = 0;
             this.IsBugFound = false;
 
@@ -316,7 +309,6 @@ namespace Microsoft.Coyote.Runtime
             this.UncontrolledTasks = new HashSet<Task>();
             this.UncontrolledInvocations = new HashSet<string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
-            this.ScheduleTrace = new ScheduleTrace();
 
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
@@ -457,7 +449,7 @@ namespace Microsoft.Coyote.Runtime
                 op.IsSourceUncontrolled = true;
             }
 
-            Console.WriteLine($"--------> Register '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Owner.Msg})");
+            Console.WriteLine($"--------> Register '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Msg})");
             return op;
         }
 
@@ -862,7 +854,7 @@ namespace Microsoft.Coyote.Runtime
                     return;
                 }
 
-                if (this.IsSchedulerSuppressed && this.LastPostponedSchedulingPoint is SchedulingPointType.None &&
+                if (this.IsSchedulerSuppressed && this.LastPostponedSchedulingPoint is null &&
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
@@ -875,7 +867,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Update metadata related to this scheduling point.
                 current.SchedulingPoint = type;
-                this.LastPostponedSchedulingPoint = SchedulingPointType.None;
+                this.LastPostponedSchedulingPoint = null;
 
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
@@ -899,9 +891,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}' (group: {1}, msg: {2}).", next.Name, next.Group, next.Msg);
-                // this.WriteDebugInfo(false);
-                this.ScheduleTrace.AddSchedulingChoice(next.Id);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}' (group: {1}, msg: {2}).", next.Name, next.Group, next.Group.Msg);
                 if (current != next)
                 {
                     // Pause the currently scheduled operation, and enable the next one.
@@ -947,14 +937,14 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (group.Any(op => op.Connector.Equals(connector)))
                     {
-                        IO.Debug.WriteLine($"--- Enabling group: {group} - o {group.Owner} ({group.Owner.Msg}))");
+                        IO.Debug.WriteLine($"--- Enabling group: {group} - o {group.Owner} ({group.Msg}))");
                         group.IsDisabled = false;
                         foreach (var member in group.Where(op => op.Status != OperationStatus.Completed))
                         {
                             IO.Debug.WriteLine($"--- Enabling member op: {member.Name} ({member.Group})");
                             IO.Debug.WriteLine($" |_ Status: {member.Status}");
                             IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
-                            IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
+                            IO.Debug.WriteLine($" |_ Msg: {member.Group.Msg}");
                         }
                     }
                 }
@@ -966,7 +956,7 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
                     IO.Debug.WriteLine($" |_ Status: {op.Status}");
                     IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
-                    IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
+                    IO.Debug.WriteLine($" |_ Msg: {op.Group.Msg}");
                     IO.Debug.WriteLine($" |_ Group: {op.Group}");
                 }
 
@@ -985,7 +975,7 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
                     IO.Debug.WriteLine($" |_ Status: {op.Status}");
                     IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
-                    IO.Debug.WriteLine($" |_ Msg: {op.Msg}");
+                    IO.Debug.WriteLine($" |_ Msg: {op.Group.Msg}");
                     IO.Debug.WriteLine($" |_ Group: {op.Group}");
                 }
 
@@ -994,14 +984,19 @@ namespace Microsoft.Coyote.Runtime
                 if (currentOp != null && currentOp.Status is OperationStatus.Enabled && !currentOp.Group.IsDisabled)
                 {
                     IO.Debug.WriteLine($"--- Current op: {currentOp} - c {currentOp.Connector}");
-                    IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Owner.Msg}))");
+                    IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Msg}))");
                     currentOp.Group.IsDisabled = true;
                     foreach (var member in currentOp.Group.Where(op => op.Status != OperationStatus.Completed))
                     {
                         IO.Debug.WriteLine($"--- Disabling op: {member.Name} ({member.Group})");
                         IO.Debug.WriteLine($" |_ Status: {member.Status}");
                         IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
-                        IO.Debug.WriteLine($" |_ Msg: {member.Msg}");
+                        IO.Debug.WriteLine($" |_ Msg: {member.Group.Msg}");
+                    }
+
+                    if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
+                    {
+                        strategy.Disable(currentOp, this.OperationGroups);
                     }
                 }
 
@@ -1013,7 +1008,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.NewRandomStrategy strategy)
+                if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
                 {
                     strategy.MoveNextPhase(phase);
                 }
@@ -1032,51 +1027,11 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal void WriteDebugInfo(bool fail)
+        internal void Fail()
         {
             lock (this.SyncObject)
             {
-                if (fail)
-                {
-                    IO.Debug.WriteLine("--- DEBUG INFO ---");
-                    var currentOp = ExecutingOperation.Value;
-                    var enabledOps = this.OperationMap.Where(
-                        op => op.Value.Status is OperationStatus.Enabled && !op.Value.Group.IsDisabled);
-                    var disabledOps = this.OperationMap.Where(op => op.Value.Group.IsDisabled);
-                    var blockedOps = this.OperationMap.Where(op => op.Value.Status is OperationStatus.BlockedOnWaitAll || op.Value.Status is OperationStatus.BlockedOnWaitAny || op.Value.Status is OperationStatus.BlockedOnContinuation);
-                    IO.Debug.WriteLine($"--- Current Op: {currentOp?.Name} (msg: {currentOp?.Msg})");
-                    IO.Debug.WriteLine($"--- Enabled Ops: {enabledOps.Count()}");
-                    IO.Debug.WriteLine($"--- Disabled Ops: {disabledOps.Count()}");
-                    IO.Debug.WriteLine($"--- Blocked Ops: {blockedOps.Count()}");
-                    IO.Debug.WriteLine($"--- Enabled PUT: {enabledOps.Where(op => op.Value.Msg.Contains("PUT /")).Count()}");
-                    IO.Debug.WriteLine($"--- Enabled GET: {enabledOps.Where(op => op.Value.Msg.Contains("GET /")).Count()}");
-                    IO.Debug.WriteLine($"--- Enabled DELETE: {enabledOps.Where(op => op.Value.Msg.Contains("DELETE /")).Count()}");
-                    IO.Debug.WriteLine($"--- Enabled PATCH: {enabledOps.Where(op => op.Value.Msg.Contains("PATCH /")).Count()}");
-
-                    foreach (var op in enabledOps)
-                    {
-                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                    }
-
-                    foreach (var op in disabledOps)
-                    {
-                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                    }
-
-                    foreach (var op in this.OperationMap.Where(
-                        op => op.Value.Status != OperationStatus.Enabled &&
-                        op.Value.Status != OperationStatus.Completed))
-                    {
-                        IO.Debug.WriteLine("   |_ Operation '{0}' (group: {1}, msg: {2}) has status '{3}': {4}",
-                            op.Key, op.Value.Group, op.Value.Msg, op.Value.Status, op.Value.StackTrace);
-                    }
-
-                // if (fail)
-                // {
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
-                }
+                this.Detach(SchedulerDetachmentReason.BoundReached);
             }
         }
 
@@ -1148,7 +1103,6 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
                 return choice;
             }
         }
@@ -1185,7 +1139,6 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
                 return choice;
             }
         }
@@ -1520,7 +1473,7 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<CoyoteDebug> ===============================");
                 // A scheduling point from an uncontrolled thread has not been postponed yet, so pause the execution
                 // of the current operation to try give time to the uncontrolled concurrency to be resolved.
-                if (this.LastPostponedSchedulingPoint is SchedulingPointType.None)
+                if (this.LastPostponedSchedulingPoint is null)
                 {
                     IO.Debug.WriteLine(
                         "<CoyoteDebug> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
@@ -1530,7 +1483,7 @@ namespace Microsoft.Coyote.Runtime
                     while (retries++ < 10 && !task.IsCompleted)
                     {
                         SyncMonitor.Wait(this.SyncObject, delay);
-                        if (this.LastPostponedSchedulingPoint != SchedulingPointType.None)
+                        if (this.LastPostponedSchedulingPoint.HasValue)
                         {
                             // A scheduling point from an uncontrolled thread has been postponed,
                             // so stop trying to resolve the uncontrolled concurrency.
@@ -1539,12 +1492,12 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                if (this.LastPostponedSchedulingPoint != SchedulingPointType.None)
+                if (this.LastPostponedSchedulingPoint.HasValue)
                 {
                     IO.Debug.WriteLine(
                         "<CoyoteDebug> Resuming controlled thread '{0}' with uncontrolled concurrency resolved.",
                         Thread.CurrentThread.ManagedThreadId);
-                    this.ScheduleNextOperation(this.LastPostponedSchedulingPoint, isSuppressible: false);
+                    this.ScheduleNextOperation(this.LastPostponedSchedulingPoint.Value, isSuppressible: false);
                 }
 
                 IO.Debug.WriteLine("<CoyoteDebug> ===============================");
@@ -1876,7 +1829,7 @@ namespace Microsoft.Coyote.Runtime
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
                     msg.AppendFormat("          |_ is-disabled '{0}'.\n", op.Group.IsDisabled);
                     msg.AppendFormat("          |_ connector '{0}'.\n", op.Connector);
-                    msg.AppendFormat("          |_ msg '{0}'.\n", op.Msg);
+                    msg.AppendFormat("          |_ msg '{0}'.\n", op.Group.Msg);
                     msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
                     msg.AppendFormat("          |_ owner '{0}'.\n", op.Group.Owner);
                     if (op.IsSourceUncontrolled)
@@ -2290,6 +2243,11 @@ namespace Microsoft.Coyote.Runtime
                 return;
             }
 
+            if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
+            {
+                strategy.PrintSchedule();
+            }
+
             try
             {
                 if (reason is SchedulerDetachmentReason.PathExplored)
@@ -2368,7 +2326,6 @@ namespace Microsoft.Coyote.Runtime
                 this.ControlledTaskScheduler.Dispose();
                 this.SyncContext.Dispose();
                 this.SpecificationEngine.Dispose();
-                this.ScheduleTrace.Dispose();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {

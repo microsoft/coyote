@@ -23,11 +23,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         protected readonly int MaxSteps;
 
         /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
         internal RandomStrategy(int maxSteps, IRandomValueGenerator generator)

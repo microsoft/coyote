@@ -30,11 +30,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly bool IsSchedulerFair;
 
         /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        private int StepCount;
-
-        /// <summary>
         /// Text describing a replay error.
         /// </summary>
         internal string ErrorText { get; private set; }

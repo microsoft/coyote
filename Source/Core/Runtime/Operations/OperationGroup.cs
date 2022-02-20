@@ -42,6 +42,10 @@ namespace Microsoft.Coyote.Runtime
 
         internal bool IsDisabled;
 
+        internal string Msg;
+
+        internal Guid RootId;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
@@ -65,7 +69,7 @@ namespace Microsoft.Coyote.Runtime
         internal void RegisterMember(ControlledOperation member)
         {
             // => this.Members.Add(member);
-            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name} ({member.Msg})");
+            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name} ({this.Msg})");
             this.Members.Add(member);
         }
 

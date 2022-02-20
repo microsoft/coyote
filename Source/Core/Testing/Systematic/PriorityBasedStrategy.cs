@@ -10,13 +10,12 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
-    /// A probabilistic priority-based scheduling strategy.
+    /// A group-based probabilistic priority-based scheduling strategy.
     /// </summary>
     /// <remarks>
-    /// This strategy is described in the following paper:
-    /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
+    /// This strategy is based on the <see cref="PCTStrategy"/> strategy.
     /// </remarks>
-    internal sealed class PCTStrategy : SystematicStrategy
+    internal sealed class PriorityBasedStrategy : SystematicStrategy
     {
         /// <summary>
         /// Random value generator.
@@ -39,9 +38,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private int ScheduleLength;
 
         /// <summary>
-        /// List of prioritized operations.
+        /// List of prioritized groups.
         /// </summary>
-        private readonly List<ControlledOperation> PrioritizedOperations;
+        private readonly List<OperationGroup> PrioritizedGroups;
 
         /// <summary>
         /// Scheduling points in the current execution where a priority change should occur.
@@ -49,17 +48,23 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
+        /// Initializes a new instance of the <see cref="PriorityBasedStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator generator)
+        internal PriorityBasedStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator generator)
         {
             this.RandomValueGenerator = generator;
             this.MaxSteps = maxSteps;
             this.StepCount = 0;
             this.ScheduleLength = 0;
             this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
-            this.PrioritizedOperations = new List<ControlledOperation>();
+            this.PrioritizedGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
+
+            this.KnownSchedules = new HashSet<string>();
+            this.CurrentSchedule = string.Empty;
+            this.Path = new List<(string, int, SchedulingPointType, OperationGroup, string, int, bool)>();
+            this.OperationDebugInfo = new Dictionary<string, string>();
+            this.Groups = new Dictionary<int, Dictionary<OperationGroup, (bool, bool, bool)>>();
         }
 
         /// <inheritdoc/>
@@ -74,7 +79,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 this.ScheduleLength = Math.Max(this.ScheduleLength, this.StepCount);
                 this.StepCount = 0;
 
-                this.PrioritizedOperations.Clear();
+                this.PrioritizedGroups.Clear();
                 this.PriorityChangePoints.Clear();
 
                 var range = Enumerable.Range(0, this.ScheduleLength);
@@ -85,6 +90,12 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 this.DebugPrintPriorityChangePoints();
             }
+
+            this.CurrentSchedule = string.Empty;
+            this.Path.Clear();
+            this.OperationDebugInfo.Clear();
+            this.Groups.Clear();
+            this.Phase = 0;
 
             return true;
         }
@@ -100,80 +111,124 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            this.SetNewOperationPriorities(enabledOps, current);
-            this.DeprioritizeEnabledOperationWithHighestPriority(enabledOps, current, isYielding);
-            this.DebugPrintOperationPriorityList();
+            this.SetNewGroupPriorities(enabledOps, current);
+            this.DeprioritizeEnabledGroupWithHighestPriority(enabledOps, current, isYielding);
 
-            ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
-            next = enabledOps.First(op => op.Equals(highestEnabledOperation));
+            OperationGroup highestEnabledGroup = this.GetEnabledGroupWithHighestPriority(enabledOps);
+            enabledOps = enabledOps.Where(op => op.Group == highestEnabledGroup).ToList();
+            if (Debug.IsEnabled)
+            {
+                Debug.WriteLine("<PCTLog> prioritized group '{0}' ({1}): ", highestEnabledGroup, highestEnabledGroup?.Msg);
+                foreach (var op in enabledOps)
+                {
+                    Debug.WriteLine("  |_ '{0}'", op);
+                }
+            }
+
+            // bool isForced = false;
+            // // If explicit, and there is an operation group, then choose a random operation in the same group.
+            // if (current.SchedulingPoint != SchedulingPointType.Interleave &&
+            //     current.SchedulingPoint != SchedulingPointType.Yield)
+            // {
+            //     // Choose an operation that has the same group as the operation that just completed.
+            //     if (current.Group != null)
+            //     {
+            //         System.Console.WriteLine($">>>>> SCHEDULE NEXT: {current.Name} (o: {current.Group.Owner}, g: {current.Group})");
+            //         var groupOps = enabledOps.Where(op => current.Group.IsMember(op)).ToList();
+            //         System.Console.WriteLine($">>>>> groupOps: {groupOps.Count}");
+            //         foreach (var op in groupOps)
+            //         {
+            //             System.Console.WriteLine($">>>>>>>> groupOp: {op.Name} (o: {op.Group.Owner}, g: {op.Group})");
+            //         }
+            //         if (groupOps.Count > 0)
+            //         {
+            //             enabledOps = groupOps;
+            //             isForced = true;
+            //         }
+            //     }
+            // }
+
+            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
+            next = enabledOps[idx];
+
+            this.ProcessSchedule(current.SchedulingPoint, next, ops, false);
+            this.PrintSchedule();
             this.StepCount++;
             return true;
         }
 
         /// <summary>
-        /// Sets the priority of new operations, if there are any.
+        /// Sets the priority of new groups, if there are any.
         /// </summary>
-        private void SetNewOperationPriorities(List<ControlledOperation> ops, ControlledOperation current)
+        private void SetNewGroupPriorities(List<ControlledOperation> ops, ControlledOperation current)
         {
-            if (this.PrioritizedOperations.Count is 0)
+            int count = 0;
+            if (this.PrioritizedGroups.Count is 0)
             {
-                this.PrioritizedOperations.Add(current);
+                this.PrioritizedGroups.Add(current.Group);
             }
 
-            // Randomize the priority of all new operations.
-            foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
+            // Randomize the priority of all new groups.
+            foreach (var group in ops.Select(op => op.Group).Where(g => !this.PrioritizedGroups.Contains(g)))
             {
-                // Randomly choose a priority for this operation.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
-                this.PrioritizedOperations.Insert(index, op);
-                Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
+                // Randomly choose a priority for this group.
+                int index = this.RandomValueGenerator.Next(this.PrioritizedGroups.Count) + 1;
+                this.PrioritizedGroups.Insert(index, group);
+                Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation group '{1}' ({2}).", index, group, group.Msg);
+            }
+
+            if (this.PrioritizedGroups.Count > count)
+            {
+                this.DebugPrintOperationPriorityList();
             }
         }
 
         /// <summary>
-        /// Deprioritizes the enabled operation with the highest priority, if there is a
-        /// priority change point installed on the current execution step.
+        /// Deprioritizes the group with the highest priority that contains at least
+        /// one enabled operation, if there is a priority change point installed on
+        /// the current execution step.
         /// </summary>
-        private void DeprioritizeEnabledOperationWithHighestPriority(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
+        private void DeprioritizeEnabledGroupWithHighestPriority(List<ControlledOperation> ops,
+            ControlledOperation current, bool isYielding)
         {
             if (ops.Count <= 1)
             {
-                // Nothing to do, there is only one enabled operation available.
+                // Nothing to do, there is only one enabled group available.
                 return;
             }
 
-            ControlledOperation deprioritizedOperation = null;
+            OperationGroup deprioritizedGroup = null;
             if (this.PriorityChangePoints.Contains(this.StepCount))
             {
                 // This scheduling step was chosen as a priority switch point.
-                deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
-                Debug.WriteLine("<PCTLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
+                deprioritizedGroup = this.GetEnabledGroupWithHighestPriority(ops);
+                Debug.WriteLine("<PCTLog> operation group '{0}' ({1}) is deprioritized.", deprioritizedGroup, deprioritizedGroup.Msg);
             }
             else if (isYielding)
             {
-                // The current operation is yielding its execution to the next prioritized operation.
-                deprioritizedOperation = current;
-                Debug.WriteLine("<PCTLog> operation '{0}' yields its priority.", deprioritizedOperation.Name);
+                // The current group is yielding its execution to the next prioritized group.
+                deprioritizedGroup = current.Group;
+                Debug.WriteLine("<PCTLog> operation group '{0}' ({1}) yields its priority.", deprioritizedGroup, deprioritizedGroup.Msg);
             }
 
-            if (deprioritizedOperation != null)
+            if (deprioritizedGroup != null)
             {
-                // Deprioritize the operation by putting it in the end of the list.
-                this.PrioritizedOperations.Remove(deprioritizedOperation);
-                this.PrioritizedOperations.Add(deprioritizedOperation);
+                // Deprioritize the group by putting it in the end of the list.
+                this.PrioritizedGroups.Remove(deprioritizedGroup);
+                this.PrioritizedGroups.Add(deprioritizedGroup);
             }
         }
 
         /// <summary>
-        /// Returns the enabled operation with the highest priority.
+        /// Returns the group with the highest priority that contains at least one enabled operation.
         /// </summary>
-        private ControlledOperation GetEnabledOperationWithHighestPriority(List<ControlledOperation> ops)
+        private OperationGroup GetEnabledGroupWithHighestPriority(List<ControlledOperation> ops)
         {
-            foreach (var operation in this.PrioritizedOperations)
+            foreach (var group in this.PrioritizedGroups)
             {
-                if (ops.Any(op => op == operation))
+                if (ops.Any(op => op.Group == group && !group.IsDisabled))
                 {
-                    return operation;
+                    return group;
                 }
             }
 
@@ -250,27 +305,28 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             this.ScheduleLength = 0;
             this.StepCount = 0;
-            this.PrioritizedOperations.Clear();
+            this.PrioritizedGroups.Clear();
             this.PriorityChangePoints.Clear();
         }
 
         /// <summary>
-        /// Print the operation priority list, if debug is enabled.
+        /// Print the operation group priority list, if debug is enabled.
         /// </summary>
         private void DebugPrintOperationPriorityList()
         {
             if (Debug.IsEnabled)
             {
-                Debug.Write("<PCTLog> operation priority list: ");
-                for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
+                Debug.WriteLine("<PCTLog> operation group priority list: ");
+                for (int idx = 0; idx < this.PrioritizedGroups.Count; idx++)
                 {
-                    if (idx < this.PrioritizedOperations.Count - 1)
+                    var group = this.PrioritizedGroups[idx];
+                    if (idx < this.PrioritizedGroups.Count - 1)
                     {
-                        Debug.Write("'{0}', ", this.PrioritizedOperations[idx].Name);
+                        Debug.WriteLine("  |_ '{0}' ({1})", group, group.Msg);
                     }
                     else
                     {
-                        Debug.WriteLine("'{0}'.", this.PrioritizedOperations[idx].Name);
+                        Debug.WriteLine("  |_ '{0}' ({1})", group, group.Msg);
                     }
                 }
             }

@@ -9,9 +9,9 @@ namespace Microsoft.Coyote.Runtime
     internal enum SchedulingPointType
     {
         /// <summary>
-        /// The default scheduling point type.
+        /// The default scheduling point.
         /// </summary>
-        None = 0,
+        Default,
 
         /// <summary>
         /// A controlled operation started executing.

@@ -525,7 +525,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // Pulses can happen nondeterministically while other operations execute,
                     // which models delays by the OS.
-                    this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Interleave);
+                    this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Default);
 
                     var pulseOperation = this.PulseQueue.Dequeue();
                     this.Pulse(pulseOperation);

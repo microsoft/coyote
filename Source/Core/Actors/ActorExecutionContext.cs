@@ -577,15 +577,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Notifies that the inbox of the specified actor is about to be
-        /// checked to see if the default event handler should fire.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void LogDefaultEventHandlerCheck(Actor actor)
-        {
-        }
-
-        /// <summary>
         /// Logs that the specified actor raised an <see cref="Event"/>.
         /// </summary>
         internal virtual void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
@@ -1385,11 +1376,6 @@ namespace Microsoft.Coyote.Actors
                 this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
-
-            /// <inheritdoc/>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override void LogDefaultEventHandlerCheck(Actor actor) =>
-                this.Runtime.ScheduleNextOperation(SchedulingPointType.Interleave);
 
             /// <inheritdoc/>
             internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)

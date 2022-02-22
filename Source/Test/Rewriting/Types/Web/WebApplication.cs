@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Rewriting.Types.Net.Http;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Web;
 
 using SystemDelegatingHandler = System.Net.Http.DelegatingHandler;
 using SystemHttpClient = System.Net.Http.HttpClient;
@@ -37,7 +38,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
                     request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
-                var op = HttpOperation.Create(request.Method, request.Path, runtime, source);
+                var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
                 OperationGroup.SetCurrent(op.Group);
                 return runtime.TaskFactory.StartNew(state =>
                 {
@@ -71,7 +72,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
                     request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
-                var op = HttpOperation.Create(request.Method, request.Path, runtime, source);
+                var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
                 OperationGroup.SetCurrent(op.Group);
                 return runtime.TaskFactory.StartNew(state =>
                 {
@@ -190,6 +191,36 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
 
             op = null;
             return false;
+        }
+
+        /// <summary>
+        /// Returns an <see cref="HttpMethod"/> from the specified string.
+        /// </summary>
+        private static HttpMethod ToHttpMethod(string method)
+        {
+            switch (method)
+            {
+                case "GET":
+                    return HttpMethod.Get;
+                case "HEAD":
+                    return HttpMethod.Head;
+                case "POST":
+                    return HttpMethod.Post;
+                case "PUT":
+                    return HttpMethod.Put;
+                case "DELETE":
+                    return HttpMethod.Delete;
+                case "CONNECT":
+                    return HttpMethod.Connect;
+                case "OPTIONS":
+                    return HttpMethod.Options;
+                case "TRACE":
+                    return HttpMethod.Trace;
+                case "PATCH":
+                    return HttpMethod.Patch;
+                default:
+                    throw new ArgumentException($"Unsupported '{method}' HTTP method.");
+            }
         }
     }
 }

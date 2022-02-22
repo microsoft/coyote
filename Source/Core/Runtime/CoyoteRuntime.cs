@@ -866,7 +866,7 @@ namespace Microsoft.Coyote.Runtime
                 this.CheckIfSchedulingStepsBoundIsReached();
 
                 // Update metadata related to this scheduling point.
-                current.SchedulingPoint = type;
+                current.LastSchedulingPoint = type;
                 this.LastPostponedSchedulingPoint = null;
 
                 if (this.Configuration.IsProgramStateHashingEnabled)
@@ -1619,12 +1619,12 @@ namespace Microsoft.Coyote.Runtime
                     if (operation is ActorOperation actorOperation)
                     {
                         int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
-                        operationHash = (operationHash * 31) + actorOperation.SchedulingPoint.GetHashCode();
+                        operationHash = (operationHash * 31) + actorOperation.LastSchedulingPoint.GetHashCode();
                         hash *= operationHash;
                     }
                     else
                     {
-                        hash *= 31 + operation.SchedulingPoint.GetHashCode();
+                        hash *= 31 + operation.LastSchedulingPoint.GetHashCode();
                     }
                 }
 

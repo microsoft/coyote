@@ -83,10 +83,10 @@ namespace Microsoft.Coyote.Testing.Systematic
             //     }
             // }
 
-            bool isForced = false;
+            bool isFiltered = false;
             // If explicit, and there is an operation group, then choose a random operation in the same group.
-            if (current.SchedulingPoint != SchedulingPointType.Interleave &&
-                current.SchedulingPoint != SchedulingPointType.Yield)
+            if (current.LastSchedulingPoint != SchedulingPointType.Interleave &&
+                current.LastSchedulingPoint != SchedulingPointType.Yield)
             {
                 // Choose an operation that has the same group as the operation that just completed.
                 if (current.Group != null)
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     if (groupOps.Count > 0)
                     {
                         enabledOps = groupOps;
-                        isForced = true;
+                        isFiltered = true;
                     }
                 }
             }
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            this.ProcessSchedule(current.SchedulingPoint, next, ops, isForced);
+            this.ProcessSchedule(current.LastSchedulingPoint, next, ops, isFiltered);
             this.PrintSchedule();
             this.StepCount++;
             return true;

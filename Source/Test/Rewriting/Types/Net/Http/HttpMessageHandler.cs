@@ -22,11 +22,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         private HttpMessageHandler()
             : base()
         {
+            System.Console.WriteLine($"--------> Creating HTTP message handler [2]");
         }
 
         private HttpMessageHandler(SystemHttpMessageHandler innerHandler)
             : base(innerHandler)
         {
+            System.Console.WriteLine($"--------> Creating HTTP message handler [1]");
         }
 
         /// <summary>

@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The type of the last encountered scheduling point.
         /// </summary>
-        internal SchedulingPointType SchedulingPoint;
+        internal SchedulingPointType LastSchedulingPoint;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
-            this.SchedulingPoint = SchedulingPointType.Start;
+            this.LastSchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;

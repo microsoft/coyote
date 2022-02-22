@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.Runtime
+using Microsoft.Coyote.Runtime;
+
+namespace Microsoft.Coyote.Web
 {
     /// <summary>
     /// Represents an HTTP operation that can be controlled during testing.
@@ -11,7 +13,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The method invoked by this HTTP operation.
         /// </summary>
-        internal readonly string Method;
+        internal readonly HttpMethod Method;
 
         /// <summary>
         /// The path invoked by this HTTP operation.
@@ -21,7 +23,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
-        private HttpOperation(ulong operationId, string method, string path, OperationGroup group)
+        private HttpOperation(ulong operationId, HttpMethod method, string path, OperationGroup group)
             : base(operationId, $"{method}({operationId})", group)
         {
             this.Method = method;
@@ -31,7 +33,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="HttpOperation"/> from the specified parameters.
         /// </summary>
-        internal static HttpOperation Create(string method, string path, CoyoteRuntime runtime,
+        internal static HttpOperation Create(HttpMethod method, string path, CoyoteRuntime runtime,
             ControlledOperation source)
         {
             // Assign the group of the source operation, if its owner is also an HTTP operation.

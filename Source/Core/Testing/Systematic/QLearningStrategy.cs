@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             int state = current.HashedProgramState;
 
             // Update the execution path with the current state.
-            this.ExecutionPath.AddLast((this.LastOperation, current.SchedulingPoint, state));
+            this.ExecutionPath.AddLast((this.LastOperation, current.LastSchedulingPoint, state));
 
             if (!this.TransitionFrequencies.ContainsKey(state))
             {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Web;
 
 namespace Microsoft.Coyote.Testing.Systematic
 {
@@ -114,47 +115,124 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.SetNewGroupPriorities(enabledOps, current);
             this.DeprioritizeEnabledGroupWithHighestPriority(enabledOps, current, isYielding);
 
-            OperationGroup highestEnabledGroup = this.GetEnabledGroupWithHighestPriority(enabledOps);
-            enabledOps = enabledOps.Where(op => op.Group == highestEnabledGroup).ToList();
-            if (Debug.IsEnabled)
+            // OperationGroup highestEnabledGroup = this.GetEnabledGroupWithHighestPriority(enabledOps);
+            // enabledOps = enabledOps.Where(op => op.Group == highestEnabledGroup).ToList();
+            // if (Debug.IsEnabled)
+            // {
+            //     Debug.WriteLine("<PCTLog> prioritized group '{0}' ({1}): ", highestEnabledGroup, highestEnabledGroup?.Msg);
+            //     foreach (var op in enabledOps)
+            //     {
+            //         Debug.WriteLine("  |_ '{0}'", op);
+            //     }
+            // }
+
+            // var filteredOps = this.FilterOperations(enabledOps, current);
+            var filteredOps = ops.Where(op => !op.Group.IsDisabled).ToList();
+            if (filteredOps.Count > 0)
             {
-                Debug.WriteLine("<PCTLog> prioritized group '{0}' ({1}): ", highestEnabledGroup, highestEnabledGroup?.Msg);
-                foreach (var op in enabledOps)
+                enabledOps = filteredOps;
+            }
+
+            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
+            next = enabledOps[idx];
+
+            this.ProcessSchedule(current.LastSchedulingPoint, next, ops, filteredOps.Count > 0);
+            this.PrintSchedule();
+            this.StepCount++;
+            return true;
+        }
+
+#pragma warning disable CA1822 // Mark members as static
+        private List<ControlledOperation> FilterOperations(IEnumerable<ControlledOperation> ops,
+            ControlledOperation current)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            var result = ops.Where(op => !op.Group.IsDisabled);
+            Console.WriteLine($">>> [FILTER] Current op: {current.Name} (sp: {current.LastSchedulingPoint}, o: {current.Group.Owner}, g: {current.Group})");
+            Console.WriteLine($">>> [FILTER] {result.Count()}/{ops.Count()} operations remain after choosing non-disabled ones.");
+            foreach (var op in result)
+            {
+                System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+            }
+
+            // Keep scheduling operations that are not explicitly interleaving.
+            if (result.Count() > 1)
+            {
+                var filteredOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Interleave);
+                if (filteredOps.Any())
                 {
-                    Debug.WriteLine("  |_ '{0}'", op);
+                    Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing non-interleaving ones.");
+                    result = filteredOps;
+                    foreach (var op in result)
+                    {
+                        System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                    }
                 }
             }
 
-            // bool isForced = false;
-            // // If explicit, and there is an operation group, then choose a random operation in the same group.
-            // if (current.SchedulingPoint != SchedulingPointType.Interleave &&
-            //     current.SchedulingPoint != SchedulingPointType.Yield)
+            // Keep scheduling the group of the current operation that is not interleaving, if there
+            // is any other enabled operation in that group.
+            if (current.LastSchedulingPoint != SchedulingPointType.Interleave &&
+                result.Count() > 1)
+            {
+                // Choose an operation that has the same group as the operation that just completed.
+                var filteredOps = result.Where(op => current.Group.IsMember(op));
+                if (filteredOps.Any())
+                {
+                    Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing same group ones.");
+                    result = filteredOps;
+                    foreach (var op in result)
+                    {
+                        System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                    }
+                }
+            }
+
+            if (result.All(op => op.LastSchedulingPoint is SchedulingPointType.Interleave) &&
+                result.Count() > 1)
+            {
+                Console.WriteLine($">>> [FILTER] {result.Count()} operations are all interleaving.");
+                foreach (var op in result)
+                {
+                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                }
+
+                var filteredGroup = result.Select(op => op.Group).Distinct()
+                    .GroupBy(group => (group.Owner as HttpOperation)?.Path ?? string.Empty)
+                    .FirstOrDefault();
+                if (filteredGroup != null)
+                {
+                    var filteredOps = result.Where(op => filteredGroup.Contains(op.Group));
+                    if (filteredOps.Any())
+                    {
+                        Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing same HTTP path.");
+                        result = filteredOps;
+                        foreach (var op in result)
+                        {
+                            System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                        }
+                    }
+                }
+            }
+
+            // If explicit, and there is an operation group, then choose a random operation in the same group.
+            // if (current.LastSchedulingPoint != SchedulingPointType.Interleave &&
+            //     current.LastSchedulingPoint != SchedulingPointType.Yield)
             // {
             //     // Choose an operation that has the same group as the operation that just completed.
             //     if (current.Group != null)
             //     {
             //         System.Console.WriteLine($">>>>> SCHEDULE NEXT: {current.Name} (o: {current.Group.Owner}, g: {current.Group})");
-            //         var groupOps = enabledOps.Where(op => current.Group.IsMember(op)).ToList();
-            //         System.Console.WriteLine($">>>>> groupOps: {groupOps.Count}");
-            //         foreach (var op in groupOps)
+            //         result = result.Where(op => current.Group.IsMember(op)).ToList();
+            //         System.Console.WriteLine($">>>>> filtered ops: {result.Count}");
+            //         foreach (var op in result)
             //         {
             //             System.Console.WriteLine($">>>>>>>> groupOp: {op.Name} (o: {op.Group.Owner}, g: {op.Group})");
-            //         }
-            //         if (groupOps.Count > 0)
-            //         {
-            //             enabledOps = groupOps;
-            //             isForced = true;
             //         }
             //     }
             // }
 
-            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
-            next = enabledOps[idx];
-
-            this.ProcessSchedule(current.SchedulingPoint, next, ops, false);
-            this.PrintSchedule();
-            this.StepCount++;
-            return true;
+            return result.ToList();
         }
 
         /// <summary>

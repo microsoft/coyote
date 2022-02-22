@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         protected string CurrentSchedule;
 
-        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, bool isForced)> Path;
+        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, bool isFiltered)> Path;
 
         protected Dictionary<string, string> OperationDebugInfo;
 
@@ -113,21 +113,13 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal abstract void Reset();
 
         protected void ProcessSchedule(SchedulingPointType spType, ControlledOperation op,
-            IEnumerable<ControlledOperation> ops, bool isForced)
+            IEnumerable<ControlledOperation> ops, bool isFiltered)
         {
             var group = op.Group;
             string msg = group.Msg;
             if (!string.IsNullOrEmpty(msg) && !this.OperationDebugInfo.TryGetValue(group.Msg ?? string.Empty, out msg))
             {
-                if (group.Msg.Length > 25)
-                {
-                    msg = group.Msg.Substring(0, 25);
-                }
-                else
-                {
-                    msg = group.Msg;
-                }
-
+                msg = group.Msg;
                 msg = $"REQ{this.OperationDebugInfo.Count} ({msg})";
                 this.OperationDebugInfo.Add(group.Msg, msg);
             }
@@ -141,7 +133,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             groupMap[group] = (true, false, false);
 
             var count = ops.Count(op => op.Status is OperationStatus.Enabled && !group.IsDisabled);
-            this.Path.Add((op.Name, count, spType, group, msg, this.Phase, isForced));
+            this.Path.Add((op.Name, count, spType, group, msg, this.Phase, isFiltered));
         }
 
         internal void PrintSchedule()
@@ -207,13 +199,13 @@ namespace Microsoft.Coyote.Testing.Systematic
                     debug = $" - DBG[{step.debug}]";
                 }
 
-                string isStepForced = string.Empty;
-                if (step.isForced)
+                string isStepFiltered = string.Empty;
+                if (step.isFiltered)
                 {
-                    isStepForced = $" - FORCED";
+                    isStepFiltered = $" - FILTERED";
                 }
 
-                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{isStepForced}");
+                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{isStepFiltered}");
             }
 
             this.CurrentSchedule = sb.ToString();

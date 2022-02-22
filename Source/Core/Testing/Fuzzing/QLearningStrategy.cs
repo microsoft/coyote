@@ -145,24 +145,25 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             if (nextOp is null)
             {
                 next = 0;
-                return true;
-            }
-
-            if (nextOp.Equals(current))
-            {
-                next = 0;
-                this.PreviousOperation = nextOp.Id;
             }
             else
             {
-                next = 1;
-
-                if (!this.RecursiveDelayCount.ContainsKey(current))
+                if (nextOp.Equals(current))
                 {
-                    this.RecursiveDelayCount.Add(current, 0);
+                    next = 0;
+                    this.PreviousOperation = nextOp.Id;
                 }
+                else
+                {
+                    next = 1;
 
-                this.RecursiveDelayCount[current]++;
+                    if (!this.RecursiveDelayCount.ContainsKey(current))
+                    {
+                        this.RecursiveDelayCount.Add(current, 0);
+                    }
+
+                    this.RecursiveDelayCount[current]++;
+                }
             }
 
             if (!isRecursive)

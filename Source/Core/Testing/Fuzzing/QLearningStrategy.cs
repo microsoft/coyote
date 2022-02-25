@@ -77,6 +77,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         private Dictionary<AsyncOperation, int> RecursiveDelayCount;
 
+        /// <summary>
+        /// Hashes of the operations each computed at their last corresponding delay point.
+        /// </summary>
         private Dictionary<AsyncOperation, int> OperationHashes;
 
         /// <summary>
@@ -230,7 +233,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             foreach (var pair in this.OperationQTable[state])
             {
                 // Consider only the Q values of enabled operations.
-                if (ops.Any(op => op.Id == pair.Key && op.Status == AsyncOperationStatus.Enabled))
+                if (ops.Any(op => op.Id == pair.Key))
                 {
                     opIds.Add(pair.Key);
                     qValues.Add(pair.Value);
@@ -360,6 +363,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             {
                 int hash = 19;
 
+                // Compute the global state hashes using the last updated statehashes of the operations
+                // Ideally sort the operation list by their unique IDs. Currently using their names.
                 foreach (var op in ops.OrderBy(op => op.Name))
                 {
                     hash = this.OperationHashes.ContainsKey(op) ? (hash * 31) + this.OperationHashes[op] : hash;

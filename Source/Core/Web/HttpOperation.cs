@@ -21,6 +21,11 @@ namespace Microsoft.Coyote.Web
         internal readonly string Path;
 
         /// <summary>
+        /// True if this is operation can modify shared state, else false.
+        /// </summary>
+        internal readonly bool IsWriting;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
         private HttpOperation(ulong operationId, HttpMethod method, string path, OperationGroup group)
@@ -28,6 +33,8 @@ namespace Microsoft.Coyote.Web
         {
             this.Method = method;
             this.Path = path;
+            this.IsWriting = method is HttpMethod.Post || method is HttpMethod.Put ||
+                method is HttpMethod.Delete || method is HttpMethod.Patch;
         }
 
         /// <summary>

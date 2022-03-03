@@ -10,6 +10,9 @@ using Microsoft.Coyote.Web;
 
 namespace Microsoft.Coyote.Testing.Systematic
 {
+#pragma warning disable SA1005
+#pragma warning disable SA1028
+#pragma warning disable CA1822 // Mark members as static
     /// <summary>
     /// A group-based probabilistic priority-based scheduling strategy.
     /// </summary>
@@ -63,7 +66,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             this.KnownSchedules = new HashSet<string>();
             this.CurrentSchedule = string.Empty;
-            this.Path = new List<(string, int, SchedulingPointType, OperationGroup, string, int, bool)>();
+            this.Path = new List<(string, int, SchedulingPointType, OperationGroup, string, int, string)>();
             this.OperationDebugInfo = new Dictionary<string, string>();
             this.Groups = new Dictionary<int, Dictionary<OperationGroup, (bool, bool, bool)>>();
         }
@@ -113,126 +116,119 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             this.SetNewGroupPriorities(enabledOps, current);
-            this.DeprioritizeEnabledGroupWithHighestPriority(enabledOps, current, isYielding);
-
-            // OperationGroup highestEnabledGroup = this.GetEnabledGroupWithHighestPriority(enabledOps);
-            // enabledOps = enabledOps.Where(op => op.Group == highestEnabledGroup).ToList();
-            // if (Debug.IsEnabled)
-            // {
-            //     Debug.WriteLine("<PCTLog> prioritized group '{0}' ({1}): ", highestEnabledGroup, highestEnabledGroup?.Msg);
-            //     foreach (var op in enabledOps)
-            //     {
-            //         Debug.WriteLine("  |_ '{0}'", op);
-            //     }
-            // }
-
-            // var filteredOps = this.FilterOperations(enabledOps, current);
-            var filteredOps = ops.Where(op => !op.Group.IsDisabled).ToList();
-            if (filteredOps.Count > 0)
+            if (this.GetPrioritizedOperations(enabledOps, current, out var prioritizedOps))
             {
-                enabledOps = filteredOps;
+                enabledOps = prioritizedOps;
+            }
+            else
+            {
+                // this.ChangePriorities(enabledOps, current, isYielding);
+                // this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup);
             }
 
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            this.ProcessSchedule(current.LastSchedulingPoint, next, ops, filteredOps.Count > 0);
+            this.ProcessSchedule(current.LastSchedulingPoint, next, ops,
+                next.Id == current.Id ? "FORCED[CUR]" :
+                next.Group == current.Group ? "FORCED[GRP]" :
+                string.Empty);
             this.PrintSchedule();
             this.StepCount++;
             return true;
         }
 
-#pragma warning disable CA1822 // Mark members as static
-        private List<ControlledOperation> FilterOperations(IEnumerable<ControlledOperation> ops,
-            ControlledOperation current)
-#pragma warning restore CA1822 // Mark members as static
+        /// <summary>
+        /// Returns the operations with the highest priority.
+        /// </summary>
+        private bool GetPrioritizedOperations(List<ControlledOperation> ops, ControlledOperation current,
+            out List<ControlledOperation> result)
         {
-            var result = ops.Where(op => !op.Group.IsDisabled);
-            Console.WriteLine($">>> [FILTER] Current op: {current.Name} (sp: {current.LastSchedulingPoint}, o: {current.Group.Owner}, g: {current.Group})");
-            Console.WriteLine($">>> [FILTER] {result.Count()}/{ops.Count()} operations remain after choosing non-disabled ones.");
-            foreach (var op in result)
+            result = ops.Where(op => !op.Group.IsDisabled).ToList();
+            if (result.Count is 1)
             {
-                System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                Console.WriteLine($">>> [FILTER] only one operation left after filtering.");
+                return true;
+            }
+            else if (result.Count is 0)
+            {
+                return false;
             }
 
-            // Keep scheduling operations that are not explicitly interleaving.
-            if (result.Count() > 1)
+            // Find all operations that are not explicitly interleaving.
+            var nonInterleavingOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Interleave).ToList();
+            if (nonInterleavingOps.Count is 0)
             {
-                var filteredOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Interleave);
-                if (filteredOps.Any())
-                {
-                    Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing non-interleaving ones.");
-                    result = filteredOps;
-                    foreach (var op in result)
-                    {
-                        System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
-                    }
-                }
-            }
-
-            // Keep scheduling the group of the current operation that is not interleaving, if there
-            // is any other enabled operation in that group.
-            if (current.LastSchedulingPoint != SchedulingPointType.Interleave &&
-                result.Count() > 1)
-            {
-                // Choose an operation that has the same group as the operation that just completed.
-                var filteredOps = result.Where(op => current.Group.IsMember(op));
-                if (filteredOps.Any())
-                {
-                    Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing same group ones.");
-                    result = filteredOps;
-                    foreach (var op in result)
-                    {
-                        System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
-                    }
-                }
-            }
-
-            if (result.All(op => op.LastSchedulingPoint is SchedulingPointType.Interleave) &&
-                result.Count() > 1)
-            {
-                Console.WriteLine($">>> [FILTER] {result.Count()} operations are all interleaving.");
+                // All operations are explicitly interleaving.
+                Console.WriteLine($">>> [FILTER] {result.Count} operations are all interleaving.");
                 foreach (var op in result)
                 {
-                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
+                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
                 }
 
-                var filteredGroup = result.Select(op => op.Group).Distinct()
-                    .GroupBy(group => (group.Owner as HttpOperation)?.Path ?? string.Empty)
-                    .FirstOrDefault();
-                if (filteredGroup != null)
+                var interleavingGroups = result.Select(op => op.Group).Distinct();
+                if (interleavingGroups.Any(group => group.IsWriting))
                 {
-                    var filteredOps = result.Where(op => filteredGroup.Contains(op.Group));
-                    if (filteredOps.Any())
-                    {
-                        Console.WriteLine($">>> [FILTER] {filteredOps.Count()}/{result.Count()} operations remain after choosing same HTTP path.");
-                        result = filteredOps;
-                        foreach (var op in result)
-                        {
-                            System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint}, o: {op.Group.Owner}, g: {op.Group})");
-                        }
-                    }
+                    Console.WriteLine($">>>>>> Write operation exists.");
+                    Console.WriteLine($">>>>>> Must change priority.");
+                    return result.Count > 0;
+                }
+            }
+            else
+            {
+                result = nonInterleavingOps;
+            }
+
+            // Choose the current operation, if it is enabled.
+            var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
+            if (currentGroupOps.Count is 1)
+            {
+                result = currentGroupOps;
+                return true;
+            }
+
+            // If the current operation is not enabled, then choose operations that have
+            // the same group as the current operation.
+            currentGroupOps = result.Where(op => current.Group.IsMember(op)).ToList();
+            if (currentGroupOps.Count > 0)
+            {
+                Console.WriteLine($">>> [FILTER] {currentGroupOps.Count}/{result.Count} operations remain after choosing same group ones.");
+                result = currentGroupOps;
+                foreach (var op in result)
+                {
+                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+                }
+            }
+            else if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
+            {
+                // Else, ask the scheduler to give the next group if there is any.
+                Console.WriteLine($">>> [FILTER] Prioritized group {nextGroup} (o: {nextGroup.Owner} | msg: {nextGroup.Msg}).");
+                result = result.Where(op => nextGroup.IsMember(op)).ToList();
+                foreach (var op in result)
+                {
+                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
                 }
             }
 
-            // If explicit, and there is an operation group, then choose a random operation in the same group.
-            // if (current.LastSchedulingPoint != SchedulingPointType.Interleave &&
-            //     current.LastSchedulingPoint != SchedulingPointType.Yield)
-            // {
-            //     // Choose an operation that has the same group as the operation that just completed.
-            //     if (current.Group != null)
-            //     {
-            //         System.Console.WriteLine($">>>>> SCHEDULE NEXT: {current.Name} (o: {current.Group.Owner}, g: {current.Group})");
-            //         result = result.Where(op => current.Group.IsMember(op)).ToList();
-            //         System.Console.WriteLine($">>>>> filtered ops: {result.Count}");
-            //         foreach (var op in result)
-            //         {
-            //             System.Console.WriteLine($">>>>>>>> groupOp: {op.Name} (o: {op.Group.Owner}, g: {op.Group})");
-            //         }
-            //     }
-            // }
+            return result.Count > 0;
+        }
 
-            return result.ToList();
+        /// <summary>
+        /// Returns the group with the highest priority that contains at least one enabled operation.
+        /// </summary>
+        private bool GetPrioritizedOperationGroup(List<ControlledOperation> ops, out OperationGroup result)
+        {
+            foreach (var group in this.PrioritizedGroups)
+            {
+                if (ops.Any(op => op.Group == group))
+                {
+                    result = group;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         /// <summary>
@@ -240,7 +236,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private void SetNewGroupPriorities(List<ControlledOperation> ops, ControlledOperation current)
         {
-            int count = 0;
+            int count = this.PrioritizedGroups.Count;
             if (this.PrioritizedGroups.Count is 0)
             {
                 this.PrioritizedGroups.Add(current.Group);
@@ -252,7 +248,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Randomly choose a priority for this group.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedGroups.Count) + 1;
                 this.PrioritizedGroups.Insert(index, group);
-                Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation group '{1}' ({2}).", index, group, group.Msg);
+                Debug.WriteLine("<PriorityLog> chose priority '{0}' for new operation group '{1}' ({2}).", index, group, group.Msg);
             }
 
             if (this.PrioritizedGroups.Count > count)
@@ -266,8 +262,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// one enabled operation, if there is a priority change point installed on
         /// the current execution step.
         /// </summary>
-        private void DeprioritizeEnabledGroupWithHighestPriority(List<ControlledOperation> ops,
-            ControlledOperation current, bool isYielding)
+        private void ChangePriorities(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
         {
             if (ops.Count <= 1)
             {
@@ -275,42 +270,26 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return;
             }
 
-            OperationGroup deprioritizedGroup = null;
+            OperationGroup group = null;
             if (this.PriorityChangePoints.Contains(this.StepCount))
             {
                 // This scheduling step was chosen as a priority switch point.
-                deprioritizedGroup = this.GetEnabledGroupWithHighestPriority(ops);
-                Debug.WriteLine("<PCTLog> operation group '{0}' ({1}) is deprioritized.", deprioritizedGroup, deprioritizedGroup.Msg);
+                this.GetPrioritizedOperationGroup(ops, out group);
+                Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) is deprioritized.", group, group.Msg);
             }
             else if (isYielding)
             {
                 // The current group is yielding its execution to the next prioritized group.
-                deprioritizedGroup = current.Group;
-                Debug.WriteLine("<PCTLog> operation group '{0}' ({1}) yields its priority.", deprioritizedGroup, deprioritizedGroup.Msg);
+                group = current.Group;
+                Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) yields its priority.", group, group.Msg);
             }
 
-            if (deprioritizedGroup != null)
+            if (group != null)
             {
                 // Deprioritize the group by putting it in the end of the list.
-                this.PrioritizedGroups.Remove(deprioritizedGroup);
-                this.PrioritizedGroups.Add(deprioritizedGroup);
+                this.PrioritizedGroups.Remove(group);
+                this.PrioritizedGroups.Add(group);
             }
-        }
-
-        /// <summary>
-        /// Returns the group with the highest priority that contains at least one enabled operation.
-        /// </summary>
-        private OperationGroup GetEnabledGroupWithHighestPriority(List<ControlledOperation> ops)
-        {
-            foreach (var group in this.PrioritizedGroups)
-            {
-                if (ops.Any(op => op.Group == group && !group.IsDisabled))
-                {
-                    return group;
-                }
-            }
-
-            return null;
         }
 
         /// <inheritdoc/>
@@ -354,7 +333,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override string GetDescription()
         {
-            var text = $"pct[seed '" + this.RandomValueGenerator.Seed + "']";
+            var text = $"priority-based[seed '" + this.RandomValueGenerator.Seed + "']";
             return text;
         }
 
@@ -394,15 +373,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (Debug.IsEnabled)
             {
-                Debug.WriteLine("<PCTLog> operation group priority list: ");
+                Debug.WriteLine("<PriorityLog> operation group priority list: ");
                 for (int idx = 0; idx < this.PrioritizedGroups.Count; idx++)
                 {
                     var group = this.PrioritizedGroups[idx];
-                    if (idx < this.PrioritizedGroups.Count - 1)
+                    if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
-                        Debug.WriteLine("  |_ '{0}' ({1})", group, group.Msg);
+                        Debug.WriteLine("  |_ '{0}' ({1}) [enabled]", group, group.Msg);
                     }
-                    else
+                    else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
                         Debug.WriteLine("  |_ '{0}' ({1})", group, group.Msg);
                     }
@@ -420,9 +399,14 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Sort them before printing for readability.
                 var sortedChangePoints = this.PriorityChangePoints.ToArray();
                 Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<PCTLog> next priority change points ('{0}' in total): {1}",
+                Debug.WriteLine("<PriorityLog> next priority change points ('{0}' in total): {1}",
                     sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
             }
+        }
+
+        protected override void Callback()
+        {
+            this.DebugPrintOperationPriorityList();
         }
     }
 }

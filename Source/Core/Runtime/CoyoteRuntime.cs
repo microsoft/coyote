@@ -438,6 +438,7 @@ namespace Microsoft.Coyote.Runtime
             // if such a group exists, else the group of the currently executing
             // operation, if such an operation exists.
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+            // OperationGroup group = null;
 
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?

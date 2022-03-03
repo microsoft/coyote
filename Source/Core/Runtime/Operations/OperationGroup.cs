@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Coyote.Web;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -40,6 +41,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
 
+        /// <summary>
+        /// True if this group consists of write operations, else false.
+        /// </summary>
+        internal bool IsWriting => this.Owner is HttpOperation httpOwner && httpOwner.IsWriting;
+
         internal bool IsDisabled;
 
         internal string Msg;
@@ -55,7 +61,7 @@ namespace Microsoft.Coyote.Runtime
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
             this.IsDisabled = false;
-            Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name}");
+            Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {!this.IsWriting})");
         }
 
         /// <summary>

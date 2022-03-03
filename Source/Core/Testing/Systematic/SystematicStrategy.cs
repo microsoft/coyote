@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         protected string CurrentSchedule;
 
-        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, bool isFiltered)> Path;
+        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, string filter)> Path;
 
         protected Dictionary<string, string> OperationDebugInfo;
 
@@ -42,8 +42,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
             else if (configuration.SchedulingStrategy is "random")
             {
-                strategy = new NewRandomStrategy(configuration.MaxFairSchedulingSteps, generator);
-                // strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
             }
             else if (configuration.SchedulingStrategy is "pct")
             {
@@ -113,7 +112,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal abstract void Reset();
 
         protected void ProcessSchedule(SchedulingPointType spType, ControlledOperation op,
-            IEnumerable<ControlledOperation> ops, bool isFiltered)
+            IEnumerable<ControlledOperation> ops, string filter)
         {
             var group = op.Group;
             string msg = group.Msg;
@@ -133,7 +132,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             groupMap[group] = (true, false, false);
 
             var count = ops.Count(op => op.Status is OperationStatus.Enabled && !group.IsDisabled);
-            this.Path.Add((op.Name, count, spType, group, msg, this.Phase, isFiltered));
+            this.Path.Add((op.Name, count, spType, group, msg, this.Phase, filter));
         }
 
         internal void PrintSchedule()
@@ -187,25 +186,10 @@ namespace Microsoft.Coyote.Testing.Systematic
                     sb.AppendLine($"======================");
                 }
 
-                string group = string.Empty;
-                if (step.group != null)
-                {
-                    group = $" - GRP[{step.group}({step.group.Owner})]";
-                }
-
-                string debug = string.Empty;
-                if (!string.IsNullOrEmpty(step.debug))
-                {
-                    debug = $" - DBG[{step.debug}]";
-                }
-
-                string isStepFiltered = string.Empty;
-                if (step.isFiltered)
-                {
-                    isStepFiltered = $" - FILTERED";
-                }
-
-                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{isStepFiltered}");
+                string group = step.group is null ? string.Empty : $" - GRP[{step.group}({step.group.Owner})]";
+                string debug = string.IsNullOrEmpty(step.debug) ? string.Empty : $" - DBG[{step.debug}]";
+                string filter = string.IsNullOrEmpty(step.filter) ? string.Empty : $" - {step.filter}";
+                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{filter}");
             }
 
             this.CurrentSchedule = sb.ToString();
@@ -213,6 +197,10 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.KnownSchedules.Add(this.CurrentSchedule);
             RuntimeStats.NumVisitedSchedules = this.KnownSchedules.Count;
             System.Console.WriteLine($">>> Visited '{this.KnownSchedules.Count}' schedules so far.");
+        }
+
+        protected virtual void Callback()
+        {
         }
 
         internal void MoveNextPhase(int phase)
@@ -251,6 +239,8 @@ namespace Microsoft.Coyote.Testing.Systematic
                     }
                 }
             }
+
+            this.Callback();
         }
     }
 }

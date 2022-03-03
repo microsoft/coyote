@@ -47,6 +47,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly List<OperationGroup> PrioritizedGroups;
 
         /// <summary>
+        /// Set of groups that have been disabled.
+        /// </summary>
+        private readonly HashSet<OperationGroup> DisabledGroups;
+
+        /// <summary>
         /// Scheduling points in the current execution where a priority change should occur.
         /// </summary>
         private readonly HashSet<int> PriorityChangePoints;
@@ -62,6 +67,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.ScheduleLength = 0;
             this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
             this.PrioritizedGroups = new List<OperationGroup>();
+            this.DisabledGroups = new HashSet<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
 
             this.KnownSchedules = new HashSet<string>();
@@ -96,6 +102,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             this.CurrentSchedule = string.Empty;
+            this.DisabledGroups.Clear();
             this.Path.Clear();
             this.OperationDebugInfo.Clear();
             this.Groups.Clear();
@@ -171,6 +178,14 @@ namespace Microsoft.Coyote.Testing.Systematic
                 {
                     Console.WriteLine($">>>>>> Write operation exists.");
                     Console.WriteLine($">>>>>> Must change priority.");
+                    if (current.Group.IsDisabledNext)
+                    {
+                        Console.WriteLine($">>>>>> Current group must get disabled.");
+                        current.Group.IsDisabled = true;
+                        current.Group.IsDisabledNext = false;
+                        result = ops.Where(op => !op.Group.IsDisabled).ToList();
+                    }
+
                     return result.Count > 0;
                 }
             }

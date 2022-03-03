@@ -48,6 +48,8 @@ namespace Microsoft.Coyote.Runtime
 
         internal bool IsDisabled;
 
+        internal bool IsDisabledNext;
+
         internal string Msg;
 
         internal Guid RootId;
@@ -61,6 +63,7 @@ namespace Microsoft.Coyote.Runtime
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
             this.IsDisabled = false;
+            this.IsDisabledNext = false;
             Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {!this.IsWriting})");
         }
 

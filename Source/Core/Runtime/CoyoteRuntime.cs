@@ -986,7 +986,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     IO.Debug.WriteLine($"--- Current op: {currentOp} - c {currentOp.Connector}");
                     IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Msg}))");
-                    currentOp.Group.IsDisabled = true;
+                    currentOp.Group.IsDisabledNext = true;
                     foreach (var member in currentOp.Group.Where(op => op.Status != OperationStatus.Completed))
                     {
                         IO.Debug.WriteLine($"--- Disabling op: {member.Name} ({member.Group})");

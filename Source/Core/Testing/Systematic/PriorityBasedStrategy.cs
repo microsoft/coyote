@@ -164,12 +164,37 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            // Find all operations that are not explicitly reading or writing shared state.
-            var nonInterleavingOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
-                op.LastSchedulingPoint != SchedulingPointType.Write).ToList();
-            if (nonInterleavingOps.Count is 0)
+            // Split the operations based on any known shared state accesses.
+            List<ControlledOperation> readAccessOps = null;
+            List<ControlledOperation> writeAccessOps = null;
+            List<ControlledOperation> noStateAccessOps = null;
+            foreach (var op in result)
             {
-                // All operations are explicitly interleaving.
+                if (op.LastSchedulingPoint is SchedulingPointType.Read)
+                {
+                    readAccessOps ??= new List<ControlledOperation>();
+                    readAccessOps.Add(op);
+                }
+                else if (op.LastSchedulingPoint is SchedulingPointType.Write)
+                {
+                    writeAccessOps ??= new List<ControlledOperation>();
+                    writeAccessOps.Add(op);
+                }
+                else
+                {
+                    noStateAccessOps ??= new List<ControlledOperation>();
+                    noStateAccessOps.Add(op);
+                }
+            }
+
+            if (noStateAccessOps?.Count > 0)
+            {
+                // There are operations that are not accessing any state, so prioritize them.
+                result = noStateAccessOps;
+            }
+            else
+            {
+                // There are operations writing to shared state.
                 Console.WriteLine($">>> [FILTER] {result.Count} operations are all interleaving.");
                 foreach (var op in result)
                 {
@@ -202,13 +227,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                             // CoyoteRuntime.Current.Fail();
                         }
                     }
-
-                    // return result.Count > 0;
                 }
-            }
-            else
-            {
-                result = nonInterleavingOps;
             }
 
             if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))

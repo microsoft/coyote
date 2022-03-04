@@ -34,6 +34,10 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         internal List<int> ChangeCount = new List<int>();
 
+        internal HashSet<string> ReadAccessSet = new HashSet<string>();
+
+        internal HashSet<string> WriteAccessSet = new HashSet<string>();
+
         /// <summary>
         /// Creates a <see cref="SystematicStrategy"/> from the specified configuration.
         /// </summary>

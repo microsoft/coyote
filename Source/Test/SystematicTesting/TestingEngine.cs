@@ -451,6 +451,19 @@ namespace Microsoft.Coyote.SystematicTesting
                         }
 
                         this.Logger.WriteLine(string.Empty);
+
+                        this.Logger.WriteLine($"Read accesses:");
+                        foreach (var access in ss.ReadAccessSet)
+                        {
+                            this.Logger.WriteLine($"  |_ {access}");
+                        }
+
+                        this.Logger.WriteLine($"Write accesses:");
+                        foreach (var access in ss.WriteAccessSet)
+                        {
+                            this.Logger.WriteLine($"  |_ {access}");
+                        }
+
                         ss.ChangeCount.Clear();
                         this.Logger.WriteLine($"Max phase: {Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase}");
                     }
@@ -502,6 +515,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
 
                     this.Logger.WriteLine(string.Empty);
+
+                    this.Logger.WriteLine($"Read accesses:");
+                    foreach (var access in ss.ReadAccessSet)
+                    {
+                        this.Logger.WriteLine($"  |_ {access}");
+                    }
+
+                    this.Logger.WriteLine($"Write accesses:");
+                    foreach (var access in ss.WriteAccessSet)
+                    {
+                        this.Logger.WriteLine($"  |_ {access}");
+                    }
+
                     ss.ChangeCount.Clear();
                     this.Logger.WriteLine($"Max phase: {Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase}");
                 }

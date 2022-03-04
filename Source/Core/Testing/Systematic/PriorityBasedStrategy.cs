@@ -36,6 +36,18 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
+        /// Set of values corresponding to shared state that has been accessed
+        /// by 'READ' operations across all iterations.
+        /// </summary>
+        private readonly HashSet<string> ReadAccesses;
+
+        /// <summary>
+        /// Set of values corresponding to shared state that has been accessed
+        /// by 'WRITE' operations across all iterations.
+        /// </summary>
+        private readonly HashSet<string> WriteAccesses;
+
+        /// <summary>
         /// Number of potential priority change points in the current iteration.
         /// </summary>
         private int PriorityChangePointsCount;
@@ -63,6 +75,8 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.RandomValueGenerator = generator;
             this.PrioritizedGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
+            this.ReadAccesses = new HashSet<string>();
+            this.WriteAccesses = new HashSet<string>();
             this.PriorityChangePointsCount = 0;
             this.MaxPriorityChangePointsCount = 0;
             this.MaxPriorityChanges = maxPriorityChanges;
@@ -164,67 +178,81 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            // Split the operations based on any known shared state accesses.
-            List<ControlledOperation> readAccessOps = null;
-            List<ControlledOperation> writeAccessOps = null;
-            List<ControlledOperation> noStateAccessOps = null;
-            foreach (var op in result)
+            // Find all operations that are not accessing any shared state.
+            var noStateAccessOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
+                op.LastSchedulingPoint != SchedulingPointType.Write);
+            if (noStateAccessOps.Any())
             {
-                if (op.LastSchedulingPoint is SchedulingPointType.Read)
-                {
-                    readAccessOps ??= new List<ControlledOperation>();
-                    readAccessOps.Add(op);
-                }
-                else if (op.LastSchedulingPoint is SchedulingPointType.Write)
-                {
-                    writeAccessOps ??= new List<ControlledOperation>();
-                    writeAccessOps.Add(op);
-                }
-                else
-                {
-                    noStateAccessOps ??= new List<ControlledOperation>();
-                    noStateAccessOps.Add(op);
-                }
-            }
-
-            if (noStateAccessOps?.Count > 0)
-            {
-                // There are operations that are not accessing any state, so prioritize them.
-                result = noStateAccessOps;
+                // There are operations that are not accessing any shared state, so prioritize them.
+                result = noStateAccessOps.ToList();
             }
             else
             {
-                // There are operations writing to shared state.
-                Console.WriteLine($">>> [FILTER] {result.Count} operations are all interleaving.");
-                foreach (var op in result)
+                // Split the operations that are accessing shared state into a 'READ' and 'WRITE' group.
+                var readAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read);
+                var writeAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
+
+                foreach (var x in writeAccessOps)
                 {
-                    System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+                    this.WriteAccesses.Add(x.LastAccessedState);
+                    this.WriteAccessSet.Add(x.LastAccessedState);
                 }
 
-                var interleavingGroups = result.Select(op => op.Group).Distinct();
-                if (interleavingGroups.Any(group => !group.IsReadOnly))
+                foreach (var x in readAccessOps)
                 {
-                    Console.WriteLine($">>>>>> Write operation exists.");
-                    Console.WriteLine($">>>>>> Must change priority.");
-                    this.MustChangeCount[this.MustChangeCount.Count - 1]++;
-                    if (this.TryChangeGroupPriorities(result, current))
-                    {
-                        if (!current.Group.IsDisabledNext)
-                        {
-                            Console.WriteLine($">>>>>> Current group should not have been disabled.");
-                            // CoyoteRuntime.Current.Fail();
-                        }
+                    this.ReadAccesses.Add(x.LastAccessedState);
+                    this.ReadAccessSet.Add(x.LastAccessedState);
+                }
 
-                        // current.Group.IsDisabled = true;
-                        current.Group.IsDisabledNext = false;
-                        // result = result.Where(op => !op.Group.IsDisabled).ToList();
-                    }
-                    else
+                // Find if there are any read-only accesses. Note that this is just an approximation
+                // based on current knowledge. An access that is considered read-only might not be
+                // considered anymore in later steps or iterations.
+                var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Contains(op.LastAccessedState));
+                if (readOnlyAccessOps.Any())
+                {
+                    // Prioritize any read-only access operation.
+                    Console.WriteLine($">>> [FILTER] {readOnlyAccessOps.Count()} operations are read-only.");
+                    foreach (var op in readOnlyAccessOps)
                     {
-                        if (current.Group.IsDisabledNext)
+                        System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+                    }
+
+                    result = readOnlyAccessOps.ToList();
+                }
+                else
+                {
+                    // There are operations writing to shared state.
+                    Console.WriteLine($">>> [FILTER] {result.Count} operations are all accessing shared state.");
+                    foreach (var op in result)
+                    {
+                        System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+                    }
+
+                    var stateAccessingGroups = result.Select(op => op.Group).Distinct();
+                    if (stateAccessingGroups.Any(group => !group.IsReadOnly))
+                    {
+                        Console.WriteLine($">>>>>> Write operation exists.");
+                        Console.WriteLine($">>>>>> Must change priority.");
+                        this.MustChangeCount[this.MustChangeCount.Count - 1]++;
+                        if (this.TryChangeGroupPriorities(result, current))
                         {
-                            Console.WriteLine($">>>>>> Current group should have been disabled.");
-                            // CoyoteRuntime.Current.Fail();
+                            if (!current.Group.IsDisabledNext)
+                            {
+                                Console.WriteLine($">>>>>> Current group should not have been disabled.");
+                                // CoyoteRuntime.Current.Fail();
+                            }
+
+                            // current.Group.IsDisabled = true;
+                            current.Group.IsDisabledNext = false;
+                            // result = result.Where(op => !op.Group.IsDisabled).ToList();
+                        }
+                        else
+                        {
+                            if (current.Group.IsDisabledNext)
+                            {
+                                Console.WriteLine($">>>>>> Current group should have been disabled.");
+                                // CoyoteRuntime.Current.Fail();
+                            }
                         }
                     }
                 }
@@ -251,37 +279,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                     System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
                 }
             }
-
-            // // Choose the current operation, if it is enabled.
-            // var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
-            // if (currentGroupOps.Count is 1)
-            // {
-            //     result = currentGroupOps;
-            //     return true;
-            // }
-
-            // If the current operation is not enabled, then choose operations that have
-            // the same group as the current operation.
-            // currentGroupOps = result.Where(op => current.Group.IsMember(op)).ToList();
-            // if (currentGroupOps.Count > 0)
-            // {
-            //     Console.WriteLine($">>> [FILTER] {currentGroupOps.Count}/{result.Count} operations remain after choosing same group ones.");
-            //     result = currentGroupOps;
-            //     foreach (var op in result)
-            //     {
-            //         System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
-            //     }
-            // }
-            // else if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
-            // {
-            //     // Else, ask the scheduler to give the next group if there is any.
-            //     Console.WriteLine($">>> [FILTER] Prioritized group {nextGroup} (o: {nextGroup.Owner} | msg: {nextGroup.Msg}).");
-            //     result = result.Where(op => nextGroup.IsMember(op)).ToList();
-            //     foreach (var op in result)
-            //     {
-            //         System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
-            //     }
-            // }
 
             return result.Count > 0;
         }

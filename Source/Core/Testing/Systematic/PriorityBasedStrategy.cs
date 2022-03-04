@@ -191,18 +191,13 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Split the operations that are accessing shared state into a 'READ' and 'WRITE' group.
                 var readAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read);
                 var writeAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
+                
+                // Update the known 'READ' and 'WRITE' accesses so far.
+                this.ReadAccesses.UnionWith(readAccessOps.Select(op => op.LastAccessedState));
+                this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedState));
 
-                foreach (var x in writeAccessOps)
-                {
-                    this.WriteAccesses.Add(x.LastAccessedState);
-                    this.WriteAccessSet.Add(x.LastAccessedState);
-                }
-
-                foreach (var x in readAccessOps)
-                {
-                    this.ReadAccesses.Add(x.LastAccessedState);
-                    this.ReadAccessSet.Add(x.LastAccessedState);
-                }
+                this.ReadAccessSet.UnionWith(readAccessOps.Select(op => op.LastAccessedState));
+                this.WriteAccessSet.UnionWith(writeAccessOps.Select(op => op.LastAccessedState));
 
                 // Find if there are any read-only accesses. Note that this is just an approximation
                 // based on current knowledge. An access that is considered read-only might not be

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Web;
 
 namespace Microsoft.Coyote.Testing.Systematic
 {
@@ -27,29 +26,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        private readonly int MaxSteps;
-
-        /// <summary>
-        /// Max number of priority switch points.
-        /// </summary>
-        private readonly int MaxPrioritySwitchPoints;
-
-        /// <summary>
-        /// Approximate length of the schedule across all iterations.
-        /// </summary>
-        private int ScheduleLength;
-
-        /// <summary>
         /// List of prioritized groups.
         /// </summary>
         private readonly List<OperationGroup> PrioritizedGroups;
-
-        /// <summary>
-        /// Set of groups that have been disabled.
-        /// </summary>
-        private readonly HashSet<OperationGroup> DisabledGroups;
 
         /// <summary>
         /// Scheduling points in the current execution where a priority change should occur.
@@ -57,18 +36,38 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
+        /// Number of potential priority change points in the current iteration.
+        /// </summary>
+        private int PriorityChangePointsCount;
+
+        /// <summary>
+        /// Max potential priority change points across all iterations.
+        /// </summary>
+        private int MaxPriorityChangePointsCount;
+
+        /// <summary>
+        /// Max number of priority changes per iteration.
+        /// </summary>
+        private readonly int MaxPriorityChanges;
+
+        /// <summary>
+        /// The maximum number of steps to explore.
+        /// </summary>
+        private readonly int MaxSteps;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PriorityBasedStrategy"/> class.
         /// </summary>
-        internal PriorityBasedStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator generator)
+        internal PriorityBasedStrategy(int maxSteps, int maxPriorityChanges, IRandomValueGenerator generator)
         {
             this.RandomValueGenerator = generator;
+            this.PrioritizedGroups = new List<OperationGroup>();
+            this.PriorityChangePoints = new HashSet<int>();
+            this.PriorityChangePointsCount = 0;
+            this.MaxPriorityChangePointsCount = 0;
+            this.MaxPriorityChanges = maxPriorityChanges;
             this.MaxSteps = maxSteps;
             this.StepCount = 0;
-            this.ScheduleLength = 0;
-            this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
-            this.PrioritizedGroups = new List<OperationGroup>();
-            this.DisabledGroups = new HashSet<OperationGroup>();
-            this.PriorityChangePoints = new HashSet<int>();
 
             this.KnownSchedules = new HashSet<string>();
             this.CurrentSchedule = string.Empty;
@@ -80,32 +79,39 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
+            this.MustChangeCount.Add(0);
+
             // The first iteration has no knowledge of the execution, so only initialize from the second
             // iteration and onwards. Note that although we could initialize the first length based on a
             // heuristic, its not worth it, as the strategy will typically explore thousands of iterations,
             // plus its also interesting to explore a schedule with no forced priority switch points.
             if (iteration > 0)
             {
-                this.ScheduleLength = Math.Max(this.ScheduleLength, this.StepCount);
-                this.StepCount = 0;
+                this.MaxPriorityChangePointsCount = Math.Max(
+                    this.MaxPriorityChangePointsCount, this.PriorityChangePointsCount);
 
                 this.PrioritizedGroups.Clear();
                 this.PriorityChangePoints.Clear();
 
-                var range = Enumerable.Range(0, this.ScheduleLength);
-                foreach (int point in this.Shuffle(range).Take(this.MaxPrioritySwitchPoints))
-                {
-                    this.PriorityChangePoints.Add(point);
-                }
+                // var range = Enumerable.Range(0, this.MaxPriorityChangePointsCount);
+                // foreach (int point in this.Shuffle(range).Take(this.MaxPriorityChanges))
+                // {
+                //     this.PriorityChangePoints.Add(point);
+                // }
+
+                this.PriorityChangePoints.Add(2);
+                this.PriorityChangePoints.Add(23);
+                this.PriorityChangePoints.Add(42);
 
                 this.DebugPrintPriorityChangePoints();
             }
 
             this.CurrentSchedule = string.Empty;
-            this.DisabledGroups.Clear();
             this.Path.Clear();
             this.OperationDebugInfo.Clear();
             this.Groups.Clear();
+            this.PriorityChangePointsCount = 0;
+            this.StepCount = 0;
             this.Phase = 0;
 
             return true;
@@ -127,11 +133,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             {
                 enabledOps = prioritizedOps;
             }
-            else
-            {
-                // this.ChangePriorities(enabledOps, current, isYielding);
-                // this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup);
-            }
 
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
@@ -151,7 +152,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         private bool GetPrioritizedOperations(List<ControlledOperation> ops, ControlledOperation current,
             out List<ControlledOperation> result)
         {
-            result = ops.Where(op => !op.Group.IsDisabled).ToList();
+            // result = ops.Where(op => !op.Group.IsDisabled).ToList();
+            result = ops;
             if (result.Count is 1)
             {
                 Console.WriteLine($">>> [FILTER] only one operation left after filtering.");
@@ -178,15 +180,29 @@ namespace Microsoft.Coyote.Testing.Systematic
                 {
                     Console.WriteLine($">>>>>> Write operation exists.");
                     Console.WriteLine($">>>>>> Must change priority.");
-                    if (current.Group.IsDisabledNext)
+                    this.MustChangeCount[this.MustChangeCount.Count - 1]++;
+                    if (this.TryChangeGroupPriorities(result, current))
                     {
-                        Console.WriteLine($">>>>>> Current group must get disabled.");
-                        current.Group.IsDisabled = true;
+                        if (!current.Group.IsDisabledNext)
+                        {
+                            Console.WriteLine($">>>>>> Current group should not have been disabled.");
+                            // CoyoteRuntime.Current.Fail();
+                        }
+
+                        // current.Group.IsDisabled = true;
                         current.Group.IsDisabledNext = false;
-                        result = ops.Where(op => !op.Group.IsDisabled).ToList();
+                        // result = result.Where(op => !op.Group.IsDisabled).ToList();
+                    }
+                    else
+                    {
+                        if (current.Group.IsDisabledNext)
+                        {
+                            Console.WriteLine($">>>>>> Current group should have been disabled.");
+                            // CoyoteRuntime.Current.Fail();
+                        }
                     }
 
-                    return result.Count > 0;
+                    // return result.Count > 0;
                 }
             }
             else
@@ -194,36 +210,58 @@ namespace Microsoft.Coyote.Testing.Systematic
                 result = nonInterleavingOps;
             }
 
-            // Choose the current operation, if it is enabled.
-            var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
-            if (currentGroupOps.Count is 1)
+            if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
             {
-                result = currentGroupOps;
-                return true;
-            }
-
-            // If the current operation is not enabled, then choose operations that have
-            // the same group as the current operation.
-            currentGroupOps = result.Where(op => current.Group.IsMember(op)).ToList();
-            if (currentGroupOps.Count > 0)
-            {
-                Console.WriteLine($">>> [FILTER] {currentGroupOps.Count}/{result.Count} operations remain after choosing same group ones.");
-                result = currentGroupOps;
-                foreach (var op in result)
-                {
-                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
-                }
-            }
-            else if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
-            {
-                // Else, ask the scheduler to give the next group if there is any.
                 Console.WriteLine($">>> [FILTER] Prioritized group {nextGroup} (o: {nextGroup.Owner} | msg: {nextGroup.Msg}).");
+                if (nextGroup == current.Group)
+                {
+                    // Maybe dont need this ...
+                    // Choose the current operation, if it is enabled.
+                    var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
+                    if (currentGroupOps.Count is 1)
+                    {
+                        result = currentGroupOps;
+                        return true;
+                    }
+                }
+
                 result = result.Where(op => nextGroup.IsMember(op)).ToList();
                 foreach (var op in result)
                 {
                     System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
                 }
             }
+
+            // // Choose the current operation, if it is enabled.
+            // var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
+            // if (currentGroupOps.Count is 1)
+            // {
+            //     result = currentGroupOps;
+            //     return true;
+            // }
+
+            // If the current operation is not enabled, then choose operations that have
+            // the same group as the current operation.
+            // currentGroupOps = result.Where(op => current.Group.IsMember(op)).ToList();
+            // if (currentGroupOps.Count > 0)
+            // {
+            //     Console.WriteLine($">>> [FILTER] {currentGroupOps.Count}/{result.Count} operations remain after choosing same group ones.");
+            //     result = currentGroupOps;
+            //     foreach (var op in result)
+            //     {
+            //         System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+            //     }
+            // }
+            // else if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
+            // {
+            //     // Else, ask the scheduler to give the next group if there is any.
+            //     Console.WriteLine($">>> [FILTER] Prioritized group {nextGroup} (o: {nextGroup.Owner} | msg: {nextGroup.Msg}).");
+            //     result = result.Where(op => nextGroup.IsMember(op)).ToList();
+            //     foreach (var op in result)
+            //     {
+            //         System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+            //     }
+            // }
 
             return result.Count > 0;
         }
@@ -272,39 +310,69 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
         }
 
+        // /// <summary>
+        // /// Tries to update the group priorities.
+        // /// </summary>
+        // private bool TryUpdateGroupPriorities(ControlledOperation current)
+        // {
+        //     if (current.Group.Any(m => m.Status is OperationStatus.Enabled))
+        //     {
+        //         if (this.RandomValueGenerator.Next(10) is 0)
+        //         {
+        //             this.DisabledGroups.Clear();
+        //             this.DisabledGroups.Add(current.Group);
+        //             Console.WriteLine($">>> [DISABLE] group {current.Group} is disabled.");
+        //             return true;
+        //         }
+        //     }
+
+        //     return false;
+        // }
+
         /// <summary>
         /// Deprioritizes the group with the highest priority that contains at least
         /// one enabled operation, if there is a priority change point installed on
         /// the current execution step.
         /// </summary>
-        private void ChangePriorities(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
+        private bool TryChangeGroupPriorities(List<ControlledOperation> ops, ControlledOperation current)
         {
-            if (ops.Count <= 1)
+            if (ops.Count > 1)
             {
-                // Nothing to do, there is only one enabled group available.
-                return;
+                OperationGroup group = null;
+                // this.GetPrioritizedOperationGroup(ops, out group);
+                // if (group == current.Group && current.Group.IsDisabledNext)
+                if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
+                {
+                    group = current.Group;
+                    group.IsDisabled = true;
+                    this.ChangeCount.Add(this.PriorityChangePointsCount);
+                    Console.WriteLine($">>> [DISABLE] group {group} is disabled.");
+                    Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) is deprioritized.", group, group.Msg);
+                }
+                else
+                {
+                    group = null;
+                }
+
+                // if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
+                // {
+                //     this.GetPrioritizedOperationGroup(ops, out group);
+                //     this.ChangeCount.Add(this.PriorityChangePointsCount);
+                //     Console.WriteLine($">>> [DISABLE] group {group} is disabled.");
+                //     Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) is deprioritized.", group, group.Msg);
+                // }
+
+                this.PriorityChangePointsCount++;
+                if (group != null)
+                {
+                    // Deprioritize the group by putting it in the end of the list.
+                    this.PrioritizedGroups.Remove(group);
+                    this.PrioritizedGroups.Add(group);
+                    return true;
+                }
             }
 
-            OperationGroup group = null;
-            if (this.PriorityChangePoints.Contains(this.StepCount))
-            {
-                // This scheduling step was chosen as a priority switch point.
-                this.GetPrioritizedOperationGroup(ops, out group);
-                Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) is deprioritized.", group, group.Msg);
-            }
-            else if (isYielding)
-            {
-                // The current group is yielding its execution to the next prioritized group.
-                group = current.Group;
-                Debug.WriteLine("<PriorityLog> operation group '{0}' ({1}) yields its priority.", group, group.Msg);
-            }
-
-            if (group != null)
-            {
-                // Deprioritize the group by putting it in the end of the list.
-                this.PrioritizedGroups.Remove(group);
-                this.PrioritizedGroups.Add(group);
-            }
+            return false;
         }
 
         /// <inheritdoc/>
@@ -375,8 +443,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.ScheduleLength = 0;
             this.StepCount = 0;
+            this.PriorityChangePointsCount = 0;
             this.PrioritizedGroups.Clear();
             this.PriorityChangePoints.Clear();
         }
@@ -414,7 +482,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Sort them before printing for readability.
                 var sortedChangePoints = this.PriorityChangePoints.ToArray();
                 Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<PriorityLog> next priority change points ('{0}' in total): {1}",
+                Debug.WriteLine("<PriorityLog> priority change points ('{0}' in total): {1}",
                     sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
             }
         }

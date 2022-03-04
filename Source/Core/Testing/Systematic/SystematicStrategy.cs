@@ -30,6 +30,10 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         protected int Phase = 0;
 
+        internal List<int> MustChangeCount = new List<int>();
+
+        internal List<int> ChangeCount = new List<int>();
+
         /// <summary>
         /// Creates a <see cref="SystematicStrategy"/> from the specified configuration.
         /// </summary>
@@ -206,6 +210,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal void MoveNextPhase(int phase)
         {
             System.Console.WriteLine($">>> Moved to phase '{this.Phase}'.");
+            Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase = Math.Max(
+                this.Phase, Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase);
             if (this.Groups.TryGetValue(this.Phase, out var groupMap))
             {
                 foreach (var kvp in groupMap)

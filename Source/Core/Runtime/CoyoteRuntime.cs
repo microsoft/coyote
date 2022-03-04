@@ -32,6 +32,16 @@ namespace Microsoft.Coyote.Runtime
         /// VisitedSchedules.
         /// </summary>
         public static int NumVisitedSchedules { get; internal set; } = 0;
+
+        /// <summary>
+        /// AvgMustChangeCount.
+        /// </summary>
+        public static int MaxMustChangeCount { get; internal set; } = 0;
+
+        /// <summary>
+        /// MaxPhase.
+        /// </summary>
+        public static int MaxPhase { get; internal set; } = 0;
     }
 
     /// <summary>

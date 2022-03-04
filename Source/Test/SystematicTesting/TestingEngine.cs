@@ -439,6 +439,21 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     // Invokes the user-specified test disposal method.
                     this.TestMethodInfo.DisposeAllIterations();
+                    if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy ss)
+                    {
+                        RuntimeStats.MaxMustChangeCount = ss.MustChangeCount.Max();
+                        this.Logger.WriteLine($"MaxMustChangeCount: {Microsoft.Coyote.Runtime.RuntimeStats.MaxMustChangeCount}");
+
+                        this.Logger.Write($"Last changes:");
+                        foreach (var change in ss.ChangeCount)
+                        {
+                            this.Logger.Write($" {change}");
+                        }
+
+                        this.Logger.WriteLine(string.Empty);
+                        ss.ChangeCount.Clear();
+                        this.Logger.WriteLine($"Max phase: {Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -472,9 +487,24 @@ namespace Microsoft.Coyote.SystematicTesting
                 return false;
             }
 
-            if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
+            // if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
             {
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
+                if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy ss)
+                {
+                    RuntimeStats.MaxMustChangeCount = ss.MustChangeCount.Max();
+                    this.Logger.WriteLine($"MaxMustChangeCount: {Microsoft.Coyote.Runtime.RuntimeStats.MaxMustChangeCount}");
+
+                    this.Logger.Write($"Last changes:");
+                    foreach (var change in ss.ChangeCount)
+                    {
+                        this.Logger.Write($" {change}");
+                    }
+
+                    this.Logger.WriteLine(string.Empty);
+                    ss.ChangeCount.Clear();
+                    this.Logger.WriteLine($"Max phase: {Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase}");
+                }
 
                 // Flush when logging to console.
                 if (this.Logger is ConsoleLogger)

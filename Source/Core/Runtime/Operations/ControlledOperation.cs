@@ -44,6 +44,21 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPointType LastSchedulingPoint;
 
         /// <summary>
+        /// A value that represents the hashed program state when this operation last executed.
+        /// </summary>
+        internal int LastHashedProgramState;
+
+        /// <summary>
+        /// A value that represents the state being accessed when this operation last executed.
+        /// </summary>
+        internal string LastAccessedState;
+
+        /// <summary>
+        /// True if this is a read-only operation that cannot modify shared state, else false.
+        /// </summary>
+        internal readonly bool IsReadOnly;
+
+        /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
@@ -52,12 +67,6 @@ namespace Microsoft.Coyote.Runtime
         /// True if at least one of the dependencies is uncontrolled, else false.
         /// </summary>
         internal bool IsAnyDependencyUncontrolled;
-
-        /// <summary>
-        /// A value that represents the hashed program state when
-        /// this operation last executed.
-        /// </summary>
-        internal int HashedProgramState;
 
         internal string Connector;
 
@@ -80,7 +89,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null, bool isReadOnly = true)
         {
             this.Id = operationId;
             this.Name = name;
@@ -88,6 +97,10 @@ namespace Microsoft.Coyote.Runtime
             this.Group = group ?? OperationGroup.Create(this);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
+            this.LastHashedProgramState = 0;
+            this.LastAccessedState = string.Empty;
+            // TODO: set by default to false, unless the HTTP abstraction is set.
+            this.IsReadOnly = isReadOnly;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
 

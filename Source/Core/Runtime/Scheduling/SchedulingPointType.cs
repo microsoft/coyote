@@ -39,6 +39,16 @@ namespace Microsoft.Coyote.Runtime
         Yield,
 
         /// <summary>
+        /// A controlled operation is reading shared state.
+        /// </summary>
+        Read,
+
+        /// <summary>
+        /// A controlled operation is writing shared state.
+        /// </summary>
+        Write,
+
+        /// <summary>
         /// A controlled operation is blocked until one or more dependencies are satisfied.
         /// </summary>
         Wait,

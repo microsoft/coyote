@@ -42,9 +42,14 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<ControlledOperation> Members;
 
         /// <summary>
-        /// True if this group consists of write operations, else false.
+        /// The resource accessed by this operation group, if there is any.
         /// </summary>
-        internal bool IsWriting => this.Owner is HttpOperation httpOwner && httpOwner.IsWriting;
+        internal string Resource => this.Owner is HttpOperation httpOwner ? httpOwner.Path : string.Empty;
+
+        /// <summary>
+        /// True if this group only consists of 'READ' operations, else false.
+        /// </summary>
+        internal bool IsReadOnly => this.Owner.IsReadOnly;
 
         internal bool IsDisabled;
 
@@ -64,7 +69,7 @@ namespace Microsoft.Coyote.Runtime
             this.Members = new HashSet<ControlledOperation>();
             this.IsDisabled = false;
             this.IsDisabledNext = false;
-            Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {!this.IsWriting})");
+            Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {this.IsReadOnly})");
         }
 
         /// <summary>

@@ -21,20 +21,13 @@ namespace Microsoft.Coyote.Web
         internal readonly string Path;
 
         /// <summary>
-        /// True if this is operation can modify shared state, else false.
-        /// </summary>
-        internal readonly bool IsWriting;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
         private HttpOperation(ulong operationId, HttpMethod method, string path, OperationGroup group)
-            : base(operationId, $"{method}({operationId})", group)
+            : base(operationId, $"{method}({operationId})", group, IsMethodReadOnly(method))
         {
             this.Method = method;
             this.Path = path;
-            this.IsWriting = method is HttpMethod.Post || method is HttpMethod.Put ||
-                method is HttpMethod.Delete || method is HttpMethod.Patch;
         }
 
         /// <summary>
@@ -71,5 +64,13 @@ namespace Microsoft.Coyote.Web
 
             return op;
         }
+
+        /// <summary>
+        /// Returns true if this HTTP method is read-only and cannot modify
+        /// shared state, else false.
+        /// </summary>
+        private static bool IsMethodReadOnly(HttpMethod method) =>
+            method is HttpMethod.Get || method is HttpMethod.Head || method is HttpMethod.Connect ||
+            method is HttpMethod.Options || method is HttpMethod.Trace;
     }
 }

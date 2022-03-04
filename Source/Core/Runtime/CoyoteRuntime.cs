@@ -883,7 +883,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    current.HashedProgramState = this.GetHashedProgramState();
+                    current.LastHashedProgramState = this.GetHashedProgramState();
                 }
 
                 // Try to enable any operations with satisfied dependencies before asking the
@@ -1106,7 +1106,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                    this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                 }
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
@@ -1142,7 +1142,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.GetHashedProgramState();
+                    this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                 }
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))

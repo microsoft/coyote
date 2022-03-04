@@ -164,19 +164,20 @@ namespace Microsoft.Coyote.Testing.Systematic
                 return false;
             }
 
-            // Find all operations that are not explicitly interleaving.
-            var nonInterleavingOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Interleave).ToList();
+            // Find all operations that are not explicitly reading or writing shared state.
+            var nonInterleavingOps = result.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
+                op.LastSchedulingPoint != SchedulingPointType.Write).ToList();
             if (nonInterleavingOps.Count is 0)
             {
                 // All operations are explicitly interleaving.
                 Console.WriteLine($">>> [FILTER] {result.Count} operations are all interleaving.");
                 foreach (var op in result)
                 {
-                    System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
+                    System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group} | msg: {op.Group.Msg})");
                 }
 
                 var interleavingGroups = result.Select(op => op.Group).Distinct();
-                if (interleavingGroups.Any(group => group.IsWriting))
+                if (interleavingGroups.Any(group => !group.IsReadOnly))
                 {
                     Console.WriteLine($">>>>>> Write operation exists.");
                     Console.WriteLine($">>>>>> Must change priority.");
@@ -339,9 +340,9 @@ namespace Microsoft.Coyote.Testing.Systematic
             if (ops.Count > 1)
             {
                 OperationGroup group = null;
-                // this.GetPrioritizedOperationGroup(ops, out group);
-                // if (group == current.Group && current.Group.IsDisabledNext)
-                if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
+                this.GetPrioritizedOperationGroup(ops, out group);
+                // if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
+                if (group == current.Group && current.Group.IsDisabledNext)
                 {
                     group = current.Group;
                     group.IsDisabled = true;

@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private int CaptureExecutionStep(ControlledOperation current)
         {
-            int state = current.HashedProgramState;
+            int state = current.LastHashedProgramState;
 
             // Update the execution path with the current state.
             this.ExecutionPath.AddLast((this.LastOperation, current.LastSchedulingPoint, state));

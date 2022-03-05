@@ -17,6 +17,11 @@ namespace Microsoft.Coyote.Runtime
         internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
+        /// The operation scheduling policy used by the runtime.
+        /// </summary>
+        internal SchedulingPolicy SchedulingPolicy => this.Runtime?.SchedulingPolicy ?? SchedulingPolicy.None;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ControlledSynchronizationContext"/> class.
         /// </summary>
         internal ControlledSynchronizationContext(CoyoteRuntime runtime)

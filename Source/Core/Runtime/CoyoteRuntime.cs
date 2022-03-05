@@ -563,19 +563,6 @@ namespace Microsoft.Coyote.Runtime
             thread.Start();
 
             this.WaitOperationStart(op);
-            // if (this.Configuration.IsOperationChainRunToCompletion &&
-            //     this.SchedulingPolicy is SchedulingPolicy.Systematic)
-            // {
-            //     var currentOp = ExecutingOperation.Value;
-            //     if (currentOp != null)
-            //     {
-            //         IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is waiting for its continuation '{1}'.",
-            //             currentOp.Name, op.Name);
-            //         currentOp.SetDependency(op, true);
-            //         currentOp.Status = OperationStatus.BlockedOnContinuation;
-            //     }
-            // }
-
             this.ScheduleNextOperation(SchedulingPointType.ContinueWith);
         }
 
@@ -1337,10 +1324,7 @@ namespace Microsoft.Coyote.Runtime
             if ((op.Status is OperationStatus.BlockedOnWaitAll &&
                 op.Dependencies.All(dependency => dependency is Task task && task.IsCompleted)) ||
                 (op.Status is OperationStatus.BlockedOnWaitAny &&
-                op.Dependencies.Any(dependency => dependency is Task task && task.IsCompleted)) ||
-                (op.Status is OperationStatus.BlockedOnContinuation &&
-                op.Dependencies.All(dependency => dependency is ControlledOperation continuation &&
-                continuation.Status is OperationStatus.Completed)))
+                op.Dependencies.Any(dependency => dependency is Task task && task.IsCompleted)))
             {
                 op.Unblock();
                 return true;
@@ -1634,7 +1618,7 @@ namespace Microsoft.Coyote.Runtime
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is OperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is OperationStatus.BlockedOnWaitAll ||
-                op.Status is OperationStatus.BlockedOnWaitAny || op.Status is OperationStatus.BlockedOnContinuation).ToList();
+                op.Status is OperationStatus.BlockedOnWaitAny).ToList();
             var blockedOnResources = ops.Where(op => op.Status is OperationStatus.BlockedOnResource).ToList();
 
             var totalCount = blockedOnReceiveOperations.Count + blockedOnWaitOperations.Count + blockedOnResources.Count;

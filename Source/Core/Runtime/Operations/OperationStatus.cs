@@ -29,11 +29,6 @@ namespace Microsoft.Coyote.Runtime
         BlockedOnWaitAny,
 
         /// <summary>
-        /// The operation is waiting for its continuation to complete.
-        /// </summary>
-        BlockedOnContinuation,
-
-        /// <summary>
         /// The operation is waiting to receive an event.
         /// </summary>
         BlockedOnReceive,

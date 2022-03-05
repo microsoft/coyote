@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default scheduling point.
         /// </summary>
-        Default,
+        Default = 0,
 
         /// <summary>
         /// A controlled operation started executing.

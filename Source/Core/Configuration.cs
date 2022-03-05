@@ -102,13 +102,6 @@ namespace Microsoft.Coyote
         internal bool IsConcurrencyFuzzingFallbackEnabled;
 
         /// <summary>
-        /// If true, the scheduler will attempt to run each operation chain to completion, unless
-        /// explicit scheduling points have been set.
-        /// </summary>
-        [DataMember]
-        internal bool IsOperationChainRunToCompletion;
-
-        /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -374,7 +367,6 @@ namespace Microsoft.Coyote
             this.IsPartiallyControlledConcurrencyEnabled = true;
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
-            this.IsOperationChainRunToCompletion = true;
             this.IsLivenessCheckingEnabled = true;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;

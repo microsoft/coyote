@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Interleave);
+                runtime.ScheduleNextOperation(SchedulingPointType.Default);
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {

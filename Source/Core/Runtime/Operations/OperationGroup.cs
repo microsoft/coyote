@@ -51,14 +51,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool IsReadOnly => this.Owner.IsReadOnly;
 
-        internal bool IsDisabled;
-
-        internal bool IsDisabledNext;
-
-        internal string Msg;
-
-        internal Guid RootId;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
@@ -67,8 +59,6 @@ namespace Microsoft.Coyote.Runtime
             this.Id = Guid.NewGuid();
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
-            this.IsDisabled = false;
-            this.IsDisabledNext = false;
             Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {this.IsReadOnly})");
         }
 
@@ -83,7 +73,7 @@ namespace Microsoft.Coyote.Runtime
         internal void RegisterMember(ControlledOperation member)
         {
             // => this.Members.Add(member);
-            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name} ({this.Msg})");
+            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name}");
             this.Members.Add(member);
         }
 
@@ -117,7 +107,6 @@ namespace Microsoft.Coyote.Runtime
         {
             if (group != null)
             {
-                Console.WriteLine($"--------> SetCurrent from thread '{Thread.CurrentThread.ManagedThreadId}' for group {group.Id} ({group.Owner.Name})");
                 AsyncLocalGroup.Value = group;
             }
         }

@@ -24,16 +24,6 @@ namespace Microsoft.Coyote.Runtime
     public static class RuntimeStats
     {
         /// <summary>
-        /// NumOnlyDisabledOperations.
-        /// </summary>
-        public static int NumOnlyDisabledOperations { get; internal set; } = 0;
-
-        /// <summary>
-        /// VisitedSchedules.
-        /// </summary>
-        public static int NumVisitedSchedules { get; internal set; } = 0;
-
-        /// <summary>
         /// AvgMustChangeCount.
         /// </summary>
         public static int MaxMustChangeCount { get; internal set; } = 0;
@@ -460,7 +450,7 @@ namespace Microsoft.Coyote.Runtime
                 op.IsSourceUncontrolled = true;
             }
 
-            Console.WriteLine($"--------> Register '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Msg})");
+            Console.WriteLine($"--------> Register '{op}' with group {op.Group} and owner {op.Group.Owner.Name}");
             return op;
         }
 
@@ -902,7 +892,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}' (group: {1}, msg: {2}).", next.Name, next.Group, next.Group.Msg);
+                IO.Debug.WriteLine("<CoyoteDebug> Scheduling operation '{0}' (group: {1}).", next.Name, next.Group);
                 if (current != next)
                 {
                     // Pause the currently scheduled operation, and enable the next one.
@@ -938,83 +928,6 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal void EnableOps(string connector)
-        {
-            lock (this.SyncObject)
-            {
-                IO.Debug.WriteLine($"=========== ENABLE OPS ===========");
-                IO.Debug.WriteLine($"--- Connector: {connector}");
-                foreach (var group in this.OperationGroups.Where(group => group.IsDisabled))
-                {
-                    if (group.Any(op => op.Connector.Equals(connector)))
-                    {
-                        IO.Debug.WriteLine($"--- Enabling group: {group} - o {group.Owner} ({group.Msg}))");
-                        group.IsDisabled = false;
-                        foreach (var member in group.Where(op => op.Status != OperationStatus.Completed))
-                        {
-                            IO.Debug.WriteLine($"--- Enabling member op: {member.Name} ({member.Group})");
-                            IO.Debug.WriteLine($" |_ Status: {member.Status}");
-                            IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
-                            IO.Debug.WriteLine($" |_ Msg: {member.Group.Msg}");
-                        }
-                    }
-                }
-
-                IO.Debug.WriteLine($"==================================");
-                IO.Debug.WriteLine($"--- Remaining disabled ops:");
-                foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
-                {
-                    IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
-                    IO.Debug.WriteLine($" |_ Status: {op.Status}");
-                    IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
-                    IO.Debug.WriteLine($" |_ Msg: {op.Group.Msg}");
-                    IO.Debug.WriteLine($" |_ Group: {op.Group}");
-                }
-
-                IO.Debug.WriteLine($"======== DONE ENABLE OPS =========");
-            }
-        }
-
-        internal void DisableCurrentOp()
-        {
-            lock (this.SyncObject)
-            {
-                IO.Debug.WriteLine($"========== DISABLE OPS ===========");
-                IO.Debug.WriteLine($"--- Already disabled ops:");
-                foreach (var op in this.OperationMap.Values.Where(op => op.Group.IsDisabled))
-                {
-                    IO.Debug.WriteLine($"--- Disabled op: {op.Name}");
-                    IO.Debug.WriteLine($" |_ Status: {op.Status}");
-                    IO.Debug.WriteLine($" |_ Connector: {op.Connector}");
-                    IO.Debug.WriteLine($" |_ Msg: {op.Group.Msg}");
-                    IO.Debug.WriteLine($" |_ Group: {op.Group}");
-                }
-
-                IO.Debug.WriteLine($"==================================");
-                var currentOp = ExecutingOperation.Value;
-                if (currentOp != null && currentOp.Status is OperationStatus.Enabled && !currentOp.Group.IsDisabled)
-                {
-                    IO.Debug.WriteLine($"--- Current op: {currentOp} - c {currentOp.Connector}");
-                    IO.Debug.WriteLine($"--- Disabling group: {currentOp.Group} - o {currentOp.Group.Owner} ({currentOp.Group.Msg}))");
-                    currentOp.Group.IsDisabledNext = true;
-                    foreach (var member in currentOp.Group.Where(op => op.Status != OperationStatus.Completed))
-                    {
-                        IO.Debug.WriteLine($"--- Disabling op: {member.Name} ({member.Group})");
-                        IO.Debug.WriteLine($" |_ Status: {member.Status}");
-                        IO.Debug.WriteLine($" |_ Connector: {member.Connector}");
-                        IO.Debug.WriteLine($" |_ Msg: {member.Group.Msg}");
-                    }
-
-                    if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
-                    {
-                        strategy.Disable(currentOp, this.OperationGroups);
-                    }
-                }
-
-                IO.Debug.WriteLine($"======== DONE DISABLE OPS ========");
-            }
-        }
-
         internal void MoveNextPhase(int phase)
         {
             lock (this.SyncObject)
@@ -1023,26 +936,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     strategy.MoveNextPhase(phase);
                 }
-            }
-        }
-
-        internal void SetDebugInfo(string connector)
-        {
-            lock (this.SyncObject)
-            {
-                var currentOp = ExecutingOperation.Value;
-                if (currentOp != null)
-                {
-                    currentOp.Connector = connector;
-                }
-            }
-        }
-
-        internal void Fail()
-        {
-            lock (this.SyncObject)
-            {
-                this.Detach(SchedulerDetachmentReason.BoundReached);
             }
         }
 
@@ -1395,20 +1288,6 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 break;
-            }
-
-            uint y = 0;
-            foreach (var x in this.OperationMap.Values)
-            {
-                if (x.Status is OperationStatus.Enabled && x.Group.IsDisabled)
-                {
-                    y++;
-                }
-            }
-
-            if (enabledOpsCount == y)
-            {
-                RuntimeStats.NumOnlyDisabledOperations++;
             }
 
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
@@ -1834,13 +1713,10 @@ namespace Microsoft.Coyote.Runtime
             foreach (var op in ops)
             {
                 if (op.Status != OperationStatus.None &&
-                    (op.Status != OperationStatus.Enabled || op.Group.IsDisabled) &&
+                    op.Status != OperationStatus.Enabled &&
                     op.Status != OperationStatus.Completed)
                 {
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
-                    msg.AppendFormat("          |_ is-disabled '{0}'.\n", op.Group.IsDisabled);
-                    msg.AppendFormat("          |_ connector '{0}'.\n", op.Connector);
-                    msg.AppendFormat("          |_ msg '{0}'.\n", op.Group.Msg);
                     msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
                     msg.AppendFormat("          |_ owner '{0}'.\n", op.Group.Owner);
                     if (op.IsSourceUncontrolled)

@@ -100,30 +100,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Enable a previously disabled operation.
-        /// </summary>
-        public static void Enable(string msg)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.EnableOps(msg);
-            }
-        }
-
-        /// <summary>
-        /// Disabled the current operation with the specified message.
-        /// </summary>
-        public static void Disable()
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.DisableCurrentOp();
-            }
-        }
-
-        /// <summary>
         /// Move to the next phase (for debugging).
         /// </summary>
         public static void NextPhase(int phase)
@@ -132,30 +108,6 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 runtime.MoveNextPhase(phase);
-            }
-        }
-
-        /// <summary>
-        /// Prints debug information and optionally fails.
-        /// </summary>
-        public static void SetDebugInfo(string msg)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.SetDebugInfo(msg);
-            }
-        }
-
-        /// <summary>
-        /// Fails.
-        /// </summary>
-        public static void Fail()
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.Fail();
             }
         }
     }

@@ -68,10 +68,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool IsAnyDependencyUncontrolled;
 
-        internal string Connector;
-
-        internal string StackTrace;
-
         /// <summary>
         /// True if this is the root operation, else false.
         /// </summary>
@@ -103,9 +99,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsReadOnly = isReadOnly;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
-
-            this.Connector = string.Empty;
-            this.StackTrace = new System.Diagnostics.StackTrace().ToString();
 
             // Assign this operation as a member of this group.
             this.Group.RegisterMember(this);

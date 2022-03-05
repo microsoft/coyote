@@ -42,20 +42,7 @@ namespace Microsoft.Coyote.Web
 
             ulong operationId = runtime.GetNextOperationId();
             var op = new HttpOperation(operationId, method, path, group);
-            if (op == op.Group.Owner)
-            {
-                op.Group.Msg = $"({method} {path})";
-                if (source?.Group.Owner is HttpOperation httpSource2)
-                {
-                    op.Group.RootId = httpSource2.Group.RootId;
-                }
-                else
-                {
-                    op.Group.RootId = op.Group.Id;
-                }
-            }
-
-            System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name} ({op.Group.Msg} | {op.Group.RootId})");
+            System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name}");
             runtime.RegisterOperation(op);
             if (runtime.GetExecutingOperation() is null)
             {

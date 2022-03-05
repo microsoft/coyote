@@ -18,13 +18,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         protected int StepCount;
 
-        protected HashSet<string> KnownSchedules;
-
         protected string CurrentSchedule;
 
-        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, string debug, int phase, string filter)> Path;
-
-        protected Dictionary<string, string> OperationDebugInfo;
+        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, int phase, string filter)> Path;
 
         protected Dictionary<int, Dictionary<OperationGroup, (bool scheduled, bool disabled, bool completed)>> Groups;
 
@@ -123,14 +119,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             IEnumerable<ControlledOperation> ops, string filter)
         {
             var group = op.Group;
-            string msg = group.Msg;
-            if (!string.IsNullOrEmpty(msg) && !this.OperationDebugInfo.TryGetValue(group.Msg ?? string.Empty, out msg))
-            {
-                msg = group.Msg;
-                msg = $"REQ{this.OperationDebugInfo.Count} ({msg})";
-                this.OperationDebugInfo.Add(group.Msg, msg);
-            }
-
             if (!this.Groups.TryGetValue(this.Phase, out var groupMap))
             {
                 groupMap = new Dictionary<OperationGroup, (bool, bool, bool)>();
@@ -139,8 +127,8 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             groupMap[group] = (true, false, false);
 
-            var count = ops.Count(op => op.Status is OperationStatus.Enabled && !group.IsDisabled);
-            this.Path.Add((op.Name, count, spType, group, msg, this.Phase, filter));
+            var count = ops.Count(op => op.Status is OperationStatus.Enabled);
+            this.Path.Add((op.Name, count, spType, group, this.Phase, filter));
         }
 
         internal void PrintSchedule()
@@ -163,11 +151,11 @@ namespace Microsoft.Coyote.Testing.Systematic
                             {
                                 if (kvp.Value.completed)
                                 {
-                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner} | {kvp.Key.RootId}) - COMPLETED!");
+                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner} - COMPLETED!");
                                 }
                                 else
                                 {
-                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner} | {kvp.Key.RootId})");
+                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner}");
                                 }
                             }
                         }
@@ -178,7 +166,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                             sb.AppendLine($"{gd.Count} disabled groups:");
                             foreach (var g in gd)
                             {
-                                sb.AppendLine($"  |_ {g}({g.Owner} | {g.RootId})");
+                                sb.AppendLine($"  |_ {g}({g.Owner}");
                             }
                         }
 
@@ -195,16 +183,12 @@ namespace Microsoft.Coyote.Testing.Systematic
                 }
 
                 string group = step.group is null ? string.Empty : $" - GRP[{step.group}({step.group.Owner})]";
-                string debug = string.IsNullOrEmpty(step.debug) ? string.Empty : $" - DBG[{step.debug}]";
                 string filter = string.IsNullOrEmpty(step.filter) ? string.Empty : $" - {step.filter}";
-                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{debug}{filter}");
+                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{filter}");
             }
 
             this.CurrentSchedule = sb.ToString();
             System.Console.WriteLine($">>> Schedule so far: {this.CurrentSchedule}");
-            this.KnownSchedules.Add(this.CurrentSchedule);
-            RuntimeStats.NumVisitedSchedules = this.KnownSchedules.Count;
-            System.Console.WriteLine($">>> Visited '{this.KnownSchedules.Count}' schedules so far.");
         }
 
         protected virtual void Callback()
@@ -230,27 +214,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             {
                 this.Groups.Add(this.Phase, new Dictionary<OperationGroup, (bool, bool, bool)>());
             }
-        }
-
-        internal void Disable(ControlledOperation current, HashSet<OperationGroup> groups)
-        {
-            System.Console.WriteLine($">>> Disabling '{current.Name}' (g: {current.Group}, {current.Group.Msg}) at step '{this.StepCount}'.");
-            if (this.Groups.TryGetValue(this.Phase - 1, out var groupMap))
-            {
-                foreach (var group in groups.Where(g => g.IsDisabled))
-                {
-                    if (groupMap.TryGetValue(group, out var status))
-                    {
-                        groupMap[group] = (status.scheduled, true, status.completed);
-                    }
-                    else
-                    {
-                        groupMap.Add(group, (false, true, false));
-                    }
-                }
-            }
-
-            this.Callback();
         }
     }
 }

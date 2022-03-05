@@ -406,11 +406,11 @@ namespace Microsoft.Coyote.Testing.Systematic
                     var group = this.PrioritizedGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
-                        Debug.WriteLine("  |_ '{0}' ({1}) [enabled]", group);
+                        Debug.WriteLine("  |_ '{0}' [enabled]", group);
                     }
                     else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
-                        Debug.WriteLine("  |_ '{0}' ({1})", group);
+                        Debug.WriteLine("  |_ '{0}'", group);
                     }
                 }
             }

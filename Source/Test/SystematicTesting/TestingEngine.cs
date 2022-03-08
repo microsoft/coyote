@@ -567,7 +567,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     runtime.Logger = runtimeLogger;
 
-                    var writer = TextWriter.Null;
+                    // var writer = TextWriter.Null;
+                    var writer = runtimeLogger.TextWriter;
                     Console.SetOut(writer);
                     Console.SetError(writer);
                 }
@@ -600,7 +601,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.GatherTestingStatistics(runtime);
 
-                if (!this.Scheduler.IsReplayingSchedule && this.TestReport.NumOfFoundBugs > 0)
+                // if (!this.Scheduler.IsReplayingSchedule && this.TestReport.NumOfFoundBugs > 0)
+                if (runtime.IsBugFound)
                 {
                     if (runtimeLogger != null)
                     {
@@ -628,6 +630,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Restores the standard output and error streams.
                     Console.SetOut(stdOut);
                     Console.SetError(stdErr);
+                }
+
+                if (runtime.IsBugFound)
+                {
+                    var location = Assembly.GetEntryAssembly().Location;
+                    var dir = Path.GetDirectoryName(location);
+                    string readableTracePath = Path.Combine(dir, "test" + "_" + Guid.NewGuid() + ".txt");
+                    this.Logger.WriteLine($">>> Emitting logs at: {readableTracePath}");
+                    File.WriteAllText(readableTracePath, this.ReadableTrace);
                 }
 
                 if (runtime.IsUncontrolledConcurrencyDetected)

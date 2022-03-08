@@ -1178,7 +1178,7 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is completed with uncontrolled source.", current.Id);
             }
 
-            int retries = 0;
+            int attempt = 0;
             uint enabledOpsCount = 0;
             uint accumulatedDelay = 0;
             while (true)
@@ -1240,7 +1240,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // Compute the delta of enabled operations from the previous attempt.
-                    uint enabledOpsDelta = retries is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
+                    uint enabledOpsDelta = attempt is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
 
                     // This value is true if the current operation just completed and has uncontrolled source.
                     bool isSourceUnresolved = current.Status is OperationStatus.Completed && current.IsSourceUncontrolled;
@@ -1258,9 +1258,9 @@ namespace Microsoft.Coyote.Runtime
                     bool isConcurrencyUnresolved = enabledOpsDelta is 0 && statusChanges is 0 &&
                         (isNoEnabledOpsCaseResolved || isSomeEnabledOpsCaseResolved);
 
-                    // Retry if there is unresolved concurrency and any retries left, or if there are no enabled
+                    // Retry if there is unresolved concurrency and any attempts left, or if there are no enabled
                     // operations and the accumulated delay is less than the specified deadlock timeout limit.
-                    if ((++retries < 5 && isConcurrencyUnresolved) ||
+                    if ((++attempt < 5 && isConcurrencyUnresolved) ||
                         (enabledOpsCount is 0 && accumulatedDelay < this.Configuration.DeadlockTimeout))
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
@@ -1352,9 +1352,9 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine(
                         "<CoyoteDebug> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                         Thread.CurrentThread.ManagedThreadId);
-                    int retries = 0;
+                    int attempt = 0;
                     int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
-                    while (retries++ < 10 && !task.IsCompleted)
+                    while (attempt++ < 10 && !task.IsCompleted)
                     {
                         SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.LastPostponedSchedulingPoint.HasValue)
@@ -1696,9 +1696,9 @@ namespace Microsoft.Coyote.Runtime
 
             foreach (var op in ops)
             {
-                if (op.Status != OperationStatus.None &&
-                    op.Status != OperationStatus.Enabled &&
-                    op.Status != OperationStatus.Completed)
+                // if (op.Status != OperationStatus.None &&
+                //     op.Status != OperationStatus.Enabled &&
+                //     op.Status != OperationStatus.Completed)
                 {
                     msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
                     msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
@@ -2112,11 +2112,6 @@ namespace Microsoft.Coyote.Runtime
             if (!this.IsAttached)
             {
                 return;
-            }
-
-            if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
-            {
-                strategy.PrintSchedule();
             }
 
             try

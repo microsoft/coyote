@@ -114,6 +114,11 @@ namespace Microsoft.Coyote.SystematicTesting
             arguments.Append($"--deadlock-timeout {configuration.DeadlockTimeout} ");
             arguments.Append($"--uncontrolled-concurrency-timeout {configuration.UncontrolledConcurrencyTimeout} ");
 
+            if (!configuration.ReportDeadlocksAsBugs)
+            {
+                arguments.Append("--skip-deadlocks ");
+            }
+
             if (configuration.ReportCodeCoverage && configuration.IsActivityCoverageReported)
             {
                 arguments.Append("--coverage ");

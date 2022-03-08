@@ -146,11 +146,11 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            this.ProcessSchedule(current.LastSchedulingPoint, next, ops,
-                next.Id == current.Id ? "FORCED[CUR]" :
-                next.Group == current.Group ? "FORCED[GRP]" :
-                string.Empty);
-            this.PrintSchedule();
+            // this.ProcessSchedule(current.LastSchedulingPoint, next, ops,
+            //     next.Id == current.Id ? "FORCED[CUR]" :
+            //     next.Group == current.Group ? "FORCED[GRP]" :
+            //     string.Empty);
+            // this.PrintSchedule();
             this.StepCount++;
             return true;
         }

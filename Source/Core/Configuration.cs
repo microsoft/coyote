@@ -163,6 +163,13 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
+        /// If this option is enabled then report any found deadlocks as bugs, else skip the
+        /// corresponding test iterations.
+        /// </summary>
+        [DataMember]
+        internal bool ReportDeadlocksAsBugs;
+
+        /// <summary>
         /// Value that controls how much time the runtime should wait for uncontrolled concurrency
         /// to resolve before continuing exploration. This value is in milliseconds.
         /// </summary>
@@ -382,6 +389,7 @@ namespace Microsoft.Coyote
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 2500;
+            this.ReportDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyTimeout = 1;
             this.SafetyPrefixBound = 0;
             this.LivenessTemperatureThreshold = 50000;
@@ -629,6 +637,16 @@ namespace Microsoft.Coyote
         public Configuration WithDeadlockTimeout(uint timeout)
         {
             this.DeadlockTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls if deadlocks should be reported as bugs.
+        /// </summary>
+        /// <param name="reportedAsBugs">If true, then deadlocks are reported as bugs.</param>
+        public Configuration WithDeadlocksReportedAsBugs(bool reportedAsBugs = true)
+        {
+            this.ReportDeadlocksAsBugs = reportedAsBugs;
             return this;
         }
 

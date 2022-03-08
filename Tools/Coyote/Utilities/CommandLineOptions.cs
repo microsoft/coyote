@@ -47,6 +47,7 @@ namespace Microsoft.Coyote.Utilities
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
+            testingGroup.AddArgument("skip-deadlocks", null, "Do not report deadlocks as bugs and skip failing iterations", typeof(bool));
             testingGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during testing", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
@@ -426,6 +427,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "deadlock-timeout":
                     configuration.DeadlockTimeout = (uint)option.Value;
+                    break;
+                case "skip-deadlocks":
+                    configuration.ReportDeadlocksAsBugs = false;
                     break;
                 case "uncontrolled-concurrency-timeout":
                     configuration.UncontrolledConcurrencyTimeout = (uint)option.Value;

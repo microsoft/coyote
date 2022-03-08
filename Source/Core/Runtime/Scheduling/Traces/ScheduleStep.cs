@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.Testing
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Class implementing a program schedule step.

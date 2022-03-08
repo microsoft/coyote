@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Represents an operation that can be controlled during testing.
     /// </summary>
-    internal class ControlledOperation : IEquatable<ControlledOperation>
+    internal class ControlledOperation : IEquatable<ControlledOperation>, IDisposable
     {
         /// <summary>
         /// The unique id of the operation.
@@ -28,14 +28,19 @@ namespace Microsoft.Coyote.Runtime
         internal OperationStatus Status;
 
         /// <summary>
-        /// The type of the last encountered scheduling point.
-        /// </summary>
-        internal SchedulingPointType SchedulingPoint;
-
-        /// <summary>
         /// Set of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
         internal readonly HashSet<object> Dependencies;
+
+        /// <summary>
+        /// The type of the last encountered scheduling point.
+        /// </summary>
+        internal SchedulingPointType LastSchedulingPoint;
+
+        /// <summary>
+        /// A value that represents the hashed program state when this operation last executed.
+        /// </summary>
+        internal int LastHashedProgramState;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -48,12 +53,6 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsAnyDependencyUncontrolled;
 
         /// <summary>
-        /// A value that represents the hashed program state when
-        /// this operation last executed.
-        /// </summary>
-        internal int HashedProgramState;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
         internal ControlledOperation(ulong operationId, string name)
@@ -61,8 +60,9 @@ namespace Microsoft.Coyote.Runtime
             this.Id = operationId;
             this.Name = name;
             this.Status = OperationStatus.None;
-            this.SchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
+            this.LastSchedulingPoint = SchedulingPointType.Start;
+            this.LastHashedProgramState = 0;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Runtime
         public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
-        /// Returns a string that represents the current actor id.
+        /// Returns a string that represents the current operation id.
         /// </summary>
         public override string ToString() => this.Name;
 
@@ -139,5 +139,13 @@ namespace Microsoft.Coyote.Runtime
         /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
         bool IEquatable<ControlledOperation>.Equals(ControlledOperation other) => this.Equals(other);
+
+        /// <summary>
+        /// Disposes the contents of this object.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dependencies.Clear();
+        }
     }
 }

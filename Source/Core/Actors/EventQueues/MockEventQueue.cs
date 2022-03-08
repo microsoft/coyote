@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             bool result = this.Owner.IsDefaultHandlerInstalled();
             if (result)
             {
-                this.Owner.Context.Runtime.ScheduleNextOperation(Runtime.SchedulingPointType.Default);
+                this.Owner.Context.Runtime.ScheduleNextOperation(Runtime.SchedulingPointType.Receive);
             }
 
             return result;

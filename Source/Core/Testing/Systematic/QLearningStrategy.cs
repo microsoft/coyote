@@ -11,6 +11,10 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A probabilistic scheduling strategy that uses Q-learning.
     /// </summary>
+    /// <remarks>
+    /// This strategy is described in the following paper:
+    /// https://dl.acm.org/doi/10.1145/3428298.
+    /// </remarks>
     internal sealed class QLearningStrategy : RandomStrategy
     {
         /// <summary>
@@ -260,10 +264,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private int CaptureExecutionStep(ControlledOperation current)
         {
-            int state = current.HashedProgramState;
+            int state = current.LastHashedProgramState;
 
             // Update the execution path with the current state.
-            this.ExecutionPath.AddLast((this.LastOperation, current.SchedulingPoint, state));
+            this.ExecutionPath.AddLast((this.LastOperation, current.LastSchedulingPoint, state));
 
             if (!this.TransitionFrequencies.ContainsKey(state))
             {

@@ -345,7 +345,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
-                    "possibly in a test method. Please use /debug /v:2 to print more information.");
+                    "possibly in a test method. Please enable debug verbosity to print more information.");
                 }
             }
             catch (Exception ex)
@@ -500,7 +500,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtime = new CoyoteRuntime(this.Configuration, this.Scheduler);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
-                // the standard output and error streams to a nul logger.
+                // the standard output and error streams to the runtime logger.
                 if (!this.Configuration.IsVerbose)
                 {
                     runtimeLogger = new InMemoryLogger();
@@ -511,9 +511,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     runtime.Logger = runtimeLogger;
 
-                    var writer = TextWriter.Null;
-                    Console.SetOut(writer);
-                    Console.SetError(writer);
+                    Console.SetOut(runtimeLogger.TextWriter);
+                    Console.SetError(runtimeLogger.TextWriter);
                 }
                 else if (this.Logger != this.DefaultLogger)
                 {
@@ -533,11 +532,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 foreach (var callback in this.PerIterationCallbacks)
                 {
                     callback(iteration);
-                }
-
-                if (runtime.IsBugFound)
-                {
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
                 runtime.LogWriter.LogCompletion();
@@ -560,7 +554,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
                     {
-                        this.ReproducibleTrace = runtime.ScheduleTrace.Serialize(
+                        this.ReproducibleTrace = this.Scheduler.Trace.Serialize(
                             this.Configuration, this.Scheduler.IsScheduleFair);
                     }
                 }
@@ -583,13 +577,16 @@ namespace Microsoft.Coyote.SystematicTesting
                         $"switching to fuzzing due to uncontrolled concurrency " +
                         $"[task-{this.Configuration.TestingProcessId}]");
                 }
-
-                if (runtime.IsBugFound && !this.Scheduler.IsReplayingSchedule &&
-                    this.Configuration.RunTestIterationsToCompletion)
+                else if (runtime.IsBugFound)
                 {
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
-                        $"[task-{this.Configuration.TestingProcessId}]");
+                    if (!this.Scheduler.IsReplayingSchedule &&
+                        this.Configuration.RunTestIterationsToCompletion)
+                    {
+                        this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
+                            $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
+                            $"[task-{this.Configuration.TestingProcessId}]");
+                    }
+
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 

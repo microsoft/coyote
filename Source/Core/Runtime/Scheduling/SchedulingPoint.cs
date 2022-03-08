@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
+                runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
             }
         }
 

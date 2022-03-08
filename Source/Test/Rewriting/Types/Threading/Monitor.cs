@@ -431,7 +431,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                    var op = this.Resource.Runtime.GetExecutingOperation();
                     return this.Owner == op;
                 }
 
@@ -452,7 +452,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                    var op = this.Resource.Runtime.GetExecutingOperation();
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 // The executing op acquired the lock and can proceed.
-                this.Owner = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                this.Owner = this.Resource.Runtime.GetExecutingOperation();
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }
@@ -499,7 +499,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             private void SchedulePulse(PulseOperation pulseOperation)
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
@@ -573,7 +573,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal bool Wait()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
@@ -649,7 +649,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
             internal void Exit()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation<ControlledOperation>();
+                var op = this.Resource.Runtime.GetExecutingOperation();
                 this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
 
                 this.LockCountMap[op]--;

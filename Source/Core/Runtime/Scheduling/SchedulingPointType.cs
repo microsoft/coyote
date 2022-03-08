@@ -14,14 +14,14 @@ namespace Microsoft.Coyote.Runtime
         Default = 0,
 
         /// <summary>
-        /// A controlled operation started executing.
-        /// </summary>
-        Start,
-
-        /// <summary>
         /// A controlled operation was created.
         /// </summary>
         Create,
+
+        /// <summary>
+        /// A controlled operation started executing.
+        /// </summary>
+        Start,
 
         /// <summary>
         /// A controlled operation scheduled its continuation.
@@ -74,14 +74,14 @@ namespace Microsoft.Coyote.Runtime
         Receive,
 
         /// <summary>
-        /// A controlled operation halted executing.
-        /// </summary>
-        Halt,
-
-        /// <summary>
         /// A controlled operation completed its execution.
         /// </summary>
         Complete,
+
+        /// <summary>
+        /// A controlled operation halted executing.
+        /// </summary>
+        Halt,
 
         /// <summary>
         /// A controlled operation injected a failure.

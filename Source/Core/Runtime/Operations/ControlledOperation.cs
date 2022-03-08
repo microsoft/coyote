@@ -91,8 +91,8 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
-            this.LastSchedulingPoint = SchedulingPointType.Start;
             this.Dependencies = new HashSet<object>();
+            this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedState = string.Empty;
             // TODO: set by default to false, unless the HTTP abstraction is set.

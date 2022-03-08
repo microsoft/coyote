@@ -473,10 +473,10 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Sets up the execution context of the current thread.
+                    // Configures the execution context of the current thread with data
+                    // related to the runtime and the operation executed by this thread.
                     this.SetCurrentExecutionContext(op);
                     this.StartOperation(op);
-
                     if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
                         this.DelayOperation();
@@ -533,7 +533,6 @@ namespace Microsoft.Coyote.Runtime
                     // related to the runtime and the operation executed by this thread.
                     this.SetCurrentExecutionContext(op);
                     this.StartOperation(op);
-
                     if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
                         this.DelayOperation();
@@ -1170,13 +1169,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableOperationsWithSatisfiedDependencies(ControlledOperation current)
         {
-            IO.Debug.WriteLine("<CoyoteDebug> ===============================");
             IO.Debug.WriteLine("<CoyoteDebug> Trying to enable any operation with satisfied dependencies.");
-
-            if (current.Status is OperationStatus.Completed && current.IsSourceUncontrolled)
-            {
-                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is completed with uncontrolled source.", current.Id);
-            }
 
             int attempt = 0;
             uint enabledOpsCount = 0;

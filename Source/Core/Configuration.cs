@@ -163,8 +163,8 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve
-        /// before continuing exploration. This value is in milliseconds.
+        /// Value that controls how much time the runtime should wait for uncontrolled concurrency
+        /// to resolve before continuing exploration. This value is in milliseconds.
         /// </summary>
         [DataMember]
         public uint UncontrolledConcurrencyTimeout { get; internal set; }

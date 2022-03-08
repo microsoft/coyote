@@ -118,11 +118,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
-                if (awaiter is TaskAwaiter ta)
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> TaskAwaiter: '{0}'.", ta.AwaitedTask?.Id);
-                }
-
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
         }

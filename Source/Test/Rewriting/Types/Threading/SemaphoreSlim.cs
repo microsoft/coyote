@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             public override bool Wait(int millisecondsTimeout, SystemCancellationToken cancellationToken)
             {
                 // TODO: support cancellations during testing.
-                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Join);
+                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
 
                 // We need this loop, because when a resource gets released it notifies all asynchronous
                 // operations waiting to acquire it, even if such an operation is still blocked.

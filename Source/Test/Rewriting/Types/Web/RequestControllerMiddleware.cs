@@ -20,50 +20,30 @@ using WebTesting = Microsoft.AspNetCore.Mvc.Testing;
 namespace Microsoft.Coyote.Rewriting.Types.Web
 {
     /// <summary>
-    /// Provides methods for controlling a web application during testing.
+    /// Middleware for controlling a web application during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static class WebApplication
+    public class RequestControllerMiddleware
     {
         /// <summary>
-        /// Controls the specified request.
+        /// Invokes the next middleware in the pipeline.
         /// </summary>
-        public static SystemTask ControlRequest(WebFramework.HttpContext context, WebFramework.RequestDelegate next)
-        {
-            WebFramework.HttpRequest request = context.Request;
-            IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
-            if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
-            {
-                IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                    request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
-                TryExtractSourceOperation(request, runtime, out ControlledOperation source);
-                var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
-                OperationGroup.SetCurrent(op.Group);
-                return runtime.TaskFactory.StartNew(state =>
-                {
-                    SystemTask task = next(context);
-                    IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
-                    runtime.WaitUntilTaskCompletes(task);
-                    task.GetAwaiter().GetResult();
-                },
-                op,
-                default,
-                runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
-                runtime.TaskFactory.Scheduler);
-            }
-            else
-            {
-                IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
-            }
+        private readonly WebFramework.RequestDelegate Next;
 
-            return next(context);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RequestControllerMiddleware"/> class.
+        /// </summary>
+        public RequestControllerMiddleware(WebFramework.RequestDelegate next)
+        {
+            this.Next = next;
         }
 
         /// <summary>
-        /// Controls the specified request.
+        /// Invokes the middleware to controls the specified request.
         /// </summary>
-        public static SystemTask ControlRequest(WebFramework.HttpContext context, Func<SystemTask> next)
+#pragma warning disable CA1822
+        public async SystemTask InvokeAsync(WebFramework.HttpContext context)
         {
             WebFramework.HttpRequest request = context.Request;
             IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
@@ -74,24 +54,23 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
                 var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
                 OperationGroup.SetCurrent(op.Group);
-                return runtime.TaskFactory.StartNew(state =>
-                {
-                    SystemTask task = next();
-                    IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
-                    runtime.WaitUntilTaskCompletes(task);
-                    task.GetAwaiter().GetResult();
-                },
-                op,
-                default,
-                runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
-                runtime.TaskFactory.Scheduler);
+                await runtime.TaskFactory.StartNew(state =>
+                    {
+                        SystemTask task = this.Next(context);
+                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
+                        runtime.WaitUntilTaskCompletes(task);
+                        task.GetAwaiter().GetResult();
+                    },
+                    op,
+                    default,
+                    runtime.TaskFactory.CreationOptions | SystemTaskCreationOptions.DenyChildAttach,
+                    runtime.TaskFactory.Scheduler);
             }
             else
             {
                 IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
+                await this.Next(context);
             }
-
-            return next();
         }
 
         /// <summary>

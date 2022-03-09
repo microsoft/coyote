@@ -4,7 +4,6 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTask = System.Threading.Tasks.Task;
@@ -18,7 +17,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct ValueTaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct ValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic ValueTaskAwaiter<> as ValueTaskAwaiter.
@@ -42,6 +41,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Gets a value that indicates whether the controlled value task has completed.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter.IsControlled =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter"/> struct.
@@ -91,10 +94,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
-
-        /// <inheritdoc/>
-        bool IControlledAwaiter.IsTaskControlled() =>
-            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
         /// Wraps the specified value task awaiter.
@@ -150,7 +149,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct ValueTaskAwaiter<TResult> : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct ValueTaskAwaiter<TResult> : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic ValueTaskAwaiter<> as ValueTaskAwaiter.
@@ -174,6 +173,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Gets a value that indicates whether the controlled value task has completed.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter.IsControlled =>
+            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTaskAwaiter{TResult}"/> struct.
@@ -224,9 +227,5 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
-
-        /// <inheritdoc/>
-        bool IControlledAwaiter.IsTaskControlled() =>
-            !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
     }
 }

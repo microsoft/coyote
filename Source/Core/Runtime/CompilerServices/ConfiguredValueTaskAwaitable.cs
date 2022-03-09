@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredValueTaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The inner task being awaited.
@@ -61,6 +61,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// Gets a value that indicates whether the controlled value task has completed.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+            /// <inheritdoc/>
+            bool IControllableAwaiter.IsControlled =>
+                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaiter"/> struct.
@@ -103,10 +107,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
-
-            /// <inheritdoc/>
-            bool IControlledAwaiter.IsTaskControlled() =>
-                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
         }
     }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
         /// </summary>
         /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredValueTaskAwaiter : IControlledAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The inner task being awaited.
@@ -162,6 +162,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// Gets a value that indicates whether the controlled value task has completed.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+            /// <inheritdoc/>
+            bool IControllableAwaiter.IsControlled =>
+                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredValueTaskAwaiter"/> struct.
@@ -204,10 +208,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             public void UnsafeOnCompleted(Action continuation) => this.Awaiter.UnsafeOnCompleted(continuation);
-
-            /// <inheritdoc/>
-            bool IControlledAwaiter.IsTaskControlled() =>
-                !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
         }
     }
 }

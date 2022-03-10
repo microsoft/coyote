@@ -47,11 +47,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly SystemCompiler.YieldAwaitable.YieldAwaiter Awaiter;
 
             /// <summary>
-            /// The runtime controlling this awaiter.
-            /// </summary>
-            private readonly CoyoteRuntime Runtime;
-
-            /// <summary>
             /// This value is always false, as yielding is always required.
             /// </summary>
 #pragma warning disable CA1822 // Mark members as static
@@ -66,9 +61,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             internal YieldAwaiter(ref SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
             {
-                RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
                 this.Awaiter = awaiter;
-                this.Runtime = runtime;
             }
 
             /// <summary>

@@ -97,6 +97,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
+            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
@@ -106,8 +107,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     this.AssignStateMachineTask(innerTask);
                 }
             }
-
-            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -119,6 +118,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
+            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
@@ -128,8 +128,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     this.AssignStateMachineTask(innerTask);
                 }
             }
-
-            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -232,6 +230,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 where TAwaiter : INotifyCompletion
                 where TStateMachine : IAsyncStateMachine
         {
+            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
@@ -241,8 +240,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     this.AssignStateMachineTask(innerTask);
                 }
             }
-
-            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -254,6 +251,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
+            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
@@ -263,8 +261,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     this.AssignStateMachineTask(innerTask);
                 }
             }
-
-            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>

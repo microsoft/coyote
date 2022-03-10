@@ -84,8 +84,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
         /// </summary>
-        public QLearningStrategy(int maxSteps, IRandomValueGenerator random)
-            : base(maxSteps, random)
+        public QLearningStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
             this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();

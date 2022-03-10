@@ -13,27 +13,11 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal class RandomStrategy : SystematicStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(int maxSteps, IRandomValueGenerator generator)
+        internal RandomStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair = true)
+            : base(configuration, generator, isFair)
         {
-            this.RandomValueGenerator = generator;
-            this.MaxSteps = maxSteps;
         }
 
         /// <inheritdoc/>
@@ -97,9 +81,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => true;
 
         /// <inheritdoc/>
         internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";

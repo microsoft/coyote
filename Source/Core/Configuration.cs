@@ -170,12 +170,6 @@ namespace Microsoft.Coyote
         public uint UncontrolledConcurrencyTimeout { get; internal set; }
 
         /// <summary>
-        /// Safety prefix bound. By default it is 0.
-        /// </summary>
-        [DataMember]
-        internal int SafetyPrefixBound;
-
-        /// <summary>
         /// The liveness temperature threshold. If it is 0 then it is disabled. By default
         /// this value is assigned to <see cref="MaxFairSchedulingSteps"/> / 2.
         /// </summary>
@@ -383,7 +377,6 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 2500;
             this.UncontrolledConcurrencyTimeout = 1;
-            this.SafetyPrefixBound = 0;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;

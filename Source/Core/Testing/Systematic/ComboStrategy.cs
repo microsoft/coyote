@@ -25,7 +25,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ComboStrategy"/> class.
         /// </summary>
-        internal ComboStrategy(SystematicStrategy prefixStrategy, SystematicStrategy suffixStrategy)
+        internal ComboStrategy(Configuration configuration, IRandomValueGenerator generator,
+            SystematicStrategy prefixStrategy, SystematicStrategy suffixStrategy)
+            : base(configuration, generator, suffixStrategy.IsFair)
         {
             this.PrefixStrategy = prefixStrategy;
             this.SuffixStrategy = suffixStrategy;
@@ -94,9 +96,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached() => this.SuffixStrategy.IsMaxStepsReached();
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => this.SuffixStrategy.IsFair();
 
         /// <inheritdoc/>
         internal override string GetDescription() =>

@@ -650,7 +650,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             internal void Exit()
             {
                 var op = this.Resource.Runtime.GetExecutingOperation();
-                this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
+                this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op),
+                    "Cannot invoke Dispose without acquiring the lock.");
 
                 this.LockCountMap[op]--;
                 if (this.LockCountMap[op] is 0)

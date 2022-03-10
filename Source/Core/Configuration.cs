@@ -167,7 +167,7 @@ namespace Microsoft.Coyote
         /// corresponding test iterations.
         /// </summary>
         [DataMember]
-        internal bool ReportDeadlocksAsBugs;
+        internal bool ReportPotentialDeadlocksAsBugs;
 
         /// <summary>
         /// Value that controls how much time the runtime should wait for uncontrolled concurrency
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 2500;
-            this.ReportDeadlocksAsBugs = true;
+            this.ReportPotentialDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyTimeout = 1;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -634,12 +634,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls if deadlocks should be reported as bugs.
+        /// Updates the value that controls if potential deadlocks should be reported as bugs.
         /// </summary>
-        /// <param name="reportedAsBugs">If true, then deadlocks are reported as bugs.</param>
-        public Configuration WithDeadlocksReportedAsBugs(bool reportedAsBugs = true)
+        /// <param name="reportedAsBugs">If true, then potential deadlocks are reported as bugs.</param>
+        /// <remarks>
+        /// A deadlock is considered to be potential if the runtime cannot fully determine if the
+        /// deadlock is genuine or occurred because of partially-controlled concurrency.
+        /// </remarks>
+        public Configuration WithPotentialDeadlocksReportedAsBugs(bool reportedAsBugs = true)
         {
-            this.ReportDeadlocksAsBugs = reportedAsBugs;
+            this.ReportPotentialDeadlocksAsBugs = reportedAsBugs;
             return this;
         }
 

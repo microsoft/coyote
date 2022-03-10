@@ -1660,7 +1660,7 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("but no other controlled operations are enabled.");
             }
 
-            if (this.Configuration.ReportDeadlocksAsBugs)
+            if (this.Configuration.ReportPotentialDeadlocksAsBugs)
             {
                 this.NotifyAssertionFailure(msg.ToString());
             }
@@ -1688,7 +1688,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = "Potential deadlock detected. If you think this is not a deadlock, " +
                         "you can try increase the dealock detection timeout (--deadlock-timeout).";
-                    if (this.Configuration.ReportDeadlocksAsBugs)
+                    if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                     {
                         this.NotifyAssertionFailure(message);
                     }

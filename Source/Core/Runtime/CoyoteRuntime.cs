@@ -982,8 +982,6 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                Console.WriteLine($"??? GetNextNondeterministicIntegerChoice: {new StackTrace()}");
-
                 // Checks if the current operation is controlled by the runtime.
                 this.GetExecutingOperation();
 
@@ -1312,7 +1310,6 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.IsThreadControlled(Thread.CurrentThread))
             {
-                IO.Debug.WriteLine("<CoyoteDebug> ===============================");
                 // A scheduling point from an uncontrolled thread has not been postponed yet, so pause the execution
                 // of the current operation to try give time to the uncontrolled concurrency to be resolved.
                 if (this.LastPostponedSchedulingPoint is null)
@@ -1344,8 +1341,6 @@ namespace Microsoft.Coyote.Runtime
                         Thread.CurrentThread.ManagedThreadId);
                     this.ScheduleNextOperation(this.LastPostponedSchedulingPoint.Value, isSuppressible: false);
                 }
-
-                IO.Debug.WriteLine("<CoyoteDebug> ===============================");
             }
         }
 
@@ -1663,35 +1658,6 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append(blockedOnResources.Count is 1 ? " is " : " are ");
                 msg.Append("waiting to acquire a resource that is already acquired, ");
                 msg.Append("but no other controlled operations are enabled.");
-            }
-
-            foreach (var op in ops)
-            {
-                if (op.Status != OperationStatus.None &&
-                    op.Status != OperationStatus.Enabled &&
-                    op.Status != OperationStatus.Completed)
-                {
-                    msg.AppendFormat("<CoyoteDebug> Operation '{0}' has status '{1}'.\n", op.Name, op.Status);
-                    msg.AppendFormat("          |_ group '{0}'.\n", op.Group);
-                    msg.AppendFormat("          |_ owner '{0}'.\n", op.Group.Owner);
-                    if (op.IsSourceUncontrolled)
-                    {
-                        msg.AppendFormat("          |_ Has uncontrolled source.\n", op.Name);
-                    }
-
-                    if (op.IsBlocked && op.IsAnyDependencyUncontrolled)
-                    {
-                        msg.AppendFormat("          |_ Is blocked with uncontrolled dependency.\n", op.Name);
-                    }
-
-                    if (op.IsBlocked)
-                    {
-                        foreach (var dep in op.Dependencies)
-                        {
-                            msg.AppendLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
-                        }
-                    }
-                }
             }
 
             if (this.Configuration.ReportDeadlocksAsBugs)

@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The installed program exploration strategy.
         /// </summary>
-        internal ExplorationStrategy Strategy;
+        private ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed replay strategy, if any.

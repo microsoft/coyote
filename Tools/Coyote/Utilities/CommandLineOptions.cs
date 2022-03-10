@@ -45,10 +45,6 @@ namespace Microsoft.Coyote.Utilities
             testingGroup.AddArgument("timeout", "t", "Timeout in seconds after which no more testing iterations will run (disabled by default)", typeof(uint));
             testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
-            testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
-            testingGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
-            testingGroup.AddArgument("skip-deadlocks", null, "Do not report deadlocks as bugs and skip failing iterations", typeof(bool));
-            testingGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during testing", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
@@ -91,6 +87,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
             advancedGroup.AddArgument("no-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
             advancedGroup.AddArgument("no-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
+            advancedGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
+            advancedGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
+            advancedGroup.AddArgument("skip-deadlocks", null, "Do not report deadlocks as bugs and skip failing iterations", typeof(bool));
+            advancedGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during testing", typeof(uint));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));

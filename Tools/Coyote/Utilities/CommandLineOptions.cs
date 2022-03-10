@@ -104,7 +104,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
             hiddenGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
@@ -462,9 +461,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "fail-on-maxsteps":
                     configuration.ConsiderDepthBoundHitAsBug = true;
                     break;
-                case "prefix":
-                    configuration.SafetyPrefixBound = (int)option.Value;
-                    break;
                 case "liveness-temperature-threshold":
                     configuration.LivenessTemperatureThreshold = (int)(uint)option.Value;
                     configuration.UserExplicitlySetLivenessTemperatureThreshold = true;
@@ -499,13 +495,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
-            }
-
-            if (configuration.SafetyPrefixBound > 0 &&
-                configuration.SafetyPrefixBound >= configuration.MaxUnfairSchedulingSteps)
-            {
-                Error.ReportAndExit("Please give a safety prefix bound that is less than the " +
-                    "max scheduling steps bound.");
             }
         }
     }

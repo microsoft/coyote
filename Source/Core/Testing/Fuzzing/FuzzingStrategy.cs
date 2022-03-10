@@ -28,7 +28,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="FuzzingStrategy"/> class.
         /// </summary>
-        internal FuzzingStrategy()
+        internal FuzzingStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+            : base(configuration, generator, isFair)
         {
             this.OperationIdMap = new ConcurrentDictionary<int, Guid>();
         }
@@ -41,10 +42,10 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             switch (configuration.SchedulingStrategy)
             {
                 case "pct":
-                    return new PCTStrategy(configuration.MaxUnfairSchedulingSteps, generator, configuration.StrategyBound);
+                    return new PCTStrategy(configuration, generator);
                 default:
-                    // return new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
-                    return new BoundedRandomStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                    // return new RandomStrategy(configuration, generator);
+                    return new BoundedRandomStrategy(configuration, generator);
             }
         }
 

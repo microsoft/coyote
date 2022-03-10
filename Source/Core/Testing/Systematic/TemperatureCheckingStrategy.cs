@@ -23,8 +23,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="TemperatureCheckingStrategy"/> class.
         /// </summary>
-        internal TemperatureCheckingStrategy(Configuration configuration, SystematicStrategy strategy)
-            : base(configuration, strategy)
+        internal TemperatureCheckingStrategy(Configuration configuration, IRandomValueGenerator generator,
+            SystematicStrategy strategy)
+            : base(configuration, generator, strategy)
         {
         }
 
@@ -40,7 +41,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            if (this.IsFair())
+            if (this.IsFair)
             {
                 this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }
@@ -51,7 +52,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
-            if (this.IsFair())
+            if (this.IsFair)
             {
                 this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }
@@ -62,7 +63,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
-            if (this.IsFair())
+            if (this.IsFair)
             {
                 this.SpecificationEngine?.CheckLivenessThresholdExceeded();
             }

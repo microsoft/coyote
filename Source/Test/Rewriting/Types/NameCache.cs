@@ -60,6 +60,9 @@ namespace Microsoft.Coyote.Rewriting.Types
             typeof(SystemCompiler.ConfiguredValueTaskAwaitable).FullName + "/ConfiguredValueTaskAwaiter";
         internal static string GenericConfiguredValueTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredValueTaskAwaitable<>).FullName + "/ConfiguredValueTaskAwaiter";
+        internal static string YieldAwaitable { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;
+        internal static string YieldAwaiter { get; } =
+            typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
 
         internal static string TaskExtensions { get; } = typeof(SystemTasks.TaskExtensions).FullName;
         internal static string TaskFactory { get; } = typeof(SystemTasks.TaskFactory).FullName;

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestDetectedUncontrolledAwaiter()
+        public void TestDetectedUncontrolledTaskAwaiter()
         {
             this.Test(async () =>
             {
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestDetectedUncontrolledGenericAwaiter()
+        public void TestDetectedUncontrolledGenericTaskAwaiter()
         {
             this.Test(async () =>
             {
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestDetectedUncontrolledAwaiterWithGenericArgument()
+        public void TestDetectedUncontrolledTaskAwaiterWithGenericArgument()
         {
             this.Test(async () =>
             {

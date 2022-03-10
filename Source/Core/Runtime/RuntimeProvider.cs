@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Runtime
         internal static bool TryGetFromSynchronizationContext(out CoyoteRuntime runtime)
         {
             if (SynchronizationContext.Current is ControlledSynchronizationContext controlledContext &&
-                controlledContext.Runtime.SchedulingPolicy != SchedulingPolicy.None)
+                controlledContext.SchedulingPolicy != SchedulingPolicy.None)
             {
                 runtime = controlledContext.Runtime;
                 return true;

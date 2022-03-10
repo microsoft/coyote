@@ -56,6 +56,10 @@ namespace Microsoft.Coyote.Rewriting
                 typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter);
             this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>.ConfiguredValueTaskAwaiter);
+            this.KnownTypes[NameCache.YieldAwaitable] =
+                typeof(Runtime.CompilerServices.YieldAwaitable);
+            this.KnownTypes[NameCache.YieldAwaiter] =
+                typeof(Runtime.CompilerServices.YieldAwaitable.YieldAwaiter);
 
             // Populate the map with the default task-based types.
             this.KnownTypes[NameCache.Task] = typeof(Types.Threading.Tasks.Task);

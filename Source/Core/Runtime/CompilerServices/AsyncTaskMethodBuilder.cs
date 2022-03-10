@@ -97,13 +97,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
-
-            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -115,13 +114,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
-
-            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -224,13 +222,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 where TAwaiter : INotifyCompletion
                 where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
-
-            this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>
@@ -242,13 +239,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (this.Runtime != null && awaiter is IControlledAwaiter controlledAwaiter &&
-                controlledAwaiter.IsTaskControlled())
+            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+                controllableAwaiter.IsControlled)
             {
                 this.AssignStateMachineTask(this.MethodBuilder.Task);
             }
-
-            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
 
         /// <summary>

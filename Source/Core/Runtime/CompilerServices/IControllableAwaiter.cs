@@ -6,11 +6,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <summary>
     /// Represents an awaiter that can be controlled during testing.
     /// </summary>
-    internal interface IControlledAwaiter
+    internal interface IControllableAwaiter
     {
         /// <summary>
-        /// Returns true if the task being awaited is controlled, else false.
+        /// True if the awaiter is controlled, else false.
         /// </summary>
-        bool IsTaskControlled();
+        bool IsControlled { get; }
     }
 }

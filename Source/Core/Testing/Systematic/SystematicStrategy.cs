@@ -13,11 +13,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// </summary>
     internal abstract class SystematicStrategy : ExplorationStrategy
     {
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
         protected string CurrentSchedule;
 
         protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, int phase, string filter)> Path;
@@ -35,6 +30,14 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal HashSet<string> WriteAccessSet = new HashSet<string>();
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="SystematicStrategy"/> class.
+        /// </summary>
+        protected SystematicStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+            : base(configuration, generator, isFair)
+        {
+        }
+
+        /// <summary>
         /// Creates a <see cref="SystematicStrategy"/> from the specified configuration.
         /// </summary>
         internal static SystematicStrategy Create(Configuration configuration, IRandomValueGenerator generator)
@@ -42,37 +45,35 @@ namespace Microsoft.Coyote.Testing.Systematic
             SystematicStrategy strategy = null;
             if (configuration.SchedulingStrategy is "replay")
             {
-                strategy = new ReplayStrategy(configuration);
+                var trace = ScheduleTrace.Deserialize(configuration, out bool isFair);
+                strategy = new ReplayStrategy(configuration, generator, trace, isFair);
             }
             else if (configuration.SchedulingStrategy is "random")
             {
-                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+                strategy = new RandomStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "pct")
             {
-                strategy = new PriorityBasedStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound, generator);
-                // strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound, generator);
+                strategy = new PriorityBasedStrategy(configuration, generator);
+                // strategy = new PCTStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "fairpct")
             {
-                var prefixLength = configuration.SafetyPrefixBound is 0 ?
-                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, generator);
-                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
-                strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
+                var prefixStrategy = new PCTStrategy(configuration, generator);
+                var suffixStrategy = new RandomStrategy(configuration, generator);
+                strategy = new ComboStrategy(configuration, generator, prefixStrategy, suffixStrategy);
             }
             else if (configuration.SchedulingStrategy is "probabilistic")
             {
-                strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
-                    configuration.StrategyBound, generator);
+                strategy = new ProbabilisticRandomStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "rl")
             {
-                strategy = new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                strategy = new QLearningStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "dfs")
             {
-                strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
+                strategy = new DFSStrategy(configuration, generator);
             }
 
             return strategy;
@@ -189,31 +190,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             this.CurrentSchedule = sb.ToString();
             System.Console.WriteLine($">>> Schedule so far: {this.CurrentSchedule}");
-        }
-
-        protected virtual void Callback()
-        {
-        }
-
-        internal void MoveNextPhase(int phase)
-        {
-            System.Console.WriteLine($">>> Moved to phase '{this.Phase}'.");
-            Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase = Math.Max(
-                this.Phase, Microsoft.Coyote.Runtime.RuntimeStats.MaxPhase);
-            if (this.Groups.TryGetValue(this.Phase, out var groupMap))
-            {
-                foreach (var kvp in groupMap)
-                {
-                    groupMap[kvp.Key] = (kvp.Value.scheduled, kvp.Value.disabled,
-                        kvp.Key.All(m => m.Status is OperationStatus.Completed));
-                }
-            }
-
-            this.Phase = phase;
-            if (!this.Groups.ContainsKey(this.Phase))
-            {
-                this.Groups.Add(this.Phase, new Dictionary<OperationGroup, (bool, bool, bool)>());
-            }
         }
     }
 }

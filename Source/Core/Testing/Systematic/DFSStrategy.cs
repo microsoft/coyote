@@ -14,11 +14,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class DFSStrategy : SystematicStrategy
     {
         /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        private readonly int MaxSteps;
-
-        /// <summary>
         /// Stack of scheduling choices.
         /// </summary>
         private readonly List<List<SChoice>> ScheduleStack;
@@ -46,10 +41,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="DFSStrategy"/> class.
         /// </summary>
-        internal DFSStrategy(int maxSteps)
+        internal DFSStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.MaxSteps = maxSteps;
-            this.StepCount = 0;
             this.SchIndex = 0;
             this.NondetIndex = 0;
             this.ScheduleStack = new List<List<SChoice>>();
@@ -298,9 +292,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
         internal override string GetDescription() => "dfs";

@@ -22,11 +22,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class PriorityBasedStrategy : SystematicStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        private readonly IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
         /// List of prioritized groups.
         /// </summary>
         private readonly List<OperationGroup> PrioritizedGroups;
@@ -64,25 +59,18 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly int MaxPriorityChanges;
 
         /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        private readonly int MaxSteps;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PriorityBasedStrategy"/> class.
         /// </summary>
-        internal PriorityBasedStrategy(int maxSteps, int maxPriorityChanges, IRandomValueGenerator generator)
+        internal PriorityBasedStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.RandomValueGenerator = generator;
             this.PrioritizedGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
             this.ReadAccesses = new HashSet<string>();
             this.WriteAccesses = new HashSet<string>();
             this.PriorityChangePointsCount = 0;
             this.MaxPriorityChangePointsCount = 0;
-            this.MaxPriorityChanges = maxPriorityChanges;
-            this.MaxSteps = maxSteps;
-            this.StepCount = 0;
+            this.MaxPriorityChanges = configuration.StrategyBound;
 
             this.CurrentSchedule = string.Empty;
             this.Path = new List<(string, int, SchedulingPointType, OperationGroup, int, string)>();
@@ -355,9 +343,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool IsFair() => false;
-
-        /// <inheritdoc/>
         internal override string GetDescription()
         {
             var text = $"priority-based[seed '" + this.RandomValueGenerator.Seed + "']";
@@ -429,11 +414,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                 Debug.WriteLine("<PriorityLog> priority change points ('{0}' in total): {1}",
                     sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
             }
-        }
-
-        protected override void Callback()
-        {
-            this.DebugPrintOperationPriorityList();
         }
     }
 }

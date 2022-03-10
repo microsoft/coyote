@@ -13,16 +13,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
     internal class PCTStrategy : FuzzingStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
         /// The maximum number of steps after which we should reshuffle the probabilities.
         /// </summary>
         protected readonly int PriorityChangePoints;
@@ -46,18 +36,12 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         private double LowPriorityProbability;
 
         /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(int maxDelays, IRandomValueGenerator random, int priorityChangePoints)
+        internal PCTStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.RandomValueGenerator = random;
-            this.MaxSteps = maxDelays;
-            this.PriorityChangePoints = priorityChangePoints;
+            this.PriorityChangePoints = configuration.StrategyBound;
             this.HighPrioritySet = new List<Guid>();
             this.LowPrioritySet = new List<Guid>();
             this.LowPriorityProbability = 0;
@@ -130,9 +114,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => true;
 
         /// <inheritdoc/>
         internal override string GetDescription() => $"pct[seed '{this.RandomValueGenerator.Seed}']";

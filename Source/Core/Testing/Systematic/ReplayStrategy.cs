@@ -15,19 +15,9 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class ReplayStrategy : SystematicStrategy
     {
         /// <summary>
-        /// The configuration.
-        /// </summary>
-        private readonly Configuration Configuration;
-
-        /// <summary>
         /// The Coyote program schedule trace.
         /// </summary>
         private readonly ScheduleTrace ScheduleTrace;
-
-        /// <summary>
-        /// True if the scheduler that produced the schedule trace is fair, else false.
-        /// </summary>
-        private readonly bool IsSchedulerFair;
 
         /// <summary>
         /// Text describing a replay error.
@@ -37,12 +27,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
-        internal ReplayStrategy(Configuration configuration)
+        internal ReplayStrategy(Configuration configuration, IRandomValueGenerator generator,
+            ScheduleTrace trace, bool isFair)
+            : base(configuration, generator, isFair)
         {
-            this.Configuration = configuration;
-            this.ScheduleTrace = ScheduleTrace.Deserialize(configuration, out bool isFair);
-            this.StepCount = 0;
-            this.IsSchedulerFair = isFair;
+            this.ScheduleTrace = trace;
             this.ErrorText = string.Empty;
         }
 
@@ -190,9 +179,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached() => false;
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => this.IsSchedulerFair;
 
         /// <inheritdoc/>
         internal override string GetDescription() => "replay";

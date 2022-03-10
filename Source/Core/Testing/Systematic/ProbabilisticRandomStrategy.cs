@@ -21,10 +21,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
         /// </summary>
-        internal ProbabilisticRandomStrategy(int maxSteps, int numberOfCoinFlips, IRandomValueGenerator generator)
-            : base(maxSteps, generator)
+        internal ProbabilisticRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator)
         {
-            this.NumberOfCoinFlips = numberOfCoinFlips;
+            this.NumberOfCoinFlips = configuration.StrategyBound;
         }
 
         /// <inheritdoc/>

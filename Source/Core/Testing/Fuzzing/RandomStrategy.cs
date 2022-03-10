@@ -12,27 +12,11 @@ namespace Microsoft.Coyote.Testing.Fuzzing
     internal class RandomStrategy : FuzzingStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(int maxDelays, IRandomValueGenerator random)
+        internal RandomStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, true)
         {
-            this.RandomValueGenerator = random;
-            this.MaxSteps = maxDelays;
         }
 
         /// <inheritdoc/>
@@ -64,9 +48,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => true;
 
         /// <inheritdoc/>
         internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";

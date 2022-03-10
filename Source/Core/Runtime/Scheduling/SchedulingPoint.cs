@@ -98,17 +98,5 @@ namespace Microsoft.Coyote.Runtime
                 runtime.ResumeScheduling();
             }
         }
-
-        /// <summary>
-        /// Move to the next phase (for debugging).
-        /// </summary>
-        public static void NextPhase(int phase)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                runtime.MoveNextPhase(phase);
-            }
-        }
     }
 }

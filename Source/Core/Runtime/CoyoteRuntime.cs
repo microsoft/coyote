@@ -19,22 +19,6 @@ using SyncMonitor = System.Threading.Monitor;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// RuntimeStats.
-    /// </summary>
-    public static class RuntimeStats
-    {
-        /// <summary>
-        /// AvgMustChangeCount.
-        /// </summary>
-        public static int MaxMustChangeCount { get; internal set; } = 0;
-
-        /// <summary>
-        /// MaxPhase.
-        /// </summary>
-        public static int MaxPhase { get; internal set; } = 0;
-    }
-
-    /// <summary>
     /// Runtime for controlling, scheduling and executing asynchronous operations.
     /// </summary>
     /// <remarks>
@@ -911,17 +895,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 IO.Debug.WriteLine("<CoyoteDebug> Resuming scheduling of enabled operations.");
                 this.IsSchedulerSuppressed = false;
-            }
-        }
-
-        internal void MoveNextPhase(int phase)
-        {
-            lock (this.SyncObject)
-            {
-                if (this.Scheduler.Strategy is Microsoft.Coyote.Testing.Systematic.SystematicStrategy strategy)
-                {
-                    strategy.MoveNextPhase(phase);
-                }
             }
         }
 

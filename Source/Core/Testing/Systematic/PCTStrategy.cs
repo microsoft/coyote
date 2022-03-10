@@ -19,16 +19,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class PCTStrategy : SystematicStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        private readonly IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        private readonly int MaxSteps;
-
-        /// <summary>
         /// Max number of priority switch points.
         /// </summary>
         private readonly int MaxPrioritySwitchPoints;
@@ -51,13 +41,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator generator)
+        internal PCTStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.RandomValueGenerator = generator;
-            this.MaxSteps = maxSteps;
-            this.StepCount = 0;
             this.ScheduleLength = 0;
-            this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
+            this.MaxPrioritySwitchPoints = configuration.StrategyBound;
             this.PrioritizedOperations = new List<ControlledOperation>();
             this.PriorityChangePoints = new HashSet<int>();
         }
@@ -214,9 +202,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
         internal override string GetDescription()

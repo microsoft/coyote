@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// True if the schedule is fair, else false.
         /// </summary>
-        internal bool IsScheduleFair => this.Strategy.IsFair();
+        internal bool IsScheduleFair => this.Strategy.IsFair;
 
         /// <summary>
         /// Checks if the scheduler is replaying the schedule trace.
@@ -68,11 +68,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(SchedulingPolicy policy, IRandomValueGenerator valueGenerator, Configuration configuration)
+        private OperationScheduler(SchedulingPolicy policy, IRandomValueGenerator generator, Configuration configuration)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
-            this.ValueGenerator = valueGenerator;
+            this.ValueGenerator = generator;
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                this.Strategy = SystematicStrategy.Create(configuration, this.ValueGenerator);
+                this.Strategy = SystematicStrategy.Create(configuration, generator);
                 if (this.Strategy is ReplayStrategy replayStrategy)
                 {
                     this.ReplayStrategy = replayStrategy;
@@ -90,14 +90,15 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Wrap the strategy inside a liveness checking strategy.
-                // if (this.Configuration.IsLivenessCheckingEnabled)
-                // {
-                //     this.Strategy = new TemperatureCheckingStrategy(this.Configuration, this.Strategy as SystematicStrategy);
-                // }
+                if (configuration.IsLivenessCheckingEnabled)
+                {
+                    this.Strategy = new TemperatureCheckingStrategy(configuration, generator,
+                        this.Strategy as SystematicStrategy);
+                }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.Strategy = FuzzingStrategy.Create(configuration, this.ValueGenerator);
+                this.Strategy = FuzzingStrategy.Create(configuration, generator);
             }
         }
 

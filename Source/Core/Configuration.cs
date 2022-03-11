@@ -163,6 +163,13 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
+        /// If this option is enabled then report any potential deadlock as a bugs, else skip it
+        /// by terminating the iteration it was found.
+        /// </summary>
+        [DataMember]
+        internal bool ReportPotentialDeadlocksAsBugs;
+
+        /// <summary>
         /// Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve
         /// before continuing exploration. This value is in milliseconds.
         /// </summary>
@@ -375,7 +382,8 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
-            this.DeadlockTimeout = 2500;
+            this.DeadlockTimeout = 200;
+            this.ReportPotentialDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyTimeout = 1;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -615,13 +623,27 @@ namespace Microsoft.Coyote
         /// Updates the value that controls how much time the deadlock monitor should
         /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 2500.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 200.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>
         public Configuration WithDeadlockTimeout(uint timeout)
         {
             this.DeadlockTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls if potential deadlocks should be reported as bugs.
+        /// </summary>
+        /// <param name="reportedAsBugs">If true, then potential deadlocks are reported as bugs.</param>
+        /// <remarks>
+        /// A deadlock is considered to be potential if the runtime cannot fully determine if the
+        /// deadlock is genuine or occurred because of partially-controlled concurrency.
+        /// </remarks>
+        public Configuration WithPotentialDeadlocksReportedAsBugs(bool reportedAsBugs = true)
+        {
+            this.ReportPotentialDeadlocksAsBugs = reportedAsBugs;
             return this;
         }
 

@@ -53,6 +53,20 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsAnyDependencyUncontrolled;
 
         /// <summary>
+        /// True if this is the root operation, else false.
+        /// </summary>
+        internal bool IsRoot => this.Id is 0;
+
+        /// <summary>
+        /// True if this operation is currently blocked, else false.
+        /// </summary>
+        internal bool IsBlocked =>
+            this.Status is OperationStatus.BlockedOnWaitAll ||
+            this.Status is OperationStatus.BlockedOnWaitAny ||
+            this.Status is OperationStatus.BlockedOnReceive ||
+            this.Status is OperationStatus.BlockedOnResource;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
         internal ControlledOperation(ulong operationId, string name)
@@ -66,20 +80,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
         }
-
-        /// <summary>
-        /// Returns true if this is the root operation, else false.
-        /// </summary>
-        internal bool IsRoot() => this.Id is 0;
-
-        /// <summary>
-        /// Returns true if the operation is currently blocked, else false.
-        /// </summary>
-        internal bool IsBlocked() =>
-            this.Status is OperationStatus.BlockedOnWaitAll ||
-            this.Status is OperationStatus.BlockedOnWaitAny ||
-            this.Status is OperationStatus.BlockedOnReceive ||
-            this.Status is OperationStatus.BlockedOnResource;
 
         /// <summary>
         /// Sets the specified dependency.

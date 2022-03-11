@@ -13,12 +13,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// <summary>
         /// Header that contains the runtime id associated with a request.
         /// </summary>
-        internal const string RuntimeId = "ms-coyote-runtime-id";
+        internal const string RuntimeId = "coyote-runtime-id";
 
         /// <summary>
         /// Header that contains the source operation id associated with a request.
         /// </summary>
-        internal const string SourceOperationId = "ms-coyote-source-operation-id";
+        internal const string SourceOperationId = "coyote-source-operation-id";
     }
 }
 #endif

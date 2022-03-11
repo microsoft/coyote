@@ -382,7 +382,7 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
-            this.DeadlockTimeout = 200;
+            this.DeadlockTimeout = 2500;
             this.ReportPotentialDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyTimeout = 1;
             this.LivenessTemperatureThreshold = 50000;
@@ -623,7 +623,7 @@ namespace Microsoft.Coyote
         /// Updates the value that controls how much time the deadlock monitor should
         /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 200.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 2500.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>

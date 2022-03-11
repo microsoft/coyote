@@ -1129,9 +1129,16 @@ namespace Microsoft.Coyote.Runtime
         {
             IO.Debug.WriteLine("<CoyoteDebug> Trying to enable any operation with satisfied dependencies.");
 
+            Stopwatch elapsedDelay = null;
+            if (this.IsUncontrolledConcurrencyDetected &&
+                this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+            {
+                elapsedDelay = new Stopwatch();
+                elapsedDelay.Start();
+            }
+
             int attempt = 0;
             uint enabledOpsCount = 0;
-            uint accumulatedDelay = 0;
             while (true)
             {
                 // Cache the count of enabled operations from the previous attempt.
@@ -1204,18 +1211,16 @@ namespace Microsoft.Coyote.Runtime
                     // Retry if there is unresolved concurrency and any attempts left, or if there are no enabled
                     // operations and the accumulated delay is less than the specified deadlock timeout limit.
                     if ((++attempt < 5 && isConcurrencyUnresolved) ||
-                        (enabledOpsCount is 0 && accumulatedDelay < this.Configuration.DeadlockTimeout))
+                        (enabledOpsCount is 0 && elapsedDelay.ElapsedMilliseconds < this.Configuration.DeadlockTimeout))
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
                             "<CoyoteDebug> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        uint delay = this.Configuration.UncontrolledConcurrencyTimeout;
                         // Necessary until we have a better synchronization mechanism to give
                         // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, (int)delay);
+                        SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
                         Thread.Yield();
-                        accumulatedDelay += delay;
                         continue;
                     }
                 }
@@ -1225,6 +1230,7 @@ namespace Microsoft.Coyote.Runtime
 
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
+            elapsedDelay?.Stop();
             return enabledOpsCount > 0;
         }
 

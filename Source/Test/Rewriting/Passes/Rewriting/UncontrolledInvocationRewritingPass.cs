@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Rewriting
                     type.Name is nameof(System.Threading.SemaphoreSlim) ||
                     type.Name is nameof(System.Threading.SpinLock) ||
                     type.Name is nameof(System.Threading.SpinWait) ||
-                    // type.Name is nameof(System.Threading.SynchronizationContext) ||
+                    type.Name is nameof(System.Threading.SynchronizationContext) ||
                     type.Name is nameof(System.Threading.Timer) ||
                     type.Name is nameof(System.Threading.WaitHandle))
                 {

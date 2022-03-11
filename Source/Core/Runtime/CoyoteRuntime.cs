@@ -1141,9 +1141,16 @@ namespace Microsoft.Coyote.Runtime
         {
             IO.Debug.WriteLine("<CoyoteDebug> Trying to enable any operation with satisfied dependencies.");
 
+            Stopwatch elapsedDelay = null;
+            if (this.IsUncontrolledConcurrencyDetected &&
+                this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+            {
+                elapsedDelay = new Stopwatch();
+                elapsedDelay.Start();
+            }
+
             int attempt = 0;
             uint enabledOpsCount = 0;
-            uint accumulatedDelay = 0;
             while (true)
             {
                 // Cache the count of enabled operations from the previous attempt.
@@ -1164,17 +1171,8 @@ namespace Microsoft.Coyote.Runtime
                         if (previousStatus == op.Status)
                         {
                             IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
-                            if (op.IsBlocked)
-                            {
-                                foreach (var dep in op.Dependencies)
-                                {
-                                    IO.Debug.WriteLine($"          |_ Dep: task '{(dep as Task)?.Id}'");
-                                }
-                            }
-
                             if (op.IsBlocked && op.IsAnyDependencyUncontrolled)
                             {
-                                IO.Debug.WriteLine("          |_ Op '{0}' is blocked with uncontrolled dependency.", op.Name);
                                 if (op.IsRoot)
                                 {
                                     isRootDependencyUnresolved = true;
@@ -1200,7 +1198,8 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Heuristics for handling a partially controlled execution.
-                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                if (this.IsUncontrolledConcurrencyDetected &&
+                    this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // Compute the delta of enabled operations from the previous attempt.
                     uint enabledOpsDelta = attempt is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
@@ -1224,18 +1223,16 @@ namespace Microsoft.Coyote.Runtime
                     // Retry if there is unresolved concurrency and any attempts left, or if there are no enabled
                     // operations and the accumulated delay is less than the specified deadlock timeout limit.
                     if ((++attempt < 5 && isConcurrencyUnresolved) ||
-                        (enabledOpsCount is 0 && accumulatedDelay < this.Configuration.DeadlockTimeout))
+                        (enabledOpsCount is 0 && elapsedDelay.ElapsedMilliseconds < this.Configuration.DeadlockTimeout))
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
                             "<CoyoteDebug> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        uint delay = this.Configuration.UncontrolledConcurrencyTimeout;
                         // Necessary until we have a better synchronization mechanism to give
                         // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, (int)delay);
+                        SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
                         Thread.Yield();
-                        accumulatedDelay += delay;
                         continue;
                     }
                 }
@@ -1245,6 +1242,7 @@ namespace Microsoft.Coyote.Runtime
 
             IO.Debug.WriteLine("<CoyoteDebug> There are {0} enabled operations.", enabledOpsCount);
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
+            elapsedDelay?.Stop();
             return enabledOpsCount > 0;
         }
 
@@ -1601,7 +1599,16 @@ namespace Microsoft.Coyote.Runtime
                 blockedOnResources.RemoveAll(op => op.IsRoot);
             }
 
-            var msg = new StringBuilder("Deadlock detected.");
+            StringBuilder msg;
+            if (this.IsUncontrolledConcurrencyDetected)
+            {
+                msg = new StringBuilder("Potential deadlock detected.");
+            }
+            else
+            {
+                msg = new StringBuilder("Deadlock detected.");
+            }
+
             if (blockedOnReceiveOperations.Count > 0)
             {
                 for (int idx = 0; idx < blockedOnReceiveOperations.Count; idx++)
@@ -1660,15 +1667,22 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("but no other controlled operations are enabled.");
             }
 
-            if (this.Configuration.ReportPotentialDeadlocksAsBugs)
+            if (this.IsUncontrolledConcurrencyDetected)
             {
-                this.NotifyAssertionFailure(msg.ToString());
+                msg.Append(" Due to the presence of uncontrolled concurrency in the test, ");
+                msg.Append("Coyote cannot accurately determine if this is a real deadlock or not.");
+                if (!this.Configuration.ReportPotentialDeadlocksAsBugs)
+                {
+                    this.Logger.WriteLine($"<TestLog> {msg}");
+                    this.Detach(SchedulerDetachmentReason.Deadlocked);
+                }
+
+                msg.Append(" If you believe that this is not a real deadlock, you can disable reporting ");
+                msg.Append("potential deadlocks as bugs by setting '--skip-potential-deadlocks' or ");
+                msg.Append("'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.");
             }
-            else
-            {
-                this.Logger.WriteLine($"<TestLog> {msg}");
-                this.Detach(SchedulerDetachmentReason.Deadlocked);
-            }
+
+            this.NotifyAssertionFailure(msg.ToString());
         }
 
         /// <summary>
@@ -1686,15 +1700,19 @@ namespace Microsoft.Coyote.Runtime
                 SchedulingActivityInfo info = state as SchedulingActivityInfo;
                 if (info.StepCount == this.Scheduler.StepCount)
                 {
-                    string message = "Potential deadlock detected. If you think this is not a deadlock, " +
-                        "you can try increase the dealock detection timeout (--deadlock-timeout).";
+                    string msg = "Potential deadlock detected. Due to the concurrency fuzzing heuristics, " +
+                        "Coyote cannot accurately determine if this is a real deadlock or not. If you believe " +
+                        "that this is not a real deadlock, you can increase the dealock detection timeout by " +
+                        "setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
                     if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                     {
-                        this.NotifyAssertionFailure(message);
+                        msg += " Alternatively, you can disable reporting potential deadlocks as bugs by setting " +
+                        "'--skip-potential-deadlocks' or 'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.";
+                        this.NotifyAssertionFailure(msg);
                     }
                     else
                     {
-                        this.Logger.WriteLine($"<TestLog> {message}");
+                        this.Logger.WriteLine($"<TestLog> {msg}");
                         this.Detach(SchedulerDetachmentReason.Deadlocked);
                     }
                 }
@@ -1800,6 +1818,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     this.Logger.WriteLine($"<TestLog> {message}");
+                    this.IsUncontrolledConcurrencyDetected = true;
                 }
                 else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                 {
@@ -1832,6 +1851,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
+                        this.IsUncontrolledConcurrencyDetected = true;
                         if (this.UncontrolledTasks.Add(task))
                         {
                             this.TryPauseAndResolveUncontrolledTask(task);
@@ -1870,6 +1890,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
+                        this.IsUncontrolledConcurrencyDetected = true;
                         if (this.UncontrolledTasks.Add(task))
                         {
                             this.TryPauseAndResolveUncontrolledTask(task);
@@ -1908,6 +1929,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
+                        this.IsUncontrolledConcurrencyDetected = true;
                     }
                     else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
                     {
@@ -2079,7 +2101,7 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else if (reason is SchedulerDetachmentReason.Deadlocked)
                 {
-                    this.Logger.WriteLine("<TestLog> Exploration finished [detected a deadlock].");
+                    this.Logger.WriteLine("<TestLog> Exploration finished [detected a potential deadlock].");
                 }
                 else if (reason is SchedulerDetachmentReason.ConcurrencyUncontrolled)
                 {

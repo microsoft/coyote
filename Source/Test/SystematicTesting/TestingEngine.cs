@@ -568,7 +568,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
-                if (runtime.IsUncontrolledConcurrencyDetected)
+                if (runtime.IsUncontrolledConcurrencyDetected &&
+                    this.Configuration.IsConcurrencyFuzzingFallbackEnabled &&
+                    !this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
                     this.Scheduler = OperationScheduler.Setup(SchedulingPolicy.Fuzzing,

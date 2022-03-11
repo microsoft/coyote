@@ -163,8 +163,8 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled then report any potential deadlock as a bugs, else skip it
-        /// by terminating the iteration it was found.
+        /// If this option is enabled then report any potential deadlock as a bug,
+        /// else skip to the next test iteration.
         /// </summary>
         [DataMember]
         internal bool ReportPotentialDeadlocksAsBugs;

@@ -42,11 +42,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<ControlledOperation> Members;
 
         /// <summary>
-        /// The resource accessed by this operation group, if there is any.
-        /// </summary>
-        internal string Resource => this.Owner is HttpOperation httpOwner ? httpOwner.Path : string.Empty;
-
-        /// <summary>
         /// True if this group only consists of 'READ' operations, else false.
         /// </summary>
         internal bool IsReadOnly => this.Owner.IsReadOnly;

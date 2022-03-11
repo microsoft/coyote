@@ -1179,7 +1179,8 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Heuristics for handling a partially controlled execution.
-                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                if (this.IsUncontrolledConcurrencyDetected &&
+                    this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // Compute the delta of enabled operations from the previous attempt.
                     uint enabledOpsDelta = attempt is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;

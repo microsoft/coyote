@@ -8,7 +8,7 @@ using Microsoft.Coyote.Rewriting.Types.Web;
 namespace Microsoft.Coyote.Web
 {
     /// <summary>
-    /// Middleware for controlling a web application during testing.
+    /// Middleware for controlling an ASP.NET web application during testing.
     /// </summary>
     public static class RequestControllerMiddlewareExtensions
     {

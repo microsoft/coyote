@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public class RequestControllerMiddleware
+    public sealed class RequestControllerMiddleware
     {
         /// <summary>
         /// Invokes the next middleware in the pipeline.

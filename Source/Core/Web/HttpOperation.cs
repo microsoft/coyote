@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Web
     /// <summary>
     /// Represents an HTTP operation that can be controlled during testing.
     /// </summary>
-    internal class HttpOperation : ControlledOperation
+    internal sealed class HttpOperation : ControlledOperation
     {
         /// <summary>
         /// The method invoked by this HTTP operation.

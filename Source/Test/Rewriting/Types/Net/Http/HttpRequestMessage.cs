@@ -23,36 +23,52 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create() =>
-          WithRuntimeIdHeader(new SystemHttpRequestMessage());
+            WithRuntimeHeaders(new SystemHttpRequestMessage());
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, string requestUri) =>
-          WithRuntimeIdHeader(new SystemHttpRequestMessage(method, requestUri));
+            WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, Uri requestUri) =>
-          WithRuntimeIdHeader(new SystemHttpRequestMessage(method, requestUri));
+            WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 
         /// <summary>
-        /// Returns the specified HTTP request with the current runtime id assigned to its headers.
+        /// Returns the specified HTTP request with runtime related information assigned to its headers.
         /// </summary>
-        internal static SystemHttpRequestMessage WithRuntimeIdHeader(SystemHttpRequestMessage request)
+        internal static SystemHttpRequestMessage WithRuntimeHeaders(SystemHttpRequestMessage request)
         {
             if (request != null)
             {
                 var runtime = CoyoteRuntime.Current;
-                if (runtime.SchedulingPolicy != SchedulingPolicy.None && !request.Headers.Contains("ms-coyote-runtime-id"))
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None)
                 {
-                    string runtimeId = runtime.Id.ToString();
-                    IO.Debug.WriteLine("<CoyoteDebug> Assigned runtime id '{0}' to '{1} {2}' request from thread '{3}'.",
-                        runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
-                    request.Headers.Add("ms-coyote-runtime-id", runtimeId);
+                    if (!request.Headers.Contains(HttpRequestHeader.RuntimeId))
+                    {
+                        // Assigns a header containing the identifier of the currently executing runtime.
+                        string runtimeId = runtime.Id.ToString();
+                        IO.Debug.WriteLine("<Coyote> Assigned runtime '{0}' to the '{1} {2}' request from thread '{3}'.",
+                            runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
+                        request.Headers.Add(HttpRequestHeader.RuntimeId, runtimeId);
+                    }
+
+                    if (!request.Headers.Contains(HttpRequestHeader.SourceOperationId))
+                    {
+                        // Assigns a header containing the identifier of the currently executing operation.
+                        var op = runtime.GetExecutingOperation();
+                        if (op != null)
+                        {
+                            IO.Debug.WriteLine("<Coyote> Assigned operation '{0}' to the '{1} {2}' request from thread '{3}'.",
+                                op.Name, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
+                            request.Headers.Add(HttpRequestHeader.SourceOperationId, op.Id.ToString());
+                        }
+                    }
                 }
             }
 

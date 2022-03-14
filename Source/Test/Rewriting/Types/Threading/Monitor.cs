@@ -550,7 +550,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
+                        IO.Debug.WriteLine("<Coyote> Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, SystemTask.CurrentId);
                     }
                 }
@@ -559,7 +559,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' is pulsed by task '{1}'.",
+                        IO.Debug.WriteLine("<Coyote> Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, SystemTask.CurrentId);
                     }
 
@@ -586,7 +586,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.UnlockNextReady();
-                IO.Debug.WriteLine("<CoyoteDebug> Operation '{0}' with task id '{1}' is waiting.",
+                IO.Debug.WriteLine("<Coyote> Operation '{0}' with task id '{1}' is waiting.",
                     op.Id, SystemTask.CurrentId);
 
                 // Block this operation and schedule the next enabled operation.

@@ -163,15 +163,15 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled then report any potential deadlock as a bugs,
+        /// If this option is enabled then report any potential deadlock as a bug,
         /// else skip to the next test iteration.
         /// </summary>
         [DataMember]
         internal bool ReportPotentialDeadlocksAsBugs;
 
         /// <summary>
-        /// Value that controls how much time the runtime should wait for uncontrolled concurrency to resolve
-        /// before continuing exploration. This value is in milliseconds.
+        /// Value that controls how much time the runtime should wait for uncontrolled concurrency
+        /// to resolve before continuing exploration. This value is in milliseconds.
         /// </summary>
         [DataMember]
         public uint UncontrolledConcurrencyTimeout { get; internal set; }

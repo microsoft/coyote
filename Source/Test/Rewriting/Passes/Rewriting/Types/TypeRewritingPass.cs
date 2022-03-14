@@ -42,18 +42,18 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.GenericValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter<>);
             this.KnownTypes[NameCache.ConfiguredTaskAwaitable] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable);
-            this.KnownTypes[NameCache.GenericConfiguredTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
             this.KnownTypes[NameCache.ConfiguredTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter);
+            this.KnownTypes[NameCache.GenericConfiguredTaskAwaitable] =
+                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter);
             this.KnownTypes[NameCache.ConfiguredValueTaskAwaitable] =
                 typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable);
-            this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>);
             this.KnownTypes[NameCache.ConfiguredValueTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter);
+            this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaitable] =
+                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>);
             this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaiter] =
                 typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>.ConfiguredValueTaskAwaiter);
             this.KnownTypes[NameCache.YieldAwaitable] =

@@ -48,16 +48,16 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string GenericValueTaskAwaiter { get; } = typeof(SystemCompiler.ValueTaskAwaiter<>).FullName;
 
         internal static string ConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;
-        internal static string GenericConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName;
-        internal static string ConfiguredValueTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredValueTaskAwaitable).FullName;
-        internal static string GenericConfiguredValueTaskAwaitable { get; } =
-                typeof(SystemCompiler.ConfiguredValueTaskAwaitable<>).FullName;
         internal static string ConfiguredTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName + "/ConfiguredTaskAwaiter";
+        internal static string GenericConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName;
         internal static string GenericConfiguredTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName + "/ConfiguredTaskAwaiter";
+        internal static string ConfiguredValueTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredValueTaskAwaitable).FullName;
         internal static string ConfiguredValueTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredValueTaskAwaitable).FullName + "/ConfiguredValueTaskAwaiter";
+        internal static string GenericConfiguredValueTaskAwaitable { get; } =
+                typeof(SystemCompiler.ConfiguredValueTaskAwaitable<>).FullName;
         internal static string GenericConfiguredValueTaskAwaiter { get; } =
             typeof(SystemCompiler.ConfiguredValueTaskAwaitable<>).FullName + "/ConfiguredValueTaskAwaiter";
         internal static string YieldAwaitable { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;

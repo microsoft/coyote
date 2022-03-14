@@ -20,21 +20,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpClient Create() =>
-          new SystemHttpClient(HttpMessageHandler.CreateWithDefaultHandler());
+            new SystemHttpClient(HttpMessageHandler.CreateWithDefaultHandler());
 
         /// <summary>
         /// Creates a new instance of the HTTP client class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpClient Create(SystemHttpMessageHandler handler) =>
-          new SystemHttpClient(HttpMessageHandler.Create(handler));
+            new SystemHttpClient(HttpMessageHandler.Create(handler));
 
         /// <summary>
         /// Creates a new instance of the HTTP client class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpClient Create(SystemHttpMessageHandler handler, bool disposeHandler) =>
-          new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
+            new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
     }
 }
 #endif

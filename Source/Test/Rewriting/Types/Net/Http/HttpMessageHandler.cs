@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         protected override SystemHttpResponseMessage Send(SystemHttpRequestMessage request,
             SystemCancellationToken cancellationToken) =>
-            base.Send(HttpRequestMessage.WithRuntimeIdHeader(request), cancellationToken);
+            base.Send(HttpRequestMessage.WithRuntimeHeaders(request), cancellationToken);
 #endif
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         protected override SystemTasks.Task<SystemHttpResponseMessage> SendAsync(SystemHttpRequestMessage request,
             SystemCancellationToken cancellationToken) =>
-            base.SendAsync(HttpRequestMessage.WithRuntimeIdHeader(request), cancellationToken);
+            base.SendAsync(HttpRequestMessage.WithRuntimeHeaders(request), cancellationToken);
     }
 }
 #endif

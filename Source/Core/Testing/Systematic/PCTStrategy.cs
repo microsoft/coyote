@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <summary>
         /// Deprioritizes the enabled operation with the highest priority, if there is a
-        /// priotity change point installed on the current execution step.
+        /// priority change point installed on the current execution step.
         /// </summary>
         private void DeprioritizeEnabledOperationWithHighestPriority(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
         {
@@ -157,11 +157,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private ControlledOperation GetEnabledOperationWithHighestPriority(List<ControlledOperation> ops)
         {
-            foreach (var entity in this.PrioritizedOperations)
+            foreach (var operation in this.PrioritizedOperations)
             {
-                if (ops.Any(m => m == entity))
+                if (ops.Any(op => op == operation))
                 {
-                    return entity;
+                    return operation;
                 }
             }
 

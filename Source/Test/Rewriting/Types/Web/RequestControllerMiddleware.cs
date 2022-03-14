@@ -40,10 +40,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         public async SystemTask InvokeAsync(WebFramework.HttpContext context)
         {
             WebFramework.HttpRequest request = context.Request;
-            IO.Debug.WriteLine($"<CoyoteDebug> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
+            IO.Debug.WriteLine($"<Coyote> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
             if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
             {
-                IO.Debug.WriteLine("<CoyoteDebug> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
+                IO.Debug.WriteLine("<Coyote> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
                     request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
                 var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 await runtime.TaskFactory.StartNew(state =>
                     {
                         SystemTask task = this.Next(context);
-                        IO.Debug.WriteLine($"<CoyoteDebug> Waiting uncontrolled request task: {task?.Id}");
+                        IO.Debug.WriteLine($"<Coyote> Waiting uncontrolled request task: {task?.Id}");
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
             }
             else
             {
-                IO.Debug.WriteLine($"<CoyoteDebug> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
+                IO.Debug.WriteLine($"<Coyote> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
                 await this.Next(context);
             }
         }

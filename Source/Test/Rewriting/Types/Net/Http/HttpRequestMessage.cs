@@ -23,21 +23,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create() =>
-          WithRuntimeHeaders(new SystemHttpRequestMessage());
+            WithRuntimeHeaders(new SystemHttpRequestMessage());
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, string requestUri) =>
-          WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
+            WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, Uri requestUri) =>
-          WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
+            WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 
         /// <summary>
         /// Returns the specified HTTP request with runtime related information assigned to its headers.
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
                     {
                         // Assigns a header containing the identifier of the currently executing runtime.
                         string runtimeId = runtime.Id.ToString();
-                        IO.Debug.WriteLine("<CoyoteDebug> Assigned runtime id '{0}' to '{1} {2}' request from thread '{3}'.",
+                        IO.Debug.WriteLine("<Coyote> Assigned runtime '{0}' to the '{1} {2}' request from thread '{3}'.",
                             runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
                         request.Headers.Add(HttpRequestHeader.RuntimeId, runtimeId);
                     }
@@ -64,8 +64,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
                         var op = runtime.GetExecutingOperation();
                         if (op != null)
                         {
-                            IO.Debug.WriteLine("<CoyoteDebug> Assigned operation id '{0}' to '{1} {2}' request from thread '{3}'.",
-                                op.Id, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
+                            IO.Debug.WriteLine("<Coyote> Assigned operation '{0}' to the '{1} {2}' request from thread '{3}'.",
+                                op.Name, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
                             request.Headers.Add(HttpRequestHeader.SourceOperationId, op.Id.ToString());
                         }
                     }

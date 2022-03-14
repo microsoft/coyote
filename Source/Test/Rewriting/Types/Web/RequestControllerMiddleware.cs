@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public class RequestControllerMiddleware
+    public sealed class RequestControllerMiddleware
     {
         /// <summary>
         /// Invokes the next middleware in the pipeline.
@@ -40,18 +40,16 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
         public async SystemTask InvokeAsync(WebFramework.HttpContext context)
         {
             WebFramework.HttpRequest request = context.Request;
-            IO.Debug.WriteLine($"<Coyote> Trying to control request {request?.Method} '{request?.Path}' ({System.Threading.SynchronizationContext.Current}): {new System.Diagnostics.StackTrace()}");
             if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
             {
-                IO.Debug.WriteLine("<Coyote> Invoking '{0} {1}' handler on runtime '{2}' from thread '{3}'.",
-                    request.Method, request.Path, runtime.Id, SystemThread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Runtime '{0}' takes control of the '{1} {2}' handler on thread '{3}'.",
+                    runtime.Id, request.Method, request.Path, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
                 var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
                 OperationGroup.SetCurrent(op.Group);
                 await runtime.TaskFactory.StartNew(state =>
                     {
                         SystemTask task = this.Next(context);
-                        IO.Debug.WriteLine($"<Coyote> Waiting uncontrolled request task: {task?.Id}");
                         runtime.WaitUntilTaskCompletes(task);
                         task.GetAwaiter().GetResult();
                     },
@@ -62,7 +60,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
             }
             else
             {
-                IO.Debug.WriteLine($"<Coyote> Runtime header not found ({System.Threading.SynchronizationContext.Current}).");
+                IO.Debug.WriteLine($"<Coyote> Unable to control the '{0} {1}' request on thread '{2}'.",
+                    request?.Method, request?.Path, SystemThread.CurrentThread.ManagedThreadId);
                 await this.Next(context);
             }
         }

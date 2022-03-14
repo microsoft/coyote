@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Web
     /// <summary>
     /// Represents an HTTP operation that can be controlled during testing.
     /// </summary>
-    internal class HttpOperation : ControlledOperation
+    internal sealed class HttpOperation : ControlledOperation
     {
         /// <summary>
         /// The method invoked by this HTTP operation.
@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Web
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
         private HttpOperation(ulong operationId, HttpMethod method, string path, OperationGroup group)
-            : base(operationId, $"{method}({operationId})", group, IsMethodReadOnly(method))
+            : base(operationId, $"{method}HttpOp({operationId})", group, IsMethodReadOnly(method))
         {
             this.Method = method;
             this.Path = path;
@@ -33,8 +33,10 @@ namespace Microsoft.Coyote.Web
         /// <summary>
         /// Creates a new <see cref="HttpOperation"/> from the specified parameters.
         /// </summary>
+#pragma warning disable CA1801 // Parameter not used
         internal static HttpOperation Create(HttpMethod method, string path, CoyoteRuntime runtime,
             ControlledOperation source)
+#pragma warning restore CA1801 // Parameter not used
         {
             // Assign the group of the source operation, if its owner is also an HTTP operation.
             OperationGroup group = source?.Group.Owner is HttpOperation httpSource ? httpSource.Group : null;
@@ -42,7 +44,6 @@ namespace Microsoft.Coyote.Web
 
             ulong operationId = runtime.GetNextOperationId();
             var op = new HttpOperation(operationId, method, path, group);
-            System.Console.WriteLine($"--------> Creating HTTP operation '{op}' with group {op.Group} and owner {op.Group.Owner.Name}");
             runtime.RegisterOperation(op);
             if (runtime.GetExecutingOperation() is null)
             {

@@ -326,8 +326,8 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal Task RunTestAsync(Delegate testMethod, string testName)
         {
-            this.Logger.WriteLine("<TestLog> Running test{0} on thread '{1}'.",
-                string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'",
+            this.Logger.WriteLine("<TestLog> Runtime '{0}' started test{1} on thread '{2}'.",
+                this.Id, string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'",
                 Thread.CurrentThread.ManagedThreadId);
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 

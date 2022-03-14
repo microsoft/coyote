@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Web
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
         private HttpOperation(ulong operationId, HttpMethod method, string path)
-            : base(operationId, $"Http{method}({operationId})")
+            : base(operationId, $"Http{method}Op({operationId})")
         {
             this.Method = method;
             this.Path = path;

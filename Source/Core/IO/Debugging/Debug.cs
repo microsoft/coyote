@@ -17,9 +17,25 @@ namespace Microsoft.Coyote.IO
         internal static bool IsEnabled = false;
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
+        public static void Write(string value)
+        {
+            if (IsEnabled)
+            {
+                Console.Write(value);
+            }
+        }
+
+        /// <summary>
+        /// Writes the debugging information to the output stream.
+        /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void Write(string format, object arg0)
         {
             if (IsEnabled)
@@ -29,9 +45,11 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void Write(string format, object arg0, object arg1)
         {
             if (IsEnabled)
@@ -41,9 +59,11 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void Write(string format, object arg0, object arg1, object arg2)
         {
             if (IsEnabled)
@@ -53,9 +73,25 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
+        public static void Write(string format, object arg0, object arg1, object arg2, object arg3)
+        {
+            if (IsEnabled)
+            {
+                Console.Write(string.Format(CultureInfo.InvariantCulture, format, arg0, arg1, arg2, arg3));
+            }
+        }
+
+        /// <summary>
+        /// Writes the debugging information to the output stream.
+        /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void Write(string format, params object[] args)
         {
             if (IsEnabled)
@@ -65,9 +101,25 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
+        public static void WriteLine(string value)
+        {
+            if (IsEnabled)
+            {
+                Console.WriteLine(value);
+            }
+        }
+
+        /// <summary>
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
+        /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void WriteLine(string format, object arg0)
         {
             if (IsEnabled)
@@ -77,9 +129,11 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void WriteLine(string format, object arg0, object arg1)
         {
             if (IsEnabled)
@@ -89,9 +143,11 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void WriteLine(string format, object arg0, object arg1, object arg2)
         {
             if (IsEnabled)
@@ -101,9 +157,25 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Writes the debugging information, followed by the current line terminator,
-        /// to the output stream. The print occurs only if debugging is enabled.
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
         /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
+        public static void WriteLine(string format, object arg0, object arg1, object arg2, object arg3)
+        {
+            if (IsEnabled)
+            {
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, format, arg0, arg1, arg2, arg3));
+            }
+        }
+
+        /// <summary>
+        /// Writes the debugging information, followed by the current line terminator, to the output stream.
+        /// </summary>
+        /// <remarks>
+        /// The print occurs only if debugging is enabled.
+        /// </remarks>
         public static void WriteLine(string format, params object[] args)
         {
             if (IsEnabled)

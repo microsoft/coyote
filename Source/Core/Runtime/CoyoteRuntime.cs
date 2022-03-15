@@ -123,6 +123,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly Dictionary<ulong, ControlledOperation> OperationMap;
 
         /// <summary>
+        /// Set of groups of controlled operations that can be scheduled together during testing.
+        /// </summary>
+        private readonly HashSet<OperationGroup> OperationGroups;
+
+        /// <summary>
         /// Map from unique controlled thread names to their corresponding operations.
         /// </summary>
         private readonly ConcurrentDictionary<string, ControlledOperation> ControlledThreads;
@@ -281,6 +286,7 @@ namespace Microsoft.Coyote.Runtime
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
+            this.OperationGroups = new HashSet<OperationGroup>();
             this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new HashSet<Task>();
@@ -412,11 +418,16 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private ControlledOperation CreateControlledOperation(uint delay = 0)
         {
+            // Assign the operation group associated with the execution context of the
+            // current thread, if such a group exists, else the group of the currently
+            // executing operation, if such an operation exists.
+            OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+
+            // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?
                 new DelayOperation(operationId, $"Delay({operationId})", delay) :
-                new ControlledOperation(operationId, $"Op({operationId})");
-            this.RegisterOperation(op);
+                new ControlledOperation(operationId, $"Op({operationId})", group);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
             {
                 op.IsSourceUncontrolled = true;
@@ -661,7 +672,8 @@ namespace Microsoft.Coyote.Runtime
                     {
                         if (!task.IsCompleted)
                         {
-                            IO.Debug.WriteLine("<Coyote> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
+                            IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' is waiting for task '{2}'.",
+                                op.Name, op.Group, task.Id);
                             op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                         }
                     }
@@ -707,7 +719,8 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                IO.Debug.WriteLine("<Coyote> Operation '{0}' is waiting for task '{1}'.", op.Id, task.Id);
+                IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' is waiting for task '{2}'.",
+                    op.Name, op.Group, task.Id);
                 op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                 op.Status = OperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(SchedulingPointType.Wait);
@@ -849,7 +862,7 @@ namespace Microsoft.Coyote.Runtime
                     this.Detach(SchedulerDetachmentReason.BoundReached);
                 }
 
-                IO.Debug.WriteLine("<Coyote> Scheduling operation '{0}'.", next.Name);
+                IO.Debug.WriteLine("<Coyote> Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
                 if (current != next)
                 {
                     // Pause the currently scheduled operation, and enable the next one.
@@ -1033,6 +1046,7 @@ namespace Microsoft.Coyote.Runtime
 #else
                 this.OperationMap.TryAdd(op.Id, op);
 #endif
+                this.OperationGroups.Add(op.Group);
             }
         }
 
@@ -1047,8 +1061,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<Coyote> Starting operation '{0}' on thread '{1}'.",
-                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Starting operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
                 {
@@ -1095,11 +1109,11 @@ namespace Microsoft.Coyote.Runtime
 
             while (op != this.ScheduledOperation && this.IsAttached)
             {
-                IO.Debug.WriteLine("<Coyote> Sleeping operation '{0}' on thread '{1}'.",
-                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Sleeping operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 SyncMonitor.Wait(this.SyncObject);
-                IO.Debug.WriteLine("<Coyote> Waking up operation '{0}' on thread '{1}'.",
-                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Waking up operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
             }
         }
 
@@ -1110,8 +1124,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<Coyote> Completed operation '{0}' on thread '{1}'.",
-                    op.Name, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Completed operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Completed;
             }
         }
@@ -1156,7 +1170,8 @@ namespace Microsoft.Coyote.Runtime
                         this.TryEnableOperation(op);
                         if (previousStatus == op.Status)
                         {
-                            IO.Debug.WriteLine("<Coyote> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                            IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' has status '{2}'.",
+                                op.Name, op.Group, op.Status);
                             if (op.IsBlocked && op.IsAnyDependencyUncontrolled)
                             {
                                 if (op.IsRoot)
@@ -1171,8 +1186,8 @@ namespace Microsoft.Coyote.Runtime
                         }
                         else
                         {
-                            IO.Debug.WriteLine("<Coyote> Operation '{0}' changed status from '{1}' to '{2}'.",
-                                op.Id, previousStatus, op.Status);
+                            IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' changed status from '{2}' to '{3}'.",
+                                op.Name, op.Group, previousStatus, op.Status);
                             statusChanges++;
                         }
                     }
@@ -2040,6 +2055,7 @@ namespace Microsoft.Coyote.Runtime
             // Assign the specified controlled operation to the executing thread, and
             // associate the operation group, if any, with the current context.
             ExecutingOperation.Value = op;
+            OperationGroup.SetCurrent(op.Group);
         }
 
         /// <summary>
@@ -2050,6 +2066,7 @@ namespace Microsoft.Coyote.Runtime
             ExecutingOperation.Value = null;
             AsyncLocalRuntime.Value = null;
             ThreadLocalRuntime.Value = null;
+            OperationGroup.RemoveFromContext();
         }
 
         /// <summary>
@@ -2138,8 +2155,14 @@ namespace Microsoft.Coyote.Runtime
             {
                 RuntimeProvider.Deregister(this.Id);
 
+                foreach (var group in this.OperationGroups)
+                {
+                    group.Dispose();
+                }
+
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();
+                this.OperationGroups.Clear();
                 this.ControlledThreads.Clear();
                 this.ControlledTasks.Clear();
                 this.UncontrolledTasks.Clear();

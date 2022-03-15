@@ -428,6 +428,7 @@ namespace Microsoft.Coyote.Runtime
             ControlledOperation op = delay > 0 ?
                 new DelayOperation(operationId, $"Delay({operationId})", delay) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
+            this.RegisterOperation(op);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
             {
                 op.IsSourceUncontrolled = true;

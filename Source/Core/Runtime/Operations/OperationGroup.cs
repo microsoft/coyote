@@ -63,12 +63,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Registers the specified operation as a member of this group.
         /// </summary>
-        internal void RegisterMember(ControlledOperation member)
-        {
-            // => this.Members.Add(member);
-            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name}");
-            this.Members.Add(member);
-        }
+        internal void RegisterMember(ControlledOperation member) => this.Members.Add(member);
 
         /// <summary>
         /// Returns an enumerator that iterates through the members of this group.

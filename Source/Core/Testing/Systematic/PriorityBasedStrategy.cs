@@ -115,23 +115,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 if (this.GetNextOperationGroup(reducedOps, out OperationGroup nextGroup))
                 {
-                    bool check = false;
-                    if (nextGroup == current.Group)
-                    {
-                        // Maybe dont need this ...
-                        // Choose the current operation, if it is enabled.
-                        var currentGroupOps = reducedOps.Where(op => op.Id == current.Id).ToList();
-                        if (currentGroupOps.Count is 1)
-                        {
-                            reducedOps = currentGroupOps;
-                            check = true;
-                        }
-                    }
-
-                    if (!check)
-                    {
-                        reducedOps = reducedOps.Where(op => nextGroup.IsMember(op)).ToList();
-                    }
+                    reducedOps = reducedOps.Where(op => nextGroup.IsMember(op)).ToList();
                 }
 
                 if (reducedOps.Count > 0)

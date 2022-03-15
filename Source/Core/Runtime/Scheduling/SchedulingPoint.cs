@@ -42,6 +42,7 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+#pragma warning disable CA1801 // Parameter not used
         /// <summary>
         /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
         /// </summary>

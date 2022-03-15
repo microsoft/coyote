@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -143,7 +144,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the next controlled operation to schedule.
         /// </summary>
-        /// <param name="ops">Operations that can be scheduled.</param>
+        /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
@@ -151,8 +152,10 @@ namespace Microsoft.Coyote.Runtime
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextOperation(ops, current, isYielding, out next))
+            // Filter out any operations that cannot be scheduled.
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
+            if (enabledOps.Count > 0 && this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextOperation(enabledOps, current, isYielding, out next))
             {
                 this.Trace.AddSchedulingChoice(next.Id);
                 return true;
@@ -171,8 +174,8 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextBooleanChoice(current, maxValue, out next))
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextBooleanChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicBooleanChoice(next);
                 return true;
@@ -191,8 +194,8 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextIntegerChoice(current, maxValue, out next))
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextIntegerChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicIntegerChoice(next);
                 return true;

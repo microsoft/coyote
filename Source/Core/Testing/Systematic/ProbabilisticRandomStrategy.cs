@@ -28,19 +28,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
             this.StepCount++;
-
-            if (enabledOps.Count > 1)
+            if (ops.Count > 1)
             {
                 if (!this.ShouldCurrentMachineChange() && current.Status is OperationStatus.Enabled)
                 {
@@ -49,9 +41,8 @@ namespace Microsoft.Coyote.Testing.Systematic
                 }
             }
 
-            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
-            next = enabledOps[idx];
-
+            int idx = this.RandomValueGenerator.Next(ops.Count);
+            next = ops[idx];
             return true;
         }
 

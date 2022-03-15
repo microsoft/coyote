@@ -78,22 +78,15 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            next = null;
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                return false;
-            }
-
-            this.SetNewOperationPriorities(enabledOps, current);
-            this.DeprioritizeEnabledOperationWithHighestPriority(enabledOps, current, isYielding);
+            this.SetNewOperationPriorities(ops, current);
+            this.DeprioritizeEnabledOperationWithHighestPriority(ops, current, isYielding);
             this.DebugPrintOperationPriorityList();
 
-            ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
-            next = enabledOps.First(op => op.Equals(highestEnabledOperation));
+            ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(ops);
+            next = ops.First(op => op.Equals(highestEnabledOperation));
             this.StepCount++;
             return true;
         }

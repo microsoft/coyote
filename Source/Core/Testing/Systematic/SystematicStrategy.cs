@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal abstract bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next);
 
         /// <summary>

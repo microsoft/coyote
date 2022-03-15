@@ -43,16 +43,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
             try
             {
                 if (this.StepCount >= this.ScheduleTrace.Count)
@@ -68,7 +61,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     throw new InvalidOperationException(this.ErrorText);
                 }
 
-                next = enabledOps.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
+                next = ops.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
                 if (next is null)
                 {
                     this.ErrorText = this.FormatError($"cannot detect id '{nextStep.ScheduledOperationId}'");

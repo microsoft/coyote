@@ -102,16 +102,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            if (!ops.Any(op => op.Status is OperationStatus.Enabled))
-            {
-                // Fail fast if there are no enabled operations.
-                next = null;
-                return false;
-            }
-
             int state = this.CaptureExecutionStep(current);
             this.InitializeOperationQValues(state, ops);
 
@@ -158,8 +151,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             var qValues = new List<double>();
             foreach (var pair in this.OperationQTable[state])
             {
-                // Consider only the Q values of enabled operations.
-                if (ops.Any(op => op.Id == pair.Key && op.Status == OperationStatus.Enabled))
+                if (ops.Any(op => op.Id == pair.Key))
                 {
                     opIds.Add(pair.Key);
                     qValues.Add(pair.Value);
@@ -281,8 +273,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Initializes the Q values of all enabled operations that can be chosen
-        /// at the specified state that have not been previously encountered.
+        /// Initializes the Q values of all operations that can be chosen at the
+        /// specified state that have not been previously encountered.
         /// </summary>
         private void InitializeOperationQValues(int state, IEnumerable<ControlledOperation> ops)
         {
@@ -294,8 +286,8 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             foreach (var op in ops)
             {
-                // Assign the same initial probability for all new enabled operations.
-                if (op.Status == OperationStatus.Enabled && !qValues.ContainsKey(op.Id))
+                // Assign the same initial probability for all new operations.
+                if (!qValues.ContainsKey(op.Id))
                 {
                     qValues.Add(op.Id, 0);
                 }

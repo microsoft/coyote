@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             if (this.IsFair)

@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            string.Format("combo[{0},{1}]", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
+            string.Format("combo({0},{1})", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
 
         /// <inheritdoc/>
         internal override void Reset()

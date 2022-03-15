@@ -19,16 +19,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class PCTStrategy : SystematicStrategy
     {
         /// <summary>
-        /// Max number of priority switch points.
-        /// </summary>
-        private readonly int MaxPrioritySwitchPoints;
-
-        /// <summary>
-        /// Approximate length of the schedule across all iterations.
-        /// </summary>
-        private int ScheduleLength;
-
-        /// <summary>
         /// List of prioritized operations.
         /// </summary>
         private readonly List<ControlledOperation> PrioritizedOperations;
@@ -39,15 +29,25 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
+        /// Max potential priority change points across all iterations.
+        /// </summary>
+        private int MaxPriorityChangePointsCount;
+
+        /// <summary>
+        /// Max number of priority changes per iteration.
+        /// </summary>
+        private readonly int MaxPriorityChanges;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
         /// </summary>
         internal PCTStrategy(Configuration configuration, IRandomValueGenerator generator)
             : base(configuration, generator, false)
         {
-            this.ScheduleLength = 0;
-            this.MaxPrioritySwitchPoints = configuration.StrategyBound;
             this.PrioritizedOperations = new List<ControlledOperation>();
             this.PriorityChangePoints = new HashSet<int>();
+            this.MaxPriorityChangePointsCount = 0;
+            this.MaxPriorityChanges = configuration.StrategyBound;
         }
 
         /// <inheritdoc/>
@@ -59,14 +59,15 @@ namespace Microsoft.Coyote.Testing.Systematic
             // plus its also interesting to explore a schedule with no forced priority switch points.
             if (iteration > 0)
             {
-                this.ScheduleLength = Math.Max(this.ScheduleLength, this.StepCount);
+                this.MaxPriorityChangePointsCount = Math.Max(
+                    this.MaxPriorityChangePointsCount, this.StepCount);
                 this.StepCount = 0;
 
                 this.PrioritizedOperations.Clear();
                 this.PriorityChangePoints.Clear();
 
-                var range = Enumerable.Range(0, this.ScheduleLength);
-                foreach (int point in this.Shuffle(range).Take(this.MaxPrioritySwitchPoints))
+                var range = Enumerable.Range(0, this.MaxPriorityChangePointsCount);
+                foreach (int point in this.Shuffle(range).Take(this.MaxPriorityChanges))
                 {
                     this.PriorityChangePoints.Add(point);
                 }
@@ -78,11 +79,16 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.SetNewOperationPriorities(ops, current);
-            this.DeprioritizeEnabledOperationWithHighestPriority(ops, current, isYielding);
+            if (ops.Skip(1).Any())
+            {
+                // There are at least two operations, so check if we should switch to a new priority.
+                this.DeprioritizeEnabledOperationWithHighestPriority(ops, current, isYielding);
+            }
+
             this.DebugPrintOperationPriorityList();
 
             ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(ops);
@@ -94,7 +100,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Sets the priority of new operations, if there are any.
         /// </summary>
-        private void SetNewOperationPriorities(List<ControlledOperation> ops, ControlledOperation current)
+        private void SetNewOperationPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
             if (this.PrioritizedOperations.Count is 0)
             {
@@ -115,14 +121,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Deprioritizes the enabled operation with the highest priority, if there is a
         /// priority change point installed on the current execution step.
         /// </summary>
-        private void DeprioritizeEnabledOperationWithHighestPriority(List<ControlledOperation> ops, ControlledOperation current, bool isYielding)
+        private void DeprioritizeEnabledOperationWithHighestPriority(IEnumerable<ControlledOperation> ops,
+            ControlledOperation current, bool isYielding)
         {
-            if (ops.Count <= 1)
-            {
-                // Nothing to do, there is only one enabled operation available.
-                return;
-            }
-
             ControlledOperation deprioritizedOperation = null;
             if (this.PriorityChangePoints.Contains(this.StepCount))
             {
@@ -148,7 +149,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Returns the enabled operation with the highest priority.
         /// </summary>
-        private ControlledOperation GetEnabledOperationWithHighestPriority(List<ControlledOperation> ops)
+        private ControlledOperation GetEnabledOperationWithHighestPriority(IEnumerable<ControlledOperation> ops)
         {
             foreach (var operation in this.PrioritizedOperations)
             {
@@ -197,11 +198,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription()
-        {
-            var text = $"pct[seed '" + this.RandomValueGenerator.Seed + "']";
-            return text;
-        }
+        internal override string GetDescription() =>
+            $"pct[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
@@ -226,7 +224,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.ScheduleLength = 0;
             this.StepCount = 0;
             this.PrioritizedOperations.Clear();
             this.PriorityChangePoints.Clear();

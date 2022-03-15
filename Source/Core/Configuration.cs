@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote
 {
@@ -106,6 +106,12 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, shared state reduction is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsSharedStateReductionEnabled;
 
         /// <summary>
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
@@ -369,6 +375,7 @@ namespace Microsoft.Coyote
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
+            this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
@@ -541,6 +548,19 @@ namespace Microsoft.Coyote
         public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
+        /// </summary>
+        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
+        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        {
+            this.IsSharedStateReductionEnabled = isEnabled;
             return this;
         }
 

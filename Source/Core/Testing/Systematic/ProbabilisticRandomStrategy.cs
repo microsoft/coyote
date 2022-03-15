@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Number of coin flips.
         /// </summary>
-        private readonly int NumberOfCoinFlips;
+        private readonly int Bound;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
@@ -24,38 +24,40 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal ProbabilisticRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
             : base(configuration, generator)
         {
-            this.NumberOfCoinFlips = configuration.StrategyBound;
+            this.Bound = configuration.StrategyBound;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.StepCount++;
-            if (ops.Count > 1)
+
+            int count = ops.Count();
+            if (count > 1)
             {
-                if (!this.ShouldCurrentMachineChange() && current.Status is OperationStatus.Enabled)
+                if (!this.ShouldCurrentOperationChange() && current.Status is OperationStatus.Enabled)
                 {
                     next = current;
                     return true;
                 }
             }
 
-            int idx = this.RandomValueGenerator.Next(ops.Count);
-            next = ops[idx];
+            int idx = this.RandomValueGenerator.Next(count);
+            next = ops.ElementAt(idx);
             return true;
         }
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"probabilistic[seed '{this.RandomValueGenerator.Seed}', coin flips '{this.NumberOfCoinFlips}']";
+            $"probabilistic[bound:{this.Bound},seed:{this.RandomValueGenerator.Seed}']";
 
         /// <summary>
         /// Flip the coin a specified number of times.
         /// </summary>
-        private bool ShouldCurrentMachineChange()
+        private bool ShouldCurrentOperationChange()
         {
-            for (int idx = 0; idx < this.NumberOfCoinFlips; idx++)
+            for (int idx = 0; idx < this.Bound; idx++)
             {
                 if (this.RandomValueGenerator.Next(2) is 1)
                 {

@@ -116,6 +116,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"pct[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"pct[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

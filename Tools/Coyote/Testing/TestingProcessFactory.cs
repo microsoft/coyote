@@ -100,6 +100,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append("--no-fuzzing-fallback ");
             }
 
+            if (configuration.IsSharedStateReductionEnabled)
+            {
+                arguments.Append("--reduce-shared-state ");
+            }
+
             if (configuration.RandomGeneratorSeed.HasValue)
             {
                 arguments.Append($"--seed {configuration.RandomGeneratorSeed.Value} ");

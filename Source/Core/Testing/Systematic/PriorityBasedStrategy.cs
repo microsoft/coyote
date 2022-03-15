@@ -98,34 +98,36 @@ namespace Microsoft.Coyote.Testing.Systematic
             return true;
         }
 
+        internal static int Counter = 0;
+
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.SetNewGroupPriorities(ops, current);
-            if (ops.Count > 1)
+            if (ops.Count() > 1)
             {
                 var reducedOps = this.ReduceOperations(ops);
-                if (reducedOps.Count == ops.Count &&
-                    reducedOps.Any(op => !op.IsReadOnly))
-                {
-                    // There are operations writing to shared state.
-                    this.TryChangeGroupPriorities(reducedOps);
-                }
-
-                if (this.GetNextOperationGroup(reducedOps, out OperationGroup nextGroup))
-                {
-                    reducedOps = reducedOps.Where(op => nextGroup.IsMember(op)).ToList();
-                }
-
-                if (reducedOps.Count > 0)
+                if (reducedOps.Any())
                 {
                     ops = reducedOps;
                 }
+
+                if (ops.Count() > 1 && ops.Any(op => !op.IsReadOnly))
+                {
+                    Counter = this.MaxPriorityChangePointsCount;
+                    // There are operations writing to shared state.
+                    this.TryChangeGroupPriorities(ops);
+                }
+
+                if (this.GetNextOperationGroup(ops, out OperationGroup nextGroup))
+                {
+                    ops = ops.Where(op => nextGroup.IsMember(op));
+                }
             }
 
-            int idx = this.RandomValueGenerator.Next(ops.Count);
-            next = ops[idx];
+            int idx = this.RandomValueGenerator.Next(ops.Count());
+            next = ops.ElementAt(idx);
 
             this.StepCount++;
             return true;
@@ -134,7 +136,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Returns the operations with the highest priority.
         /// </summary>
-        private List<ControlledOperation> ReduceOperations(List<ControlledOperation> ops)
+        private IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops)
         {
             // Find all operations that are not accessing any shared state.
             var noStateAccessOps = ops.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
@@ -142,7 +144,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             if (noStateAccessOps.Any())
             {
                 // There are operations that are not accessing any shared state, so prioritize them.
-                ops = noStateAccessOps.ToList();
+                ops = noStateAccessOps;
             }
             else
             {
@@ -162,7 +164,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 if (readOnlyAccessOps.Any())
                 {
                     // Prioritize any read-only access operation.
-                    ops = readOnlyAccessOps.ToList();
+                    ops = readOnlyAccessOps;
                 }
             }
 
@@ -172,7 +174,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Returns the group with the highest priority that contains at least one enabled operation.
         /// </summary>
-        private bool GetNextOperationGroup(List<ControlledOperation> ops, out OperationGroup result)
+        private bool GetNextOperationGroup(IEnumerable<ControlledOperation> ops, out OperationGroup result)
         {
             foreach (var group in this.PrioritizedGroups)
             {
@@ -190,7 +192,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Sets the priority of new groups, if there are any.
         /// </summary>
-        private void SetNewGroupPriorities(List<ControlledOperation> ops, ControlledOperation current)
+        private void SetNewGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
             int count = this.PrioritizedGroups.Count;
             if (this.PrioritizedGroups.Count is 0)
@@ -218,25 +220,22 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// one enabled operation, if there is a priority change point installed on
         /// the current execution step.
         /// </summary>
-        private bool TryChangeGroupPriorities(List<ControlledOperation> ops)
+        private bool TryChangeGroupPriorities(IEnumerable<ControlledOperation> ops)
         {
-            if (ops.Count > 1)
+            OperationGroup group = null;
+            if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
             {
-                OperationGroup group = null;
-                if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
-                {
-                    this.GetNextOperationGroup(ops, out group);
-                    Debug.WriteLine("<ScheduleLog> operation group '{0}' is deprioritized.", group);
-                }
+                this.GetNextOperationGroup(ops, out group);
+                Debug.WriteLine("<ScheduleLog> operation group '{0}' is deprioritized.", group);
+            }
 
-                this.PriorityChangePointsCount++;
-                if (group != null)
-                {
-                    // Deprioritize the group by putting it in the end of the list.
-                    this.PrioritizedGroups.Remove(group);
-                    this.PrioritizedGroups.Add(group);
-                    return true;
-                }
+            this.PriorityChangePointsCount++;
+            if (group != null)
+            {
+                // Deprioritize the group by putting it in the end of the list.
+                this.PrioritizedGroups.Remove(group);
+                this.PrioritizedGroups.Add(group);
+                return true;
             }
 
             return false;
@@ -278,11 +277,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription()
-        {
-            var text = $"priority-based[seed '" + this.RandomValueGenerator.Seed + "']";
-            return text;
-        }
+        internal override string GetDescription() =>
+            $"priority-based[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.

@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(List<ControlledOperation> ops, ControlledOperation current,
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             int state = this.CaptureExecutionStep(current);
@@ -400,6 +400,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"RL[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"rl[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

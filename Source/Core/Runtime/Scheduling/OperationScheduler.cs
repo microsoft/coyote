@@ -31,6 +31,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly ReplayStrategy ReplayStrategy;
 
         /// <summary>
+        /// The installed schedule reducers, if any.
+        /// </summary>
+        private readonly List<IScheduleReducer> Reducers;
+
+        /// <summary>
         /// Responsible for generating random values.
         /// </summary>
         internal IRandomValueGenerator ValueGenerator { get; private set; }
@@ -69,11 +74,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(SchedulingPolicy policy, IRandomValueGenerator generator, Configuration configuration)
+        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
             this.ValueGenerator = generator;
+
+            this.Reducers = new List<IScheduleReducer>();
+            if (configuration.IsSharedStateReductionEnabled)
+            {
+                this.Reducers.Add(new SharedStateReducer());
+            }
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
@@ -107,16 +118,16 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration) =>
-            new OperationScheduler(configuration.IsConcurrencyFuzzingEnabled ?
-                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
-                new RandomValueGenerator(configuration), configuration);
+            new OperationScheduler(configuration,
+                configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                new RandomValueGenerator(configuration));
 
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(SchedulingPolicy policy, IRandomValueGenerator valueGenerator,
-            Configuration configuration) =>
-            new OperationScheduler(policy, valueGenerator, configuration);
+        internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
+            IRandomValueGenerator valueGenerator) =>
+            new OperationScheduler(configuration, policy, valueGenerator);
 
         /// <summary>
         /// Sets the specification engine.
@@ -153,12 +164,25 @@ namespace Microsoft.Coyote.Runtime
             bool isYielding, out ControlledOperation next)
         {
             // Filter out any operations that cannot be scheduled.
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count > 0 && this.Strategy is SystematicStrategy strategy &&
-                strategy.GetNextOperation(enabledOps, current, isYielding, out next))
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
+            if (enabledOps.Any())
             {
-                this.Trace.AddSchedulingChoice(next.Id);
-                return true;
+                // Invoke any installed schedule reducers.
+                foreach (var reducer in this.Reducers)
+                {
+                    // if (reducer.TryReduceOperations(enabledOps, current, out var reducedOps))
+                    // {
+                    //     enabledOps = reducedOps;
+                    // }
+                }
+
+                // Invoke the strategy to choose the next operation.
+                if (this.Strategy is SystematicStrategy strategy &&
+                    strategy.GetNextOperation(enabledOps, current, isYielding, out next))
+                {
+                    this.Trace.AddSchedulingChoice(next.Id);
+                    return true;
+                }
             }
 
             next = null;

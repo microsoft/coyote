@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Reduction
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// A reducer that analyzes shared state accesses to reduce the set of operations
@@ -35,15 +34,16 @@ namespace Microsoft.Coyote.Testing.Reduction
         }
 
         /// <inheritdoc/>
-        public List<ControlledOperation> ReduceOperations(ControlledOperation current, List<ControlledOperation> ops)
+        public bool TryReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            out IEnumerable<ControlledOperation> reducedOps)
         {
             // Find all operations that are not accessing any shared state.
             var noStateAccessOps = ops.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
                 op.LastSchedulingPoint != SchedulingPointType.Write);
             if (noStateAccessOps.Any())
             {
-                // There are operations that are not accessing any shared state, so prioritize them.
-                ops = noStateAccessOps.ToList();
+                // There are operations that are not accessing any shared state, so return them.
+                reducedOps = noStateAccessOps;
             }
             else
             {
@@ -62,42 +62,13 @@ namespace Microsoft.Coyote.Testing.Reduction
                     state => state == op.LastAccessedState));
                 if (readOnlyAccessOps.Any())
                 {
-                    // Prioritize any read-only access operation.
-                    ops = readOnlyAccessOps.ToList();
+                    // Return all read-only access operations.
+                    reducedOps = readOnlyAccessOps;
                 }
-
-                // else
-                // {
-                //     // There are operations writing to shared state.
-                //     var stateAccessingGroups = result.Select(op => op.Group).Distinct();
-                //     if (stateAccessingGroups.Any(group => !group.IsReadOnly))
-                //     {
-                //         // this.TryChangeGroupPriorities(result);
-                //     }
-                // }
             }
 
-            // if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
-            // {
-            //     if (nextGroup == current.Group)
-            //     {
-            //         // Maybe dont need this ...
-            //         // Choose the current operation, if it is enabled.
-            //         var currentGroupOps = result.Where(op => op.Id == current.Id).ToList();
-            //         if (currentGroupOps.Count is 1)
-            //         {
-            //             result = currentGroupOps;
-            //             return true;
-            //         }
-            //     }
-            //     result = result.Where(op => nextGroup.IsMember(op)).ToList();
-            //     foreach (var op in result)
-            //     {
-            //         System.Console.WriteLine($">>>>>>>> op: {op.Name} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group})");
-            //     }
-            // }
-
-            return ops;
+            reducedOps = ops;
+            return reducedOps.Any();
         }
     }
 }

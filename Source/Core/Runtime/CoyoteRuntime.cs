@@ -434,7 +434,6 @@ namespace Microsoft.Coyote.Runtime
                 op.IsSourceUncontrolled = true;
             }
 
-            Console.WriteLine($"--------> Register '{op}' with group {op.Group} and owner {op.Group.Owner.Name}");
             return op;
         }
 

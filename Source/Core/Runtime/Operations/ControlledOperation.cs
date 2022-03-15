@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Runtime
         internal OperationStatus Status;
 
         /// <summary>
-        /// The group that this operation has membership. This can be used
+        /// The group where this operation has membership. This can be used
         /// by the scheduler to optimize exploration.
         /// </summary>
         internal readonly OperationGroup Group;
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedState = string.Empty;
-            // TODO: set by default to false, unless the HTTP abstraction is set.
+            // TODO: probably set by default to false, unless e.g. the HTTP abstraction is set.
             this.IsReadOnly = isReadOnly;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;

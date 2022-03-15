@@ -5,12 +5,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Coyote.Web;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Represents a group of controlled operations that can be scheduled during testing.
+    /// Represents a group of controlled operations that can be scheduled together during testing.
     /// </summary>
     internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>, IDisposable
     {
@@ -42,7 +41,7 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<ControlledOperation> Members;
 
         /// <summary>
-        /// True if this group only consists of 'READ' operations, else false.
+        /// True if this group only consists of read-only operations, else false.
         /// </summary>
         internal bool IsReadOnly => this.Owner.IsReadOnly;
 
@@ -54,7 +53,6 @@ namespace Microsoft.Coyote.Runtime
             this.Id = Guid.NewGuid();
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
-            Console.WriteLine($"--------> Creating operation group {this.Id} for {owner.Name} (read-only: {this.IsReadOnly})");
         }
 
         /// <summary>
@@ -65,12 +63,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Registers the specified operation as a member of this group.
         /// </summary>
-        internal void RegisterMember(ControlledOperation member)
-        {
-            // => this.Members.Add(member);
-            Console.WriteLine($"--------> Operation group {this.Id} ({this.Owner.Name}) adding member {member.Name}");
-            this.Members.Add(member);
-        }
+        internal void RegisterMember(ControlledOperation member) => this.Members.Add(member);
 
         /// <summary>
         /// Returns an enumerator that iterates through the members of this group.

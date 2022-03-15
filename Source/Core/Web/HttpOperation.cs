@@ -23,8 +23,8 @@ namespace Microsoft.Coyote.Web
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
-        private HttpOperation(ulong operationId, HttpMethod method, string path, OperationGroup group)
-            : base(operationId, $"{method}HttpOp({operationId})", group, IsMethodReadOnly(method))
+        private HttpOperation(ulong operationId, HttpMethod method, string path)
+            : base(operationId, $"{method}HttpOp({operationId})", isReadOnly: IsMethodReadOnly(method))
         {
             this.Method = method;
             this.Path = path;
@@ -38,12 +38,8 @@ namespace Microsoft.Coyote.Web
             ControlledOperation source)
 #pragma warning restore CA1801 // Parameter not used
         {
-            // Assign the group of the source operation, if its owner is also an HTTP operation.
-            OperationGroup group = source?.Group.Owner is HttpOperation httpSource ? httpSource.Group : null;
-            group = null;
-
             ulong operationId = runtime.GetNextOperationId();
-            var op = new HttpOperation(operationId, method, path, group);
+            var op = new HttpOperation(operationId, method, path);
             runtime.RegisterOperation(op);
             if (runtime.GetExecutingOperation() is null)
             {

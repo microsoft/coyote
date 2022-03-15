@@ -46,6 +46,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                     runtime.Id, request.Method, request.Path, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
                 var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
+                OperationGroup.SetCurrent(op.Group);
                 await runtime.TaskFactory.StartNew(state =>
                     {
                         SystemTask task = this.Next(context);

@@ -28,6 +28,12 @@ namespace Microsoft.Coyote.Runtime
         internal OperationStatus Status;
 
         /// <summary>
+        /// The group where this operation has membership. This can be used
+        /// by the scheduler to optimize exploration.
+        /// </summary>
+        internal readonly OperationGroup Group;
+
+        /// <summary>
         /// Set of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
         internal readonly HashSet<object> Dependencies;
@@ -41,6 +47,16 @@ namespace Microsoft.Coyote.Runtime
         /// A value that represents the hashed program state when this operation last executed.
         /// </summary>
         internal int LastHashedProgramState;
+
+        /// <summary>
+        /// A value that represents the state being accessed when this operation last executed.
+        /// </summary>
+        internal string LastAccessedState;
+
+        /// <summary>
+        /// True if this is a read-only operation that cannot modify shared state, else false.
+        /// </summary>
+        internal readonly bool IsReadOnly;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -69,16 +85,23 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name)
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null, bool isReadOnly = true)
         {
             this.Id = operationId;
             this.Name = name;
             this.Status = OperationStatus.None;
+            this.Group = group ?? OperationGroup.Create(this);
             this.Dependencies = new HashSet<object>();
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
+            this.LastAccessedState = string.Empty;
+            // TODO: probably set by default to false, unless e.g. the HTTP abstraction is set.
+            this.IsReadOnly = isReadOnly;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
+
+            // Assign this operation as a member of this group.
+            this.Group.RegisterMember(this);
         }
 
         /// <summary>

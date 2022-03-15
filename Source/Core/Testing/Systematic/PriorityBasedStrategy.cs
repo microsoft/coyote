@@ -9,10 +9,6 @@ using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Systematic
 {
-#pragma warning disable SA1005
-#pragma warning disable SA1028
-#pragma warning disable CA1801
-#pragma warning disable CA1822
     /// <summary>
     /// A group-based probabilistic priority-based scheduling strategy.
     /// </summary>
@@ -71,17 +67,11 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.PriorityChangePointsCount = 0;
             this.MaxPriorityChangePointsCount = 0;
             this.MaxPriorityChanges = configuration.StrategyBound;
-
-            this.CurrentSchedule = string.Empty;
-            this.Path = new List<(string, int, SchedulingPointType, OperationGroup, int, string)>();
-            this.Groups = new Dictionary<int, Dictionary<OperationGroup, (bool, bool, bool)>>();
         }
 
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            this.MustChangeCount.Add(0);
-
             // The first iteration has no knowledge of the execution, so only initialize from the second
             // iteration and onwards. Note that although we could initialize the first length based on a
             // heuristic, its not worth it, as the strategy will typically explore thousands of iterations,
@@ -103,13 +93,8 @@ namespace Microsoft.Coyote.Testing.Systematic
                 this.DebugPrintPriorityChangePoints();
             }
 
-            this.CurrentSchedule = string.Empty;
-            this.Path.Clear();
-            this.Groups.Clear();
             this.PriorityChangePointsCount = 0;
             this.StepCount = 0;
-            this.Phase = 0;
-
             return true;
         }
 
@@ -134,11 +119,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(enabledOps.Count);
             next = enabledOps[idx];
 
-            // this.ProcessSchedule(current.LastSchedulingPoint, next, ops,
-            //     next.Id == current.Id ? "FORCED[CUR]" :
-            //     next.Group == current.Group ? "FORCED[GRP]" :
-            //     string.Empty);
-            // this.PrintSchedule();
             this.StepCount++;
             return true;
         }
@@ -164,52 +144,34 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Split the operations that are accessing shared state into a 'READ' and 'WRITE' group.
                 var readAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read);
                 var writeAccessOps = result.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
-                
+
                 // Update the known 'READ' and 'WRITE' accesses so far.
                 this.ReadAccesses.UnionWith(readAccessOps.Select(op => op.LastAccessedState));
                 this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedState));
-
-                this.ReadAccessSet.UnionWith(readAccessOps.Select(op => op.LastAccessedState));
-                this.WriteAccessSet.UnionWith(writeAccessOps.Select(op => op.LastAccessedState));
 
                 // Find if there are any read-only accesses. Note that this is just an approximation
                 // based on current knowledge. An access that is considered read-only might not be
                 // considered anymore in later steps or iterations.
                 var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
-                    state => state.Contains(op.LastAccessedState) || op.LastAccessedState.Contains(state)));
+                    state => state == op.LastAccessedState));
                 if (readOnlyAccessOps.Any())
                 {
                     // Prioritize any read-only access operation.
-                    Console.WriteLine($">>> [FILTER] {readOnlyAccessOps.Count()} operations are read-only.");
-                    foreach (var op in readOnlyAccessOps)
-                    {
-                        System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group})");
-                    }
-
                     result = readOnlyAccessOps.ToList();
                 }
                 else
                 {
                     // There are operations writing to shared state.
-                    Console.WriteLine($">>> [FILTER] {result.Count} operations are all accessing shared state.");
-                    foreach (var op in result)
-                    {
-                        System.Console.WriteLine($">>>>>>>> op: {op.Name} | is-write: {!op.Group.IsReadOnly} | state: {op.LastAccessedState} (sp: {op.LastSchedulingPoint} | o: {op.Group.Owner} | g: {op.Group})");
-                    }
-
                     var stateAccessingGroups = result.Select(op => op.Group).Distinct();
                     if (stateAccessingGroups.Any(group => !group.IsReadOnly))
                     {
-                        Console.WriteLine($">>>>>> Must change priority.");
-                        this.MustChangeCount[this.MustChangeCount.Count - 1]++;
-                        this.TryChangeGroupPriorities(result, current);
+                        this.TryChangeGroupPriorities(result);
                     }
                 }
             }
 
             if (this.GetPrioritizedOperationGroup(result, out OperationGroup nextGroup))
             {
-                Console.WriteLine($">>> [FILTER] Prioritized group {nextGroup} (o: {nextGroup.Owner}).");
                 if (nextGroup == current.Group)
                 {
                     // Maybe dont need this ...
@@ -267,7 +229,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Randomly choose a priority for this group.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedGroups.Count) + 1;
                 this.PrioritizedGroups.Insert(index, group);
-                Debug.WriteLine("<PriorityLog> chose priority '{0}' for new operation group '{1}'.", index, group);
+                Debug.WriteLine("<ScheduleLog> chose priority '{0}' for new operation group '{1}'.", index, group);
             }
 
             if (this.PrioritizedGroups.Count > count)
@@ -281,7 +243,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// one enabled operation, if there is a priority change point installed on
         /// the current execution step.
         /// </summary>
-        private bool TryChangeGroupPriorities(List<ControlledOperation> ops, ControlledOperation current)
+        private bool TryChangeGroupPriorities(List<ControlledOperation> ops)
         {
             if (ops.Count > 1)
             {
@@ -289,9 +251,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))
                 {
                     this.GetPrioritizedOperationGroup(ops, out group);
-                    this.ChangeCount.Add(this.PriorityChangePointsCount);
-                    Console.WriteLine($">>> [DISABLE] group {group} is disabled.");
-                    Debug.WriteLine("<PriorityLog> operation group '{0}' is deprioritized.", group);
+                    Debug.WriteLine("<ScheduleLog> operation group '{0}' is deprioritized.", group);
                 }
 
                 this.PriorityChangePointsCount++;
@@ -385,7 +345,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (Debug.IsEnabled)
             {
-                Debug.WriteLine("<PriorityLog> operation group priority list: ");
+                Debug.WriteLine("<ScheduleLog> operation group priority list: ");
                 for (int idx = 0; idx < this.PrioritizedGroups.Count; idx++)
                 {
                     var group = this.PrioritizedGroups[idx];
@@ -411,7 +371,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Sort them before printing for readability.
                 var sortedChangePoints = this.PriorityChangePoints.ToArray();
                 Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<PriorityLog> priority change points ('{0}' in total): {1}",
+                Debug.WriteLine("<ScheduleLog> priority change points ('{0}' in total): {1}",
                     sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
             }
         }

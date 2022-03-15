@@ -13,22 +13,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// </summary>
     internal abstract class SystematicStrategy : ExplorationStrategy
     {
-        protected string CurrentSchedule;
-
-        protected List<(string name, int enabledOpsCount, SchedulingPointType spType, OperationGroup group, int phase, string filter)> Path;
-
-        protected Dictionary<int, Dictionary<OperationGroup, (bool scheduled, bool disabled, bool completed)>> Groups;
-
-        protected int Phase = 0;
-
-        internal List<int> MustChangeCount = new List<int>();
-
-        internal List<int> ChangeCount = new List<int>();
-
-        internal HashSet<string> ReadAccessSet = new HashSet<string>();
-
-        internal HashSet<string> WriteAccessSet = new HashSet<string>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SystematicStrategy"/> class.
         /// </summary>
@@ -115,81 +99,5 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// This is typically invoked by parent strategies to reset child strategies.
         /// </remarks>
         internal abstract void Reset();
-
-        protected void ProcessSchedule(SchedulingPointType spType, ControlledOperation op,
-            IEnumerable<ControlledOperation> ops, string filter)
-        {
-            var group = op.Group;
-            if (!this.Groups.TryGetValue(this.Phase, out var groupMap))
-            {
-                groupMap = new Dictionary<OperationGroup, (bool, bool, bool)>();
-                this.Groups.Add(this.Phase, groupMap);
-            }
-
-            groupMap[group] = (true, false, false);
-
-            var count = ops.Count(op => op.Status is OperationStatus.Enabled);
-            this.Path.Add((op.Name, count, spType, group, this.Phase, filter));
-        }
-
-        internal void PrintSchedule()
-        {
-            var sb = new System.Text.StringBuilder();
-            for (int i = 0; i < this.Path.Count; i++)
-            {
-                var step = this.Path[i];
-                if ((i > 0 && step.phase != this.Path[i - 1].phase) || i == this.Path.Count - 1)
-                {
-                    int phase = i == this.Path.Count - 1 ? step.phase : step.phase - 1;
-                    sb.AppendLine($"===== PHASE DONE =====");
-                    sb.AppendLine($"Phase: {phase}");
-                    if (this.Groups.TryGetValue(phase, out var groupMap))
-                    {
-                        sb.AppendLine($"{groupMap.Count} scheduled groups:");
-                        foreach (var kvp in groupMap)
-                        {
-                            if (kvp.Value.scheduled)
-                            {
-                                if (kvp.Value.completed)
-                                {
-                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner} - COMPLETED!");
-                                }
-                                else
-                                {
-                                    sb.AppendLine($"  |_ {kvp.Key}({kvp.Key.Owner}");
-                                }
-                            }
-                        }
-
-                        var gd = groupMap.Where(g => g.Value.disabled).Select(g => g.Key).ToList();
-                        if (gd.Count > 0)
-                        {
-                            sb.AppendLine($"{gd.Count} disabled groups:");
-                            foreach (var g in gd)
-                            {
-                                sb.AppendLine($"  |_ {g}({g.Owner}");
-                            }
-                        }
-
-                        var groupOld = this.Groups.Where(p => p.Key < phase).SelectMany(p => p.Value.Keys).Distinct();
-                        var groupAll = this.Groups.Where(p => p.Key <= phase).SelectMany(p => p.Value.Keys).Distinct();
-                        var groupDelta = groupMap.Where(g => !groupOld.Contains(g.Key));
-                        sb.AppendLine($"Groups (old): {groupOld.Count()}");
-                        sb.AppendLine($"Groups (all): {groupAll.Count()}");
-                        sb.AppendLine($"Groups (new): {groupDelta.Count()}");
-                    }
-
-                    sb.AppendLine($"Length: {i}");
-                    sb.AppendLine($"======================");
-                }
-
-                string group = step.group is null ? string.Empty : $" - GRP[{step.group}({step.group.Owner})]";
-                string filter = string.IsNullOrEmpty(step.filter) ? string.Empty : $" - {step.filter}";
-                sb.AppendLine($"{step.name} - OPS[{step.enabledOpsCount}] - SP[{step.spType}]{group}{filter}");
-            }
-
-            this.CurrentSchedule = sb.ToString();
-            System.Console.WriteLine($">>> Schedule so far: {this.CurrentSchedule}");
-        }
     }
 }

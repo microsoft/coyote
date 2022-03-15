@@ -1062,7 +1062,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                IO.Debug.WriteLine("<Coyote> Starting operation '{0}' of group '{1}' on thread '{2}'.",
+                IO.Debug.WriteLine("<Coyote> Started operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Systematic)

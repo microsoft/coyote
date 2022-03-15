@@ -27,10 +27,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Yields execution to another controlled operation.
+        /// Attempts to yield execution to another controlled operation.
         /// </summary>
         /// <remarks>
-        /// Invoking this method can lower the scheduling priority of the currently executing
+        /// Invoking this method might lower the scheduling priority of the currently executing
         /// operation when certain exploration strategies are used.
         /// </remarks>
         public static void Yield()

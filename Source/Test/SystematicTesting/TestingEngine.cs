@@ -584,7 +584,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 Console.WriteLine($"COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter}");
                 Console.WriteLine($"Max-COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2}");
                 Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter = 0;
-                Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2 = 0;
 
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Close();

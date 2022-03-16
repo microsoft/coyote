@@ -41,6 +41,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<ControlledOperation> Members;
 
         /// <summary>
+        /// True if this group only consists of read-only operations, else false.
+        /// </summary>
+        internal bool IsReadOnly => this.Owner.IsReadOnly;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
         private OperationGroup(ControlledOperation owner)

@@ -83,11 +83,14 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 this.MaxPriorityChangePointsCount = Math.Max(
                     this.MaxPriorityChangePointsCount, this.PriorityChangePointsCount);
-
-                var range = Enumerable.Range(0, this.MaxPriorityChangePointsCount);
-                foreach (int point in this.Shuffle(range).Take(this.MaxPriorityChanges))
+                if (this.MaxPriorityChanges > 0)
                 {
-                    this.PriorityChangePoints.Add(point);
+                    var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    var range = Enumerable.Range(0, this.MaxPriorityChangePointsCount);
+                    foreach (int point in this.Shuffle(range).Take(priorityChanges))
+                    {
+                        this.PriorityChangePoints.Add(point);
+                    }
                 }
 
                 this.DebugPrintPriorityChangePoints();
@@ -105,14 +108,20 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
+            // Set the priority of any new operation groups.
             this.SetNewGroupPriorities(ops, current);
+
+            // Check if there are at least two operations that can be scheduled,
+            // otherwise skip the priority checking logic.
             if (ops.Skip(1).Any())
             {
-                // There are at least two operations that can be scheduled.
-                if (ops.Any(op => !op.IsReadOnly))
+                // Try to change the priority of the highest priority operation group.
+                // If the shared-state reduction is enabled, check if there is at least
+                // one 'WRITE' operation, before trying to change the priority.
+                if (!this.Configuration.IsSharedStateReductionEnabled ||
+                    // ops.Any(op => !op.Group.IsReadOnly))
+                    ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
                 {
-                    // There is at least one operation that is not read-only, so check
-                    // if the current operation group should change its priority.
                     this.TryChangeGroupPriorities(ops);
                     Counter = this.PriorityChangePointsCount;
                     Counter2 = this.MaxPriorityChangePointsCount;

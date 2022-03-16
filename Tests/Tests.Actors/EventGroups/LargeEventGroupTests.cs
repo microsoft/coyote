@@ -107,11 +107,8 @@ namespace Microsoft.Coyote.Actors.Tests
                 // before they are all halted.
                 r.SendEvent(id, new SpawnEvent() { Count = 4 }, op);
                 var result = await this.GetResultAsync(op.Task);
-
-                string dgml = graphBuilder.Graph.ToString();
                 Assert.Equal(41, op.Count);
-            },
-            configuration: this.GetConfiguration().WithPrioritizationStrategy(true, 10));
+            });
         }
     }
 }

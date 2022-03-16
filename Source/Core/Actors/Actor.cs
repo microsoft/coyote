@@ -1091,11 +1091,10 @@ namespace Microsoft.Coyote.Actors
                 return false;
             }
 
-            this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
-
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
+                this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
                 return false;
             }
             else if (outcome is OnExceptionOutcome.Halt)
@@ -1116,11 +1115,10 @@ namespace Microsoft.Coyote.Actors
         /// should continue to get thrown.</returns>
         private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, Event e)
         {
-            this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
-
             OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
+                this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
                 return false;
             }
 
@@ -1137,10 +1135,8 @@ namespace Microsoft.Coyote.Actors
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="e">The event being handled when the exception was thrown.</param>
         /// <returns>The action that the runtime should take.</returns>
-        protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
-        {
-            return OnExceptionOutcome.ThrowException;
-        }
+        protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e) =>
+            OnExceptionOutcome.ThrowException;
 
         /// <summary>
         /// Halts the actor.

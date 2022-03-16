@@ -29,9 +29,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
-        /// Max potential priority change points across all iterations.
+        /// Max number of potential priority change points across all iterations.
         /// </summary>
-        private int MaxPriorityChangePointsCount;
+        private int MaxPriorityChangePoints;
 
         /// <summary>
         /// Max number of priority changes per iteration.
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             this.PrioritizedOperations = new List<ControlledOperation>();
             this.PriorityChangePoints = new HashSet<int>();
-            this.MaxPriorityChangePointsCount = 0;
+            this.MaxPriorityChangePoints = 0;
             this.MaxPriorityChanges = configuration.StrategyBound;
         }
 
@@ -59,14 +59,14 @@ namespace Microsoft.Coyote.Testing.Systematic
             // plus its also interesting to explore a schedule with no forced priority switch points.
             if (iteration > 0)
             {
-                this.MaxPriorityChangePointsCount = Math.Max(
-                    this.MaxPriorityChangePointsCount, this.StepCount);
+                this.MaxPriorityChangePoints = Math.Max(
+                    this.MaxPriorityChangePoints, this.StepCount);
                 this.StepCount = 0;
 
                 this.PrioritizedOperations.Clear();
                 this.PriorityChangePoints.Clear();
 
-                var range = Enumerable.Range(0, this.MaxPriorityChangePointsCount);
+                var range = Enumerable.Range(0, this.MaxPriorityChangePoints);
                 foreach (int point in this.Shuffle(range).Take(this.MaxPriorityChanges))
                 {
                     this.PriorityChangePoints.Add(point);

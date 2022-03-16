@@ -1,6 +1,6 @@
 # SchedulingPoint.Yield method
 
-Yields execution to another controlled operation.
+Attempts to yield execution to another controlled operation.
 
 ```csharp
 public static void Yield()
@@ -8,7 +8,7 @@ public static void Yield()
 
 ## Remarks
 
-Invoking this method can lower the scheduling priority of the currently executing operation when certain exploration strategies are used.
+Invoking this method might lower the scheduling priority of the currently executing operation when certain exploration strategies are used.
 
 ## See Also
 

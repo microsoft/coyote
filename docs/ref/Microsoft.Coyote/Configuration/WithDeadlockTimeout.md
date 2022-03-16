@@ -8,7 +8,7 @@ public Configuration WithDeadlockTimeout(uint timeout)
 
 | parameter | description |
 | --- | --- |
-| timeout | The timeout value in milliseconds, which by default is 5000. |
+| timeout | The timeout value in milliseconds, which by default is 2500. |
 
 ## Remarks
 

@@ -28,18 +28,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
-        /// Set of values corresponding to shared state that has been accessed
-        /// by 'READ' operations across all iterations.
-        /// </summary>
-        private readonly HashSet<string> ReadAccesses;
-
-        /// <summary>
-        /// Set of values corresponding to shared state that has been accessed
-        /// by 'WRITE' operations across all iterations.
-        /// </summary>
-        private readonly HashSet<string> WriteAccesses;
-
-        /// <summary>
         /// Number of potential priority change points in the current iteration.
         /// </summary>
         private int PriorityChangePointsCount;
@@ -62,8 +50,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             this.PrioritizedGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
-            this.ReadAccesses = new HashSet<string>();
-            this.WriteAccesses = new HashSet<string>();
             this.PriorityChangePointsCount = 0;
             this.MaxPriorityChangePointsCount = 0;
             this.MaxPriorityChanges = configuration.StrategyBound;
@@ -109,7 +95,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             bool isYielding, out ControlledOperation next)
         {
             // Set the priority of any new operation groups.
-            this.SetNewGroupPriorities(ops, current);
+            this.SetNewPriorities(ops, current);
 
             // Check if there are at least two operations that can be scheduled,
             // otherwise skip the priority checking logic.
@@ -122,7 +108,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                     // ops.Any(op => !op.Group.IsReadOnly))
                     ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
                 {
-                    this.TryChangeGroupPriorities(ops);
+                    this.TryPrioritizeNextOperationGroup(ops);
                     Counter = this.PriorityChangePointsCount;
                     Counter2 = this.MaxPriorityChangePointsCount;
                 }
@@ -162,7 +148,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Sets the priority of new groups, if there are any.
         /// </summary>
-        private void SetNewGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        private void SetNewPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
             int count = this.PrioritizedGroups.Count;
             if (this.PrioritizedGroups.Count is 0)
@@ -190,7 +176,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// one enabled operation, if there is a priority change point installed on
         /// the current execution step.
         /// </summary>
-        private bool TryChangeGroupPriorities(IEnumerable<ControlledOperation> ops)
+        private bool TryPrioritizeNextOperationGroup(IEnumerable<ControlledOperation> ops)
         {
             OperationGroup group = null;
             if (this.PriorityChangePoints.Contains(this.PriorityChangePointsCount))

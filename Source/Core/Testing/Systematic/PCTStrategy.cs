@@ -82,11 +82,11 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            this.SetNewOperationPriorities(ops, current);
+            this.SetNewPriorities(ops, current);
             if (ops.Skip(1).Any())
             {
                 // There are at least two operations, so check if we should switch to a new priority.
-                this.DeprioritizeEnabledOperationWithHighestPriority(ops, current, isYielding);
+                this.TryPrioritizeNextOperation(ops, current, isYielding);
             }
 
             this.DebugPrintOperationPriorityList();
@@ -95,55 +95,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             next = ops.First(op => op.Equals(highestEnabledOperation));
             this.StepCount++;
             return true;
-        }
-
-        /// <summary>
-        /// Sets the priority of new operations, if there are any.
-        /// </summary>
-        private void SetNewOperationPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
-        {
-            if (this.PrioritizedOperations.Count is 0)
-            {
-                this.PrioritizedOperations.Add(current);
-            }
-
-            // Randomize the priority of all new operations.
-            foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
-            {
-                // Randomly choose a priority for this operation.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
-                this.PrioritizedOperations.Insert(index, op);
-                Debug.WriteLine("<PCTLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
-            }
-        }
-
-        /// <summary>
-        /// Deprioritizes the enabled operation with the highest priority, if there is a
-        /// priority change point installed on the current execution step.
-        /// </summary>
-        private void DeprioritizeEnabledOperationWithHighestPriority(IEnumerable<ControlledOperation> ops,
-            ControlledOperation current, bool isYielding)
-        {
-            ControlledOperation deprioritizedOperation = null;
-            if (this.PriorityChangePoints.Contains(this.StepCount))
-            {
-                // This scheduling step was chosen as a priority switch point.
-                deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
-                Debug.WriteLine("<PCTLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
-            }
-            else if (isYielding)
-            {
-                // The current operation is yielding its execution to the next prioritized operation.
-                deprioritizedOperation = current;
-                Debug.WriteLine("<PCTLog> operation '{0}' yields its priority.", deprioritizedOperation.Name);
-            }
-
-            if (deprioritizedOperation != null)
-            {
-                // Deprioritize the operation by putting it in the end of the list.
-                this.PrioritizedOperations.Remove(deprioritizedOperation);
-                this.PrioritizedOperations.Add(deprioritizedOperation);
-            }
         }
 
         /// <summary>
@@ -160,6 +111,55 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Sets the priority of new operations, if there are any.
+        /// </summary>
+        private void SetNewPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        {
+            if (this.PrioritizedOperations.Count is 0)
+            {
+                this.PrioritizedOperations.Add(current);
+            }
+
+            // Randomize the priority of all new operations.
+            foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
+            {
+                // Randomly choose a priority for this operation.
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
+                this.PrioritizedOperations.Insert(index, op);
+                Debug.WriteLine("<ScheduleLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
+            }
+        }
+
+        /// <summary>
+        /// Deprioritizes the enabled operation with the highest priority, if there is a
+        /// priority change point installed on the current execution step.
+        /// </summary>
+        private void TryPrioritizeNextOperation(IEnumerable<ControlledOperation> ops,
+            ControlledOperation current, bool isYielding)
+        {
+            ControlledOperation deprioritizedOperation = null;
+            if (this.PriorityChangePoints.Contains(this.StepCount))
+            {
+                // This scheduling step was chosen as a priority switch point.
+                deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
+                Debug.WriteLine("<ScheduleLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
+            }
+            else if (isYielding)
+            {
+                // The current operation is yielding its execution to the next prioritized operation.
+                deprioritizedOperation = current;
+                Debug.WriteLine("<ScheduleLog> operation '{0}' yields its priority.", deprioritizedOperation.Name);
+            }
+
+            if (deprioritizedOperation != null)
+            {
+                // Deprioritize the operation by putting it in the end of the list.
+                this.PrioritizedOperations.Remove(deprioritizedOperation);
+                this.PrioritizedOperations.Add(deprioritizedOperation);
+            }
         }
 
         /// <inheritdoc/>
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         {
             if (Debug.IsEnabled)
             {
-                Debug.Write("<PCTLog> operation priority list: ");
+                Debug.Write("<ScheduleLog> Operation priority list: ");
                 for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
                 {
                     if (idx < this.PrioritizedOperations.Count - 1)
@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Sort them before printing for readability.
                 var sortedChangePoints = this.PriorityChangePoints.ToArray();
                 Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<PCTLog> next priority change points ('{0}' in total): {1}",
+                Debug.WriteLine("<ScheduleLog> Priority change points ('{0}' in total): {1}",
                     sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
             }
         }

@@ -24,7 +24,7 @@ means that using locks in your code will not help you in writing correct concurr
 To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Go through the [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
@@ -119,7 +119,7 @@ The test succeeds.
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 0 (min), 0 (avg), 0 (max).
+..... Number of scheduling decisions in fair terminating schedules: 0 (min), 0 (avg), 0 (max).
 ... Elapsed 0.1182 sec.
 ```
 
@@ -181,7 +181,7 @@ This time the test immediately (and always) fails!
 ... Scheduling statistics:
 ..... Explored 1 schedule: 1 fair and 0 unfair.
 ..... Found 100.00% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 5 (min), 5 (avg), 5 (max).
+..... Number of scheduling decisions in fair terminating schedules: 5 (min), 5 (avg), 5 (max).
 ... Elapsed 0.1867838 sec.
 ```
 
@@ -243,7 +243,7 @@ more precisely for your test. Build, rewrite and run the same test once again.
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 2 (min), 3 (avg), 6 (max).
+..... Number of scheduling decisions in fair terminating schedules: 2 (min), 3 (avg), 6 (max).
 ... Elapsed 0.1560682 sec.
 ```
 
@@ -321,7 +321,7 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 ... Scheduling statistics:
 ..... Explored 8 schedules: 8 fair and 0 unfair.
 ..... Found 12.50% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 10 (min), 14 (avg), 23 (max).
+..... Number of scheduling decisions in fair terminating schedules: 10 (min), 14 (avg), 23 (max).
 ... Elapsed 0.198829 sec.
 ```
 

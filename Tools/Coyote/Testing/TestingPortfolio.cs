@@ -13,7 +13,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal static void ConfigureStrategyForCurrentProcess(Configuration configuration)
         {
-            // random, fairpct[1], probabilistic[1], fairpct[5], probabilistic[2], fairpct[10], etc.
             if (configuration.TestingProcessId is 0)
             {
                 configuration.SchedulingStrategy = "random";
@@ -25,12 +24,12 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (configuration.TestingProcessId is 1)
             {
-                configuration.SchedulingStrategy = "fairpct";
+                configuration.SchedulingStrategy = "fair-prioritization";
                 configuration.StrategyBound = 1;
             }
             else
             {
-                configuration.SchedulingStrategy = "fairpct";
+                configuration.SchedulingStrategy = "fair-prioritization";
                 configuration.StrategyBound = 5 * (int)((configuration.TestingProcessId + 1) / 2);
             }
         }

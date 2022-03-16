@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for systematic testing.</Description>
+    <Description>Tests for rewriting.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Rewriting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Rewriting.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
+    <NetStandard2Supported>false</NetStandard2Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+    <ProjectReference Include="..\Tests.Rewriting.Helpers\Tests.Rewriting.Helpers.csproj" />
     <ProjectReference Include="..\..\Tools\Coyote\Coyote.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
@@ -33,9 +34,9 @@
     </None>
   </ItemGroup>
   <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads" />
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite rewrite.coyote.json --dump-il-diff" />
   </Target>
   <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads" />
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json --dump-il-diff" />
   </Target>
 </Project>

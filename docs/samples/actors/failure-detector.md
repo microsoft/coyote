@@ -11,7 +11,7 @@ late at night scratching your head. Read further to learn how to find this bug u
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 
@@ -30,16 +30,16 @@ sure you have installed it correctly. Now you are ready to run a `coyote` test a
 
 ```plain
 cd coyote-samples
-coyote test ./bin/net5.0/Monitors.dll --iterations 1000 --max-steps 200
+coyote test ./bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200
 ```
 
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
-found using the `PCT` exploration strategy with a given maximum number of priority switch points
-`--sch-pct` (or with the default `Random` exploration strategy, but with a much larger number of
-iterations, typically more than 100,000 of them).
+found using the `prioritization` exploration strategy with a given maximum number of priority switch
+points `--sch-prioritization` (or with the default `random` exploration strategy, but with a much
+larger number of iterations, typically more than 100,000 of them).
 
 ```plain
-coyote test ./bin/net5.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-pct 10
+coyote test ./bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-prioritization 10
 ```
 
 Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger
@@ -52,8 +52,8 @@ When you use the right scheduling strategy, you will see a bug report:
 ```plain
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
-..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+..... Writing .\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
+..... Writing .\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
 ```
 
 The `*.txt` file is the text log of the iteration that found the bug. The `*.schedule` contains the
@@ -63,10 +63,10 @@ Finding a hard to find bug is one thing, but if you can't reproduce this bug whi
 is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
 
 ```plain
-coyote replay ./bin/net5.0/Monitors.dll 
-    .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+coyote replay ./bin/net6.0/Monitors.dll 
+    .\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
     
-. Reproducing trace in coyote-samples\./bin/net5.0/Monitors.exe
+. Reproducing trace in coyote-samples\./bin/net6.0/Monitors.exe
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.
 ```
@@ -78,14 +78,14 @@ tool can help you with that also. If you run the following command line it will 
 diagram](../../how-to/generate-dgml.md) of the state machines that are being tested:
 
 ```plain
-coyote test ./bin/net5.0/Monitors.dll --iterations 10 --max-steps 20 --graph
+coyote test ./bin/net6.0/Monitors.dll --iterations 10 --max-steps 20 --graph
 ```
 
 You will see the following output:
 
 ```plain
 ... Emitting graph:
-..... Writing .\bin\net5.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
+..... Writing .\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
 ```
 
 Open the DGML diagram using Visual Studio 2019 and you will see the following:

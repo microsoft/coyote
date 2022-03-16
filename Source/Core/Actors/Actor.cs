@@ -608,7 +608,7 @@ namespace Microsoft.Coyote.Actors
                         task = taskFunc();
                     }
 
-                    this.OnWaitTask(task, cachedAction.MethodInfo.Name);
+                    this.OnWaitTask(task);
                     await task;
                 }
                 else if (cachedAction.Handler is Action<Event> actionWithEvent)
@@ -662,7 +662,7 @@ namespace Microsoft.Coyote.Actors
                     task = this.OnEventUnhandledAsync(e, currentState);
                 }
 
-                this.OnWaitTask(task, callbackType);
+                this.OnWaitTask(task);
                 await task;
             }
             catch (Exception ex) when (this.OnExceptionHandler(ex, callbackType, e))
@@ -707,7 +707,7 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is System.Threading.ThreadInterruptedException)
+            if (innerException.GetBaseException() is ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
@@ -740,17 +740,20 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of this actor.
         /// </summary>
-        internal virtual int GetHashedState()
+        internal virtual int GetHashedState(SchedulingPolicy policy)
         {
             unchecked
             {
                 var hash = 19;
-                hash = (hash * 31) + this.GetType().GetHashCode();
-                hash = (hash * 31) + this.Id.Value.GetHashCode();
-                hash = (hash * 31) + this.IsHalted.GetHashCode();
-                hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
-                hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
-                hash = (hash * 31) + this.Inbox.GetCachedState();
+                if (policy is SchedulingPolicy.Systematic)
+                {
+                    hash = (hash * 31) + this.GetType().GetHashCode();
+                    hash = (hash * 31) + this.Id.Value.GetHashCode();
+                    hash = (hash * 31) + this.IsHalted.GetHashCode();
+                    hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
+                    hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
+                    hash = (hash * 31) + this.Inbox.GetCachedState();
+                }
 
                 if (this.HashedState != 0)
                 {
@@ -986,11 +989,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when the actor is waiting for the specified task to complete.
         /// </summary>
-        internal void OnWaitTask(Task task, string methodName)
+        private void OnWaitTask(Task task)
         {
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
-                this.Context.Runtime.AssertIsReturnedTaskControlled(task, methodName);
+                this.Context.Runtime.RegisterKnownControlledTask(task);
                 this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
             }
         }
@@ -1002,7 +1005,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.Status = AsyncOperationStatus.BlockedOnReceive;
+                this.Operation.Status = OperationStatus.BlockedOnReceive;
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -1023,7 +1026,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.Status = AsyncOperationStatus.Enabled;
+                this.Operation.Status = OperationStatus.Enabled;
             }
         }
 
@@ -1082,17 +1085,16 @@ namespace Microsoft.Coyote.Actors
         /// <returns>True if the exception was handled, else false if it should continue to get thrown.</returns>
         private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
-            if (ex is System.Threading.ThreadInterruptedException)
+            if (ex.GetBaseException() is ThreadInterruptedException)
             {
                 // Internal exception used during testing.
                 return false;
             }
 
-            this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
-
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
+                this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
                 return false;
             }
             else if (outcome is OnExceptionOutcome.Halt)
@@ -1113,11 +1115,10 @@ namespace Microsoft.Coyote.Actors
         /// should continue to get thrown.</returns>
         private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, Event e)
         {
-            this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
-
             OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
+                this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
                 return false;
             }
 
@@ -1134,10 +1135,8 @@ namespace Microsoft.Coyote.Actors
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="e">The event being handled when the exception was thrown.</param>
         /// <returns>The action that the runtime should take.</returns>
-        protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
-        {
-            return OnExceptionOutcome.ThrowException;
-        }
+        protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e) =>
+            OnExceptionOutcome.ThrowException;
 
         /// <summary>
         /// Halts the actor.

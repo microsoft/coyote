@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
@@ -12,33 +14,17 @@ namespace Microsoft.Coyote.Testing.Fuzzing
     internal class BoundedRandomStrategy : FuzzingStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
         /// Map from operation ids to total delays.
         /// </summary>
         private readonly ConcurrentDictionary<Guid, int> TotalTaskDelayMap;
 
         /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="BoundedRandomStrategy"/> class.
         /// </summary>
-        internal BoundedRandomStrategy(int maxDelays, IRandomValueGenerator random)
+        internal BoundedRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.RandomValueGenerator = random;
             this.TotalTaskDelayMap = new ConcurrentDictionary<Guid, int>();
-            this.MaxSteps = maxDelays;
         }
 
         /// <inheritdoc/>
@@ -54,7 +40,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// The delay has an injection probability of 0.05 and is in the range of [10, maxValue * 10]
         /// with an increment of 10 and an upper bound of 5000ms per operation.
         /// </remarks>
-        internal override bool GetNextDelay(int maxValue, out int next)
+        internal override bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
 
@@ -96,9 +83,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool IsFair() => true;
-
-        /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"random[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

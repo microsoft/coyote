@@ -58,12 +58,6 @@
 | class [TimerElapsedEvent](Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](Microsoft.Coyote.Actors.Timers/TimerInfo.md) | Stores information about a timer that can send timeout events to its owner actor. |
 
-## Microsoft.Coyote.Interception namespace
-
-| public type | description |
-| --- | --- |
-| class [ControlledSemaphoreSlim](Microsoft.Coyote.Interception/ControlledSemaphoreSlim.md) | A semaphore that limits the number of tasks that can access a resource. During testing, the semaphore is automatically replaced with a controlled mocked version. |
-
 ## Microsoft.Coyote.IO namespace
 
 | public type | description |
@@ -88,7 +82,7 @@
 | interface [ICoyoteRuntime](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) | Interface that exposes base runtime methods for Coyote. |
 | delegate [OnFailureHandler](Microsoft.Coyote.Runtime/OnFailureHandler.md) | Handles the [`OnFailure`](Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md) event. |
 | class [RuntimeException](Microsoft.Coyote.Runtime/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
-| static class [RuntimeFactory](Microsoft.Coyote.Runtime/RuntimeFactory.md) | Provides methods for creating a [`ICoyoteRuntime`](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
+| static class [RuntimeProvider](Microsoft.Coyote.Runtime/RuntimeProvider.md) | Provides methods for creating or accessing a [`ICoyoteRuntime`](Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
 | static class [SchedulingPoint](Microsoft.Coyote.Runtime/SchedulingPoint.md) | Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing. |
 
 ## Microsoft.Coyote.Specifications namespace

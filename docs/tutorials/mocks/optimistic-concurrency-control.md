@@ -27,7 +27,7 @@ trivial.
 To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Go through the [mocking dependencies for testing](mock-dependencies.md) tutorial.
 
@@ -279,7 +279,7 @@ The test succeeds.
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
+..... Number of scheduling decisions in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
 ... Elapsed 0.2354834 sec.
 ```
 

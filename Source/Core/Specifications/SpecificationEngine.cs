@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Specifications
             }
 
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic
-                && this.Configuration.ReportActivityCoverage)
+                && this.Configuration.IsActivityCoverageReported)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
             }
@@ -138,17 +138,17 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                {
+                    // TODO: check if its safe to invoke the monitor with a lock during systematic testing.
+                    monitor.MonitorEvent(e, senderName, senderType, senderStateName);
+                }
+                else
                 {
                     lock (monitor)
                     {
                         monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                     }
-                }
-                else
-                {
-                    // TODO: check if its safe to invoke the monitor with a lock during systematic testing.
-                    monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                 }
             }
         }
@@ -309,7 +309,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if a liveness monitor exceeded its threshold, and if yes, it reports an error.
+        /// Checks if a liveness monitor exceeded its threshold and, if yes, it reports an error.
         /// </summary>
         internal void CheckLivenessThresholdExceeded()
         {

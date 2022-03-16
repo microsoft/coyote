@@ -14,16 +14,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal sealed class DFSStrategy : SystematicStrategy
     {
         /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        private readonly int MaxSteps;
-
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        private int StepCount;
-
-        /// <summary>
         /// Stack of scheduling choices.
         /// </summary>
         private readonly List<List<SChoice>> ScheduleStack;
@@ -51,10 +41,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="DFSStrategy"/> class.
         /// </summary>
-        internal DFSStrategy(int maxSteps)
+        internal DFSStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
-            this.MaxSteps = maxSteps;
-            this.StepCount = 0;
             this.SchIndex = 0;
             this.NondetIndex = 0;
             this.ScheduleStack = new List<List<SChoice>>();
@@ -149,16 +138,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
             SChoice nextChoice = null;
             List<SChoice> scs = null;
 
@@ -169,7 +151,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             else
             {
                 scs = new List<SChoice>();
-                foreach (var task in enabledOps)
+                foreach (var task in ops)
                 {
                     scs.Add(new SChoice(task.Id));
                 }
@@ -190,7 +172,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 previousChoice.IsDone = false;
             }
 
-            next = enabledOps.Find(task => task.Id == nextChoice.Id);
+            next = ops.FirstOrDefault(op => op.Id == nextChoice.Id);
             nextChoice.IsDone = true;
             this.SchIndex++;
 
@@ -205,7 +187,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
             NondetBooleanChoice nextChoice = null;
             List<NondetBooleanChoice> ncs = null;
@@ -248,7 +230,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
             NondetIntegerChoice nextChoice = null;
             List<NondetIntegerChoice> ncs = null;
@@ -303,9 +285,6 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             return this.StepCount >= this.MaxSteps;
         }
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
         internal override string GetDescription() => "dfs";

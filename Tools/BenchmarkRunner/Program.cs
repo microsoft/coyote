@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
@@ -13,7 +14,6 @@ using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using PerformanceTests = Microsoft.Coyote.Tests.Performance;
 using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
-using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 
@@ -39,7 +39,6 @@ namespace Microsoft.Coyote.Benchmarking
         {
             new BenchmarkTest("MathBenchmark", typeof(PerformanceTests.MathBenchmark)),
             new BenchmarkTest("MemoryBenchmark", typeof(PerformanceTests.MemoryBenchmark)),
-            new BenchmarkTest("TaskInterleavingsBenchmark", typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new BenchmarkTest("CreationThroughputBenchmark", typeof(StateMachineTests.CreationThroughputBenchmark)),
             new BenchmarkTest("ExchangeEventLatencyBenchmark", typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new BenchmarkTest("SendEventThroughputBenchmark", typeof(StateMachineTests.SendEventThroughputBenchmark)),
@@ -60,7 +59,7 @@ namespace Microsoft.Coyote.Benchmarking
         public Program()
         {
             this.MachineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
-            this.RuntimeVersion = GetRuntimeVersion();
+            this.RuntimeVersion = RuntimeInformation.FrameworkDescription;
         }
 
         private bool ParseCommandLine(string[] args)
@@ -238,8 +237,8 @@ namespace Microsoft.Coyote.Benchmarking
                 if (FilterMatches(b.Name, this.Filters))
                 {
                     matching++;
-                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir)
-                        .WithOption(ConfigOptions.DisableOptimizationsValidator, true);
+                    var config = DefaultConfig.Instance.WithArtifactsPath(this.OutputDir).
+                        WithOption(ConfigOptions.DisableOptimizationsValidator, true);
                     config.AddDiagnoser(new CpuDiagnoser());
                     config.AddDiagnoser(new TotalMemoryDiagnoser());
 
@@ -293,7 +292,7 @@ namespace Microsoft.Coyote.Benchmarking
                 times.Add(msPerTest);
             }
 
-            var e = new PerfEntity(this.MachineName, this.RuntimeVersion, this.CommitId, testName, 0)
+            var entity = new PerfEntity(this.MachineName, this.RuntimeVersion, this.CommitId, testName, 0)
             {
                 Time = times.Min(),
                 TimeStdDev = MathHelpers.StandardDeviation(times),
@@ -301,15 +300,15 @@ namespace Microsoft.Coyote.Benchmarking
 
             if (report.Metrics.ContainsKey("CPU"))
             {
-                e.Cpu = report.Metrics["CPU"].Value;
+                entity.Cpu = report.Metrics["CPU"].Value;
             }
 
             if (report.Metrics.ContainsKey("TotalMemory"))
             {
-                e.Memory = report.Metrics["TotalMemory"].Value;
+                entity.Memory = report.Metrics["TotalMemory"].Value;
             }
 
-            results.Add(e);
+            results.Add(entity);
             return results;
         }
 
@@ -379,27 +378,6 @@ namespace Microsoft.Coyote.Benchmarking
             }
 
             return (from f in filters where name.IndexOf(f, StringComparison.OrdinalIgnoreCase) >= 0 select f).Any();
-        }
-
-        public static string GetRuntimeVersion()
-        {
-#if NET5_0
-            return "net5.0";
-#elif NET462
-            return "net462";
-#elif NETSTANDARD2_1
-            return "netstandard2.1";
-#elif NETSTANDARD2_0
-            return "netstandard2.0";
-#elif NETSTANDARD
-            return "netstandard";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NETCOREAPP
-            return "netcoreapp";
-#elif NETFRAMEWORK
-            return "net";
-#endif
         }
 
         private static async Task<string> RunCommandAsync(string cmd, string args)

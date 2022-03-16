@@ -16,55 +16,48 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Number of coin flips.
         /// </summary>
-        private readonly int NumberOfCoinFlips;
+        private readonly int Bound;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
         /// </summary>
-        internal ProbabilisticRandomStrategy(int maxSteps, int numberOfCoinFlips, IRandomValueGenerator generator)
-            : base(maxSteps, generator)
+        internal ProbabilisticRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator)
         {
-            this.NumberOfCoinFlips = numberOfCoinFlips;
+            this.Bound = configuration.StrategyBound;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
             this.StepCount++;
 
-            if (enabledOps.Count > 1)
+            int count = ops.Count();
+            if (count > 1)
             {
-                if (!this.ShouldCurrentMachineChange() && current.Status is AsyncOperationStatus.Enabled)
+                if (!this.ShouldCurrentOperationChange() && current.Status is OperationStatus.Enabled)
                 {
                     next = current;
                     return true;
                 }
             }
 
-            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
-            next = enabledOps[idx];
-
+            int idx = this.RandomValueGenerator.Next(count);
+            next = ops.ElementAt(idx);
             return true;
         }
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"probabilistic[seed '{this.RandomValueGenerator.Seed}', coin flips '{this.NumberOfCoinFlips}']";
+            $"probabilistic[bound:{this.Bound},seed:{this.RandomValueGenerator.Seed}']";
 
         /// <summary>
         /// Flip the coin a specified number of times.
         /// </summary>
-        private bool ShouldCurrentMachineChange()
+        private bool ShouldCurrentOperationChange()
         {
-            for (int idx = 0; idx < this.NumberOfCoinFlips; idx++)
+            for (int idx = 0; idx < this.Bound; idx++)
             {
                 if (this.RandomValueGenerator.Next(2) is 1)
                 {

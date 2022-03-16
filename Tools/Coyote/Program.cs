@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Telemetry;
 using Microsoft.Coyote.Utilities;
@@ -33,11 +32,10 @@ namespace Microsoft.Coyote
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Console.CancelKeyPress += OnProcessCanceled;
 
-            // Parses the command line options to get the configuration and rewritingOptions.
-
+            // Parses the command line options to get the configuration and rewriting options.
             var configuration = Configuration.Create();
             configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
-            var rewritingOptions = new RewritingOptions();
+            var rewritingOptions = RewritingOptions.Create();
 
             var result = CoyoteTelemetryClient.GetOrCreateMachineId().Result;
             bool firstTime = result.Item2;
@@ -53,8 +51,6 @@ namespace Microsoft.Coyote
 
                 Environment.Exit(1);
             }
-
-            configuration.PlatformVersion = GetPlatformVersion();
 
             if (!configuration.RunAsParallelBugFindingTask)
             {
@@ -134,7 +130,7 @@ namespace Microsoft.Coyote
                 return;
             }
 
-            if (configuration.ReportCodeCoverage || configuration.ReportActivityCoverage)
+            if (configuration.ReportCodeCoverage || configuration.IsActivityCoverageReported)
             {
                 // This has to be here because both forms of coverage require it.
                 CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);
@@ -190,47 +186,27 @@ namespace Microsoft.Coyote
         {
             try
             {
-                string assemblyDir = null;
-                var fileList = new HashSet<string>();
-                if (!string.IsNullOrEmpty(configuration.AssemblyToBeAnalyzed))
+                if (options.AssemblyPaths.Count is 1)
                 {
-                    var fullPath = Path.GetFullPath(configuration.AssemblyToBeAnalyzed);
-                    Console.WriteLine($". Rewriting {fullPath}");
-                    assemblyDir = Path.GetDirectoryName(fullPath);
-                    fileList.Add(fullPath);
-                }
-                else if (Directory.Exists(configuration.RewritingOptionsPath))
-                {
-                    assemblyDir = Path.GetFullPath(configuration.RewritingOptionsPath);
-                    Console.WriteLine($". Rewriting the assemblies specified in {assemblyDir}");
-                }
-
-                RewritingOptions config = options;
-
-                if (!string.IsNullOrEmpty(assemblyDir))
-                {
-                    // Create a new RewritingOptions object from command line args only.
-                    config.AssembliesDirectory = assemblyDir;
-                    config.OutputDirectory = assemblyDir;
-                    config.AssemblyPaths = fileList;
+                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}");
                 }
                 else
                 {
-                    // Load options from JSON file.
-                    config = RewritingOptions.ParseFromJSON(configuration.RewritingOptionsPath);
-                    Console.WriteLine($". Rewriting the assemblies specified in {configuration.RewritingOptionsPath}");
-                    config.PlatformVersion = configuration.PlatformVersion;
-
-                    // Allow command line options to override the JSON configuration file options.
-                    config.Merge(options);
+                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}");
                 }
 
-                RewritingEngine.Run(configuration, config);
+                var profiler = new Profiler();
+                RewritingEngine.Run(options, configuration, profiler);
+                Console.WriteLine($". Done rewriting in {profiler.Results()} sec");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.StackTrace);
-                Error.ReportAndExit(ex.Message);
+                if (ex is AggregateException aex)
+                {
+                    ex = aex.Flatten().InnerException;
+                }
+
+                Error.ReportAndExit(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
             }
         }
 
@@ -333,11 +309,6 @@ namespace Microsoft.Coyote
             string result = string.Empty;
 
             string[] parts = path.Replace("\\", "/").Split('/');
-            if (path.Contains("Microsoft.NETCore"))
-            {
-                result += " Core";
-            }
-
             if (parts.Length > 2)
             {
                 var version = parts[parts.Length - 2];
@@ -348,30 +319,6 @@ namespace Microsoft.Coyote
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Returns the .NET platform version this assembly was compiled for.
-        /// </summary>
-        private static string GetPlatformVersion()
-        {
-#if NET5_0
-            return "net5.0";
-#elif NET462
-            return "net462";
-#elif NETSTANDARD2_1
-            return "netstandard2.1";
-#elif NETSTANDARD2_0
-            return "netstandard2.0";
-#elif NETSTANDARD
-            return "netstandard";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NETCOREAPP
-            return "netcoreapp";
-#elif NETFRAMEWORK
-            return "net";
-#endif
         }
     }
 }

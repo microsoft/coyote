@@ -72,8 +72,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--liveness-temperature-threshold {configuration.LivenessTemperatureThreshold} ");
             }
 
-            if (configuration.SchedulingStrategy is "pct" ||
-                configuration.SchedulingStrategy is "fairpct" ||
+            if (configuration.SchedulingStrategy is "prioritization" ||
+                configuration.SchedulingStrategy is "fair-prioritization" ||
                 configuration.SchedulingStrategy is "probabilistic" ||
                 configuration.SchedulingStrategy is "rl")
             {
@@ -85,9 +85,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (configuration.IsRelaxedControlledTestingEnabled)
+            if (!configuration.IsPartiallyControlledConcurrencyEnabled)
             {
-                arguments.Append("--relaxed-testing ");
+                arguments.Append("--no-partial-control ");
             }
 
             if (configuration.IsConcurrencyFuzzingEnabled)
@@ -95,20 +95,36 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append("--concurrency-fuzzing ");
             }
 
+            if (!configuration.IsConcurrencyFuzzingFallbackEnabled)
+            {
+                arguments.Append("--no-fuzzing-fallback ");
+            }
+
+            if (configuration.IsSharedStateReductionEnabled)
+            {
+                arguments.Append("--reduce-shared-state ");
+            }
+
             if (configuration.RandomGeneratorSeed.HasValue)
             {
                 arguments.Append($"--seed {configuration.RandomGeneratorSeed.Value} ");
             }
 
-            if (configuration.PerformFullExploration)
+            if (configuration.RunTestIterationsToCompletion)
             {
                 arguments.Append("--explore ");
             }
 
             arguments.Append($"--timeout-delay {configuration.TimeoutDelay} ");
             arguments.Append($"--deadlock-timeout {configuration.DeadlockTimeout} ");
+            arguments.Append($"--uncontrolled-concurrency-timeout {configuration.UncontrolledConcurrencyTimeout} ");
 
-            if (configuration.ReportCodeCoverage && configuration.ReportActivityCoverage)
+            if (!configuration.ReportPotentialDeadlocksAsBugs)
+            {
+                arguments.Append("--skip-potential-deadlocks ");
+            }
+
+            if (configuration.ReportCodeCoverage && configuration.IsActivityCoverageReported)
             {
                 arguments.Append("--coverage ");
             }
@@ -116,7 +132,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 arguments.Append("--coverage code ");
             }
-            else if (configuration.ReportActivityCoverage)
+            else if (configuration.IsActivityCoverageReported)
             {
                 arguments.Append("--coverage activity ");
             }

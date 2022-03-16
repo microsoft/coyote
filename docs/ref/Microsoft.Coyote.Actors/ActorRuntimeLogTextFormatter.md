@@ -22,8 +22,8 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnDequeueEvent](ActorRuntimeLogTextFormatter/OnDequeueEvent.md)(…) | Invoked when the specified event is dequeued by an actor. |
 | virtual [OnEnqueueEvent](ActorRuntimeLogTextFormatter/OnEnqueueEvent.md)(…) | Invoked when the specified event is about to be enqueued to an actor. |
 | [OnEventHandlerTerminated](ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md)(…) | Invoked when the event handler of the specified actor terminated. |
-| virtual [OnExceptionHandled](ActorRuntimeLogTextFormatter/OnExceptionHandled.md)(…) | Invoked when the specified OnException method is used to handle a thrown exception. |
-| virtual [OnExceptionThrown](ActorRuntimeLogTextFormatter/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception. |
+| virtual [OnExceptionHandled](ActorRuntimeLogTextFormatter/OnExceptionHandled.md)(…) | Invoked when the specified actor has handled a thrown exception. |
+| virtual [OnExceptionThrown](ActorRuntimeLogTextFormatter/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception without handling it. |
 | virtual [OnExecuteAction](ActorRuntimeLogTextFormatter/OnExecuteAction.md)(…) | Invoked when the specified actor executes an action. |
 | virtual [OnGotoState](ActorRuntimeLogTextFormatter/OnGotoState.md)(…) | Invoked when the specified state machine performs a goto transition to the specified state. |
 | virtual [OnHalt](ActorRuntimeLogTextFormatter/OnHalt.md)(…) | Invoked when the specified actor has been halted. |
@@ -42,7 +42,6 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnSendEvent](ActorRuntimeLogTextFormatter/OnSendEvent.md)(…) | Invoked when the specified event is sent to a target actor. |
 | virtual [OnStateTransition](ActorRuntimeLogTextFormatter/OnStateTransition.md)(…) | Invoked when the specified state machine enters or exits a state. |
 | virtual [OnStopTimer](ActorRuntimeLogTextFormatter/OnStopTimer.md)(…) | Invoked when the specified actor timer has been stopped. |
-| virtual [OnStrategyDescription](ActorRuntimeLogTextFormatter/OnStrategyDescription.md)(…) | Invoked to describe the specified scheduling strategy. |
 | virtual [OnWaitEvent](ActorRuntimeLogTextFormatter/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks

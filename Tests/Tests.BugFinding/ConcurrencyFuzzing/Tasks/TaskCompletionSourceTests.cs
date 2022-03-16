@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if NET
 using Microsoft.Coyote.Runtime;
 using Xunit.Abstractions;
 
@@ -21,3 +22,4 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
         }
     }
 }
+#endif

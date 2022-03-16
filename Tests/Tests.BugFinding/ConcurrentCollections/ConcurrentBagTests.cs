@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
@@ -30,7 +29,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(1, count);
                 Assert.Single(concurrentBag);
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if NET || NETCOREAPP3_1
                 concurrentBag.Clear();
                 Assert.Empty(concurrentBag);
 #endif

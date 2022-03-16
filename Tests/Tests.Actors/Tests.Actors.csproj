@@ -4,7 +4,9 @@
     <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

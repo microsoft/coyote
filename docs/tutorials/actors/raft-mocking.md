@@ -19,7 +19,7 @@ you achieve a high level of confidence that the code is rock solid.
 You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 
@@ -36,12 +36,12 @@ powershell -f build.ps1
 Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```plain
-coyote test ./bin/net5.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+coyote test ./bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
 ```
 
 You should see the test succeed with output like this, including a coverage report and graph:
 ```plain
-. Testing ./bin/net5.0/Raft.Mocking.dll
+. Testing ./bin/net6.0/Raft.Mocking.dll
 Starting TestingProcessScheduler in process 34068
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:1388735316).
@@ -52,9 +52,9 @@ Starting TestingProcessScheduler in process 34068
 ..... Iteration #900
 ..... Iteration #1000
 ... Emitting coverage reports:
-..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
-..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing .\bin\net5.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
+..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:
@@ -121,8 +121,8 @@ test scheduling options you can play with:
 | Option | Description |
 | ------ | ----------- |
 | `--sch-random` | Choose the random scheduling strategy (this is the default) |
-| `--sch-pct uint` | Choose the PCT scheduling strategy with given maximum number of priority switch points |
-| `--sch-fairpct uint` | Choose the fair PCT scheduling strategy with given maximum number of priority switch points |
+| `--sch-prioritization uint` | Choose the priority-based scheduling strategy with given maximum number of priority switch points |
+| `--sch-fair-prioritization uint` | Choose the fair priority-based scheduling strategy with given maximum number of priority switch points |
 | `--sch-portfolio` | Choose the portfolio scheduling strategy in combination with parallel testing |
 
 
@@ -132,17 +132,17 @@ scheduling strategies at once, this is used in combination with the `--parallel`
  for example, would run 5 parallel test processes using different scheduling strategies:
 
 ```plain
-coyote test ./bin/net5.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
+coyote test ./bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:
 
 ```plain
-... Task 3 is using 'FairPCT' strategy (seed:3922897588).
-... Task 4 is using 'ProbabilisticRandom' strategy (seed:3469760925).
-... Task 2 is using 'ProbabilisticRandom' strategy (seed:1642014516).
-... Task 1 is using 'FairPCT' strategy (seed:1466235705).
-... Task 0 is using 'Random' strategy (seed:3931672516).
+... Task 3 is using 'fair-prioritization' strategy (seed:3922897588).
+... Task 4 is using 'probabilistic' strategy (seed:3469760925).
+... Task 2 is using 'probabilistic' strategy (seed:1642014516).
+... Task 1 is using 'fair-prioritization' strategy (seed:1466235705).
+... Task 0 is using 'random' strategy (seed:3931672516).
 ```
 
 You can also increase the number of iterations to 10,000,000 if you want to, then come back tomorrow

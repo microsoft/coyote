@@ -4,7 +4,9 @@
     <AssemblyName>Microsoft.Coyote.Tests.BugFinding</AssemblyName>
     <RootNamespace>Microsoft.Coyote.BugFinding.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Application</CoyoteTargetType>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
@@ -26,9 +28,9 @@
     </None>
   </ItemGroup>
   <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads --assert-data-races" />
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)$(AssemblyName).dll --dump-il-diff --rewrite-threads --assert-data-races" />
   </Target>
   <Target Name="CoyoteRewriteUnix" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll --rewrite-threads --assert-data-races" />
+    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite $(OutputPath)$(AssemblyName).dll --dump-il-diff --rewrite-threads --assert-data-races" />
   </Target>
 </Project>

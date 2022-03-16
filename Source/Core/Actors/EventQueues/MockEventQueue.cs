@@ -313,13 +313,12 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Checks if a default handler is currently available.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual bool IsDefaultHandlerAvailable()
         {
             bool result = this.Owner.IsDefaultHandlerInstalled();
             if (result)
             {
-                this.Owner.Context.Runtime.ScheduleNextOperation(Runtime.AsyncOperationType.Default);
+                this.Owner.Context.Runtime.ScheduleNextOperation(Runtime.SchedulingPointType.Receive);
             }
 
             return result;

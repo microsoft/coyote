@@ -14,7 +14,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Responsible for controlling the execution of operations during systematic testing.
         /// </summary>
-        private CoyoteRuntime Runtime;
+        internal CoyoteRuntime Runtime { get; private set; }
+
+        /// <summary>
+        /// The operation scheduling policy used by the runtime.
+        /// </summary>
+        internal SchedulingPolicy SchedulingPolicy => this.Runtime?.SchedulingPolicy ?? SchedulingPolicy.None;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledSynchronizationContext"/> class.
@@ -29,7 +34,7 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Posting callback from thread '{0}'.",
+                IO.Debug.WriteLine("<Coyote> Posting callback from thread '{0}'.",
                     Thread.CurrentThread.ManagedThreadId);
                 this.Runtime?.Schedule(() => d(state));
             }

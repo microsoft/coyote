@@ -12,6 +12,14 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal abstract class SystematicStrategy : ExplorationStrategy
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="SystematicStrategy"/> class.
+        /// </summary>
+        protected SystematicStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+            : base(configuration, generator, isFair)
+        {
+        }
+
+        /// <summary>
         /// Creates a <see cref="SystematicStrategy"/> from the specified configuration.
         /// </summary>
         internal static SystematicStrategy Create(Configuration configuration, IRandomValueGenerator generator)
@@ -19,51 +27,49 @@ namespace Microsoft.Coyote.Testing.Systematic
             SystematicStrategy strategy = null;
             if (configuration.SchedulingStrategy is "replay")
             {
-                strategy = new ReplayStrategy(configuration);
+                var trace = ScheduleTrace.Deserialize(configuration, out bool isFair);
+                strategy = new ReplayStrategy(configuration, generator, trace, isFair);
             }
             else if (configuration.SchedulingStrategy is "random")
             {
-                strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
+                strategy = new RandomStrategy(configuration, generator);
             }
-            else if (configuration.SchedulingStrategy is "pct")
+            else if (configuration.SchedulingStrategy is "prioritization")
             {
-                strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.StrategyBound, generator);
+                strategy = new PrioritizationStrategy(configuration, generator);
             }
-            else if (configuration.SchedulingStrategy is "fairpct")
+            else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
-                var prefixLength = configuration.SafetyPrefixBound is 0 ?
-                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, generator);
-                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, generator);
-                strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
+                var prefixStrategy = new PrioritizationStrategy(configuration, generator);
+                var suffixStrategy = new RandomStrategy(configuration, generator);
+                strategy = new ComboStrategy(configuration, generator, prefixStrategy, suffixStrategy);
             }
             else if (configuration.SchedulingStrategy is "probabilistic")
             {
-                strategy = new ProbabilisticRandomStrategy(configuration.MaxFairSchedulingSteps,
-                    configuration.StrategyBound, generator);
+                strategy = new ProbabilisticRandomStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "rl")
             {
-                strategy = new QLearningStrategy(configuration.MaxUnfairSchedulingSteps, generator);
+                strategy = new QLearningStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "dfs")
             {
-                strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
+                strategy = new DFSStrategy(configuration, generator);
             }
 
             return strategy;
         }
 
         /// <summary>
-        /// Returns the next asynchronous operation to schedule.
+        /// Returns the next controlled operation to schedule.
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next);
+        internal abstract bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -72,7 +78,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next);
+        internal abstract bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.
@@ -81,7 +87,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
+        internal abstract bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next);
 
         /// <summary>
         /// Resets the strategy.

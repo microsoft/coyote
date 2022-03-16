@@ -4,9 +4,10 @@
     <AssemblyName>Tests.Actors.Performance</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests.Performance</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>Library</CoyoteTargetType>
-    <Framework48Supported>false</Framework48Supported>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <Framework462Supported>false</Framework462Supported>
     <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A1), config);
             },
-            configuration: Configuration.Create().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M1), config);
             },
-            configuration: Configuration.Create().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(A2), config);
             },
-            configuration: Configuration.Create().WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M2), config);
             },
-            configuration: Configuration.Create().WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M3), config);
             },
-            configuration: Configuration.Create().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M4));
             },
-            configuration: Configuration.Create().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
+            configuration: this.GetConfiguration().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
             expectedError: "M4() registered a timer with a negative due time.",
             replay: true);
         }
@@ -287,7 +287,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M5));
             },
-            configuration: Configuration.Create().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
+            configuration: this.GetConfiguration().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
             expectedError: "M5() registered a periodic timer with a negative period.",
             replay: true);
         }
@@ -339,7 +339,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M6));
             },
-            configuration: Configuration.Create().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
+            configuration: this.GetConfiguration().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1),
             expectedError: "M7() is not allowed to dispose timer '', which is owned by M6().",
             replay: true);
         }
@@ -376,7 +376,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(M8));
             },
-            configuration: Configuration.Create().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithTestingIterations(200).WithMaxSchedulingSteps(200).WithTimeoutDelay(1));
         }
 
         private class T6 : StateMachine
@@ -447,7 +447,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(T6), config);
             },
-            configuration: Configuration.Create().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -459,7 +459,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 r.CreateActor(typeof(T6), config);
             },
-            configuration: Configuration.Create().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
     }

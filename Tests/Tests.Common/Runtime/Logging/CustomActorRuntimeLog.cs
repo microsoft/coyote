@@ -146,10 +146,6 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-        }
-
         public void OnCompleted()
         {
         }

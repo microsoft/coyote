@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Helpers for rewriting tests.</Description>
+    <AssemblyName>Microsoft.Coyote.Tests.Rewriting.Helpers</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Rewriting.Tests.Helpers</RootNamespace>
+    <OutputPath>.\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <NoWarn>$(NoWarn),1591</NoWarn>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+</Project>

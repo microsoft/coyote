@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Actors
         void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
-        /// Invoked when the specified actor throws an exception.
+        /// Invoked when the specified actor throws an exception without handling it.
         /// </summary>
         /// <param name="id">The id of the actor that threw the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -185,9 +185,9 @@ namespace Microsoft.Coyote.Actors
         void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex);
 
         /// <summary>
-        /// Invoked when the specified OnException method is used to handle a thrown exception.
+        /// Invoked when the specified actor has handled a thrown exception.
         /// </summary>
-        /// <param name="id">The id of the actor that threw the exception.</param>
+        /// <param name="id">The id of the actor that handled the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
         /// <param name="ex">The exception.</param>
@@ -272,13 +272,6 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="error">The text of the error.</param>
         void OnAssertionFailure(string error);
-
-        /// <summary>
-        /// Invoked to describe the specified scheduling strategy.
-        /// </summary>
-        /// <param name="strategyName">The name of the strategy that was used.</param>
-        /// <param name="description">More information about the scheduling strategy.</param>
-        void OnStrategyDescription(string strategyName, string description);
 
         /// <summary>
         /// Invoked when a log is complete (and is about to be closed).

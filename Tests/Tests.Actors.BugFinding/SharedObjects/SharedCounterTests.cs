@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M1));
             },
-            configuration: Configuration.Create().WithTestingIterations(50),
+            configuration: this.GetConfiguration().WithTestingIterations(50),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new SetupEvent(0));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
 
         [Fact(Timeout = 5000)]
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new SetupEvent(1));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new SetupEvent(2));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M2), new SetupEvent(3));
             },
-            configuration: Configuration.Create().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -254,7 +254,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.SharedObjects
             {
                 r.CreateActor(typeof(M3));
             },
-            configuration: Configuration.Create().WithTestingIterations(50));
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
     }
 }

@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Terminating = true;
 
-            // wait for any pending progress
+            // Wait for any pending progress.
             var task = this.ProgressTask;
             task?.Wait(30000);
 
@@ -112,19 +112,15 @@ namespace Microsoft.Coyote.SystematicTesting
                 await this.SendTestReport();
             }
 
-            if (!this.Configuration.PerformFullExploration &&
+            if (!this.Configuration.RunTestIterationsToCompletion &&
                 this.TestingEngine.TestReport.NumOfFoundBugs > 0 &&
                 !this.Configuration.RunAsParallelBugFindingTask)
             {
                 Console.WriteLine($"... Task {this.Configuration.TestingProcessId} found a bug.");
             }
 
-            // we want the graph generation even if doing full exploration.
-            if ((!this.Configuration.PerformFullExploration && this.TestingEngine.TestReport.NumOfFoundBugs > 0) ||
-                (this.Configuration.IsDgmlGraphEnabled && !this.Configuration.IsDgmlBugGraph))
-            {
-                await this.EmitTraces();
-            }
+            // Emit any test reports.
+            await this.EmitReports();
 
             // Closes the remote notification listener.
             if (this.Configuration.IsVerbose)
@@ -166,23 +162,17 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Opens the remote notification listener. If this is
-        /// not a parallel testing process, then this operation
-        /// does nothing.
+        /// Opens the remote notification listener. If this is not a parallel testing
+        /// process, then this operation does nothing.
         /// </summary>
         private async Task ConnectToServer()
         {
             string serviceName = this.Configuration.TestingSchedulerEndPoint;
             var source = new CancellationTokenSource();
 
-            var resolver = new SmartSocketTypeResolver(typeof(BugFoundMessage),
-                                                       typeof(TestReportMessage),
-                                                       typeof(TestServerMessage),
-                                                       typeof(TestProgressMessage),
-                                                       typeof(TestTraceMessage),
-                                                       typeof(TestReport),
-                                                       typeof(CoverageInfo),
-                                                       typeof(Configuration));
+            var resolver = new SmartSocketTypeResolver(typeof(BugFoundMessage), typeof(TestReportMessage),
+                typeof(TestServerMessage), typeof(TestProgressMessage), typeof(TestTraceMessage),
+                typeof(TestReport), typeof(CoverageInfo), typeof(Configuration));
 
             SmartSocketClient client = null;
             if (!string.IsNullOrEmpty(this.Configuration.TestingSchedulerIpAddress))
@@ -211,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting
             client.ServerName = serviceName;
             this.Server = client;
 
-            // open back channel so server can also send messages to us any time.
+            // Open back channel so server can also send messages to us any time.
             await client.OpenBackChannel(this.OnBackChannelConnected);
         }
 
@@ -234,13 +224,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
         private void OnClientError(object sender, Exception e)
         {
-            // todo: error handling, happens if we fail to get a message to the server for some reason.
+            // TODO: error handling, happens if we fail to get a message to the server for some reason.
         }
 
         /// <summary>
-        /// Closes the remote notification listener. If this is
-        /// not a parallel testing process, then this operation
-        /// does nothing.
+        /// Closes the remote notification listener. If this is not a parallel testing
+        /// process, then this operation does nothing.
         /// </summary>
         private void Disconnect()
         {
@@ -254,12 +243,12 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Notifies the remote testing scheduler
-        /// about a discovered bug.
+        /// Notifies the remote testing scheduler about a discovered bug.
         /// </summary>
         private async Task NotifyBugFound()
         {
-            await this.Server.SendReceiveAsync(new BugFoundMessage("BugFoundMessage", this.Name, this.Configuration.TestingProcessId));
+            await this.Server.SendReceiveAsync(new BugFoundMessage("BugFoundMessage",
+                this.Name, this.Configuration.TestingProcessId));
         }
 
         /// <summary>
@@ -268,13 +257,14 @@ namespace Microsoft.Coyote.SystematicTesting
         private async Task SendTestReport()
         {
             var report = this.TestingEngine.TestReport.Clone();
-            await this.Server.SendReceiveAsync(new TestReportMessage("TestReportMessage", this.Name, this.Configuration.TestingProcessId, report));
+            await this.Server.SendReceiveAsync(new TestReportMessage("TestReportMessage",
+                this.Name, this.Configuration.TestingProcessId, report));
         }
 
         /// <summary>
-        /// Emits the testing traces.
+        /// Emits the testing reports, if any.
         /// </summary>
-        private async Task EmitTraces()
+        private async Task EmitReports()
         {
             string file = Path.GetFileNameWithoutExtension(this.Configuration.AssemblyToBeAnalyzed);
             file += "_" + this.Configuration.TestingProcessId;
@@ -282,8 +272,8 @@ namespace Microsoft.Coyote.SystematicTesting
             // If this is a separate (sub-)process, CodeCoverageInstrumentation.OutputDirectory may not have been set up.
             CodeCoverageInstrumentation.SetOutputDirectory(this.Configuration, makeHistory: false);
 
-            Console.WriteLine($"... Emitting task {this.Configuration.TestingProcessId} traces:");
-            var traces = new List<string>(this.TestingEngine.TryEmitTraces(CodeCoverageInstrumentation.OutputDirectory, file));
+            Console.WriteLine($"... Emitting task {this.Configuration.TestingProcessId} reports:");
+            var traces = new List<string>(this.TestingEngine.TryEmitReports(CodeCoverageInstrumentation.OutputDirectory, file));
 
             if (this.Server != null && this.Server.IsConnected)
             {
@@ -310,7 +300,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Creates a task that pings the server with a heartbeat telling the server our current progress..
+        /// Creates a task that pings the server with a heartbeat telling the server our current progress.
         /// </summary>
         private async void StartProgressMonitorTask()
         {
@@ -331,14 +321,15 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             if (this.Server != null && !this.Terminating && this.Server.IsConnected)
             {
-                double progress = 0.0; // todo: get this from the TestingEngine.
+                // TODO: get this from the TestingEngine.
+                double progress = 0.0;
                 try
                 {
                     await this.Server.SendReceiveAsync(new TestProgressMessage("TestProgressMessage", this.Name, this.Configuration.TestingProcessId, progress));
                 }
                 catch (Exception)
                 {
-                    // can't contact the server, so perhaps it died, time to stop.
+                    // Can't contact the server, so perhaps it died, time to stop.
                     this.TestingEngine.Stop();
                 }
             }
@@ -348,7 +339,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             if (tsr.Stop)
             {
-                // server wants us to stop!
+                // Server wants us to stop!
                 if (this.Configuration.IsVerbose)
                 {
                     this.StdOut.WriteLine($"... ### Client {this.Configuration.TestingProcessId} is being told to stop!");

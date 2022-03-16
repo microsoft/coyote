@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -13,22 +15,22 @@ namespace Microsoft.Coyote.Runtime
     public static class SchedulingPoint
     {
         /// <summary>
-        /// Explores a possible interleaving with another operation during testing.
+        /// Explores a possible interleaving with another controlled operation.
         /// </summary>
         public static void Interleave()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Default, false, true);
+                runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
             }
         }
 
         /// <summary>
-        /// Yields execution to another operation during testing.
+        /// Attempts to yield execution to another controlled operation.
         /// </summary>
         /// <remarks>
-        /// Invoking this method can lower the scheduling priority of the currently executing
+        /// Invoking this method might lower the scheduling priority of the currently executing
         /// operation when certain exploration strategies are used.
         /// </remarks>
         public static void Yield()
@@ -36,12 +38,51 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                runtime.ScheduleNextOperation(AsyncOperationType.Yield, true, true);
+                runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+            }
+        }
+
+#pragma warning disable CA1801 // Parameter not used
+        /// <summary>
+        /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
+        /// </summary>
+        /// <param name="state">The shared state that is being read represented as a string.</param>
+        /// <param name="comparer">
+        /// Checks if the read shared state is equal with another shared state that is being accessed concurrently.
+        /// </param>
+        public static void Read(string state, IEqualityComparer<string> comparer = default)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                ControlledOperation op = runtime.GetExecutingOperation();
+                op.LastAccessedSharedState = state;
+                runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
+                op.LastAccessedSharedState = string.Empty;
             }
         }
 
         /// <summary>
-        /// Suppresses interleavings during testing until <see cref="Resume"/> is invoked.
+        /// Explores a possible interleaving due to a 'WRITE' operation on the specified shared state.
+        /// </summary>
+        /// <param name="state">The shared state that is being written represented as a string.</param>
+        /// <param name="comparer">
+        /// Checks if the written shared state is equal with another shared state that is being accessed concurrently.
+        /// </param>
+        public static void Write(string state, IEqualityComparer<string> comparer = default)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                ControlledOperation op = runtime.GetExecutingOperation();
+                op.LastAccessedSharedState = state;
+                runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
+                op.LastAccessedSharedState = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Suppresses interleavings until <see cref="Resume"/> is invoked.
         /// </summary>
         /// <remarks>
         /// This method does not suppress interleavings that happen when an operation is waiting
@@ -58,7 +99,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Resumes interleavings during testing due to an invoked <see cref="Suppress"/>.
+        /// Resumes interleavings that were suppressed by invoking <see cref="Suppress"/>.
         /// </summary>
         public static void Resume()
         {

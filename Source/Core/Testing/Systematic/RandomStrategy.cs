@@ -13,27 +13,11 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal class RandomStrategy : SystematicStrategy
     {
         /// <summary>
-        /// Random value generator.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The maximum number of steps to explore.
-        /// </summary>
-        protected readonly int MaxSteps;
-
-        /// <summary>
-        /// The number of exploration steps.
-        /// </summary>
-        protected int StepCount;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(int maxSteps, IRandomValueGenerator generator)
+        internal RandomStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair = true)
+            : base(configuration, generator, isFair)
         {
-            this.RandomValueGenerator = generator;
-            this.MaxSteps = maxSteps;
         }
 
         /// <inheritdoc/>
@@ -46,25 +30,17 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
-            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
-            next = enabledOps[idx];
-
+            int idx = this.RandomValueGenerator.Next(ops.Count());
+            next = ops.ElementAt(idx);
             this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
             next = false;
             if (this.RandomValueGenerator.Next(maxValue) is 0)
@@ -77,7 +53,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.StepCount++;
@@ -99,10 +75,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override bool IsFair() => true;
-
-        /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"random[seed:{this.RandomValueGenerator.Seed}]";
 
         /// <inheritdoc/>
         internal override void Reset()

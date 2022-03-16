@@ -22,11 +22,11 @@ $newJson = @"
     "runtimeOptions": {
         "tfm": "$tfm",
         "frameworks": [{
-            "name": "$originalFrameworkName",
+            "name": "Microsoft.NETCore.App",
             "version": "$originalFrameworkVersion"
         },
         {
-            "name": "Microsoft.AspNetCore.App",
+            "name": "$originalFrameworkName",
             "version": "$originalFrameworkVersion"
         }]
     }

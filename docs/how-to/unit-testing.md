@@ -11,11 +11,11 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Coyote" Version="1.2.1" />
-    <PackageReference Include="Microsoft.Coyote.Test" Version="1.2.1" />
+    <PackageReference Include="Microsoft.Coyote" Version="1.4.1" />
+    <PackageReference Include="Microsoft.Coyote.Test" Version="1.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
       <PrivateAssets>all</PrivateAssets>
@@ -70,10 +70,10 @@ Coyote found 1 bug.
 
 Most of the command line options you see on `coyote test` are available in the `Configuration`
 class. Use the `With*` helper methods to set the various configurations, for example, to specify
-`--sch-pct 10` use the following:
+`--sch-prioritization 10` use the following:
 
 ```csharp
-var config = Configuration.Create().WithPCTStrategy(false, 10);
+var config = Configuration.Create().WithPrioritizationStrategy(false, 10);
 ```
 
 For `--iterations` use `WithTestingIterations`. The `--graph` option maps to the `Configuration`
@@ -124,13 +124,13 @@ at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
    at System.Threading.ThreadPoolWorkQueue.Dispatch()
    at System.Threading._ThreadPoolWaitCallback.PerformWaitCallback()
 
-<StrategyLog> Found bug using 'random' strategy.
+<TestLog> Exploration finished [found a bug using the 'random' strategy].
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
-<StrategyLog> Number of scheduling points in fair terminating schedules: 
+<StrategyLog> Number of scheduling decisions in fair terminating schedules: 
               3 (min), 3 (avg), 3 (max).
 ```
 

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Specifications;
-
 namespace Microsoft.Coyote.Testing.Systematic
 {
     /// <summary>
@@ -13,11 +11,6 @@ namespace Microsoft.Coyote.Testing.Systematic
     internal abstract class LivenessCheckingStrategy : SystematicStrategy
     {
         /// <summary>
-        /// The configuration.
-        /// </summary>
-        protected readonly Configuration Configuration;
-
-        /// <summary>
         /// Strategy used for scheduling decisions.
         /// </summary>
         protected readonly SystematicStrategy SchedulingStrategy;
@@ -25,9 +18,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
-        internal LivenessCheckingStrategy(Configuration configuration, SystematicStrategy strategy)
+        internal LivenessCheckingStrategy(Configuration configuration, IRandomValueGenerator generator,
+            SystematicStrategy strategy)
+            : base(configuration, generator, strategy.IsFair)
         {
-            this.Configuration = configuration;
             this.SchedulingStrategy = strategy;
         }
 
@@ -41,9 +35,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached() =>
             this.SchedulingStrategy.IsMaxStepsReached();
-
-        /// <inheritdoc/>
-        internal override bool IsFair() => this.SchedulingStrategy.IsFair();
 
         /// <inheritdoc/>
         internal override string GetDescription() => this.SchedulingStrategy.GetDescription();

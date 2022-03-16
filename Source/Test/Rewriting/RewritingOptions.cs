@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using Microsoft.Coyote.IO;
+using System.Runtime.Versioning;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -17,25 +20,30 @@ namespace Microsoft.Coyote.Rewriting
     /// <remarks>
     /// See <see href="/coyote/get-started/rewriting">rewriting</see> for more information.
     /// </remarks>
-    public class RewritingOptions
+    internal class RewritingOptions
     {
         /// <summary>
         /// The directory containing the assemblies to rewrite.
         /// </summary>
-        public string AssembliesDirectory { get; set; }
+        internal string AssembliesDirectory { get; set; }
 
         /// <summary>
         /// The output directory where rewritten assemblies are placed.
         /// If this is the same as the <see cref="AssembliesDirectory"/> then
         /// the rewritten assemblies will replace the original assemblies.
         /// </summary>
-        public string OutputDirectory { get; set; }
+        internal string OutputDirectory { get; set; }
 
         /// <summary>
-        /// The file names of the assemblies to rewrite.  If this list is empty then it will
+        /// The file names of the assemblies to rewrite. If this list is empty then it will
         /// rewrite all assemblies in the <see cref="AssembliesDirectory"/>.
         /// </summary>
-        public HashSet<string> AssemblyPaths { get; set; }
+        internal HashSet<string> AssemblyPaths { get; set; }
+
+        /// <summary>
+        /// The paths to search for resolving dependencies.
+        /// </summary>
+        internal IList<string> DependencySearchPaths { get; set; }
 
         /// <summary>
         /// The regular expressions used to match against assembly names to determine which assemblies
@@ -50,219 +58,257 @@ namespace Microsoft.Coyote.Rewriting
         /// System\.Private\.CoreLib
         /// mscorlib.
         /// </remarks>
-        public IList<string> IgnoredAssemblies { get; set; }
-
-        /// <summary>
-        /// The paths to search for resolving dependencies.
-        /// </summary>
-        public IList<string> DependencySearchPaths { get; set; }
-
-        /// <summary>
-        /// True if the input assemblies are being replaced by the rewritten ones.
-        /// </summary>
-        internal bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
-
-        /// <summary>
-        /// The .NET platform version that Coyote was compiled for.
-        /// </summary>
-        private string DotnetVersion;
-
-        /// <summary>
-        /// Path of strong name key to use for signing rewritten assemblies.
-        /// </summary>
-        public string StrongNameKeyFile { get; set; }
+        private Regex IgnoredAssembliesPattern { get; set; }
 
         /// <summary>
         /// True if rewriting for concurrent collections is enabled, else false.
         /// </summary>
-        public bool IsRewritingConcurrentCollections { get; set; } = true;
+        internal bool IsRewritingConcurrentCollections { get; set; }
 
         /// <summary>
         /// True if rewriting for data race checking is enabled, else false.
         /// </summary>
-        public bool IsDataRaceCheckingEnabled { get; set; }
+        internal bool IsDataRaceCheckingEnabled { get; set; }
 
         /// <summary>
         /// True if rewriting dependent assemblies that are found in the same location is enabled, else false.
         /// </summary>
-        public bool IsRewritingDependencies { get; set; }
+        internal bool IsRewritingDependencies { get; set; }
 
         /// <summary>
         /// True if rewriting of unit test methods is enabled, else false.
         /// </summary>
-        /// <remarks>
-        /// If unit test rewriting is enabled, Coyote will instrument the binary to run unit test
-        /// methods in the scope of the Coyote testing engine. Note that this rewriting does not
-        /// change the semantics of the original test. For example, if the test is sequential it
-        /// will remain sequential, limiting the concurrency coverage that Coyote can achieve.
-        /// </remarks>
-        public bool IsRewritingUnitTests { get; internal set; }
+        internal bool IsRewritingUnitTests { get; set; }
 
         /// <summary>
-        /// True if rewriting Threads as controlled tasks.
+        /// True if rewriting threads as controlled tasks.
         /// </summary>
-        /// <remarks>
-        /// Normally Thread is not supported by Coyote, but this experimental feature wraps the
-        /// thread in a Task so that Coyote knows about it which avoids uncontrolled concurrency
-        /// errors in some cases.
-        /// </remarks>
-        public bool IsRewritingThreads { get; internal set; }
+        internal bool IsRewritingThreads { get; set; }
 
         /// <summary>
-        /// The logger used for rewriting.
+        /// True if the rewriter should log the IL before and after rewriting.
         /// </summary>
-        /// <remarks>
-        /// By default the logger write to Console.
-        /// </remarks>
-        public ILogger Logger { get; set; }
+        internal bool IsLoggingAssemblyContents { get; set; }
 
         /// <summary>
-        /// The amount of log output to produce.
+        /// True if the rewriter should diff the IL before and after rewriting.
         /// </summary>
-        public LogSeverity LogLevel { get; set; }
+        internal bool IsDiffingAssemblyContents { get; set; }
 
         /// <summary>
-        /// The .NET platform version that Coyote was compiled for.
+        /// Initializes a new instance of the <see cref="RewritingOptions"/> class.
         /// </summary>
-        internal string PlatformVersion
+        private RewritingOptions()
         {
-            get => this.DotnetVersion;
-
-            set
-            {
-                this.DotnetVersion = value;
-                this.ResolveVariables();
-            }
         }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="RewritingOptions"/> class with default values.
+        /// </summary>
+        internal static RewritingOptions Create() =>
+            new RewritingOptions()
+            {
+                AssembliesDirectory = string.Empty,
+                OutputDirectory = string.Empty,
+                AssemblyPaths = new HashSet<string>(),
+                DependencySearchPaths = null,
+                IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(new List<string>()),
+                IsRewritingConcurrentCollections = true,
+                IsDataRaceCheckingEnabled = false,
+                IsRewritingDependencies = false,
+                IsRewritingUnitTests = false,
+                IsRewritingThreads = false,
+                IsLoggingAssemblyContents = false,
+                IsDiffingAssemblyContents = false,
+            };
 
         /// <summary>
         /// Parses the <see cref="RewritingOptions"/> from the specified JSON configuration file.
         /// </summary>
-        public static RewritingOptions ParseFromJSON(string configurationPath)
+        internal static RewritingOptions ParseFromJSON(string configurationPath) =>
+            ParseFromJSON(new RewritingOptions(), configurationPath);
+
+        /// <summary>
+        /// Parses the JSON configuration file and merges the options into the specified
+        /// <see cref="RewritingOptions"/> object.
+        /// </summary>
+        internal static RewritingOptions ParseFromJSON(RewritingOptions options, string configurationPath)
         {
-            // TODO: replace with the new 'System.Text.Json' when .NET 5 comes out.
-
-            var assembliesDirectory = string.Empty;
-            var outputDirectory = string.Empty;
-            var assemblyPaths = new HashSet<string>();
-            IList<string> ignoredAssemblies = null;
-            IList<string> dependencySearchPaths = null;
-            string strongNameKeyFile = null;
-            bool isRewritingConcurrentCollections = false;
-            bool isDataRaceCheckingEnabled = false;
-            bool isRewritingDependencies = false;
-            bool isRewritingUnitTests = false;
-            bool isRewritingThreads = false;
-
-            string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
-
             try
             {
+                // TODO: replace with the new 'System.Text.Json'.
                 using FileStream fs = new FileStream(configurationPath, FileMode.Open, FileAccess.Read);
                 var serializer = new DataContractJsonSerializer(typeof(JsonConfiguration));
                 JsonConfiguration configuration = (JsonConfiguration)serializer.ReadObject(fs);
 
-                Uri baseUri = new Uri(workingDirectory);
+                Uri baseUri = new Uri(Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar);
                 Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
-                assembliesDirectory = resolvedUri.LocalPath;
-                strongNameKeyFile = configuration.StrongNameKeyFile;
-                isRewritingConcurrentCollections = configuration.IsRewritingConcurrentCollections;
-                isDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
-                isRewritingDependencies = configuration.IsRewritingDependencies;
-                isRewritingUnitTests = configuration.IsRewritingUnitTests;
-                isRewritingThreads = configuration.IsRewritingThreads;
+                options.AssembliesDirectory = resolvedUri.LocalPath;
                 if (string.IsNullOrEmpty(configuration.OutputPath))
                 {
-                    outputDirectory = assembliesDirectory;
+                    options.OutputDirectory = options.AssembliesDirectory;
                 }
                 else
                 {
                     resolvedUri = new Uri(baseUri, configuration.OutputPath);
-                    outputDirectory = resolvedUri.LocalPath;
+                    options.OutputDirectory = resolvedUri.LocalPath;
                 }
 
+                options.AssemblyPaths = new HashSet<string>();
                 if (configuration.Assemblies != null)
                 {
                     foreach (string assembly in configuration.Assemblies)
                     {
-                        resolvedUri = new Uri(Path.Combine(assembliesDirectory, assembly));
-                        assemblyPaths.Add(resolvedUri.LocalPath);
+                        resolvedUri = new Uri(Path.Combine(options.AssembliesDirectory, assembly));
+                        options.AssemblyPaths.Add(resolvedUri.LocalPath);
                     }
                 }
 
-                ignoredAssemblies = configuration.IgnoredAssemblies;
-                dependencySearchPaths = configuration.DependencySearchPaths;
+                options.DependencySearchPaths = configuration.DependencySearchPaths;
+                options.IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(
+                    configuration.IgnoredAssemblies ?? Array.Empty<string>());
+                options.IsRewritingConcurrentCollections = configuration.IsRewritingConcurrentCollections;
+                options.IsDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
+                options.IsRewritingDependencies = configuration.IsRewritingDependencies;
+                options.IsRewritingUnitTests = configuration.IsRewritingUnitTests;
+                options.IsRewritingThreads = configuration.IsRewritingThreads;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
-                throw new InvalidOperationException($"Unexpected JSON format in the '{configurationPath}' configuration file.\n{ex.Message}");
+                throw new InvalidOperationException(
+                    $"Unexpected JSON format in the '{configurationPath}' configuration file.\n{ex.Message}");
             }
 
-            return new RewritingOptions()
-            {
-                AssembliesDirectory = assembliesDirectory,
-                OutputDirectory = outputDirectory,
-                AssemblyPaths = assemblyPaths,
-                IgnoredAssemblies = ignoredAssemblies,
-                DependencySearchPaths = dependencySearchPaths,
-                StrongNameKeyFile = strongNameKeyFile,
-                IsRewritingConcurrentCollections = isRewritingConcurrentCollections,
-                IsDataRaceCheckingEnabled = isDataRaceCheckingEnabled,
-                IsRewritingDependencies = isRewritingDependencies,
-                IsRewritingUnitTests = isRewritingUnitTests,
-                IsRewritingThreads = isRewritingThreads
-            };
+            return options;
         }
 
         /// <summary>
-        /// Override the current options with the specified options.
+        /// Returns true if the assembly with the specified name must be ignored during rewriting, else false.
         /// </summary>
-        internal void Merge(RewritingOptions options)
+        internal bool IsAssemblyIgnored(string assemblyName) => this.IgnoredAssembliesPattern.IsMatch(assemblyName);
+
+        /// <summary>
+        /// Returns true if the input assemblies are being replaced by the rewritten ones, else false.
+        /// </summary>
+        internal bool IsReplacingAssemblies() => this.AssembliesDirectory == this.OutputDirectory;
+
+        /// <summary>
+        /// Returns a regex pattern with the disallowed assemblies.
+        /// </summary>
+        private static Regex GetDisallowedAssembliesRegex(IList<string> ignoredAssemblies)
         {
-            if (!string.IsNullOrEmpty(options.StrongNameKeyFile))
+            // List of assemblies that must be ignored by default.
+            string[] defaultIgnoreList = new string[]
             {
-                this.StrongNameKeyFile = options.StrongNameKeyFile;
+                @"Newtonsoft\.Json\.dll",
+                @"Microsoft\.Coyote\.dll",
+                @"Microsoft\.Coyote.Test\.dll",
+                @"Microsoft\.VisualStudio\.TestPlatform.*",
+                @"Microsoft\.TestPlatform.*",
+                @"System\.Private\.CoreLib\.dll",
+                @"mscorlib\.dll"
+            };
+
+            StringBuilder combined = new StringBuilder();
+            foreach (var e in defaultIgnoreList.Concat(ignoredAssemblies))
+            {
+                combined.Append(combined.Length is 0 ? "(" : "|");
+                combined.Append(e);
             }
 
-            if (options.IsDataRaceCheckingEnabled)
-            {
-                this.IsDataRaceCheckingEnabled = options.IsDataRaceCheckingEnabled;
-            }
+            combined.Append(')');
 
-            if (options.IsRewritingDependencies)
+            try
             {
-                this.IsRewritingDependencies = options.IsRewritingDependencies;
+                return new Regex(combined.ToString());
             }
-
-            if (options.IsRewritingThreads)
+            catch (Exception ex)
             {
-                this.IsRewritingThreads = options.IsRewritingThreads;
-            }
-
-            if (options.IsRewritingUnitTests)
-            {
-                this.IsRewritingUnitTests = options.IsRewritingUnitTests;
+                throw new InvalidOperationException(
+                    $"Unable to create a valid regular expression for ignored assemblies. {ex.Message}.");
             }
         }
 
-        internal void ResolveVariables()
+        /// <summary>
+        /// Sanitizes the rewriting options.
+        /// </summary>
+        internal RewritingOptions Sanitize()
         {
-            this.AssembliesDirectory = this.ResolvePath(this.AssembliesDirectory);
-            this.OutputDirectory = this.ResolvePath(this.OutputDirectory);
+            if (string.IsNullOrEmpty(this.AssembliesDirectory))
+            {
+                throw new InvalidOperationException("Please provide RewritingOptions.AssembliesDirectory");
+            }
+            else if (string.IsNullOrEmpty(this.OutputDirectory))
+            {
+                throw new InvalidOperationException("Please provide RewritingOptions.OutputDirectory");
+            }
+            else if (this.AssemblyPaths is null || this.AssemblyPaths.Count is 0)
+            {
+                throw new InvalidOperationException("Please provide RewritingOptions.AssemblyPaths");
+            }
 
+            string targetFramework = GetTargetFramework();
+            this.AssembliesDirectory = ResolvePath(this.AssembliesDirectory, targetFramework);
+            this.OutputDirectory = ResolvePath(this.OutputDirectory, targetFramework);
             foreach (string path in this.AssemblyPaths.ToArray())
             {
-                var newPath = this.ResolvePath(path);
+                var newPath = ResolvePath(path, targetFramework);
                 if (newPath != path)
                 {
                     this.AssemblyPaths.Remove(path);
                     this.AssemblyPaths.Add(newPath);
                 }
             }
+
+            if (this.AssemblyPaths is null || this.AssemblyPaths.Count is 0)
+            {
+                // Expand folder to include all DLLs in the path.
+                foreach (var file in Directory.GetFiles(this.AssembliesDirectory, "*.dll"))
+                {
+                    if (!this.IsAssemblyIgnored(Path.GetFileName(file)))
+                    {
+                        this.AssemblyPaths.Add(file);
+                    }
+                }
+            }
+
+            return this;
         }
 
-        private string ResolvePath(string path) => path.Replace("$(Platform)", this.PlatformVersion);
+        /// <summary>
+        /// Resolves the specified path.
+        /// </summary>
+        private static string ResolvePath(string path, string targetFramework) =>
+            path.Replace("$(TargetFramework)", targetFramework);
+
+        /// <summary>
+        /// Returns the target framework of the executing assembly.
+        /// </summary>
+        private static string GetTargetFramework()
+        {
+            var targetFramework = Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
+                .SingleOrDefault() as TargetFrameworkAttribute;
+            var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, StringSplitOptions.None);
+
+            var resolvedFramework = "$(TargetFramework)";
+            if (tokens != null && tokens.Length is 2)
+            {
+                if (tokens[0] == ".NETCoreApp")
+                {
+                    resolvedFramework = tokens[1] is "v6.0" ? "net6.0" :
+                        tokens[1] is "v5.0" ? "net5.0" :
+                        tokens[1] is "v3.1" ? "netcoreapp3.1" :
+                        resolvedFramework;
+                }
+                else if (tokens[0] == ".NETFramework")
+                {
+                    resolvedFramework = tokens[1] is "v4.6.2" ? "net462" : resolvedFramework;
+                }
+            }
+
+            return resolvedFramework;
+        }
 
         /// <summary>
         /// Implements a JSON configuration object.
@@ -273,10 +319,10 @@ namespace Microsoft.Coyote.Rewriting
         /// {
         ///     // The directory with the assemblies to rewrite. This path is relative
         ///     // to this configuration file.
-        ///     "AssembliesPath": "./bin/net5.0",
+        ///     "AssembliesPath": "./bin/net6.0",
         ///     // The output directory where rewritten assemblies are placed. This path
         ///     // is relative to this configuration file.
-        ///     "OutputPath": "./bin/net5.0/RewrittenBinaries",
+        ///     "OutputPath": "./bin/net6.0/RewrittenBinaries",
         ///     // The assemblies to rewrite. The paths are relative to 'AssembliesPath'.
         ///     "Assemblies": [
         ///         "Example.exe"
@@ -287,8 +333,6 @@ namespace Microsoft.Coyote.Rewriting
         [DataContract]
         private class JsonConfiguration
         {
-            private bool? isRewritingConcurrentCollections;
-
             [DataMember(Name = "AssembliesPath", IsRequired = true)]
             public string AssembliesPath { get; set; }
 
@@ -304,9 +348,10 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "DependencySearchPaths")]
             public IList<string> DependencySearchPaths { get; set; }
 
-            [DataMember(Name = "StrongNameKeyFile")]
-            public string StrongNameKeyFile { get; set; }
+            [DataMember(Name = "IsDataRaceCheckingEnabled")]
             public bool IsDataRaceCheckingEnabled { get; set; }
+
+            private bool? isRewritingConcurrentCollections;
 
             [DataMember(Name = "IsRewritingConcurrentCollections")]
             public bool IsRewritingConcurrentCollections

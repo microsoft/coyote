@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote
 {
@@ -39,12 +39,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal string AssemblyToBeAnalyzed;
-
-        /// <summary>
-        /// The path to the binary rewriting configuration file or a folder containing assemblies to rewrite.
-        /// </summary>
-        [DataMember]
-        internal string RewritingOptionsPath;
 
         /// <summary>
         /// Test method to be used.
@@ -87,22 +81,25 @@ namespace Microsoft.Coyote
         internal bool IsSchedulingSeedIncremental;
 
         /// <summary>
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// will attempt to partially control the concurrency of the application, instead of
+        /// failing with an error.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
-        internal bool IsRelaxedControlledTestingEnabled;
+        internal bool IsPartiallyControlledConcurrencyEnabled;
 
         /// <summary>
         /// If this option is enabled, the concurrency fuzzing policy is used during testing.
         /// </summary>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         [DataMember]
         internal bool IsConcurrencyFuzzingEnabled;
+
+        /// <summary>
+        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
+        /// automatically switches to concurrency fuzzing, instead of failing with an error.
+        /// </summary>
+        [DataMember]
+        internal bool IsConcurrencyFuzzingFallbackEnabled;
 
         /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
@@ -111,11 +108,16 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If true, the Coyote tester performs a full exploration,
-        /// and does not stop when it finds a bug.
+        /// If this option is enabled, shared state reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
-        internal bool PerformFullExploration;
+        internal bool IsSharedStateReductionEnabled;
+
+        /// <summary>
+        /// If true, the tester runs all iterations up to a bound, even if a bug is found.
+        /// </summary>
+        [DataMember]
+        internal bool RunTestIterationsToCompletion;
 
         /// <summary>
         /// The maximum scheduling steps to explore for unfair schedulers.
@@ -148,30 +150,37 @@ namespace Microsoft.Coyote
         /// A strategy-specific bound.
         /// </summary>
         [DataMember]
-        public int StrategyBound { get; internal set; }
+        internal int StrategyBound;
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time <see cref="Task.Delay(int)"/>
-        /// or a built-in timer is scheduled during systematic testing. Decrease the value to increase the
+        /// Value that controls the probability of triggering a timeout each time an operation gets delayed
+        /// or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the
         /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
-        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this
-        /// value is 10.
+        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
 
         /// <summary>
-        /// Value that controls how much time the deadlock monitor should wait during concurrency fuzzing before
-        /// reporting a potential deadlock. This value is in milliseconds, and by default is 5000.
+        /// Value that controls how much time the deadlock monitor should wait during concurrency testing
+        /// before reporting a potential deadlock. This value is in milliseconds.
         /// </summary>
         [DataMember]
-        internal uint DeadlockTimeout;
+        public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// Safety prefix bound. By default it is 0.
+        /// If this option is enabled then report any potential deadlock as a bug,
+        /// else skip to the next test iteration.
         /// </summary>
         [DataMember]
-        internal int SafetyPrefixBound;
+        internal bool ReportPotentialDeadlocksAsBugs;
+
+        /// <summary>
+        /// Value that controls how much time the runtime should wait for uncontrolled concurrency
+        /// to resolve before continuing exploration. This value is in milliseconds.
+        /// </summary>
+        [DataMember]
+        public uint UncontrolledConcurrencyTimeout { get; internal set; }
 
         /// <summary>
         /// The liveness temperature threshold. If it is 0 then it is disabled. By default
@@ -242,7 +251,7 @@ namespace Microsoft.Coyote
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
-        public bool ReportActivityCoverage { get; internal set; }
+        internal bool IsActivityCoverageReported;
 
         /// <summary>
         /// Enables activity coverage debugging.
@@ -261,13 +270,13 @@ namespace Microsoft.Coyote
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        public bool IsDgmlGraphEnabled { get; internal set; }
+        internal bool IsDgmlGraphEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
         /// </summary>
         [DataMember]
-        public bool IsXmlLogEnabled { get; internal set; }
+        internal bool IsXmlLogEnabled;
 
         /// <summary>
         /// If specified, requests a custom runtime log to be used instead of the default.
@@ -343,11 +352,6 @@ namespace Microsoft.Coyote
         internal bool EnableTelemetry;
 
         /// <summary>
-        /// The .NET platform version being used.
-        /// </summary>
-        internal string PlatformVersion;
-
-        /// <summary>
         /// Optional location of app that can run as a telemetry server.
         /// </summary>
         internal string TelemetryServerPath;
@@ -360,7 +364,6 @@ namespace Microsoft.Coyote
             this.OutputFilePath = string.Empty;
 
             this.AssemblyToBeAnalyzed = string.Empty;
-            this.RewritingOptionsPath = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
@@ -368,10 +371,12 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IsSchedulingSeedIncremental = false;
-            this.IsRelaxedControlledTestingEnabled = false;
+            this.IsPartiallyControlledConcurrencyEnabled = false;
             this.IsConcurrencyFuzzingEnabled = false;
+            this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
-            this.PerformFullExploration = false;
+            this.IsSharedStateReductionEnabled = false;
+            this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
@@ -384,8 +389,9 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
-            this.DeadlockTimeout = 5000;
-            this.SafetyPrefixBound = 0;
+            this.DeadlockTimeout = 2500;
+            this.ReportPotentialDeadlocksAsBugs = true;
+            this.UncontrolledConcurrencyTimeout = 1;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
@@ -396,7 +402,7 @@ namespace Microsoft.Coyote
             this.ScheduleTrace = string.Empty;
 
             this.ReportCodeCoverage = false;
-            this.ReportActivityCoverage = false;
+            this.IsActivityCoverageReported = false;
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
@@ -408,7 +414,6 @@ namespace Microsoft.Coyote
             this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;
             this.EnableTelemetry = true;
-            this.PlatformVersion = GetPlatformVersion();
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             if (optout is "1" || optout is "true")
@@ -449,15 +454,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the PCT scheduling strategy during systematic testing.
-        /// You can specify the number of priority switch points, which by default are 10.
+        /// Updates the configuration to use the priority-based scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible priority changes, which by default can be up to 10.
         /// </summary>
-        /// <param name="isFair">If true, use the fair version of PCT.</param>
-        /// <param name="numPrioritySwitchPoints">The nunmber of priority switch points.</param>
-        public Configuration WithPCTStrategy(bool isFair, uint numPrioritySwitchPoints = 10)
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
         {
-            this.SchedulingStrategy = isFair ? "fairpct" : "pct";
-            this.StrategyBound = (int)numPrioritySwitchPoints;
+            this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
+            this.StrategyBound = (int)priorityChangeBound;
             return this;
         }
 
@@ -517,16 +523,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with relaxed controlled testing enabled or disabled.
-        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// Updates the configuration with partial controlled concurrency enabled or disabled.
         /// </summary>
-        /// <param name="isEnabled">If true, then relaxed controlled testing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
-        public Configuration WithRelaxedControlledTestingEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial controlled concurrency is enabled.</param>
+        public Configuration WithPartiallyControlledConcurrencyEnabled(bool isEnabled = true)
         {
-            this.IsRelaxedControlledTestingEnabled = isEnabled;
+            this.IsPartiallyControlledConcurrencyEnabled = isEnabled;
             return this;
         }
 
@@ -534,12 +536,32 @@ namespace Microsoft.Coyote
         /// Updates the configuration with concurrency fuzzing enabled or disabled.
         /// </summary>
         /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        /// <remarks>
-        /// This is an experimental feature.
-        /// </remarks>
         public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with concurrency fuzzing fallback enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then concurrency fuzzing fallback is enabled.</param>
+        public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
+        {
+            this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
+        /// </summary>
+        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
+        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        {
+            this.IsSharedStateReductionEnabled = isEnabled;
             return this;
         }
 
@@ -605,11 +627,10 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the <see cref="TimeoutDelay"/> value that controls the probability of triggering
-        /// a timeout each time <see cref="Task.Delay(int)"/> or a built-in timer is scheduled during
-        /// systematic testing.
+        /// Updates the value that controls the probability of triggering a timeout each time an
+        /// operation gets delayed or a built-in timer gets scheduled during systematic testing.
         /// </summary>
-        /// <param name="delay">The timeout delay during testing.</param>
+        /// <param name="delay">The timeout delay during testing, which by default is 10.</param>
         /// <remarks>
         /// Increase the value to decrease the probability. This value is not a unit of time.
         /// </remarks>
@@ -620,16 +641,44 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the <see cref="DeadlockTimeout"/> value that controls how much time the deadlock monitor
-        /// should wait during concurrency fuzzing before reporting a potential deadlock.
+        /// Updates the value that controls how much time the deadlock monitor should
+        /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The deadlock timeout value in milliseconds.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 2500.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>
         public Configuration WithDeadlockTimeout(uint timeout)
         {
             this.DeadlockTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls if potential deadlocks should be reported as bugs.
+        /// </summary>
+        /// <param name="reportedAsBugs">If true, then potential deadlocks are reported as bugs.</param>
+        /// <remarks>
+        /// A deadlock is considered to be potential if the runtime cannot fully determine if the
+        /// deadlock is genuine or occurred because of partially-controlled concurrency.
+        /// </remarks>
+        public Configuration WithPotentialDeadlocksReportedAsBugs(bool reportedAsBugs = true)
+        {
+            this.ReportPotentialDeadlocksAsBugs = reportedAsBugs;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls how much time the runtime should wait for
+        /// uncontrolled concurrency to resolve before continuing exploration.
+        /// </summary>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 1.</param>
+        /// <remarks>
+        /// Increase the value to give more time to try resolve uncontrolled concurrency.
+        /// </remarks>
+        public Configuration WithUncontrolledConcurrencyTimeout(uint timeout)
+        {
+            this.UncontrolledConcurrencyTimeout = timeout;
             return this;
         }
 
@@ -650,6 +699,20 @@ namespace Microsoft.Coyote
         public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
         {
             this.IsSchedulingSeedIncremental = isIncremental;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration so that the tester continues running test iterations
+        /// up to a bound, even if a bug is already found.
+        /// </summary>
+        /// <param name="runToCompletion">
+        /// If true, the tester runs all iterations up to a bound, even if a bug is found.
+        /// </param>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public Configuration WithTestIterationsRunToCompletion(bool runToCompletion = true)
+        {
+            this.RunTestIterationsToCompletion = runToCompletion;
             return this;
         }
 
@@ -677,12 +740,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with activity coverage enabled or disabled.
+        /// Updates the configuration to enable or disable reporting activity coverage.
         /// </summary>
         /// <param name="isEnabled">If true, then enables activity coverage.</param>
-        public Configuration WithActivityCoverageEnabled(bool isEnabled = true)
+        public Configuration WithActivityCoverageReported(bool isEnabled = true)
         {
-            this.ReportActivityCoverage = isEnabled;
+            this.IsActivityCoverageReported = isEnabled;
             return this;
         }
 
@@ -722,30 +785,6 @@ namespace Microsoft.Coyote
         {
             this.IsMonitoringEnabledInInProduction = isEnabled;
             return this;
-        }
-
-        /// <summary>
-        /// Returns the .NET platform version this assembly was compiled for.
-        /// </summary>
-        private static string GetPlatformVersion()
-        {
-#if NET5_0
-            return "net5.0";
-#elif NET462
-            return "net462";
-#elif NETSTANDARD2_1
-            return "netstandard2.1";
-#elif NETSTANDARD2_0
-            return "netstandard2.0";
-#elif NETSTANDARD
-            return "netstandard";
-#elif NETCOREAPP3_1
-            return "netcoreapp3.1";
-#elif NETCOREAPP
-            return "netcoreapp";
-#elif NETFRAMEWORK
-            return "net";
-#endif
         }
     }
 #pragma warning restore CA1724 // Type names should not match namespaces

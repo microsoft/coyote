@@ -11,6 +11,10 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// <summary>
     /// A probabilistic scheduling strategy that uses Q-learning.
     /// </summary>
+    /// <remarks>
+    /// This strategy is described in the following paper:
+    /// https://dl.acm.org/doi/10.1145/3428298.
+    /// </remarks>
     internal sealed class QLearningStrategy : RandomStrategy
     {
         /// <summary>
@@ -21,9 +25,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// <summary>
         /// The path that is being executed during the current iteration. Each
         /// step of the execution is represented by an operation and a value
-        /// represented the program state after the operation executed.
+        /// representing the program state after the operation executed.
         /// </summary>
-        private readonly LinkedList<(ulong op, AsyncOperationType type, int state)> ExecutionPath;
+        private readonly LinkedList<(ulong op, SchedulingPointType sp, int state)> ExecutionPath;
 
         /// <summary>
         /// Map from values representing program states to their transition
@@ -32,9 +36,9 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly Dictionary<int, ulong> TransitionFrequencies;
 
         /// <summary>
-        /// The previously chosen operation.
+        /// The last chosen operation.
         /// </summary>
-        private ulong PreviousOperation;
+        private ulong LastOperation;
 
         /// <summary>
         /// The value of the learning rate.
@@ -62,14 +66,14 @@ namespace Microsoft.Coyote.Testing.Systematic
         private readonly ulong MinIntegerChoiceOpValue;
 
         /// <summary>
-        /// The failure injection reward.
-        /// </summary>
-        private readonly double FailureInjectionReward;
-
-        /// <summary>
         /// The basic action reward.
         /// </summary>
         private readonly double BasicActionReward;
+
+        /// <summary>
+        /// The failure injection reward.
+        /// </summary>
+        private readonly double FailureInjectionReward;
 
         /// <summary>
         /// The number of explored executions.
@@ -80,66 +84,59 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
         /// </summary>
-        public QLearningStrategy(int maxSteps, IRandomValueGenerator random)
-            : base(maxSteps, random)
+        public QLearningStrategy(Configuration configuration, IRandomValueGenerator generator)
+            : base(configuration, generator, false)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
-            this.ExecutionPath = new LinkedList<(ulong, AsyncOperationType, int)>();
+            this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();
             this.TransitionFrequencies = new Dictionary<int, ulong>();
-            this.PreviousOperation = 0;
+            this.LastOperation = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
             this.TrueChoiceOpValue = ulong.MaxValue;
             this.FalseChoiceOpValue = ulong.MaxValue - 1;
             this.MinIntegerChoiceOpValue = ulong.MaxValue - 2;
-            this.FailureInjectionReward = -1000;
             this.BasicActionReward = -1;
+            this.FailureInjectionReward = -1000;
             this.Epochs = 0;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
         {
-            if (!ops.Any(op => op.Status is AsyncOperationStatus.Enabled))
-            {
-                // Fail fast if there are no enabled operations.
-                next = null;
-                return false;
-            }
-
             int state = this.CaptureExecutionStep(current);
             this.InitializeOperationQValues(state, ops);
 
             next = this.GetNextOperationByPolicy(state, ops);
-            this.PreviousOperation = next.Id;
+            this.LastOperation = next.Id;
 
             this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeBooleanChoiceQValues(state);
 
             next = this.GetNextBooleanChoiceByPolicy(state);
 
-            this.PreviousOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
+            this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
             this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeIntegerChoiceQValues(state, maxValue);
 
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
 
-            this.PreviousOperation = this.MinIntegerChoiceOpValue - (ulong)next;
+            this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
             this.StepCount++;
             return true;
         }
@@ -148,14 +145,13 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Returns the next operation to schedule by drawing from the probability
         /// distribution over the specified state and enabled operations.
         /// </summary>
-        private AsyncOperation GetNextOperationByPolicy(int state, IEnumerable<AsyncOperation> ops)
+        private ControlledOperation GetNextOperationByPolicy(int state, IEnumerable<ControlledOperation> ops)
         {
             var opIds = new List<ulong>();
             var qValues = new List<double>();
             foreach (var pair in this.OperationQTable[state])
             {
-                // Consider only the Q values of enabled operations.
-                if (ops.Any(op => op.Id == pair.Key && op.Status == AsyncOperationStatus.Enabled))
+                if (ops.Any(op => op.Id == pair.Key))
                 {
                     opIds.Add(pair.Key);
                     qValues.Add(pair.Value);
@@ -258,12 +254,12 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// Captures metadata related to the current execution step, and returns
         /// a value representing the current program state.
         /// </summary>
-        private int CaptureExecutionStep(AsyncOperation current)
+        private int CaptureExecutionStep(ControlledOperation current)
         {
-            int state = current.HashedProgramState;
+            int state = current.LastHashedProgramState;
 
             // Update the execution path with the current state.
-            this.ExecutionPath.AddLast((this.PreviousOperation, current.Type, state));
+            this.ExecutionPath.AddLast((this.LastOperation, current.LastSchedulingPoint, state));
 
             if (!this.TransitionFrequencies.ContainsKey(state))
             {
@@ -277,10 +273,10 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <summary>
-        /// Initializes the Q values of all enabled operations that can be chosen
-        /// at the specified state that have not been previously encountered.
+        /// Initializes the Q values of all operations that can be chosen at the
+        /// specified state that have not been previously encountered.
         /// </summary>
-        private void InitializeOperationQValues(int state, IEnumerable<AsyncOperation> ops)
+        private void InitializeOperationQValues(int state, IEnumerable<ControlledOperation> ops)
         {
             if (!this.OperationQTable.TryGetValue(state, out Dictionary<ulong, double> qValues))
             {
@@ -290,8 +286,8 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             foreach (var op in ops)
             {
-                // Assign the same initial probability for all new enabled operations.
-                if (op.Status == AsyncOperationStatus.Enabled && !qValues.ContainsKey(op.Id))
+                // Assign the same initial probability for all new operations.
+                if (!qValues.ContainsKey(op.Id))
                 {
                     qValues.Add(op.Id, 0);
                 }
@@ -343,16 +339,12 @@ namespace Microsoft.Coyote.Testing.Systematic
             }
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
             this.LearnQValues();
             this.ExecutionPath.Clear();
-            this.PreviousOperation = 0;
+            this.LastOperation = 0;
             this.Epochs++;
 
             return base.InitializeNextIteration(iteration);
@@ -363,16 +355,12 @@ namespace Microsoft.Coyote.Testing.Systematic
         /// </summary>
         private void LearnQValues()
         {
-            var pathBuilder = new System.Text.StringBuilder();
-
             int idx = 0;
             var node = this.ExecutionPath.First;
             while (node?.Next != null)
             {
-                pathBuilder.Append($"{node.Value.op},");
-
                 var (_, _, state) = node.Value;
-                var (nextOp, nextType, nextState) = node.Next.Value;
+                var (nextOp, nextSp, nextState) = node.Next.Value;
 
                 // Compute the max Q value.
                 double maxQ = double.MinValue;
@@ -386,7 +374,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
                 // Compute the reward. Program states that are visited with higher frequency result into lesser rewards.
                 var freq = this.TransitionFrequencies[nextState];
-                double reward = (nextType == AsyncOperationType.InjectFailure ?
+                double reward = (nextSp == SchedulingPointType.InjectFailure ?
                     this.FailureInjectionReward : this.BasicActionReward) * freq;
                 if (reward > 0)
                 {
@@ -412,6 +400,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"RL[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"rl[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

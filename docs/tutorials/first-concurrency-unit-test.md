@@ -17,7 +17,7 @@ you in writing correct concurrent code.
 To run the code in this tutorial, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 5.0 version of the coyote tool](../get-started/install.md).
+- Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 
 ## Watch this tutorial
@@ -364,7 +364,7 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ... Scheduling statistics:
 ..... Explored 26 schedules: 26 fair and 0 unfair.
 ..... Found 3.85% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
+..... Number of scheduling decisions in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
 ... Elapsed 0.1574494 sec.
 ```
 
@@ -414,7 +414,7 @@ powershell -f build.ps1
 You can now run the tests (without Coyote) like this:
 
 ```plain
-cd .\bin\net5.0
+cd .\bin\net6.0
 .\AccountManager.exe
 ```
 

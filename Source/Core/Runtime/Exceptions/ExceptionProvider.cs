@@ -3,8 +3,10 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -23,35 +25,18 @@ namespace Microsoft.Coyote.Runtime
         public static void ThrowIfThreadInterruptedException(object exception)
         {
             // TODO: only re-throw an exception thrown by the runtime upon detach.
-            if (exception is ThreadInterruptedException)
+            if ((exception as Exception)?.GetBaseException() is ThreadInterruptedException ex)
             {
-                throw (Exception)exception;
-            }
-
-            if (exception is Exception ex)
-            {
-                // Look inside in case this is some sort of auto-wrapped AggregateException.
-                if (ex.InnerException != null)
-                {
-                    ThrowIfThreadInterruptedException(ex.InnerException);
-                }
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
         }
 
         /// <summary>
-        /// Throws a <see cref="NotSupportedException"/> for the specified unsupported method.
+        /// Throws an exception for the specified uncontrolled method invocation.
         /// </summary>
-        /// <param name="methodName">The name of the invoked method that is not supported.</param>
-        public static void ThrowNotSupportedInvocationException(string methodName)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                throw new NotSupportedException($"Invoking '{methodName}' is not intercepted and controlled during " +
-                    "testing, so it can interfere with the ability to reproduce bug traces. As a workaround, you can " +
-                    "use the '--no-repro' command line option to ignore this error by disabling bug trace repro. " +
-                    "Learn more at http://aka.ms/coyote-no-repro.");
-            }
-        }
+        /// <param name="methodName">The name of the invoked method that is not controlled.</param>
+        public static void ThrowUncontrolledInvocationException(string methodName) =>
+            CoyoteRuntime.Current?.NotifyUncontrolledInvocation(methodName);
 
         /// <summary>
         /// Throws an exception if the task returned by the method with the specified name
@@ -59,11 +44,20 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
+        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName) =>
+            CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
+
+        /// <summary>
+        /// Throws an exception if the value task returned by the method with the specified name
+        /// is not controlled during systematic testing.
+        /// </summary>
+        /// <param name="task">The value task to check if it is controlled or not.</param>
+        /// <param name="methodName">The name of the method returning the task.</param>
+        public static void ThrowIfReturnedValueTaskNotControlled(ref ValueTask task, string methodName)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
+            if (RuntimeCompiler.ValueTaskAwaiter.TryGetTask(ref task, out Task innerTask))
             {
-                CoyoteRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
+                CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(innerTask, methodName);
             }
         }
     }

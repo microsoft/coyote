@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 #if !DEBUG
 using System.Diagnostics;
 #endif
@@ -20,7 +19,6 @@ using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
-using IODebug = Microsoft.Coyote.IO.Debug;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -53,6 +51,26 @@ namespace Microsoft.Coyote.Actors
         /// Map from unique actor ids to actors.
         /// </summary>
         protected readonly ConcurrentDictionary<ActorId, Actor> ActorMap;
+
+        /// <summary>
+        /// Set of enabled actors.
+        /// </summary>
+        internal HashSet<ActorId> EnabledActors;
+
+        /// <summary>
+        /// Completes when actor quiescence is reached.
+        /// </summary>
+        internal TaskCompletionSource<bool> QuiescenceCompletionSource;
+
+        /// <summary>
+        /// True if the runtime is waiting for actor quiescence.
+        /// </summary>
+        private bool IsActorQuiescenceAwaited;
+
+        /// <summary>
+        /// Synchronizes access to the logic checking for actor quiescence.
+        /// </summary>
+        private readonly object QuiescenceSyncObject;
 
         /// <summary>
         /// Data structure containing information regarding testing coverage.
@@ -123,9 +141,13 @@ namespace Microsoft.Coyote.Actors
             this.Runtime = runtime;
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
+            this.EnabledActors = new HashSet<ActorId>();
+            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
+            this.IsActorQuiescenceAwaited = false;
             this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
+            this.QuiescenceSyncObject = new object();
         }
 
         /// <inheritdoc/>
@@ -147,21 +169,25 @@ namespace Microsoft.Coyote.Actors
             this.CreateActor(id, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null,
+            EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+            EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
+            EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, eventGroup);
 
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, EventGroup eventGroup)
+        internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator,
+            EventGroup eventGroup)
         {
             Actor actor = this.CreateActor(id, type, name, creator, eventGroup);
             if (actor is StateMachine)
@@ -173,6 +199,7 @@ namespace Microsoft.Coyote.Actors
                 this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
 
+            this.OnActorEventHandlerStarted(actor.Id);
             this.RunActorEventHandler(actor, initialEvent, true);
             return actor.Id;
         }
@@ -195,6 +222,7 @@ namespace Microsoft.Coyote.Actors
                 this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
 
+            this.OnActorEventHandlerStarted(actor.Id);
             await this.RunActorEventHandlerAsync(actor, initialEvent, true);
             return actor.Id;
         }
@@ -234,8 +262,10 @@ namespace Microsoft.Coyote.Actors
             }
 
             Actor actor = ActorFactory.Create(type);
+            ActorOperation op = this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing ?
+                this.GetOrCreateActorOperation(id, actor) : null;
             IEventQueue eventQueue = new EventQueue(actor);
-            actor.Configure(this, id, null, eventQueue, eventGroup);
+            actor.Configure(this, id, op, eventQueue, eventGroup);
             actor.SetupEventHandlers();
 
             if (!this.ActorMap.TryAdd(id, actor))
@@ -244,6 +274,22 @@ namespace Microsoft.Coyote.Actors
             }
 
             return actor;
+        }
+
+        /// <summary>
+        /// Returns the operation for the specified actor id, or creates a new
+        /// operation if it does not exist yet.
+        /// </summary>
+        protected ActorOperation GetOrCreateActorOperation(ActorId id, Actor actor)
+        {
+            var op = this.Runtime.GetOperationWithId<ActorOperation>(id.Value);
+            if (op is null)
+            {
+                op = new ActorOperation(id.Value, id.Name, actor);
+                this.Runtime.RegisterOperation(op);
+            }
+
+            return op;
         }
 
         /// <inheritdoc/>
@@ -263,13 +309,14 @@ namespace Microsoft.Coyote.Actors
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, eventGroup, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
+                this.OnActorEventHandlerStarted(target.Id);
                 this.RunActorEventHandler(target, null, false);
             }
         }
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
-        /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
+        /// already running. Otherwise blocks until the target handles the event and reaches quiescence.
         /// </summary>
         internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
             EventGroup eventGroup, SendOptions options)
@@ -277,6 +324,7 @@ namespace Microsoft.Coyote.Actors
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, eventGroup, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
+                this.OnActorEventHandlerStarted(target.Id);
                 await this.RunActorEventHandlerAsync(target, null, false);
                 return true;
             }
@@ -302,8 +350,12 @@ namespace Microsoft.Coyote.Actors
                 string message = (sender != null) ?
                     string.Format("{0} is sending event {1} to a null actor.", sender.Id.ToString(), e.ToString())
                     : string.Format("Cannot send event {0} to a null actor.", e.ToString());
-
                 this.Assert(false, message);
+            }
+
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                this.Runtime.DelayOperation();
             }
 
             target = this.GetActorWithId<Actor>(targetId);
@@ -341,30 +393,22 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh)
         {
-            Task.Run(async () =>
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                try
+                var op = actor.Operation;
+                this.Runtime.TaskFactory.StartNew(async state =>
                 {
-                    if (isFresh)
-                    {
-                        await actor.InitializeAsync(initialEvent);
-                    }
-
-                    await actor.RunEventHandlerAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.Runtime.IsRunning = false;
-                    this.RaiseOnFailureEvent(ex);
-                }
-                finally
-                {
-                    if (actor.IsHalted)
-                    {
-                        this.ActorMap.TryRemove(actor.Id, out Actor _);
-                    }
-                }
-            });
+                    await this.RunActorEventHandlerAsync(actor, initialEvent, isFresh);
+                },
+                op,
+                default,
+                this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                this.Runtime.TaskFactory.Scheduler);
+            }
+            else
+            {
+                Task.Run(async () => await this.RunActorEventHandlerAsync(actor, initialEvent, isFresh));
+            }
         }
 
         /// <summary>
@@ -391,6 +435,40 @@ namespace Microsoft.Coyote.Actors
                 if (actor.IsHalted)
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
+                }
+
+                this.OnActorEventHandlerCompleted(actor.Id);
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the event handler of the specified actor starts.
+        /// </summary>
+        private void OnActorEventHandlerStarted(ActorId actorId)
+        {
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Add(actorId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the event handler of the specified actor completes.
+        /// </summary>
+        private void OnActorEventHandlerCompleted(ActorId actorId)
+        {
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                lock (this.QuiescenceSyncObject)
+                {
+                    this.EnabledActors.Remove(actorId);
+                    if (this.IsActorQuiescenceAwaited && this.EnabledActors.Count is 0)
+                    {
+                        this.QuiescenceCompletionSource.TrySetResult(true);
+                    }
                 }
             }
         }
@@ -499,15 +577,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Notifies that the inbox of the specified actor is about to be
-        /// checked to see if the default event handler should fire.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void LogDefaultEventHandlerCheck(Actor actor)
-        {
-        }
-
-        /// <summary>
         /// Logs that the specified actor raised an <see cref="Event"/>.
         /// </summary>
         internal virtual void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
@@ -522,7 +591,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="Event"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleRaisedEvent(Actor actor, Event e)
         {
             if (this.Configuration.IsVerbose)
@@ -535,7 +603,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="HaltEvent"/>.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize)
         {
             if (this.Configuration.IsVerbose)
@@ -601,7 +668,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the event handler of the specified actor terminated.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
         {
             if (this.Configuration.IsVerbose)
@@ -667,7 +733,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Builds the coverage graph information, if any. This information is only available
-        /// when <see cref="Configuration.ReportActivityCoverage"/> is enabled.
+        /// when <see cref="Configuration.IsActivityCoverageReported"/> is enabled.
         /// </summary>
         internal CoverageInfo BuildCoverageInfo()
         {
@@ -789,6 +855,25 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
+        /// <summary>
+        /// Returns a task that completes once all actors reach quiescence.
+        /// </summary>
+        internal Task WaitUntilQuiescenceAsync()
+        {
+            lock (this.QuiescenceSyncObject)
+            {
+                if (this.EnabledActors.Count > 0)
+                {
+                    this.IsActorQuiescenceAwaited = true;
+                    return this.QuiescenceCompletionSource.Task;
+                }
+                else
+                {
+                    return Task.CompletedTask;
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public void Stop() => this.Runtime.ForceStop();
 
@@ -800,6 +885,7 @@ namespace Microsoft.Coyote.Actors
             if (disposing)
             {
                 this.ActorMap.Clear();
+                this.EnabledActors.Clear();
             }
         }
 
@@ -952,7 +1038,7 @@ namespace Microsoft.Coyote.Actors
 
                 // Using ulong.MaxValue because a Create operation cannot specify
                 // the id of its target, because the id does not exist yet.
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Create);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Create);
                 this.ResetProgramCounter(creator);
 
                 if (id is null)
@@ -993,7 +1079,7 @@ namespace Microsoft.Coyote.Actors
                     throw new InvalidOperationException($"An actor with id '{id.Value}' already exists.");
                 }
 
-                if (this.Configuration.ReportActivityCoverage)
+                if (this.Configuration.IsActivityCoverageReported)
                 {
                     actor.ReportActivityCoverage(this.CoverageInfo);
                 }
@@ -1008,22 +1094,6 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 return actor;
-            }
-
-            /// <summary>
-            /// Returns the operation for the specified actor id, or creates a new
-            /// operation if it does not exist yet.
-            /// </summary>
-            private ActorOperation GetOrCreateActorOperation(ActorId id, Actor actor)
-            {
-                var op = this.Runtime.GetOperationWithId<ActorOperation>(id.Value);
-                if (op is null)
-                {
-                    op = new ActorOperation(id.Value, id.Name, actor);
-                    this.Runtime.RegisterOperation(op);
-                }
-
-                return op;
             }
 
             /// <inheritdoc/>
@@ -1074,7 +1144,7 @@ namespace Microsoft.Coyote.Actors
 
             /// <summary>
             /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
-            /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
+            /// already running. Otherwise blocks until the target handles the event and reaches quiescence.
             /// </summary>
             internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
                 EventGroup eventGroup, SendOptions options)
@@ -1110,7 +1180,7 @@ namespace Microsoft.Coyote.Actors
                     "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                     e.GetType().FullName, targetId.Value);
 
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Send);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Send);
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
@@ -1182,47 +1252,46 @@ namespace Microsoft.Coyote.Actors
             /// <param name="actor">The actor that executes this event handler.</param>
             /// <param name="initialEvent">Optional event for initializing the actor.</param>
             /// <param name="isFresh">If true, then this is a new actor.</param>
-            /// <param name="syncCaller">Caller actor that is blocked for quiscence.</param>
+            /// <param name="syncCaller">Caller actor that is blocked for quiescence.</param>
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
                 var op = actor.Operation;
-                this.Runtime.TaskFactory.StartNew(
-                    async state =>
+                this.Runtime.TaskFactory.StartNew(async state =>
+                {
+                    try
                     {
-                        try
+                        if (isFresh)
                         {
-                            if (isFresh)
-                            {
-                                await actor.InitializeAsync(initialEvent);
-                            }
+                            await actor.InitializeAsync(initialEvent);
+                        }
 
-                            await actor.RunEventHandlerAsync();
-                            if (syncCaller != null)
-                            {
-                                this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
-                            }
+                        await actor.RunEventHandlerAsync();
+                        if (syncCaller != null)
+                        {
+                            this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
+                        }
 
-                            if (!actor.IsHalted)
-                            {
-                                this.ResetProgramCounter(actor);
-                            }
-                        }
-                        catch (Exception ex)
+                        if (!actor.IsHalted)
                         {
-                            this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                            this.ResetProgramCounter(actor);
                         }
-                        finally
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                    }
+                    finally
+                    {
+                        if (actor.IsHalted)
                         {
-                            if (actor.IsHalted)
-                            {
-                                this.ActorMap.TryRemove(actor.Id, out Actor _);
-                            }
+                            this.ActorMap.TryRemove(actor.Id, out Actor _);
                         }
-                    },
-                    op,
-                    default,
-                    this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-                    this.Runtime.TaskFactory.Scheduler);
+                    }
+                },
+                op,
+                default,
+                this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                this.Runtime.TaskFactory.Scheduler);
             }
 
             /// <summary>
@@ -1292,8 +1361,8 @@ namespace Microsoft.Coyote.Actors
                 if (!isFreshDequeue)
                 {
                     // Skip the scheduling point, as this is the first dequeue of the event handler,
-                    // to avoid unecessery context switches.
-                    this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                    // to avoid unnecessary context switches.
+                    this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                     this.ResetProgramCounter(actor);
                 }
 
@@ -1304,14 +1373,9 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogDefaultEventDequeued(Actor actor)
             {
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
-
-            /// <inheritdoc/>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override void LogDefaultEventHandlerCheck(Actor actor) =>
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Default);
 
             /// <inheritdoc/>
             internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
@@ -1330,7 +1394,7 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
             {
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Halt);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Halt);
                 this.LogWriter.LogHalt(actor.Id, inboxSize);
             }
 
@@ -1350,7 +1414,7 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
                 this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Receive);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
 
@@ -1368,7 +1432,7 @@ namespace Microsoft.Coyote.Actors
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 }
 
-                this.Runtime.ScheduleNextOperation(AsyncOperationType.Join);
+                this.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
                 this.ResetProgramCounter(actor);
             }
 

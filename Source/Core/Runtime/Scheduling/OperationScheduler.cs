@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -30,6 +31,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly ReplayStrategy ReplayStrategy;
 
         /// <summary>
+        /// The installed schedule reducers, if any.
+        /// </summary>
+        private readonly List<IScheduleReducer> Reducers;
+
+        /// <summary>
         /// Responsible for generating random values.
         /// </summary>
         internal IRandomValueGenerator ValueGenerator { get; private set; }
@@ -38,6 +44,11 @@ namespace Microsoft.Coyote.Runtime
         /// The installed operation scheduling policy.
         /// </summary>
         internal SchedulingPolicy SchedulingPolicy { get; private set; }
+
+        /// <summary>
+        /// The explored schedule trace.
+        /// </summary>
+        internal ScheduleTrace Trace { get; private set; }
 
         /// <summary>
         /// The count of exploration steps in the current iteration.
@@ -53,7 +64,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// True if the schedule is fair, else false.
         /// </summary>
-        internal bool IsScheduleFair => this.Strategy.IsFair();
+        internal bool IsScheduleFair => this.Strategy.IsFair;
 
         /// <summary>
         /// Checks if the scheduler is replaying the schedule trace.
@@ -63,13 +74,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration)
+        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator)
         {
             this.Configuration = configuration;
-            this.SchedulingPolicy = configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing :
-                SchedulingPolicy.Systematic;
+            this.SchedulingPolicy = policy;
+            this.ValueGenerator = generator;
 
-            this.ValueGenerator = new RandomValueGenerator(configuration);
+            this.Reducers = new List<IScheduleReducer>();
+            if (configuration.IsSharedStateReductionEnabled)
+            {
+                this.Reducers.Add(new SharedStateReducer());
+            }
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
@@ -79,7 +94,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
-                this.Strategy = SystematicStrategy.Create(configuration, this.ValueGenerator);
+                this.Strategy = SystematicStrategy.Create(configuration, generator);
                 if (this.Strategy is ReplayStrategy replayStrategy)
                 {
                     this.ReplayStrategy = replayStrategy;
@@ -87,21 +102,32 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Wrap the strategy inside a liveness checking strategy.
-                if (this.Configuration.IsLivenessCheckingEnabled)
+                if (configuration.IsLivenessCheckingEnabled)
                 {
-                    this.Strategy = new TemperatureCheckingStrategy(this.Configuration, this.Strategy as SystematicStrategy);
+                    this.Strategy = new TemperatureCheckingStrategy(configuration, generator,
+                        this.Strategy as SystematicStrategy);
                 }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.Strategy = FuzzingStrategy.Create(configuration, this.ValueGenerator);
+                this.Strategy = FuzzingStrategy.Create(configuration, generator);
             }
         }
 
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration) => new OperationScheduler(configuration);
+        internal static OperationScheduler Setup(Configuration configuration) =>
+            new OperationScheduler(configuration,
+                configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                new RandomValueGenerator(configuration));
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="OperationScheduler"/> class.
+        /// </summary>
+        internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
+            IRandomValueGenerator valueGenerator) =>
+            new OperationScheduler(configuration, policy, valueGenerator);
 
         /// <summary>
         /// Sets the specification engine.
@@ -119,19 +145,50 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="iteration">The id of the next iteration.</param>
         /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
-        internal bool InitializeNextIteration(uint iteration) => this.Strategy.InitializeNextIteration(iteration);
+        internal bool InitializeNextIteration(uint iteration)
+        {
+            this.Trace?.Dispose();
+            this.Trace = new ScheduleTrace();
+            return this.Strategy.InitializeNextIteration(iteration);
+        }
 
         /// <summary>
-        /// Returns the next asynchronous operation to schedule.
+        /// Returns the next controlled operation to schedule.
         /// </summary>
-        /// <param name="ops">Operations that can be scheduled.</param>
+        /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
-            bool isYielding, out AsyncOperation next) =>
-            (this.Strategy as SystematicStrategy).GetNextOperation(ops, current, isYielding, out next);
+        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            bool isYielding, out ControlledOperation next)
+        {
+            // Filter out any operations that cannot be scheduled.
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
+            if (enabledOps.Any())
+            {
+                // Invoke any installed schedule reducers.
+                foreach (var reducer in this.Reducers)
+                {
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
+                    if (reducedOps.Any())
+                    {
+                        enabledOps = reducedOps;
+                    }
+                }
+
+                // Invoke the strategy to choose the next operation.
+                if (this.Strategy is SystematicStrategy strategy &&
+                    strategy.GetNextOperation(enabledOps, current, isYielding, out next))
+                {
+                    this.Trace.AddSchedulingChoice(next.Id);
+                    return true;
+                }
+            }
+
+            next = null;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -140,8 +197,18 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next) =>
-            (this.Strategy as SystematicStrategy).GetNextBooleanChoice(current, maxValue, out next);
+        internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
+        {
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextBooleanChoice(current, maxValue, out next))
+            {
+                this.Trace.AddNondeterministicBooleanChoice(next);
+                return true;
+            }
+
+            next = false;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next integer choice.
@@ -150,17 +217,30 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next) =>
-            (this.Strategy as SystematicStrategy).GetNextIntegerChoice(current, maxValue, out next);
+        internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        {
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextIntegerChoice(current, maxValue, out next))
+            {
+                this.Trace.AddNondeterministicIntegerChoice(next);
+                return true;
+            }
+
+            next = 0;
+            return false;
+        }
 
         /// <summary>
         /// Returns the next delay.
         /// </summary>
+        /// <param name="ops">Operations executing during the current test iteration.</param>
+        /// <param name="current">The operation requesting the delay.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal bool GetNextDelay(int maxValue, out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(maxValue, out next);
+        internal bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            int maxValue, out int next) =>
+            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

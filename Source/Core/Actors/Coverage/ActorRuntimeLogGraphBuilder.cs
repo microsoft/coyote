@@ -486,11 +486,6 @@ namespace Microsoft.Coyote.Actors.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-        }
-
-        /// <inheritdoc/>
         public void OnCompleted()
         {
         }
@@ -1005,7 +1000,8 @@ namespace Microsoft.Coyote.Actors.Coverage
             var ns = doc.Root.Name.Namespace;
             if (ns != DgmlNamespace)
             {
-                throw new Exception(string.Format("File '{0}' does not contain the DGML namespace", graphFilePath));
+                throw new InvalidOperationException(string.Format(
+                    "File '{0}' does not contain the DGML namespace", graphFilePath));
             }
 
             foreach (var e in doc.Root.Element(ns + "Nodes").Elements(ns + "Node"))

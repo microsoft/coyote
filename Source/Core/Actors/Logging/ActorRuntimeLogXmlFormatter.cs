@@ -549,22 +549,5 @@ namespace Microsoft.Coyote.Actors
 
             this.Writer.WriteEndElement();
         }
-
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            this.Writer.WriteStartElement("Strategy");
-            this.Writer.WriteAttributeString("strategy", strategyName);
-            if (!string.IsNullOrEmpty(description))
-            {
-                this.Writer.WriteString(description);
-            }
-
-            this.Writer.WriteEndElement();
-        }
     }
 }

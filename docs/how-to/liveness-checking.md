@@ -29,7 +29,7 @@ the [coyote tool](../get-started/using-coyote.md) as follows, setting N steps as
 From the `coyote-samples` folder:
 
 ```plain
-coyote test ./bin/net5.0/CoffeeMachineActors.dll -i 10 -ms 200 -p 4 --sch-portfolio
+coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 200 -p 4 --sch-portfolio
 ```
 
 The `coyote test` tool will produce output, ending with something like the following:
@@ -39,7 +39,7 @@ The `coyote test` tool will produce output, ending with something like the follo
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 40 schedules: 40 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 153 (min), 457 (avg), 1066 (max).
+..... Number of scheduling decisions in fair terminating schedules: 153 (min), 457 (avg), 1066 (max).
 ..... Exceeded the max-steps bound of '200' in 95.00% of the fair schedules.
 ... Elapsed 1.4882005 sec.
 . Done
@@ -52,7 +52,7 @@ averaging 457 steps. Going by this output, let's decide to increase the bound to
 `coyote test`.
 
 ```plain
-coyote test ./bin/net5.0/CoffeeMachineActors.dll -i 10 -ms 1000 -p 4 --sch-portfolio
+coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 1000 -p 4 --sch-portfolio
 ```
 
 This time the output will be something like:
@@ -62,7 +62,7 @@ This time the output will be something like:
 ..... Found 0 bugs.
 ... Scheduling statistics:
 ..... Explored 40 schedules: 40 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 88 (min), 657 (avg), 2411 (max).
+..... Number of scheduling decisions in fair terminating schedules: 88 (min), 657 (avg), 2411 (max).
 ..... Exceeded the max-steps bound of '1000' in 27.50% of the fair schedules.
 ... Elapsed 3.3885497 sec.
 . Done
@@ -100,16 +100,16 @@ _fair_ if it is not expected to generate unfair executions. For example, the ran
 makes decisions on the next actor to schedule randomly, is fair. In the program described above, it
 is very likely that B will be given a chance to execute. Some schedulers don't have this property
 and are called _unfair_ schedulers. Unfair schedulers have a role to play in finding violations of
-safety properties, but not in finding violations of liveness properties. The `pct` scheduler of
-Coyote (enabled with the `--sch-pct N` option) is unfair.
+safety properties, but not in finding violations of liveness properties. The `prioritization`
+scheduler of Coyote (enabled with the `--sch-prioritization N` option) is unfair.
 
 Because of their nature, unfair schedulers are expected to generate longer than usual executions.
 The unfairness in scheduling can lead to starvation of certain actors, which may stall progress. The
 expected length of a program's execution is best determined by looking at lengths of "fair
 terminating executions", i.e., executions that terminate under a fair scheduler. For this reason, we
-provide the `fairpct` scheduler (enabled with the `--sch-fairpct N` option) which uses the `pct`
-scheduler for a prefix of each execution and then switches to the default fair `random` scheduler
-for the remaining of the execution.
+provide the `fair-prioritization` scheduler (enabled with the `--sch-fair-prioritization N` option)
+which uses the `prioritization` scheduler for a prefix of each execution and then switches to the
+default fair `random` scheduler for the remaining of the execution.
 
 When a user supplies the flag `--max-steps N`, executions under an unfair scheduler are forced to
 stop after N steps. Whereas, an execution under a fair scheduler can go to up 10N steps. Further, if
@@ -127,4 +127,4 @@ following paper from Microsoft Research.
 To avoid having to think which scheduler works best for which situation, we recommend running
 `coyote test` in parallel (enabled with the `-p N` option), using the portfolio scheduler (enabled
 with the `--sch-portfolio` option) which consists of a carefully tuned selection of fair schedulers
-(including `random` and `fairpct`).
+(including `random` and `fair-prioritization`).

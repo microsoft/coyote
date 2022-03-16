@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Runtime
 
         /// <inheritdoc/>
         public override int MaximumConcurrencyLevel =>
-            this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic ? 1 :
+            this.Runtime?.SchedulingPolicy is SchedulingPolicy.Systematic ? 1 :
             base.MaximumConcurrencyLevel;
 
         /// <summary>
@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Runtime
         /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
-            IO.Debug.WriteLine("<ScheduleDebug> Enqueuing task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("<Coyote> Enqueuing task '{0}' from thread '{1}'.",
                 task.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.ScheduleTask(task);
+            this.Runtime?.Schedule(task);
         }
 
         /// <inheritdoc/>

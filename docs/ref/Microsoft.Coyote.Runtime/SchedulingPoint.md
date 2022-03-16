@@ -10,10 +10,12 @@ public static class SchedulingPoint
 
 | name | description |
 | --- | --- |
-| static [Interleave](SchedulingPoint/Interleave.md)() | Explores a possible interleaving with another operation during testing. |
-| static [Resume](SchedulingPoint/Resume.md)() | Resumes interleavings during testing due to an invoked [`Suppress`](SchedulingPoint/Suppress.md). |
-| static [Suppress](SchedulingPoint/Suppress.md)() | Suppresses interleavings during testing until [`Resume`](SchedulingPoint/Resume.md) is invoked. |
-| static [Yield](SchedulingPoint/Yield.md)() | Yields execution to another operation during testing. |
+| static [Interleave](SchedulingPoint/Interleave.md)() | Explores a possible interleaving with another controlled operation. |
+| static [Read](SchedulingPoint/Read.md)(…) | Explores a possible interleaving due to a 'READ' operation on the specified shared state. |
+| static [Resume](SchedulingPoint/Resume.md)() | Resumes interleavings that were suppressed by invoking [`Suppress`](SchedulingPoint/Suppress.md). |
+| static [Suppress](SchedulingPoint/Suppress.md)() | Suppresses interleavings until [`Resume`](SchedulingPoint/Resume.md) is invoked. |
+| static [Write](SchedulingPoint/Write.md)(…) | Explores a possible interleaving due to a 'WRITE' operation on the specified shared state. |
+| static [Yield](SchedulingPoint/Yield.md)() | Attempts to yield execution to another controlled operation. |
 
 ## Remarks
 

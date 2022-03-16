@@ -20,8 +20,8 @@ public interface IActorRuntimeLog
 | [OnDequeueEvent](IActorRuntimeLog/OnDequeueEvent.md)(…) | Invoked when the specified event is dequeued by an actor. |
 | [OnEnqueueEvent](IActorRuntimeLog/OnEnqueueEvent.md)(…) | Invoked when the specified event is about to be enqueued to an actor. |
 | [OnEventHandlerTerminated](IActorRuntimeLog/OnEventHandlerTerminated.md)(…) | Invoked when the event handler of the specified actor terminated. |
-| [OnExceptionHandled](IActorRuntimeLog/OnExceptionHandled.md)(…) | Invoked when the specified OnException method is used to handle a thrown exception. |
-| [OnExceptionThrown](IActorRuntimeLog/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception. |
+| [OnExceptionHandled](IActorRuntimeLog/OnExceptionHandled.md)(…) | Invoked when the specified actor has handled a thrown exception. |
+| [OnExceptionThrown](IActorRuntimeLog/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception without handling it. |
 | [OnExecuteAction](IActorRuntimeLog/OnExecuteAction.md)(…) | Invoked when the specified actor executes an action. |
 | [OnGotoState](IActorRuntimeLog/OnGotoState.md)(…) | Invoked when the specified state machine performs a goto transition to the specified state. |
 | [OnHalt](IActorRuntimeLog/OnHalt.md)(…) | Invoked when the specified actor has been halted. |
@@ -40,7 +40,6 @@ public interface IActorRuntimeLog
 | [OnSendEvent](IActorRuntimeLog/OnSendEvent.md)(…) | Invoked when the specified event is sent to a target actor. |
 | [OnStateTransition](IActorRuntimeLog/OnStateTransition.md)(…) | Invoked when the specified state machine enters or exits a state. |
 | [OnStopTimer](IActorRuntimeLog/OnStopTimer.md)(…) | Invoked when the specified actor timer has been stopped. |
-| [OnStrategyDescription](IActorRuntimeLog/OnStrategyDescription.md)(…) | Invoked to describe the specified scheduling strategy. |
 | [OnWaitEvent](IActorRuntimeLog/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks

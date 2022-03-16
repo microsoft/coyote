@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Set of asynchronous operations that are waiting on the resource to be released.
         /// </summary>
-        private readonly HashSet<AsyncOperation> AwaitingOperations;
+        private readonly HashSet<ControlledOperation> AwaitingOperations;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Resource"/> class.
@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Runtime
         internal Resource()
         {
             this.Runtime = CoyoteRuntime.Current;
-            this.AwaitingOperations = new HashSet<AsyncOperation>();
+            this.AwaitingOperations = new HashSet<ControlledOperation>();
         }
 
         /// <summary>
@@ -34,20 +34,20 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Wait()
         {
-            var op = this.Runtime.GetExecutingOperation<AsyncOperation>();
-            op.Status = AsyncOperationStatus.BlockedOnResource;
+            var op = this.Runtime.GetExecutingOperation();
+            op.Status = OperationStatus.BlockedOnResource;
             this.AwaitingOperations.Add(op);
-            this.Runtime.ScheduleNextOperation(AsyncOperationType.Join, false, true);
+            this.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
         }
 
         /// <summary>
         /// Signals the specified waiting operation that the resource has been released.
         /// </summary>
-        internal void Signal(AsyncOperation op)
+        internal void Signal(ControlledOperation op)
         {
             if (this.AwaitingOperations.Contains(op))
             {
-                op.Status = AsyncOperationStatus.Enabled;
+                op.Status = OperationStatus.Enabled;
                 this.AwaitingOperations.Remove(op);
             }
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Runtime
         {
             foreach (var op in this.AwaitingOperations)
             {
-                op.Status = AsyncOperationStatus.Enabled;
+                op.Status = OperationStatus.Enabled;
             }
 
             // We need to clear the whole set, because we signal all awaiting asynchronous

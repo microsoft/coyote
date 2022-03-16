@@ -67,7 +67,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             {
                 this.PrioritizedOperationGroups.Clear();
                 this.PriorityChangePoints.Clear();
-                PCP.Clear();
 
                 this.MaxPriorityChangePoints = Math.Max(
                     this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
@@ -78,7 +77,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                     foreach (int point in this.Shuffle(range).Take(priorityChanges))
                     {
                         this.PriorityChangePoints.Add(point);
-                        PCP.Add(point);
                     }
                 }
 
@@ -87,14 +85,8 @@ namespace Microsoft.Coyote.Testing.Systematic
 
             this.NumPriorityChangePoints = 0;
             this.StepCount = 0;
-            STP = 0;
             return true;
         }
-
-        internal static int STP = 0;
-        internal static int Counter = 0;
-        internal static int Counter2 = 0;
-        internal static HashSet<int> PCP = new HashSet<int>();
 
         /// <inheritdoc/>
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
@@ -114,8 +106,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                     ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
                 {
                     this.TryPrioritizeNextOperationGroup(ops);
-                    Counter = this.NumPriorityChangePoints;
-                    Counter2 = this.MaxPriorityChangePoints;
                 }
 
                 // Get the operations that belong to the highest priority group.
@@ -126,7 +116,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
             this.StepCount++;
-            STP = this.StepCount;
             return true;
         }
 

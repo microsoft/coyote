@@ -371,7 +371,7 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IsSchedulingSeedIncremental = false;
-            this.IsPartiallyControlledConcurrencyEnabled = true;
+            this.IsPartiallyControlledConcurrencyEnabled = false;
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;

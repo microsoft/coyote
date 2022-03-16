@@ -79,8 +79,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                         this.PriorityChangePoints.Add(point);
                     }
                 }
-
-                this.DebugPrintPriorityChangePoints();
             }
 
             this.NumPriorityChangePoints = 0;
@@ -114,61 +112,50 @@ namespace Microsoft.Coyote.Testing.Systematic
                     Counter2 = this.MaxPriorityChangePoints;
                 }
 
-                if (this.GetNextOperationGroup(ops, out OperationGroup nextGroup))
-                {
-                    // Filter the operations that belong to the highest priority group.
-                    ops = ops.Where(op => nextGroup.IsMember(op));
-                }
+                // Get the operations that belong to the highest priority group.
+                OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(ops);
+                ops = ops.Where(op => nextGroup.IsMember(op));
             }
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
-
             this.StepCount++;
             return true;
         }
 
         /// <summary>
-        /// Returns the group with the highest priority that contains at least one enabled operation.
+        /// Returns the operation group with the highest priority.
         /// </summary>
-        private bool GetNextOperationGroup(IEnumerable<ControlledOperation> ops, out OperationGroup result)
+        private OperationGroup GetOperationGroupWithHighestPriority(IEnumerable<ControlledOperation> ops)
         {
             foreach (var group in this.PrioritizedOperationGroups)
             {
                 if (ops.Any(op => op.Group == group))
                 {
-                    result = group;
-                    return true;
+                    return group;
                 }
             }
 
-            result = null;
-            return false;
+            return null;
         }
 
         /// <summary>
-        /// Sets the priority of new groups, if there are any.
+        /// Sets a random priority to any new operation groups.
         /// </summary>
         private void SetNewPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
-            int count = this.PrioritizedOperationGroups.Count;
             if (this.PrioritizedOperationGroups.Count is 0)
             {
                 this.PrioritizedOperationGroups.Add(current.Group);
             }
 
-            // Randomize the priority of all new groups.
+            // Randomize the priority of all new operation groups.
             foreach (var group in ops.Select(op => op.Group).Where(g => !this.PrioritizedOperationGroups.Contains(g)))
             {
                 // Randomly choose a priority for this group.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
                 this.PrioritizedOperationGroups.Insert(index, group);
                 Debug.WriteLine("<ScheduleLog> Assigned priority '{0}' for operation group '{1}'.", index, group);
-            }
-
-            if (this.PrioritizedOperationGroups.Count > count)
-            {
-                this.DebugPrintOperationPriorityList();
             }
         }
 
@@ -181,14 +168,15 @@ namespace Microsoft.Coyote.Testing.Systematic
             OperationGroup group = null;
             if (this.PriorityChangePoints.Contains(this.NumPriorityChangePoints))
             {
-                this.GetNextOperationGroup(ops, out group);
-                Debug.WriteLine("<ScheduleLog> Deprioritized operation group '{0}'.", group);
+                // This scheduling step was chosen as a priority change point.
+                group = this.GetOperationGroupWithHighestPriority(ops);
+                Debug.WriteLine("<ScheduleLog> Reduced the priority of operation group '{0}'.", group);
             }
 
             this.NumPriorityChangePoints++;
             if (group != null)
             {
-                // Deprioritize the group by putting it in the end of the list.
+                // Reduce the priority of the group by putting it in the end of the list.
                 this.PrioritizedOperationGroups.Remove(group);
                 this.PrioritizedOperationGroups.Add(group);
                 return true;
@@ -234,7 +222,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"priority-based[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"pct[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
@@ -263,44 +251,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.NumPriorityChangePoints = 0;
             this.PrioritizedOperationGroups.Clear();
             this.PriorityChangePoints.Clear();
-        }
-
-        /// <summary>
-        /// Print the operation group priority list, if debug is enabled.
-        /// </summary>
-        private void DebugPrintOperationPriorityList()
-        {
-            if (Debug.IsEnabled)
-            {
-                Debug.WriteLine("<ScheduleLog> Operation group priority list: ");
-                for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
-                {
-                    var group = this.PrioritizedOperationGroups[idx];
-                    if (group.Any(m => m.Status is OperationStatus.Enabled))
-                    {
-                        Debug.WriteLine("  |_ '{0}' [enabled]", group);
-                    }
-                    else if (group.Any(m => m.Status != OperationStatus.Completed))
-                    {
-                        Debug.WriteLine("  |_ '{0}'", group);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Print the priority change points, if debug is enabled.
-        /// </summary>
-        private void DebugPrintPriorityChangePoints()
-        {
-            if (Debug.IsEnabled)
-            {
-                // Sort them before printing for readability.
-                var sortedChangePoints = this.PriorityChangePoints.ToArray();
-                Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<ScheduleLog> Priority change points ('{0}' in total): {1}",
-                    sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
-            }
         }
     }
 }

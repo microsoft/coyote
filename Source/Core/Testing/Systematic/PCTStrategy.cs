@@ -71,8 +71,6 @@ namespace Microsoft.Coyote.Testing.Systematic
                 {
                     this.PriorityChangePoints.Add(point);
                 }
-
-                this.DebugPrintPriorityChangePoints();
             }
 
             return true;
@@ -89,18 +87,16 @@ namespace Microsoft.Coyote.Testing.Systematic
                 this.TryPrioritizeNextOperation(ops, current, isYielding);
             }
 
-            this.DebugPrintOperationPriorityList();
-
-            ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(ops);
+            ControlledOperation highestEnabledOperation = this.GetOperationWithHighestPriority(ops);
             next = ops.First(op => op.Equals(highestEnabledOperation));
             this.StepCount++;
             return true;
         }
 
         /// <summary>
-        /// Returns the enabled operation with the highest priority.
+        /// Returns the operation with the highest priority.
         /// </summary>
-        private ControlledOperation GetEnabledOperationWithHighestPriority(IEnumerable<ControlledOperation> ops)
+        private ControlledOperation GetOperationWithHighestPriority(IEnumerable<ControlledOperation> ops)
         {
             foreach (var operation in this.PrioritizedOperations)
             {
@@ -129,7 +125,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 // Randomly choose a priority for this operation.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
                 this.PrioritizedOperations.Insert(index, op);
-                Debug.WriteLine("<ScheduleLog> chose priority '{0}' for new operation '{1}'.", index, op.Name);
+                Debug.WriteLine("<ScheduleLog> Assigned priority '{0}' for operation '{1}'.", index, op.Name);
             }
         }
 
@@ -143,8 +139,8 @@ namespace Microsoft.Coyote.Testing.Systematic
             ControlledOperation deprioritizedOperation = null;
             if (this.PriorityChangePoints.Contains(this.StepCount))
             {
-                // This scheduling step was chosen as a priority switch point.
-                deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
+                // This scheduling step was chosen as a priority change point.
+                deprioritizedOperation = this.GetOperationWithHighestPriority(ops);
                 Debug.WriteLine("<ScheduleLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
             }
             else if (isYielding)
@@ -227,43 +223,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             this.StepCount = 0;
             this.PrioritizedOperations.Clear();
             this.PriorityChangePoints.Clear();
-        }
-
-        /// <summary>
-        /// Print the operation priority list, if debug is enabled.
-        /// </summary>
-        private void DebugPrintOperationPriorityList()
-        {
-            if (Debug.IsEnabled)
-            {
-                Debug.Write("<ScheduleLog> Operation priority list: ");
-                for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
-                {
-                    if (idx < this.PrioritizedOperations.Count - 1)
-                    {
-                        Debug.Write("'{0}', ", this.PrioritizedOperations[idx].Name);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("'{0}'.", this.PrioritizedOperations[idx].Name);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Print the priority change points, if debug is enabled.
-        /// </summary>
-        private void DebugPrintPriorityChangePoints()
-        {
-            if (Debug.IsEnabled)
-            {
-                // Sort them before printing for readability.
-                var sortedChangePoints = this.PriorityChangePoints.ToArray();
-                Array.Sort(sortedChangePoints);
-                Debug.WriteLine("<ScheduleLog> Priority change points ('{0}' in total): {1}",
-                    sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
-            }
         }
     }
 }

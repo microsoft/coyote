@@ -399,7 +399,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Logs that the specified actor throws an exception.
+        /// Logs that the specified actor throws an exception without handling it.
         /// </summary>
         /// <param name="id">The id of the actor that threw the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -417,9 +417,9 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Logs that the specified OnException method is used to handle a thrown exception.
+        /// Logs that the specified actor has handled a thrown exception.
         /// </summary>
-        /// <param name="id">The id of the actor that threw the exception.</param>
+        /// <param name="id">The id of the actor that handled the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
         /// <param name="ex">The exception.</param>

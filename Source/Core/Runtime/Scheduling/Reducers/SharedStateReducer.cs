@@ -52,14 +52,14 @@ namespace Microsoft.Coyote.Runtime
                 var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
 
                 // Update the known 'READ' and 'WRITE' accesses so far.
-                this.ReadAccesses.UnionWith(readAccessOps.Select(op => op.LastAccessedState));
-                this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedState));
+                this.ReadAccesses.UnionWith(readAccessOps.Select(op => op.LastAccessedSharedState));
+                this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedSharedState));
 
                 // Find if there are any read-only accesses. Note that this is just an approximation
                 // based on current knowledge. An access that is considered read-only might not be
                 // considered anymore in later steps or iterations.
                 var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
-                    state => state == op.LastAccessedState));
+                    state => state == op.LastAccessedSharedState));
                 if (readOnlyAccessOps.Any())
                 {
                     // Return all read-only access operations.

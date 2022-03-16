@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Represents a group of controlled operations that can be scheduled together during testing.
     /// </summary>
-    internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>, IDisposable
+    internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>
     {
         /// <summary>
         /// Provides access to the operation group associated with each async local context,
@@ -39,11 +39,6 @@ namespace Microsoft.Coyote.Runtime
         /// The controlled operations that are members of this group.
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
-
-        /// <summary>
-        /// True if this group only consists of read-only operations, else false.
-        /// </summary>
-        internal bool IsReadOnly => this.Owner.IsReadOnly;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
@@ -140,14 +135,6 @@ namespace Microsoft.Coyote.Runtime
         internal static void RemoveFromContext()
         {
             AsyncLocalGroup.Value = null;
-        }
-
-        /// <summary>
-        /// Disposes the contents of this object.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Members.Clear();
         }
     }
 }

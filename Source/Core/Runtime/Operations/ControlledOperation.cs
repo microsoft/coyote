@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Represents an operation that can be controlled during testing.
     /// </summary>
-    internal class ControlledOperation : IEquatable<ControlledOperation>, IDisposable
+    internal class ControlledOperation : IEquatable<ControlledOperation>
     {
         /// <summary>
         /// The unique id of the operation.
@@ -49,14 +49,10 @@ namespace Microsoft.Coyote.Runtime
         internal int LastHashedProgramState;
 
         /// <summary>
-        /// A value that represents the state being accessed when this operation last executed.
+        /// A value that represents the shared state being accessed when this
+        /// operation last executed, if there was any such state access.
         /// </summary>
-        internal string LastAccessedState;
-
-        /// <summary>
-        /// True if this is a read-only operation that cannot modify shared state, else false.
-        /// </summary>
-        internal readonly bool IsReadOnly;
+        internal string LastAccessedSharedState;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -85,7 +81,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null, bool isReadOnly = true)
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
         {
             this.Id = operationId;
             this.Name = name;
@@ -94,13 +90,9 @@ namespace Microsoft.Coyote.Runtime
             this.Dependencies = new HashSet<object>();
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
-            this.LastAccessedState = string.Empty;
-            this.IsReadOnly = isReadOnly;
+            this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
-
-            // Assign this operation as a member of this group.
-            this.Group.RegisterMember(this);
         }
 
         /// <summary>
@@ -161,13 +153,5 @@ namespace Microsoft.Coyote.Runtime
         /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
         bool IEquatable<ControlledOperation>.Equals(ControlledOperation other) => this.Equals(other);
-
-        /// <summary>
-        /// Disposes the contents of this object.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dependencies.Clear();
-        }
     }
 }

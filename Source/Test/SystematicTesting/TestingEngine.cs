@@ -581,9 +581,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
+                Console.WriteLine($"STEPS: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.STP}");
                 Console.WriteLine($"COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter}");
-                Console.WriteLine($"Max-COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2}");
+                Console.WriteLine($"MAX-COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2}");
                 Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter = 0;
+                Console.Write($"POINTS({Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.PCP.Count}): ");
+                foreach (var x in Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.PCP)
+                {
+                    Console.Write($" {x}");
+                }
+
+                Console.WriteLine();
 
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Close();

@@ -56,9 +56,9 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedState = state;
+                op.LastAccessedSharedState = state;
                 runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
-                op.LastAccessedState = string.Empty;
+                op.LastAccessedSharedState = string.Empty;
             }
         }
 
@@ -75,9 +75,9 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedState = state;
+                op.LastAccessedSharedState = state;
                 runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
-                op.LastAccessedState = string.Empty;
+                op.LastAccessedSharedState = string.Empty;
             }
         }
 

@@ -123,11 +123,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly Dictionary<ulong, ControlledOperation> OperationMap;
 
         /// <summary>
-        /// Set of groups of controlled operations that can be scheduled together during testing.
-        /// </summary>
-        private readonly HashSet<OperationGroup> OperationGroups;
-
-        /// <summary>
         /// Map from unique controlled thread names to their corresponding operations.
         /// </summary>
         private readonly ConcurrentDictionary<string, ControlledOperation> ControlledThreads;
@@ -286,7 +281,6 @@ namespace Microsoft.Coyote.Runtime
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
-            this.OperationGroups = new HashSet<OperationGroup>();
             this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new HashSet<Task>();
@@ -1034,6 +1028,9 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
+                // Assign the operation as a member of its group.
+                op.Group.RegisterMember(op);
+
                 if (this.OperationMap.Count is 0)
                 {
                     this.ScheduledOperation = op;
@@ -1047,7 +1044,6 @@ namespace Microsoft.Coyote.Runtime
 #else
                 this.OperationMap.TryAdd(op.Id, op);
 #endif
-                this.OperationGroups.Add(op.Group);
             }
         }
 
@@ -2156,14 +2152,8 @@ namespace Microsoft.Coyote.Runtime
             {
                 RuntimeProvider.Deregister(this.Id);
 
-                foreach (var group in this.OperationGroups)
-                {
-                    group.Dispose();
-                }
-
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();
-                this.OperationGroups.Clear();
                 this.ControlledThreads.Clear();
                 this.ControlledTasks.Clear();
                 this.UncontrolledTasks.Clear();

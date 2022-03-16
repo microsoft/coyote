@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Web
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
         private HttpOperation(ulong operationId, HttpMethod method, string path)
-            : base(operationId, $"{method}HttpOp({operationId})", isReadOnly: IsMethodReadOnly(method))
+            : base(operationId, $"{method}HttpOp({operationId})")
         {
             this.Method = method;
             this.Path = path;
@@ -48,13 +48,5 @@ namespace Microsoft.Coyote.Web
 
             return op;
         }
-
-        /// <summary>
-        /// Returns true if this HTTP method is read-only and cannot modify
-        /// shared state, else false.
-        /// </summary>
-        private static bool IsMethodReadOnly(HttpMethod method) =>
-            method is HttpMethod.Get || method is HttpMethod.Head || method is HttpMethod.Connect ||
-            method is HttpMethod.Options || method is HttpMethod.Trace;
     }
 }

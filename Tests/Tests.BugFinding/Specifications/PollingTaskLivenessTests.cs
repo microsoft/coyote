@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Specifications
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
-        [Fact(Timeout = 5000)]
+        [Fact(Timeout = 5000, Skip = "Buggy on Ubuntu.")]
         public void TestPollingTaskLivenessPropertyFailure()
         {
             this.TestWithError(async () =>

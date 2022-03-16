@@ -454,15 +454,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the PCT scheduling strategy during systematic testing.
-        /// You can specify the number of priority switch points, which by default are 10.
+        /// Updates the configuration to use the priority-based scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible priority changes, which by default can be up to 10.
         /// </summary>
-        /// <param name="isFair">If true, use the fair version of PCT.</param>
-        /// <param name="numPrioritySwitchPoints">The nunmber of priority switch points.</param>
-        public Configuration WithPCTStrategy(bool isFair, uint numPrioritySwitchPoints = 10)
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
         {
-            this.SchedulingStrategy = isFair ? "fairpct" : "pct";
-            this.StrategyBound = (int)numPrioritySwitchPoints;
+            this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
+            this.StrategyBound = (int)priorityChangeBound;
             return this;
         }
 

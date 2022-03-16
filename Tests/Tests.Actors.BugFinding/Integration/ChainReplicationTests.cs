@@ -1521,8 +1521,11 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<ServerResponseSeqMonitor>();
                 r.CreateActor(typeof(Environment));
             },
-            configuration: this.GetConfiguration().WithPCTStrategy(true, 1).WithMaxSchedulingSteps(100).
-                WithTestingIterations(1).WithRandomGeneratorSeed(seed),
+            configuration: this.GetConfiguration()
+                .WithPrioritizationStrategy(true, 1)
+                .WithMaxSchedulingSteps(100)
+                .WithTestingIterations(1)
+                .WithRandomGeneratorSeed(seed),
             expectedError: "Sequence is not sorted.",
             replay: true);
         }

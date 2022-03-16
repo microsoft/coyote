@@ -8,9 +8,9 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// A probabilistic fuzzing strategy.
+    /// A probabilistic priority-based fuzzing strategy.
     /// </summary>
-    internal class PCTStrategy : FuzzingStrategy
+    internal class PrioritizationStrategy : FuzzingStrategy
     {
         /// <summary>
         /// The maximum number of steps after which we should reshuffle the probabilities.
@@ -36,9 +36,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         private double LowPriorityProbability;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
+        /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PCTStrategy(Configuration configuration, IRandomValueGenerator generator)
+        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator)
             : base(configuration, generator, false)
         {
             this.PriorityChangePoints = configuration.StrategyBound;
@@ -116,6 +116,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"pct[seed:{this.RandomValueGenerator.Seed}]";
+        internal override string GetDescription() =>
+            $"prioritization[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

@@ -52,8 +52,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
-            testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
-            testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
+            testingGroup.AddArgument("sch-prioritization", null, "Choose the priority-based scheduling strategy with given maximum number of priority change points", typeof(uint));
+            testingGroup.AddArgument("sch-fair-prioritization", null, "Choose the fair priority-based scheduling strategy with given maximum number of priority change points", typeof(uint));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
             testingGroup.AddArgument("no-repro", null, "Disable bug trace repro to ignore uncontrolled concurrency errors", typeof(bool));
 
@@ -277,8 +277,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
                 case "sch-probabilistic":
-                case "sch-pct":
-                case "sch-fairpct":
+                case "sch-prioritization":
+                case "sch-fair-prioritization":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     configuration.StrategyBound = (int)(uint)option.Value;
                     break;
@@ -496,8 +496,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             if (configuration.SchedulingStrategy != "portfolio" &&
                 configuration.SchedulingStrategy != "random" &&
-                configuration.SchedulingStrategy != "pct" &&
-                configuration.SchedulingStrategy != "fairpct" &&
+                configuration.SchedulingStrategy != "prioritization" &&
+                configuration.SchedulingStrategy != "fair-prioritization" &&
                 configuration.SchedulingStrategy != "probabilistic" &&
                 configuration.SchedulingStrategy != "rl" &&
                 configuration.SchedulingStrategy != "dfs")

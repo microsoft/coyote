@@ -34,14 +34,14 @@ namespace Microsoft.Coyote.Testing.Systematic
             {
                 strategy = new RandomStrategy(configuration, generator);
             }
-            else if (configuration.SchedulingStrategy is "pct")
+            else if (configuration.SchedulingStrategy is "prioritization")
             {
-                strategy = new PriorityBasedStrategy(configuration, generator);
+                strategy = new PrioritizationStrategy(configuration, generator);
                 // strategy = new PCTStrategy(configuration, generator);
             }
-            else if (configuration.SchedulingStrategy is "fairpct")
+            else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
-                var prefixStrategy = new PCTStrategy(configuration, generator);
+                var prefixStrategy = new PrioritizationStrategy(configuration, generator);
                 var suffixStrategy = new RandomStrategy(configuration, generator);
                 strategy = new ComboStrategy(configuration, generator, prefixStrategy, suffixStrategy);
             }

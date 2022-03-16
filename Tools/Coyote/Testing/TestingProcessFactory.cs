@@ -72,8 +72,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--liveness-temperature-threshold {configuration.LivenessTemperatureThreshold} ");
             }
 
-            if (configuration.SchedulingStrategy is "pct" ||
-                configuration.SchedulingStrategy is "fairpct" ||
+            if (configuration.SchedulingStrategy is "prioritization" ||
+                configuration.SchedulingStrategy is "fair-prioritization" ||
                 configuration.SchedulingStrategy is "probabilistic" ||
                 configuration.SchedulingStrategy is "rl")
             {

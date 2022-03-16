@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"pct[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"prioritization[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.

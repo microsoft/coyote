@@ -19,6 +19,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
 ## Watch this tutorial
 
@@ -327,9 +328,7 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 ```
 
 **Note**: for this to work the unit test method needs to use the
-`[Microsoft.Coyote.SystematicTesting.Test]` custom attribute to declare the test method which 
-is what you will see if you have already downloaded the [Coyote Samples git
-repo](http://github.com/microsoft/coyote-samples).
+`[Microsoft.Coyote.SystematicTesting.Test]` custom attribute to declare the test method.
 
 The above command tells Coyote to execute the test method `TestConcurrentAccountCreation` for 100
 iterations. Each iteration will try explore different interleavings to try unearth the bug. You can
@@ -401,20 +400,17 @@ tests for the `AccountManager` to increase our familiarity with Coyote.
 
 ## Get the sample source code
 
-To get the complete source code for the `AccountManager` tutorial, clone the [Coyote Samples git
-repo](http://github.com/microsoft/coyote-samples). Note that the repo also contains the code from
-the [next tutorial](test-concurrent-operations.md) which builds upon this `AccountManager` sample.
+To get the complete source code for the `AccountManager` tutorial, clone the [Coyote git
+repo](http://github.com/microsoft/coyote). Note that the repo also contains the code from the [next
+tutorial](test-concurrent-operations.md) which builds upon this `AccountManager` sample.
 
-You can build the samples by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 You can now run the tests (without Coyote) like this:
 
 ```plain
-cd .\bin\net6.0
+cd .\Samples\bin\net6.0
 .\AccountManager.exe
 ```
 

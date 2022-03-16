@@ -150,12 +150,8 @@ locations.
 
 ### Coyote test examples
 
-First build the [coyote-samples](https://github.com/microsoft/coyote-samples) repo by running the
-following command:
-
-```plain
-powershell -f build.ps1
-```
+First build the Coyote samples by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 Then run `coyote` with one of the coverage flags, as well as the other options you want. Here are
 some minimal examples:

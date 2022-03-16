@@ -61,23 +61,20 @@ To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Run the failover coffee machine application
 
 Now you can run the `CoffeeMachine` application:
 
 ```plain
-./bin/net6.0/CoffeeMachineTasks.exe
+./Samples/bin/net6.0/CoffeeMachineTasks.exe
 ```
 
 ## The Coffee Machine
@@ -182,23 +179,23 @@ refilled.
 ## Coyote testing
 
 You can now use [coyote test](../get-started/using-coyote.md) to exercise the code and see if any
-bugs can be found. First you need to rewrite the assembly, from the `coyote-samples` folder:
+bugs can be found. First you need to rewrite the assembly, from the `Samples` directory:
 
 ```plain
-coyote rewrite ./bin/net6.0/CoffeeMachineTasks.dll
+coyote rewrite ./Samples/bin/net6.0/CoffeeMachineTasks.dll
 ```
 
 Then you can run the test:
 
 ```plain
-coyote test ./bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fair-prioritization 10
+coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fair-prioritization 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
 that a test output log is produced, like this:
 
 ```plain
-.\bin\net6.0\Output\CoffeeMachineTasks.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+.\Samples\bin\net6.0\Output\CoffeeMachineTasks.exe\CoyoteOutput\CoffeeMachine_0_0.txt
 ```
 
 This log contains only the one test iteration that failed, and towards the end you will see
@@ -284,13 +281,13 @@ different kinds of bugs. The following command line shows how to use `--sch-port
 processes:
 
 ```plain
-coyote test ./bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-portfolio --parallel 8
+coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-portfolio --parallel 8
 ```
 
 which outputs the following:
 
 ```plain
-. Testing .\bin\net6.0\CoffeeMachineTasks.dll
+. Testing .\Samples\bin\net6.0\CoffeeMachineTasks.dll
 Starting TestingProcessScheduler in process 42036
 ... Created '8' testing tasks.
 ... Task 3 is using 'fair-prioritization' strategy (seed:2143).

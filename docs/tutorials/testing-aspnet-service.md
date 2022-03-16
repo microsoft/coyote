@@ -13,8 +13,8 @@ You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
 If you want to actually run the sample (rather than just running the unit tests) then you will also
 need the following:
@@ -30,11 +30,10 @@ there into `~/ImageGalleryAspNet/ImageGalleryService/appsettings.json`.
 
 ## Build the sample
 
-After cloning the [Coyote Samples](http://github.com/microsoft/coyote-samples) git repo run the
-following command:
+After cloning the [Coyote](http://github.com/microsoft/coyote) git repo run the following command:
 
 ```
-cd WebApps/ImageGalleryAspNet/
+cd Samples/WebApps/ImageGalleryAspNet/
 dotnet build
 ```
 
@@ -155,7 +154,7 @@ Before going further (and into Coyote), lets build and run the tests!
 Just run them from inside Visual Studio, or run the following:
 
 ```
-cd WebApps/ImageGalleryAspNet/
+cd Samples/WebApps/ImageGalleryAspNet/
 dotnet test bin/net6.0/ImageGalleryTests.dll
 ```
 

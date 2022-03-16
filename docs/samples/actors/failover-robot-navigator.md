@@ -111,23 +111,20 @@ To run the `DrinksServingRobotActors` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Running and testing the Drink Serving Robot
 
 Now you can run the `DrinksServingRobotActors` application:
 
 ```plain
-"./bin/net6.0/DrinksServingRobotActors.exe"
+./Samples/bin/net6.0/DrinksServingRobotActors.exe
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -241,13 +238,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```plain
-. Testing .\bin\net6.0\DrinksServingRobotActors.exe
+. Testing .\Samples\bin\net6.0\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'prioritization' strategy (seed:324932188).
@@ -474,7 +471,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```plain
-coyote test .\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph-bug
+coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -643,7 +640,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

@@ -121,8 +121,8 @@ test scheduling options you can play with:
 | Option | Description |
 | ------ | ----------- |
 | `--sch-random` | Choose the random scheduling strategy (this is the default) |
-| `--sch-pct uint` | Choose the PCT scheduling strategy with given maximum number of priority switch points |
-| `--sch-fairpct uint` | Choose the fair PCT scheduling strategy with given maximum number of priority switch points |
+| `--sch-prioritization uint` | Choose the priority-based scheduling strategy with given maximum number of priority switch points |
+| `--sch-fair-prioritization uint` | Choose the fair priority-based scheduling strategy with given maximum number of priority switch points |
 | `--sch-portfolio` | Choose the portfolio scheduling strategy in combination with parallel testing |
 
 
@@ -138,11 +138,11 @@ coyote test ./bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --
 When you use this the test will print the chosen strategies at the top of the test output:
 
 ```plain
-... Task 3 is using 'FairPCT' strategy (seed:3922897588).
-... Task 4 is using 'ProbabilisticRandom' strategy (seed:3469760925).
-... Task 2 is using 'ProbabilisticRandom' strategy (seed:1642014516).
-... Task 1 is using 'FairPCT' strategy (seed:1466235705).
-... Task 0 is using 'Random' strategy (seed:3931672516).
+... Task 3 is using 'fair-prioritization' strategy (seed:3922897588).
+... Task 4 is using 'probabilistic' strategy (seed:3469760925).
+... Task 2 is using 'probabilistic' strategy (seed:1642014516).
+... Task 1 is using 'fair-prioritization' strategy (seed:1466235705).
+... Task 0 is using 'random' strategy (seed:3931672516).
 ```
 
 You can also increase the number of iterations to 10,000,000 if you want to, then come back tomorrow

@@ -192,7 +192,7 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the `coyote-samples` folder:
 
 ```plain
-coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-pct 10 --graph-bug
+coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph-bug
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -297,7 +297,7 @@ designed to find different kinds of bugs. The following command line shows how t
 each in different test processes:
 
 ```plain
-coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-pct 10 --graph-bug --sch-portfolio --parallel 8
+coyote test ./bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph-bug --sch-portfolio --parallel 8
 ```
 
 which outputs the following:
@@ -305,14 +305,14 @@ which outputs the following:
 . Testing .\bin\net6.0\CoffeeMachineActors.dll
 Starting TestingProcessScheduler in process 42036
 ... Created '8' testing tasks.
-... Task 3 is using 'FairPCT' strategy (seed:2143).
-... Task 5 is using 'FairPCT' strategy (seed:3489).
-... Task 2 is using 'ProbabilisticRandom' strategy (seed:1470).
-... Task 7 is using 'FairPCT' strategy (seed:4835).
-... Task 0 is using 'Random' strategy (seed:124).
-... Task 6 is using 'ProbabilisticRandom' strategy (seed:4162).
-... Task 4 is using 'ProbabilisticRandom' strategy (seed:2816).
-... Task 1 is using 'FairPCT' strategy (seed:797).
+... Task 3 is using 'fair-prioritization' strategy (seed:2143).
+... Task 5 is using 'fair-prioritization' strategy (seed:3489).
+... Task 2 is using 'probabilistic' strategy (seed:1470).
+... Task 7 is using 'fair-prioritization' strategy (seed:4835).
+... Task 0 is using 'random' strategy (seed:124).
+... Task 6 is using 'probabilistic' strategy (seed:4162).
+... Task 4 is using 'probabilistic' strategy (seed:2816).
+... Task 1 is using 'fair-prioritization' strategy (seed:797).
 ...
 ```
 

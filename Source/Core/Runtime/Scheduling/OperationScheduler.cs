@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -28,6 +29,11 @@ namespace Microsoft.Coyote.Runtime
         /// The installed replay strategy, if any.
         /// </summary>
         private readonly ReplayStrategy ReplayStrategy;
+
+        /// <summary>
+        /// The installed schedule reducers, if any.
+        /// </summary>
+        private readonly List<IScheduleReducer> Reducers;
 
         /// <summary>
         /// Responsible for generating random values.
@@ -68,11 +74,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(SchedulingPolicy policy, IRandomValueGenerator generator, Configuration configuration)
+        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
             this.ValueGenerator = generator;
+
+            this.Reducers = new List<IScheduleReducer>();
+            if (configuration.IsSharedStateReductionEnabled)
+            {
+                this.Reducers.Add(new SharedStateReducer());
+            }
 
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
@@ -106,16 +118,16 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration) =>
-            new OperationScheduler(configuration.IsConcurrencyFuzzingEnabled ?
-                SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
-                new RandomValueGenerator(configuration), configuration);
+            new OperationScheduler(configuration,
+                configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                new RandomValueGenerator(configuration));
 
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(SchedulingPolicy policy, IRandomValueGenerator valueGenerator,
-            Configuration configuration) =>
-            new OperationScheduler(policy, valueGenerator, configuration);
+        internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
+            IRandomValueGenerator valueGenerator) =>
+            new OperationScheduler(configuration, policy, valueGenerator);
 
         /// <summary>
         /// Sets the specification engine.
@@ -143,7 +155,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the next controlled operation to schedule.
         /// </summary>
-        /// <param name="ops">Operations that can be scheduled.</param>
+        /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
@@ -151,11 +163,27 @@ namespace Microsoft.Coyote.Runtime
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextOperation(ops, current, isYielding, out next))
+            // Filter out any operations that cannot be scheduled.
+            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
+            if (enabledOps.Any())
             {
-                this.Trace.AddSchedulingChoice(next.Id);
-                return true;
+                // Invoke any installed schedule reducers.
+                foreach (var reducer in this.Reducers)
+                {
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
+                    if (reducedOps.Any())
+                    {
+                        enabledOps = reducedOps;
+                    }
+                }
+
+                // Invoke the strategy to choose the next operation.
+                if (this.Strategy is SystematicStrategy strategy &&
+                    strategy.GetNextOperation(enabledOps, current, isYielding, out next))
+                {
+                    this.Trace.AddSchedulingChoice(next.Id);
+                    return true;
+                }
             }
 
             next = null;
@@ -171,8 +199,8 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextBooleanChoice(current, maxValue, out next))
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextBooleanChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicBooleanChoice(next);
                 return true;
@@ -191,8 +219,8 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
-            if (this.Strategy is SystematicStrategy systematicStrategy &&
-                systematicStrategy.GetNextIntegerChoice(current, maxValue, out next))
+            if (this.Strategy is SystematicStrategy strategy &&
+                strategy.GetNextIntegerChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicIntegerChoice(next);
                 return true;

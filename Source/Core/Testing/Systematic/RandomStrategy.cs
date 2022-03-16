@@ -33,16 +33,8 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
-            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
-            next = enabledOps[idx];
-
+            int idx = this.RandomValueGenerator.Next(ops.Count());
+            next = ops.ElementAt(idx);
             this.StepCount++;
             return true;
         }
@@ -83,7 +75,7 @@ namespace Microsoft.Coyote.Testing.Systematic
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed '{this.RandomValueGenerator.Seed}']";
+        internal override string GetDescription() => $"random[seed:{this.RandomValueGenerator.Seed}]";
 
         /// <inheritdoc/>
         internal override void Reset()

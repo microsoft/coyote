@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -25,10 +27,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Yields execution to another controlled operation.
+        /// Attempts to yield execution to another controlled operation.
         /// </summary>
         /// <remarks>
-        /// Invoking this method can lower the scheduling priority of the currently executing
+        /// Invoking this method might lower the scheduling priority of the currently executing
         /// operation when certain exploration strategies are used.
         /// </remarks>
         public static void Yield()
@@ -37,6 +39,45 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
             {
                 runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+            }
+        }
+
+#pragma warning disable CA1801 // Parameter not used
+        /// <summary>
+        /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
+        /// </summary>
+        /// <param name="state">The shared state that is being read represented as a string.</param>
+        /// <param name="comparer">
+        /// Checks if the read shared state is equal with another shared state that is being accessed concurrently.
+        /// </param>
+        public static void Read(string state, IEqualityComparer<string> comparer = default)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                ControlledOperation op = runtime.GetExecutingOperation();
+                op.LastAccessedSharedState = state;
+                runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
+                op.LastAccessedSharedState = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Explores a possible interleaving due to a 'WRITE' operation on the specified shared state.
+        /// </summary>
+        /// <param name="state">The shared state that is being written represented as a string.</param>
+        /// <param name="comparer">
+        /// Checks if the written shared state is equal with another shared state that is being accessed concurrently.
+        /// </param>
+        public static void Write(string state, IEqualityComparer<string> comparer = default)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            {
+                ControlledOperation op = runtime.GetExecutingOperation();
+                op.LastAccessedSharedState = state;
+                runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
+                op.LastAccessedSharedState = string.Empty;
             }
         }
 

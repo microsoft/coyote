@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Rewriting
             //   configuration.WithTestingIterations(n);
             //   configuration.WithMaxSchedulingSteps(x, y);
             //   configuration.WithProbabilisticStrategy(x);
-            //   configuration.WithPCTStrategy(x);
+            //   configuration.WithPrioritizationStrategy(x);
             //   configuration.SchedulingStrategy(x);
             //   configuration.WithLivenessTemperatureThreshold(x);
             //   configuration.WithTimeoutDelay(x);
@@ -211,14 +211,17 @@ namespace Microsoft.Coyote.Rewriting
             {
                 switch (this.Configuration.SchedulingStrategy)
                 {
-                    case "fairpct":
-                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithProbabilisticStrategy", (uint)this.Configuration.StrategyBound);
+                    case "fair-prioritization":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
+                            true, (uint)this.Configuration.StrategyBound);
                         break;
-                    case "pct":
-                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPCTStrategy", false, (uint)this.Configuration.StrategyBound);
+                    case "prioritization":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
+                            false, (uint)this.Configuration.StrategyBound);
                         break;
                     case "dfs":
-                        this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy", this.Configuration.ScheduleTrace);
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy",
+                            this.Configuration.ScheduleTrace);
                         break;
                     default:
                         break;
@@ -227,27 +230,32 @@ namespace Microsoft.Coyote.Rewriting
 
             if (this.Configuration.UserExplicitlySetLivenessTemperatureThreshold)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithLivenessTemperatureThreshold", (uint)this.Configuration.LivenessTemperatureThreshold);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithLivenessTemperatureThreshold",
+                    (uint)this.Configuration.LivenessTemperatureThreshold);
             }
 
             if (this.Configuration.TimeoutDelay != defaultConfig.TimeoutDelay)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTimeoutDelay", this.Configuration.TimeoutDelay);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTimeoutDelay",
+                    this.Configuration.TimeoutDelay);
             }
 
             if (this.Configuration.RandomGeneratorSeed.HasValue)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithRandomGeneratorSeed", this.Configuration.RandomGeneratorSeed.Value);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithRandomGeneratorSeed",
+                    this.Configuration.RandomGeneratorSeed.Value);
             }
 
             if (this.Configuration.IsVerbose)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled", this.Configuration.IsVerbose, this.Configuration.LogLevel);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled",
+                    this.Configuration.IsVerbose, this.Configuration.LogLevel);
             }
 
             if (!this.Configuration.EnableTelemetry)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled", this.Configuration.EnableTelemetry);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled",
+                    this.Configuration.EnableTelemetry);
             }
 
             processor.Emit(OpCodes.Ldarg_0);

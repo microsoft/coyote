@@ -34,12 +34,12 @@ coyote test ./bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200
 ```
 
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
-found using the `PCT` exploration strategy with a given maximum number of priority switch points
-`--sch-pct` (or with the default `Random` exploration strategy, but with a much larger number of
-iterations, typically more than 100,000 of them).
+found using the `prioritization` exploration strategy with a given maximum number of priority switch
+points `--sch-prioritization` (or with the default `random` exploration strategy, but with a much
+larger number of iterations, typically more than 100,000 of them).
 
 ```plain
-coyote test ./bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-pct 10
+coyote test ./bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-prioritization 10
 ```
 
 Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger

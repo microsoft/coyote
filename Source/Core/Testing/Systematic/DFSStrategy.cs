@@ -141,13 +141,6 @@ namespace Microsoft.Coyote.Testing.Systematic
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled).ToList();
-            if (enabledOps.Count is 0)
-            {
-                next = null;
-                return false;
-            }
-
             SChoice nextChoice = null;
             List<SChoice> scs = null;
 
@@ -158,7 +151,7 @@ namespace Microsoft.Coyote.Testing.Systematic
             else
             {
                 scs = new List<SChoice>();
-                foreach (var task in enabledOps)
+                foreach (var task in ops)
                 {
                     scs.Add(new SChoice(task.Id));
                 }
@@ -179,7 +172,7 @@ namespace Microsoft.Coyote.Testing.Systematic
                 previousChoice.IsDone = false;
             }
 
-            next = enabledOps.Find(task => task.Id == nextChoice.Id);
+            next = ops.FirstOrDefault(op => op.Id == nextChoice.Id);
             nextChoice.IsDone = true;
             this.SchIndex++;
 

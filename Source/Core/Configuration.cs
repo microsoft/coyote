@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote
 {
@@ -106,6 +106,12 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, shared state reduction is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsSharedStateReductionEnabled;
 
         /// <summary>
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
@@ -369,6 +375,7 @@ namespace Microsoft.Coyote
             this.IsConcurrencyFuzzingEnabled = false;
             this.IsConcurrencyFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
+            this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
@@ -447,15 +454,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the PCT scheduling strategy during systematic testing.
-        /// You can specify the number of priority switch points, which by default are 10.
+        /// Updates the configuration to use the priority-based scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible priority changes, which by default can be up to 10.
         /// </summary>
-        /// <param name="isFair">If true, use the fair version of PCT.</param>
-        /// <param name="numPrioritySwitchPoints">The nunmber of priority switch points.</param>
-        public Configuration WithPCTStrategy(bool isFair, uint numPrioritySwitchPoints = 10)
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
         {
-            this.SchedulingStrategy = isFair ? "fairpct" : "pct";
-            this.StrategyBound = (int)numPrioritySwitchPoints;
+            this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
+            this.StrategyBound = (int)priorityChangeBound;
             return this;
         }
 
@@ -541,6 +549,19 @@ namespace Microsoft.Coyote
         public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
         {
             this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
+        /// </summary>
+        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
+        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        {
+            this.IsSharedStateReductionEnabled = isEnabled;
             return this;
         }
 

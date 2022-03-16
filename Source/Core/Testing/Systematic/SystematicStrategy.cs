@@ -37,7 +37,6 @@ namespace Microsoft.Coyote.Testing.Systematic
             else if (configuration.SchedulingStrategy is "prioritization")
             {
                 strategy = new PrioritizationStrategy(configuration, generator);
-                // strategy = new PCTStrategy(configuration, generator);
             }
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {

@@ -70,10 +70,10 @@ Coyote found 1 bug.
 
 Most of the command line options you see on `coyote test` are available in the `Configuration`
 class. Use the `With*` helper methods to set the various configurations, for example, to specify
-`--sch-pct 10` use the following:
+`--sch-prioritization 10` use the following:
 
 ```csharp
-var config = Configuration.Create().WithPCTStrategy(false, 10);
+var config = Configuration.Create().WithPrioritizationStrategy(false, 10);
 ```
 
 For `--iterations` use `WithTestingIterations`. The `--graph` option maps to the `Configuration`

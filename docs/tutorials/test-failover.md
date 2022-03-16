@@ -191,7 +191,7 @@ coyote rewrite ./bin/net6.0/CoffeeMachineTasks.dll
 Then you can run the test:
 
 ```plain
-coyote test ./bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fairpct 10
+coyote test ./bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fair-prioritization 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -293,14 +293,14 @@ which outputs the following:
 . Testing .\bin\net6.0\CoffeeMachineTasks.dll
 Starting TestingProcessScheduler in process 42036
 ... Created '8' testing tasks.
-... Task 3 is using 'FairPCT' strategy (seed:2143).
-... Task 5 is using 'FairPCT' strategy (seed:3489).
-... Task 2 is using 'ProbabilisticRandom' strategy (seed:1470).
-... Task 7 is using 'FairPCT' strategy (seed:4835).
-... Task 0 is using 'Random' strategy (seed:124).
-... Task 6 is using 'ProbabilisticRandom' strategy (seed:4162).
-... Task 4 is using 'ProbabilisticRandom' strategy (seed:2816).
-... Task 1 is using 'FairPCT' strategy (seed:797).
+... Task 3 is using 'fair-prioritization' strategy (seed:2143).
+... Task 5 is using 'fair-prioritization' strategy (seed:3489).
+... Task 2 is using 'probabilistic' strategy (seed:1470).
+... Task 7 is using 'fair-prioritization' strategy (seed:4835).
+... Task 0 is using 'random' strategy (seed:124).
+... Task 6 is using 'probabilistic' strategy (seed:4162).
+... Task 4 is using 'probabilistic' strategy (seed:2816).
+... Task 1 is using 'fair-prioritization' strategy (seed:797).
 ...
 ```
 

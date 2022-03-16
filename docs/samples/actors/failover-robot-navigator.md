@@ -241,7 +241,7 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
@@ -250,7 +250,7 @@ Chances are this will find a bug quickly, and you will see output from the test 
 . Testing .\bin\net6.0\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
-... Task 0 is using 'pct' strategy (seed:324932188).
+... Task 0 is using 'prioritization' strategy (seed:324932188).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
@@ -474,7 +474,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```plain
-coyote test .\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
+coyote test .\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -643,7 +643,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
 ```
 
 And now no bug will be found -- you should get result similar to this:
@@ -683,7 +683,7 @@ In this tutorial you learned:
 
 1. How to do failover testing using a Coyote `FailoverDriver` state machine.
 2. How to use Coyote to test failover in a service.
-3. How to use `--sch-pct` testing on multiple processes to find tricky bugs more quickly.
+3. How to use `--sch-prioritization` testing on multiple processes to find tricky bugs more quickly.
 4. How to specify the `--graph-bug` argument so that the coyote test tool would produce a
   snapshot-DGML diagram of the final state of the system when the bug was found.
 5. How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in

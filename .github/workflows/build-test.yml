@@ -51,8 +51,3 @@ jobs:
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
-      - name: Build and test Coyote samples
-        run: |
-          ./Samples/Scripts/build-tests.ps1 -local $true
-          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
-        shell: pwsh

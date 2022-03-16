@@ -16,9 +16,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="ops">All available operations to schedule.</param>
         /// <param name="current">The currently scheduled operation.</param>
-        /// <param name="reducedOps">The subset of operations to schedule.</param>
-        /// <returns>True if the reduction should be accepted, else false.</returns>
-        bool TryReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            out IEnumerable<ControlledOperation> reducedOps);
+        /// <returns>The subset of operations to schedule.</returns>
+        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current);
     }
 }

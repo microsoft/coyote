@@ -34,8 +34,8 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public bool TryReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            out IEnumerable<ControlledOperation> reducedOps)
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops,
+            ControlledOperation current)
         {
             // Find all operations that are not accessing any shared state.
             var noStateAccessOps = ops.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Runtime
             if (noStateAccessOps.Any())
             {
                 // There are operations that are not accessing any shared state, so return them.
-                reducedOps = noStateAccessOps;
+                return noStateAccessOps;
             }
             else
             {
@@ -63,12 +63,11 @@ namespace Microsoft.Coyote.Runtime
                 if (readOnlyAccessOps.Any())
                 {
                     // Return all read-only access operations.
-                    reducedOps = readOnlyAccessOps;
+                    return readOnlyAccessOps;
                 }
             }
 
-            reducedOps = ops;
-            return reducedOps.Any();
+            return ops;
         }
     }
 }

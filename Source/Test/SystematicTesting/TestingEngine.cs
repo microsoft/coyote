@@ -375,7 +375,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private Task CreateTestingTask()
         {
             this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
-                $"using the '{this.Scheduler.GetDescription()}' strategy.");
+                $"using the {this.Scheduler.GetDescription()} strategy.");
             if (!this.IsTestRewritten())
             {
                 // TODO: eventually will throw an exception; we allow this for now for pure actor programs.
@@ -582,7 +582,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 Console.WriteLine($"COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter}");
+                Console.WriteLine($"Max-COUNT: {Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2}");
                 Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter = 0;
+                Microsoft.Coyote.Testing.Systematic.PriorityBasedStrategy.Counter2 = 0;
 
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Close();

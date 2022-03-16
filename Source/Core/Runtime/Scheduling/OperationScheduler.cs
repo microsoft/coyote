@@ -170,10 +170,11 @@ namespace Microsoft.Coyote.Runtime
                 // Invoke any installed schedule reducers.
                 foreach (var reducer in this.Reducers)
                 {
-                    // if (reducer.TryReduceOperations(enabledOps, current, out var reducedOps))
-                    // {
-                    //     enabledOps = reducedOps;
-                    // }
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
+                    if (reducedOps.Any())
+                    {
+                        enabledOps = reducedOps;
+                    }
                 }
 
                 // Invoke the strategy to choose the next operation.

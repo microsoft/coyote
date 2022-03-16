@@ -95,7 +95,6 @@ namespace Microsoft.Coyote.Runtime
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedState = string.Empty;
-            // TODO: probably set by default to false, unless e.g. the HTTP abstraction is set.
             this.IsReadOnly = isReadOnly;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;

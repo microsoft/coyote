@@ -1,0 +1,68 @@
+﻿@model ImageGallery.Models.GalleryViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        Welcome back @ViewData["User"]
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8">
+        <section>
+            <form asp-controller="Home" asp-action="Upload" method="post" class="form-horizontal" role="form" enctype="multipart/form-data">
+                <div>
+                    <h3>Select Files to upload: </h3><input type="file" id="file" name="selectFiles" class="upload" onchange="DisplayFilesToUpload()" multiple />
+                </div>
+                @* This gets populated from the DisplayFilesToUpload() JS function*@
+                <p id="FilesToUpload"></p>
+            </form>
+        </section>
+    </div>
+
+    <div class="col-md-8">
+        @if (Model != null && Model.Images != null && Model.Images.Length > 0)
+        {
+            foreach (var item in Model.Images)
+            {
+                <div class="imageBlock">
+                    <a href="~/Home/GetImage?id=@Uri.EscapeDataString(item)" target="_blank"><img class="thumb" src="~/Home/GetImage?id=@Uri.EscapeDataString(item)" alt="@item" /></a><br />
+                    <div class="deleteDiv"><img class="deleteIcon" src="~/images/deleteImage.png" title="Delete Image" onclick="DeleteImage('@Uri.EscapeDataString(item)');" /></div>
+                </div>
+            }
+
+            using (Html.BeginForm("DeleteAll", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <input type="submit" name="deleteAll" class="deleteall" value="Delete All Files" />
+            }
+        }
+    </div>
+</div>
+
+
+<script>
+    function DeleteImage(item) {
+        var url = "/Home/DeleteImage?id=" + item;
+        window.location.href = url;
+    }
+
+    //Lists the file name and size for all files to be uploaded by updating the <p id="FilesToUpload"></p> control
+    function DisplayFilesToUpload() {
+        var element = document.getElementById("file");
+        var html = "";
+
+        html = "<h3>Image(s) to Upload</h3>"
+        for (var i = 0; i < element.files.length; i++) {
+            html += "<strong>" + (i + 1) + "</strong>. File: ";
+            var file = element.files[i];
+            if ('name' in file) { html += file.name + " ("; }
+            if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+        }
+
+        html += "<input type='submit' class='upload' value='Upload'/>"
+        document.getElementById("FilesToUpload").innerHTML = html;
+    }
+
+</script>

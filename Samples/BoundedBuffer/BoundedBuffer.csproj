@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Common\build.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
+</Project>

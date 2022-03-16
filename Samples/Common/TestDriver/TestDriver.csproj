@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\build.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AccountManager\AccountManager\AccountManager.csproj" />
+    <ProjectReference Include="..\..\AccountManager\AccountManager.ETags\AccountManager.ETags.csproj" />
+    <ProjectReference Include="..\..\BoundedBuffer\BoundedBuffer.csproj" />
+    <ProjectReference Include="..\..\CloudMessaging\Raft.Mocking\Raft.Mocking.csproj" />
+    <ProjectReference Include="..\..\CloudMessaging\Raft.Nondeterminism\Raft.Nondeterminism.csproj" />
+    <ProjectReference Include="..\..\CoffeeMachineActors\CoffeeMachineActors.csproj" />
+    <ProjectReference Include="..\..\CoffeeMachineTasks\CoffeeMachineTasks.csproj" />
+    <ProjectReference Include="..\..\DrinksServingRobotActors\DrinksServingRobotActors.csproj" />
+    <ProjectReference Include="..\..\HelloWorldActors\HelloWorldActors.csproj" />
+    <ProjectReference Include="..\..\Monitors\Monitors.csproj" />
+    <!-- <ProjectReference Include="..\..\WebApps\ImageGalleryAspNet\Tests\Tests.csproj" /> -->
+    <!-- <ProjectReference Include="..\..\WebApps\PetImagesAspNet\PetImagesTest\PetImagesTest.csproj" /> -->
+  </ItemGroup>
+  <Target Name="CoyoteRewritingFromNuget" Condition="'$(UseLocalCoyoteBuild)'=='false'" AfterTargets="AfterBuild">
+    <Exec Command="dotnet ../../packages/microsoft.coyote.test/$(Version)/lib/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json"/>
+  </Target>
+  <Target Name="CoyoteRewritingFromLocal" Condition="'$(UseLocalCoyoteBuild)'=='true'" AfterTargets="AfterBuild">
+    <Exec Command="dotnet ../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json"/>
+  </Target>
+</Project>

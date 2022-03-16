@@ -51,11 +51,8 @@ jobs:
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
-      # - name: Clone, build and test Coyote samples
-      #   run: |
-      #     git clone https://github.com/microsoft/coyote-samples.git
-      #     cd coyote-samples
-      #     $env:LOCAL_COYOTE_PATH=$env:GITHUB_WORKSPACE
-      #     ./Scripts/build-tests.ps1
-      #     dotnet ./Common/bin/net6.0/TestDriver.dll
-      #   shell: pwsh
+      - name: Build and test Coyote samples
+        run: |
+          ./Samples/Scripts/build-tests.ps1 -local $true
+          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+        shell: pwsh

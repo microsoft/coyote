@@ -1,7 +1,17 @@
+## v1.5.0
+- Added runtime and rewriting support for testing ASP.NET controllers in the presence of
+  partially-controlled concurrency.
+- Added support for rewriting the `HttpClient` type targeting ASP.NET controllers.
+- Improved runtime support for partially-controlled concurrency during testing.
+- New option for skipping potential deadlocks in the presence of partially-controlled concurrency.
+- The actor logging method `LogExceptionThrown` is now only called if the exception was not handled.
+  The `LogExceptionHandled` method can be used instead for handled exceptions.
+- Runtime improvements and fixes.
+
 ## v1.4.3
 - Added support for the `netstandard2.0` target.
-- Support for rewriting the non-generic `TaskCompletionSource` type.
-- Support for rewriting the `ValueTask` type (but `IValueTaskSource` is not supported).
+- Added support for rewriting the non-generic `TaskCompletionSource` type.
+- Added support for rewriting the `ValueTask` type (but `IValueTaskSource` is not supported).
 - Improvements to concurrency fuzzing, especially for actor-based programs.
 - Improvements to how thread interrupts are handled at the end of each test iteration.
 - Tests now report the degree of concurrency and number of controlled operations.
@@ -11,7 +21,7 @@
 - The `TestingEngine` is now giving a warning if the DLL being tested has not been rewritten.
 - The number of controlled operations are now reported as part of test statistics.
 - Improvements, optimizations and bug-fixes in binary rewriting.
-- Support for dumping the rewritten IL diff to a file through `--dump-il-diff`.
+- Added support for dumping the rewritten IL diff to a file through `--dump-il-diff`.
 
 ## v1.4.1
 - Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during

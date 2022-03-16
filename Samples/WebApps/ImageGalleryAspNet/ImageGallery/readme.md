@@ -4,7 +4,6 @@ This is a web client front end that uses the ImageGalleryService middle tier.
 
 ![screenshot](screenshot.png)
 
-
 ### What you will need
 
 The app depends on the following:

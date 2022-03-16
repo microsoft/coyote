@@ -39,10 +39,23 @@ To build and run the samples, you will need to:
 - Install the [.NET 6.0 version of the coyote
   tool](https://microsoft.github.io/coyote/get-started/install/).
 
-Once you are ready, clone this repository and build the samples by running the following script in
-`powershell`:
+Once you are ready, build the samples by running the following script from the root of the
+repository in `powershell`:
 ```
 ./Samples/Scripts/build.ps1
 ```
 
-Then, follow the instructions in each sample.
+You can find the compiled binaries in the `bin` directory. You can use the `coyote` tool to
+automatically test these samples and find bugs. First, read how to use the tool
+[here](../get-started/using-coyote.md). Then, follow the instructions in each sample.
+
+## Using the local Coyote binaries
+
+By default, the samples use the published `Microsoft.Coyote` [NuGet
+package](https://www.nuget.org/packages/Microsoft.Coyote/). If you want to use the locally built
+Coyote binaries instead, then run the following script in `powershell`:
+```
+./Samples/Scripts/build.ps1 -local $true
+```
+
+Note: this can make debugging into the Coyote runtime possible.

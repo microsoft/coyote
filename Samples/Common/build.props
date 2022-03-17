@@ -26,25 +26,13 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
   </ItemGroup>
-  <!-- <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='false'">
+  <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='false'">
     <PackageReference Include="Microsoft.Coyote" Version="$(Version)" />
     <PackageReference Include="Microsoft.Coyote.Test" Version="$(Version)" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='true'">
-    <Reference Include="Microsoft.Coyote">
-      <HintPath>..\..\bin\$(TargetFramework)\Microsoft.Coyote.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Coyote.Test">
-      <HintPath>..\..\bin\$(TargetFramework)\Microsoft.Coyote.Test.dll</HintPath>
-    </Reference>
-  </ItemGroup> -->
-  <ItemGroup>
-    <Reference Include="Microsoft.Coyote">
-      <HintPath>..\..\bin\$(TargetFramework)\Microsoft.Coyote.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Coyote.Test">
-      <HintPath>..\..\bin\$(TargetFramework)\Microsoft.Coyote.Test.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" />

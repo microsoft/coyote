@@ -875,7 +875,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             return Configuration.Create()
                 .WithTelemetryEnabled(false)
-                // .WithPartiallyControlledConcurrencyEnabled(false)
+                .WithPartiallyControlledConcurrencyEnabled(false)
                 .WithConcurrencyFuzzingFallbackEnabled(false);
         }
 

@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTwoParallelTasksWriteWithYieldFail()
+        public void TestTwoParallelTasksWriteWithYieldFailure()
         {
             this.TestWithError(async () =>
             {
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTwoAsynchronousTasksWriteWithYieldFail()
+        public void TestTwoAsynchronousTasksWriteWithYieldFailure()
         {
             this.TestWithError(async () =>
             {

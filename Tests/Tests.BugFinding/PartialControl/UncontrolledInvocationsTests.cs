@@ -19,6 +19,19 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledContinueWithTaskInvocation()
         {
+            this.Test(() =>
+            {
+                var task = new Task(() => { });
+                task.ContinueWith(_ => { }, null);
+            },
+            configuration: this.GetConfiguration()
+                .WithTestingIterations(10)
+                .WithPartiallyControlledConcurrencyEnabled());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledContinueWithTaskInvocationWithNoPartialControl()
+        {
             this.TestWithError(() =>
             {
                 var task = new Task(() => { });
@@ -34,6 +47,18 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledThreadYieldInvocation()
         {
+            this.Test(() =>
+            {
+                Thread.Yield();
+            },
+            configuration: this.GetConfiguration()
+                .WithTestingIterations(10)
+                .WithPartiallyControlledConcurrencyEnabled());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledThreadYieldInvocationWithNoPartialControl()
+        {
             this.TestWithError(() =>
             {
                 Thread.Yield();
@@ -47,6 +72,18 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTimerInvocation()
+        {
+            this.Test(() =>
+            {
+                using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
+            },
+            configuration: this.GetConfiguration()
+                .WithTestingIterations(10)
+                .WithPartiallyControlledConcurrencyEnabled());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledTimerInvocationWithNoPartialControl()
         {
             this.TestWithError(() =>
             {

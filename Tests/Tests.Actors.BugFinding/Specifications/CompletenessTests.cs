@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            private void Fail()
+            private void Failure()
             {
                 this.Assert(false);
             }

@@ -17,6 +17,18 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestDetectedUncontrolledDelay()
         {
+            this.Test(async () =>
+            {
+                await AsyncProvider.DelayAsync(100);
+            },
+            configuration: this.GetConfiguration()
+                .WithTestingIterations(10)
+                .WithPartiallyControlledConcurrencyEnabled());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDetectedUncontrolledDelayWithNoPartialControl()
+        {
             this.TestWithError(async () =>
             {
                 await AsyncProvider.DelayAsync(100);

@@ -249,10 +249,10 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Do some sanity checking.
             string error = string.Empty;
-            if (configuration.IsConcurrencyFuzzingEnabled &&
+            if (configuration.IsSystematicFuzzingEnabled &&
                 (configuration.SchedulingStrategy is "replay" || configuration.ScheduleFile.Length > 0))
             {
-                error = "Replaying a bug trace is not supported in concurrency fuzzing.";
+                error = "Replaying a bug trace is not currently supported in systematic fuzzing.";
             }
 
             if (configuration.SchedulingStrategy is "portfolio")
@@ -558,8 +558,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 if (runtime.IsUncontrolledConcurrencyDetected &&
-                    this.Configuration.IsConcurrencyFuzzingFallbackEnabled &&
-                    !this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    this.Configuration.IsSystematicFuzzingFallbackEnabled &&
+                    !this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                 {
                     // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,

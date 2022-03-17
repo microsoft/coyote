@@ -12,7 +12,7 @@
 - Added support for the `netstandard2.0` target.
 - Added support for rewriting the non-generic `TaskCompletionSource` type.
 - Added support for rewriting the `ValueTask` type (but `IValueTaskSource` is not supported).
-- Improvements to concurrency fuzzing, especially for actor-based programs.
+- Improvements to systematic fuzzing, especially for actor-based programs.
 - Improvements to how thread interrupts are handled at the end of each test iteration.
 - Tests now report the degree of concurrency and number of controlled operations.
 
@@ -24,10 +24,10 @@
 - Added support for dumping the rewritten IL diff to a file through `--dump-il-diff`.
 
 ## v1.4.1
-- Enabled automated fallback to concurrency fuzzing upon detecting uncontrolled concurrency during
+- Enabled automated fallback to systematic fuzzing upon detecting uncontrolled concurrency during
   testing to increase usability. This feature is enabled by default and can be disabled via the
   `no-fuzzing-fallback` command line option (or
-  `Configuration.WithConcurrencyFuzzingFallbackEnabled`).
+  `Configuration.WithSystematicFuzzingFallbackEnabled`).
 - Added a new JSON test report that lists any detected invocations of uncontrolled methods.
 - The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to
   reflect that the reports do not include only traces.
@@ -54,7 +54,7 @@
   projects.
 
 ## v1.2.8
-- Improved the strategies used for concurrency fuzzing.
+- Improved the strategies used for systematic fuzzing.
 - Fixed a rewriting bug related to the `TaskAwaiter` type.
 
 ## v1.2.7
@@ -76,9 +76,9 @@
   during systematic testing.
 - Added an experimental systematic testing strategy that uses reinforcement learning. This is
   enabled using the `--sch-rl` command line option or the `Configuration.WithRLStrategy` method.
-- Added an experimental concurrency fuzzing testing mode that uses delay injection instead of
-  systematic testing to find bugs. This can be enabled using the `--concurrency-fuzzing` command
-  line option or the `Configuration.WithConcurrencyFuzzingEnabled` method.
+- Added an experimental systematic fuzzing testing mode that uses delay injection instead of
+  systematic testing to find bugs. This can be enabled using the `--systematic-fuzzing` command
+  line option or the `Configuration.WithSystematicFuzzingEnabled` method.
 - Added the `IActorRuntimeLog.OnEventHandlerTerminated` actor log callback that is called when an
   event handler terminates.
 - Fixed a bug where the `IActorRuntimeLog.OnHandleRaisedEvent` actor log callback was not invoked in

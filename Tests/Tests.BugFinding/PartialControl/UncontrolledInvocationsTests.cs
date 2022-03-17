@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 task.ContinueWith(_ => { }, null);
             },
             configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyEnabled()
+                .WithPartiallyControlledConcurrencyAllowed()
                 .WithTestingIterations(10));
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Thread.Yield();
             },
             configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyEnabled()
+                .WithPartiallyControlledConcurrencyAllowed()
                 .WithTestingIterations(10));
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
             },
             configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyEnabled()
+                .WithPartiallyControlledConcurrencyAllowed()
                 .WithTestingIterations(10));
         }
 

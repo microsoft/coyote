@@ -85,17 +85,17 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (!configuration.IsPartiallyControlledConcurrencyEnabled)
+            if (!configuration.IsPartiallyControlledConcurrencyAllowed)
             {
                 arguments.Append("--no-partial-control ");
             }
 
-            if (configuration.IsConcurrencyFuzzingEnabled)
+            if (configuration.IsSystematicFuzzingEnabled)
             {
-                arguments.Append("--concurrency-fuzzing ");
+                arguments.Append("--systematic-fuzzing ");
             }
 
-            if (!configuration.IsConcurrencyFuzzingFallbackEnabled)
+            if (!configuration.IsSystematicFuzzingFallbackEnabled)
             {
                 arguments.Append("--no-fuzzing-fallback ");
             }

@@ -1140,7 +1140,7 @@ namespace Microsoft.Coyote.Runtime
 
             Stopwatch elapsedDelay = null;
             if (this.IsUncontrolledConcurrencyDetected &&
-                this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                this.Configuration.IsPartiallyControlledConcurrencyAllowed)
             {
                 elapsedDelay = new Stopwatch();
                 elapsedDelay.Start();
@@ -1197,7 +1197,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Heuristics for handling a partially controlled execution.
                 if (this.IsUncontrolledConcurrencyDetected &&
-                    this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                 {
                     // Compute the delta of enabled operations from the previous attempt.
                     uint enabledOpsDelta = attempt is 0 ? 0 : enabledOpsCount - previousEnabledOpsCount;
@@ -1698,7 +1698,7 @@ namespace Microsoft.Coyote.Runtime
                 SchedulingActivityInfo info = state as SchedulingActivityInfo;
                 if (info.StepCount == this.Scheduler.StepCount)
                 {
-                    string msg = "Potential deadlock detected. Due to the concurrency fuzzing heuristics, " +
+                    string msg = "Potential deadlock detected. Due to the used systematic fuzzing heuristics, " +
                         "Coyote cannot accurately determine if this is a real deadlock or not. If you believe " +
                         "that this is not a real deadlock, you can increase the dealock detection timeout by " +
                         "setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
@@ -1813,12 +1813,12 @@ namespace Microsoft.Coyote.Runtime
                 // most likely crash the program, but we try to fail as cleanly and fast as possible.
                 string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not intercepted and " +
                     "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                 {
                     this.Logger.WriteLine($"<TestLog> {message}");
                     this.IsUncontrolledConcurrencyDetected = true;
                 }
-                else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                 {
                     this.Logger.WriteLine($"<TestLog> {message}");
                     this.IsUncontrolledConcurrencyDetected = true;
@@ -1846,7 +1846,7 @@ namespace Microsoft.Coyote.Runtime
                     // most likely crash the program, but we try to fail as cleanly and fast as possible.
                     string message = $"Waiting task '{task.Id}' that is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
@@ -1855,7 +1855,7 @@ namespace Microsoft.Coyote.Runtime
                             this.TryPauseAndResolveUncontrolledTask(task);
                         }
                     }
-                    else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
@@ -1885,7 +1885,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
@@ -1894,7 +1894,7 @@ namespace Microsoft.Coyote.Runtime
                             this.TryPauseAndResolveUncontrolledTask(task);
                         }
                     }
-                    else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
@@ -1924,12 +1924,12 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyEnabled)
+                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;
                     }
-                    else if (this.Configuration.IsConcurrencyFuzzingFallbackEnabled)
+                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         this.Logger.WriteLine($"<TestLog> {message}");
                         this.IsUncontrolledConcurrencyDetected = true;

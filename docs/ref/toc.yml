@@ -29,8 +29,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithPartiallyControlledConcurrencyEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
+        - name: WithPartiallyControlledConcurrencyAllowed
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
         - name: WithConcurrencyFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
         - name: WithConcurrencyFuzzingFallbackEnabled
@@ -983,8 +983,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithPartiallyControlledConcurrencyEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
+        - name: WithPartiallyControlledConcurrencyAllowed
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
         - name: WithConcurrencyFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
         - name: WithConcurrencyFuzzingFallbackEnabled

@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration) =>
             new OperationScheduler(configuration,
-                configuration.IsConcurrencyFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
                 new RandomValueGenerator(configuration));
 
         /// <summary>

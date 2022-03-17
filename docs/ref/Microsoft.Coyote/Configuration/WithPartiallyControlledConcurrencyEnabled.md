@@ -1,9 +1,9 @@
-# Configuration.WithPartiallyControlledConcurrencyEnabled method
+# Configuration.WithPartiallyControlledConcurrencyAllowed method
 
 Updates the configuration with partial controlled concurrency enabled or disabled.
 
 ```csharp
-public Configuration WithPartiallyControlledConcurrencyEnabled(bool isEnabled = true)
+public Configuration WithPartiallyControlledConcurrencyAllowed(bool isEnabled = true)
 ```
 
 | parameter | description |

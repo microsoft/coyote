@@ -875,8 +875,8 @@ namespace Microsoft.Coyote.Tests.Common
         {
             return Configuration.Create()
                 .WithTelemetryEnabled(false)
-                .WithPartiallyControlledConcurrencyEnabled(false)
-                .WithConcurrencyFuzzingFallbackEnabled(false);
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false);
         }
 
         protected static string GetBugReport(TestingEngine engine)

@@ -81,25 +81,25 @@ namespace Microsoft.Coyote
         internal bool IsSchedulingSeedIncremental;
 
         /// <summary>
-        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
-        /// will attempt to partially control the concurrency of the application, instead of
-        /// failing with an error.
+        /// If this option is enabled and uncontrolled concurrency is detected, then the
+        /// runtime will attempt to partially control the concurrency of the application,
+        /// instead of immediately failing with an error.
         /// </summary>
         [DataMember]
-        internal bool IsPartiallyControlledConcurrencyEnabled;
+        internal bool IsPartiallyControlledConcurrencyAllowed;
 
         /// <summary>
-        /// If this option is enabled, the concurrency fuzzing policy is used during testing.
+        /// If this option is enabled, the systematic fuzzing policy is used during testing.
         /// </summary>
         [DataMember]
-        internal bool IsConcurrencyFuzzingEnabled;
+        internal bool IsSystematicFuzzingEnabled;
 
         /// <summary>
         /// If this option is enabled and uncontrolled concurrency is detected, then the tester
-        /// automatically switches to concurrency fuzzing, instead of failing with an error.
+        /// automatically switches to systematic fuzzing, instead of failing with an error.
         /// </summary>
         [DataMember]
-        internal bool IsConcurrencyFuzzingFallbackEnabled;
+        internal bool IsSystematicFuzzingFallbackEnabled;
 
         /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
@@ -371,9 +371,9 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IsSchedulingSeedIncremental = false;
-            this.IsPartiallyControlledConcurrencyEnabled = true;
-            this.IsConcurrencyFuzzingEnabled = false;
-            this.IsConcurrencyFuzzingFallbackEnabled = true;
+            this.IsPartiallyControlledConcurrencyAllowed = true;
+            this.IsSystematicFuzzingEnabled = false;
+            this.IsSystematicFuzzingFallbackEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
@@ -523,32 +523,32 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with partial controlled concurrency enabled or disabled.
+        /// Updates the configuration with partially controlled concurrency allowed or disallowed.
         /// </summary>
-        /// <param name="isEnabled">If true, then partial controlled concurrency is enabled.</param>
-        public Configuration WithPartiallyControlledConcurrencyEnabled(bool isEnabled = true)
+        /// <param name="isAllowed">If true, then partially controlled concurrency is allowed.</param>
+        public Configuration WithPartiallyControlledConcurrencyAllowed(bool isAllowed = true)
         {
-            this.IsPartiallyControlledConcurrencyEnabled = isEnabled;
+            this.IsPartiallyControlledConcurrencyAllowed = isAllowed;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration with concurrency fuzzing enabled or disabled.
+        /// Updates the configuration with systematic fuzzing enabled or disabled.
         /// </summary>
-        /// <param name="isEnabled">If true, then concurrency fuzzing is enabled.</param>
-        public Configuration WithConcurrencyFuzzingEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then systematic fuzzing is enabled.</param>
+        public Configuration WithSystematicFuzzingEnabled(bool isEnabled = true)
         {
-            this.IsConcurrencyFuzzingEnabled = isEnabled;
+            this.IsSystematicFuzzingEnabled = isEnabled;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration with concurrency fuzzing fallback enabled or disabled.
+        /// Updates the configuration with systematic fuzzing fallback enabled or disabled.
         /// </summary>
-        /// <param name="isEnabled">If true, then concurrency fuzzing fallback is enabled.</param>
-        public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then systematic fuzzing fallback is enabled.</param>
+        public Configuration WithSystematicFuzzingFallbackEnabled(bool isEnabled = true)
         {
-            this.IsConcurrencyFuzzingFallbackEnabled = isEnabled;
+            this.IsSystematicFuzzingFallbackEnabled = isEnabled;
             return this;
         }
 
@@ -574,7 +574,7 @@ namespace Microsoft.Coyote
         /// <param name="isDisabled">If true, then reproducing bug traces is disabled.</param>
         public Configuration WithNoBugTraceRepro(bool isDisabled = true)
         {
-            this.IsConcurrencyFuzzingEnabled = isDisabled;
+            this.IsSystematicFuzzingEnabled = isDisabled;
             return this;
         }
 

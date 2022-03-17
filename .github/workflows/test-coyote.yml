@@ -7,13 +7,11 @@ on:
     branches: [ main ]
     paths-ignore:
       - 'docs/**'
-      - 'Samples/**'
       - '**.md'
   pull_request:
     branches: [ main ]
     paths-ignore:
       - 'docs/**'
-      - 'Samples/**'
       - '**.md'
   workflow_dispatch:
     branches: [ main ]
@@ -59,4 +57,24 @@ jobs:
         run: |
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
+        shell: pwsh
+  build-and-test-samples:
+    name: Build and test Coyote samples
+    needs: build-and-test
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build and test Coyote samples
+        run: |
+          ./Samples/Scripts/build-tests.ps1 -local $true
+          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
         shell: pwsh

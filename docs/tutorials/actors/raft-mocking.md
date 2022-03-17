@@ -20,28 +20,25 @@ You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Run the Raft.Mocking application
 
 Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```plain
-coyote test ./bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
 ```
 
 You should see the test succeed with output like this, including a coverage report and graph:
 ```plain
-. Testing ./bin/net6.0/Raft.Mocking.dll
+. Testing ./Samples/bin/net6.0/Raft.Mocking.dll
 Starting TestingProcessScheduler in process 34068
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:1388735316).
@@ -52,9 +49,9 @@ Starting TestingProcessScheduler in process 34068
 ..... Iteration #900
 ..... Iteration #1000
 ... Emitting coverage reports:
-..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
-..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing .\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
+..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:
@@ -132,7 +129,7 @@ scheduling strategies at once, this is used in combination with the `--parallel`
  for example, would run 5 parallel test processes using different scheduling strategies:
 
 ```plain
-coyote test ./bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
+coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

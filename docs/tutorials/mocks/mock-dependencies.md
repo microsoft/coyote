@@ -26,6 +26,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 - Go through the [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
@@ -432,11 +433,8 @@ test a scenario that is fairly hard to hit in production but can lead to data lo
 
 ## Get the sample source code
 
-To get the complete source code for the `AccountManager` tutorial, clone the
-[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+To get the complete source code for the `AccountManager` tutorial, first clone the [Coyote git
+repo](http://github.com/microsoft/coyote).
 
-You can build the sample by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can then build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).

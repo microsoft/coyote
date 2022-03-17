@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <Import Project="..\..\..\Common\build.props" />
+  <PropertyGroup>
+    <IsTestAssetProject>true</IsTestAssetProject>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImageGalleryClient\ImageGalleryClient.csproj" />
+  </ItemGroup>
+</Project>

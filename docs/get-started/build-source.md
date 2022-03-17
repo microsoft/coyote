@@ -50,20 +50,6 @@ To update your version of the tool you will have to first uninstall the previous
 dotnet tool uninstall --global Microsoft.Coyote.CLI
 ```
 
-### Using a local NuGet package
-
-The samples use the published Microsoft.Coyote NuGet package by default. If you want the samples to
-use the same Coyote bits you built from the Coyote repo, then edit the NuGet.config file and
-uncomment the following line:
-
-```xml
-<add key="Coyote" value="../Coyote/bin/nuget"/>
-```
-
-Now you can rebuild the samples and so long as the `Common\version.props` file contains the same
-version in both `coyote` and `coyote-samples` then it will pick up your newly created NuGet package
-and use that. Note: this can make debugging into the Coyote runtime possible.
-
 Now you are ready to [start using Coyote](using-coyote.md).
 
 ### Running the tests

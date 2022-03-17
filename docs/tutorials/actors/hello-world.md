@@ -1,8 +1,8 @@
 
 ## Hello world example with actors
 
-[HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
-started using the Coyote [actors programming
+[HelloWorldActors](https://github.com/microsoft/coyote/tree/main/Samples/HelloWorldActors) is a
+simple program to get you started using the Coyote [actors programming
 model](../../concepts/actors/overview.md).
 
 ## What you will need
@@ -11,23 +11,20 @@ To run the Hello World Actors  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Run the HelloWorldActors application
 
 Now you can run the HelloWorldActors application:
 
 ```plain
-"./bin/net6.0/HelloWorldActors.exe"
+"./Samples/bin/net6.0/HelloWorldActors.exe"
 ```
 
 Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
@@ -62,13 +59,13 @@ find the `coyote` test tool and setup your environment to use it.
 Enter the following from the command line:
 
 ```plain
-coyote test ./bin/net6.0/HelloWorldActors.dll --iterations 30
+coyote test ./Samples/bin/net6.0/HelloWorldActors.dll --iterations 30
 ```
 
 The result is:
 
 ```plain
-. Testing .\bin\net6.0\HelloWorldActors.dll
+. Testing .\Samples\bin\net6.0\HelloWorldActors.dll
 Starting TestingProcessScheduler in process 16432
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:308255541).
@@ -76,8 +73,8 @@ Starting TestingProcessScheduler in process 16432
 ..... Iteration #2
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
-..... Writing .\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
+..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -243,7 +240,7 @@ tool has ways of interrupting and restarting this `Execute` method based on `--i
 So now you know what happened when you ran the following command line:
 
 ```plain
-coyote test ./bin/net6.0/HelloWorldActors.exe --iterations 30
+coyote test ./Samples/bin/net6.0/HelloWorldActors.exe --iterations 30
 ```
 
 A special coyote `TestingEngine` was created, it invoked the `Execute` method 30 times, and during

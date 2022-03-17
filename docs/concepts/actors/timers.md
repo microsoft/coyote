@@ -48,7 +48,7 @@ when an actor [halts](termination.md), it automatically stops and disposes all i
 non-periodic timers.
 
 A sample which demonstrates the use of such timers is provided in the [Timers
-Sample](https://github.com/microsoft/coyote-samples/tree/main/Timers) on github, which is
+Sample](https://github.com/microsoft/coyote/tree/main/Samples/Timers) on github, which is
 explained in detail below.
 
 First you need to declare on your Actor that it is expecting to receive the `TimerElapsedEvent` so

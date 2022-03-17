@@ -11,16 +11,13 @@ To run the `BoundedBuffer` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Run the bounded-buffer application
 
@@ -28,13 +25,13 @@ Now you can run the `BoundedBuffer` application in a mode that should trigger th
 the time:
 
 ```plain
-./bin/net6.0/BoundedBuffer.exe -m
+./Samples/bin/net6.0/BoundedBuffer.exe -m
 ```
 
 And you can run it with a fix for the deadlock as follows:
 
 ```plain
-./bin/net6.0/BoundedBuffer.exe -f
+./Samples/bin/net6.0/BoundedBuffer.exe -f
 ```
 
 ### Can you find the deadlock bug in BoundedBuffer class?

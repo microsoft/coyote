@@ -1,16 +1,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-name: Build and Test CI
+name: Coyote CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
   workflow_dispatch:
     branches: [ main ]
 jobs:
   build-and-test:
+    name: Build and test Coyote
     strategy:
       matrix:
         platform: [ windows-latest, ubuntu-latest, macos-latest ]
@@ -51,11 +58,23 @@ jobs:
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
-      # - name: Clone, build and test Coyote samples
-      #   run: |
-      #     git clone https://github.com/microsoft/coyote-samples.git
-      #     cd coyote-samples
-      #     $env:LOCAL_COYOTE_PATH=$env:GITHUB_WORKSPACE
-      #     ./Scripts/build-tests.ps1
-      #     dotnet ./Common/bin/net6.0/TestDriver.dll
-      #   shell: pwsh
+  build-and-test-samples:
+    name: Build and test Coyote samples
+    needs: build-and-test
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build and test Coyote samples
+        run: |
+          ./Samples/Scripts/build-tests.ps1 -local $true
+          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+        shell: pwsh

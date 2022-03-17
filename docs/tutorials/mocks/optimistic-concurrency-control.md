@@ -29,6 +29,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 - Go through the [mocking dependencies for testing](mock-dependencies.md) tutorial.
 
 ## Walkthrough
@@ -105,8 +106,8 @@ you run the entire concurrency unit test in a single process, so it is perfectly
 itself to take a lock, which makes it a lot easier to simulate the ETag functionality.
 
 You can see how the rest of the `InMemoryDbCollection` methods are implemented in the
-`AccountManager.ETags` sample, which is available in the [Coyote Samples git
-repo](http://github.com/microsoft/coyote-samples).
+`AccountManager.ETags` sample, which is available in the [Coyote git
+repo](https://github.com/microsoft/coyote/tree/main/Samples/AccountManager/AccountManager.ETags).
 
 Next, let's implement the `AccountManager` logic.
 
@@ -527,7 +528,8 @@ public class InMemoryDbCollection : IDbCollection
 
 The above `InMemoryDbCollection` mock simulates the ETag semantics of Cosmos DB. You can see how the
 rest of the `InMemoryDbCollection` methods are implemented in the `AccountManager.ETags` sample,
-which is available in the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+which is available in the [Coyote git
+repo](https://github.com/microsoft/coyote/tree/main/Samples/AccountManager/AccountManager.ETags)
 
 Build the code one last time, rewrite the assembly and run the test using Coyote for `10`
 iterations.  This time the test succeeds! If you try to remove the ETag check, it will fail as expected.
@@ -541,11 +543,8 @@ across a fleet of machines.
 
 ## Get the sample source code
 
-To get the complete source code for the `AccountManager.ETags` tutorial, clone the
-[Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+To get the complete source code for the `AccountManager.ETags` tutorial, first clone the [Coyote git
+repo](http://github.com/microsoft/coyote).
 
-You can build the sample by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can then build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).

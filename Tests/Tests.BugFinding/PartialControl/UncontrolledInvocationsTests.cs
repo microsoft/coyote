@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.Test(() =>
             {
                 var task = new Task(() => { });
-                task.ContinueWith(_ => { }, null);
+                task.ContinueWith(_ => { }, TaskScheduler.Current);
             },
             configuration: this.GetConfiguration()
                 .WithPartiallyControlledConcurrencyAllowed()
@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.TestWithError(() =>
             {
                 var task = new Task(() => { });
-                task.ContinueWith(_ => { }, null);
+                task.ContinueWith(_ => { }, TaskScheduler.Current);
             },
             errorChecker: (e) =>
             {

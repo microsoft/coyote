@@ -20,6 +20,9 @@
 *.RTF   diff=astextplain
 
 # Ignored paths for language reporting
+*.md linguist-vendored
+*.ps1 linguist-vendored
+*.ipynb linguist-vendored
 docs/* linguist-vendored
 Samples/* linguist-vendored
 Scripts/* linguist-vendored

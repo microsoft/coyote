@@ -33,7 +33,6 @@
   <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Test\Test.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Tools\Coyote\Coyote.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" />

@@ -5,7 +5,7 @@
 using Microsoft.Coyote.Runtime;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
+namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
 {
     public class TaskCompletionSourceTests : Tests.TaskCompletionSourceTests
     {
@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
 
         protected override Configuration GetConfiguration()
         {
-            return base.GetConfiguration().WithConcurrencyFuzzingEnabled();
+            return base.GetConfiguration().WithSystematicFuzzingEnabled();
         }
     }
 }

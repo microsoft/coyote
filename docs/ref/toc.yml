@@ -29,12 +29,12 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithPartiallyControlledConcurrencyEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
-        - name: WithConcurrencyFuzzingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
-        - name: WithConcurrencyFuzzingFallbackEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled
+        - name: WithPartiallyControlledConcurrencyAllowed
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
+        - name: WithSystematicFuzzingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
+        - name: WithSystematicFuzzingFallbackEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -983,12 +983,12 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithTestingTimeout
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
-        - name: WithPartiallyControlledConcurrencyEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled
-        - name: WithConcurrencyFuzzingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
-        - name: WithConcurrencyFuzzingFallbackEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled
+        - name: WithPartiallyControlledConcurrencyAllowed
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
+        - name: WithSystematicFuzzingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
+        - name: WithSystematicFuzzingFallbackEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro

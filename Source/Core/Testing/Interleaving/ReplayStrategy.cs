@@ -7,12 +7,12 @@ using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
     /// A replaying scheduling strategy.
     /// </summary>
-    internal sealed class ReplayStrategy : SystematicStrategy
+    internal sealed class ReplayStrategy : InterleavingStrategy
     {
         /// <summary>
         /// The Coyote program schedule trace.

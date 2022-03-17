@@ -375,7 +375,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
                         $"Found read/write data race on '{typeof(SystemGenerics.Dictionary<TKey, TValue>)}'.");
                     SystemInterlocked.Increment(ref this.WriterCount);
 
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
                         runtime.ScheduleNextOperation(SchedulingPointType.Default);
                     }
@@ -392,7 +392,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
                         $"Found read/write data race on '{typeof(SystemGenerics.Dictionary<TKey, TValue>)}'.");
                     SystemInterlocked.Increment(ref this.ReaderCount);
 
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
                         runtime.ScheduleNextOperation(SchedulingPointType.Default);
                     }

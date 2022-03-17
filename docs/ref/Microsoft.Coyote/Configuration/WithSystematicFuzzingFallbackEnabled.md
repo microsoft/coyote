@@ -1,14 +1,14 @@
-# Configuration.WithConcurrencyFuzzingFallbackEnabled method
+# Configuration.WithSystematicFuzzingFallbackEnabled method
 
-Updates the configuration with concurrency fuzzing fallback enabled or disabled.
+Updates the configuration with systematic fuzzing fallback enabled or disabled.
 
 ```csharp
-public Configuration WithConcurrencyFuzzingFallbackEnabled(bool isEnabled = true)
+public Configuration WithSystematicFuzzingFallbackEnabled(bool isEnabled = true)
 ```
 
 | parameter | description |
 | --- | --- |
-| isEnabled | If true, then concurrency fuzzing fallback is enabled. |
+| isEnabled | If true, then systematic fuzzing fallback is enabled. |
 
 ## See Also
 

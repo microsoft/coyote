@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Tests.Common
                 var engine = RunTest(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
-                if (replay && this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReplayStrategy(engine.ReproducibleTrace);
 
@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                 CheckErrors(engine, exceptionType);
 
-                if (replay && this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.SchedulingStrategy = "replay";
                     configuration.ScheduleTrace = engine.ReproducibleTrace;
@@ -875,8 +875,8 @@ namespace Microsoft.Coyote.Tests.Common
         {
             return Configuration.Create()
                 .WithTelemetryEnabled(false)
-                // .WithPartiallyControlledConcurrencyEnabled(false)
-                .WithConcurrencyFuzzingFallbackEnabled(false);
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false);
         }
 
         protected static string GetBugReport(TestingEngine engine)

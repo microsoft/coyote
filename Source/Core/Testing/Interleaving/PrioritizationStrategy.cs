@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
     /// A probabilistic priority-based scheduling strategy.
@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Testing.Systematic
     /// This strategy is based on the PCT algorithm described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PrioritizationStrategy : SystematicStrategy
+    internal sealed class PrioritizationStrategy : InterleavingStrategy
     {
         /// <summary>
         /// List of prioritized operation groups.

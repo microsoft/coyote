@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void Enter(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 SynchronizedBlock.Lock(obj);
             }
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void Enter(object obj, ref bool lockTaken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
             }
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void Exit(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool IsEntered(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void Pulse(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void PulseAll(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void TryEnter(object obj, TimeSpan timeout, ref bool lockTaken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
                 lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool TryEnter(object obj, TimeSpan timeout)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
                 return SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void TryEnter(object obj, int millisecondsTimeout, ref bool lockTaken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
                 lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static void TryEnter(object obj, ref bool lockTaken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
                 lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool TryEnter(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 return SynchronizedBlock.Lock(obj).IsLockTaken;
             }
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool Wait(object obj)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool Wait(object obj, int millisecondsTimeout)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool Wait(object obj, int millisecondsTimeout, bool exitContext)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -300,7 +300,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool Wait(object obj, TimeSpan timeout)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();
@@ -319,7 +319,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static bool Wait(object obj, TimeSpan timeout, bool exitContext)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 var block = SynchronizedBlock.Find(obj) ??
                     throw new SystemThreading.SynchronizationLockException();

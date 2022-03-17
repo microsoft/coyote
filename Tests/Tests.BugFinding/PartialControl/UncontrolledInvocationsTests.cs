@@ -19,10 +19,23 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestUncontrolledContinueWithTaskInvocation()
         {
+            this.Test(() =>
+            {
+                var task = new Task(() => { });
+                task.ContinueWith(_ => { }, TaskScheduler.Current);
+            },
+            configuration: this.GetConfiguration()
+                .WithPartiallyControlledConcurrencyAllowed()
+                .WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledContinueWithTaskInvocationWithNoPartialControl()
+        {
             this.TestWithError(() =>
             {
                 var task = new Task(() => { });
-                task.ContinueWith(_ => { }, null);
+                task.ContinueWith(_ => { }, TaskScheduler.Current);
             },
             errorChecker: (e) =>
             {
@@ -33,6 +46,18 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledThreadYieldInvocation()
+        {
+            this.Test(() =>
+            {
+                Thread.Yield();
+            },
+            configuration: this.GetConfiguration()
+                .WithPartiallyControlledConcurrencyAllowed()
+                .WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledThreadYieldInvocationWithNoPartialControl()
         {
             this.TestWithError(() =>
             {
@@ -47,6 +72,18 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTimerInvocation()
+        {
+            this.Test(() =>
+            {
+                using var timer = new Timer(_ => Console.WriteLine("Hello!"), null, 1, 0);
+            },
+            configuration: this.GetConfiguration()
+                .WithPartiallyControlledConcurrencyAllowed()
+                .WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledTimerInvocationWithNoPartialControl()
         {
             this.TestWithError(() =>
             {

@@ -6,7 +6,7 @@ using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
+namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
 {
     public class FuzzingFallbackTests : BaseBugFindingTest
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
         public void TestFuzzingFallbackAfterUncontrolledDelay()
         {
             var configuration = this.GetConfiguration().
-                WithConcurrencyFuzzingFallbackEnabled(true).
+                WithSystematicFuzzingFallbackEnabled(true).
                 WithTestingIterations(10);
             this.Test(async () =>
             {
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrencyFuzzing
         public void TestFuzzingFallbackAfterUncontrolledInvocation()
         {
             var configuration = this.GetConfiguration().
-                WithConcurrencyFuzzingFallbackEnabled(true).
+                WithSystematicFuzzingFallbackEnabled(true).
                 WithTestingIterations(10);
             this.Test(() =>
             {

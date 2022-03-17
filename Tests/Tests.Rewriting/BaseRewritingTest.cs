@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 var assembly = this.GetType().Assembly;
                 bool result = RewritingEngine.IsAssemblyRewritten(assembly);
                 Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
-                return SchedulingPolicy.Systematic;
+                return SchedulingPolicy.Interleaving;
             }
         }
     }

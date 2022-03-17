@@ -116,9 +116,9 @@ nav:
         - WithReplayStrategy: ref/Microsoft.Coyote/Configuration/WithReplayStrategy.md
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
-        - WithPartiallyControlledConcurrencyEnabled: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyEnabled.md
-        - WithConcurrencyFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled.md
-        - WithConcurrencyFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled.md
+        - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
+        - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
+        - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md

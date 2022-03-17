@@ -48,7 +48,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
-            testingGroup.AddArgument("concurrency-fuzzing", null, "Use concurrency fuzzing instead of systematic testing", typeof(bool));
+            testingGroup.AddArgument("systematic-fuzzing", null, "Use systematic fuzzing instead of controlled testing", typeof(bool));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
                 "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
@@ -85,8 +85,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
             advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
-            advancedGroup.AddArgument("no-fuzzing-fallback", null, "Disable automatic fallback to concurrency fuzzing upon detecting uncontrolled concurrency", typeof(bool));
-            advancedGroup.AddArgument("no-partial-control", null, "Disable partial control concurrency during systematic testing", typeof(bool));
+            advancedGroup.AddArgument("no-fuzzing-fallback", null, "Disable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency", typeof(bool));
+            advancedGroup.AddArgument("no-partial-control", null, "Disallow partially controlled concurrency during controlled testing", typeof(bool));
             advancedGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             advancedGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
             advancedGroup.AddArgument("skip-potential-deadlocks", null, "Only report a deadlock when the runtime can fully determine that it is genuine and not due to partially-controlled concurrency", typeof(bool));
@@ -252,15 +252,15 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
                     break;
-                case "concurrency-fuzzing":
+                case "systematic-fuzzing":
                 case "no-repro":
-                    configuration.IsConcurrencyFuzzingEnabled = true;
+                    configuration.IsSystematicFuzzingEnabled = true;
                     break;
                 case "no-partial-control":
-                    configuration.IsPartiallyControlledConcurrencyEnabled = false;
+                    configuration.IsPartiallyControlledConcurrencyAllowed = false;
                     break;
                 case "no-fuzzing-fallback":
-                    configuration.IsConcurrencyFuzzingFallbackEnabled = false;
+                    configuration.IsSystematicFuzzingFallbackEnabled = false;
                     break;
                 case "reduce-shared-state":
                     configuration.IsSharedStateReductionEnabled = true;

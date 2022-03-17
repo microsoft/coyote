@@ -14,13 +14,14 @@ namespace Microsoft.Coyote.Runtime
         None = 0,
 
         /// <summary>
-        /// Policy that fuzzes the schedule of operations to reorder interleavings.
+        /// Policy that injects controlled delays to fuzz the schedule of operations.
         /// </summary>
         Fuzzing,
 
         /// <summary>
-        /// Policy that controls the schedule of operations to systematically explore interleavings.
+        /// Policy that controls the lifetime and schedule of operations to serialize
+        /// the execution and explore interleavings.
         /// </summary>
-        Systematic
+        Interleaving
     }
 }

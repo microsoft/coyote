@@ -22,8 +22,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await AsyncProvider.DelayAsync(100);
             },
             configuration: this.GetConfiguration()
-                .WithTestingIterations(10)
-                .WithPartiallyControlledConcurrencyEnabled());
+                .WithPartiallyControlledConcurrencyEnabled()
+                .WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]

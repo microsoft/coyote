@@ -5,8 +5,16 @@ name: Build and Test CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'Samples/**'
+      - '**.md'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'Samples/**'
+      - '**.md'
   workflow_dispatch:
     branches: [ main ]
 jobs:

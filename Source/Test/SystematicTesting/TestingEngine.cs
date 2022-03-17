@@ -374,19 +374,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private Task CreateTestingTask()
         {
-            string options = string.Empty;
-            if (this.Configuration.SchedulingStrategy is "random" ||
-                this.Configuration.SchedulingStrategy is "pct" ||
-                this.Configuration.SchedulingStrategy is "fairpct" ||
-                this.Configuration.SchedulingStrategy is "probabilistic" ||
-                this.Configuration.SchedulingStrategy is "rl")
-            {
-                options = $" (seed:{this.Scheduler.ValueGenerator.Seed})";
-            }
-
             this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
-                $"using '{this.Configuration.SchedulingStrategy}' strategy{options}.");
-
+                $"using the {this.Scheduler.GetDescription()} strategy.");
             if (!this.IsTestRewritten())
             {
                 // TODO: eventually will throw an exception; we allow this for now for pure actor programs.
@@ -573,8 +562,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     !this.Configuration.IsPartiallyControlledConcurrencyEnabled)
                 {
                     // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
-                    this.Scheduler = OperationScheduler.Setup(SchedulingPolicy.Fuzzing,
-                        this.Scheduler.ValueGenerator, this.Configuration);
+                    this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
+                        this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"switching to fuzzing due to uncontrolled concurrency " +
                         $"[task-{this.Configuration.TestingProcessId}]");

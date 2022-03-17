@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Common\build.props" />
+  <PropertyGroup>
+    <AssemblyName>Monitors</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Samples.Monitors</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
+</Project>

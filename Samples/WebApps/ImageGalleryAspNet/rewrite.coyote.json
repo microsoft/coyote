@@ -1,0 +1,9 @@
+{
+  "AssembliesPath": "./bin/net6.0",
+  "OutputPath": "./bin/coyote",
+  "Assemblies": [
+      "ImageGalleryService.dll",
+      "ImageGalleryTests.dll",
+      "TraceReplayer.dll"
+  ]
+}

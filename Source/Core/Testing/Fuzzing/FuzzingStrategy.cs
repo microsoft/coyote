@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         {
             switch (configuration.SchedulingStrategy)
             {
-                case "pct":
-                    return new PCTStrategy(configuration, generator);
+                case "prioritization":
+                    return new PrioritizationStrategy(configuration, generator);
                 default:
                     // return new RandomStrategy(configuration, generator);
                     return new BoundedRandomStrategy(configuration, generator);

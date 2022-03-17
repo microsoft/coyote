@@ -28,7 +28,7 @@ The Coyote libraries can be easily installed by adding the
 [`Microsoft.Coyote`](https://www.nuget.org/packages/Microsoft.Coyote/) NuGet package and the
 [`Microsoft.Coyote.Test`](https://www.nuget.org/packages/Microsoft.Coyote.Test/) NuGet package to
 your C# project. You can then immediately start programming the Coyote API as shown in the
-[samples](http://github.com/microsoft/coyote-samples).
+[samples](https://github.com/microsoft/coyote/tree/main/Samples).
 
 You can manually add Coyote to your C# project by using:
 

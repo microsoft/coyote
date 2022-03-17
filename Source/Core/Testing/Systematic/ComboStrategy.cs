@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Testing.Systematic
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            string.Format("combo[{0},{1}]", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
+            string.Format("combo({0},{1})", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
 
         /// <inheritdoc/>
         internal override void Reset()

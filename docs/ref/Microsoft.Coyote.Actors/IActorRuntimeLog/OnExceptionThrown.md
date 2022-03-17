@@ -1,6 +1,6 @@
 # IActorRuntimeLog.OnExceptionThrown method
 
-Invoked when the specified actor throws an exception.
+Invoked when the specified actor throws an exception without handling it.
 
 ```csharp
 public void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)

@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             InMemoryLogger log = new InMemoryLogger();
 
-            var config = this.GetConfiguration().WithTestingIterations(3);
+            var config = this.GetConfiguration().WithTestingIterations(3).WithRandomGeneratorSeed(0);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hello world!");
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
             var result = log.ToString();
             result = result.RemoveNonDeterministicValues();
-            var expected = @"... Task 0 is using 'random' strategy (seed:4005173804).
+            var expected = @"... Task 0 is using the random[seed:0] strategy.
 ..... Iteration #1
 <TestLog> Runtime '' started test on thread ''.
 Hello world!

@@ -8,7 +8,7 @@ public Configuration WithUncontrolledConcurrencyTimeout(uint timeout)
 
 | parameter | description |
 | --- | --- |
-| timeout | The timeout value in milliseconds, which by default is 10. |
+| timeout | The timeout value in milliseconds, which by default is 1. |
 
 ## Remarks
 

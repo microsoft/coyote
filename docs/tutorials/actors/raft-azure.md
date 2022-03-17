@@ -1,7 +1,7 @@
 
 ## Raft consensus protocol on Azure
 
-The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/CloudMessaging) sample
+The [CloudMessaging](https://github.com/microsoft/coyote/tree/main/Samples/CloudMessaging) sample
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
 machine demo](../../concepts/actors/state-machine-demo.md) which shows the Coyote
@@ -32,8 +32,8 @@ You will also need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
-- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
+- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
 ## Setup Azure
 
@@ -54,20 +54,17 @@ Portal](http://portal.azure.com), find the message bus resource you created abov
 access policies` and select the `RootManageSharedAccessKey` and wait for the keys to load, then copy
 the contents of the field named `Primary Connection String`.
 
-## Build the samples
+## Build the sample
 
-Build the `coyote-samples` repo by running the following command:
-
-```plain
-powershell -f build.ps1
-```
+You can build the sample by following the instructions
+[here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
 
 ## Run the Raft.Azure application
 
 Now you can run the Raft.Azure application:
 
 ```plain
-"./bin/net6.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+"./Samples/bin/net6.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
 Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you

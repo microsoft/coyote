@@ -104,8 +104,10 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(M));
             },
-            configuration: this.GetConfiguration().WithMaxSchedulingSteps(300).WithPCTStrategy(false).
-                WithLivenessTemperatureThreshold(150));
+            configuration: this.GetConfiguration()
+                .WithMaxSchedulingSteps(300)
+                .WithPrioritizationStrategy(false, 10)
+                .WithLivenessTemperatureThreshold(150));
         }
     }
 }

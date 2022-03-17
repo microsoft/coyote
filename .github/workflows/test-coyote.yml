@@ -1,0 +1,80 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: Coyote CI
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+    branches: [ main ]
+jobs:
+  build-and-test:
+    name: Build and test Coyote
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NuGet.exe
+        uses: NuGet/setup-nuget@v1
+        with:
+          nuget-version: '6.x'
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Setup .NET 5.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Setup .NET Core 3.1 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Build Coyote projects
+        run: ./Scripts/build.ps1 -ci $true
+        shell: pwsh
+      - name: Validate Coyote Rewriting
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: ./Tests/compare-rewriting-diff-logs.ps1
+        shell: pwsh
+      - name: Run Coyote Tests
+        run: ./Scripts/run-tests.ps1 -ci $true
+        shell: pwsh
+      - name: Build and test Coyote NuGet packages
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: |
+          ./Scripts/create-nuget-packages.ps1
+          ./Scripts/test-cli-package.ps1
+        shell: pwsh
+  build-and-test-samples:
+    name: Build and test Coyote samples
+    needs: build-and-test
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build and test Coyote samples
+        run: |
+          ./Samples/Scripts/build-tests.ps1 -local $true
+          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+        shell: pwsh

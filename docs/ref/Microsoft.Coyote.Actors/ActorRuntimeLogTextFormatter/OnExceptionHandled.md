@@ -1,6 +1,6 @@
 # ActorRuntimeLogTextFormatter.OnExceptionHandled method
 
-Invoked when the specified OnException method is used to handle a thrown exception.
+Invoked when the specified actor has handled a thrown exception.
 
 ```csharp
 public virtual void OnExceptionHandled(ActorId id, string stateName, string actionName, 
@@ -9,7 +9,7 @@ public virtual void OnExceptionHandled(ActorId id, string stateName, string acti
 
 | parameter | description |
 | --- | --- |
-| id | The id of the actor that threw the exception. |
+| id | The id of the actor that handled the exception. |
 | stateName | The state name, if the actor is a state machine and a state exists, else null. |
 | actionName | The name of the action being executed. |
 | ex | The exception. |

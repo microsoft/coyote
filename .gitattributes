@@ -2,10 +2,9 @@
 * text=auto
 
 # Custom for Visual Studio
-*.cs    text diff=csharp
-
-*.csproj   text
-*.sln      eol=crlf
+*.cs      text diff=csharp
+*.csproj  text
+*.sln     eol=crlf
 
 # Standard to msysgit
 *.doc   diff=astextplain
@@ -22,6 +21,9 @@
 # Ignored paths for language reporting
 *.md linguist-vendored
 *.ps1 linguist-vendored
+*.psm1 linguist-vendored
+*.json linguist-vendored
+*.yml linguist-vendored
 *.ipynb linguist-vendored
 docs/* linguist-vendored
 Samples/* linguist-vendored

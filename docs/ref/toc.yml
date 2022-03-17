@@ -31,10 +31,10 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
-        - name: WithConcurrencyFuzzingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
-        - name: WithConcurrencyFuzzingFallbackEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled
+        - name: WithSystematicFuzzingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
+        - name: WithSystematicFuzzingFallbackEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -985,10 +985,10 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
-        - name: WithConcurrencyFuzzingEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingEnabled
-        - name: WithConcurrencyFuzzingFallbackEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithConcurrencyFuzzingFallbackEnabled
+        - name: WithSystematicFuzzingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
+        - name: WithSystematicFuzzingFallbackEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro

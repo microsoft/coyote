@@ -29,9 +29,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Build Coyote projects
-        run: ./Scripts/build.ps1
-        shell: pwsh
       - name: Build and test Coyote samples
         run: |
           ./Samples/Scripts/build-tests.ps1 -local $true

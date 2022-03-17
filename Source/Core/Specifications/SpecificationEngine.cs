@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Specifications
 #endif
         internal void MonitorTaskCompletion(Task task)
         {
-            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic &&
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 task.Status != TaskStatus.RanToCompletion)
             {
                 var monitor = new TaskLivenessMonitor(task);
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.Specifications
                 this.StateMachineMonitors.Add(monitor);
             }
 
-            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving
                 && this.Configuration.IsActivityCoverageReported)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     // TODO: check if its safe to invoke the monitor with a lock during systematic testing.
                     monitor.MonitorEvent(e, senderName, senderType, senderStateName);

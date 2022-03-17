@@ -4,27 +4,27 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// Abstract scheduling strategy used during systematic testing.
+    /// Abstract scheduling strategy used to interleave the schedule of operations.
     /// </summary>
-    internal abstract class SystematicStrategy : ExplorationStrategy
+    internal abstract class InterleavingStrategy : ExplorationStrategy
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SystematicStrategy"/> class.
+        /// Initializes a new instance of the <see cref="InterleavingStrategy"/> class.
         /// </summary>
-        protected SystematicStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+        protected InterleavingStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
             : base(configuration, generator, isFair)
         {
         }
 
         /// <summary>
-        /// Creates a <see cref="SystematicStrategy"/> from the specified configuration.
+        /// Creates a <see cref="InterleavingStrategy"/> from the specified configuration.
         /// </summary>
-        internal static SystematicStrategy Create(Configuration configuration, IRandomValueGenerator generator)
+        internal static InterleavingStrategy Create(Configuration configuration, IRandomValueGenerator generator)
         {
-            SystematicStrategy strategy = null;
+            InterleavingStrategy strategy = null;
             if (configuration.SchedulingStrategy is "replay")
             {
                 var trace = ScheduleTrace.Deserialize(configuration, out bool isFair);

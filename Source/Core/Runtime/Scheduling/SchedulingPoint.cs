@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Interleave()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
             }
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Yield()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
             }
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Read(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 ControlledOperation op = runtime.GetExecutingOperation();
                 op.LastAccessedSharedState = state;
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Write(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 ControlledOperation op = runtime.GetExecutingOperation();
                 op.LastAccessedSharedState = state;
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Suppress()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.SuppressScheduling();
             }
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Runtime
         public static void Resume()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ResumeScheduling();
             }

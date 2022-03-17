@@ -745,7 +745,7 @@ namespace Microsoft.Coyote.Actors
             unchecked
             {
                 var hash = 19;
-                if (policy is SchedulingPolicy.Systematic)
+                if (policy is SchedulingPolicy.Interleaving)
                 {
                     hash = (hash * 31) + this.GetType().GetHashCode();
                     hash = (hash * 31) + this.Id.Value.GetHashCode();

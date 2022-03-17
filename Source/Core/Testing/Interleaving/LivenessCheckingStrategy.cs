@@ -1,25 +1,25 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
     /// Abstract strategy for detecting liveness property violations. It
     /// contains a nested <see cref="SchedulingStrategy"/> that is used
     /// for scheduling decisions.
     /// </summary>
-    internal abstract class LivenessCheckingStrategy : SystematicStrategy
+    internal abstract class LivenessCheckingStrategy : InterleavingStrategy
     {
         /// <summary>
         /// Strategy used for scheduling decisions.
         /// </summary>
-        protected readonly SystematicStrategy SchedulingStrategy;
+        protected readonly InterleavingStrategy SchedulingStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
         internal LivenessCheckingStrategy(Configuration configuration, IRandomValueGenerator generator,
-            SystematicStrategy strategy)
+            InterleavingStrategy strategy)
             : base(configuration, generator, strategy.IsFair)
         {
             this.SchedulingStrategy = strategy;

@@ -86,7 +86,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
             advancedGroup.AddArgument("no-fuzzing-fallback", null, "Disable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency", typeof(bool));
-            advancedGroup.AddArgument("no-partial-control", null, "Disallow partially control concurrency during controlled testing", typeof(bool));
+            advancedGroup.AddArgument("no-partial-control", null, "Disallow partially controlled concurrency during controlled testing", typeof(bool));
             advancedGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             advancedGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
             advancedGroup.AddArgument("skip-potential-deadlocks", null, "Only report a deadlock when the runtime can fully determine that it is genuine and not due to partially-controlled concurrency", typeof(bool));

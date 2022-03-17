@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Runtime
 
         /// <inheritdoc/>
         public override int MaximumConcurrencyLevel =>
-            this.Runtime?.SchedulingPolicy is SchedulingPolicy.Systematic ? 1 :
+            this.Runtime?.SchedulingPolicy is SchedulingPolicy.Interleaving ? 1 :
             base.MaximumConcurrencyLevel;
 
         /// <summary>

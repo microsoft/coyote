@@ -287,7 +287,7 @@ namespace Microsoft.Coyote.Runtime
             this.UncontrolledInvocations = new HashSet<string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
 
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.Runtime
             this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
 
-            this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Systematic ?
+            this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
         }
@@ -557,7 +557,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // TODO: support cancellations during testing.
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
                 if (timeout is 0)
@@ -655,7 +655,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void WaitUntilTasksComplete(ControlledOperation op, Task[] tasks, bool waitAll)
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
                 // tasks are not completed. If that is the case, then we add all tasks to `Dependencies` and wait
@@ -689,7 +689,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (!task.IsCompleted)
             {
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     // TODO: support timeouts and cancellation tokens.
                     if (!this.ControlledTasks.ContainsKey(task))
@@ -712,7 +712,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void WaitUntilTaskCompletes(ControlledOperation op, Task task)
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' is waiting for task '{2}'.",
                     op.Name, op.Group, task.Id);
@@ -785,7 +785,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached || this.SchedulingPolicy != SchedulingPolicy.Systematic)
+                if (!this.IsAttached || this.SchedulingPolicy != SchedulingPolicy.Interleaving)
                 {
                     // Cannot schedule the next operation if the scheduler is not attached,
                     // or if the scheduling policy is not systematic.
@@ -1061,7 +1061,7 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<Coyote> Started operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Enabled;
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     SyncMonitor.PulseAll(this.SyncObject);
                     this.PauseOperation(op);
@@ -1080,7 +1080,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic && this.OperationMap.Count > 1)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
                 {
                     while (op.Status != OperationStatus.Enabled && this.IsAttached)
                     {
@@ -1805,7 +1805,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void NotifyUncontrolledCurrentThread()
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: figure out if there is a way to get more information about the creator of the
                 // uncontrolled thread to ease the user debugging experience.
@@ -1838,7 +1838,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     // TODO: figure out if there is a way to get more information about the creator of the
                     // uncontrolled task to ease the user debugging experience.
@@ -1881,7 +1881,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UncontrolledInvocations.Add(methodName);
                 }
 
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
@@ -1920,7 +1920,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UncontrolledInvocations.Add(methodName);
                 }
 
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
@@ -2164,7 +2164,7 @@ namespace Microsoft.Coyote.Runtime
                 this.SyncContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
-                if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     // Note: this makes it possible to run a Controlled unit test followed by a production
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.

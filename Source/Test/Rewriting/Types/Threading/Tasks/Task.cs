@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 return runtime.WaitAllTasksComplete(tasks);
             }
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 return runtime.WaitAnyTaskCompletes(tasks);
             }

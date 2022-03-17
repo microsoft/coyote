@@ -541,7 +541,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
                         this.ReproducibleTrace = this.Scheduler.Trace.Serialize(
                             this.Configuration, this.Scheduler.IsScheduleFair);

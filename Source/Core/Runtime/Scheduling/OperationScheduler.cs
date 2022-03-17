@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
-using Microsoft.Coyote.Testing.Systematic;
+using Microsoft.Coyote.Testing.Interleaving;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -92,9 +92,9 @@ namespace Microsoft.Coyote.Runtime
                 configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
             }
 
-            if (this.SchedulingPolicy is SchedulingPolicy.Systematic)
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                this.Strategy = SystematicStrategy.Create(configuration, generator);
+                this.Strategy = InterleavingStrategy.Create(configuration, generator);
                 if (this.Strategy is ReplayStrategy replayStrategy)
                 {
                     this.ReplayStrategy = replayStrategy;
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Runtime
                 if (configuration.IsLivenessCheckingEnabled)
                 {
                     this.Strategy = new TemperatureCheckingStrategy(configuration, generator,
-                        this.Strategy as SystematicStrategy);
+                        this.Strategy as InterleavingStrategy);
                 }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration) =>
             new OperationScheduler(configuration,
-                configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Systematic,
+                configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Interleaving,
                 new RandomValueGenerator(configuration));
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Invoke the strategy to choose the next operation.
-                if (this.Strategy is SystematicStrategy strategy &&
+                if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
                     this.Trace.AddSchedulingChoice(next.Id);
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
         {
-            if (this.Strategy is SystematicStrategy strategy &&
+            if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextBooleanChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicBooleanChoice(next);
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
         {
-            if (this.Strategy is SystematicStrategy strategy &&
+            if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextIntegerChoice(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicIntegerChoice(next);

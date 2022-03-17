@@ -395,7 +395,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
                 var runtime = CoyoteRuntime.Current;
                 void Interleave()
                 {
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
                         runtime.ScheduleNextOperation(SchedulingPointType.Default);
                     }

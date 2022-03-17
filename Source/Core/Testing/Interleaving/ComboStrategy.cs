@@ -4,29 +4,29 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
     /// This strategy combines two given strategies, using them to schedule
     /// the prefix and suffix of an execution.
     /// </summary>
-    internal sealed class ComboStrategy : SystematicStrategy
+    internal sealed class ComboStrategy : InterleavingStrategy
     {
         /// <summary>
         /// The prefix strategy.
         /// </summary>
-        private readonly SystematicStrategy PrefixStrategy;
+        private readonly InterleavingStrategy PrefixStrategy;
 
         /// <summary>
         /// The suffix strategy.
         /// </summary>
-        private readonly SystematicStrategy SuffixStrategy;
+        private readonly InterleavingStrategy SuffixStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComboStrategy"/> class.
         /// </summary>
         internal ComboStrategy(Configuration configuration, IRandomValueGenerator generator,
-            SystematicStrategy prefixStrategy, SystematicStrategy suffixStrategy)
+            InterleavingStrategy prefixStrategy, InterleavingStrategy suffixStrategy)
             : base(configuration, generator, suffixStrategy.IsFair)
         {
             this.PrefixStrategy = prefixStrategy;

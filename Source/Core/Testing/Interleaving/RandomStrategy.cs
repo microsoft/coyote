@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Testing.Systematic
+namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
     /// A simple (but effective) randomized scheduling strategy.
     /// </summary>
-    internal class RandomStrategy : SystematicStrategy
+    internal class RandomStrategy : InterleavingStrategy
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.

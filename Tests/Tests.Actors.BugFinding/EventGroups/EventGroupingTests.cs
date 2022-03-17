@@ -13,6 +13,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
         }
 
-        private protected override SchedulingPolicy SchedulingPolicy => SchedulingPolicy.Systematic;
+        private protected override SchedulingPolicy SchedulingPolicy => SchedulingPolicy.Interleaving;
     }
 }

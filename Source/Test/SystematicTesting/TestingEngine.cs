@@ -557,11 +557,12 @@ namespace Microsoft.Coyote.SystematicTesting
                     Console.SetError(stdErr);
                 }
 
-                if (runtime.IsUncontrolledConcurrencyDetected &&
-                    this.Configuration.IsSystematicFuzzingFallbackEnabled &&
-                    !this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                if (this.Configuration.IsSystematicFuzzingFallbackEnabled &&
+                    runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                    (runtime.ExecutionStatus is ExecutionStatus.ConcurrencyUncontrolled ||
+                    runtime.ExecutionStatus is ExecutionStatus.Deadlocked))
                 {
-                    // Uncontrolled concurrency was detected, switch to the fuzzing scheduling policy.
+                    // Detected uncontrolled concurrency or deadlock, so switch to systematic fuzzing.
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
                         this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +

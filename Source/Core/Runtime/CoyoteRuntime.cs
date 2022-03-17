@@ -88,6 +88,12 @@ namespace Microsoft.Coyote.Runtime
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
+        /// The operation scheduling policy used by the runtime.
+        /// </summary>
+        internal SchedulingPolicy SchedulingPolicy => this.Scheduler?.SchedulingPolicy ??
+            SchedulingPolicy.None;
+
+        /// <summary>
         /// Responsible for scheduling controlled tasks.
         /// </summary>
         internal readonly ControlledTaskScheduler ControlledTaskScheduler;
@@ -148,6 +154,11 @@ namespace Microsoft.Coyote.Runtime
         private ControlledOperation ScheduledOperation;
 
         /// <summary>
+        /// Timer implementing a deadlock monitor.
+        /// </summary>
+        private readonly Timer DeadlockMonitor;
+
+        /// <summary>
         /// The scheduler completion source.
         /// </summary>
         private readonly TaskCompletionSource<bool> CompletionSource;
@@ -168,9 +179,9 @@ namespace Microsoft.Coyote.Runtime
         internal volatile bool IsRunning;
 
         /// <summary>
-        /// True if the scheduler is attached to the executing program, else false.
+        /// The execution status of the runtime.
         /// </summary>
-        private bool IsAttached;
+        internal ExecutionStatus ExecutionStatus { get; private set; }
 
         /// <summary>
         /// True if interleavings of enabled operations are suppressed, else false.
@@ -190,18 +201,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// True if uncontrolled concurrency was detected, else false.
         /// </summary>
-        internal bool IsUncontrolledConcurrencyDetected { get; private set; }
+        private bool IsUncontrolledConcurrencyDetected;
 
         /// <summary>
         /// Associated with the bug report is an optional unhandled exception.
         /// </summary>
         private Exception UnhandledException;
-
-        /// <summary>
-        /// The operation scheduling policy used by the runtime.
-        /// </summary>
-        internal SchedulingPolicy SchedulingPolicy => this.Scheduler?.SchedulingPolicy ??
-            SchedulingPolicy.None;
 
         /// <summary>
         /// The max number of operations that were enabled at the same time.
@@ -239,11 +244,6 @@ namespace Microsoft.Coyote.Runtime
         internal event OnFailureHandler OnFailure;
 
         /// <summary>
-        /// Timer implementing a deadlock monitor.
-        /// </summary>
-        private readonly Timer DeadlockMonitor;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal CoyoteRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.Runtime
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
             this.IsRunning = true;
-            this.IsAttached = true;
+            this.ExecutionStatus = ExecutionStatus.Running;
             this.IsSchedulerSuppressed = false;
             this.IsUncontrolledConcurrencyDetected = false;
             this.LastPostponedSchedulingPoint = null;
@@ -291,11 +291,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
-            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
-                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-            }
 
             this.SpecificationEngine = new SpecificationEngine(configuration, this);
             this.Scheduler?.SetSpecificationEngine(this.SpecificationEngine);
@@ -310,6 +305,9 @@ namespace Microsoft.Coyote.Runtime
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
                 new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
                 new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
+
+            this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
+                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -376,7 +374,7 @@ namespace Microsoft.Coyote.Runtime
                     lock (this.SyncObject)
                     {
                         this.CheckLivenessErrorsAtTermination();
-                        this.Detach(SchedulerDetachmentReason.PathExplored);
+                        this.Detach(ExecutionStatus.PathExplored);
                     }
                 }
                 catch (Exception ex)
@@ -391,8 +389,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
-                    Timeout.InfiniteTimeSpan);
+                this.StartMonitoringDeadlocks();
             }
 
             thread.Name = Guid.NewGuid().ToString();
@@ -438,7 +435,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
@@ -495,7 +492,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
@@ -785,7 +782,8 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached || this.SchedulingPolicy != SchedulingPolicy.Interleaving)
+                if (this.ExecutionStatus != ExecutionStatus.Running ||
+                    this.SchedulingPolicy != SchedulingPolicy.Interleaving)
                 {
                     // Cannot schedule the next operation if the scheduler is not attached,
                     // or if the scheduling policy is not systematic.
@@ -854,7 +852,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Check if the execution has deadlocked.
                     this.CheckIfExecutionHasDeadlocked(ops);
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
+                    this.Detach(ExecutionStatus.BoundReached);
                 }
 
                 IO.Debug.WriteLine("<Coyote> Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
@@ -906,7 +904,7 @@ namespace Microsoft.Coyote.Runtime
             ControlledOperation current = null;
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     throw new ThreadInterruptedException();
                 }
@@ -958,7 +956,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
                 {
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
+                    this.Detach(ExecutionStatus.BoundReached);
                 }
 
                 return choice;
@@ -992,7 +990,7 @@ namespace Microsoft.Coyote.Runtime
 
                 if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
                 {
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
+                    this.Detach(ExecutionStatus.BoundReached);
                 }
 
                 return choice;
@@ -1013,7 +1011,7 @@ namespace Microsoft.Coyote.Runtime
                 int maxDelay = maxValue > 0 ? (int)this.Configuration.TimeoutDelay : 1;
                 if (!this.Scheduler.GetNextDelay(this.OperationMap.Values, op, maxDelay, out int next))
                 {
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
+                    this.Detach(ExecutionStatus.BoundReached);
                 }
 
                 return next;
@@ -1082,7 +1080,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
                 {
-                    while (op.Status != OperationStatus.Enabled && this.IsAttached)
+                    while (op.Status != OperationStatus.Enabled && this.ExecutionStatus is ExecutionStatus.Running)
                     {
                         SyncMonitor.Wait(this.SyncObject);
                     }
@@ -1104,7 +1102,7 @@ namespace Microsoft.Coyote.Runtime
                 return;
             }
 
-            while (op != this.ScheduledOperation && this.IsAttached)
+            while (op != this.ScheduledOperation && this.ExecutionStatus is ExecutionStatus.Running)
             {
                 IO.Debug.WriteLine("<Coyote> Sleeping operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
@@ -1470,30 +1468,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Checks if the scheduling steps bound has been reached. If yes,
-        /// it stops the scheduler and kills all enabled machines.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        private void CheckIfSchedulingStepsBoundIsReached()
-        {
-            if (this.Scheduler.IsMaxStepsReached)
-            {
-                string message = $"Scheduling steps bound of {this.Scheduler.StepCount} reached.";
-                if (this.Configuration.ConsiderDepthBoundHitAsBug)
-                {
-                    this.NotifyAssertionFailure(message);
-                }
-                else
-                {
-                    IO.Debug.WriteLine($"<Coyote> {message}");
-                    this.Detach(SchedulerDetachmentReason.BoundReached);
-                }
-            }
-        }
-
-        /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
         internal void RegisterMonitor<T>()
@@ -1539,6 +1513,12 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
 #endif
         internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
+
+        /// <summary>
+        /// Starts a background timer that monitors for potential deadlocks.
+        /// </summary>
+        private void StartMonitoringDeadlocks() => this.DeadlockMonitor.Change(
+            TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout), Timeout.InfiniteTimeSpan);
 
         /// <summary>
         /// Returns true if the specified thread is controlled, else false.
@@ -1672,7 +1652,7 @@ namespace Microsoft.Coyote.Runtime
                 if (!this.Configuration.ReportPotentialDeadlocksAsBugs)
                 {
                     this.Logger.WriteLine($"<TestLog> {msg}");
-                    this.Detach(SchedulerDetachmentReason.Deadlocked);
+                    this.Detach(ExecutionStatus.Deadlocked);
                 }
 
                 msg.Append(" If you believe that this is not a real deadlock, you can disable reporting ");
@@ -1690,18 +1670,19 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
 
                 SchedulingActivityInfo info = state as SchedulingActivityInfo;
-                if (info.StepCount == this.Scheduler.StepCount)
+                if (info.OperationCount == this.OperationMap.Count &&
+                    info.StepCount == this.Scheduler.StepCount)
                 {
-                    string msg = "Potential deadlock detected. Due to the used systematic fuzzing heuristics, " +
+                    string msg = "Potential deadlock detected. Because a deadlock detection timeout was used, " +
                         "Coyote cannot accurately determine if this is a real deadlock or not. If you believe " +
-                        "that this is not a real deadlock, you can increase the dealock detection timeout by " +
-                        "setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
+                        "that this is not a real deadlock, you can try increase the dealock detection timeout " +
+                        "by setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
                     if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                     {
                         msg += " Alternatively, you can disable reporting potential deadlocks as bugs by setting " +
@@ -1711,18 +1692,18 @@ namespace Microsoft.Coyote.Runtime
                     else
                     {
                         this.Logger.WriteLine($"<TestLog> {msg}");
-                        this.Detach(SchedulerDetachmentReason.Deadlocked);
+                        this.Detach(ExecutionStatus.Deadlocked);
                     }
                 }
                 else
                 {
+                    info.OperationCount = this.OperationMap.Count;
                     info.StepCount = this.Scheduler.StepCount;
 
                     try
                     {
                         // Start the next timeout period.
-                        this.DeadlockMonitor.Change(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout),
-                            Timeout.InfiniteTimeSpan);
+                        this.StartMonitoringDeadlocks();
                     }
                     catch (ObjectDisposedException)
                     {
@@ -1748,13 +1729,34 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Checks if the scheduling steps bound has been reached. If yes,
+        /// it stops the scheduler and kills all enabled machines.
+        /// </summary>
+        private void CheckIfSchedulingStepsBoundIsReached()
+        {
+            if (this.Scheduler.IsMaxStepsReached)
+            {
+                string message = $"Scheduling steps bound of {this.Scheduler.StepCount} reached.";
+                if (this.Configuration.ConsiderDepthBoundHitAsBug)
+                {
+                    this.NotifyAssertionFailure(message);
+                }
+                else
+                {
+                    IO.Debug.WriteLine($"<Coyote> {message}");
+                    this.Detach(ExecutionStatus.BoundReached);
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that an exception was not handled.
         /// </summary>
         internal void NotifyUnhandledException(Exception ex, string message)
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
@@ -1778,7 +1780,7 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (!this.IsAttached)
+                if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
@@ -1796,7 +1798,28 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                this.Detach(SchedulerDetachmentReason.BugFound);
+                this.Detach(ExecutionStatus.BugFound);
+            }
+        }
+
+        /// <summary>
+        /// Notify that an uncontrolled invocation was detected.
+        /// </summary>
+        internal void NotifyUncontrolledInvocation(string methodName)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.SchedulingPolicy != SchedulingPolicy.None)
+                {
+                    this.UncontrolledInvocations.Add(methodName);
+                }
+
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
+                        "testing, so it can interfere with the ability to reproduce bug traces.";
+                    this.TryHandleUncontrolledConcurrency(message, methodName);
+                }
             }
         }
 
@@ -1809,25 +1832,9 @@ namespace Microsoft.Coyote.Runtime
             {
                 // TODO: figure out if there is a way to get more information about the creator of the
                 // uncontrolled thread to ease the user debugging experience.
-                // Report the invalid operation and then throw it to fail the current thread. This will
-                // most likely crash the program, but we try to fail as cleanly and fast as possible.
                 string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not intercepted and " +
                     "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
-                {
-                    this.Logger.WriteLine($"<TestLog> {message}");
-                    this.IsUncontrolledConcurrencyDetected = true;
-                }
-                else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-                {
-                    this.Logger.WriteLine($"<TestLog> {message}");
-                    this.IsUncontrolledConcurrencyDetected = true;
-                    this.Detach(SchedulerDetachmentReason.ConcurrencyUncontrolled);
-                }
-                else
-                {
-                    this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 3));
-                }
+                this.TryHandleUncontrolledConcurrency(message);
             }
         }
 
@@ -1842,28 +1849,12 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // TODO: figure out if there is a way to get more information about the creator of the
                     // uncontrolled task to ease the user debugging experience.
-                    // Report the invalid operation and then throw it to fail the current thread. This will
-                    // most likely crash the program, but we try to fail as cleanly and fast as possible.
                     string message = $"Waiting task '{task.Id}' that is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                    if (this.TryHandleUncontrolledConcurrency(message) &&
+                        this.UncontrolledTasks.Add(task))
                     {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                        if (this.UncontrolledTasks.Add(task))
-                        {
-                            this.TryPauseAndResolveUncontrolledTask(task);
-                        }
-                    }
-                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-                    {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                        this.Detach(SchedulerDetachmentReason.ConcurrencyUncontrolled);
-                    }
-                    else
-                    {
-                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 3));
+                        this.TryPauseAndResolveUncontrolledTask(task);
                     }
                 }
             }
@@ -1885,74 +1876,58 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                    if (this.TryHandleUncontrolledConcurrency(message, methodName) &&
+                        this.UncontrolledTasks.Add(task))
                     {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                        if (this.UncontrolledTasks.Add(task))
-                        {
-                            this.TryPauseAndResolveUncontrolledTask(task);
-                        }
-                    }
-                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-                    {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                        this.Detach(SchedulerDetachmentReason.ConcurrencyUncontrolled);
-                    }
-                    else
-                    {
-                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 4, methodName));
+                        this.TryPauseAndResolveUncontrolledTask(task);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Notify that an uncontrolled invocation was detected.
+        /// Invoked when uncontrolled concurrency is detected. Based on the test configuration, it can try
+        /// handle the uncontrolled concurrency, else it terminates the current test iteration.
         /// </summary>
-        internal void NotifyUncontrolledInvocation(string methodName)
+        private bool TryHandleUncontrolledConcurrency(string message, string methodName = default)
         {
-            lock (this.SyncObject)
+            if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
             {
-                if (this.SchedulingPolicy != SchedulingPolicy.None)
+                this.Logger.WriteLine($"<TestLog> {message}");
+                if (!this.IsUncontrolledConcurrencyDetected)
                 {
-                    this.UncontrolledInvocations.Add(methodName);
+                    // If this is the first instance of uncontrolled concurrency, start
+                    // monitoring for potential deadlocks in the background to prevent
+                    // cases where uncontrolled synchronization deadlocks the scheduler.
+                    this.StartMonitoringDeadlocks();
                 }
 
-                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
-                {
-                    string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
-                        "testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
-                    {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                    }
-                    else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-                    {
-                        this.Logger.WriteLine($"<TestLog> {message}");
-                        this.IsUncontrolledConcurrencyDetected = true;
-                        this.Detach(SchedulerDetachmentReason.ConcurrencyUncontrolled);
-                    }
-                    else
-                    {
-                        this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, 3, methodName));
-                    }
-                }
+                this.IsUncontrolledConcurrencyDetected = true;
+                return true;
             }
+            else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
+            {
+                this.Logger.WriteLine($"<TestLog> {message}");
+                this.IsUncontrolledConcurrencyDetected = true;
+                this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
+            }
+            else
+            {
+                this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Formats the message of the uncontrolled concurrency exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message,
-            int skipStackFrames, string methodName = default)
+        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
         {
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
                 "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
-                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace(skipStackFrames)}";
+                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace()}";
         }
 
         /// <summary>
@@ -2080,38 +2055,38 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler and interrupts all controlled operations.
         /// </summary>
-        private void Detach(SchedulerDetachmentReason reason)
+        private void Detach(ExecutionStatus status)
         {
-            if (!this.IsAttached)
+            if (this.ExecutionStatus != ExecutionStatus.Running)
             {
                 return;
             }
 
             try
             {
-                if (reason is SchedulerDetachmentReason.PathExplored)
+                if (status is ExecutionStatus.PathExplored)
                 {
                     this.Logger.WriteLine("<TestLog> Exploration finished [reached the end of the test method].");
                 }
-                else if (reason is SchedulerDetachmentReason.BoundReached)
+                else if (status is ExecutionStatus.BoundReached)
                 {
                     this.Logger.WriteLine("<TestLog> Exploration finished [reached the given bound].");
                 }
-                else if (reason is SchedulerDetachmentReason.Deadlocked)
+                else if (status is ExecutionStatus.Deadlocked)
                 {
                     this.Logger.WriteLine("<TestLog> Exploration finished [detected a potential deadlock].");
                 }
-                else if (reason is SchedulerDetachmentReason.ConcurrencyUncontrolled)
+                else if (status is ExecutionStatus.ConcurrencyUncontrolled)
                 {
                     this.Logger.WriteLine("<TestLog> Exploration finished [detected uncontrolled concurrency].");
                 }
-                else if (reason is SchedulerDetachmentReason.BugFound)
+                else if (status is ExecutionStatus.BugFound)
                 {
                     this.Logger.WriteLine("<TestLog> Exploration finished [found a bug using the '{0}' strategy].",
                         this.Configuration.SchedulingStrategy);
                 }
 
-                this.IsAttached = false;
+                this.ExecutionStatus = status;
 
                 // Complete any remaining operations at the end of the schedule.
                 foreach (var op in this.OperationMap.Values)
@@ -2163,6 +2138,7 @@ namespace Microsoft.Coyote.Runtime
                 this.ControlledTaskScheduler.Dispose();
                 this.SyncContext.Dispose();
                 this.SpecificationEngine.Dispose();
+                this.DeadlockMonitor.Dispose();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
@@ -2170,10 +2146,6 @@ namespace Microsoft.Coyote.Runtime
                     // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
                     // This does not solve mixing unit test type in parallel.
                     Interlocked.Decrement(ref ExecutionControlledUseCount);
-                }
-                else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                {
-                    this.DeadlockMonitor.Dispose();
                 }
             }
         }

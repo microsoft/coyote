@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     branches: [ main ]
 jobs:
-  build-and-test:
+  build-and-test-samples:
     strategy:
       matrix:
         platform: [ windows-latest, ubuntu-latest, macos-latest ]

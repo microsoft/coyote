@@ -82,36 +82,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
-        /// </summary>
-        public static void Read(string state)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
-                op.LastAccessedState = string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Explores a possible interleaving due to a 'WRITE' operation on the specified shared state.
-        /// </summary>
-        public static void Write(string state)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Systematic)
-            {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
-                op.LastAccessedState = string.Empty;
-            }
-        }
-
-        /// <summary>
         /// Suppresses interleavings until <see cref="Resume"/> is invoked.
         /// </summary>
         /// <remarks>

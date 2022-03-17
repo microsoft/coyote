@@ -1145,6 +1145,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             int attempt = 0;
+            int resolutionInterval = (int)this.Configuration.UncontrolledConcurrencyResolutionInterval;
             uint enabledOpsCount = 0;
             while (true)
             {
@@ -1219,7 +1220,8 @@ namespace Microsoft.Coyote.Runtime
                     // Retry if there is unresolved concurrency and any attempts left, or if there are no enabled
                     // operations and the accumulated delay is less than the specified deadlock timeout limit.
                     if ((++attempt < 5 && isConcurrencyUnresolved) ||
-                        (enabledOpsCount is 0 && elapsedDelay.ElapsedMilliseconds < this.Configuration.DeadlockTimeout))
+                        (enabledOpsCount is 0 && elapsedDelay.ElapsedMilliseconds <
+                        this.Configuration.UncontrolledConcurrencyResolutionTimeout))
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
@@ -1227,7 +1229,7 @@ namespace Microsoft.Coyote.Runtime
                             Thread.CurrentThread.ManagedThreadId);
                         // Necessary until we have a better synchronization mechanism to give
                         // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, (int)this.Configuration.UncontrolledConcurrencyTimeout);
+                        SyncMonitor.Wait(this.SyncObject, resolutionInterval);
                         Thread.Yield();
                         continue;
                     }
@@ -1312,12 +1314,12 @@ namespace Microsoft.Coyote.Runtime
                         "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                         Thread.CurrentThread.ManagedThreadId);
                     int attempt = 0;
-                    int delay = (int)this.Configuration.UncontrolledConcurrencyTimeout;
+                    int resolutionInterval = (int)this.Configuration.UncontrolledConcurrencyResolutionInterval;
                     while (attempt++ < 10 && !task.IsCompleted)
                     {
                         // Necessary until we have a better synchronization mechanism to give
                         // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, delay);
+                        SyncMonitor.Wait(this.SyncObject, resolutionInterval);
                         Thread.Yield();
                         if (this.LastPostponedSchedulingPoint.HasValue)
                         {

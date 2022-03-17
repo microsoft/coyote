@@ -117,7 +117,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             arguments.Append($"--timeout-delay {configuration.TimeoutDelay} ");
             arguments.Append($"--deadlock-timeout {configuration.DeadlockTimeout} ");
-            arguments.Append($"--uncontrolled-concurrency-timeout {configuration.UncontrolledConcurrencyTimeout} ");
+            arguments.Append($"--uncontrolled-concurrency-timeout {configuration.UncontrolledConcurrencyResolutionTimeout} ");
+            arguments.Append($"--uncontrolled-concurrency-interval {configuration.UncontrolledConcurrencyResolutionInterval} ");
 
             if (!configuration.ReportPotentialDeadlocksAsBugs)
             {

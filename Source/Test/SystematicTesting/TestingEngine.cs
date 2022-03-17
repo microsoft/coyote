@@ -582,6 +582,12 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
 
+                // Flush when logging to console.
+                if (this.Logger is ConsoleLogger)
+                {
+                    Console.Out.Flush();
+                }
+
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Close();
                 runtimeLogger?.Dispose();

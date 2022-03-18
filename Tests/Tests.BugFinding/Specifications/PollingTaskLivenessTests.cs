@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Specifications
                 Specification.IsEventuallyCompletedSuccessfully(pollingTask);
                 await pollingTask;
             },
-            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100),
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(10),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Found potential liveness bug at the end of program execution.", e);

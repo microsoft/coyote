@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -94,18 +95,18 @@ namespace Microsoft.Coyote.BugFinding.Tests.Specifications
         {
             this.TestWithError(async () =>
             {
-                var pollingTask = Task.Run(async () =>
+                var pollingTask = Task.Run(() =>
                 {
                     while (true)
                     {
-                        await Task.Delay(10);
+                        SchedulingPoint.Interleave();
                     }
                 });
 
                 Specification.IsEventuallyCompletedSuccessfully(pollingTask);
                 await pollingTask;
             },
-            configuration: this.GetConfiguration().WithMaxSchedulingSteps(100),
+            configuration: this.GetConfiguration().WithMaxSchedulingSteps(10),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Found potential liveness bug at the end of program execution.", e);

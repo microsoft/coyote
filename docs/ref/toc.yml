@@ -49,8 +49,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout
         - name: WithPotentialDeadlocksReportedAsBugs
           link: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs
-        - name: WithUncontrolledConcurrencyTimeout
-          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout
+        - name: WithUncontrolledConcurrencyResolutionTimeout
+          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
         - name: WithIncrementalSeedGenerationEnabled
@@ -81,10 +81,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/TimeoutDelay
         - name: DeadlockTimeout
           link: ref/Microsoft.Coyote/Configuration/DeadlockTimeout
-        - name: UncontrolledConcurrencyTimeout
-          link: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout
-        - name: LivenessTemperatureThreshold
-          link: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
         - name: IsVerbose
           link: ref/Microsoft.Coyote/Configuration/IsVerbose
         - name: LogLevel
@@ -1003,8 +999,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout
         - name: WithPotentialDeadlocksReportedAsBugs
           link: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs
-        - name: WithUncontrolledConcurrencyTimeout
-          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout
+        - name: WithUncontrolledConcurrencyResolutionTimeout
+          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
         - name: WithIncrementalSeedGenerationEnabled
@@ -1035,10 +1031,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/TimeoutDelay
         - name: DeadlockTimeout
           link: ref/Microsoft.Coyote/Configuration/DeadlockTimeout
-        - name: UncontrolledConcurrencyTimeout
-          link: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout
-        - name: LivenessTemperatureThreshold
-          link: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
         - name: IsVerbose
           link: ref/Microsoft.Coyote/Configuration/IsVerbose
         - name: LogLevel

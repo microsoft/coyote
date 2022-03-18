@@ -91,6 +91,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("deadlock-timeout", null, "Controls how much time (in ms) to wait before reporting a potential deadlock", typeof(uint));
             advancedGroup.AddArgument("skip-potential-deadlocks", null, "Only report a deadlock when the runtime can fully determine that it is genuine and not due to partially-controlled concurrency", typeof(bool));
             advancedGroup.AddArgument("uncontrolled-concurrency-timeout", null, "Controls how much time (in ms) to try resolve uncontrolled concurrency during testing", typeof(uint));
+            advancedGroup.AddArgument("uncontrolled-concurrency-interval", null, "Controls the interval (in ms) between attempts to resolve uncontrolled concurrency during testing", typeof(uint));
             advancedGroup.AddArgument("reduce-shared-state", null, "Enables shared state reduction during testing", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
@@ -435,7 +436,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.ReportPotentialDeadlocksAsBugs = false;
                     break;
                 case "uncontrolled-concurrency-timeout":
-                    configuration.UncontrolledConcurrencyTimeout = (uint)option.Value;
+                    configuration.UncontrolledConcurrencyResolutionTimeout = (uint)option.Value;
+                    break;
+                case "uncontrolled-concurrency-interval":
+                    configuration.UncontrolledConcurrencyResolutionInterval = (uint)option.Value;
                     break;
                 case "max-steps":
                     {

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PetImages.Contracts;
@@ -11,48 +12,51 @@ using PetImages.Storage;
 namespace PetImages.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly ICosmosContainer CosmosContainer;
+        private readonly IAccountContainer AccountContainer;
 
-        public AccountController(ICosmosContainer cosmosDb)
+        public AccountController(IAccountContainer accountContainer)
         {
-            this.CosmosContainer = cosmosDb;
+            this.AccountContainer = accountContainer;
         }
 
         /// <summary>
         /// Scenario 1: Buggy CreateAccountAsync version.
         /// </summary>
-        [HttpPost]
+        [HttpPost("create")]
+        [Produces(typeof(ActionResult<Account>))]
         public async Task<ActionResult<Account>> CreateAccountAsync(Account account)
         {
             var accountItem = account.ToItem();
 
+            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] AccountController.CreateAccountAsync: {accountItem.Id}");
             if (await StorageHelper.DoesItemExist<AccountItem>(
-                this.CosmosContainer,
+                this.AccountContainer,
                 accountItem.PartitionKey,
                 accountItem.Id))
             {
+                Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] conflict");
                 return this.Conflict();
             }
 
-            var createdAccountItem = await this.CosmosContainer.CreateItem(accountItem);
-
+            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] trying to create ...");
+            var createdAccountItem = await this.AccountContainer.CreateItem(accountItem);
             return this.Ok(createdAccountItem.ToAccount());
         }
 
         /// <summary>
         /// Scenario 1: Fixed CreateAccountAsync version.
         /// </summary>
-        [HttpPost]
+        [HttpPost("create-fixed")]
         public async Task<ActionResult<Account>> CreateAccountAsyncFixed(Account account)
         {
             var accountItem = account.ToItem();
 
             try
             {
-                accountItem = await this.CosmosContainer.CreateItem(accountItem);
+                accountItem = await this.AccountContainer.CreateItem(accountItem);
             }
             catch (DatabaseItemAlreadyExistsException)
             {

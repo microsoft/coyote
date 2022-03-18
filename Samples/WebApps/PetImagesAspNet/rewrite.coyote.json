@@ -2,6 +2,6 @@
   "AssembliesPath": "./PetImagesTest/bin/net6.0",
   "Assemblies": [
     "PetImages.dll",
-    "PetImagesTest.dll"
+    "PetImages.Tests.dll"
   ]
 }

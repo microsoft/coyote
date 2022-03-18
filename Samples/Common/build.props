@@ -4,7 +4,7 @@
     <Product>CoyoteSamples</Product>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation.</Copyright>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <UseLocalCoyoteBuild>False</UseLocalCoyoteBuild>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>

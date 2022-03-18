@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
 
             // PetImages tests.
             // configuration = Configuration.Create().WithTestingIterations(1000);
-            // var petImagesTests = new PetImagesTest.Tests();
+            // var petImagesTests = new PetImages.Tests.Tests();
             // RunTest(petImagesTests.TestFirstScenario, configuration,
             //     "PetImages.TestFirstScenario",
             //     "PetImages.Exceptions.DatabaseItemAlreadyExistsException",

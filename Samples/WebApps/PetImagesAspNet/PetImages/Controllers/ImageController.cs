@@ -13,15 +13,15 @@ using PetImages.Storage;
 namespace PetImages.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ImageController : ControllerBase
     {
-        private readonly ICosmosContainer AccountContainer;
-        private readonly ICosmosContainer ImageContainer;
+        private readonly IAccountContainer AccountContainer;
+        private readonly IImageContainer ImageContainer;
         private readonly IBlobContainer BlobContainer;
         private readonly IMessagingClient MessagingClient;
 
-        public ImageController(ICosmosContainer accountContainer, ICosmosContainer imageContainer,
+        public ImageController(IAccountContainer accountContainer, IImageContainer imageContainer,
             IBlobContainer blobContainer, IMessagingClient messagingClient)
         {
             this.AccountContainer = accountContainer;
@@ -33,9 +33,10 @@ namespace PetImages.Controllers
         /// <summary>
         /// Scenario 2 - Buggy CreateImageAsync version.
         /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<Image>> CreateImageAsync(string accountName, Image image)
+        [HttpPost("create/{accountName}")]
+        public async Task<ActionResult<Image>> CreateImageAsync([FromRoute] string accountName, Image image)
         {
+            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ImageController.CreateImageAsync: {accountName}");
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -72,8 +73,8 @@ namespace PetImages.Controllers
         /// <summary>
         /// Scenario 2 - Fixed CreateImageAsync version.
         /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<Image>> CreateImageAsyncFixed(string accountName, Image image)
+        [HttpPost("create-fixed/{accountName}")]
+        public async Task<ActionResult<Image>> CreateImageAsyncFixed([FromRoute] string accountName, Image image)
         {
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
@@ -101,9 +102,10 @@ namespace PetImages.Controllers
             return this.Ok(imageItem.ToImage());
         }
 
-        [HttpGet]
-        public async Task<ActionResult<byte[]>> GetImageContentsAsync(string accountName, string imageName)
+        [HttpGet("contents/{accountName}/{imageName}")]
+        public async Task<ActionResult<byte[]>> GetImageContentsAsync([FromRoute] string accountName, [FromRoute] string imageName)
         {
+            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ImageController.GetImageContentsAsync: {accountName}");
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -127,8 +129,8 @@ namespace PetImages.Controllers
             return this.Ok(await this.BlobContainer.GetBlobAsync(accountName, imageItem.StorageName));
         }
 
-        [HttpGet]
-        public async Task<ActionResult<byte[]>> GetImageThumbnailAsync(string accountName, string imageName)
+        [HttpGet("thumbnail/{accountName}/{imageName}")]
+        public async Task<ActionResult<byte[]>> GetImageThumbnailAsync([FromRoute] string accountName, [FromRoute] string imageName)
         {
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
@@ -159,8 +161,8 @@ namespace PetImages.Controllers
         /// <summary>
         /// Scenario 3 - Buggy CreateOrUpdateImageAsync version.
         /// </summary>
-        [HttpPut]
-        public async Task<ActionResult<Image>> CreateOrUpdateImageAsync(string accountName, Image image)
+        [HttpPut("update/{accountName}")]
+        public async Task<ActionResult<Image>> CreateOrUpdateImageAsync([FromRoute] string accountName, Image image)
         {
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
@@ -186,8 +188,8 @@ namespace PetImages.Controllers
         /// <summary>
         /// Scenario 3 - Fixed CreateOrUpdateImageAsync version.
         /// </summary>
-        [HttpPut]
-        public async Task<ActionResult<Image>> CreateOrUpdateImageAsyncFixed(string accountName, Image image)
+        [HttpPut("update-fixed/{accountName}")]
+        public async Task<ActionResult<Image>> CreateOrUpdateImageAsyncFixed([FromRoute] string accountName, Image image)
         {
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {

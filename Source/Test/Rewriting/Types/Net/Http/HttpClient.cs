@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #if NET || NETCOREAPP3_1
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using SystemHttpClient = System.Net.Http.HttpClient;
 using SystemHttpMessageHandler = System.Net.Http.HttpMessageHandler;
@@ -35,6 +36,26 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpClient Create(SystemHttpMessageHandler handler, bool disposeHandler) =>
             new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
+
+        /// <summary>
+        /// Injects logic that takes control of the specified http client.
+        /// </summary>
+        public static SystemHttpClient Control(SystemHttpClient client)
+        {
+            // If the client is already disposed, do nothing.
+            var disposedField = client.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+            if ((bool)disposedField?.GetValue(client))
+            {
+                return client;
+            }
+
+            // Access the message handler and other properties through reflection.
+            var handlerField = client.GetType().GetField("_handler", BindingFlags.NonPublic | BindingFlags.Instance);
+            var handler = (SystemHttpMessageHandler)handlerField?.GetValue(client);
+            var disposeHandlerField = client.GetType().GetField("_disposeHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+            var disposeHandler = (bool)disposeHandlerField?.GetValue(client);
+            return new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
+        }
     }
 }
 #endif

@@ -22,6 +22,6 @@
     <Exec Command="dotnet $(MSBuildThisFileDirectory)/../../../packages/microsoft.coyote.test/$(Version)/lib/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json"/>
   </Target> -->
   <Target Name="CoyoteRewritingFromLocal" Condition="'$(UseLocalCoyoteBuild)'=='true'" AfterTargets="AfterBuild">
-    <Exec Command="$(MSBuildThisFileDirectory)/../../../bin/$(TargetFramework)/coyote rewrite rewrite.coyote.json -d"/>
+    <Exec Command="$(MSBuildThisFileDirectory)/../../../bin/$(TargetFramework)/coyote rewrite rewrite.coyote.json"/>
   </Target>
 </Project>

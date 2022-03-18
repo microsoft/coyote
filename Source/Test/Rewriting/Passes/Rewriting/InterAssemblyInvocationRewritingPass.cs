@@ -9,6 +9,9 @@ using Microsoft.Coyote.Rewriting.Types;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+#if NET || NETCOREAPP3_1
+using HttpClient = Microsoft.Coyote.Rewriting.Types.Net.Http.HttpClient;
+#endif
 using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Rewriting
@@ -72,9 +75,10 @@ namespace Microsoft.Coyote.Rewriting
                 else if (methodReference.Name is "GetAwaiter" && IsTaskType(resolvedReturnType,
                     NameCache.TaskAwaiterName, NameCache.SystemCompilerNamespace))
                 {
-                    MethodReference wrapMethod = this.CreateTaskAwaiterWrapMethod(
-                        typeof(RuntimeCompiler.TaskAwaiter), methodReference);
-                    Instruction newInstruction = Instruction.Create(OpCodes.Call, wrapMethod);
+                    MethodReference interceptionMethod = this.CreateInterceptionMethod(
+                        typeof(RuntimeCompiler.TaskAwaiter), methodReference,
+                        nameof(RuntimeCompiler.TaskAwaiter.Wrap));
+                    Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
                     Debug.WriteLine($"............. [+] {newInstruction}");
 
                     this.Processor.InsertAfter(instruction, newInstruction);
@@ -83,23 +87,37 @@ namespace Microsoft.Coyote.Rewriting
                 else if (methodReference.Name is "GetAwaiter" && IsTaskType(resolvedReturnType,
                     NameCache.ValueTaskAwaiterName, NameCache.SystemCompilerNamespace))
                 {
-                    MethodReference wrapMethod = this.CreateTaskAwaiterWrapMethod(
-                        typeof(RuntimeCompiler.ValueTaskAwaiter), methodReference);
-                    Instruction newInstruction = Instruction.Create(OpCodes.Call, wrapMethod);
+                    MethodReference interceptionMethod = this.CreateInterceptionMethod(
+                        typeof(RuntimeCompiler.ValueTaskAwaiter), methodReference,
+                        nameof(RuntimeCompiler.ValueTaskAwaiter.Wrap));
+                    Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
                     Debug.WriteLine($"............. [+] {newInstruction}");
 
                     this.Processor.InsertAfter(instruction, newInstruction);
                     this.IsMethodBodyModified = true;
                 }
+#if NET || NETCOREAPP3_1
+                else if (IsSystemType(resolvedReturnType) && resolvedReturnType.FullName == NameCache.HttpClient)
+                {
+                    MethodReference interceptionMethod = this.CreateInterceptionMethod(
+                        typeof(HttpClient), methodReference, nameof(HttpClient.Control));
+                    Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
+                    Debug.WriteLine($"............. [+] {newInstruction}");
+
+                    this.Processor.InsertAfter(instruction, newInstruction);
+                    this.IsMethodBodyModified = true;
+                }
+#endif
             }
 
             return instruction;
         }
 
         /// <summary>
-        /// Creates a wrap method of the specified task awaiter type.
+        /// Creates an interception method for the specified task awaiter type.
         /// </summary>
-        private MethodReference CreateTaskAwaiterWrapMethod(Type type, MethodReference methodReference)
+        private MethodReference CreateInterceptionMethod(Type type, MethodReference methodReference,
+            string interceptionMethodName)
         {
             var returnType = methodReference.ReturnType;
             TypeDefinition providerType = this.Module.ImportReference(type).Resolve();
@@ -118,14 +136,14 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(
-                    m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap) && m.HasGenericParameters);
+                    m => m.Name == interceptionMethodName && m.HasGenericParameters);
                 MethodReference wrapReference = this.Module.ImportReference(genericMethod);
                 wrapMethod = MakeGenericMethod(wrapReference, argType);
             }
             else
             {
                 wrapMethod = providerType.Methods.FirstOrDefault(
-                    m => m.Name is nameof(RuntimeCompiler.TaskAwaiter.Wrap));
+                    m => m.Name == interceptionMethodName);
             }
 
             return this.Module.ImportReference(wrapMethod);

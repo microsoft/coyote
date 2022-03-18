@@ -17,7 +17,7 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
     <PackageReference Include="Microsoft.Coyote" Version="1.4.1" />
     <PackageReference Include="Microsoft.Coyote.Test" Version="1.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; 
                      buildtransitive</IncludeAssets>

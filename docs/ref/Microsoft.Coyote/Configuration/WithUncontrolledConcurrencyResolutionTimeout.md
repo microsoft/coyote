@@ -1,14 +1,15 @@
-# Configuration.WithUncontrolledConcurrencyTimeout method
+# Configuration.WithUncontrolledConcurrencyResolutionTimeout method
 
 Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration.
 
 ```csharp
-public Configuration WithUncontrolledConcurrencyTimeout(uint timeout)
+public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout, uint interval)
 ```
 
 | parameter | description |
 | --- | --- |
-| timeout | The timeout value in milliseconds, which by default is 1. |
+| timeout | The timeout value in milliseconds, which by default is 1000. |
+| interval | The interval value in milliseconds, which by default is 2. |
 
 ## Remarks
 

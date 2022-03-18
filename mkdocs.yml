@@ -126,7 +126,7 @@ nav:
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
         - WithPotentialDeadlocksReportedAsBugs: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs.md
-        - WithUncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout.md
+        - WithUncontrolledConcurrencyResolutionTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
         - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
@@ -142,8 +142,6 @@ nav:
         - MaxFairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps.md
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
         - DeadlockTimeout: ref/Microsoft.Coyote/Configuration/DeadlockTimeout.md
-        - UncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout.md
-        - LivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold.md
         - IsVerbose: ref/Microsoft.Coyote/Configuration/IsVerbose.md
         - LogLevel: ref/Microsoft.Coyote/Configuration/LogLevel.md
     - Microsoft.Coyote.Actors:
@@ -639,7 +637,7 @@ nav:
         - WithTimeoutDelay: ref/Microsoft.Coyote/Configuration/WithTimeoutDelay.md
         - WithDeadlockTimeout: ref/Microsoft.Coyote/Configuration/WithDeadlockTimeout.md
         - WithPotentialDeadlocksReportedAsBugs: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs.md
-        - WithUncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyTimeout.md
+        - WithUncontrolledConcurrencyResolutionTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
         - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
@@ -655,8 +653,6 @@ nav:
         - MaxFairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps.md
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
         - DeadlockTimeout: ref/Microsoft.Coyote/Configuration/DeadlockTimeout.md
-        - UncontrolledConcurrencyTimeout: ref/Microsoft.Coyote/Configuration/UncontrolledConcurrencyTimeout.md
-        - LivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold.md
         - IsVerbose: ref/Microsoft.Coyote/Configuration/IsVerbose.md
         - LogLevel: ref/Microsoft.Coyote/Configuration/LogLevel.md
     - Microsoft.Coyote.Actors:

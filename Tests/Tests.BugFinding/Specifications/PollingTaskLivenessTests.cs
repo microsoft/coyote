@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -94,11 +95,11 @@ namespace Microsoft.Coyote.BugFinding.Tests.Specifications
         {
             this.TestWithError(async () =>
             {
-                var pollingTask = Task.Run(async () =>
+                var pollingTask = Task.Run(() =>
                 {
                     while (true)
                     {
-                        await Task.Delay(10);
+                        SchedulingPoint.Interleave();
                     }
                 });
 

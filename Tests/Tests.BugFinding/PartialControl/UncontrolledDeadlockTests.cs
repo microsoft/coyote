@@ -35,8 +35,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             configuration: this.GetConfiguration()
                 .WithPartiallyControlledConcurrencyAllowed()
-                .WithDeadlockTimeout(100)
-                .WithTestingIterations(10),
+                .WithDeadlockTimeout(10)
+                .WithTestingIterations(100),
             errorChecker: (e) =>
             {
                 Assert.StartsWith($"Potential deadlock detected. Because a deadlock detection timeout", e);

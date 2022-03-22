@@ -45,32 +45,36 @@ namespace Microsoft.Coyote.Rewriting
                 if (IsTaskType(resolvedReturnType, NameCache.TaskName, NameCache.SystemTasksNamespace))
                 {
                     string methodName = GetFullyQualifiedMethodName(methodReference);
-                    Debug.WriteLine($"............. [+] returned uncontrolled task assertion for method '{methodName}'");
-
-                    var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
-                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedTaskNotControlled));
-                    providerMethod = this.Module.ImportReference(providerMethod);
-
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
-                    this.IsMethodBodyModified = true;
+                    Instruction nextInstruction = instruction.Next;
+                    MethodReference interceptionMethod = this.CreateInterceptionMethod(
+                        typeof(ExceptionProvider), methodReference,
+                        nameof(ExceptionProvider.ThrowIfReturnedTaskNotControlled));
+                    TypeReference interceptedReturnType = this.CreateInterceptedReturnType(methodReference);
+                    var instructions = this.CreateInterceptionMethodCallInstructions(
+                        interceptionMethod, nextInstruction, interceptedReturnType, methodName);
+                    if (instructions.Count > 0)
+                    {
+                        Debug.WriteLine($"............. [+] uncontrolled task assertion when invoking '{methodName}'");
+                        instructions.ForEach(i => this.Processor.InsertBefore(nextInstruction, i));
+                        this.IsMethodBodyModified = true;
+                    }
                 }
                 else if (IsTaskType(resolvedReturnType, NameCache.ValueTaskName, NameCache.SystemTasksNamespace))
                 {
                     string methodName = GetFullyQualifiedMethodName(methodReference);
-                    Debug.WriteLine($"............. [+] returned uncontrolled value task assertion for method '{methodName}'");
-
-                    var providerType = this.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
-                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowIfReturnedValueTaskNotControlled));
-                    providerMethod = this.Module.ImportReference(providerMethod);
-
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Call, providerMethod));
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Ldstr, methodName));
-                    this.Processor.InsertAfter(instruction, Instruction.Create(OpCodes.Dup));
-                    this.IsMethodBodyModified = true;
+                    Instruction nextInstruction = instruction.Next;
+                    MethodReference interceptionMethod = this.CreateInterceptionMethod(
+                        typeof(ExceptionProvider), methodReference,
+                        nameof(ExceptionProvider.ThrowIfReturnedValueTaskNotControlled));
+                    TypeReference interceptedReturnType = this.CreateInterceptedReturnType(methodReference);
+                    var instructions = this.CreateInterceptionMethodCallInstructions(
+                        interceptionMethod, nextInstruction, interceptedReturnType, methodName);
+                    if (instructions.Count > 0)
+                    {
+                        Debug.WriteLine($"............. [+] uncontrolled value task assertion when invoking '{methodName}'");
+                        instructions.ForEach(i => this.Processor.InsertBefore(nextInstruction, i));
+                        this.IsMethodBodyModified = true;
+                    }
                 }
                 else if (methodReference.Name is "GetAwaiter" && IsTaskType(resolvedReturnType,
                     NameCache.TaskAwaiterName, NameCache.SystemCompilerNamespace))
@@ -114,7 +118,61 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Creates an interception method for the specified task awaiter type.
+        /// Creates the IL instructions for invoking the specified interception method.
+        /// </summary>
+        private List<Instruction> CreateInterceptionMethodCallInstructions(MethodReference interceptionMethod,
+            Instruction nextInstruction, TypeReference returnType, string methodName)
+        {
+            var instructions = new List<Instruction>();
+            if (nextInstruction.OpCode == OpCodes.Stsfld &&
+                nextInstruction.Operand is FieldReference fieldReference)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode, fieldReference));
+                instructions.Add(this.Processor.Create(OpCodes.Ldsflda, fieldReference));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Starg_S &&
+                nextInstruction.Operand is ParameterDefinition parameterDefinition)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode, parameterDefinition));
+                instructions.Add(this.Processor.Create(OpCodes.Ldarga_S, parameterDefinition));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Stloc_0)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode));
+                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)0));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Stloc_1)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode));
+                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)1));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Stloc_2)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode));
+                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)2));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Stloc_3)
+            {
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode));
+                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)3));
+            }
+            else
+            {
+                return instructions;
+            }
+
+            Console.WriteLine($">>> {interceptionMethod}");
+            Console.WriteLine($">>> {interceptionMethod.ReturnType}");
+            Console.WriteLine($">>> {returnType}");
+
+            instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));
+            instructions.Add(this.Processor.Create(OpCodes.Call, interceptionMethod));
+            instructions.Add(this.Processor.Create(OpCodes.Ldobj, returnType));
+            return instructions;
+        }
+
+        /// <summary>
+        /// Creates an interception method from the specified method and type.
         /// </summary>
         private MethodReference CreateInterceptionMethod(Type type, MethodReference methodReference,
             string interceptionMethodName)
@@ -122,19 +180,9 @@ namespace Microsoft.Coyote.Rewriting
             var returnType = methodReference.ReturnType;
             TypeDefinition providerType = this.Module.ImportReference(type).Resolve();
             MethodReference wrapMethod = null;
-            if (returnType is GenericInstanceType rgt)
+            if (returnType is GenericInstanceType genericType)
             {
-                TypeReference argType;
-                if (methodReference.DeclaringType is GenericInstanceType dgt)
-                {
-                    var returnArgType = rgt.GenericArguments.FirstOrDefault().GetElementType();
-                    argType = GetGenericParameterTypeFromNamedIndex(dgt, returnArgType.FullName);
-                }
-                else
-                {
-                    argType = rgt.GenericArguments.FirstOrDefault().GetElementType();
-                }
-
+                TypeReference argType = ResolveGenericArgumentType(genericType, methodReference);
                 MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(
                     m => m.Name == interceptionMethodName && m.HasGenericParameters);
                 MethodReference wrapReference = this.Module.ImportReference(genericMethod);
@@ -142,11 +190,50 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
-                wrapMethod = providerType.Methods.FirstOrDefault(
-                    m => m.Name == interceptionMethodName);
+                wrapMethod = providerType.Methods.FirstOrDefault(m => m.Name == interceptionMethodName);
             }
 
             return this.Module.ImportReference(wrapMethod);
+        }
+
+        /// <summary>
+        /// Creates an intercepted return type from the specified method.
+        /// </summary>
+        private TypeReference CreateInterceptedReturnType(MethodReference methodReference)
+        {
+            var returnType = methodReference.ReturnType;
+            if (returnType is GenericInstanceType genericType)
+            {
+                TypeReference argType = ResolveGenericArgumentType(genericType, methodReference);
+                returnType = MakeGenericType(genericType.ElementType, argType);
+                returnType = this.Module.ImportReference(returnType);
+            }
+
+            return returnType;
+        }
+
+        /// <summary>
+        /// Resolves the specified generic argument type of the given method reference.
+        /// </summary>
+        private static TypeReference ResolveGenericArgumentType(GenericInstanceType genericType,
+            MethodReference methodReference)
+        {
+            TypeReference argType = genericType.GenericArguments.FirstOrDefault().GetElementType();
+            if (argType is GenericParameter gp)
+            {
+                if (gp.Type is GenericParameterType.Type &&
+                    methodReference.DeclaringType is GenericInstanceType dgt)
+                {
+                    argType = dgt.GenericArguments[gp.Position].GetElementType();
+                }
+                else if (gp.Type is GenericParameterType.Method &&
+                    methodReference is GenericInstanceMethod gim)
+                {
+                    argType = gim.GenericArguments[gp.Position].GetElementType();
+                }
+            }
+
+            return argType;
         }
 
         /// <summary>

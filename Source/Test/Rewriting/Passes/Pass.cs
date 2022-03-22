@@ -218,18 +218,6 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Returns the parameter type that is at the specified index of the given <see cref="GenericInstanceType"/>.
-        /// </summary>
-        /// <remarks>
-        /// The index is of the form '!N' where N is the index of the parameter in the generic type.
-        /// </remarks>
-        protected static TypeReference GetGenericParameterTypeFromNamedIndex(GenericInstanceType genericType, string namedIndex)
-        {
-            int index = int.Parse(namedIndex.Split('!')[1]);
-            return genericType.GenericArguments[index].GetElementType();
-        }
-
-        /// <summary>
         /// Gets the fully qualified name of the specified type.
         /// </summary>
         protected static string GetFullyQualifiedTypeName(TypeReference type)

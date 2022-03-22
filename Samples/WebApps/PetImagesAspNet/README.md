@@ -1,7 +1,8 @@
 # PetImages ASP.NET Web Application
 
-This directory contains the sample code behind the "Exploring Project Coyote" interactive web page
-that is available [here](https://innovation.microsoft.com/en-us/exploring-project-coyote).
+This directory contains the sample code behind the "Exploring Project Coyote" interactive demo that
+is available in the [Microsoft
+Innovation](https://innovation.microsoft.com/en-us/exploring-project-coyote) website.
 
 ## Get started
 

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -42,6 +43,7 @@ namespace PetImages.Tests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseContentRoot(Directory.GetCurrentDirectory());
             builder.ConfigureTestServices(services =>
             {
                 // Inject the mocks.

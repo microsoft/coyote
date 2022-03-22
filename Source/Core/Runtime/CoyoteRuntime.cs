@@ -1895,7 +1895,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
             {
-                this.Logger.WriteLine($"<TestLog> {message}");
+                IO.Debug.WriteLine($"<Coyote> {message}");
                 if (!this.IsUncontrolledConcurrencyDetected)
                 {
                     // If this is the first instance of uncontrolled concurrency, start
@@ -1909,7 +1909,7 @@ namespace Microsoft.Coyote.Runtime
             }
             else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
             {
-                this.Logger.WriteLine($"<TestLog> {message}");
+                IO.Debug.WriteLine($"<Coyote> {message}");
                 this.IsUncontrolledConcurrencyDetected = true;
                 this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
             }

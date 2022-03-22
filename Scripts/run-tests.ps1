@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 
 param(
-    [string]$dotnet = "dotnet",
     [ValidateSet("net6.0", "net5.0", "netcoreapp3.1", "net462")]
     [string]$framework = "net6.0",
     [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
@@ -24,7 +23,15 @@ $targets = [ordered]@{
     "actors-testing" = "Tests.Actors.BugFinding"
 }
 
-$dotnet_path = FindDotNet("dotnet");
+# Check that the expected .NET SDK is installed.
+$dotnet = "dotnet"
+$dotnet_path = FindDotNet($dotnet)
+$sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
+if ($null -eq $sdk_version) {
+    Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."
+    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
+    exit 1
+}
 
 # Restore the local ilverify tool.
 &dotnet tool restore
@@ -52,10 +59,10 @@ foreach ($kvp in $targets.GetEnumerator()) {
             $AssemblyName = GetAssemblyName($target)
             $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "6.0"
             $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/$AssemblyName.dll"
-            $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/*.dll" + '"'
-            $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/6.0.0/ref/net6.0/*.dll" + '"'
-            $command = $command + ' -r "' + "$PSScriptRoot/../bin/net6.0/*.dll" + '"'
-            $command = $command + ' -r "' + $NetCoreApp + '/*.dll"'
+            $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/" + '"'
+            $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/$sdk_version/ref/net6.0/" + '"'
+            $command = $command + ' -r "' + "$PSScriptRoot/../bin/net6.0/" + '"'
+            $command = $command + ' -r "' + $NetCoreApp + '/"'
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }
 

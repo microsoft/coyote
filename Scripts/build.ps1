@@ -21,10 +21,10 @@ if ($host.Version.Major -lt 7)
 
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
-$dotnet_sdk_path = FindDotNetSdkPath($dotnet)
+$dotnet_sdk_path = FindDotNetSdkPath -dotnet $dotnet
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
-$version_netcore31 = FindInstalledDotNetSdk -dotnet_sdk_path $dotnet_sdk_path -version "3.1.0"
-$version_net5 = FindInstalledDotNetSdk -dotnet_sdk_path $dotnet_sdk_path -version "5.0.0"
+$version_netcore31 = FindMatchingVersion -path $dotnet_sdk_path -version "3.1.0"
+$version_net5 = FindMatchingVersion -path $dotnet_sdk_path -version "5.0.0"
 $sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 
 if ($null -eq $sdk_version) {

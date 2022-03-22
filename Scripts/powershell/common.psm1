@@ -119,13 +119,54 @@ function FindDotNetSdkPath([String]$dotnet) {
     return $dotnet_sdk_path
 }
 
-# Finds the closest match for installed dotnet SDK build.
-function FindInstalledDotNetSdk([String]$dotnet_sdk_path, [version]$version) {
+# Finds the path of the .NET runtime.
+function FindDotNetRuntimePath([String]$dotnet, [String]$runtime) {
+    $dotnet_runtimes = Invoke-Expression "$dotnet --list-runtimes"
+    $dotnet_runtime_path = $dotnet_runtimes | ForEach-Object {
+        $runtime_path = ($_ -split {$_ -eq '[' -or $_ -eq ']'})[1]
+        if ($runtime_path.Contains($runtime)) {
+            return $runtime_path
+        }
+    }
+
+    if ($dotnet_runtime_path -is [array]) {
+        $dotnet_runtime_path = $dotnet_runtime_path[0]
+    }
+
+    return $dotnet_runtime_path
+}
+
+# Finds the dotnet SDK version.
+function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
+    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
+    $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
+    $global_version = $json.sdk.version
+    Write-Comment -prefix "..." -text "Searching .NET SDK version '$global_version' in '$dotnet_sdk_path'"
+    $matching_version = FindMatchingVersion -path $dotnet_sdk_path -version $global_version
+    if ($null -ne $matching_version) {
+        if ($global_version -eq $matching_version) {
+            Write-Comment -prefix "....." -text "Found .NET SDK version '$matching_version'" -color "green"
+        }
+    }
+
+    return $matching_version
+}
+
+# Finds the dotnet runtime version.
+function FindDotNetRuntimeVersion([String]$dotnet_runtime_path) {
+    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
+    $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
+    $global_version = $json.sdk.version
+    return FindMatchingVersion -path $dotnet_runtime_path -version $global_version
+}
+
+# Searches the specified directory for the closest match for the given version.
+function FindMatchingVersion([String]$path, [version]$version) {
     $matching_version = $null
     $best_match = $null
     $exact_match = $false
-    if ("" -ne $dotnet_sdk_path) {
-        foreach ($item in Get-ChildItem "$dotnet_sdk_path"  -directory) {
+    if ("" -ne $path) {
+        foreach ($item in Get-ChildItem $path  -directory) {
             $name = $item.Name
             $global_version = $name
             if ($name.Contains("-preview")) {
@@ -162,52 +203,6 @@ function FindInstalledDotNetSdk([String]$dotnet_sdk_path, [version]$version) {
 
         return [string] $matching_version
     }
-}
-
-# Finds the dotnet SDK version.
-function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
-    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
-    $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
-    $global_version = $json.sdk.version
-    Write-Comment -prefix "..." -text "Searching .NET SDK version '$global_version' in '$dotnet_sdk_path'"
-    $matching_version = FindInstalledDotNetSdk -dotnet_sdk_path $dotnet_sdk_path -version $global_version
-    if ($null -ne $matching_version) {
-        if ($global_version -eq $matching_version) {
-            Write-Comment -prefix "....." -text "Found .NET SDK version '$matching_version'" -color "green"
-        }
-        else {
-            Write-Comment -prefix "....." -text "Updating global.json to .NET SDK version '$matching_version'" -color "yellow"
-            $json.sdk.version = $matching_version
-            $new_content = $json | ConvertTo-Json
-            Set-Content $globalJson $new_content
-        }
-    }
-
-    return $matching_version
-}
-
-function FindNetCoreApp([String]$dotnet_sdk_path, $version) {
-    # Find the matching version in 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\*'.
-    $result = $null
-    $latest = $null
-    $path = $dotnet_sdk_path.TrimEnd('sdk')
-    $path = Join-Path -Path $path -ChildPath "shared" -AdditionalChildPath "Microsoft.NETCore.App"
-    foreach ($item in Get-ChildItem -Path $path -Directory) {
-        if ($item.Name.StartsWith($version)) {
-            $v = [version] $item.Name
-            if ($null -eq $latest -or $v -gt $latest) {
-                $latest = $v
-                $result = $item.FullName
-            }
-        }
-    }
-
-    if ($null -eq $result) {
-        Write-Error("Microsoft.NETCore.App folder matching $version not found.")
-        exit 1
-    }
-
-    return $result
 }
 
 function Write-Comment([String]$prefix, [String]$text, [String]$color = "white") {

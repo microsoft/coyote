@@ -23,73 +23,74 @@ namespace Microsoft.Coyote.Samples.TestDriver
             // AccountManager tests.
             var configuration = Configuration.Create().WithTestingIterations(100).
                 WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.AccountManager.Program.TestAccountCreation, configuration,
-            //     "AccountManager.TestAccountCreation");
-            // RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreation, configuration,
-            //     "AccountManager.TestConcurrentAccountCreation",
-            //     "Microsoft.Coyote.Samples.AccountManager.RowAlreadyExistsException");
-            // RunTest(Samples.AccountManager.Program.TestConcurrentAccountDeletion, configuration,
-            //     "AccountManager.TestConcurrentAccountDeletion",
-            //     "Microsoft.Coyote.Samples.AccountManager.RowNotFoundException");
-            // RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreationAndDeletion, configuration,
-            //     "AccountManager.TestConcurrentAccountCreationAndDeletion");
-            // RunTest(Samples.AccountManager.ETags.Program.TestAccountUpdate, configuration,
-            //     "AccountManager.ETags.TestAccountCreation");
-            // RunTest(Samples.AccountManager.ETags.Program.TestConcurrentAccountUpdate, configuration,
-            //     "AccountManager.ETags.TestConcurrentAccountCreation");
-            // RunTest(Samples.AccountManager.ETags.Program.TestGetAccountAfterConcurrentUpdate, configuration,
-            //     "AccountManager.ETags.TestConcurrentAccountDeletion");
+            RunTest(Samples.AccountManager.Program.TestAccountCreation, configuration,
+                "AccountManager.TestAccountCreation");
+            RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreation, configuration,
+                "AccountManager.TestConcurrentAccountCreation",
+                "Microsoft.Coyote.Samples.AccountManager.RowAlreadyExistsException");
+            RunTest(Samples.AccountManager.Program.TestConcurrentAccountDeletion, configuration,
+                "AccountManager.TestConcurrentAccountDeletion",
+                "Microsoft.Coyote.Samples.AccountManager.RowNotFoundException");
+            RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreationAndDeletion, configuration,
+                "AccountManager.TestConcurrentAccountCreationAndDeletion");
+            RunTest(Samples.AccountManager.ETags.Program.TestAccountUpdate, configuration,
+                "AccountManager.ETags.TestAccountCreation");
+            RunTest(Samples.AccountManager.ETags.Program.TestConcurrentAccountUpdate, configuration,
+                "AccountManager.ETags.TestConcurrentAccountCreation");
+            RunTest(Samples.AccountManager.ETags.Program.TestGetAccountAfterConcurrentUpdate, configuration,
+                "AccountManager.ETags.TestConcurrentAccountDeletion");
 
-            // // BoundedBuffer tests.
-            // configuration = Configuration.Create().WithTestingIterations(100).
-            //     WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferNoDeadlock, configuration,
-            //     "BoundedBuffer.TestBoundedBufferNoDeadlock");
-            // RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferMinimalDeadlock, configuration,
-            //     "BoundedBuffer.TestBoundedBufferMinimalDeadlock",
-            //     "Deadlock detected.");
+            // BoundedBuffer tests.
+            configuration = Configuration.Create().WithTestingIterations(100).
+                WithSystematicFuzzingFallbackEnabled(false);
+            RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferNoDeadlock, configuration,
+                "BoundedBuffer.TestBoundedBufferNoDeadlock");
+            RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferMinimalDeadlock, configuration,
+                "BoundedBuffer.TestBoundedBufferMinimalDeadlock",
+                "Deadlock detected.");
 
-            // // CloudMessaging tests.
-            // // configuration = Configuration.Create().WithTestingIterations(1000)
-            // //     .WithMaxSchedulingSteps(500);
-            // // RunTest(Samples.CloudMessaging.Mocking.Program.Execute, configuration,
-            // //     "CloudMessaging.TestWithMocking");
-            // // RunTest(Samples.CloudMessaging.Nondeterminism.Program.Execute, configuration,
-            // //     "CloudMessaging.TestWithNondeterminism");
-
-            // // CoffeeMachineActors tests.
+            // CloudMessaging tests.
             // configuration = Configuration.Create().WithTestingIterations(1000)
-            //     .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
-            //     WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.CoffeeMachineActors.Program.Execute, configuration,
-            //     "CoffeeMachineActors.Test",
-            //     "Please do not turn on grinder if there are no beans in the hopper",
-            //     "detected liveness bug in hot state 'Busy'");
+            //     .WithMaxSchedulingSteps(500);
+            // RunTest(Samples.CloudMessaging.Mocking.Program.Execute, configuration,
+            //     "CloudMessaging.TestWithMocking");
+            // RunTest(Samples.CloudMessaging.Nondeterminism.Program.Execute, configuration,
+            //     "CloudMessaging.TestWithNondeterminism");
 
-            // // CoffeeMachineTasks tests.
-            // configuration = Configuration.Create().WithTestingIterations(1000)
-            //     .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
-            //     WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,
-            //     "CoffeeMachineTasks.Test",
-            //     "Please do not turn on grinder if there are no beans in the hopper");
+            // CoffeeMachineActors tests.
+            configuration = Configuration.Create().WithTestingIterations(1000)
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
+                WithSystematicFuzzingFallbackEnabled(false);
+            RunTest(Samples.CoffeeMachineActors.Program.Execute, configuration,
+                "CoffeeMachineActors.Test",
+                "Please do not turn on grinder if there are no beans in the hopper",
+                "detected liveness bug in hot state 'Busy'");
 
-            // // DrinksServingRobotActors tests.
-            // configuration = Configuration.Create().WithTestingIterations(1000)
-            //     .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true).
-            //     WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.DrinksServingRobot.Program.Execute, configuration,
-            //     "DrinksServingRobotActors.Test",
-            //     "detected liveness bug in hot state 'Busy'");
+            // CoffeeMachineTasks tests.
+            configuration = Configuration.Create().WithTestingIterations(1000)
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
+                WithSystematicFuzzingFallbackEnabled(false);
+            RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,
+                "CoffeeMachineTasks.Test",
+                "Please do not turn on grinder if there are no beans in the hopper");
 
-            // // HelloWorldActors tests.
-            // configuration = Configuration.Create().WithTestingIterations(100).
-            //     WithSystematicFuzzingFallbackEnabled(false);
-            // RunTest(Samples.HelloWorldActors.Program.Execute, configuration,
-            //     "HelloWorldActors.Test",
-            //     "Too many greetings returned!");
+            // DrinksServingRobotActors tests.
+            configuration = Configuration.Create().WithTestingIterations(1000)
+                .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true).
+                WithSystematicFuzzingFallbackEnabled(false);
+            RunTest(Samples.DrinksServingRobot.Program.Execute, configuration,
+                "DrinksServingRobotActors.Test",
+                "detected liveness bug in hot state 'Busy'");
 
-            // // Monitors tests.
+            // HelloWorldActors tests.
+            configuration = Configuration.Create().WithTestingIterations(100).
+                WithSystematicFuzzingFallbackEnabled(false);
+            RunTest(Samples.HelloWorldActors.Program.Execute, configuration,
+                "HelloWorldActors.Test",
+                "Too many greetings returned!");
+
+            // TODO: takes too long.
+            // Monitors tests.
             // configuration = Configuration.Create().WithTestingIterations(10000)
             //     .WithMaxSchedulingSteps(200).WithPrioritizationStrategy(false).
             //     WithSystematicFuzzingFallbackEnabled(false);
@@ -97,6 +98,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
             //     "Monitors.Test",
             //     "ping count must be <= 3");
 
+            // TODO: update to latest ASP.NET support.
             // ImageGallery tests.
             // configuration = Configuration.Create().WithTestingIterations(1000);
             // var imageGalleryTests = new ImageGallery.Tests.UnitTests();
@@ -113,8 +115,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
             var petImagesTests = new PetImages.Tests.Tests();
             RunTest(petImagesTests.TestFirstScenario, configuration,
                 "PetImages.TestFirstScenario",
-                "PetImages.Exceptions.DatabaseItemAlreadyExistsException",
-                "Assert.IsTrue failed");
+                "PetImages.Exceptions.DatabaseItemAlreadyExistsException");
             RunTest(petImagesTests.TestSecondScenario, configuration,
                 "PetImages.TestSecondScenario",
                 "Assert.IsTrue failed");

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetImages", "PetImages\PetImages.csproj", "{A52E81FA-B092-4861-8C71-449512107BF8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetImagesTest", "PetImagesTest\PetImagesTest.csproj", "{6AD9BE9B-59A0-45C3-9745-3EA27513BEB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetImages.Tests", "PetImages.Tests\PetImages.Tests.csproj", "{6AD9BE9B-59A0-45C3-9745-3EA27513BEB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

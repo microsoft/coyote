@@ -21,8 +21,8 @@ namespace Microsoft.Coyote.Samples.TestDriver
             stopWatch.Start();
 
             // AccountManager tests.
-            var configuration = Configuration.Create().WithTestingIterations(100).
-                WithSystematicFuzzingFallbackEnabled(false);
+            var configuration = Configuration.Create().WithTestingIterations(100)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.AccountManager.Program.TestAccountCreation, configuration,
                 "AccountManager.TestAccountCreation");
             RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreation, configuration,
@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 "AccountManager.ETags.TestConcurrentAccountDeletion");
 
             // BoundedBuffer tests.
-            configuration = Configuration.Create().WithTestingIterations(100).
-                WithSystematicFuzzingFallbackEnabled(false);
+            configuration = Configuration.Create().WithTestingIterations(100)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferNoDeadlock, configuration,
                 "BoundedBuffer.TestBoundedBufferNoDeadlock");
             RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferMinimalDeadlock, configuration,
@@ -59,44 +59,47 @@ namespace Microsoft.Coyote.Samples.TestDriver
 
             // CoffeeMachineActors tests.
             configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
-                WithSystematicFuzzingFallbackEnabled(false);
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.CoffeeMachineActors.Program.Execute, configuration,
                 "CoffeeMachineActors.Test",
                 "Please do not turn on grinder if there are no beans in the hopper",
                 "detected liveness bug in hot state 'Busy'");
 
+            // TODO: sometimes does not find bug below 1k iterations.
             // CoffeeMachineTasks tests.
-            configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true).
-                WithSystematicFuzzingFallbackEnabled(false);
+            configuration = Configuration.Create().WithTestingIterations(10000)
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,
                 "CoffeeMachineTasks.Test",
                 "Please do not turn on grinder if there are no beans in the hopper");
 
             // DrinksServingRobotActors tests.
             configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true).
-                WithSystematicFuzzingFallbackEnabled(false);
+                .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.DrinksServingRobot.Program.Execute, configuration,
                 "DrinksServingRobotActors.Test",
                 "detected liveness bug in hot state 'Busy'");
 
             // HelloWorldActors tests.
-            configuration = Configuration.Create().WithTestingIterations(100).
-                WithSystematicFuzzingFallbackEnabled(false);
+            configuration = Configuration.Create().WithTestingIterations(100)
+                .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.HelloWorldActors.Program.Execute, configuration,
                 "HelloWorldActors.Test",
                 "Too many greetings returned!");
 
+            // TODO: takes too long.
             // Monitors tests.
-            configuration = Configuration.Create().WithTestingIterations(10000)
-                .WithMaxSchedulingSteps(200).WithPrioritizationStrategy(false).
-                WithSystematicFuzzingFallbackEnabled(false);
-            RunTest(Samples.Monitors.Program.Execute, configuration,
-                "Monitors.Test",
-                "ping count must be <= 3");
+            // configuration = Configuration.Create().WithTestingIterations(10000)
+            //     .WithMaxSchedulingSteps(200).WithPrioritizationStrategy(false).
+            //     WithSystematicFuzzingFallbackEnabled(false);
+            // RunTest(Samples.Monitors.Program.Execute, configuration,
+            //     "Monitors.Test",
+            //     "ping count must be <= 3");
 
+            // TODO: update to latest ASP.NET support.
             // ImageGallery tests.
             // configuration = Configuration.Create().WithTestingIterations(1000);
             // var imageGalleryTests = new ImageGallery.Tests.UnitTests();
@@ -109,18 +112,19 @@ namespace Microsoft.Coyote.Samples.TestDriver
             //     "The image was not deleted from Azure Blob Storage");
 
             // PetImages tests.
-            // configuration = Configuration.Create().WithTestingIterations(1000);
-            // var petImagesTests = new PetImagesTest.Tests();
-            // RunTest(petImagesTests.TestFirstScenario, configuration,
-            //     "PetImages.TestFirstScenario",
-            //     "PetImages.Exceptions.DatabaseItemAlreadyExistsException",
-            //     "Assert.IsTrue failed");
-            // RunTest(petImagesTests.TestSecondScenario, configuration,
-            //     "PetImages.TestSecondScenario",
-            //     "Assert.IsTrue failed");
-            // RunTest(petImagesTests.TestThirdScenario, configuration,
-            //     "PetImages.TestThirdScenario",
-            //     "Assert.IsTrue failed");
+            configuration = Configuration.Create().WithTestingIterations(1000)
+                .WithPotentialDeadlocksReportedAsBugs(false)
+                .WithSystematicFuzzingFallbackEnabled(false);
+            var petImagesTests = new PetImages.Tests.Tests();
+            RunTest(petImagesTests.TestFirstScenario, configuration,
+                "PetImages.TestFirstScenario",
+                "PetImages.Exceptions.DatabaseItemAlreadyExistsException");
+            RunTest(petImagesTests.TestSecondScenario, configuration,
+                "PetImages.TestSecondScenario",
+                "Assert.IsTrue failed");
+            RunTest(petImagesTests.TestThirdScenario, configuration,
+                "PetImages.TestThirdScenario",
+                "Assert.IsTrue failed");
 
             stopWatch.Stop();
             Console.WriteLine($"Done testing in {stopWatch.ElapsedMilliseconds}ms. All expected bugs found.");

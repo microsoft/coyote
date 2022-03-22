@@ -4,9 +4,9 @@
     <Product>CoyoteSamples</Product>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation.</Copyright>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <TargetFrameworks>net6.0</TargetFrameworks>
-    <UseLocalCoyoteBuild>False</UseLocalCoyoteBuild>
+    <UseLocalCoyote>False</UseLocalCoyote>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -26,11 +26,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='false'">
+  <ItemGroup Condition="'$(UseLocalCoyote)'=='false'">
     <PackageReference Include="Microsoft.Coyote" Version="$(Version)" />
     <PackageReference Include="Microsoft.Coyote.Test" Version="$(Version)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseLocalCoyoteBuild)'=='true'">
+  <ItemGroup Condition="'$(UseLocalCoyote)'=='true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Test\Test.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Tools\Coyote\Coyote.csproj" />

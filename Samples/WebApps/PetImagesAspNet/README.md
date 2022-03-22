@@ -1,4 +1,9 @@
-## PetImagesAspNet
+# PetImages ASP.NET Web Application
+
+This directory contains the sample code behind the "Exploring Project Coyote" interactive web page
+that is available [here](https://innovation.microsoft.com/en-us/exploring-project-coyote).
+
+## Get started
 
 To build the sample run:
 ```
@@ -12,5 +17,3 @@ To run the tests with Coyote do:
 ```
 dotnet test .\PetImages.Tests\PetImages.Tests.csproj --no-build
 ```
-
-More details on this sample are coming soon.

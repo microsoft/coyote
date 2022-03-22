@@ -153,19 +153,19 @@ namespace PetImages.Tests
         }
 
         [TestMethod]
-        public void SystematicTestFirstScenario()
+        public void CoyoteTestFirstScenario()
         {
             RunCoyoteTest(this.TestFirstScenario);
         }
 
         [TestMethod]
-        public void SystematicTestSecondScenario()
+        public void CoyoteTestSecondScenario()
         {
            RunCoyoteTest(this.TestSecondScenario);
         }
 
         [TestMethod]
-        public void SystematicTestThirdScenario()
+        public void CoyoteTestThirdScenario()
         {
            RunCoyoteTest(this.TestThirdScenario);
         }

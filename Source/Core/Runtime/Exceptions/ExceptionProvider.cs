@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static Task ThrowIfReturnedTaskNotControlled(Task task, string methodName)
+        public static Task ThrowIfReturnedTaskNotControlled(ref Task task, string methodName)
         {
             CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
             return task;
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="task">The task to check if it is controlled or not.</param>
         /// <param name="methodName">The name of the method returning the task.</param>
-        public static Task<TResult> ThrowIfReturnedTaskNotControlled<TResult>(Task<TResult> task, string methodName)
+        public static Task<TResult> ThrowIfReturnedTaskNotControlled<TResult>(ref Task<TResult> task, string methodName)
         {
             CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
             return task;

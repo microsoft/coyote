@@ -161,13 +161,13 @@ namespace Microsoft.Coyote.Rewriting
                 return instructions;
             }
 
-            Console.WriteLine($">>> {interceptionMethod}");
-            Console.WriteLine($">>> {interceptionMethod.ReturnType}");
-            Console.WriteLine($">>> {returnType}");
-
             instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));
             instructions.Add(this.Processor.Create(OpCodes.Call, interceptionMethod));
-            instructions.Add(this.Processor.Create(OpCodes.Ldobj, returnType));
+            if (interceptionMethod.ReturnType.IsByReference)
+            {
+                instructions.Add(this.Processor.Create(OpCodes.Ldobj, returnType));
+            }
+
             return instructions;
         }
 

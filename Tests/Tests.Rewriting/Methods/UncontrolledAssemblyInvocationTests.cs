@@ -116,6 +116,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             });
         }
 
+#if NET
         [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsValueTask()
         {
@@ -190,5 +191,6 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 await task;
             });
         }
+#endif
     }
 }

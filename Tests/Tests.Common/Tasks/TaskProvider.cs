@@ -37,6 +37,7 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
         }
     }
 
+#if NET
     /// <summary>
     /// Helper class for value task rewriting tests.
     /// </summary>
@@ -67,5 +68,6 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
             public static ValueTask<TRight> GetGenericTypeTask<T>() => ValueTask.FromResult<TRight>(default(TRight));
         }
     }
+#endif
 #pragma warning restore CA1000 // Do not declare static members on generic types
 }

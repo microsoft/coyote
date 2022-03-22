@@ -47,7 +47,7 @@ namespace PetImages.Tests
 
         public async Task<(HttpStatusCode, Image)> CreateOrUpdateImageAsync(string accountName, Image image)
         {
-            var response = await this.Client.PostAsync(new Uri($"/api/image/update/{accountName}",
+            var response = await this.Client.PutAsync(new Uri($"/api/image/update/{accountName}",
                 UriKind.RelativeOrAbsolute), JsonContent.Create(image));
             var stream = await response.Content.ReadAsStreamAsync();
             Image content = response.StatusCode == HttpStatusCode.OK ?

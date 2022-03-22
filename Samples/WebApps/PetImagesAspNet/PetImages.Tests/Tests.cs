@@ -57,46 +57,47 @@ namespace PetImages.Tests
         [TestMethod]
         public async Task TestSecondScenario()
         {
-           // Initialize the in-memory service factory.
-           using var factory = new ServiceFactory();
-           await factory.InitializeAccountContainerAsync();
-           var imageContainer = await factory.InitializeImageContainerAsync();
+            // Initialize the in-memory service factory.
+            using var factory = new ServiceFactory();
+            await factory.InitializeAccountContainerAsync();
+            var imageContainer = await factory.InitializeImageContainerAsync();
 
-           using var client = new ServiceClient(factory);
+            using var client = new ServiceClient(factory);
 
-           string accountName = "MyAccount";
-           string imageName = "pet.jpg";
+            string accountName = "MyAccount";
+            string imageName = "pet.jpg";
 
-           // Create an account request payload
-           var account = new Account()
-           {
-               Name = accountName
-           };
+            // Create an account request payload.
+            var account = new Account()
+            {
+                Name = accountName
+            };
 
-           var accountResult = await client.CreateAccountAsync(account);
-           Assert.IsTrue(accountResult == HttpStatusCode.OK);
+            var accountResult = await client.CreateAccountAsync(account);
+            Assert.IsTrue(accountResult == HttpStatusCode.OK);
 
-           imageContainer.EnableRandomizedFaults();
+            imageContainer.EnableRandomizedFaults();
 
-           var task1 = client.CreateImageAsync(accountName,
-               new Image() { Name = imageName, Content = GetDogImageBytes() });
-           var task2 = client.CreateImageAsync(accountName,
-               new Image() { Name = imageName, Content = GetDogImageBytes() });
-           await Task.WhenAll(task1, task2);
+            var task1 = client.CreateImageAsync(accountName,
+                new Image() { Name = imageName, Content = GetDogImageBytes() });
+            var task2 = client.CreateImageAsync(accountName,
+                new Image() { Name = imageName, Content = GetDogImageBytes() });
+            await Task.WhenAll(task1, task2);
 
-           imageContainer.DisableRandomizedFaults();
+            imageContainer.DisableRandomizedFaults();
 
-           Assert.IsTrue(task1.Result == HttpStatusCode.OK || task1.Result == HttpStatusCode.Conflict ||
-               task1.Result == HttpStatusCode.ServiceUnavailable);
-           Assert.IsTrue(task2.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.Conflict ||
-               task2.Result == HttpStatusCode.ServiceUnavailable);
+            Assert.IsTrue(task1.Result == HttpStatusCode.OK || task1.Result == HttpStatusCode.Conflict ||
+                task1.Result == HttpStatusCode.ServiceUnavailable);
+            Assert.IsTrue(task2.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.Conflict ||
+                task2.Result == HttpStatusCode.ServiceUnavailable);
 
-           if (task1.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.OK)
-           {
-               var (statusCode, content) = await client.GetImageAsync(accountName, imageName);
-               Assert.IsTrue(statusCode == HttpStatusCode.OK);
-               Assert.IsTrue(IsDogImage(content));
-           }
+            if (task1.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.OK)
+            {
+                var (statusCode, content) = await client.GetImageAsync(accountName, imageName);
+                Assert.IsTrue(statusCode == HttpStatusCode.OK,
+                    $"Status is '{statusCode}', but expected '{HttpStatusCode.OK}'.");
+                Assert.IsTrue(IsDogImage(content), "The image is not a dog image.");
+            }
         }
 
         [TestMethod]
@@ -112,7 +113,7 @@ namespace PetImages.Tests
            string accountName = "MyAccount";
            string imageName = "pet.jpg";
 
-           // Create an account request payload
+           // Create an account request payload.
            var account = new Account()
            {
                Name = accountName
@@ -147,25 +148,26 @@ namespace PetImages.Tests
 
            Assert.IsTrue(
                (IsDogImage(image) && IsDogThumbnail(thumbnail)) ||
-               (IsCatImage(image) && IsCatThumbnail(thumbnail)));
+               (IsCatImage(image) && IsCatThumbnail(thumbnail)),
+               "Found a thumbnail that does not correspond to its image.");
         }
 
         [TestMethod]
         public void SystematicTestFirstScenario()
         {
-            RunSystematicTest(this.TestFirstScenario);
+            RunCoyoteTest(this.TestFirstScenario);
         }
 
         [TestMethod]
         public void SystematicTestSecondScenario()
         {
-           RunSystematicTest(this.TestSecondScenario);
+           RunCoyoteTest(this.TestSecondScenario);
         }
 
         [TestMethod]
         public void SystematicTestThirdScenario()
         {
-           RunSystematicTest(this.TestThirdScenario);
+           RunCoyoteTest(this.TestThirdScenario);
         }
 
         /// <summary>
@@ -176,7 +178,7 @@ namespace PetImages.Tests
         /// <remarks>
         /// Learn more in our documentation: https://microsoft.github.io/coyote/how-to/unit-testing
         /// </remarks>
-        private static void RunSystematicTest(Func<Task> test, string reproducibleScheduleFilePath = null)
+        private static void RunCoyoteTest(Func<Task> test, string reproducibleScheduleFilePath = null)
         {
             // Configuration for how to run a concurrency unit test with Coyote.
             // This configuration will run the test 1000 times exploring different paths each time.

@@ -31,17 +31,14 @@ namespace PetImages.Controllers
         {
             var accountItem = account.ToItem();
 
-            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] AccountController.CreateAccountAsync: {accountItem.Id}");
             if (await StorageHelper.DoesItemExist<AccountItem>(
                 this.AccountContainer,
                 accountItem.PartitionKey,
                 accountItem.Id))
             {
-                Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] conflict");
                 return this.Conflict();
             }
 
-            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] trying to create ...");
             var createdAccountItem = await this.AccountContainer.CreateItem(accountItem);
             return this.Ok(createdAccountItem.ToAccount());
         }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using PetImages.Storage;
 
 namespace PetImages.Tests.StorageMocks
@@ -19,22 +20,25 @@ namespace PetImages.Tests.StorageMocks
 
         public Task<ICosmosContainer> CreateContainerAsync(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                this.State.CreateContainer(containerName);
-                ICosmosContainer container = new MockCosmosContainer(containerName, this.State);
-                return Task.FromResult(container);
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.State.CreateContainer(containerName);
+            ICosmosContainer container = new MockCosmosContainer(containerName, this.State);
+            return Task.FromResult(container);
         }
 
         public Task<ICosmosContainer> GetContainer(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                this.State.EnsureContainerExistsInDatabase(containerName);
-                ICosmosContainer container = new MockCosmosContainer(containerName, this.State);
-                return Task.FromResult(container);
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a read operation we invoke the 'Read' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            this.State.EnsureContainerExistsInDatabase(containerName);
+            ICosmosContainer container = new MockCosmosContainer(containerName, this.State);
+            return Task.FromResult(container);
         }
     }
 }

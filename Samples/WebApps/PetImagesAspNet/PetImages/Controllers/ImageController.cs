@@ -36,7 +36,6 @@ namespace PetImages.Controllers
         [HttpPost("create/{accountName}")]
         public async Task<ActionResult<Image>> CreateImageAsync([FromRoute] string accountName, Image image)
         {
-            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ImageController.CreateImageAsync: {accountName}");
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -105,7 +104,6 @@ namespace PetImages.Controllers
         [HttpGet("contents/{accountName}/{imageName}")]
         public async Task<ActionResult<byte[]>> GetImageContentsAsync([FromRoute] string accountName, [FromRoute] string imageName)
         {
-            Console.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ImageController.GetImageContentsAsync: {accountName}");
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();

@@ -14,5 +14,6 @@
     "Raft.Nondeterminism.dll",
     "PetImages.dll",
     "PetImages.Tests.dll"
-  ]
+  ],
+  "IsRewritingConcurrentCollections":"false"
 }

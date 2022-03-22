@@ -4,9 +4,9 @@
 using PetImages.Entities;
 using PetImages.Exceptions;
 
-using Container = System.Collections.Concurrent.ConcurrentDictionary<string, PetImages.Entities.DbItem>;
-using Database = System.Collections.Concurrent.ConcurrentDictionary<
-    string, System.Collections.Concurrent.ConcurrentDictionary<string, PetImages.Entities.DbItem>>;
+using Container = System.Collections.Generic.Dictionary<string, PetImages.Entities.DbItem>;
+using Database = System.Collections.Generic.Dictionary<
+    string, System.Collections.Generic.Dictionary<string, PetImages.Entities.DbItem>>;
 
 namespace PetImages.Tests.StorageMocks
 {
@@ -22,7 +22,7 @@ namespace PetImages.Tests.StorageMocks
         internal void CreateContainer(string containerName)
         {
             EnsureContainerDoesNotExistInDatabase(containerName);
-            _ = this.Database.TryAdd(containerName, new Container());
+            this.Database.TryAdd(containerName, new Container());
         }
 
         internal void GetContainer(string containerName)
@@ -39,21 +39,21 @@ namespace PetImages.Tests.StorageMocks
         {
             EnsureItemDoesNotExistInDatabase(containerName, item.PartitionKey, item.Id);
             var container = this.Database[containerName];
-            _ = container.TryAdd(GetCombinedKey(item.PartitionKey, item.Id), item);
+            container.TryAdd(GetCombinedKey(item.PartitionKey, item.Id), item);
         }
 
         internal void UpsertItem(string containerName, DbItem item)
         {
             EnsureContainerExistsInDatabase(containerName);
             var container = this.Database[containerName];
-            _ = container.TryAdd(GetCombinedKey(item.PartitionKey, item.Id), item);
+            container.TryAdd(GetCombinedKey(item.PartitionKey, item.Id), item);
         }
 
         internal DbItem GetItem(string containerName, string partitionKey, string id)
         {
             EnsureItemExistsInDatabase(containerName, partitionKey, id);
             var container = this.Database[containerName];
-            _ = container.TryGetValue(GetCombinedKey(partitionKey, id), out DbItem item);
+            container.TryGetValue(GetCombinedKey(partitionKey, id), out DbItem item);
             return item;
         }
 
@@ -61,7 +61,7 @@ namespace PetImages.Tests.StorageMocks
         {
             EnsureItemExistsInDatabase(containerName, partitionKey, id);
             var container = this.Database[containerName];
-            _ = container.TryRemove(GetCombinedKey(partitionKey, id), out DbItem _);
+            container.Remove(GetCombinedKey(partitionKey, id));
         }
 
         internal void EnsureContainerDoesNotExistInDatabase(string containerName)

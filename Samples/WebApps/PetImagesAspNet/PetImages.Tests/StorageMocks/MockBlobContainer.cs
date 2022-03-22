@@ -1,15 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using PetImages.Storage;
 
 namespace PetImages.Tests.StorageMocks
 {
     internal class MockBlobContainerProvider : IBlobContainer
     {
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte[]>> Containers;
+        private readonly Dictionary<string, Dictionary<string, byte[]>> Containers;
         private readonly object SyncObject;
 
         internal MockBlobContainerProvider()
@@ -20,101 +21,121 @@ namespace PetImages.Tests.StorageMocks
 
         public Task CreateContainerAsync(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                this.Containers.TryAdd(containerName, new ConcurrentDictionary<string, byte[]>());
-                return Task.CompletedTask;
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.Containers.TryAdd(containerName, new Dictionary<string, byte[]>());
+            return Task.CompletedTask;
         }
 
         public Task CreateContainerIfNotExistsAsync(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                this.Containers.TryAdd(containerName, new ConcurrentDictionary<string, byte[]>());
-                return Task.CompletedTask;
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.Containers.TryAdd(containerName, new Dictionary<string, byte[]>());
+            return Task.CompletedTask;
         }
 
         public Task DeleteContainerAsync(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                this.Containers.TryRemove(containerName, out ConcurrentDictionary<string, byte[]> _);
-                return Task.CompletedTask;
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.Containers.Remove(containerName);
+            return Task.CompletedTask;
         }
 
         public Task<bool> DeleteContainerIfExistsAsync(string containerName)
         {
-            lock (this.SyncObject)
-            {
-                bool result = this.Containers.TryRemove(containerName, out ConcurrentDictionary<string, byte[]> _);
-                return Task.FromResult(result);
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            bool result = this.Containers.Remove(containerName);
+            return Task.FromResult(result);
         }
 
         public Task CreateOrUpdateBlobAsync(string containerName, string blobName, byte[] blobContents)
         {
-            lock (this.SyncObject)
-            {
-                this.Containers[containerName].AddOrUpdate(blobName, blobContents, (_, oldContents) => blobContents);
-                return Task.CompletedTask;
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.Containers[containerName][blobName] = blobContents;
+            return Task.CompletedTask;
         }
 
         public Task<byte[]> GetBlobAsync(string containerName, string blobName)
         {
-            lock (this.SyncObject)
-            {
-                var result = this.Containers[containerName][blobName];
-                return Task.FromResult(result);
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a read operation we invoke the 'Read' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Read(containerName);
+            var result = this.Containers[containerName][blobName];
+            return Task.FromResult(result);
         }
 
         public Task<bool> ExistsBlobAsync(string containerName, string blobName)
         {
-            lock (this.SyncObject)
-            {
-                bool result = this.Containers.TryGetValue(containerName, out ConcurrentDictionary<string, byte[]> container);
-                return Task.FromResult(result && container.ContainsKey(blobName));
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a read operation we invoke the 'Read' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Read(containerName);
+            bool result = this.Containers.TryGetValue(containerName, out Dictionary<string, byte[]> container);
+            return Task.FromResult(result && container.ContainsKey(blobName));
         }
 
         public Task DeleteBlobAsync(string containerName, string blobName)
         {
-            lock (this.SyncObject)
-            {
-                this.Containers[containerName].TryRemove(blobName, out byte[] _);
-                return Task.CompletedTask;
-            }
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            this.Containers[containerName].Remove(blobName);
+            return Task.CompletedTask;
         }
 
         public Task<bool> DeleteBlobIfExistsAsync(string containerName, string blobName)
         {
-            lock (this.SyncObject)
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            if (!this.Containers.TryGetValue(containerName, out Dictionary<string, byte[]> container))
             {
-                if (!this.Containers.TryGetValue(containerName, out ConcurrentDictionary<string, byte[]> container))
-                {
-                    return Task.FromResult(false);
-                }
- 
-                bool result = container.TryRemove(blobName, out byte[] _);
-                return Task.FromResult(result);
+                return Task.FromResult(false);
             }
+
+            bool result = container.Remove(blobName);
+            return Task.FromResult(result);
         }
 
         public Task DeleteAllBlobsAsync(string containerName)
         {
-            lock (this.SyncObject)
+            // We invoke this Coyote API to explicitly insert a "scheduling point" during the test execution
+            // where the Coyote scheduler should explore a potential interleaving with another concurrently
+            // executing operation. As this is a write operation we invoke the 'Write' scheduling point with
+            // the corresponding container name, which can help Coyote optimize exploration.
+            SchedulingPoint.Write(containerName);
+            if (this.Containers.TryGetValue(containerName, out Dictionary<string, byte[]> container))
             {
-                if (this.Containers.TryGetValue(containerName, out ConcurrentDictionary<string, byte[]> container))
-                {
-                    container.Clear();
-                }
-
-                return Task.CompletedTask;
+                container.Clear();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

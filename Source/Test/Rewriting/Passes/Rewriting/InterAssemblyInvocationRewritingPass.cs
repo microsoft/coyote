@@ -251,12 +251,12 @@ namespace Microsoft.Coyote.Rewriting
                 if (gp.Type is GenericParameterType.Type &&
                     methodReference.DeclaringType is GenericInstanceType dgt)
                 {
-                    argType = dgt.GenericArguments[gp.Position].GetElementType();
+                    argType = dgt.GenericArguments[gp.Position];
                 }
                 else if (gp.Type is GenericParameterType.Method &&
                     methodReference is GenericInstanceMethod gim)
                 {
-                    argType = gim.GenericArguments[gp.Position].GetElementType();
+                    argType = gim.GenericArguments[gp.Position];
                 }
             }
 

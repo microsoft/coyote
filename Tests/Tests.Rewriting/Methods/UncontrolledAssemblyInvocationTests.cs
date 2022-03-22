@@ -7,15 +7,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Rewriting.Tests
 {
-    public class InterAssemblyInvocationTests : BaseRewritingTest
+    public class UncontrolledAssemblyInvocationTests : BaseRewritingTest
     {
-        public InterAssemblyInvocationTests(ITestOutputHelper output)
+        public UncontrolledAssemblyInvocationTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithAwaiter()
+        public void TestUncontrolledMethodReturnsAwaiter()
         {
             this.Test(async () =>
             {
@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithGenericAwaiter()
+        public void TestUncontrolledMethodReturnsGenericAwaiter()
         {
             this.Test(async () =>
             {
@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithAwaiterWithGenericArgument()
+        public void TestUncontrolledMethodReturnsAwaiterWithGenericArgument()
         {
             this.Test(async () =>
             {
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedTask()
+        public void TestUncontrolledMethodReturnsTask()
         {
             this.Test(async () =>
             {
@@ -52,17 +52,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedGenericTask()
-        {
-            this.Test(async () =>
-            {
-                var task = TaskProvider.GetGenericTask<int>();
-                await task;
-            });
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericTask()
+        public void TestUncontrolledMethodReturnsTaskFromGenericClass()
         {
             this.Test(async () =>
             {
@@ -72,17 +62,17 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericMethodTask()
+        public void TestUncontrolledMethodReturnsGenericTask()
         {
             this.Test(async () =>
             {
-                var task = GenericTaskProvider<object, bool>.Nested<short>.GetGenericMethodTask<int>();
+                var task = TaskProvider.GetGenericTask<int>();
                 await task;
             });
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericTypeTask()
+        public void TestUncontrolledMethodReturnsGenericTaskFromGenericClass()
         {
             this.Test(async () =>
             {
@@ -92,7 +82,27 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericTypeTaskLargeStack()
+        public void TestUncontrolledMethodReturnsGenericArrayTaskFromGenericClass()
+        {
+            this.Test(async () =>
+            {
+                var task = GenericTaskProvider<object, bool[]>.Nested<short>.GetGenericTypeTask<int>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericTaskFromGenericMethod()
+        {
+            this.Test(async () =>
+            {
+                var task = GenericTaskProvider<object, bool>.Nested<short>.GetGenericMethodTask<int>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericTaskFromGenericClassLargeStack()
         {
             this.Test(async () =>
             {
@@ -107,7 +117,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedValueTask()
+        public void TestUncontrolledMethodReturnsValueTask()
         {
             this.Test(async () =>
             {
@@ -117,17 +127,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedGenericValueTask()
-        {
-            this.Test(async () =>
-            {
-                var task = ValueTaskProvider.GetGenericTask<int>();
-                await task;
-            });
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericValueTask()
+        public void TestUncontrolledMethodReturnsValueTaskFromGenericClass()
         {
             this.Test(async () =>
             {
@@ -137,17 +137,17 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericMethodValueTask()
+        public void TestUncontrolledMethodReturnsGenericValueTask()
         {
             this.Test(async () =>
             {
-                var task = GenericValueTaskProvider<object, bool>.Nested<short>.GetGenericMethodTask<int>();
+                var task = ValueTaskProvider.GetGenericTask<int>();
                 await task;
             });
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericTypeValueTask()
+        public void TestUncontrolledMethodReturnsGenericValueTaskFromGenericClass()
         {
             this.Test(async () =>
             {
@@ -157,7 +157,27 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestInterAssemblyInvocationWithReturnedNestedGenericTypeValueTaskLargeStack()
+        public void TestUncontrolledMethodReturnsGenericArrayValueTaskFromGenericClass()
+        {
+            this.Test(async () =>
+            {
+                var task = GenericValueTaskProvider<object, bool[]>.Nested<short>.GetGenericTypeTask<int>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericValueTaskFromGenericMethod()
+        {
+            this.Test(async () =>
+            {
+                var task = GenericValueTaskProvider<object, bool>.Nested<short>.GetGenericMethodTask<int>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericValueTaskFromGenericClassLargeStack()
         {
             this.Test(async () =>
             {

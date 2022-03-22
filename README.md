@@ -28,7 +28,7 @@ Coyote is made with :heart: by Microsoft Research.
 ## Get started
 
 See [https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for more information
-about Coyote, documentation, tutorials, samples and how-tos. Enjoy!
+about Coyote, samples, documentation, tutorials and how-tos. Enjoy!
 
 ## Contributing
 

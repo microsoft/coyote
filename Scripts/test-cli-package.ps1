@@ -12,22 +12,22 @@ if ($null -ne $root -and $root.ToLower().Contains("windows")) {
     $coyote_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | Where-Object { Test-Path "$_/coyote.exe" }
 
     if (-not "$PSScriptRoot/../temp/coyote" -eq "") {
-        Write-Comment -prefix "..." -text "Uninstalling the Microsoft.Coyote.CLI package" -color "white"
+        Write-Comment -prefix "..." -text "Uninstalling the Microsoft.Coyote.CLI package"
         dotnet tool uninstall Microsoft.Coyote.CLI --tool-path temp
     }
 
-    Write-Comment -prefix "..." -text "Installing the Microsoft.Coyote.CLI package" -color "white"
+    Write-Comment -prefix "..." -text "Installing the Microsoft.Coyote.CLI package"
     dotnet tool install --add-source $PSScriptRoot/../bin/nuget Microsoft.Coyote.CLI --no-cache --tool-path temp
 }
 else {
     $coyote_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | Where-Object { Test-Path "$_/coyote" }
 
     if (-not "$PSScriptRoot/../temp/coyote" -eq "") {
-        Write-Comment -prefix "..." -text "Uninstalling the coyote .NET tool" -color "white"
+        Write-Comment -prefix "..." -text "Uninstalling the coyote .NET tool"
         dotnet tool uninstall coyote --tool-path temp
     }
 
-    Write-Comment -prefix "..." -text "Installing the coyote .NET tool" -color "white"
+    Write-Comment -prefix "..." -text "Installing the coyote .NET tool"
     dotnet tool install --add-source $PSScriptRoot/../bin coyote --no-cache --tool-path temp
 }
 

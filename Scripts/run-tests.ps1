@@ -25,8 +25,9 @@ $targets = [ordered]@{
 
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
-$dotnet_path = FindDotNet($dotnet)
-$sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
+$dotnet_sdk_path = FindDotNetSdkPath($dotnet)
+$dotnet_path = $dotnet_sdk_path.TrimEnd('sdk')
+$sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 if ($null -eq $sdk_version) {
     Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."
     Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
@@ -57,7 +58,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
         if ($f -eq "net6.0") {
             $AssemblyName = GetAssemblyName($target)
-            $NetCoreApp = FindNetCoreApp -dotnet_path $dotnet_path -version "6.0"
+            $NetCoreApp = FindNetCoreApp -dotnet_sdk_path $dotnet_sdk_path -version "6.0"
             $command = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/$AssemblyName.dll"
             $command = $command + ' -r "' + "$PSScriptRoot/../Tests/$($kvp.Value)/bin/net6.0/" + '"'
             $command = $command + ' -r "' + "$dotnet_path/packs/Microsoft.NETCore.App.Ref/$sdk_version/ref/net6.0/" + '"'

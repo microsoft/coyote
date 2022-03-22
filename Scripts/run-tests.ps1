@@ -55,14 +55,10 @@ foreach ($kvp in $targets.GetEnumerator()) {
             $AssemblyName = GetAssemblyName($target)
             $command = [IO.Path]::Combine($PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net6.0", "$AssemblyName.dll")
             $command = $command + ' -r "' + [IO.Path]::Combine( `
-                $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net6.0") `
-                + [IO.Path]::DirectorySeparatorChar + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", "net6.0") `
-                + [IO.Path]::DirectorySeparatorChar + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version) `
-                + [IO.Path]::DirectorySeparatorChar + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version) `
-                + [IO.Path]::DirectorySeparatorChar + '"'
+                $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net6.0", "*.dll") + '"'
+            $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", "net6.0", "*.dll") + '"'
+            $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version, "*.dll") + '"'
+            $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version, "*.dll") + '"'
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }
 

@@ -124,40 +124,67 @@ namespace Microsoft.Coyote.Rewriting
             Instruction nextInstruction, TypeReference returnType, string methodName)
         {
             var instructions = new List<Instruction>();
+            bool isParamByReference = interceptionMethod.Parameters[0].ParameterType.IsByReference;
             if (nextInstruction.OpCode == OpCodes.Stsfld &&
                 nextInstruction.Operand is FieldReference fieldReference)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldsflda : OpCodes.Ldsfld;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode, fieldReference));
-                instructions.Add(this.Processor.Create(OpCodes.Ldsflda, fieldReference));
+                instructions.Add(this.Processor.Create(loadOpCode, fieldReference));
             }
             else if (nextInstruction.OpCode == OpCodes.Starg_S &&
                 nextInstruction.Operand is ParameterDefinition parameterDefinition)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldarga_S :
+                    parameterDefinition.Index is 0 ? OpCodes.Ldarg_0 :
+                    parameterDefinition.Index is 1 ? OpCodes.Ldarg_1 :
+                    parameterDefinition.Index is 2 ? OpCodes.Ldarg_2 :
+                    parameterDefinition.Index is 3 ? OpCodes.Ldarg_3 :
+                    OpCodes.Ldarg_S;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode, parameterDefinition));
-                instructions.Add(this.Processor.Create(OpCodes.Ldarga_S, parameterDefinition));
+                instructions.Add(loadOpCode == OpCodes.Ldarga_S || loadOpCode == OpCodes.Ldarg_S ?
+                    this.Processor.Create(loadOpCode, parameterDefinition) :
+                    this.Processor.Create(loadOpCode));
+            }
+            else if (nextInstruction.OpCode == OpCodes.Stloc_S &&
+                nextInstruction.Operand is VariableDefinition variableDefinition)
+            {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldloca_S : OpCodes.Ldloc_S;
+                instructions.Add(this.Processor.Create(nextInstruction.OpCode, variableDefinition));
+                instructions.Add(this.Processor.Create(loadOpCode, variableDefinition));
             }
             else if (nextInstruction.OpCode == OpCodes.Stloc_0)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldloca_S : OpCodes.Ldloc_0;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode));
-                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)0));
+                instructions.Add(isParamByReference ? this.Processor.Create(loadOpCode, (byte)0) :
+                    this.Processor.Create(loadOpCode));
             }
             else if (nextInstruction.OpCode == OpCodes.Stloc_1)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldloca_S : OpCodes.Ldloc_1;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode));
-                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)1));
+                instructions.Add(isParamByReference ? this.Processor.Create(loadOpCode, (byte)1) :
+                    this.Processor.Create(loadOpCode));
             }
             else if (nextInstruction.OpCode == OpCodes.Stloc_2)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldloca_S : OpCodes.Ldloc_2;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode));
-                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)2));
+                instructions.Add(isParamByReference ? this.Processor.Create(loadOpCode, (byte)2) :
+                    this.Processor.Create(loadOpCode));
             }
             else if (nextInstruction.OpCode == OpCodes.Stloc_3)
             {
+                OpCode loadOpCode = isParamByReference ? OpCodes.Ldloca_S : OpCodes.Ldloc_3;
                 instructions.Add(this.Processor.Create(nextInstruction.OpCode));
-                instructions.Add(this.Processor.Create(OpCodes.Ldloca_S, (byte)3));
+                instructions.Add(isParamByReference ? this.Processor.Create(loadOpCode, (byte)3) :
+                    this.Processor.Create(loadOpCode));
             }
             else
             {
+                instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));
+                instructions.Add(this.Processor.Create(OpCodes.Call, interceptionMethod));
                 return instructions;
             }
 

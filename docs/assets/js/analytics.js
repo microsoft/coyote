@@ -24,6 +24,16 @@ function setupTelemetry() {
             cookieFlags: flags
           });
         ga('send', 'pageview');
+
+        // The new GA4 tag, see https://support.google.com/analytics/answer/9744165
+        var s = document.createElement("script");
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-JS8YSYVDQX";
+        s.type = "text/javascript";
+        document.body.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-JS8YSYVDQX');
     }
 }
 

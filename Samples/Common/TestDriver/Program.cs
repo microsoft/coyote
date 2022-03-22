@@ -66,8 +66,9 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 "Please do not turn on grinder if there are no beans in the hopper",
                 "detected liveness bug in hot state 'Busy'");
 
+            // TODO: sometimes does not find bug below 1k iterations.
             // CoffeeMachineTasks tests.
-            configuration = Configuration.Create().WithTestingIterations(1000)
+            configuration = Configuration.Create().WithTestingIterations(10000)
                 .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true)
                 .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,

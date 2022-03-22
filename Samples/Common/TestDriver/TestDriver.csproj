@@ -18,10 +18,10 @@
     <!-- <ProjectReference Include="..\..\WebApps\ImageGalleryAspNet\Tests\Tests.csproj" /> -->
     <ProjectReference Include="..\..\WebApps\PetImagesAspNet\PetImages.Tests\PetImages.Tests.csproj" />
   </ItemGroup>
-  <!-- <Target Name="CoyoteRewritingFromNuget" Condition="'$(UseLocalCoyoteBuild)'=='false'" AfterTargets="AfterBuild">
+  <!-- <Target Name="CoyoteRewritingFromNuget" Condition="'$(UseLocalCoyote)'=='false'" AfterTargets="AfterBuild">
     <Exec Command="dotnet $(MSBuildThisFileDirectory)/../../../packages/microsoft.coyote.test/$(Version)/lib/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json"/>
   </Target> -->
-  <Target Name="CoyoteRewritingFromLocal" Condition="'$(UseLocalCoyoteBuild)'=='true'" AfterTargets="AfterBuild">
+  <Target Name="CoyoteRewritingFromLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild">
     <Exec Command="$(MSBuildThisFileDirectory)/../../../bin/$(TargetFramework)/coyote rewrite rewrite.coyote.json"/>
   </Target>
 </Project>

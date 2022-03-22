@@ -5,7 +5,7 @@ function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config,
 
     $command = "build -c $config $solution"
     if ($local) {
-        $command = "$command /p:UseLocalCoyoteBuild=true"
+        $command = "$command /p:UseLocalCoyote=true"
     }
 
     $error_msg = "Failed to build $solution"

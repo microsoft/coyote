@@ -1,5 +1,5 @@
 <Project>
-  <Import Project="$(MSBuildThisFileDirectory)version.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\Common\version.props" />
   <PropertyGroup>
     <Product>CoyoteSamples</Product>
     <Company>Microsoft Corporation</Company>

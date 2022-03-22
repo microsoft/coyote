@@ -26,8 +26,7 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
 
 # Builds the specified .NET project
 function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config, [bool]$local) {
-    Write-Comment -prefix "." -text "Building $solution" -color "yellow"
-    Write-Comment -prefix "..." -text "Configuration: $config" -color "white"
+    Write-Comment -prefix "..." -text "Building $solution"
 
     $command = "build -c $config $solution"
     if ($local) {
@@ -35,7 +34,7 @@ function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config,
     }
 
     $error_msg = "Failed to build $solution"
-    Invoke-ToolCommand -tool $dotnet -command $command -error_msg $error_msg
+    Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 }
 
 # Runs the specified .NET test using the specified framework.
@@ -141,11 +140,11 @@ function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
     $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
-    Write-Comment -prefix "..." -text "Searching .NET SDK version '$global_version' in '$dotnet_sdk_path'"
+    Write-Comment -prefix "..." -text "Searching for .NET SDK version '$global_version' in '$dotnet_sdk_path'"
     $matching_version = FindMatchingVersion -path $dotnet_sdk_path -version $global_version
     if ($null -ne $matching_version) {
         if ($global_version -eq $matching_version) {
-            Write-Comment -prefix "....." -text "Found .NET SDK version '$matching_version'" -color "green"
+            Write-Comment -prefix "....." -text "Found expected .NET SDK version '$matching_version'"
         }
     }
 

@@ -29,7 +29,7 @@ $sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 
 if ($null -eq $sdk_version) {
     Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."
-    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
+    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet."
     exit 1
 }
 

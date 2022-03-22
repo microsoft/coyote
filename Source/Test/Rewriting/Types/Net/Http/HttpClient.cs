@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 #if NET || NETCOREAPP3_1
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using SystemHttpClient = System.Net.Http.HttpClient;
 using SystemHttpMessageHandler = System.Net.Http.HttpMessageHandler;
+using SystemHttpMessageInvoker = System.Net.Http.HttpMessageInvoker;
 
 namespace Microsoft.Coyote.Rewriting.Types.Net.Http
 {
@@ -42,19 +44,35 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// </summary>
         public static SystemHttpClient Control(SystemHttpClient client)
         {
+            Type baseType = client.GetType().BaseType;
+            if (baseType.FullName != typeof(SystemHttpMessageInvoker).FullName)
+            {
+                return client;
+            }
+
             // If the client is already disposed, do nothing.
-            var disposedField = client.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var disposedField = baseType.GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
             if ((bool)disposedField?.GetValue(client))
             {
                 return client;
             }
 
             // Access the message handler and other properties through reflection.
-            var handlerField = client.GetType().GetField("_handler", BindingFlags.NonPublic | BindingFlags.Instance);
+            var handlerField = baseType.GetField("_handler", BindingFlags.NonPublic | BindingFlags.Instance);
             var handler = (SystemHttpMessageHandler)handlerField?.GetValue(client);
-            var disposeHandlerField = client.GetType().GetField("_disposeHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+            var disposeHandlerField = baseType.GetField("_disposeHandler", BindingFlags.NonPublic | BindingFlags.Instance);
             var disposeHandler = (bool)disposeHandlerField?.GetValue(client);
-            return new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
+
+            // Create the controlled client and set the same properties.
+            var controlledClient = new SystemHttpClient(HttpMessageHandler.Create(handler), disposeHandler);
+            controlledClient.BaseAddress = client.BaseAddress;
+#if NET
+            controlledClient.DefaultVersionPolicy = client.DefaultVersionPolicy;
+#endif
+            controlledClient.DefaultRequestVersion = client.DefaultRequestVersion;
+            controlledClient.MaxResponseContentBufferSize = client.MaxResponseContentBufferSize;
+            controlledClient.Timeout = client.Timeout;
+            return controlledClient;
         }
     }
 }

@@ -21,20 +21,19 @@ if ($host.Version.Major -lt 7)
 
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
-$dotnet_path = FindDotNet($dotnet)
+$dotnet_sdk_path = FindDotNetSdkPath -dotnet $dotnet
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
-$version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version [version] "3.1.0"
-$version_net5 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -version [version] "5.0.0"
-$sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
+$version_netcore31 = FindMatchingVersion -path $dotnet_sdk_path -version "3.1.0"
+$version_net5 = FindMatchingVersion -path $dotnet_sdk_path -version "5.0.0"
+$sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 
 if ($null -eq $sdk_version) {
     Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."
-    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
+    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet."
     exit 1
 }
 
-Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
-Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
+Write-Comment -prefix "..." -text "Using configuration '$configuration'"
 $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 

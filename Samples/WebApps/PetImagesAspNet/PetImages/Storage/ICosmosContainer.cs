@@ -12,15 +12,31 @@ namespace PetImages.Storage
     /// </summary>
     public interface ICosmosContainer
     {
-        public Task<T> CreateItem<T>(T row)
+        Task<T> CreateItem<T>(T row)
             where T : DbItem;
 
-        public Task<T> GetItem<T>(string partitionKey, string id)
+        Task<T> GetItem<T>(string partitionKey, string id)
            where T : DbItem;
 
-        public Task<T> UpsertItem<T>(T row)
+        Task<T> UpsertItem<T>(T row)
             where T : DbItem;
 
-        public Task DeleteItem(string partitionKey, string id);
+        Task DeleteItem(string partitionKey, string id);
+    }
+
+    /// <summary>
+    /// Interface of a Cosmos DB account container. This can be implemented
+    /// for production or with a mock for (systematic) testing.
+    /// </summary>
+    public interface IAccountContainer : ICosmosContainer
+    {
+    }
+
+    /// <summary>
+    /// Interface of a Cosmos DB image container. This can be implemented
+    /// for production or with a mock for (systematic) testing.
+    /// </summary>
+    public interface IImageContainer : ICosmosContainer
+    {
     }
 }

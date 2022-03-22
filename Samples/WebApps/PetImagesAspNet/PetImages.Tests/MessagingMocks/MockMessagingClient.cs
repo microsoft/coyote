@@ -8,7 +8,7 @@ using PetImages.Messaging;
 using PetImages.Storage;
 using PetImages.Worker;
 
-namespace PetImagesTest.MessagingMocks
+namespace PetImages.Tests.MessagingMocks
 {
     public class MockMessagingClient : IMessagingClient
     {

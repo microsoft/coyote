@@ -11,6 +11,9 @@
     "Monitors.dll",
     "Raft.dll",
     "Raft.Mocking.dll",
-    "Raft.Nondeterminism.dll"
-  ]
+    "Raft.Nondeterminism.dll",
+    "PetImages.dll",
+    "PetImages.Tests.dll"
+  ],
+  "IsRewritingConcurrentCollections":"false"
 }

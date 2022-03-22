@@ -13,11 +13,11 @@ $targets = [ordered]@{
 }
 
 $expected_hashes = [ordered]@{
-    "rewriting" = "2AD7B1BC91F600EA83A9BF4C4298E872538630A674E383CB5E2E85921CF48A9B"
+    "rewriting" = "45706B0285D636BF49D6EF6C8FD81732CAEA54D9552DE2942636202D11EACD36"
     "rewriting-helpers" = "926BF5511B145986142667EB23C37C010891820F1087657B94DCA71F48EA70AD"
-    "testing" = "0C0FB06989538D5AA64A6A5FA95ACCA709EC5024DF388549A3054E4F37A3F268"
-    "actors" = "DF1332130CED3477523AAC8D9A2D18F395DF6C9905DA54B243CE81CBDBEA6D07"
-    "actors-testing" = "D2506412E9DB0B1E4FCEAB1F7A7D2FC58FAAA685A024535BF041BA7BFAD63607"
+    "testing" = "C3E123CDE1C8A6D34CCA442513A32A2584208B63F9667EFA0D161CC43B7C2412"
+    "actors" = "6A16517115EC7645183DD6756594657BB205EBF1F751DE59EE45C1453C8DC32F"
+    "actors-testing" = "050B9AE9A17D0543F0EEBC3EAC7C86CAE7E1D2A597818D5F8071D0A31818A89F"
 }
 
 Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
@@ -33,7 +33,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"
     $new_hash = $(Get-FileHash $new).Hash
-    Write-Comment -prefix "..." -text "Computed IL diff hash '$new_hash' for '$($kvp.Value)' project" -color "white"
+    Write-Comment -prefix "..." -text "Computed IL diff hash '$new_hash' for '$($kvp.Value)' project"
     $expected_hash = $expected_hashes[$($kvp.Key)]
     if ($new_hash -ne $expected_hash) {
         Write-Error "The '$($kvp.Value)' project's IL diff hash '$new_hash' is not the expected '$expected_hash'."

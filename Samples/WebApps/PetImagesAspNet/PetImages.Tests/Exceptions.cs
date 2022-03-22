@@ -3,7 +3,7 @@
 
 using PetImages.Exceptions;
 
-namespace PetImagesTest.Exceptions
+namespace PetImages.Tests.Exceptions
 {
     public class SimulatedDatabaseFaultException : DatabaseException
     {

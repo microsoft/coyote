@@ -261,11 +261,6 @@ namespace Microsoft.Coyote
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// Enables activity coverage debugging.
-        /// </summary>
-        internal bool DebugActivityCoverage;
-
-        /// <summary>
         /// Is DGML graph showing all test iterations or just one "bug" iteration.
         /// False means all, and True means only the iteration containing a bug.
         /// </summary>
@@ -293,47 +288,11 @@ namespace Microsoft.Coyote
         internal string CustomActorRuntimeLogType;
 
         /// <summary>
-        /// Put a debug prompt at the beginning of each child TestProcess.
-        /// </summary>
-        [DataMember]
-        internal bool ParallelDebug;
-
-        /// <summary>
-        /// Specify ip address if you want to use something other than localhost.
-        /// </summary>
-        [DataMember]
-        internal string TestingSchedulerIpAddress;
-
-        /// <summary>
-        /// Do not automatically launch the TestingProcesses in parallel mode, instead wait for them
-        /// to be launched independently.
-        /// </summary>
-        [DataMember]
-        internal bool WaitForTestingProcesses;
-
-        /// <summary>
-        /// The testing scheduler unique endpoint.
-        /// </summary>
-        [DataMember]
-        internal string TestingSchedulerEndPoint;
-
-        /// <summary>
-        /// The unique testing process id.
-        /// </summary>
-        [DataMember]
-        internal uint TestingProcessId;
-
-        /// <summary>
         /// Additional assembly specifications to instrument for code coverage, besides those in the
         /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
         /// Key is filename, value is whether it is a list file (true) or a single file (false).
         /// </summary>
         internal Dictionary<string, bool> AdditionalCodeCoverageAssemblies;
-
-        /// <summary>
-        /// Enables colored console output.
-        /// </summary>
-        internal bool EnableColoredConsoleOutput;
 
         /// <summary>
         /// If true, then environment exit will be disabled.
@@ -374,10 +333,6 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelDebug = false;
-            this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
-            this.TestingSchedulerIpAddress = null;
-            this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
@@ -396,7 +351,6 @@ namespace Microsoft.Coyote
 
             this.ReportCodeCoverage = false;
             this.IsActivityCoverageReported = false;
-            this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
             this.IsDebugVerbosityEnabled = false;
@@ -404,7 +358,6 @@ namespace Microsoft.Coyote
 
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
-            this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = false;
             this.EnableTelemetry = true;
 

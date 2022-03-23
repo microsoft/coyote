@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Coyote.Cli;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Telemetry;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote
 {
@@ -23,7 +24,7 @@ namespace Microsoft.Coyote
 
         private static readonly object ConsoleLock = new object();
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             // Save these so we can force output to happen even if TestingProcess has re-routed it.
             StdOut = Console.Out;
@@ -49,7 +50,7 @@ namespace Microsoft.Coyote
                     CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
                 }
 
-                Environment.Exit(1);
+                return (int)ExitCode.Error;
             }
 
             if (firstTime)
@@ -73,21 +74,24 @@ namespace Microsoft.Coyote
 
             SetEnvironment(configuration);
 
+            ExitCode exitCode = ExitCode.Success;
             switch (configuration.ToolCommand.ToLower())
             {
                 case "test":
-                    RunTest(configuration);
+                    exitCode = RunTest(configuration);
                     break;
                 case "replay":
-                    ReplayTest(configuration);
+                    exitCode = ReplayTest(configuration);
                     break;
                 case "rewrite":
-                    RewriteAssemblies(configuration, rewritingOptions);
+                    exitCode = RewriteAssemblies(configuration, rewritingOptions);
                     break;
                 case "telemetry":
                     RunServer(configuration);
                     break;
             }
+
+            return (int)exitCode;
         }
 
         public static void RunServer(Configuration configuration)
@@ -108,47 +112,70 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Runs the test specified in the configuration.
         /// </summary>
-        private static void RunTest(Configuration configuration)
+        private static ExitCode RunTest(Configuration configuration)
         {
             if (configuration.IsActivityCoverageReported)
             {
                 // This has to be here because both forms of coverage require it.
-                CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);
+                Reporter.SetOutputDirectory(configuration, makeHistory: true);
             }
 
-            Console.WriteLine(". Testing " + configuration.AssemblyToBeAnalyzed);
-            if (!string.IsNullOrEmpty(configuration.TestMethodName))
+            Console.WriteLine($". Testing '{configuration.AssemblyToBeAnalyzed}'");
+            TestingEngine engine = TestingEngine.Create(configuration);
+            engine.Run();
+
+            // Emit the test reports.
+            engine.Logger.WriteLine($"... Emitting reports:");
+            string file = Path.GetFileNameWithoutExtension(configuration.AssemblyToBeAnalyzed);
+            Reporter.SetOutputDirectory(configuration, makeHistory: false);
+            if (engine.TryEmitReports(Reporter.OutputDirectory, file, true, out IEnumerable<string> reportPaths))
             {
-                Console.WriteLine("... Method {0}", configuration.TestMethodName);
+                foreach (var path in reportPaths)
+                {
+                    Console.WriteLine($"..... Writing {path}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"..... No reports available.");
             }
 
-            // Creates and runs the testing process scheduler.
-            TestingProcessScheduler.Create(configuration).Run();
+            if (configuration.IsActivityCoverageReported)
+            {
+                Console.WriteLine($"... Emitting coverage reports:");
+                Reporter.EmitTestingCoverageReport(engine.TestReport);
+            }
+
+            Console.WriteLine(engine.TestReport.GetText(configuration, "..."));
+            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+            return GetExitCodeFromTestReport(engine.TestReport);
         }
 
         /// <summary>
         /// Replays an execution that is specified in the configuration.
         /// </summary>
-        private static void ReplayTest(Configuration configuration)
+        private static ExitCode ReplayTest(Configuration configuration)
         {
             // Set some replay specific options.
             configuration.SchedulingStrategy = "replay";
-            configuration.EnableColoredConsoleOutput = true;
             configuration.DisableEnvironmentExit = false;
 
             // Load the configuration of the assembly to be replayed.
             LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-            Console.WriteLine($". Replaying {configuration.ScheduleFile}");
+            Console.WriteLine($". Replaying '{configuration.ScheduleFile}'");
             TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
+
+            // Emit the report.
             Console.WriteLine(engine.GetReport());
+            return GetExitCodeFromTestReport(engine.TestReport);
         }
 
         /// <summary>
         /// Rewrites the assemblies specified in the configuration.
         /// </summary>
-        private static void RewriteAssemblies(Configuration configuration, RewritingOptions options)
+        private static ExitCode RewriteAssemblies(Configuration configuration, RewritingOptions options)
         {
             try
             {
@@ -163,7 +190,7 @@ namespace Microsoft.Coyote
 
                 var profiler = new Profiler();
                 RewritingEngine.Run(options, configuration, profiler);
-                Console.WriteLine($". Done rewriting in {profiler.Results()} sec");
+                Console.WriteLine($"... Elapsed {profiler.Results()} sec.");
             }
             catch (Exception ex)
             {
@@ -172,8 +199,11 @@ namespace Microsoft.Coyote
                     ex = aex.Flatten().InnerException;
                 }
 
-                Error.ReportAndExit(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
+                Error.Report(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
+                return ExitCode.Error;
             }
+
+            return ExitCode.Success;
         }
 
         /// <summary>
@@ -220,7 +250,7 @@ namespace Microsoft.Coyote
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
             ReportUnhandledException((Exception)args.ExceptionObject);
-            Environment.Exit(1);
+            Environment.Exit((int)ExitCode.InternalError);
         }
 
         private static void ReportUnhandledException(Exception ex)
@@ -234,6 +264,11 @@ namespace Microsoft.Coyote
                 PrintException(inner);
             }
         }
+
+        private static ExitCode GetExitCodeFromTestReport(TestReport report) =>
+            report.InternalErrors.Count > 0 ? ExitCode.InternalError :
+            report.NumOfFoundBugs > 0 ? ExitCode.BugFound :
+            ExitCode.Success;
 
         private static void PrintException(Exception ex)
         {

@@ -4,42 +4,56 @@
 using System;
 using System.IO;
 using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.SystematicTesting;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Cli
 {
     /// <summary>
     /// The Coyote testing reporter.
     /// </summary>
     internal static class Reporter
     {
+        internal static string OutputDirectory = string.Empty;
+
         /// <summary>
         /// Emits the testing coverage report.
         /// </summary>
         /// <param name="report">TestReport.</param>
-        /// <param name="processId">Optional process id that produced the report.</param>
-        /// <param name="isDebug">Is a debug report.</param>
-        internal static void EmitTestingCoverageReport(TestReport report, uint? processId = null, bool isDebug = false)
+        internal static void EmitTestingCoverageReport(TestReport report)
         {
             string file = Path.GetFileNameWithoutExtension(report.Configuration.AssemblyToBeAnalyzed);
-            if (isDebug && processId != null)
+            EmitTestingCoverageOutputFiles(report, OutputDirectory, file);
+        }
+
+        /// <summary>
+        /// Set the <see cref="OutputDirectory"/> to either the user-specified <see cref="Configuration.OutputFilePath"/>
+        /// or to a unique output directory name in the same directory as <see cref="Configuration.AssemblyToBeAnalyzed"/>
+        /// and starting with its name.
+        /// </summary>
+        internal static void SetOutputDirectory(Configuration configuration, bool makeHistory)
+        {
+            if (OutputDirectory.Length > 0)
             {
-                file += "_" + processId;
+                return;
             }
 
-            string directory = CodeCoverageInstrumentation.OutputDirectory;
-            if (isDebug)
+            // Do not create the output directory yet if we have to scroll back the history first.
+            OutputDirectory = GetOutputDirectory(configuration.OutputFilePath, configuration.AssemblyToBeAnalyzed,
+                "CoyoteOutput", createDir: !makeHistory);
+            if (!makeHistory)
             {
-                directory += $"Debug{Path.DirectorySeparatorChar}";
-                Directory.CreateDirectory(directory);
+                return;
             }
 
-            EmitTestingCoverageOutputFiles(report, directory, file);
+            // Now create the new directory.
+            Directory.CreateDirectory(OutputDirectory);
         }
 
         /// <summary>
         /// Returns (and creates if it does not exist) the output directory with an optional suffix.
         /// </summary>
-        internal static string GetOutputDirectory(string userOutputDir, string assemblyPath, string suffix = "", bool createDir = true)
+        internal static string GetOutputDirectory(string userOutputDir, string assemblyPath,
+                string suffix = "", bool createDir = true)
         {
             string directoryPath;
 

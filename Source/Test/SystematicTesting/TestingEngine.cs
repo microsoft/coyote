@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The profiler.
         /// </summary>
-        private readonly Profiler Profiler;
+        internal Profiler Profiler { get; private set; }
 
         /// <summary>
         /// The client used to optionally send anonymized telemetry data.
@@ -296,7 +296,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     TelemetryClient.TrackEventAsync(isReplaying ? "replay-debug" : "test-debug").Wait();
                 }
 
-                Task task = this.CreateTestingTask();
+                if (this.Configuration.EnableTelemetry)
+                {
+                    this.Logger.WriteLine(LogSeverity.Important, $"...... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+                }
+
+                if (!this.IsTestRewritten())
+                {
+                    // TODO: eventually will throw an exception; we allow this for now.
+                    this.Logger.WriteLine(LogSeverity.Error,
+                        $"... Assembly is not rewritten for testing, see {LearnAboutRewritingUrl}.");
+                }
+
+                Task task = this.CreateTestingTask(this.TestMethodInfo);
                 if (this.Configuration.TestingTimeout > 0)
                 {
                     this.CancellationTokenSource.CancelAfter(
@@ -314,7 +326,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.Logger.WriteLine(LogSeverity.Warning, $"... Task {this.Configuration.TestingProcessId} timed out.");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"... Test timed out.");
                 }
             }
             catch (AggregateException aex)
@@ -350,7 +362,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                this.Logger.WriteLine(LogSeverity.Error, $"... Task {this.Configuration.TestingProcessId} failed due to an internal error: {ex}");
+                this.Logger.WriteLine(LogSeverity.Error, $"... Test failed due to an internal error: {ex}");
                 this.TestReport.InternalErrors.Add(ex.ToString());
             }
             finally
@@ -370,35 +382,29 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Creates a new testing task.
+        /// Creates a new testing task for the specified test method.
         /// </summary>
-        private Task CreateTestingTask()
+        private Task CreateTestingTask(TestMethodInfo methodInfo)
         {
-            this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
-                $"using the {this.Scheduler.GetDescription()} strategy.");
-            if (!this.IsTestRewritten())
-            {
-                // TODO: eventually will throw an exception; we allow this for now for pure actor programs.
-                this.Logger.WriteLine(LogSeverity.Error,
-                    $"... Assembly is not rewritten for testing, see {LearnAboutRewritingUrl}.");
-            }
-
-            if (this.Configuration.EnableTelemetry)
-            {
-                this.Logger.WriteLine(LogSeverity.Important, $"... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
-            }
-
             return new Task(() =>
             {
+                this.Logger.WriteLine(LogSeverity.Important, "... Setting up the{0} test:",
+                    string.IsNullOrEmpty(methodInfo.Name) ? string.Empty : $" '{methodInfo.Name}'");
+                this.Logger.WriteLine(LogSeverity.Important,
+                    $"...... Using the {this.Scheduler.GetDescription()} exploration strategy.");
                 if (this.Configuration.AttachDebugger)
                 {
+                    this.Logger.WriteLine(LogSeverity.Important,
+                        $"...... Launching and attaching the debugger.");
                     Debugger.Launch();
                 }
 
                 try
                 {
                     // Invokes the user-specified initialization method.
-                    this.TestMethodInfo.InitializeAllIterations();
+                    methodInfo.InitializeAllIterations();
+
+                    this.Logger.WriteLine(LogSeverity.Important, "... Running test iterations:");
 
                     uint iteration = 0;
                     while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
@@ -409,7 +415,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         }
 
                         // Runs the next iteration.
-                        bool runNext = this.RunNextIteration(iteration);
+                        bool runNext = this.RunNextIteration(methodInfo, iteration);
                         if ((!this.Configuration.RunTestIterationsToCompletion && this.TestReport.NumOfFoundBugs > 0) ||
                             this.Scheduler.IsReplayingSchedule || !runNext)
                         {
@@ -427,7 +433,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
 
                     // Invokes the user-specified test disposal method.
-                    this.TestMethodInfo.DisposeAllIterations();
+                    methodInfo.DisposeAllIterations();
                 }
                 catch (Exception ex)
                 {
@@ -451,9 +457,9 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Runs the next testing iteration.
+        /// Runs the next testing iteration for the specified test method.
         /// </summary>
-        private bool RunNextIteration(uint iteration)
+        private bool RunNextIteration(TestMethodInfo methodInfo, uint iteration)
         {
             if (!this.Scheduler.InitializeNextIteration(iteration))
             {
@@ -511,11 +517,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
                 // Runs the test and waits for it to terminate.
-                Task task = runtime.RunTestAsync(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
+                Task task = runtime.RunTestAsync(methodInfo.Method, methodInfo.Name);
                 task.Wait();
 
                 // Invokes the user-specified iteration disposal method.
-                this.TestMethodInfo.DisposeCurrentIteration();
+                methodInfo.DisposeCurrentIteration();
 
                 // Invoke the per iteration callbacks, if any.
                 foreach (var callback in this.PerIterationCallbacks)
@@ -566,17 +572,14 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
                         this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"switching to fuzzing due to uncontrolled concurrency " +
-                        $"[task-{this.Configuration.TestingProcessId}]");
+                        $"switching to fuzzing due to uncontrolled concurrency");
                 }
                 else if (runtime.IsBugFound)
                 {
-                    if (!this.Scheduler.IsReplayingSchedule &&
-                        this.Configuration.RunTestIterationsToCompletion)
+                    if (!this.Scheduler.IsReplayingSchedule)
                     {
                         this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                            $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
-                            $"[task-{this.Configuration.TestingProcessId}]");
+                            $"found bug #{this.TestReport.NumOfFoundBugs}");
                     }
 
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
@@ -636,30 +639,42 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Tries to emit the testing reports, if any.
+        /// Tries to emit the available reports to the specified directory with the given file name,
+        /// and returns the paths of all emitted reports.
         /// </summary>
-        public IEnumerable<string> TryEmitReports(string directory, string file)
-        {
-            bool reportsEmitted = false;
+        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths) =>
+            this.TryEmitReports(directory, fileName, false, out reportPaths);
 
-            // Find the next available file index.
-            int index = 0;
-            Regex match = new Regex("^(.*)_([0-9]+)_([0-9]+)");
-            foreach (var path in Directory.GetFiles(directory))
+        /// <summary>
+        /// Tries to emit the available reports to the specified directory with the given file name,
+        /// and returns the paths of all emitted reports.
+        /// </summary>
+        internal bool TryEmitReports(string directory, string fileName, bool appendFileNameIndex, out IEnumerable<string> reportPaths)
+        {
+            var paths = new List<string>();
+            if (appendFileNameIndex)
             {
-                string name = Path.GetFileName(path);
-                if (name.StartsWith(file))
+                // Find the next available file index.
+                int index = 0;
+                Regex match = new Regex("^(.*)_([0-9]+)");
+                foreach (var path in Directory.GetFiles(directory))
                 {
-                    var result = match.Match(name);
-                    if (result.Success)
+                    string name = Path.GetFileName(path);
+                    if (name.StartsWith(fileName))
                     {
-                        string value = result.Groups[3].Value;
-                        if (int.TryParse(value, out int i))
+                        var result = match.Match(name);
+                        if (result.Success)
                         {
-                            index = Math.Max(index, i + 1);
+                            string value = result.Groups[2].Value;
+                            if (int.TryParse(value, out int i))
+                            {
+                                index = Math.Max(index, i + 1);
+                            }
                         }
                     }
                 }
+
+                fileName = fileName + "_" + index;
             }
 
             if (!this.Configuration.RunTestIterationsToCompletion)
@@ -667,30 +682,24 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Emits the human readable trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReadableTrace))
                 {
-                    string readableTracePath = Path.Combine(directory, file + "_" + index + ".txt");
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {readableTracePath}");
+                    string readableTracePath = Path.Combine(directory, fileName + ".txt");
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
-                    reportsEmitted = true;
-                    yield return readableTracePath;
+                    paths.Add(readableTracePath);
                 }
             }
 
             if (this.Configuration.IsXmlLogEnabled)
             {
-                string xmlPath = Path.Combine(directory, file + "_" + index + ".trace.xml");
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {xmlPath}");
+                string xmlPath = Path.Combine(directory, fileName + ".trace.xml");
                 File.WriteAllText(xmlPath, this.XmlLog.ToString());
-                reportsEmitted = true;
-                yield return xmlPath;
+                paths.Add(xmlPath);
             }
 
             if (this.Graph != null)
             {
-                string graphPath = Path.Combine(directory, file + "_" + index + ".dgml");
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {graphPath}");
+                string graphPath = Path.Combine(directory, fileName + ".dgml");
                 this.Graph.SaveDgml(graphPath, true);
-                reportsEmitted = true;
-                yield return graphPath;
+                paths.Add(graphPath);
             }
 
             if (!this.Configuration.RunTestIterationsToCompletion)
@@ -698,30 +707,22 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
-                    string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reproTracePath}");
+                    string reproTracePath = Path.Combine(directory, fileName + ".schedule");
                     File.WriteAllText(reproTracePath, this.ReproducibleTrace);
-                    reportsEmitted = true;
-                    yield return reproTracePath;
+                    paths.Add(reproTracePath);
                 }
             }
 
             // Emits the uncontrolled invocations report, if it exists.
             if (this.TestReport.UncontrolledInvocations.Count > 0)
             {
-                string reportPath = Path.Combine(directory, file + "_" + index + ".uncontrolled.json");
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reportPath}");
+                string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
                 File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
-                reportsEmitted = true;
-                yield return reportPath;
+                paths.Add(reportPath);
             }
 
-            if (!reportsEmitted)
-            {
-                Console.WriteLine($"..... No reports available.");
-            }
-
-            this.Logger.WriteLine(LogSeverity.Important, $"... Elapsed {this.Profiler.Results()} sec.");
+            reportPaths = paths;
+            return paths.Count > 0;
         }
 
         /// <summary>

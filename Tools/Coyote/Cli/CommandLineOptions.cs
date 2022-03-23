@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 
-namespace Microsoft.Coyote.Utilities
+namespace Microsoft.Coyote.Cli
 {
     internal sealed class CommandLineOptions
     {
@@ -47,7 +46,6 @@ namespace Microsoft.Coyote.Utilities
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
             testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
-            testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
             testingGroup.AddArgument("systematic-fuzzing", null, "Use systematic fuzzing instead of controlled testing", typeof(bool));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
@@ -74,9 +72,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             coverageGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
  code: Generate code coverage statistics (via VS instrumentation)
- activity: Generate activity (state machine, event, etc.) coverage statistics
- activity-debug: Print activity coverage statistics with debug info", typeof(string));
-            coverageArg.AllowedValues = new List<string>(new string[] { string.Empty, "code", "activity", "activity-debug" });
+ activity: Generate activity (state machine, event, etc.) coverage statistics", typeof(string));
+            coverageArg.AllowedValues = new List<string>(new string[] { string.Empty, "code", "activity" });
             coverageArg.IsMultiValue = true;
             coverageGroup.AddArgument("instrument", "instr", "Additional file spec(s) to instrument for code coverage (wildcards supported)", typeof(string));
             coverageGroup.AddArgument("instrument-list", "instr-list", "File containing the paths to additional file(s) to instrument for code " +
@@ -108,11 +105,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
             hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
-            hiddenGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
-            hiddenGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
-            hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
-            hiddenGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
-            hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 
         internal void PrintHelp(TextWriter w)
@@ -147,7 +139,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 if ((from arg in ex.Result where arg.LongName == "version" select arg).Any())
                 {
                     WriteVersion();
-                    Environment.Exit(1);
+                    Environment.Exit((int)ExitCode.Error);
                 }
                 else
                 {
@@ -302,7 +294,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "version":
                     WriteVersion();
-                    Environment.Exit(1);
+                    Environment.Exit((int)ExitCode.Error);
                     break;
                 case "break":
                     configuration.AttachDebugger = true;
@@ -313,46 +305,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "timeout":
                     configuration.TestingTimeout = (int)(uint)option.Value;
                     break;
-                case "parallel":
-                    break;
-                case "parallel-debug":
-                    configuration.ParallelDebug = true;
-                    break;
-                case "wait-for-testing-processes":
-                    configuration.WaitForTestingProcesses = true;
-                    break;
-                case "testing-scheduler-ipaddress":
-                    {
-                        var ipAddress = (string)option.Value;
-                        int port = 0;
-                        if (ipAddress.Contains(":"))
-                        {
-                            string[] parts = ipAddress.Split(':');
-                            if (parts.Length != 2 || !int.TryParse(parts[1], out port))
-                            {
-                                Error.ReportAndExit("Please give a valid port number for --testing-scheduler-ipaddress option");
-                            }
-
-                            ipAddress = parts[0];
-                        }
-
-                        if (!IPAddress.TryParse(ipAddress, out _))
-                        {
-                            Error.ReportAndExit("Please give a valid ip address for --testing-scheduler-ipaddress option");
-                        }
-
-                        configuration.TestingSchedulerIpAddress = ipAddress + ":" + port;
-                    }
-
-                    break;
                 case "additional-paths":
                     configuration.AdditionalPaths = (string)option.Value;
-                    break;
-                case "testing-scheduler-endpoint":
-                    configuration.TestingSchedulerEndPoint = (string)option.Value;
-                    break;
-                case "testing-process-id":
-                    configuration.TestingProcessId = (uint)option.Value;
                     break;
                 case "graph":
                     configuration.IsDgmlGraphEnabled = true;
@@ -385,10 +339,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                                     break;
                                 case "activity":
                                     configuration.IsActivityCoverageReported = true;
-                                    break;
-                                case "activity-debug":
-                                    configuration.IsActivityCoverageReported = true;
-                                    configuration.DebugActivityCoverage = true;
                                     break;
                                 default:
                                     break;

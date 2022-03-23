@@ -33,7 +33,7 @@ function setupTelemetry() {
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-JS8YSYVDQX');
+        gtag('config', 'G-JS8YSYVDQX', { 'cookie_expires': year });
     }
 }
 

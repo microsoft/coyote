@@ -82,7 +82,6 @@ namespace Microsoft.Coyote.Rewriting
             // Populate the map with the known HTTP and web-related types.
             this.KnownTypes[NameCache.HttpClient] = typeof(Types.Net.Http.HttpClient);
             this.KnownTypes[NameCache.HttpRequestMessage] = typeof(Types.Net.Http.HttpRequestMessage);
-            this.KnownTypes[NameCache.WebApplicationFactory] = typeof(Types.Web.WebApplicationFactory);
 #endif
 
             if (options.IsRewritingConcurrentCollections)
@@ -224,18 +223,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Checks if the specified type is a supported type.
         /// </summary>
-        protected virtual bool IsSupportedType(TypeDefinition type)
-        {
-            if (type != null)
-            {
-                if (type.Module.Name is "Microsoft.AspNetCore.Mvc.Testing.dll")
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        protected virtual bool IsSupportedType(TypeDefinition type) => false;
 
         /// <summary>
         /// Options for rewriting a type.

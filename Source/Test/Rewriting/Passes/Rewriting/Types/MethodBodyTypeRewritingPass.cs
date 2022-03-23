@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.Rewriting
 
                 // We are converting from a generic type to a non generic static type, and from a non-generic
                 // method to a generic method, so we need to instantiate the generic method.
-                GenericInstanceMethod genericMethodInstance = new GenericInstanceMethod(result);
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(result);
 
                 var genericArgs = new List<TypeReference>();
                 if (method.DeclaringType is GenericInstanceType genericDeclaringType)
@@ -241,11 +241,11 @@ namespace Microsoft.Coyote.Rewriting
                     genericArgs.AddRange(genericDeclaringType.GenericArguments);
                     foreach (var genericArg in genericArgs)
                     {
-                        genericMethodInstance.GenericArguments.Add(genericArg);
+                        genericInstanceMethod.GenericArguments.Add(genericArg);
                     }
                 }
 
-                result = genericMethodInstance;
+                result = genericInstanceMethod;
             }
             else
             {
@@ -262,11 +262,11 @@ namespace Microsoft.Coyote.Rewriting
                     CallingConvention = result.CallingConvention
                 };
 
-                if (resolvedMethod.HasGenericParameters)
+                if (resolvedMethod.HasGenericParameters && method is GenericInstanceMethod genericInstanceMethod)
                 {
                     // Need to rewrite the generic method to instantiate the correct generic parameter types.
                     result = this.RewriteGenericArguments(result, resolvedMethod.GenericParameters,
-                        (method as GenericInstanceMethod)?.GenericArguments, ref isRewritten);
+                        genericInstanceMethod.GenericArguments, ref isRewritten);
                 }
 
                 // Rewrite the parameters of the method, if any.

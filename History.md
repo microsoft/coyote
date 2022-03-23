@@ -1,3 +1,13 @@
+## v1.5.1
+- Simplified the `coyote` tool ASP.NET dependency.
+- Partially controlled concurrency is now allowed by default during systematic testing. Disable via
+  the `--no-partial-control` command line option (or
+  `Configuration.WithPartiallyControlledConcurrencyAllowed(false)`).
+- Added support for schedule space reduction based on read and write operations. Enable via the
+  `--reduce-shared-state` command line option (or `Configuration.WithSharedStateReductionEnabled`).
+- Improved support for detecting potential deadlocks during partially controlled concurrency.
+- Binary rewriting improvements and fixes.
+
 ## v1.5.0
 - Added runtime and rewriting support for testing ASP.NET controllers in the presence of
   partially-controlled concurrency.

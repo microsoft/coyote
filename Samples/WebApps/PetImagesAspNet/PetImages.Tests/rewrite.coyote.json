@@ -1,0 +1,8 @@
+{
+  "AssembliesPath": "./bin/net6.0",
+  "Assemblies": [
+    "PetImages.dll",
+    "PetImages.Tests.dll"
+  ],
+  "IsRewritingConcurrentCollections":"false"
+}

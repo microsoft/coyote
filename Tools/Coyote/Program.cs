@@ -26,9 +26,10 @@ namespace Microsoft.Coyote
 
         private static int Main(string[] args)
         {
-            // Save these so we can force output to happen even if TestingProcess has re-routed it.
+            // Save these so we can force output to happen even if they have been re-routed.
             StdOut = Console.Out;
             StdError = Console.Error;
+
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Console.CancelKeyPress += OnProcessCanceled;
@@ -38,14 +39,12 @@ namespace Microsoft.Coyote
             configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
             var rewritingOptions = RewritingOptions.Create();
 
-            var result = CoyoteTelemetryClient.GetOrCreateMachineId().Result;
-            bool firstTime = result.Item2;
-
+            bool isFirstTime = CoyoteTelemetryClient.GetOrCreateMachineId().Result.Item2;
             var options = new CommandLineOptions();
             if (!options.Parse(args, configuration, rewritingOptions))
             {
                 options.PrintHelp(Console.Out);
-                if (!firstTime && configuration.EnableTelemetry)
+                if (!isFirstTime && configuration.EnableTelemetry)
                 {
                     CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
                 }
@@ -53,7 +52,7 @@ namespace Microsoft.Coyote
                 return (int)ExitCode.Error;
             }
 
-            if (firstTime)
+            if (isFirstTime)
             {
                 string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                 Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
@@ -92,21 +91,6 @@ namespace Microsoft.Coyote
             }
 
             return (int)exitCode;
-        }
-
-        public static void RunServer(Configuration configuration)
-        {
-            CoyoteTelemetryServer server = new CoyoteTelemetryServer(configuration.IsVerbose);
-            server.RunServerAsync().Wait();
-        }
-
-        private static void SetEnvironment(Configuration config)
-        {
-            if (!string.IsNullOrEmpty(config.AdditionalPaths))
-            {
-                string path = Environment.GetEnvironmentVariable("PATH");
-                Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + config.AdditionalPaths);
-            }
         }
 
         /// <summary>
@@ -206,6 +190,12 @@ namespace Microsoft.Coyote
             return ExitCode.Success;
         }
 
+        private static void RunServer(Configuration configuration)
+        {
+            CoyoteTelemetryServer server = new CoyoteTelemetryServer(configuration.IsVerbose);
+            server.RunServerAsync().Wait();
+        }
+
         /// <summary>
         /// Loads the configuration of the specified assembly.
         /// </summary>
@@ -231,6 +221,15 @@ namespace Microsoft.Coyote
             catch (System.Configuration.ConfigurationErrorsException ex)
             {
                 Error.Report(ex.Message);
+            }
+        }
+
+        private static void SetEnvironment(Configuration configuration)
+        {
+            if (!string.IsNullOrEmpty(configuration.AdditionalPaths))
+            {
+                string path = Environment.GetEnvironmentVariable("PATH");
+                Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + configuration.AdditionalPaths);
             }
         }
 

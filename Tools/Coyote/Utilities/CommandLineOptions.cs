@@ -315,7 +315,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.TestingTimeout = (int)(uint)option.Value;
                     break;
                 case "parallel":
-                    configuration.ParallelBugFindingTasks = (uint)option.Value;
                     break;
                 case "parallel-debug":
                     configuration.ParallelDebug = true;

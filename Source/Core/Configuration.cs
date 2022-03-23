@@ -293,13 +293,6 @@ namespace Microsoft.Coyote
         internal string CustomActorRuntimeLogType;
 
         /// <summary>
-        /// Number of parallel systematic testing tasks.
-        /// By default it is 1 task.
-        /// </summary>
-        [DataMember]
-        internal uint ParallelBugFindingTasks;
-
-        /// <summary>
         /// Put a debug prompt at the beginning of each child TestProcess.
         /// </summary>
         [DataMember]
@@ -317,12 +310,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool WaitForTestingProcesses;
-
-        /// <summary>
-        /// Runs this process as a parallel systematic testing task.
-        /// </summary>
-        [DataMember]
-        internal bool RunAsParallelBugFindingTask;
 
         /// <summary>
         /// The testing scheduler unique endpoint.
@@ -387,9 +374,7 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelBugFindingTasks = 0;
             this.ParallelDebug = false;
-            this.RunAsParallelBugFindingTask = false;
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
             this.TestingSchedulerIpAddress = null;
             this.TestingProcessId = 0;
@@ -420,7 +405,7 @@ namespace Microsoft.Coyote
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
             this.EnableColoredConsoleOutput = false;
-            this.DisableEnvironmentExit = true;
+            this.DisableEnvironmentExit = false;
             this.EnableTelemetry = true;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");

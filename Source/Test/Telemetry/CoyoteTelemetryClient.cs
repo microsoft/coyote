@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Telemetry
 
         public CoyoteTelemetryClient(Configuration configuration)
         {
-            this.Enabled = configuration.EnableTelemetry && !configuration.RunAsParallelBugFindingTask;
+            this.Enabled = configuration.EnableTelemetry;
 #if NETFRAMEWORK
             this.Framework = ".NET Framework";
 #else

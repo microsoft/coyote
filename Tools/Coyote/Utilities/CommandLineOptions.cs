@@ -107,7 +107,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
             hiddenGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
             hiddenGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
@@ -275,7 +274,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-random":
                 case "sch-dfs":
                 case "sch-portfolio":
-                    configuration.SchedulingStrategy = option.LongName.Substring(4);
+                    // configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
                 case "sch-probabilistic":
                 case "sch-prioritization":
@@ -345,9 +344,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         configuration.TestingSchedulerIpAddress = ipAddress + ":" + port;
                     }
 
-                    break;
-                case "run-as-parallel-testing-task":
-                    configuration.RunAsParallelBugFindingTask = true;
                     break;
                 case "additional-paths":
                     configuration.AdditionalPaths = (string)option.Value;

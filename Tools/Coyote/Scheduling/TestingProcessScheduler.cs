@@ -31,11 +31,6 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly Profiler Profiler;
 
         /// <summary>
-        /// Set if ctrl-c or ctrl-break occurred.
-        /// </summary>
-        internal static bool IsProcessCanceled;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TestingProcessScheduler"/> class.
         /// </summary>
         private TestingProcessScheduler(Configuration configuration)
@@ -81,11 +76,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Profiler.StopMeasuringExecutionTime();
 
-            if (!IsProcessCanceled)
-            {
-                // Merges and emits the test report.
-                this.EmitTestReport();
-            }
+            // Merges and emits the test report.
+            this.EmitTestReport();
         }
 
         /// <summary>

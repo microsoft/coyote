@@ -79,14 +79,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
         internal async Task<int> RunAsync()
         {
-            if (this.Configuration.RunAsParallelBugFindingTask)
-            {
-                // Opens the remote notification listener.
-                await this.ConnectToServer();
-
-                this.StartProgressMonitorTask();
-            }
-
             this.TestingEngine.Run();
 
             Console.SetOut(this.StdOut);
@@ -97,24 +89,8 @@ namespace Microsoft.Coyote.SystematicTesting
             var task = this.ProgressTask;
             task?.Wait(30000);
 
-            if (this.Configuration.RunAsParallelBugFindingTask)
-            {
-                if (this.TestingEngine.TestReport.InternalErrors.Count > 0)
-                {
-                    Environment.ExitCode = (int)ExitCode.InternalError;
-                }
-                else if (this.TestingEngine.TestReport.NumOfFoundBugs > 0)
-                {
-                    Environment.ExitCode = (int)ExitCode.BugFound;
-                    await this.NotifyBugFound();
-                }
-
-                await this.SendTestReport();
-            }
-
             if (!this.Configuration.RunTestIterationsToCompletion &&
-                this.TestingEngine.TestReport.NumOfFoundBugs > 0 &&
-                !this.Configuration.RunAsParallelBugFindingTask)
+                this.TestingEngine.TestReport.NumOfFoundBugs > 0)
             {
                 Console.WriteLine($"... Task {this.Configuration.TestingProcessId} found a bug.");
             }
@@ -138,11 +114,6 @@ namespace Microsoft.Coyote.SystematicTesting
         private TestingProcess(Configuration configuration)
         {
             this.Name = this.Name + "." + configuration.TestingProcessId;
-
-            if (configuration.SchedulingStrategy is "portfolio")
-            {
-                TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
-            }
 
             if (configuration.RandomGeneratorSeed.HasValue)
             {

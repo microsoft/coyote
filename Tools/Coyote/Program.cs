@@ -52,27 +52,24 @@ namespace Microsoft.Coyote
                 Environment.Exit(1);
             }
 
-            if (!configuration.RunAsParallelBugFindingTask)
+            if (firstTime)
             {
-                if (firstTime)
+                string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+                Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
+                Console.WriteLine("----------------------------{0}", new string('-', version.Length));
+                if (configuration.EnableTelemetry)
                 {
-                    string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
-                    Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
-                    Console.WriteLine("----------------------------{0}", new string('-', version.Length));
-                    if (configuration.EnableTelemetry)
-                    {
-                        CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
-                    }
-
-                    TelemetryClient = new CoyoteTelemetryClient(configuration);
-                    TelemetryClient.TrackEventAsync("welcome").Wait();
+                    CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
                 }
 
-                Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
-                    typeof(CommandLineOptions).Assembly.GetName().Version,
-                    GetDotNetVersion());
-                Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
+                TelemetryClient = new CoyoteTelemetryClient(configuration);
+                TelemetryClient.TrackEventAsync("welcome").Wait();
             }
+
+            Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
+                typeof(CommandLineOptions).Assembly.GetName().Version,
+                GetDotNetVersion());
+            Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
 
             SetEnvironment(configuration);
 
@@ -113,47 +110,16 @@ namespace Microsoft.Coyote
         /// </summary>
         private static void RunTest(Configuration configuration)
         {
-            if (configuration.RunAsParallelBugFindingTask)
-            {
-                // This is being run as the child test process.
-                if (configuration.ParallelDebug)
-                {
-                    Console.WriteLine("Attach the debugger and press ENTER to continue...");
-                    Console.ReadLine();
-                }
-
-                // Load the configuration of the assembly to be tested.
-                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
-
-                TestingProcess testingProcess = TestingProcess.Create(configuration);
-                testingProcess.Run();
-                return;
-            }
-
-            if (configuration.ReportCodeCoverage || configuration.IsActivityCoverageReported)
+            if (configuration.IsActivityCoverageReported)
             {
                 // This has to be here because both forms of coverage require it.
                 CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);
-            }
-
-            if (configuration.ReportCodeCoverage)
-            {
-                // Instruments the program under test for code coverage.
-                CodeCoverageInstrumentation.Instrument(configuration);
-
-                // Starts monitoring for code coverage.
-                CodeCoverageMonitor.Start(configuration);
             }
 
             Console.WriteLine(". Testing " + configuration.AssemblyToBeAnalyzed);
             if (!string.IsNullOrEmpty(configuration.TestMethodName))
             {
                 Console.WriteLine("... Method {0}", configuration.TestMethodName);
-            }
-
-            if (configuration.ParallelBugFindingTasks is 0)
-            {
-                configuration.DisableEnvironmentExit = false;
             }
 
             // Creates and runs the testing process scheduler.
@@ -241,19 +207,12 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Callback invoked when the current process terminates.
         /// </summary>
-        private static void OnProcessExit(object sender, EventArgs e) => Shutdown();
+        private static void OnProcessExit(object sender, EventArgs e) => TelemetryClient?.Dispose();
 
         /// <summary>
         /// Callback invoked when the current process is canceled.
         /// </summary>
-        private static void OnProcessCanceled(object sender, EventArgs e)
-        {
-            if (!TestingProcessScheduler.IsProcessCanceled)
-            {
-                TestingProcessScheduler.IsProcessCanceled = true;
-                Shutdown();
-            }
-        }
+        private static void OnProcessCanceled(object sender, EventArgs e) => TelemetryClient?.Dispose();
 
         /// <summary>
         /// Callback invoked when an unhandled exception occurs.
@@ -282,24 +241,6 @@ namespace Microsoft.Coyote
             {
                 Error.Report($"[CoyoteTester] unhandled exception: {ex}");
                 StdOut.WriteLine(ex.StackTrace);
-            }
-        }
-
-        /// <summary>
-        /// Shutdowns any active monitors.
-        /// </summary>
-        private static void Shutdown()
-        {
-            if (CodeCoverageMonitor.IsRunning)
-            {
-                Console.WriteLine(". Shutting down the code coverage monitor, this may take a few seconds...");
-
-                // Stops monitoring for code coverage.
-                CodeCoverageMonitor.Stop();
-            }
-
-            using (TelemetryClient)
-            {
             }
         }
 

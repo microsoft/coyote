@@ -743,7 +743,7 @@ namespace Microsoft.Coyote.Actors
                 var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
                 if (builder != null)
                 {
-                    result.CoverageGraph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
+                    result.CoverageGraph = builder.SnapshotGraph(true);
                 }
 
                 var eventCoverage = this.LogWriter.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();

@@ -98,21 +98,16 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode RunTest(Configuration configuration)
         {
-            if (configuration.IsActivityCoverageReported)
-            {
-                // This has to be here because both forms of coverage require it.
-                Reporter.SetOutputDirectory(configuration, makeHistory: true);
-            }
-
             Console.WriteLine($". Testing '{configuration.AssemblyToBeAnalyzed}'");
             TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
 
+            string directory = OutputFileManager.CreateOutputDirectory(configuration);
+            string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
+
             // Emit the test reports.
-            engine.Logger.WriteLine($"... Emitting reports:");
-            string file = Path.GetFileNameWithoutExtension(configuration.AssemblyToBeAnalyzed);
-            Reporter.SetOutputDirectory(configuration, makeHistory: false);
-            if (engine.TryEmitReports(Reporter.OutputDirectory, file, true, out IEnumerable<string> reportPaths))
+            Console.WriteLine($"... Emitting trace-related reports:");
+            if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
             {
                 foreach (var path in reportPaths)
                 {
@@ -121,13 +116,21 @@ namespace Microsoft.Coyote
             }
             else
             {
-                Console.WriteLine($"..... No reports available.");
+                Console.WriteLine($"..... No test reports available.");
             }
 
-            if (configuration.IsActivityCoverageReported)
+            // Emit the coverage reports.
+            Console.WriteLine($"... Emitting coverage reports:");
+            if (engine.TryEmitCoverageReports(directory, fileName, out reportPaths))
             {
-                Console.WriteLine($"... Emitting coverage reports:");
-                Reporter.EmitTestingCoverageReport(engine.TestReport);
+                foreach (var path in reportPaths)
+                {
+                    Console.WriteLine($"..... Writing {path}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"..... No coverage reports available.");
             }
 
             Console.WriteLine(engine.TestReport.GetText(configuration, "..."));

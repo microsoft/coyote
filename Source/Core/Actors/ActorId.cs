@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+#if !DEBUG
 using System.Diagnostics;
+#endif
 using System.Globalization;
 using System.Runtime.Serialization;
 

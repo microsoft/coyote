@@ -261,13 +261,6 @@ namespace Microsoft.Coyote
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// Is DGML graph showing all test iterations or just one "bug" iteration.
-        /// False means all, and True means only the iteration containing a bug.
-        /// </summary>
-        [DataMember]
-        internal bool IsDgmlBugGraph;
-
-        /// <summary>
         /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>

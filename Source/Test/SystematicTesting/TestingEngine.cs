@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -126,9 +125,9 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// A graph of the actors, state machines and events of a single test iteration.
+        /// The DGML graph snapshot of the last iteration.
         /// </summary>
-        private Graph Graph;
+        private Graph LastGraphSnapshot;
 
         /// <summary>
         /// Contains a single iteration of XML log output in the case where the IsXmlLogEnabled
@@ -642,41 +641,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Tries to emit the available reports to the specified directory with the given file name,
         /// and returns the paths of all emitted reports.
         /// </summary>
-        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths) =>
-            this.TryEmitReports(directory, fileName, false, out reportPaths);
-
-        /// <summary>
-        /// Tries to emit the available reports to the specified directory with the given file name,
-        /// and returns the paths of all emitted reports.
-        /// </summary>
-        internal bool TryEmitReports(string directory, string fileName, bool appendFileNameIndex, out IEnumerable<string> reportPaths)
+        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
-            if (appendFileNameIndex)
-            {
-                // Find the next available file index.
-                int index = 0;
-                Regex match = new Regex("^(.*)_([0-9]+)");
-                foreach (var path in Directory.GetFiles(directory))
-                {
-                    string name = Path.GetFileName(path);
-                    if (name.StartsWith(fileName))
-                    {
-                        var result = match.Match(name);
-                        if (result.Success)
-                        {
-                            string value = result.Groups[2].Value;
-                            if (int.TryParse(value, out int i))
-                            {
-                                index = Math.Max(index, i + 1);
-                            }
-                        }
-                    }
-                }
-
-                fileName = fileName + "_" + index;
-            }
-
             if (!this.Configuration.RunTestIterationsToCompletion)
             {
                 // Emits the human readable trace, if it exists.
@@ -688,22 +655,22 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.Configuration.IsXmlLogEnabled)
-            {
-                string xmlPath = Path.Combine(directory, fileName + ".trace.xml");
-                File.WriteAllText(xmlPath, this.XmlLog.ToString());
-                paths.Add(xmlPath);
-            }
-
-            if (this.Graph != null)
-            {
-                string graphPath = Path.Combine(directory, fileName + ".dgml");
-                this.Graph.SaveDgml(graphPath, true);
-                paths.Add(graphPath);
-            }
-
             if (!this.Configuration.RunTestIterationsToCompletion)
             {
+                if (this.Configuration.IsXmlLogEnabled)
+                {
+                    string xmlPath = Path.Combine(directory, fileName + ".trace.xml");
+                    File.WriteAllText(xmlPath, this.XmlLog.ToString());
+                    paths.Add(xmlPath);
+                }
+
+                if (this.LastGraphSnapshot != null && this.TestReport.NumOfFoundBugs > 0)
+                {
+                    string graphPath = Path.Combine(directory, fileName + ".trace.dgml");
+                    this.LastGraphSnapshot.SaveDgml(graphPath, true);
+                    paths.Add(graphPath);
+                }
+
                 // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
@@ -719,6 +686,34 @@ namespace Microsoft.Coyote.SystematicTesting
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
                 File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
                 paths.Add(reportPath);
+            }
+
+            reportPaths = paths;
+            return paths.Count > 0;
+        }
+
+        /// <summary>
+        /// Tries to emit the available coverage reports to the specified directory with the given file name,
+        /// and returns the paths of all emitted coverage reports.
+        /// </summary>
+        public bool TryEmitCoverageReports(string directory, string fileName, out IEnumerable<string> reportPaths)
+        {
+            var paths = new List<string>();
+            if (this.Configuration.IsActivityCoverageReported)
+            {
+                var codeCoverageReporter = new ActivityCoverageReporter(this.TestReport.CoverageInfo);
+
+                string graphFilePath = Path.Combine(directory, fileName + ".coverage.dgml");
+                codeCoverageReporter.EmitVisualizationGraph(graphFilePath);
+                paths.Add(graphFilePath);
+
+                string coverageFilePath = Path.Combine(directory, fileName + ".coverage.txt");
+                codeCoverageReporter.EmitCoverageReport(coverageFilePath);
+                paths.Add(coverageFilePath);
+
+                string serFilePath = Path.Combine(directory, fileName + ".sci");
+                this.TestReport.CoverageInfo.Save(serFilePath);
+                paths.Add(serFilePath);
             }
 
             reportPaths = paths;
@@ -819,15 +814,15 @@ namespace Microsoft.Coyote.SystematicTesting
             runtime.PopulateTestReport(report);
             if (this.Configuration.IsActivityCoverageReported)
             {
-                report.CoverageInfo.CoverageGraph = this.Graph;
+                report.CoverageInfo.CoverageGraph = this.LastGraphSnapshot;
             }
 
             var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
-            // Also save the graph snapshot of the last iteration, if there is one.
-            this.Graph = coverageInfo.CoverageGraph;
+            // Save the DGML graph snapshot of this iteration.
+            this.LastGraphSnapshot = coverageInfo.CoverageGraph;
         }
 
         /// <summary>

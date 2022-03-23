@@ -91,8 +91,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("uncontrolled-concurrency-interval", null, "Controls the interval (in ms) between attempts to resolve uncontrolled concurrency during testing", typeof(uint));
             advancedGroup.AddArgument("reduce-shared-state", null, "Enables shared state reduction during testing", typeof(bool));
             advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
-            advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
-            advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
+            advancedGroup.AddArgument("graph", null, "Output a DGML graph that visualizes the failing execution path if a bug is found", typeof(bool));
             advancedGroup.AddArgument("xml-trace", null, "Specify a filename for XML runtime log output to be written to", typeof(bool));
             advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified name: 'fullclass,assembly'", typeof(string));
 
@@ -310,11 +309,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "graph":
                     configuration.IsDgmlGraphEnabled = true;
-                    configuration.IsDgmlBugGraph = false;
-                    break;
-                case "graph-bug":
-                    configuration.IsDgmlGraphEnabled = true;
-                    configuration.IsDgmlBugGraph = true;
                     break;
                 case "xml-trace":
                     configuration.IsXmlLogEnabled = true;

@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.Configuration.IsTelemetryEnabled)
                 {
-                    this.Logger.WriteLine(LogSeverity.Important, $"...... Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.");
                 }
 
                 if (!this.IsTestRewritten())
@@ -373,11 +373,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Logger.WriteLine(LogSeverity.Important, "... Setting up the{0} test:",
                     string.IsNullOrEmpty(methodInfo.Name) ? string.Empty : $" '{methodInfo.Name}'");
                 this.Logger.WriteLine(LogSeverity.Important,
-                    $"...... Using the {this.Scheduler.GetDescription()} exploration strategy.");
+                    $"..... Using the {this.Scheduler.GetDescription()} exploration strategy.");
                 if (this.Configuration.AttachDebugger)
                 {
                     this.Logger.WriteLine(LogSeverity.Important,
-                        $"...... Launching and attaching the debugger.");
+                        $"..... Launching and attaching the debugger.");
                     Debugger.Launch();
                 }
 

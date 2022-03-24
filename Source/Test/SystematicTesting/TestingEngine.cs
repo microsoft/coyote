@@ -755,10 +755,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 // Registers an activity coverage graph builder that collapses instances.
                 runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false, true));
-            }
 
-            if (this.Configuration.IsActivityCoverageReported)
-            {
                 // Need this additional logger to get the event coverage report correct
                 runtime.RegisterLog(new ActorRuntimeLogEventCoverage());
             }

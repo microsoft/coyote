@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async r =>
             {
-                var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                var graphBuilder = new ActorRuntimeLogGraphBuilder(false, false);
                 r.RegisterLog(graphBuilder);
 
                 var op = new ActorHaltedEventGroup();

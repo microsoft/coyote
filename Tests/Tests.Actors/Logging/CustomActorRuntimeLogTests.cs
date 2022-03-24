@@ -131,18 +131,17 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async runtime =>
             {
-                using (CustomLogger logger = new CustomLogger())
-                {
-                    runtime.Logger = logger;
-                    var tcs = new TaskCompletionSource<bool>();
-                    runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                    runtime.CreateActor(typeof(M));
-                    await this.WaitAsync(tcs.Task);
-                    await Task.Delay(200);
-                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
+                using CustomLogger logger = new CustomLogger();
+                runtime.Logger = logger;
+                var tcs = new TaskCompletionSource<bool>();
+                runtime.RegisterMonitor<TestMonitor>();
+                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                runtime.CreateActor(typeof(M));
+                await this.WaitAsync(tcs.Task);
+                await Task.Delay(200);
+                Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                    string expected = @"<CreateLog> TestMonitor was created.
+                string expected = @"<CreateLog> TestMonitor was created.
 <MonitorLog> TestMonitor enters state 'Init'.
 <MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnSetup' in state 'Init'.
@@ -164,12 +163,11 @@ namespace Microsoft.Coyote.Actors.Tests
 <MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.";
 
-                    string actual = logger.ToString().RemoveNonDeterministicValues();
-                    expected = expected.NormalizeNewLines();
-                    actual = actual.SortLines(); // threading makes this non-deterministic otherwise.
-                    expected = expected.SortLines();
-                    Assert.Equal(expected, actual);
-                }
+                string actual = logger.ToString().RemoveNonDeterministicValues();
+                expected = expected.NormalizeNewLines();
+                actual = actual.SortLines(); // threading makes this non-deterministic otherwise.
+                expected = expected.SortLines();
+                Assert.Equal(expected, actual);
             }, this.GetConfiguration());
         }
 
@@ -178,49 +176,47 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async runtime =>
             {
-                using (CustomLogger logger = new CustomLogger())
-                {
-                    runtime.Logger = logger;
-                    var tcs = new TaskCompletionSource<bool>();
-                    runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-                    runtime.RegisterLog(graphBuilder);
-                    runtime.CreateActor(typeof(M));
-                    await this.WaitAsync(tcs.Task);
-                    await Task.Delay(200);
-                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
+                using CustomLogger logger = new CustomLogger();
+                runtime.Logger = logger;
+                var tcs = new TaskCompletionSource<bool>();
+                runtime.RegisterMonitor<TestMonitor>();
+                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                var graphBuilder = new ActorRuntimeLogGraphBuilder(false, false);
+                runtime.RegisterLog(graphBuilder);
+                runtime.CreateActor(typeof(M));
+                await this.WaitAsync(tcs.Task);
+                await Task.Delay(200);
+                Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                    string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
-  <Nodes>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='M(0)'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Category='StateMachine' Group='Expanded'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='Act'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='Init'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Group='Expanded'/>
-    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>
-  </Nodes>
-  <Links>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Category='Contains'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Category='Contains'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Category='Contains'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Category='Contains'/>
-    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
-  </Links>
+                string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
+<Nodes>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='M(0)'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Category='StateMachine' Group='Expanded'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='Act'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='Init'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Group='Expanded'/>
+<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>
+</Nodes>
+<Links>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Category='Contains'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Category='Contains'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Category='Contains'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Category='Contains'/>
+<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
+</Links>
 </DirectedGraph>
 ";
 
-                    string dgml = graphBuilder.Graph.ToString();
-                    string actual = dgml.RemoveNonDeterministicValues();
-                    expected = expected.RemoveNonDeterministicValues();
-                    Assert.Equal(expected, actual);
-                }
+                string dgml = graphBuilder.Graph.ToString();
+                string actual = dgml.RemoveNonDeterministicValues();
+                expected = expected.RemoveNonDeterministicValues();
+                Assert.Equal(expected, actual);
             }, this.GetConfiguration());
         }
 
@@ -377,33 +373,31 @@ StateTransition";
         {
             this.Test(async runtime =>
             {
-                using (CustomLogger logger = new CustomLogger())
-                {
-                    runtime.Logger = logger;
+                using CustomLogger logger = new CustomLogger();
+                runtime.Logger = logger;
 
-                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                var graphBuilder = new ActorRuntimeLogGraphBuilder(false, false);
 
-                    var tcs = new TaskCompletionSource<bool>();
-                    runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                    runtime.RegisterLog(graphBuilder);
+                var tcs = new TaskCompletionSource<bool>();
+                runtime.RegisterMonitor<TestMonitor>();
+                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                runtime.RegisterLog(graphBuilder);
 
-                    ActorId serverId = runtime.CreateActor(typeof(Server));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                ActorId serverId = runtime.CreateActor(typeof(Server));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                    await this.WaitAsync(tcs.Task);
-                    await Task.Delay(1000);
-                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
+                await this.WaitAsync(tcs.Task);
+                await Task.Delay(1000);
+                Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                    string actual = graphBuilder.Graph.ToString();
-                    actual = actual.RemoveInstanceIds();
+                string actual = graphBuilder.Graph.ToString();
+                actual = actual.RemoveInstanceIds();
 
-                    Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
-                    Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
-                    Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
-                }
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
             }, this.GetConfiguration());
         }
 
@@ -412,34 +406,29 @@ StateTransition";
         {
             this.Test(async runtime =>
             {
-                using (CustomLogger logger = new CustomLogger())
-                {
-                    runtime.Logger = logger;
+                using CustomLogger logger = new CustomLogger();
+                runtime.Logger = logger;
 
-                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false)
-                    {
-                        CollapseMachineInstances = true
-                    };
+                var graphBuilder = new ActorRuntimeLogGraphBuilder(false, true);
 
-                    var tcs = new TaskCompletionSource<bool>();
-                    runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                    runtime.RegisterLog(graphBuilder);
+                var tcs = new TaskCompletionSource<bool>();
+                runtime.RegisterMonitor<TestMonitor>();
+                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                runtime.RegisterLog(graphBuilder);
 
-                    ActorId serverId = runtime.CreateActor(typeof(Server));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                ActorId serverId = runtime.CreateActor(typeof(Server));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                    await this.WaitAsync(tcs.Task, 5000);
-                    await Task.Delay(1000);
-                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
+                await this.WaitAsync(tcs.Task, 5000);
+                await Task.Delay(1000);
+                Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                    string actual = graphBuilder.Graph.ToString();
+                string actual = graphBuilder.Graph.ToString();
 
-                    Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
-                    Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
-                }
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
             }, this.GetConfiguration());
         }
     }

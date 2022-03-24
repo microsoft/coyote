@@ -16,31 +16,76 @@ namespace Microsoft.Coyote.Actors.Coverage
     /// Implements the <see cref="IActorRuntimeLog"/> and builds a directed graph
     /// from the recorded events and state transitions.
     /// </summary>
-    public class ActorRuntimeLogGraphBuilder : IActorRuntimeLog
+    internal class ActorRuntimeLogGraphBuilder : IActorRuntimeLog
     {
-        private Graph CurrentGraph;
-        private readonly Dictionary<ActorId, EventInfo> Dequeued = new Dictionary<ActorId, EventInfo>(); // current dequeued event.
-        private readonly Dictionary<ActorId, string> HaltedStates = new Dictionary<ActorId, string>(); // halted state for given actor.
-        private readonly bool MergeEventLinks; // merge events from node A to node B instead of making them separate links.
         private const string ExternalCodeName = "ExternalCode";
         private const string ExternalStateName = "ExternalState";
         private const string StateMachineCategory = "StateMachine";
         private const string ActorCategory = "Actor";
         private const string MonitorCategory = "Monitor";
 
+        /// <summary>
+        /// The currently manipulated graph.
+        /// </summary>
+        private Graph CurrentGraph;
+
+        /// <summary>
+        /// Current dequeued event.
+        /// </summary>
+        private readonly Dictionary<ActorId, EventInfo> Dequeued = new Dictionary<ActorId, EventInfo>();
+
+        /// <summary>
+        /// Halted state for given actor.
+        /// </summary>
+        private readonly Dictionary<ActorId, string> HaltedStates = new Dictionary<ActorId, string>();
+
+        /// <summary>
+        /// Merge events from node A to node B instead of making them separate links.
+        /// </summary>
+        internal bool MergeEventLinks { get; private set; }
+
+        /// <summary>
+        /// Set this boolean to true to get a collapsed graph showing only machine types, states and events.
+        /// </summary>
+        internal bool CollapseInstances { get; private set; }
+
         private class EventInfo
         {
-            public string Name;
-            public string Type;
-            public string State;
-            public string Event;
-            public string HandlingState;
+            internal string Name;
+            internal string Type;
+            internal string State;
+            internal string Event;
+            internal string HandlingState;
         }
 
         private readonly Dictionary<string, List<EventInfo>> Inbox = new Dictionary<string, List<EventInfo>>();
         private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
         private readonly HashSet<string> Namespaces = new HashSet<string>();
         private static readonly char[] TypeSeparators = new char[] { '.', '+' };
+
+        /// <summary>
+        /// Get or set the underlying logging object.
+        /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// </remarks>
+        internal TextWriter Logger { get; set; }
+
+        /// <summary>
+        /// Get the Graph object built by this logger.
+        /// </summary>
+        internal Graph Graph
+        {
+            get
+            {
+                if (this.CurrentGraph is null)
+                {
+                    this.CurrentGraph = new Graph();
+                }
+
+                return this.CurrentGraph;
+            }
+        }
 
         private class DoActionEvent : Event
         {
@@ -67,40 +112,11 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRuntimeLogGraphBuilder"/> class.
         /// </summary>
-        public ActorRuntimeLogGraphBuilder(bool mergeEventLinks)
+        internal ActorRuntimeLogGraphBuilder(bool mergeEventLinks, bool collapseInstances)
         {
             this.MergeEventLinks = mergeEventLinks;
+            this.CollapseInstances = collapseInstances;
             this.CurrentGraph = new Graph();
-        }
-
-        /// <summary>
-        /// Set this boolean to true to get a collapsed graph showing only
-        /// machine types, states and events.  This will not show machine "instances".
-        /// </summary>
-        public bool CollapseMachineInstances { get; set; }
-
-        /// <summary>
-        /// Get or set the underlying logging object.
-        /// </summary>
-        /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
-        /// </remarks>
-        public TextWriter Logger { get; set; }
-
-        /// <summary>
-        /// Get the Graph object built by this logger.
-        /// </summary>
-        public Graph Graph
-        {
-            get
-            {
-                if (this.CurrentGraph is null)
-                {
-                    this.CurrentGraph = new Graph();
-                }
-
-                return this.CurrentGraph;
-            }
         }
 
         /// <inheritdoc/>
@@ -448,10 +464,9 @@ namespace Microsoft.Coyote.Actors.Coverage
                         var source = this.GetOrCreateChild(monitorType, monitorType, info.State);
 
                         var shortStateName = this.GetLabel(monitorType, monitorType, stateName);
-                        string suffix = string.Empty;
                         if (isInHotState.HasValue)
                         {
-                            suffix = (isInHotState is true) ? "[hot]" : "[cold]";
+                            string suffix = (isInHotState is true) ? "[hot]" : "[cold]";
                             shortStateName += suffix;
                         }
 
@@ -495,12 +510,12 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         /// <param name="reset">Set to true will reset the graph for the next iteration.</param>
         /// <returns>The graph.</returns>
-        public Graph SnapshotGraph(bool reset)
+        internal Graph SnapshotGraph(bool reset)
         {
             Graph result = this.CurrentGraph;
             if (reset)
             {
-                // start fresh.
+                // Reset the graph to start fresh.
                 this.CurrentGraph = null;
             }
 
@@ -515,7 +530,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 return ExternalCodeName;
             }
 
-            if (this.CollapseMachineInstances)
+            if (this.CollapseInstances)
             {
                 return type;
             }
@@ -681,10 +696,9 @@ namespace Microsoft.Coyote.Actors.Coverage
             {
                 // then this is probably an Actor, not a StateMachine.  For Actors we can invent a state
                 // name equal to the short name of the class, this then looks like a Constructor which is fine.
-                fullyQualifiedName = this.CollapseMachineInstances ? type : name;
+                fullyQualifiedName = this.CollapseInstances ? type : name;
             }
 
-            var len = fullyQualifiedName.Length;
             var index = fullyQualifiedName.LastIndexOfAny(TypeSeparators);
             if (index > 0)
             {
@@ -872,19 +886,15 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         public override string ToString()
         {
-            using (var writer = new StringWriter())
-            {
-                this.WriteDgml(writer, false);
-                return writer.ToString();
-            }
+            using var writer = new StringWriter();
+            this.WriteDgml(writer, false);
+            return writer.ToString();
         }
 
         internal void SaveDgml(string graphFilePath, bool includeDefaultStyles)
         {
-            using (StreamWriter writer = new StreamWriter(graphFilePath, false, Encoding.UTF8))
-            {
-                this.WriteDgml(writer, includeDefaultStyles);
-            }
+            using StreamWriter writer = new StreamWriter(graphFilePath, false, Encoding.UTF8);
+            this.WriteDgml(writer, includeDefaultStyles);
         }
 
         /// <summary>

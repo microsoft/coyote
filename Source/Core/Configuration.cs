@@ -265,7 +265,7 @@ namespace Microsoft.Coyote
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        internal bool IsDgmlGraphEnabled;
+        internal bool IsTraceVisualizationEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
@@ -691,12 +691,14 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with DGML graph generation enabled or disabled.
+        /// Updates the configuration with trace visualization enabled or disabled.
+        /// If enabled, the testing engine can produce a DGML graph representing
+        /// an execution leading up to a bug.
         /// </summary>
-        /// <param name="isEnabled">If true, then enables DGML graph generation.</param>
-        public Configuration WithDgmlGraphEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then enables trace visualization.</param>
+        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true)
         {
-            this.IsDgmlGraphEnabled = isEnabled;
+            this.IsTraceVisualizationEnabled = isEnabled;
             return this;
         }
 

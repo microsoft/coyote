@@ -468,10 +468,10 @@ Remember the last lines of the coyote test execution log file:
 liveness bug in hot state 'Busy' at the end of program execution.
 ```
 
-If you add to the coyote test command line `--graph-bug`, and test again:
+If you add to the coyote test command line `--graph`, and test again:
 
 ```plain
-coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph-bug
+coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -681,7 +681,7 @@ In this tutorial you learned:
 1. How to do failover testing using a Coyote `FailoverDriver` state machine.
 2. How to use Coyote to test failover in a service.
 3. How to use `--sch-prioritization` testing on multiple processes to find tricky bugs more quickly.
-4. How to specify the `--graph-bug` argument so that the coyote test tool would produce a
+4. How to specify the `--graph` argument so that the coyote test tool would produce a
   snapshot-DGML diagram of the final state of the system when the bug was found.
 5. How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in
   handling common events in one place.

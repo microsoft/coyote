@@ -308,7 +308,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.AdditionalPaths = (string)option.Value;
                     break;
                 case "graph":
-                    configuration.IsDgmlGraphEnabled = true;
+                    configuration.IsTraceVisualizationEnabled = true;
                     break;
                 case "xml-trace":
                     configuration.IsXmlLogEnabled = true;

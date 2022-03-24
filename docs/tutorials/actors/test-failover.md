@@ -189,7 +189,7 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph-bug
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -294,7 +294,7 @@ designed to find different kinds of bugs. The following command line shows how t
 each in different test processes:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph-bug --sch-portfolio --parallel 8
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph --sch-portfolio --parallel 8
 ```
 
 which outputs the following:

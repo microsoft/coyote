@@ -125,9 +125,9 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// The DGML graph snapshot of the last iteration.
+        /// The DGML graph of the execution path explored in the last iteration.
         /// </summary>
-        private Graph LastGraphSnapshot;
+        private Graph LastExecutionGraph;
 
         /// <summary>
         /// Contains a single iteration of XML log output in the case where the IsXmlLogEnabled
@@ -664,10 +664,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(xmlPath);
                 }
 
-                if (this.LastGraphSnapshot != null && this.TestReport.NumOfFoundBugs > 0)
+                if (this.LastExecutionGraph != null && this.TestReport.NumOfFoundBugs > 0)
                 {
                     string graphPath = Path.Combine(directory, fileName + ".trace.dgml");
-                    this.LastGraphSnapshot.SaveDgml(graphPath, true);
+                    this.LastExecutionGraph.SaveDgml(graphPath, true);
                     paths.Add(graphPath);
                 }
 
@@ -731,8 +731,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <summary>
         /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
-        /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.IsActivityCoverageReported"/> by setting up the
-        /// LogWriters on the given <see cref="IActorRuntime"/> object.
+        /// <see cref="Configuration.IsTraceVisualizationEnabled"/>, and <see cref="Configuration.IsActivityCoverageReported"/> by
+        /// setting up the LogWriters on the given <see cref="IActorRuntime"/> object.
         /// </summary>
         private void InitializeCustomActorLogging(IActorRuntime runtime)
         {
@@ -745,13 +745,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.IsActivityCoverageReported)
+            if (this.Configuration.IsTraceVisualizationEnabled)
             {
                 // Registers an activity coverage graph builder.
-                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false)
-                {
-                    CollapseMachineInstances = this.Configuration.IsActivityCoverageReported
-                });
+                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false, false));
+            }
+
+            if (this.Configuration.IsActivityCoverageReported)
+            {
+                // Registers an activity coverage graph builder that collapses instances.
+                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false, true));
             }
 
             if (this.Configuration.IsActivityCoverageReported)
@@ -814,15 +817,15 @@ namespace Microsoft.Coyote.SystematicTesting
             runtime.PopulateTestReport(report);
             if (this.Configuration.IsActivityCoverageReported)
             {
-                report.CoverageInfo.CoverageGraph = this.LastGraphSnapshot;
+                // report.CoverageInfo.CoverageGraph = this.LastExecutionGraph;
             }
 
             var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
-            // Save the DGML graph snapshot of this iteration.
-            this.LastGraphSnapshot = coverageInfo.CoverageGraph;
+            // Save the DGML graph of the execution path explored in the last iteration.
+            this.LastExecutionGraph = runtime.DefaultActorExecutionContext.GetExecutionGraph();
         }
 
         /// <summary>

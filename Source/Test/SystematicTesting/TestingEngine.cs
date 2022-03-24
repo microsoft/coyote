@@ -815,10 +815,6 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             TestReport report = new TestReport(this.Configuration);
             runtime.PopulateTestReport(report);
-            if (this.Configuration.IsActivityCoverageReported)
-            {
-                // report.CoverageInfo.CoverageGraph = this.LastExecutionGraph;
-            }
 
             var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);

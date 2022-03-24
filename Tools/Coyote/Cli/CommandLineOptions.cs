@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Cli
 
             var basicGroup = this.Parser.GetOrCreateGroup("Basic", "Basic options", true);
             var commandArg = basicGroup.AddPositionalArgument("command", "The operation perform (test, replay, rewrite)");
-            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "rewrite", "telemetry" });
+            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "rewrite" });
             basicGroup.AddPositionalArgument("path", "Path to the Coyote program to test");
             basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
             basicGroup.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");

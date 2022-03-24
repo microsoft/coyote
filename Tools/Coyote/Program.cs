@@ -14,11 +14,10 @@ using Microsoft.Coyote.Telemetry;
 namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Entry point to the Coyote tool.
+    /// The entry point to the Coyote tool.
     /// </summary>
     internal class Program
     {
-        private static CoyoteTelemetryClient TelemetryClient;
         private static TextWriter StdOut;
         private static TextWriter StdError;
 
@@ -30,46 +29,30 @@ namespace Microsoft.Coyote
             StdOut = Console.Out;
             StdError = Console.Error;
 
-            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-            Console.CancelKeyPress += OnProcessCanceled;
 
             // Parses the command line options to get the configuration and rewriting options.
             var configuration = Configuration.Create();
             configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
             var rewritingOptions = RewritingOptions.Create();
 
-            bool isFirstTime = CoyoteTelemetryClient.GetOrCreateMachineId().Result.Item2;
             var options = new CommandLineOptions();
             if (!options.Parse(args, configuration, rewritingOptions))
             {
                 options.PrintHelp(Console.Out);
-                if (!isFirstTime && configuration.EnableTelemetry)
-                {
-                    CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
-                }
-
                 return (int)ExitCode.Error;
-            }
-
-            if (isFirstTime)
-            {
-                string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
-                Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
-                Console.WriteLine("----------------------------{0}", new string('-', version.Length));
-                if (configuration.EnableTelemetry)
-                {
-                    CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
-                }
-
-                TelemetryClient = new CoyoteTelemetryClient(configuration);
-                TelemetryClient.TrackEventAsync("welcome").Wait();
             }
 
             Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
                 typeof(CommandLineOptions).Assembly.GetName().Version,
                 GetDotNetVersion());
             Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
+
+            var telemetryClient = TelemetryClient.GetOrCreate(configuration);
+            if (telemetryClient.IsFirstTime)
+            {
+                telemetryClient.TrackEvent("welcome");
+            }
 
             SetEnvironment(configuration);
 
@@ -84,9 +67,6 @@ namespace Microsoft.Coyote
                     break;
                 case "rewrite":
                     exitCode = RewriteAssemblies(configuration, rewritingOptions);
-                    break;
-                case "telemetry":
-                    RunServer(configuration);
                     break;
             }
 
@@ -193,12 +173,6 @@ namespace Microsoft.Coyote
             return ExitCode.Success;
         }
 
-        private static void RunServer(Configuration configuration)
-        {
-            CoyoteTelemetryServer server = new CoyoteTelemetryServer(configuration.IsVerbose);
-            server.RunServerAsync().Wait();
-        }
-
         /// <summary>
         /// Loads the configuration of the specified assembly.
         /// </summary>
@@ -235,16 +209,6 @@ namespace Microsoft.Coyote
                 Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + configuration.AdditionalPaths);
             }
         }
-
-        /// <summary>
-        /// Callback invoked when the current process terminates.
-        /// </summary>
-        private static void OnProcessExit(object sender, EventArgs e) => TelemetryClient?.Dispose();
-
-        /// <summary>
-        /// Callback invoked when the current process is canceled.
-        /// </summary>
-        private static void OnProcessCanceled(object sender, EventArgs e) => TelemetryClient?.Dispose();
 
         /// <summary>
         /// Callback invoked when an unhandled exception occurs.

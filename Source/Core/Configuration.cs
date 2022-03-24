@@ -293,9 +293,9 @@ namespace Microsoft.Coyote
         internal bool DisableEnvironmentExit;
 
         /// <summary>
-        /// Enable Coyote sending Telemetry to Azure which is used to help improve the tool (default true).
+        /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
-        internal bool EnableTelemetry;
+        internal bool IsTelemetryEnabled;
 
         /// <summary>
         /// Optional location of app that can run as a telemetry server.
@@ -352,12 +352,12 @@ namespace Microsoft.Coyote
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
             this.DisableEnvironmentExit = false;
-            this.EnableTelemetry = true;
+            this.IsTelemetryEnabled = true;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             if (optout is "1" || optout is "true")
             {
-                this.EnableTelemetry = false;
+                this.IsTelemetryEnabled = false;
             }
         }
 
@@ -717,7 +717,7 @@ namespace Microsoft.Coyote
         /// </summary>
         public Configuration WithTelemetryEnabled(bool isEnabled = true)
         {
-            this.EnableTelemetry = isEnabled;
+            this.IsTelemetryEnabled = isEnabled;
             return this;
         }
 

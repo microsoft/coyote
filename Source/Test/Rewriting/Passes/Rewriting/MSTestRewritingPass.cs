@@ -252,10 +252,10 @@ namespace Microsoft.Coyote.Rewriting
                     this.Configuration.IsVerbose, this.Configuration.LogLevel);
             }
 
-            if (!this.Configuration.EnableTelemetry)
+            if (!this.Configuration.IsTelemetryEnabled)
             {
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled",
-                    this.Configuration.EnableTelemetry);
+                    this.Configuration.IsTelemetryEnabled);
             }
 
             processor.Emit(OpCodes.Ldarg_0);

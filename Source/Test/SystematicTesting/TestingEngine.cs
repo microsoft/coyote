@@ -41,6 +41,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private const string LearnAboutTelemetryUrl = "https://aka.ms/coyote-telemetry";
 
         /// <summary>
+        /// The client used to optionally send anonymized telemetry data.
+        /// </summary>
+        private static TelemetryClient TelemetryClient;
+
+        /// <summary>
         /// The project configuration.
         /// </summary>
         private readonly Configuration Configuration;
@@ -65,11 +70,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The profiler.
         /// </summary>
         internal Profiler Profiler { get; private set; }
-
-        /// <summary>
-        /// The client used to optionally send anonymized telemetry data.
-        /// </summary>
-        private static CoyoteTelemetryClient TelemetryClient;
 
         /// <summary>
         /// The testing task cancellation token source.
@@ -273,10 +273,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Scheduler = OperationScheduler.Setup(configuration);
 
-            if (TelemetryClient is null)
-            {
-                TelemetryClient = new CoyoteTelemetryClient(this.Configuration);
-            }
+            TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration);
         }
 
         /// <summary>
@@ -284,20 +281,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Run()
         {
-            bool isReplaying = this.Scheduler.IsReplayingSchedule;
-
             try
             {
-                TelemetryClient.TrackEventAsync(isReplaying ? "replay" : "test").Wait();
-
-                if (Debugger.IsAttached)
+                if (this.Configuration.IsTelemetryEnabled)
                 {
-                    TelemetryClient.TrackEventAsync(isReplaying ? "replay-debug" : "test-debug").Wait();
-                }
-
-                if (this.Configuration.EnableTelemetry)
-                {
-                    this.Logger.WriteLine(LogSeverity.Important, $"...... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+                    this.Logger.WriteLine(LogSeverity.Important, $"...... Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.");
                 }
 
                 if (!this.IsTestRewritten())
@@ -369,14 +357,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Profiler.StopMeasuringExecutionTime();
             }
 
-            if (this.TestReport != null && this.TestReport.NumOfFoundBugs > 0)
+            if (this.Configuration.IsTelemetryEnabled)
             {
-                TelemetryClient.TrackMetricAsync(isReplaying ? "replay-bugs" : "test-bugs", this.TestReport.NumOfFoundBugs).Wait();
-            }
-
-            if (!Debugger.IsAttached)
-            {
-                TelemetryClient.TrackMetricAsync(isReplaying ? "replay-time" : "test-time", this.Profiler.Results()).Wait();
+                this.TrackTelemetry();
             }
         }
 
@@ -537,9 +520,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     if (runtimeLogger != null)
                     {
                         this.ReadableTrace = string.Empty;
-                        if (this.Configuration.EnableTelemetry)
+                        if (this.Configuration.IsTelemetryEnabled)
                         {
-                            this.ReadableTrace += $"<TelemetryLog> Telemetry is enabled, see {LearnAboutTelemetryUrl}.\n";
+                            this.ReadableTrace += $"<TelemetryLog> Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.\n";
                         }
 
                         this.ReadableTrace += runtimeLogger.ToString();
@@ -721,6 +704,46 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Gathers the exploration strategy statistics from the specified runtimne.
+        /// </summary>
+        private void GatherTestingStatistics(CoyoteRuntime runtime)
+        {
+            TestReport report = new TestReport(this.Configuration);
+            runtime.PopulateTestReport(report);
+
+            var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
+            report.CoverageInfo.Merge(coverageInfo);
+            this.TestReport.Merge(report);
+
+            // Save the DGML graph of the execution path explored in the last iteration.
+            this.LastExecutionGraph = runtime.DefaultActorExecutionContext.GetExecutionGraph();
+        }
+
+        /// <summary>
+        /// Tracks anonymized telemetry data.
+        /// </summary>
+        private void TrackTelemetry()
+        {
+            bool isReplaying = this.Scheduler.IsReplayingSchedule;
+            TelemetryClient.TrackEvent(isReplaying ? "replay" : "test");
+            if (Debugger.IsAttached)
+            {
+                TelemetryClient.TrackEvent(isReplaying ? "replay-debug" : "test-debug");
+            }
+            else
+            {
+                TelemetryClient.TrackMetric(isReplaying ? "replay-time" : "test-time", this.Profiler.Results());
+            }
+
+            if (this.TestReport != null && this.TestReport.NumOfFoundBugs > 0)
+            {
+                TelemetryClient.TrackMetric(isReplaying ? "replay-bugs" : "test-bugs", this.TestReport.NumOfFoundBugs);
+            }
+
+            TelemetryClient.Flush();
+        }
+
+        /// <summary>
         /// Registers a callback to invoke at the end of each iteration. The callback takes as
         /// a parameter an integer representing the current iteration.
         /// </summary>
@@ -803,22 +826,6 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Gathers the exploration strategy statistics from the specified runtimne.
-        /// </summary>
-        private void GatherTestingStatistics(CoyoteRuntime runtime)
-        {
-            TestReport report = new TestReport(this.Configuration);
-            runtime.PopulateTestReport(report);
-
-            var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
-            report.CoverageInfo.Merge(coverageInfo);
-            this.TestReport.Merge(report);
-
-            // Save the DGML graph of the execution path explored in the last iteration.
-            this.LastExecutionGraph = runtime.DefaultActorExecutionContext.GetExecutionGraph();
         }
 
         /// <summary>

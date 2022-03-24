@@ -61,21 +61,25 @@ namespace Microsoft.Coyote.Telemetry
         /// </summary>
         private TelemetryClient(bool isEnabled)
         {
-            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
-            this.Client = new ApplicationInsights.TelemetryClient(configuration);
-            this.IsEnabled = isEnabled;
+            if (isEnabled)
+            {
+                TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+                configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
+                this.Client = new AppInsightsClient(configuration);
 
-            string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
-            this.Client.Context.GlobalProperties["coyote"] = version;
+                string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+                this.Client.Context.GlobalProperties["coyote"] = version;
 #if NETFRAMEWORK
-            this.Client.Context.GlobalProperties["dotnet"] = ".NET Framework";
+                this.Client.Context.GlobalProperties["dotnet"] = ".NET Framework";
 #else
-            this.Client.Context.GlobalProperties["dotnet"] = RuntimeInformation.FrameworkDescription;
+                this.Client.Context.GlobalProperties["dotnet"] = RuntimeInformation.FrameworkDescription;
 #endif
-            this.Client.Context.Device.Id = this.GetOrCreateDeviceId();
-            this.Client.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
-            this.Client.Context.Session.Id = Guid.NewGuid().ToString();
+                this.Client.Context.Device.Id = this.GetOrCreateDeviceId();
+                this.Client.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
+                this.Client.Context.Session.Id = Guid.NewGuid().ToString();
+            }
+
+            this.IsEnabled = isEnabled;
         }
 
         /// <summary>
@@ -196,7 +200,7 @@ namespace Microsoft.Coyote.Telemetry
         /// <summary>
         /// Returns true if this is a Windows platform, else false.
         /// </summary>
-        internal static bool IsWindowsLike => Environment.OSVersion.Platform == PlatformID.Win32NT ||
+        private static bool IsWindowsLike => Environment.OSVersion.Platform == PlatformID.Win32NT ||
             Environment.OSVersion.Platform == PlatformID.Win32S ||
             Environment.OSVersion.Platform == PlatformID.Win32Windows ||
             Environment.OSVersion.Platform == PlatformID.WinCE ||

@@ -59,6 +59,16 @@ namespace Microsoft.Coyote.Cli
         private readonly Command RewriteCommand;
 
         /// <summary>
+        /// Mao from argument names to arguments.
+        /// </summary>
+        private readonly Dictionary<string, Argument> Arguments;
+
+        /// <summary>
+        /// Mao from option names to options.
+        /// </summary>
+        private readonly Dictionary<string, Option> Options;
+
+        /// <summary>
         /// The parse results.
         /// </summary>
         private readonly ParseResult Results;
@@ -75,6 +85,8 @@ namespace Microsoft.Coyote.Cli
         {
             this.Configuration = Configuration.Create();
             this.RewritingOptions = RewritingOptions.Create();
+            this.Arguments = new Dictionary<string, Argument>();
+            this.Options = new Dictionary<string, Option>();
 
             var allowedVerbosityLevels = new HashSet<string>
             {
@@ -104,14 +116,14 @@ namespace Microsoft.Coyote.Cli
             verbosityOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedVerbosityLevels));
 
             // Create the commands.
-            this.TestCommand = CreateTestCommand(this.Configuration);
-            this.ReplayCommand = CreateReplayCommand(this.Configuration);
-            this.RewriteCommand = CreateRewriteCommand(this.Configuration);
+            this.TestCommand = this.CreateTestCommand(this.Configuration);
+            this.ReplayCommand = this.CreateReplayCommand(this.Configuration);
+            this.RewriteCommand = this.CreateRewriteCommand(this.Configuration);
 
             // Create the root command.
             var rootCommand = new RootCommand("The Coyote systematic testing tool.");
-            rootCommand.AddGlobalOption(verbosityOption);
-            rootCommand.AddGlobalOption(debugOption);
+            this.AddGlobalOption(rootCommand, verbosityOption);
+            this.AddGlobalOption(rootCommand, debugOption);
             rootCommand.AddCommand(this.TestCommand);
             rootCommand.AddCommand(this.ReplayCommand);
             rootCommand.AddCommand(this.RewriteCommand);
@@ -134,34 +146,6 @@ namespace Microsoft.Coyote.Cli
                 this.UpdateConfigurations(this.Results);
                 this.IsSuccessful = true;
             }
-
-            //var commandLineBuilder = new CommandLineBuilder(rootCommand);
-            //commandLineBuilder.UseDefaults();
-            //commandLineBuilder.AddMiddleware(async (context, next) =>
-            //{
-            //    Console.WriteLine($"Command: {context.ParseResult.CommandResult.Command.Name}");
-            //    var commandResult = context.ParseResult.CommandResult;
-            //    var command = commandResult.Command;
-            //    foreach (var result in commandResult.Children)
-            //    {
-            //        Argument arg = commandResult.Command.Arguments.FirstOrDefault(a => a.Name == result.Symbol.Name);
-            //        Option option = commandResult.Command.Options.FirstOrDefault(o => o.Name == result.Symbol.Name);
-            //        if (arg != null)
-            //        {
-            //            Console.WriteLine(arg.Name);
-            //            Console.WriteLine(commandResult.GetValueForArgument(arg));
-            //        }
-            //        else if (option != null)
-            //        {
-            //            Console.WriteLine(option.Name);
-            //            Console.WriteLine(commandResult.GetValueForOption(option));
-            //        }
-            //    }
-
-            //    await next(context);
-            //});
-
-            //return commandLineBuilder.Build();
         }
 
         /// <summary>
@@ -190,7 +174,7 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the test command.
         /// </summary>
-        private static Command CreateTestCommand(Configuration configuration)
+        private Command CreateTestCommand(Configuration configuration)
         {
             var pathArg = new Argument("path", $"Path to the assembly to test.")
             {
@@ -419,9 +403,14 @@ namespace Microsoft.Coyote.Cli
             iterationsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             strategyOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedStrategies));
+            strategyValueOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, strategyOption));
             maxStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxFairStepsOption));
+            maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxUnfairStepsOption));
             maxFairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            maxFairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -432,34 +421,34 @@ namespace Microsoft.Coyote.Cli
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine. " +
                 $"Learn more at {LearnAboutTestUrl}.");
-            command.AddArgument(pathArg);
-            command.AddOption(methodOption);
-            command.AddOption(iterationsOption);
-            command.AddOption(timeoutOption);
-            command.AddOption(strategyOption);
-            command.AddOption(strategyValueOption);
-            command.AddOption(maxStepsOption);
-            command.AddOption(maxFairStepsOption);
-            command.AddOption(maxUnfairStepsOption);
-            command.AddOption(fuzzOption);
-            command.AddOption(coverageOption);
-            command.AddOption(graphOption);
-            command.AddOption(xmlLogOption);
-            command.AddOption(reduceSharedStateOption);
-            command.AddOption(seedOption);
-            command.AddOption(livenessTemperatureThresholdOption);
-            command.AddOption(timeoutDelayOption);
-            command.AddOption(deadlockTimeoutOption);
-            command.AddOption(uncontrolledConcurrencyTimeoutOption);
-            command.AddOption(uncontrolledConcurrencyIntervalOption);
-            command.AddOption(skipPotentialDeadlocksOption);
-            command.AddOption(failOnMaxStepsOption);
-            command.AddOption(noFuzzingFallbackOption);
-            command.AddOption(noPartialControlOption);
-            command.AddOption(noReproOption);
-            command.AddOption(exploreOption);
-            command.AddOption(breakOption);
-            command.AddOption(outputDirectoryOption);
+            this.AddArgument(command, pathArg);
+            this.AddOption(command, methodOption);
+            this.AddOption(command, iterationsOption);
+            this.AddOption(command, timeoutOption);
+            this.AddOption(command, strategyOption);
+            this.AddOption(command, strategyValueOption);
+            this.AddOption(command, maxStepsOption);
+            this.AddOption(command, maxFairStepsOption);
+            this.AddOption(command, maxUnfairStepsOption);
+            this.AddOption(command, fuzzOption);
+            this.AddOption(command, coverageOption);
+            this.AddOption(command, graphOption);
+            this.AddOption(command, xmlLogOption);
+            this.AddOption(command, reduceSharedStateOption);
+            this.AddOption(command, seedOption);
+            this.AddOption(command, livenessTemperatureThresholdOption);
+            this.AddOption(command, timeoutDelayOption);
+            this.AddOption(command, deadlockTimeoutOption);
+            this.AddOption(command, uncontrolledConcurrencyTimeoutOption);
+            this.AddOption(command, uncontrolledConcurrencyIntervalOption);
+            this.AddOption(command, skipPotentialDeadlocksOption);
+            this.AddOption(command, failOnMaxStepsOption);
+            this.AddOption(command, noFuzzingFallbackOption);
+            this.AddOption(command, noPartialControlOption);
+            this.AddOption(command, noReproOption);
+            this.AddOption(command, exploreOption);
+            this.AddOption(command, breakOption);
+            this.AddOption(command, outputDirectoryOption);
             command.TreatUnmatchedTokensAsErrors = true;
             return command;
         }
@@ -467,7 +456,7 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the replay command.
         /// </summary>
-        private static Command CreateReplayCommand(Configuration configuration)
+        private Command CreateReplayCommand(Configuration configuration)
         {
             var pathArg = new Argument("path", $"Path to the assembly to replay.")
             {
@@ -500,14 +489,17 @@ namespace Microsoft.Coyote.Cli
                 ArgumentHelpName = "PATH"
             };
 
+            // Add validators.
+            scheduleFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".schedule"));
+
             // Build command.
             var command = new Command("replay", "Replay bugs that Coyote discovered during systematic testing. " +
                 $"Learn more at {LearnAboutReplayUrl}.");
-            command.AddArgument(pathArg);
-            command.AddArgument(scheduleFileArg);
-            command.AddOption(methodOption);
-            command.AddOption(breakOption);
-            command.AddOption(outputDirectoryOption);
+            this.AddArgument(command, pathArg);
+            this.AddArgument(command, scheduleFileArg);
+            this.AddOption(command, methodOption);
+            this.AddOption(command, breakOption);
+            this.AddOption(command, outputDirectoryOption);
             command.TreatUnmatchedTokensAsErrors = true;
             return command;
         }
@@ -515,7 +507,7 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the rewrite command.
         /// </summary>
-        private static Command CreateRewriteCommand(Configuration configuration)
+        private Command CreateRewriteCommand(Configuration configuration)
         {
             var pathArg = new Argument("path", "Path to the assembly (or a JSON configuration file) to rewrite.")
             {
@@ -578,15 +570,59 @@ namespace Microsoft.Coyote.Cli
             var command = new Command("rewrite", "Rewrite your assemblies to inject logic that allows " +
                 "Coyote to take control of the schedule during systematic testing. " +
                 $"Learn more at {LearnAboutRewritingUrl}.");
-            command.AddArgument(pathArg);
-            command.AddOption(assertDataRacesOption);
-            command.AddOption(rewriteDependenciesOption);
-            command.AddOption(rewriteUnitTestsOption);
-            command.AddOption(rewriteThreadsOption);
-            command.AddOption(dumpILOption);
-            command.AddOption(dumpILDiffOption);
+            this.AddArgument(command, pathArg);
+            this.AddOption(command, assertDataRacesOption);
+            this.AddOption(command, rewriteDependenciesOption);
+            this.AddOption(command, rewriteUnitTestsOption);
+            this.AddOption(command, rewriteThreadsOption);
+            this.AddOption(command, dumpILOption);
+            this.AddOption(command, dumpILDiffOption);
             command.TreatUnmatchedTokensAsErrors = true;
             return command;
+        }
+
+        /// <summary>
+        /// Adds an argument to the specified command.
+        /// </summary>
+        private void AddArgument(Command command, Argument argument)
+        {
+            command.AddArgument(argument);
+            this.Arguments.TryAdd(argument.Name, argument);
+        }
+
+        /// <summary>
+        /// Adds a global option to the specified command.
+        /// </summary>
+        private void AddGlobalOption(Command command, Option option)
+        {
+            command.AddGlobalOption(option);
+            this.Options.TryAdd(option.Name, option);
+        }
+
+        /// <summary>
+        /// Adds an option to the specified command.
+        /// </summary>
+        private void AddOption(Command command, Option option)
+        {
+            command.AddOption(option);
+            this.Options.TryAdd(option.Name, option);
+        }
+
+        /// <summary>
+        /// Validates that the specified argument result is found and has an expected file extension.
+        /// </summary>
+        private static void ValidateArgumentValueIsExpectedFile(ArgumentResult result, string extension)
+        {
+            string fileName = result.GetValueOrDefault<string>();
+            string foundExtension = Path.GetExtension(fileName);
+            if (!foundExtension.Equals(extension))
+            {
+                result.ErrorMessage = $"File '{fileName}' does not have the expected '.schedule' extension.";
+            }
+            else if (!File.Exists(fileName))
+            {
+                result.ErrorMessage = $"File '{fileName}' does not exist.";
+            }
         }
 
         /// <summary>
@@ -613,49 +649,69 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
+        /// Validates that the specified prerequisite option is available.
+        /// </summary>
+        private static void ValidatePrerequisiteOptionValueIsAvailable(OptionResult result, Option prerequisite)
+        {
+            OptionResult prerequisiteResult = result.FindResultFor(prerequisite);
+            if (!result.IsImplicit && (prerequisiteResult is null || prerequisiteResult.IsImplicit))
+            {
+                result.ErrorMessage = $"Setting option '{result.Option.Name}' requires option '{prerequisite.Name}'.";
+            }
+        }
+
+        /// <summary>
+        /// Validates that the specified exclusive option is available.
+        /// </summary>
+        private static void ValidateExclusiveOptionValueIsAvailable(OptionResult result, Option exclusive)
+        {
+            OptionResult exclusiveResult = result.FindResultFor(exclusive);
+            if (!result.IsImplicit && exclusiveResult != null && !exclusiveResult.IsImplicit)
+            {
+                result.ErrorMessage = $"Setting options '{result.Option.Name}' and '{exclusive.Name}' at the same time is not allowed.";
+            }
+        }
+
+        /// <summary>
         /// Populates the configurations from the specified parse result.
         /// </summary>
         private void UpdateConfigurations(ParseResult result)
         {
-            var commandResult = result.CommandResult;
+            CommandResult commandResult = result.CommandResult;
             Command command = commandResult.Command;
+            Console.WriteLine(command);
             foreach (var symbolResult in commandResult.Children)
             {
-                Argument arg = command.Arguments.FirstOrDefault(a => a.Name == symbolResult.Symbol.Name);
-                Option option = command.Options.FirstOrDefault(o => o.Name == symbolResult.Symbol.Name);
-                if (arg != null)
+                if (symbolResult is ArgumentResult argument)
                 {
-                    if (arg.Name == "path")
-                    {
-                        this.Configuration.AssemblyToBeAnalyzed = (string)commandResult.GetValueForArgument(arg);
-                    }
+                    this.UpdateConfigurationsWithParsedArgument(command, argument);
                 }
-                else if (option != null)
+                else if (symbolResult is OptionResult option)
                 {
-                    this.UpdateConfigurationsWithParsedOption(command, option, commandResult.GetValueForOption(option));
+                    this.UpdateConfigurationsWithParsedOption(command, option);
                 }
             }
         }
 
         /// <summary>
-        /// Updates the configuration with the specified parsed option and value.
+        /// Updates the configuration with the specified parsed argument and value.
         /// </summary>
-        private void UpdateConfigurationsWithParsedOption(Command command, Option option, object value)
+        private void UpdateConfigurationsWithParsedArgument(Command command, ArgumentResult result)
         {
-            Console.WriteLine($"Option '{option.Name}': {value}");
-            switch (option.Name)
+            Console.WriteLine($"[{command.Name}] Arg '{result.Argument.Name}': {result.GetValueOrDefault()}");
+            switch (result.Argument.Name)
             {
                 case "path":
                     if (command.Name is "test" || command.Name is "replay")
                     {
                         // In the case of 'coyote test' or 'replay', the path is the assembly to be tested.
-                        this.Configuration.AssemblyToBeAnalyzed = (string)value;
+                        this.Configuration.AssemblyToBeAnalyzed = result.GetValueOrDefault<string>();
                     }
                     else if (command.Name is "rewrite")
                     {
                         // In the case of 'coyote rewrite', the path is the JSON this.Configuration file
                         // with the binary rewriting options.
-                        string filename = (string)value;
+                        string filename = result.GetValueOrDefault<string>();
                         if (Directory.Exists(filename))
                         {
                             // Then we want to rewrite a whole folder full of assemblies.
@@ -689,148 +745,193 @@ namespace Microsoft.Coyote.Cli
                     }
 
                     break;
-                case "method":
-                    this.Configuration.TestMethodName = (string)value;
-                    break;
-                case "iterations":
-                    this.Configuration.TestingIterations = (uint)(int)value;
-                    break;
-                case "timeout":
-                    this.Configuration.TestingTimeout = (int)value;
-                    break;
-                case "strategy":
-                    this.Configuration.SchedulingStrategy = (string)value;
-                    break;
-                case "strategy-value":
-                    this.Configuration.StrategyBound = (int)value;
-                    break;
-                case "max-steps":
-                    this.Configuration.WithMaxSchedulingSteps((uint)(int)value);
-                    break;
-                case "max-fair-steps":
-                    this.Configuration.WithMaxSchedulingSteps((uint)this.Configuration.MaxUnfairSchedulingSteps, (uint)(int)value);
-                    break;
-                case "max-unfair-steps":
-                    this.Configuration.WithMaxSchedulingSteps((uint)(int)value, (uint)this.Configuration.MaxFairSchedulingSteps);
-                    break;
-                case "fuzz":
-                case "no-repro":
-                    this.Configuration.IsSystematicFuzzingEnabled = true;
-                    break;
-                case "coverage":
-                    this.Configuration.ReportCodeCoverage = true;
-                    this.Configuration.IsActivityCoverageReported = true;
-                    break;
-                case "graph":
-                    this.Configuration.IsTraceVisualizationEnabled = true;
-                    break;
-                case "xml-trace":
-                    this.Configuration.IsXmlLogEnabled = true;
-                    break;
-                case "reduce-shared-state":
-                    this.Configuration.IsSharedStateReductionEnabled = true;
-                    break;
-                case "seed":
-                    this.Configuration.RandomGeneratorSeed = (uint)(int)value;
-                    break;
-                case "liveness-temperature-threshold":
-                    this.Configuration.LivenessTemperatureThreshold = (int)value;
-                    this.Configuration.UserExplicitlySetLivenessTemperatureThreshold = true;
-                    break;
-                case "timeout-delay":
-                    this.Configuration.TimeoutDelay = (uint)(int)value;
-                    break;
-                case "deadlock-timeout":
-                    this.Configuration.DeadlockTimeout = (uint)(int)value;
-                    break;
-                case "uncontrolled-concurrency-timeout":
-                    this.Configuration.UncontrolledConcurrencyResolutionTimeout = (uint)(int)value;
-                    break;
-                case "uncontrolled-concurrency-interval":
-                    this.Configuration.UncontrolledConcurrencyResolutionInterval = (uint)(int)value;
-                    break;
-                case "skip-potential-deadlocks":
-                    this.Configuration.ReportPotentialDeadlocksAsBugs = false;
-                    break;
-                case "fail-on-maxsteps":
-                    this.Configuration.ConsiderDepthBoundHitAsBug = true;
-                    break;
-                case "no-fuzzing-fallback":
-                    this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
-                    break;
-                case "no-partial-control":
-                    this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
-                    break;
-                case "explore":
-                    this.Configuration.RunTestIterationsToCompletion = true;
-                    break;
-                case "break":
-                    this.Configuration.AttachDebugger = true;
-                    break;
-                case "outdir":
-                    this.Configuration.OutputFilePath = (string)value;
-                    break;
-                case "verbosity":
-                    this.Configuration.IsVerbose = true;
-                    string verbosity = (string)value;
-                    switch (verbosity)
+                case "schedule":
+                    if (command.Name is "replay")
                     {
-                        case "quiet":
-                            this.Configuration.IsVerbose = false;
-                            break;
-                        case "detailed":
-                            this.Configuration.LogLevel = LogSeverity.Informational;
-                            break;
-                        case "normal":
-                            this.Configuration.LogLevel = LogSeverity.Warning;
-                            break;
-                        case "minimal":
-                            this.Configuration.LogLevel = LogSeverity.Error;
-                            break;
-                        default:
-                            Error.ReportAndExit($"Please give a valid value for 'verbosity' must be one of 'errors', 'warnings', or 'info', but found {verbosity}.");
-                            break;
+                        this.Configuration.ScheduleFile = result.GetValueOrDefault<string>();
                     }
 
                     break;
-                case "debug":
-                    this.Configuration.IsDebugVerbosityEnabled = true;
-                    Debug.IsEnabled = true;
-                    break;
-                case "assert-data-races":
-                    this.RewritingOptions.IsDataRaceCheckingEnabled = true;
-                    break;
-                case "rewrite-dependencies":
-                    this.RewritingOptions.IsRewritingDependencies = true;
-                    break;
-                case "rewrite-unit-tests":
-                    this.RewritingOptions.IsRewritingUnitTests = true;
-                    break;
-                case "rewrite-threads":
-                    this.RewritingOptions.IsRewritingThreads = true;
-                    break;
-                case "dump-il":
-                    this.RewritingOptions.IsLoggingAssemblyContents = true;
-                    break;
-                case "dump-il-diff":
-                    this.RewritingOptions.IsDiffingAssemblyContents = true;
-                    break;
-                //case "schedule":
-                //    {
-                //        string filename = (string)value;
-                //        string extension = Path.GetExtension(filename);
-                //        if (!extension.Equals(".schedule"))
-                //        {
-                //            Error.ReportAndExit("Please give a valid schedule file " +
-                //                "with extension '.schedule'.");
-                //        }
-
-                //        this.Configuration.ScheduleFile = filename;
-                //    }
-
-                //    break;
                 default:
-                    throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option));
+                    throw new Exception(string.Format("Unhandled parsed argument '{0}'.", result.Argument.Name));
+            }
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified parsed option and value.
+        /// </summary>
+        private void UpdateConfigurationsWithParsedOption(Command command, OptionResult result)
+        {
+            if (!result.IsImplicit)
+            {
+                Console.WriteLine($"[{command.Name}] Option '{result.Option.Name}': {result.GetValueOrDefault()}");
+                switch (result.Option.Name)
+                {
+                    case "method":
+                        this.Configuration.TestMethodName = result.GetValueOrDefault<string>();
+                        break;
+                    case "iterations":
+                        this.Configuration.TestingIterations = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "timeout":
+                        this.Configuration.TestingTimeout = result.GetValueOrDefault<int>();
+                        break;
+                    case "strategy":
+                        var strategyBound = result.FindResultFor(this.Options["strategy-value"]);
+                        string strategy = result.GetValueOrDefault<string>();
+                        switch (strategy)
+                        {
+                            case "prioritization":
+                            case "fair-prioritization":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 10;
+                                }
+
+                                break;
+                            case "probabilistic":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 3;
+                                }
+
+                                break;
+                            case "rl":
+                                this.Configuration.IsProgramStateHashingEnabled = true;
+                                break;
+                            case "portfolio":
+                                strategy = "random";
+                                break;
+                            default:
+                                break;
+                        }
+
+                        this.Configuration.SchedulingStrategy = strategy;
+                        break;
+                    case "strategy-value":
+                        this.Configuration.StrategyBound = result.GetValueOrDefault<int>();
+                        break;
+                    case "max-steps":
+                        this.Configuration.WithMaxSchedulingSteps((uint)result.GetValueOrDefault<int>());
+                        break;
+                    case "max-fair-steps":
+                        var maxUnfairSteps = result.FindResultFor(this.Options["max-unfair-steps"]);
+                        this.Configuration.WithMaxSchedulingSteps(
+                            (uint)(maxUnfairSteps?.GetValueOrDefault<int>() ?? this.Configuration.MaxUnfairSchedulingSteps),
+                            (uint)result.GetValueOrDefault<int>());
+                        break;
+                    case "max-unfair-steps":
+                        var maxFairSteps = result.FindResultFor(this.Options["max-fair-steps"]);
+                        this.Configuration.WithMaxSchedulingSteps(
+                            (uint)result.GetValueOrDefault<int>(),
+                            (uint)(maxFairSteps?.GetValueOrDefault<int>() ?? this.Configuration.MaxFairSchedulingSteps));
+                        break;
+                    case "fuzz":
+                    case "no-repro":
+                        this.Configuration.IsSystematicFuzzingEnabled = true;
+                        break;
+                    case "coverage":
+                        this.Configuration.ReportCodeCoverage = true;
+                        this.Configuration.IsActivityCoverageReported = true;
+                        break;
+                    case "graph":
+                        this.Configuration.IsTraceVisualizationEnabled = true;
+                        break;
+                    case "xml-trace":
+                        this.Configuration.IsXmlLogEnabled = true;
+                        break;
+                    case "reduce-shared-state":
+                        this.Configuration.IsSharedStateReductionEnabled = true;
+                        break;
+                    case "seed":
+                        this.Configuration.RandomGeneratorSeed = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "liveness-temperature-threshold":
+                        this.Configuration.LivenessTemperatureThreshold = result.GetValueOrDefault<int>();
+                        this.Configuration.UserExplicitlySetLivenessTemperatureThreshold = true;
+                        break;
+                    case "timeout-delay":
+                        this.Configuration.TimeoutDelay = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "deadlock-timeout":
+                        this.Configuration.DeadlockTimeout = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "uncontrolled-concurrency-timeout":
+                        this.Configuration.UncontrolledConcurrencyResolutionTimeout = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "uncontrolled-concurrency-interval":
+                        this.Configuration.UncontrolledConcurrencyResolutionInterval = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "skip-potential-deadlocks":
+                        this.Configuration.ReportPotentialDeadlocksAsBugs = false;
+                        break;
+                    case "fail-on-maxsteps":
+                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
+                        break;
+                    case "no-fuzzing-fallback":
+                        this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
+                        break;
+                    case "no-partial-control":
+                        this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                        break;
+                    case "explore":
+                        this.Configuration.RunTestIterationsToCompletion = true;
+                        break;
+                    case "break":
+                        this.Configuration.AttachDebugger = true;
+                        break;
+                    case "outdir":
+                        this.Configuration.OutputFilePath = result.GetValueOrDefault<string>();
+                        break;
+                    case "debug":
+                        this.Configuration.IsDebugVerbosityEnabled = true;
+                        Debug.IsEnabled = true;
+                        break;
+                    case "assert-data-races":
+                        this.RewritingOptions.IsDataRaceCheckingEnabled = true;
+                        break;
+                    case "rewrite-dependencies":
+                        this.RewritingOptions.IsRewritingDependencies = true;
+                        break;
+                    case "rewrite-unit-tests":
+                        this.RewritingOptions.IsRewritingUnitTests = true;
+                        break;
+                    case "rewrite-threads":
+                        this.RewritingOptions.IsRewritingThreads = true;
+                        break;
+                    case "dump-il":
+                        this.RewritingOptions.IsLoggingAssemblyContents = true;
+                        break;
+                    case "dump-il-diff":
+                        this.RewritingOptions.IsDiffingAssemblyContents = true;
+                        break;
+                    case "verbosity":
+                        switch (result.GetValueOrDefault<string>())
+                        {
+                            case "quiet":
+                                this.Configuration.IsVerbose = false;
+                                break;
+                            case "minimal":
+                                this.Configuration.LogLevel = LogSeverity.Error;
+                                this.Configuration.IsVerbose = true;
+                                break;
+                            case "normal":
+                                this.Configuration.LogLevel = LogSeverity.Warning;
+                                this.Configuration.IsVerbose = true;
+                                break;
+                            case "detailed":
+                            default:
+                                this.Configuration.LogLevel = LogSeverity.Informational;
+                                this.Configuration.IsVerbose = true;
+                                break;
+                        }
+
+                        break;
+                    case "help":
+                        break;
+                    default:
+                        throw new Exception(string.Format("Unhandled parsed option '{0}.", result.Option.Name));
+                }
             }
         }
     }

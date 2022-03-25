@@ -30,11 +30,6 @@ namespace Microsoft.Coyote
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
-            Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
-                typeof(CommandLineParser).Assembly.GetName().Version,
-                GetDotNetVersion());
-            Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
-
             var parser = new CommandLineParser(args);
             if (!parser.IsSuccessful)
             {
@@ -44,6 +39,11 @@ namespace Microsoft.Coyote
             parser.InstallTestHandler(() => RunTest(parser.Configuration));
             parser.InstallReplayHandler(() => ReplayTest(parser.Configuration));
             parser.InstallRewriteHandler(() => RewriteAssemblies(parser.Configuration, parser.RewritingOptions));
+
+            Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
+                typeof(CommandLineParser).Assembly.GetName().Version,
+                GetDotNetVersion());
+            Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
 
             return (int)parser.InvokeCommand();
         }

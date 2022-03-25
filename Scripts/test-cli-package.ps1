@@ -33,7 +33,7 @@ else {
 
 $help = (& "$PSScriptRoot/../temp/coyote" -?) -join '\n'
 
-if (!$help.Contains("usage: Coyote command path")) {
+if (!$help.Contains("coyote [command] [options]")) {
     Write-Error "### Unexpected output from coyote command"
     Write-Error $help
     Exit 1

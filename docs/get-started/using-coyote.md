@@ -61,22 +61,6 @@ the specified `AssembliesPath`.
 
 Then pass this config file on the command line: `coyote rewrite config.json`.
 
-### Strong name signing
-
-For .NET Framework, you may need to resign your rewritten binaries in order for tests to run
-properly. This can be done by providing the same strong name key that you provided during the
-original build. This can be done using the `--strong-name-key-file` command line argument (or
-`-snk` for the abbreviated option name).
-
-For example, from your `coyote` repo:
-
-```plain
-coyote rewrite d:\git\Coyote\Tests\Tests.BugFinding\bin\net462\rewrite.coyote.json
-    --strong-name-key-file Common\Key.snk
-```
-
-You can also provide this key in the JSON file using the `StrongNameKeyFile` property.
-
 ### Test your binaries
 
 The `coyote` command line tool can be used to automatically test a Coyote program to find and
@@ -168,17 +152,12 @@ non-terminating executions (like an infinite series of ping pong events, for exa
 cases, if you do not provide `max-steps` then the tester can appear to can get stuck running one
 iteration forever. This is related to [liveness checking](../how-to/liveness-checking.md).
 
-### Parallel and portfolio testing
+### Portfolio testing
 
-The Coyote tester supports parallel testing, often used with a portfolio of different schedulers.
-
-To enable parallel testing, you must run `coyote`, and provide the flag `--parallel N` (where N > 0),
-with N specifying the number of parallel testing processes to be spawned. By default, the tester
-spawns the same testing process multiple times (using different random seeds).
-
-When doing parallel testing it is often useful to provide the `--sch-portfolio` flag. This option
-allocates different exploration strategies to each spawned test process which increases the chance
-that one of the test processes will find a particularly difficult bug.
+The Coyote tester supports running a portfolio of different exploration strategies during testing.
+To enable this provide the `--strategy portfolio` flag. This option allocates different exploration
+strategies to each spawned test process which increases the chance that one of the test processes
+will find a particularly difficult bug.
 
 ### Reproducing and debugging traces
 

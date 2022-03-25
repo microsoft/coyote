@@ -238,7 +238,7 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
@@ -471,7 +471,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--graph`, and test again:
 
 ```plain
-coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10 --graph
+coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10 --graph
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -640,7 +640,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-prioritization 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10
 ```
 
 And now no bug will be found -- you should get result similar to this:
@@ -662,11 +662,7 @@ And now no bug will be found -- you should get result similar to this:
 ```
 
 If you want to have a high degree of certainty that no bug is found, run the coyote tester with a
-sufficiently big number of iterations, say 100,000 and `--parallel N`  where N is a number that
-works well on your computer. If N is too high it will thrash your CPU and the test will run slowly.
-A good rule of thumb is to use `ceiling(0.65 * NUMBER_OF_PROCESSORS)`. NUMBER_OF_PROCESSORS is a
-system environment variable, typically equal to the number of cores in the computer. But sometimes
-this number is doubled if your computer supports hyper-threading.
+sufficiently big number of iterations, say 100,000.
 
 ## Summary
 
@@ -680,9 +676,9 @@ In this tutorial you learned:
 
 1. How to do failover testing using a Coyote `FailoverDriver` state machine.
 2. How to use Coyote to test failover in a service.
-3. How to use `--sch-prioritization` testing on multiple processes to find tricky bugs more quickly.
-4. How to specify the `--graph` argument so that the coyote test tool would produce a
-  snapshot-DGML diagram of the final state of the system when the bug was found.
+3. How to use `--strategy prioritization` testing to find tricky bugs.
+4. How to specify the `--graph` argument so that the coyote test tool would produce a snapshot-DGML
+  diagram of the final state of the system when the bug was found.
 5. How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in
   handling common events in one place.
 6. How `Assert` helps find violations of safety properties during testing.

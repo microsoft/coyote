@@ -29,7 +29,7 @@ the [coyote tool](../get-started/using-coyote.md) as follows, setting N steps as
 From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 200 -p 4 --sch-portfolio
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 200 -str portfolio
 ```
 
 The `coyote test` tool will produce output, ending with something like the following:
@@ -52,7 +52,7 @@ averaging 457 steps. Going by this output, let's decide to increase the bound to
 `coyote test`.
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 1000 -p 4 --sch-portfolio
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 10 -ms 1000 -str portfolio
 ```
 
 This time the output will be something like:
@@ -101,21 +101,22 @@ makes decisions on the next actor to schedule randomly, is fair. In the program 
 is very likely that B will be given a chance to execute. Some schedulers don't have this property
 and are called _unfair_ schedulers. Unfair schedulers have a role to play in finding violations of
 safety properties, but not in finding violations of liveness properties. The `prioritization`
-scheduler of Coyote (enabled with the `--sch-prioritization N` option) is unfair.
+scheduler of Coyote (enabled with the `--strategy prioritization` option) is unfair.
 
 Because of their nature, unfair schedulers are expected to generate longer than usual executions.
 The unfairness in scheduling can lead to starvation of certain actors, which may stall progress. The
 expected length of a program's execution is best determined by looking at lengths of "fair
 terminating executions", i.e., executions that terminate under a fair scheduler. For this reason, we
-provide the `fair-prioritization` scheduler (enabled with the `--sch-fair-prioritization N` option)
-which uses the `prioritization` scheduler for a prefix of each execution and then switches to the
-default fair `random` scheduler for the remaining of the execution.
+provide the `fair-prioritization` scheduler (enabled with the `--strategy fair-prioritization`
+option) which uses the `prioritization` scheduler for a prefix of each execution and then switches
+to the default fair `random` scheduler for the remaining of the execution.
 
 When a user supplies the flag `--max-steps N`, executions under an unfair scheduler are forced to
 stop after N steps. Whereas, an execution under a fair scheduler can go to up 10N steps. Further, if
-the execution stays in a hot state for more than 5N steps, a liveness bug is flagged. You can
-additionally supply the flag `-max-steps N M` to limit fair schedulers to explore only up to M steps
-(instead of 10N).
+the execution stays in a hot state for more than 5N steps, a liveness bug is flagged. Alternatively,
+you can supply the flag `--max-fair-steps M` to limit fair schedulers to explore only up to M steps
+(instead of 10N). If you decide to use the `--max-fair-steps M` flag, you can optionally set the
+unfair steps using the `--max-unfair-steps N` flag.
 
 There are other smarter heuristics available in the tester as well that do away with the need for
 such bounds by looking for _lasso_ shaped executions. If interested, read more about it in the
@@ -125,6 +126,6 @@ following paper from Microsoft Research.
 2017.](https://www.microsoft.com/en-us/research/publication/lasso-detection-using-partial-state-caching-2/)
 
 To avoid having to think which scheduler works best for which situation, we recommend running
-`coyote test` in parallel (enabled with the `-p N` option), using the portfolio scheduler (enabled
-with the `--sch-portfolio` option) which consists of a carefully tuned selection of fair schedulers
-(including `random` and `fair-prioritization`).
+`coyote test` using the portfolio scheduler (enabled with the `--strategy portfolio` option) which
+consists of a carefully tuned selection of fair schedulers (including `random`, `prioritization` and
+`fair-prioritization`).

@@ -46,8 +46,8 @@ dotnet tool install --global Microsoft.Coyote.CLI
 ```
 
 Now you can run the `coyote test` tool without having to build Coyote from source. Type `coyote
---help` to see if it is working. The dotnet tool install can also install coyote to a `--local`
-folder if you prefer that.
+--help` to see if it is working. The dotnet tool install can also install coyote to a local folder
+if you prefer that.
 
 You can update the global `coyote` tool by running the following command:
 

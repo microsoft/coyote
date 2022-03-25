@@ -189,7 +189,7 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 -str prioritization -sv 10 --graph
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -289,38 +289,11 @@ based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `Water
 This shows how Coyote can help find actual design flaws in your code so you can design a system that
 is more robust in the face of unexpected faults. The `coyote test` engine provides several
 different `scheduling strategies` that test different kinds of fairness algorithms. These are
-designed to find different kinds of bugs. The following command line shows how to use
-`--sch-portfolio` and the `--parallel` options to test a bunch of different strategies in parallel,
-each in different test processes:
+designed to find different kinds of bugs.
 
-```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-prioritization 10 --graph --sch-portfolio --parallel 8
-```
-
-which outputs the following:
-```plain
-. Testing .\Samples\bin\net6.0\CoffeeMachineActors.dll
-Starting TestingProcessScheduler in process 42036
-... Created '8' testing tasks.
-... Task 3 is using 'fair-prioritization' strategy (seed:2143).
-... Task 5 is using 'fair-prioritization' strategy (seed:3489).
-... Task 2 is using 'probabilistic' strategy (seed:1470).
-... Task 7 is using 'fair-prioritization' strategy (seed:4835).
-... Task 0 is using 'random' strategy (seed:124).
-... Task 6 is using 'probabilistic' strategy (seed:4162).
-... Task 4 is using 'probabilistic' strategy (seed:2816).
-... Task 1 is using 'fair-prioritization' strategy (seed:797).
-...
-```
-
-The `--parallel 8` option means use 8 test processes in parallel with each one being assigned a
-random scheduling strategy. Each process runs until the first bug is found by some process, then
-they are all terminated and the bug is reported. This can be useful when you want to leverage the
-full power of your computer to find those bugs that are particularly hard to find more quickly.
-
-You can find out how much testing was actually done during this parallel test operation by adding
-`--coverage activity`. The [coverage report](../../how-to/coverage.md) summarizes how many
-of the possible events were covered.
+You can find out how much testing was actually done during testing by setting the `--coverage` flag.
+The [coverage report](../../how-to/coverage.md) summarizes how many of the possible events were
+covered.
 
 ### Liveness monitor
 
@@ -406,7 +379,7 @@ In this tutorial you learned:
 
 1. How to do failover testing using Coyote `FailoverDriver` state machines.
 2. How to use Coyote in a firmware/sensor scenario.
-3. How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
+3. How to use `--strategy portfolio` testing to find tricky bugs more quickly.
 4. How `Assert` helps find violations of safety properties during testing.
 5. How to ensure full termination of one state machine before creating a new one.
 6. How to use class level event handlers in a `StateMachine` to define an event handler

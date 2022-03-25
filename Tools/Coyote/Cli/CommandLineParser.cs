@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateTestCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", $"Path to the assembly to test.")
+            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to test.")
             {
                 HelpName = "PATH"
             };
@@ -400,6 +400,7 @@ namespace Microsoft.Coyote.Cli
             };
 
             // Add validators.
+            pathArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".dll", ".exe"));
             iterationsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             strategyOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedStrategies));
@@ -458,7 +459,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateReplayCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", $"Path to the assembly to replay.")
+            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to replay.")
             {
                 HelpName = "PATH"
             };
@@ -490,6 +491,7 @@ namespace Microsoft.Coyote.Cli
             };
 
             // Add validators.
+            pathArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".dll", ".exe"));
             scheduleFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".schedule"));
 
             // Build command.
@@ -509,7 +511,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateRewriteCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", "Path to the assembly (or a JSON configuration file) to rewrite.")
+            var pathArg = new Argument("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
                 HelpName = "PATH"
             };
@@ -566,6 +568,9 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            // Add validators.
+            pathArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".dll", ".exe", ".json"));
+
             // Build command.
             var command = new Command("rewrite", "Rewrite your assemblies to inject logic that allows " +
                 "Coyote to take control of the schedule during systematic testing. " +
@@ -611,13 +616,21 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Validates that the specified argument result is found and has an expected file extension.
         /// </summary>
-        private static void ValidateArgumentValueIsExpectedFile(ArgumentResult result, string extension)
+        private static void ValidateArgumentValueIsExpectedFile(ArgumentResult result, params string[] extensions)
         {
             string fileName = result.GetValueOrDefault<string>();
             string foundExtension = Path.GetExtension(fileName);
-            if (!foundExtension.Equals(extension))
+            if (!extensions.Any(extension => extension == foundExtension))
             {
-                result.ErrorMessage = $"File '{fileName}' does not have the expected '.schedule' extension.";
+                if (extensions.Length is 1)
+                {
+                    result.ErrorMessage = $"File '{fileName}' does not have the expected '{extensions[0]}' extension.";
+                }
+                else
+                {
+                    result.ErrorMessage = $"File '{fileName}' does not have one of the expected extensions: " +
+                        $"{string.Join(", ", extensions)}.";
+                }
             }
             else if (!File.Exists(fileName))
             {

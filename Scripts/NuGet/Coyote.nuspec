@@ -14,11 +14,22 @@
     <readme>docs\readme.md</readme>
     <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <dependencies>
-      <group targetFramework=".NET6.0" />
-      <group targetFramework=".NET5.0" />
-      <group targetFramework=".NETCoreApp3.1" />
-      <group targetFramework=".NETStandard2.0" />
-      <group targetFramework=".NETFramework4.6.2" />
+      <group targetFramework=".NET6.0">
+        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
+      </group>
+      <group targetFramework=".NET5.0">
+        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
+      </group>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
+      </group>
+      <group targetFramework=".NETFramework4.6.2">
+        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
+        <dependency id="System.ValueTuple" version="4.5.0"/>
+      </group>
     </dependencies>
   </metadata>
   <files>

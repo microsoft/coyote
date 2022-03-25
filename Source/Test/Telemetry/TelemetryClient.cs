@@ -52,11 +52,6 @@ namespace Microsoft.Coyote.Telemetry
         private readonly bool IsEnabled;
 
         /// <summary>
-        /// True if this is the first use of telemetry in this machine, else false.
-        /// </summary>
-        internal bool IsFirstTime { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient"/> class.
         /// </summary>
         private TelemetryClient(bool isEnabled)
@@ -74,9 +69,14 @@ namespace Microsoft.Coyote.Telemetry
 #else
                 this.Client.Context.GlobalProperties["dotnet"] = RuntimeInformation.FrameworkDescription;
 #endif
-                this.Client.Context.Device.Id = this.GetOrCreateDeviceId();
+                this.Client.Context.Device.Id = GetOrCreateDeviceId(out bool isFirstTime);
                 this.Client.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
                 this.Client.Context.Session.Id = Guid.NewGuid().ToString();
+
+                if (isFirstTime)
+                {
+                    this.TrackEvent("welcome");
+                }
             }
 
             this.IsEnabled = isEnabled;
@@ -163,10 +163,10 @@ namespace Microsoft.Coyote.Telemetry
         /// <summary>
         /// Returns the unique device id or creates a new one.
         /// </summary>
-        private string GetOrCreateDeviceId()
+        private static string GetOrCreateDeviceId(out bool isFirstTime)
         {
             string deviceId = Guid.NewGuid().ToString();
-            this.IsFirstTime = true;
+            isFirstTime = true;
 
             int attempts = 5;
             while (attempts-- > 0)
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Telemetry
                     else
                     {
                         deviceId = File.ReadAllText(fullpath);
-                        this.IsFirstTime = false;
+                        isFirstTime = false;
                     }
 
                     break;

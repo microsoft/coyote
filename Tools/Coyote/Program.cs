@@ -9,7 +9,6 @@ using Microsoft.Coyote.Cli;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.Telemetry;
 
 namespace Microsoft.Coyote
 {
@@ -31,46 +30,22 @@ namespace Microsoft.Coyote
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
-            // Parses the command line options to get the configuration and rewriting options.
-            var configuration = Configuration.Create();
-            configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
-            var rewritingOptions = RewritingOptions.Create();
-
-            var options = new CommandLineOptions();
-            if (!options.Parse(args, configuration, rewritingOptions))
-            {
-                options.PrintHelp(Console.Out);
-                return (int)ExitCode.Error;
-            }
-
             Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
-                typeof(CommandLineOptions).Assembly.GetName().Version,
+                typeof(CommandLineParser).Assembly.GetName().Version,
                 GetDotNetVersion());
             Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
 
-            var telemetryClient = TelemetryClient.GetOrCreate(configuration);
-            if (telemetryClient.IsFirstTime)
+            var parser = new CommandLineParser(args);
+            if (!parser.IsSuccessful)
             {
-                telemetryClient.TrackEvent("welcome");
+                return (int)ExitCode.Error;
             }
 
-            SetEnvironment(configuration);
+            parser.InstallTestHandler(() => RunTest(parser.Configuration));
+            parser.InstallReplayHandler(() => ReplayTest(parser.Configuration));
+            parser.InstallRewriteHandler(() => RewriteAssemblies(parser.Configuration, parser.RewritingOptions));
 
-            ExitCode exitCode = ExitCode.Success;
-            switch (configuration.ToolCommand.ToLower())
-            {
-                case "test":
-                    exitCode = RunTest(configuration);
-                    break;
-                case "replay":
-                    exitCode = ReplayTest(configuration);
-                    break;
-                case "rewrite":
-                    exitCode = RewriteAssemblies(configuration, rewritingOptions);
-                    break;
-            }
-
-            return (int)exitCode;
+            return (int)parser.InvokeCommand();
         }
 
         /// <summary>
@@ -198,15 +173,6 @@ namespace Microsoft.Coyote
             catch (System.Configuration.ConfigurationErrorsException ex)
             {
                 Error.Report(ex.Message);
-            }
-        }
-
-        private static void SetEnvironment(Configuration configuration)
-        {
-            if (!string.IsNullOrEmpty(configuration.AdditionalPaths))
-            {
-                string path = Environment.GetEnvironmentVariable("PATH");
-                Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + configuration.AdditionalPaths);
             }
         }
 

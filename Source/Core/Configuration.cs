@@ -11,23 +11,12 @@ namespace Microsoft.Coyote
 {
 #pragma warning disable CA1724 // Type names should not match namespaces
     /// <summary>
-    /// The Coyote project configurations.
+    /// The Coyote runtime and testing configuration.
     /// </summary>
     [DataContract]
     [Serializable]
     public class Configuration
     {
-        /// <summary>
-        /// The user-specified command to perform by the Coyote tool.
-        /// </summary>
-        [DataMember]
-        internal string ToolCommand;
-
-        /// <summary>
-        /// Something to add to the PATH environment at test time.
-        /// </summary>
-        internal string AdditionalPaths { get; set; }
-
         /// <summary>
         /// The output path.
         /// </summary>
@@ -296,11 +285,6 @@ namespace Microsoft.Coyote
         /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
         internal bool IsTelemetryEnabled;
-
-        /// <summary>
-        /// Optional location of app that can run as a telemetry server.
-        /// </summary>
-        internal string TelemetryServerPath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.

@@ -5,15 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 
-#pragma warning disable CA1801
-#pragma warning disable CA1822
-#pragma warning disable SA1005
 namespace Microsoft.Coyote.Cli
 {
     internal sealed class CommandLineParser
@@ -36,12 +34,12 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// The Coyote runtime and testing configuration.
         /// </summary>
-        internal Configuration Configuration { get; private set; }
+        private readonly Configuration Configuration;
 
         /// <summary>
         /// The Coyote rewriting options.
         /// </summary>
-        internal RewritingOptions RewritingOptions { get; private set; }
+        private readonly RewritingOptions RewritingOptions;
 
         /// <summary>
         /// The test command.
@@ -117,8 +115,8 @@ namespace Microsoft.Coyote.Cli
 
             // Create the commands.
             this.TestCommand = this.CreateTestCommand(this.Configuration);
-            this.ReplayCommand = this.CreateReplayCommand(this.Configuration);
-            this.RewriteCommand = this.CreateRewriteCommand(this.Configuration);
+            this.ReplayCommand = this.CreateReplayCommand();
+            this.RewriteCommand = this.CreateRewriteCommand();
 
             // Create the root command.
             var rootCommand = new RootCommand("The Coyote systematic testing tool.");
@@ -134,7 +132,7 @@ namespace Microsoft.Coyote.Cli
 
             var parser = commandLineBuilder.Build();
             this.Results = parser.Parse(args);
-            if (this.Results.Errors.Any())
+            if (this.Results.Errors.Any() || IsHelpRequested(this.Results))
             {
                 // There are parsing errors, so invoke the result to print the errors and help message.
                 this.Results.Invoke();
@@ -149,27 +147,21 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
-        /// Installs a handler to run when the 'test' command is specified.
+        /// Invoke the handler of the command that was selected by the user.
         /// </summary>
-        internal void InstallTestHandler(Action handler) =>
-            this.TestCommand.SetHandler(handler);
+        internal ExitCode InvokeSelectedCommand(
+            Func<Configuration, ExitCode> testHandler,
+            Func<Configuration, ExitCode> replayHandler,
+            Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        {
+            PrintDetailedCoyoteVersion();
 
-        /// <summary>
-        /// Installs a handler to run when the 'replay' command is specified.
-        /// </summary>
-        internal void InstallReplayHandler(Action handler) =>
-            this.ReplayCommand.SetHandler(handler);
-
-        /// <summary>
-        /// Installs a handler to run when the 'rewrite' command is specified.
-        /// </summary>
-        internal void InstallRewriteHandler(Action handler) =>
-            this.RewriteCommand.SetHandler(handler);
-
-        /// <summary>
-        /// Invoke the user-specified command handler.
-        /// </summary>
-        internal ExitCode InvokeCommand() => (ExitCode)this.Results.Invoke();
+            this.TestCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)testHandler(this.Configuration));
+            this.ReplayCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)replayHandler(this.Configuration));
+            this.RewriteCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)rewriteHandler(
+                this.Configuration, this.RewritingOptions));
+            return (ExitCode)this.Results.Invoke();
+        }
 
         /// <summary>
         /// Creates the test command.
@@ -457,7 +449,7 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the replay command.
         /// </summary>
-        private Command CreateReplayCommand(Configuration configuration)
+        private Command CreateReplayCommand()
         {
             var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to replay.")
             {
@@ -509,7 +501,7 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the rewrite command.
         /// </summary>
-        private Command CreateRewriteCommand(Configuration configuration)
+        private Command CreateRewriteCommand()
         {
             var pathArg = new Argument("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
@@ -700,13 +692,13 @@ namespace Microsoft.Coyote.Cli
                 }
                 else if (symbolResult is OptionResult option)
                 {
-                    this.UpdateConfigurationsWithParsedOption(command, option);
+                    this.UpdateConfigurationsWithParsedOption(option);
                 }
             }
         }
 
         /// <summary>
-        /// Updates the configuration with the specified parsed argument and value.
+        /// Updates the configuration with the specified parsed argument.
         /// </summary>
         private void UpdateConfigurationsWithParsedArgument(Command command, ArgumentResult result)
         {
@@ -769,9 +761,9 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
-        /// Updates the configuration with the specified parsed option and value.
+        /// Updates the configuration with the specified parsed option.
         /// </summary>
-        private void UpdateConfigurationsWithParsedOption(Command command, OptionResult result)
+        private void UpdateConfigurationsWithParsedOption(OptionResult result)
         {
             if (!result.IsImplicit)
             {
@@ -943,6 +935,44 @@ namespace Microsoft.Coyote.Cli
                         throw new Exception(string.Format("Unhandled parsed option '{0}.", result.Option.Name));
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns true if the user is asking for help.
+        /// </summary>
+        private static bool IsHelpRequested(ParseResult result) => result.CommandResult.Children
+            .OfType<OptionResult>()
+            .Any(result => result.Option.Name is "help" && !result.IsImplicit);
+
+        /// <summary>
+        /// Prints the detailed Coyote version.
+        /// </summary>
+        private static void PrintDetailedCoyoteVersion()
+        {
+            Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
+                typeof(CommandLineParser).Assembly.GetName().Version, GetDotNetVersion());
+            Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
+        }
+
+        /// <summary>
+        /// Returns the current .NET version.
+        /// </summary>
+        private static string GetDotNetVersion()
+        {
+            var path = typeof(string).Assembly.Location;
+            string result = string.Empty;
+
+            string[] parts = path.Replace("\\", "/").Split('/');
+            if (parts.Length > 2)
+            {
+                var version = parts[parts.Length - 2];
+                if (char.IsDigit(version[0]))
+                {
+                    result += " " + version;
+                }
+            }
+
+            return result;
         }
     }
 }

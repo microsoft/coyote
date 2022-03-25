@@ -36,16 +36,7 @@ namespace Microsoft.Coyote
                 return (int)ExitCode.Error;
             }
 
-            parser.InstallTestHandler(() => RunTest(parser.Configuration));
-            parser.InstallReplayHandler(() => ReplayTest(parser.Configuration));
-            parser.InstallRewriteHandler(() => RewriteAssemblies(parser.Configuration, parser.RewritingOptions));
-
-            Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
-                typeof(CommandLineParser).Assembly.GetName().Version,
-                GetDotNetVersion());
-            Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
-
-            return (int)parser.InvokeCommand();
+            return (int)parser.InvokeSelectedCommand(RunTest, ReplayTest, RewriteAssemblies);
         }
 
         /// <summary>
@@ -209,24 +200,6 @@ namespace Microsoft.Coyote
                 Error.Report($"[CoyoteTester] unhandled exception: {ex}");
                 StdOut.WriteLine(ex.StackTrace);
             }
-        }
-
-        private static string GetDotNetVersion()
-        {
-            var path = typeof(string).Assembly.Location;
-            string result = string.Empty;
-
-            string[] parts = path.Replace("\\", "/").Split('/');
-            if (parts.Length > 2)
-            {
-                var version = parts[parts.Length - 2];
-                if (char.IsDigit(version[0]))
-                {
-                    result += " " + version;
-                }
-            }
-
-            return result;
         }
     }
 }

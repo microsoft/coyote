@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.Coverage;
 
 namespace Microsoft.Coyote.Samples.CloudMessaging
 {
@@ -22,7 +19,7 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
     /// in separate processes.
     /// The presence of the --server-id and --client-process-id arguments makes
     /// a server instance.  The Client instance starts the number of servers specified
-    /// in the --num-servers argumenet.
+    /// in the --num-servers argument.
     /// </summary>
     public class Program
     {
@@ -36,7 +33,6 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
         private int ServerId = -1;
         private int ClientProcessId = -1;
         private readonly bool Debug = false;
-        private bool GraphIt = false;
         private TaskCompletionSource<ClientResponseEvent> completed;
 
         internal static void PrintUsage()
@@ -50,7 +46,6 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
             Console.WriteLine("     --connection-string     your Azure Service Bus connection string");
             Console.WriteLine("     --topic-name            optional string for Service Bus Topic (default 'rafttopic')");
             Console.WriteLine("     --num-servers           number of servers to spawn");
-            Console.WriteLine("     --graph                 produce DGML graphs of the activity");
         }
 
         private bool ParseCommandLine(string[] args)
@@ -102,10 +97,6 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
                     case "--debug":
                         Console.WriteLine("debug process " + Process.GetCurrentProcess().Id);
                         Task.Delay(10000).Wait();
-                        break;
-
-                    case "--graph":
-                        this.GraphIt = true;
                         break;
 
                     case "--?":
@@ -183,13 +174,6 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
 
                 IActorRuntime runtime = RuntimeFactory.Create(Configuration.Create().WithVerbosityEnabled());
 
-                if (this.GraphIt)
-                {
-                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-                    runtime.RegisterLog(graphBuilder);
-                    _ = Task.Run(() => { PeriodicSaves(graphBuilder, subscriptionName); });
-                }
-
                 // We create a new Coyote actor runtime instance, and pass an optional configuration
                 // that increases the verbosity level to see the Coyote runtime log.
                 runtime.OnFailure += RuntimeOnFailure;
@@ -210,21 +194,6 @@ namespace Microsoft.Coyote.Samples.CloudMessaging
             catch (Exception ex)
             {
                 Console.WriteLine($"{DateTime.Now} :: ex: {ex.ToString()}");
-            }
-        }
-
-        private static async void PeriodicSaves(ActorRuntimeLogGraphBuilder log, string baseName)
-        {
-            while (true)
-            {
-                await Task.Delay(10000);
-                Graph graph = log.SnapshotGraph(false);
-                string filename = baseName + ".dgml";
-                using (var stream = new StreamWriter(filename, false, Encoding.UTF8))
-                {
-                    Console.WriteLine("############ saved " + filename + " ##########################################");
-                    graph.WriteDgml(stream, true);
-                }
             }
         }
 

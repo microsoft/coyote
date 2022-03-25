@@ -42,6 +42,12 @@ namespace Microsoft.Coyote
         public string SchedulingStrategy { get; internal set; }
 
         /// <summary>
+        /// A strategy-specific bound.
+        /// </summary>
+        [DataMember]
+        internal int StrategyBound;
+
+        /// <summary>
         /// Number of testing iterations.
         /// </summary>
         [DataMember]
@@ -134,12 +140,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool ConsiderDepthBoundHitAsBug;
-
-        /// <summary>
-        /// A strategy-specific bound.
-        /// </summary>
-        [DataMember]
-        internal int StrategyBound;
 
         /// <summary>
         /// Value that controls the probability of triggering a timeout each time an operation gets delayed
@@ -238,12 +238,6 @@ namespace Microsoft.Coyote
         public LogSeverity LogLevel { get; internal set; }
 
         /// <summary>
-        /// Enables code coverage reporting of a Coyote program.
-        /// </summary>
-        [DataMember]
-        internal bool ReportCodeCoverage;
-
-        /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
@@ -261,25 +255,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool IsXmlLogEnabled;
-
-        /// <summary>
-        /// If specified, requests a custom runtime log to be used instead of the default.
-        /// This is the AssemblyQualifiedName of the type to load.
-        /// </summary>
-        [DataMember]
-        internal string CustomActorRuntimeLogType;
-
-        /// <summary>
-        /// Additional assembly specifications to instrument for code coverage, besides those in the
-        /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
-        /// Key is filename, value is whether it is a list file (true) or a single file (false).
-        /// </summary>
-        internal Dictionary<string, bool> AdditionalCodeCoverageAssemblies;
-
-        /// <summary>
-        /// If true, then environment exit will be disabled.
-        /// </summary>
-        internal bool DisableEnvironmentExit;
 
         /// <summary>
         /// If true, then anonymized telemetry is enabled, else false.
@@ -326,23 +301,16 @@ namespace Microsoft.Coyote
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;
 
-            this.ReportCodeCoverage = false;
             this.IsActivityCoverageReported = false;
+            this.IsTraceVisualizationEnabled = false;
+            this.IsXmlLogEnabled = false;
 
             this.IsVerbose = false;
             this.IsDebugVerbosityEnabled = false;
             this.LogLevel = LogSeverity.Informational;
 
-            this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
-
-            this.DisableEnvironmentExit = false;
-            this.IsTelemetryEnabled = true;
-
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
-            if (optout is "1" || optout is "true")
-            {
-                this.IsTelemetryEnabled = false;
-            }
+            this.IsTelemetryEnabled = optout != "1" && optout != "true";
         }
 
         /// <summary>

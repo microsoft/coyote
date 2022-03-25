@@ -163,14 +163,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                if (configuration.DisableEnvironmentExit)
-                {
-                    throw;
-                }
-                else
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
+                Error.ReportAndExit(ex.Message);
             }
 
             return new TestingEngine(configuration, testMethodInfo);
@@ -256,14 +249,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!string.IsNullOrEmpty(error))
             {
-                if (configuration.DisableEnvironmentExit)
-                {
-                    throw new Exception(error);
-                }
-                else
-                {
-                    Error.ReportAndExit(error);
-                }
+                Error.ReportAndExit(error);
             }
 
             this.Scheduler = OperationScheduler.Setup(configuration);
@@ -322,25 +308,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (aex.InnerException is FileNotFoundException)
                 {
-                    if (this.Configuration.DisableEnvironmentExit)
-                    {
-                        throw aex.InnerException;
-                    }
-                    else
-                    {
-                        Error.ReportAndExit($"{aex.InnerException.Message}");
-                    }
+                    Error.ReportAndExit($"{aex.InnerException.Message}");
                 }
 
-                if (this.Configuration.DisableEnvironmentExit)
-                {
-                    throw aex.InnerException;
-                }
-                else
-                {
-                    Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
+                Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
                     "possibly in a test method. Please enable debug verbosity to print more information.");
-                }
             }
             catch (Exception ex)
             {
@@ -748,21 +720,10 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
-        /// <see cref="Configuration.IsTraceVisualizationEnabled"/>, and <see cref="Configuration.IsActivityCoverageReported"/> by
-        /// setting up the LogWriters on the given <see cref="IActorRuntime"/> object.
+        /// Initializes any custom actor logs.
         /// </summary>
         private void InitializeCustomActorLogging(IActorRuntime runtime)
         {
-            if (!string.IsNullOrEmpty(this.Configuration.CustomActorRuntimeLogType))
-            {
-                var log = this.Activate<IActorRuntimeLog>(this.Configuration.CustomActorRuntimeLogType);
-                if (log != null)
-                {
-                    runtime.RegisterLog(log);
-                }
-            }
-
             if (this.Configuration.IsTraceVisualizationEnabled)
             {
                 // Registers an activity coverage graph builder.
@@ -784,43 +745,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtime.RegisterLog(new ActorRuntimeLogXmlFormatter(XmlWriter.Create(this.XmlLog,
                     new XmlWriterSettings() { Indent = true, IndentChars = "  ", OmitXmlDeclaration = true })));
             }
-        }
-
-        private T Activate<T>(string assemblyQualifiedName)
-            where T : class
-        {
-            // Parses the result of Type.AssemblyQualifiedName.
-            // e.g.: ConsoleApp1.Program, ConsoleApp1, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-            try
-            {
-                string[] parts = assemblyQualifiedName.Split(',');
-                if (parts.Length > 1)
-                {
-                    string typeName = parts[0];
-                    string assemblyName = parts[1];
-                    Assembly a = null;
-                    if (File.Exists(assemblyName))
-                    {
-                        a = Assembly.LoadFrom(assemblyName);
-                    }
-                    else
-                    {
-                        a = Assembly.Load(assemblyName);
-                    }
-
-                    if (a != null)
-                    {
-                        object o = a.CreateInstance(typeName);
-                        return o as T;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                this.Logger.WriteLine(LogSeverity.Error, ex.Message);
-            }
-
-            return null;
         }
 
         /// <summary>

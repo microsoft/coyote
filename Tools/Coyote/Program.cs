@@ -91,7 +91,6 @@ namespace Microsoft.Coyote
         {
             // Set some replay specific options.
             configuration.SchedulingStrategy = "replay";
-            configuration.DisableEnvironmentExit = false;
 
             // Load the configuration of the assembly to be replayed.
             LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);

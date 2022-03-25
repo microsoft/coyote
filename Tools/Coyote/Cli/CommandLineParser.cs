@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.Cli
             };
 
             var strategyOption = new Option<string>(
-                aliases: new[] { "-str", "--strategy" },
+                aliases: new[] { "-s", "--strategy" },
                 getDefaultValue: () => configuration.SchedulingStrategy,
                 description: "Set exploration strategy to use during testing. The exploration strategy " +
                     "controls all scheduling decisions and nondeterministic choices. " +
@@ -842,7 +842,6 @@ namespace Microsoft.Coyote.Cli
                         this.Configuration.IsSystematicFuzzingEnabled = true;
                         break;
                     case "coverage":
-                        this.Configuration.ReportCodeCoverage = true;
                         this.Configuration.IsActivityCoverageReported = true;
                         break;
                     case "graph":

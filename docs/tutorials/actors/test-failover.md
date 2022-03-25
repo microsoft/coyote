@@ -189,7 +189,7 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 -str prioritization -sv 10 --graph
+coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 -s prioritization -sv 10 --graph
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see

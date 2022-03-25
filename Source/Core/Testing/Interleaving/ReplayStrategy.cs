@@ -70,13 +70,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
                 next = null;
-                return false;
+                Error.ReportAndExit(ex.Message);
             }
 
             this.StepCount++;
@@ -108,19 +103,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.ErrorText = this.FormatError("next step is not a nondeterministic boolean choice");
                     throw new InvalidOperationException(this.ErrorText);
                 }
+
+                next = nextStep.BooleanChoice.Value;
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
                 next = false;
-                return false;
+                Error.ReportAndExit(ex.Message);
             }
 
-            next = nextStep.BooleanChoice.Value;
             this.StepCount++;
             return true;
         }
@@ -150,19 +141,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.ErrorText = this.FormatError("next step is not a nondeterministic integer choice");
                     throw new InvalidOperationException(this.ErrorText);
                 }
+
+                next = nextStep.IntegerChoice.Value;
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
                 next = 0;
-                return false;
+                Error.ReportAndExit(ex.Message);
             }
 
-            next = nextStep.IntegerChoice.Value;
             this.StepCount++;
             return true;
         }

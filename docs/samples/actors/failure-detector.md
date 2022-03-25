@@ -26,7 +26,7 @@ Let's see if Coyote can find the bug in this sample. Type `coyote -?` to see the
 sure you have installed it correctly. Now you are ready to run a `coyote` test as follows:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200
+coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 -ms 200
 ```
 
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
@@ -35,7 +35,7 @@ points `--strategy prioritization` (or with the default `random` exploration str
 much larger number of iterations, typically more than 100,000 of them).
 
 ```plain
-coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200 -str prioritization -sv 10
+coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 -ms 200 -s prioritization -sv 10
 ```
 
 Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger

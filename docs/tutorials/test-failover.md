@@ -188,7 +188,7 @@ coyote rewrite ./Samples/bin/net6.0/CoffeeMachineTasks.dll
 Then you can run the test:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 -str fair-prioritization -sv 10
+coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 -s fair-prioritization -sv 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see

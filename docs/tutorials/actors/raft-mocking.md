@@ -127,7 +127,7 @@ async operations. The last option is interesting because it allows you to test m
 scheduling strategies at once:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -str portfolio
+coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -s portfolio
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

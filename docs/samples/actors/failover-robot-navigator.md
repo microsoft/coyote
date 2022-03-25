@@ -238,7 +238,7 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
@@ -471,7 +471,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--graph`, and test again:
 
 ```plain
-coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10 --graph
+coyote test .\Samples\bin\net6.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --graph
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -640,7 +640,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -str prioritization -sv 10
+coyote test ./Samples/bin/net6.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

@@ -584,7 +584,10 @@ namespace Microsoft.Coyote.Cli
         private void AddArgument(Command command, Argument argument)
         {
             command.AddArgument(argument);
-            this.Arguments.TryAdd(argument.Name, argument);
+            if (!this.Arguments.ContainsKey(argument.Name))
+            {
+                this.Arguments.Add(argument.Name, argument);
+            }
         }
 
         /// <summary>
@@ -593,7 +596,10 @@ namespace Microsoft.Coyote.Cli
         private void AddGlobalOption(Command command, Option option)
         {
             command.AddGlobalOption(option);
-            this.Options.TryAdd(option.Name, option);
+            if (!this.Options.ContainsKey(option.Name))
+            {
+                this.Options.Add(option.Name, option);
+            }
         }
 
         /// <summary>
@@ -602,7 +608,10 @@ namespace Microsoft.Coyote.Cli
         private void AddOption(Command command, Option option)
         {
             command.AddOption(option);
-            this.Options.TryAdd(option.Name, option);
+            if (!this.Options.ContainsKey(option.Name))
+            {
+                this.Options.Add(option.Name, option);
+            }
         }
 
         /// <summary>

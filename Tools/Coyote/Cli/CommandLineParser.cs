@@ -679,7 +679,6 @@ namespace Microsoft.Coyote.Cli
         {
             CommandResult commandResult = result.CommandResult;
             Command command = commandResult.Command;
-            Console.WriteLine(command);
             foreach (var symbolResult in commandResult.Children)
             {
                 if (symbolResult is ArgumentResult argument)
@@ -698,7 +697,6 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private void UpdateConfigurationsWithParsedArgument(Command command, ArgumentResult result)
         {
-            Console.WriteLine($"[{command.Name}] Arg '{result.Argument.Name}': {result.GetValueOrDefault()}");
             switch (result.Argument.Name)
             {
                 case "path":
@@ -764,7 +762,6 @@ namespace Microsoft.Coyote.Cli
         {
             if (!result.IsImplicit)
             {
-                Console.WriteLine($"[{command.Name}] Option '{result.Option.Name}': {result.GetValueOrDefault()}");
                 switch (result.Option.Name)
                 {
                     case "method":

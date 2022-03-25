@@ -17,6 +17,16 @@ namespace Microsoft.Coyote.Cli
     internal sealed class CommandLineParser
     {
         /// <summary>
+        /// Url with information on learning about coyote.
+        /// </summary>
+        private const string LearnAboutCoyoteUrl = "https://aka.ms/learn-coyote";
+
+        /// <summary>
+        /// Url with information about what is new with coyote.
+        /// </summary>
+        private const string LearnWhatIsNewUrl = "https://aka.ms/coyote-what-is-new";
+
+        /// <summary>
         /// Url with information about the testing process.
         /// </summary>
         private const string LearnAboutTestUrl = "https://aka.ms/coyote-test";
@@ -119,7 +129,8 @@ namespace Microsoft.Coyote.Cli
             this.RewriteCommand = this.CreateRewriteCommand();
 
             // Create the root command.
-            var rootCommand = new RootCommand("The Coyote systematic testing tool.");
+            var rootCommand = new RootCommand("The Coyote systematic testing tool.\n\n" +
+                $"Learn how to use Coyote at {LearnAboutCoyoteUrl}.\nLearn what is new at {LearnWhatIsNewUrl}.");
             this.AddGlobalOption(rootCommand, verbosityOption);
             this.AddGlobalOption(rootCommand, debugOption);
             rootCommand.AddCommand(this.TestCommand);
@@ -412,7 +423,7 @@ namespace Microsoft.Coyote.Cli
             uncontrolledConcurrencyIntervalOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
 
             // Build command.
-            var command = new Command("test", "Run tests using the Coyote systematic testing engine. " +
+            var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
                 $"Learn more at {LearnAboutTestUrl}.");
             this.AddArgument(command, pathArg);
             this.AddOption(command, methodOption);
@@ -487,7 +498,7 @@ namespace Microsoft.Coyote.Cli
             scheduleFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".schedule"));
 
             // Build command.
-            var command = new Command("replay", "Replay bugs that Coyote discovered during systematic testing. " +
+            var command = new Command("replay", "Replay bugs that Coyote discovered during systematic testing.\n" +
                 $"Learn more at {LearnAboutReplayUrl}.");
             this.AddArgument(command, pathArg);
             this.AddArgument(command, scheduleFileArg);
@@ -565,7 +576,7 @@ namespace Microsoft.Coyote.Cli
 
             // Build command.
             var command = new Command("rewrite", "Rewrite your assemblies to inject logic that allows " +
-                "Coyote to take control of the schedule during systematic testing. " +
+                "Coyote to take control of the schedule during systematic testing.\n" +
                 $"Learn more at {LearnAboutRewritingUrl}.");
             this.AddArgument(command, pathArg);
             this.AddOption(command, assertDataRacesOption);

@@ -189,27 +189,27 @@ namespace Microsoft.Coyote.Actors.Tests
                 Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
                 string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
-<Nodes>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='M(0)'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Category='StateMachine' Group='Expanded'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='Act'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='Init'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Group='Expanded'/>
-<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>
-</Nodes>
-<Links>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Category='Contains'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Category='Contains'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Category='Contains'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Category='Contains'/>
-<Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
-</Links>
+  <Nodes>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='M(0)'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Category='StateMachine' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='Act'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>
+  </Nodes>
+  <Links>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0).M(0)' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+N(1).Act' Label='E' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Target='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+CompletedEvent'/>
+  </Links>
 </DirectedGraph>
 ";
 

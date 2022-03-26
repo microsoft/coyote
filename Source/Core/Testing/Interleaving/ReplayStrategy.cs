@@ -104,8 +104,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.ErrorText = this.FormatError("next step is not a nondeterministic boolean choice");
                     throw new InvalidOperationException(this.ErrorText);
                 }
-
-                next = nextStep.BooleanChoice.Value;
             }
             catch (InvalidOperationException ex)
             {
@@ -114,6 +112,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 return false;
             }
 
+            next = nextStep.BooleanChoice.Value;
             this.StepCount++;
             return true;
         }
@@ -143,8 +142,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.ErrorText = this.FormatError("next step is not a nondeterministic integer choice");
                     throw new InvalidOperationException(this.ErrorText);
                 }
-
-                next = nextStep.IntegerChoice.Value;
             }
             catch (InvalidOperationException ex)
             {
@@ -153,6 +150,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 return false;
             }
 
+            next = nextStep.IntegerChoice.Value;
             this.StepCount++;
             return true;
         }

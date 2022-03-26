@@ -26,24 +26,24 @@ Let's see if Coyote can find the bug in this sample. Type `coyote -?` to see the
 sure you have installed it correctly. Now you are ready to run a `coyote` test as follows:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200
+coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 -ms 200
 ```
 
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
 found using the `prioritization` exploration strategy with a given maximum number of priority switch
-points `--sch-prioritization` (or with the default `random` exploration strategy, but with a much
-larger number of iterations, typically more than 100,000 of them).
+points `--strategy prioritization` (or with the default `random` exploration strategy, but with a
+much larger number of iterations, typically more than 100,000 of them).
 
 ```plain
-coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-prioritization 10
+coyote test ./Samples/bin/net6.0/Monitors.dll --iterations 1000 -ms 200 -s prioritization -sv 10
 ```
 
 Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger
 number if necessary. You can also let `coyote` decide which exploration strategy to use. Just use
-`--sch-portfolio` and size `--parallel N` and Coyote will run `N` different exploration strategies
-for you, in parallel. `coyote` manages the portfolio to give you the best chance of revealing bugs.
-These strategies were developed from real-world experience on large products in Microsoft Azure.
-When you use the right scheduling strategy, you will see a bug report:
+`--strategy portfolio` Coyote will select and run different exploration strategies for you. `coyote`
+manages the portfolio to give you the best chance of revealing bugs. These strategies were developed
+from real-world experience on large products in Microsoft Azure. When you use the right scheduling
+strategy, you will see a bug report:
 
 ```plain
 ... Task 0 found a bug.

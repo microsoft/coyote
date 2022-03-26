@@ -1,6 +1,6 @@
 # Configuration class
 
-The Coyote project configurations.
+The Coyote runtime and testing configuration.
 
 ```csharp
 public class Configuration
@@ -22,7 +22,6 @@ public class Configuration
 | [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). |
 | [WithActivityCoverageReported](Configuration/WithActivityCoverageReported.md)(…) | Updates the configuration to enable or disable reporting activity coverage. |
 | [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. |
-| [WithDgmlGraphEnabled](Configuration/WithDgmlGraphEnabled.md)(…) | Updates the configuration with DGML graph generation enabled or disabled. |
 | [WithIncrementalSeedGenerationEnabled](Configuration/WithIncrementalSeedGenerationEnabled.md)(…) | Updates the configuration with incremental seed generation enabled or disabled. |
 | [WithLivenessTemperatureThreshold](Configuration/WithLivenessTemperatureThreshold.md)(…) | Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking. It is not recommended to explicitly set this value, instead use the default value which is assigned to [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps.md) / 2. |
 | [WithMaxSchedulingSteps](Configuration/WithMaxSchedulingSteps.md)(…) | Updates the configuration with the specified number of maximum scheduling steps to explore per iteration during systematic testing. The [`MaxUnfairSchedulingSteps`](Configuration/MaxUnfairSchedulingSteps.md) is assigned the *maxSteps* value, whereas the [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps.md) is assigned a value using the default heuristic, which is 10 * *maxSteps*. (2 methods) |
@@ -42,6 +41,7 @@ public class Configuration
 | [WithTestingIterations](Configuration/WithTestingIterations.md)(…) | Updates the configuration with the specified number of iterations to run during systematic testing. |
 | [WithTestingTimeout](Configuration/WithTestingTimeout.md)(…) | Updates the configuration with the specified systematic testing timeout in seconds. |
 | [WithTimeoutDelay](Configuration/WithTimeoutDelay.md)(…) | Updates the value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. |
+| [WithTraceVisualizationEnabled](Configuration/WithTraceVisualizationEnabled.md)(…) | Updates the configuration with trace visualization enabled or disabled. If enabled, the testing engine can produce a DGML graph representing an execution leading up to a bug. |
 | [WithUncontrolledConcurrencyResolutionTimeout](Configuration/WithUncontrolledConcurrencyResolutionTimeout.md)(…) | Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration with verbose output enabled or disabled. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled.md)(…) | Updates the configuration with XML log generation enabled or disabled. |

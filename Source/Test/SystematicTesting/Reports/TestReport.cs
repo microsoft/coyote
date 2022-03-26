@@ -374,7 +374,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.TotalControlledOperations,
                     this.TotalControlledOperations is 1 ? string.Empty : "s",
                     this.MinControlledOperations,
-                    (int)(this.TotalControlledOperations / totalExploredSchedules),
+                    this.TotalControlledOperations / totalExploredSchedules,
                     this.MaxControlledOperations);
             }
 
@@ -385,7 +385,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     "{0} Degree of concurrency: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinConcurrencyDegree,
-                    (int)(this.TotalConcurrencyDegree / totalExploredSchedules),
+                    this.TotalConcurrencyDegree / totalExploredSchedules,
                     this.MaxConcurrencyDegree);
             }
 
@@ -396,7 +396,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     "{0} Number of scheduling decisions in fair terminating schedules: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredFairSteps < 0 ? 0 : this.MinExploredFairSteps,
-                    (int)(this.TotalExploredFairSteps / this.NumOfExploredFairSchedules),
+                    this.TotalExploredFairSteps / this.NumOfExploredFairSchedules,
                     this.MaxExploredFairSteps < 0 ? 0 : this.MaxExploredFairSteps);
 
                 if (configuration.MaxUnfairSchedulingSteps > 0 &&

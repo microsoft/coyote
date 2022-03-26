@@ -117,19 +117,17 @@ test scheduling options you can play with:
 
 | Option | Description |
 | ------ | ----------- |
-| `--sch-random` | Choose the random scheduling strategy (this is the default) |
-| `--sch-prioritization uint` | Choose the priority-based scheduling strategy with given maximum number of priority switch points |
-| `--sch-fair-prioritization uint` | Choose the fair priority-based scheduling strategy with given maximum number of priority switch points |
-| `--sch-portfolio` | Choose the portfolio scheduling strategy in combination with parallel testing |
-
+| `--strategy random` | Choose the random scheduling strategy (this is the default) |
+| `--strategy prioritization` `--strategy-value N` | Choose the priority-based scheduling strategy with `N` maximum number of priority switch points |
+| `--strategy fair-prioritization` `--strategy-value N` | Choose the fair priority-based scheduling strategy with `N` maximum number of priority switch points |
+| `--strategy portfolio` | Choose the portfolio scheduling strategy |
 
 These options change how `coyote test` explores the large state space of possible schedules for your
 async operations. The last option is interesting because it allows you to test many different
-scheduling strategies at once, this is used in combination with the `--parallel` test option, so the following,
- for example, would run 5 parallel test processes using different scheduling strategies:
+scheduling strategies at once:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
+coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -s portfolio
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

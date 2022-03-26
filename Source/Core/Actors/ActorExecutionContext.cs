@@ -740,10 +740,11 @@ namespace Microsoft.Coyote.Actors
             var result = this.CoverageInfo;
             if (result != null)
             {
-                var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
+                var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
+                    .FirstOrDefault(builder => builder.CollapseInstances);
                 if (builder != null)
                 {
-                    result.CoverageGraph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
+                    result.CoverageGraph = builder.SnapshotGraph(false);
                 }
 
                 var eventCoverage = this.LogWriter.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
@@ -751,6 +752,22 @@ namespace Microsoft.Coyote.Actors
                 {
                     result.EventInfo = eventCoverage.EventCoverage;
                 }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the DGML graph of the current execution, if there is any.
+        /// </summary>
+        internal Graph GetExecutionGraph()
+        {
+            Graph result = null;
+            var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
+                .FirstOrDefault(builder => !builder.CollapseInstances);
+            if (builder != null)
+            {
+                result = builder.SnapshotGraph(true);
             }
 
             return result;

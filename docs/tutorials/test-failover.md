@@ -188,7 +188,7 @@ coyote rewrite ./Samples/bin/net6.0/CoffeeMachineTasks.dll
 Then you can run the test:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-fair-prioritization 10
+coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 -s fair-prioritization -sv 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -276,35 +276,7 @@ This style of `interrupt` based eventing is used to model the `ShotCompleteEvent
 This shows how Coyote can help find actual design flaws in your code so you can design a system that
 is more robust in the face of unexpected faults. The `coyote test` engine provides several different
 `scheduling strategies` that test different kinds of fairness algorithms. These are designed to find
-different kinds of bugs. The following command line shows how to use `--sch-portfolio` and the
-`--parallel` options to test a bunch of different strategies in parallel, each in different test
-processes:
-
-```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-portfolio --parallel 8
-```
-
-which outputs the following:
-
-```plain
-. Testing .\Samples\bin\net6.0\CoffeeMachineTasks.dll
-Starting TestingProcessScheduler in process 42036
-... Created '8' testing tasks.
-... Task 3 is using 'fair-prioritization' strategy (seed:2143).
-... Task 5 is using 'fair-prioritization' strategy (seed:3489).
-... Task 2 is using 'probabilistic' strategy (seed:1470).
-... Task 7 is using 'fair-prioritization' strategy (seed:4835).
-... Task 0 is using 'random' strategy (seed:124).
-... Task 6 is using 'probabilistic' strategy (seed:4162).
-... Task 4 is using 'probabilistic' strategy (seed:2816).
-... Task 1 is using 'fair-prioritization' strategy (seed:797).
-...
-```
-
-The `--parallel 8` option means use 8 test processes in parallel, each one is assigned a random
-scheduling strategy. Each process runs until the first one finds a bug, then they are all terminated
-and the bug is reported. This can be useful when you want to leverage the full power of your
-computer to find those bugs that are particularly hard to find more quickly.
+different kinds of bugs.
 
 ### Liveness monitor
 
@@ -377,6 +349,6 @@ In this tutorial you learned:
 
 1. How to do failover testing in the Coyote controlled `Task` programming model.
 2. How to use Coyote in a firmware/sensor scenario.
-3. How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
+3. How to use `--strategy portfolio` testing to find tricky bugs more quickly.
 4. How `Assert` helps find violations of safety properties during testing.
 5. How to write a `LivenessMonitor`.

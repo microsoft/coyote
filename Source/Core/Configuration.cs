@@ -11,23 +11,12 @@ namespace Microsoft.Coyote
 {
 #pragma warning disable CA1724 // Type names should not match namespaces
     /// <summary>
-    /// The Coyote project configurations.
+    /// The Coyote runtime and testing configuration.
     /// </summary>
     [DataContract]
     [Serializable]
     public class Configuration
     {
-        /// <summary>
-        /// The user-specified command to perform by the Coyote tool.
-        /// </summary>
-        [DataMember]
-        internal string ToolCommand;
-
-        /// <summary>
-        /// Something to add to the PATH environment at test time.
-        /// </summary>
-        internal string AdditionalPaths { get; set; }
-
         /// <summary>
         /// The output path.
         /// </summary>
@@ -51,6 +40,12 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public string SchedulingStrategy { get; internal set; }
+
+        /// <summary>
+        /// A strategy-specific bound.
+        /// </summary>
+        [DataMember]
+        internal int StrategyBound;
 
         /// <summary>
         /// Number of testing iterations.
@@ -145,12 +140,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool ConsiderDepthBoundHitAsBug;
-
-        /// <summary>
-        /// A strategy-specific bound.
-        /// </summary>
-        [DataMember]
-        internal int StrategyBound;
 
         /// <summary>
         /// Value that controls the probability of triggering a timeout each time an operation gets delayed
@@ -249,35 +238,17 @@ namespace Microsoft.Coyote
         public LogSeverity LogLevel { get; internal set; }
 
         /// <summary>
-        /// Enables code coverage reporting of a Coyote program.
-        /// </summary>
-        [DataMember]
-        internal bool ReportCodeCoverage;
-
-        /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// Enables activity coverage debugging.
-        /// </summary>
-        internal bool DebugActivityCoverage;
-
-        /// <summary>
-        /// Is DGML graph showing all test iterations or just one "bug" iteration.
-        /// False means all, and True means only the iteration containing a bug.
-        /// </summary>
-        [DataMember]
-        internal bool IsDgmlBugGraph;
-
-        /// <summary>
         /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        internal bool IsDgmlGraphEnabled;
+        internal bool IsTraceVisualizationEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
@@ -286,82 +257,9 @@ namespace Microsoft.Coyote
         internal bool IsXmlLogEnabled;
 
         /// <summary>
-        /// If specified, requests a custom runtime log to be used instead of the default.
-        /// This is the AssemblyQualifiedName of the type to load.
+        /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
-        [DataMember]
-        internal string CustomActorRuntimeLogType;
-
-        /// <summary>
-        /// Number of parallel systematic testing tasks.
-        /// By default it is 1 task.
-        /// </summary>
-        [DataMember]
-        internal uint ParallelBugFindingTasks;
-
-        /// <summary>
-        /// Put a debug prompt at the beginning of each child TestProcess.
-        /// </summary>
-        [DataMember]
-        internal bool ParallelDebug;
-
-        /// <summary>
-        /// Specify ip address if you want to use something other than localhost.
-        /// </summary>
-        [DataMember]
-        internal string TestingSchedulerIpAddress;
-
-        /// <summary>
-        /// Do not automatically launch the TestingProcesses in parallel mode, instead wait for them
-        /// to be launched independently.
-        /// </summary>
-        [DataMember]
-        internal bool WaitForTestingProcesses;
-
-        /// <summary>
-        /// Runs this process as a parallel systematic testing task.
-        /// </summary>
-        [DataMember]
-        internal bool RunAsParallelBugFindingTask;
-
-        /// <summary>
-        /// The testing scheduler unique endpoint.
-        /// </summary>
-        [DataMember]
-        internal string TestingSchedulerEndPoint;
-
-        /// <summary>
-        /// The unique testing process id.
-        /// </summary>
-        [DataMember]
-        internal uint TestingProcessId;
-
-        /// <summary>
-        /// Additional assembly specifications to instrument for code coverage, besides those in the
-        /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
-        /// Key is filename, value is whether it is a list file (true) or a single file (false).
-        /// </summary>
-        internal Dictionary<string, bool> AdditionalCodeCoverageAssemblies;
-
-        /// <summary>
-        /// Enables colored console output.
-        /// </summary>
-        internal bool EnableColoredConsoleOutput;
-
-        /// <summary>
-        /// If true, then environment exit will be disabled.
-        /// </summary>
-        internal bool DisableEnvironmentExit;
-
-        /// <summary>
-        /// Enable Coyote sending Telemetry to Azure which is used to help improve the tool (default true).
-        /// </summary>
-        internal bool EnableTelemetry;
-
-        /// <summary>
-        /// Optional location of app that can run as a telemetry server.
-        /// </summary>
-        internal string TelemetryServerPath;
+        internal bool IsTelemetryEnabled;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
@@ -387,12 +285,6 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelBugFindingTasks = 0;
-            this.ParallelDebug = false;
-            this.RunAsParallelBugFindingTask = false;
-            this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
-            this.TestingSchedulerIpAddress = null;
-            this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
@@ -409,25 +301,16 @@ namespace Microsoft.Coyote
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;
 
-            this.ReportCodeCoverage = false;
             this.IsActivityCoverageReported = false;
-            this.DebugActivityCoverage = false;
+            this.IsTraceVisualizationEnabled = false;
+            this.IsXmlLogEnabled = false;
 
             this.IsVerbose = false;
             this.IsDebugVerbosityEnabled = false;
             this.LogLevel = LogSeverity.Informational;
 
-            this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
-
-            this.EnableColoredConsoleOutput = false;
-            this.DisableEnvironmentExit = true;
-            this.EnableTelemetry = true;
-
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
-            if (optout is "1" || optout is "true")
-            {
-                this.EnableTelemetry = false;
-            }
+            this.IsTelemetryEnabled = optout != "1" && optout != "true";
         }
 
         /// <summary>
@@ -760,12 +643,14 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with DGML graph generation enabled or disabled.
+        /// Updates the configuration with trace visualization enabled or disabled.
+        /// If enabled, the testing engine can produce a DGML graph representing
+        /// an execution leading up to a bug.
         /// </summary>
-        /// <param name="isEnabled">If true, then enables DGML graph generation.</param>
-        public Configuration WithDgmlGraphEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then enables trace visualization.</param>
+        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true)
         {
-            this.IsDgmlGraphEnabled = isEnabled;
+            this.IsTraceVisualizationEnabled = isEnabled;
             return this;
         }
 
@@ -784,7 +669,7 @@ namespace Microsoft.Coyote
         /// </summary>
         public Configuration WithTelemetryEnabled(bool isEnabled = true)
         {
-            this.EnableTelemetry = isEnabled;
+            this.IsTelemetryEnabled = isEnabled;
             return this;
         }
 

@@ -2,202 +2,132 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Coyote.Cli;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.SystematicTesting;
-using Microsoft.Coyote.Telemetry;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Entry point to the Coyote tool.
+    /// The entry point to the Coyote tool.
     /// </summary>
     internal class Program
     {
-        private static CoyoteTelemetryClient TelemetryClient;
         private static TextWriter StdOut;
         private static TextWriter StdError;
 
         private static readonly object ConsoleLock = new object();
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
-            // Save these so we can force output to happen even if TestingProcess has re-routed it.
+            // Save these so we can force output to happen even if they have been re-routed.
             StdOut = Console.Out;
             StdError = Console.Error;
-            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-            Console.CancelKeyPress += OnProcessCanceled;
 
-            // Parses the command line options to get the configuration and rewriting options.
-            var configuration = Configuration.Create();
-            configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
-            var rewritingOptions = RewritingOptions.Create();
-
-            var result = CoyoteTelemetryClient.GetOrCreateMachineId().Result;
-            bool firstTime = result.Item2;
-
-            var options = new CommandLineOptions();
-            if (!options.Parse(args, configuration, rewritingOptions))
+            var parser = new CommandLineParser(args);
+            if (!parser.IsSuccessful)
             {
-                options.PrintHelp(Console.Out);
-                if (!firstTime && configuration.EnableTelemetry)
-                {
-                    CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
-                }
-
-                Environment.Exit(1);
+                return (int)ExitCode.Error;
             }
 
-            if (!configuration.RunAsParallelBugFindingTask)
-            {
-                if (firstTime)
-                {
-                    string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
-                    Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
-                    Console.WriteLine("----------------------------{0}", new string('-', version.Length));
-                    if (configuration.EnableTelemetry)
-                    {
-                        CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
-                    }
-
-                    TelemetryClient = new CoyoteTelemetryClient(configuration);
-                    TelemetryClient.TrackEventAsync("welcome").Wait();
-                }
-
-                Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
-                    typeof(CommandLineOptions).Assembly.GetName().Version,
-                    GetDotNetVersion());
-                Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.\n");
-            }
-
-            SetEnvironment(configuration);
-
-            switch (configuration.ToolCommand.ToLower())
-            {
-                case "test":
-                    RunTest(configuration);
-                    break;
-                case "replay":
-                    ReplayTest(configuration);
-                    break;
-                case "rewrite":
-                    RewriteAssemblies(configuration, rewritingOptions);
-                    break;
-                case "telemetry":
-                    RunServer(configuration);
-                    break;
-            }
-        }
-
-        public static void RunServer(Configuration configuration)
-        {
-            CoyoteTelemetryServer server = new CoyoteTelemetryServer(configuration.IsVerbose);
-            server.RunServerAsync().Wait();
-        }
-
-        private static void SetEnvironment(Configuration config)
-        {
-            if (!string.IsNullOrEmpty(config.AdditionalPaths))
-            {
-                string path = Environment.GetEnvironmentVariable("PATH");
-                Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + config.AdditionalPaths);
-            }
+            return (int)parser.InvokeSelectedCommand(RunTest, ReplayTest, RewriteAssemblies);
         }
 
         /// <summary>
         /// Runs the test specified in the configuration.
         /// </summary>
-        private static void RunTest(Configuration configuration)
+        private static ExitCode RunTest(Configuration configuration)
         {
-            if (configuration.RunAsParallelBugFindingTask)
+            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
+            TestingEngine engine = TestingEngine.Create(configuration);
+            engine.Run();
+
+            string directory = OutputFileManager.CreateOutputDirectory(configuration);
+            string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
+
+            // Emit the test reports.
+            Console.WriteLine($"... Emitting trace-related reports:");
+            if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
             {
-                // This is being run as the child test process.
-                if (configuration.ParallelDebug)
+                foreach (var path in reportPaths)
                 {
-                    Console.WriteLine("Attach the debugger and press ENTER to continue...");
-                    Console.ReadLine();
+                    Console.WriteLine($"..... Writing {path}.");
                 }
-
-                // Load the configuration of the assembly to be tested.
-                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
-
-                TestingProcess testingProcess = TestingProcess.Create(configuration);
-                testingProcess.Run();
-                return;
             }
-
-            if (configuration.ReportCodeCoverage || configuration.IsActivityCoverageReported)
+            else
             {
-                // This has to be here because both forms of coverage require it.
-                CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);
+                Console.WriteLine($"..... No test reports available.");
             }
 
-            if (configuration.ReportCodeCoverage)
+            // Emit the coverage reports.
+            Console.WriteLine($"... Emitting coverage reports:");
+            if (engine.TryEmitCoverageReports(directory, fileName, out reportPaths))
             {
-                // Instruments the program under test for code coverage.
-                CodeCoverageInstrumentation.Instrument(configuration);
-
-                // Starts monitoring for code coverage.
-                CodeCoverageMonitor.Start(configuration);
+                foreach (var path in reportPaths)
+                {
+                    Console.WriteLine($"..... Writing {path}.");
+                }
             }
-
-            Console.WriteLine(". Testing " + configuration.AssemblyToBeAnalyzed);
-            if (!string.IsNullOrEmpty(configuration.TestMethodName))
+            else
             {
-                Console.WriteLine("... Method {0}", configuration.TestMethodName);
+                Console.WriteLine($"..... No coverage reports available.");
             }
 
-            if (configuration.ParallelBugFindingTasks is 0)
-            {
-                configuration.DisableEnvironmentExit = false;
-            }
-
-            // Creates and runs the testing process scheduler.
-            TestingProcessScheduler.Create(configuration).Run();
+            Console.WriteLine(engine.TestReport.GetText(configuration, "..."));
+            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+            return GetExitCodeFromTestReport(engine.TestReport);
         }
 
         /// <summary>
         /// Replays an execution that is specified in the configuration.
         /// </summary>
-        private static void ReplayTest(Configuration configuration)
+        private static ExitCode ReplayTest(Configuration configuration)
         {
             // Set some replay specific options.
             configuration.SchedulingStrategy = "replay";
-            configuration.EnableColoredConsoleOutput = true;
-            configuration.DisableEnvironmentExit = false;
 
             // Load the configuration of the assembly to be replayed.
             LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-            Console.WriteLine($". Replaying {configuration.ScheduleFile}");
+            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
             TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
-            Console.WriteLine(engine.GetReport());
+
+            // Emit the report.
+            if (engine.TestReport.NumOfFoundBugs > 0)
+            {
+                Console.WriteLine(engine.GetReport());
+            }
+
+            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+            return GetExitCodeFromTestReport(engine.TestReport);
         }
 
         /// <summary>
         /// Rewrites the assemblies specified in the configuration.
         /// </summary>
-        private static void RewriteAssemblies(Configuration configuration, RewritingOptions options)
+        private static ExitCode RewriteAssemblies(Configuration configuration, RewritingOptions options)
         {
             try
             {
                 if (options.AssemblyPaths.Count is 1)
                 {
-                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}");
+                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}.");
                 }
                 else
                 {
-                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}");
+                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}.");
                 }
 
                 var profiler = new Profiler();
                 RewritingEngine.Run(options, configuration, profiler);
-                Console.WriteLine($". Done rewriting in {profiler.Results()} sec");
+                Console.WriteLine($"... Elapsed {profiler.Results()} sec.");
             }
             catch (Exception ex)
             {
@@ -206,8 +136,11 @@ namespace Microsoft.Coyote
                     ex = aex.Flatten().InnerException;
                 }
 
-                Error.ReportAndExit(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
+                Error.Report(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
+                return ExitCode.Error;
             }
+
+            return ExitCode.Success;
         }
 
         /// <summary>
@@ -239,29 +172,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Callback invoked when the current process terminates.
-        /// </summary>
-        private static void OnProcessExit(object sender, EventArgs e) => Shutdown();
-
-        /// <summary>
-        /// Callback invoked when the current process is canceled.
-        /// </summary>
-        private static void OnProcessCanceled(object sender, EventArgs e)
-        {
-            if (!TestingProcessScheduler.IsProcessCanceled)
-            {
-                TestingProcessScheduler.IsProcessCanceled = true;
-                Shutdown();
-            }
-        }
-
-        /// <summary>
         /// Callback invoked when an unhandled exception occurs.
         /// </summary>
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
             ReportUnhandledException((Exception)args.ExceptionObject);
-            Environment.Exit(1);
+            Environment.Exit((int)ExitCode.InternalError);
         }
 
         private static void ReportUnhandledException(Exception ex)
@@ -276,6 +192,11 @@ namespace Microsoft.Coyote
             }
         }
 
+        private static ExitCode GetExitCodeFromTestReport(TestReport report) =>
+            report.InternalErrors.Count > 0 ? ExitCode.InternalError :
+            report.NumOfFoundBugs > 0 ? ExitCode.BugFound :
+            ExitCode.Success;
+
         private static void PrintException(Exception ex)
         {
             lock (ConsoleLock)
@@ -283,42 +204,6 @@ namespace Microsoft.Coyote
                 Error.Report($"[CoyoteTester] unhandled exception: {ex}");
                 StdOut.WriteLine(ex.StackTrace);
             }
-        }
-
-        /// <summary>
-        /// Shutdowns any active monitors.
-        /// </summary>
-        private static void Shutdown()
-        {
-            if (CodeCoverageMonitor.IsRunning)
-            {
-                Console.WriteLine(". Shutting down the code coverage monitor, this may take a few seconds...");
-
-                // Stops monitoring for code coverage.
-                CodeCoverageMonitor.Stop();
-            }
-
-            using (TelemetryClient)
-            {
-            }
-        }
-
-        private static string GetDotNetVersion()
-        {
-            var path = typeof(string).Assembly.Location;
-            string result = string.Empty;
-
-            string[] parts = path.Replace("\\", "/").Split('/');
-            if (parts.Length > 2)
-            {
-                var version = parts[parts.Length - 2];
-                if (char.IsDigit(version[0]))
-                {
-                    result += " " + version;
-                }
-            }
-
-            return result;
         }
     }
 }

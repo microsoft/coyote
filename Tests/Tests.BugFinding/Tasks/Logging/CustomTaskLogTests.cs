@@ -36,7 +36,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
             var result = log.ToString();
             result = result.RemoveNonDeterministicValues();
-            var expected = @"... Task 0 is using the random[seed:0] strategy.
+            var expected = @"... Setting up the test:
+..... Using the random[seed:0] exploration strategy.
+... Running test iterations:
 ..... Iteration #1
 <TestLog> Runtime '' started test on thread ''.
 Hello world!

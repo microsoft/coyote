@@ -30,29 +30,6 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
-        /// Reports a generic error to the user and exits.
-        /// </summary>
-        public static void ReportAndExit(string value)
-        {
-            Write(ConsoleColor.Red, "Error: ");
-            Write(ConsoleColor.Yellow, value);
-            Console.Error.WriteLine(string.Empty);
-            Environment.Exit(1);
-        }
-
-        /// <summary>
-        /// Reports a generic error to the user and exits.
-        /// </summary>
-        public static void ReportAndExit(string format, params object[] args)
-        {
-            string message = string.Format(CultureInfo.InvariantCulture, format, args);
-            Write(ConsoleColor.Red, "Error: ");
-            Write(ConsoleColor.Yellow, message);
-            Console.Error.WriteLine(string.Empty);
-            Environment.Exit(1);
-        }
-
-        /// <summary>
         ///  Writes the specified string value to the output stream.
         /// </summary>
         private static void Write(ConsoleColor color, string value)

@@ -12,11 +12,11 @@ set COYOTE_CLI_TELEMETRY_OPTOUT=1
 First time usage of `coyote` is detected by the presence of the following file:
 
 ```plain
-[Windows] %USERPROFILE%\AppData\Local\Microsoft\Coyote\CoyoteMachineId.txt
-[Linux] $(HOME)/.microsoft/coyote/CoyoteMachineId.txt
+[Windows] %USERPROFILE%\AppData\Local\Microsoft\Coyote\device_id.txt
+[Linux] $(HOME)/.microsoft/coyote/device_id.txt
 ```
 
-This file contains a generated GUID representing the local machine which helps telemetry get some
+This file contains a generated GUID representing the local device which helps telemetry get some
 vague idea of the number of folks that are using the `coyote` tool.
 
 The following metrics are collected:

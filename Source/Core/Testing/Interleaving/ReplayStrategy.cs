@@ -70,11 +70,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
+                Error.Report(ex.Message);
                 next = null;
                 return false;
             }
@@ -111,11 +107,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
+                Error.Report(ex.Message);
                 next = false;
                 return false;
             }
@@ -153,11 +145,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                if (!this.Configuration.DisableEnvironmentExit)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
+                Error.Report(ex.Message);
                 next = 0;
                 return false;
             }

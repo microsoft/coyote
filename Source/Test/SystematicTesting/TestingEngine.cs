@@ -155,18 +155,16 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public static TestingEngine Create(Configuration configuration)
         {
-            TestMethodInfo testMethodInfo = null;
-
             try
             {
-                testMethodInfo = TestMethodInfo.Create(configuration);
+                TestMethodInfo testMethodInfo = TestMethodInfo.Create(configuration);
+                return new TestingEngine(configuration, testMethodInfo);
             }
             catch (Exception ex)
             {
-                Error.ReportAndExit(ex.Message);
+                Error.Report(ex.Message);
+                throw;
             }
-
-            return new TestingEngine(configuration, testMethodInfo);
         }
 
         /// <summary>
@@ -249,7 +247,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!string.IsNullOrEmpty(error))
             {
-                Error.ReportAndExit(error);
+                Error.Report(error);
+                throw new InvalidOperationException(error);
             }
 
             this.Scheduler = OperationScheduler.Setup(configuration);
@@ -308,11 +307,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (aex.InnerException is FileNotFoundException)
                 {
-                    Error.ReportAndExit($"{aex.InnerException.Message}");
+                    Error.Report($"{aex.InnerException.Message}");
                 }
 
-                Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
-                    "possibly in a test method. Please enable debug verbosity to print more information.");
+                Error.Report("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
+                throw;
             }
             catch (Exception ex)
             {
@@ -353,7 +352,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     methodInfo.InitializeAllIterations();
 
-                    this.Logger.WriteLine(LogSeverity.Important, "... Running test iterations:");
+                    if (this.Scheduler.IsReplayingSchedule)
+                    {
+                        this.Logger.WriteLine(LogSeverity.Important, "... Replaying the trace{0}.",
+                            this.Configuration.ScheduleFile.Length > 0 ? $" from {this.Configuration.ScheduleFile}" : string.Empty);
+                    }
+                    else
+                    {
+                        this.Logger.WriteLine(LogSeverity.Important, "... Running test iterations:");
+                    }
 
                     uint iteration = 0;
                     while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
@@ -533,6 +540,10 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
+                else if (this.Scheduler.IsReplayingSchedule)
+                {
+                    this.Logger.WriteLine(LogSeverity.Error, "Failed to reproduce the bug.");
+                }
 
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Close();
@@ -563,7 +574,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
                     this.Configuration.AttachDebugger ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
-                report.Append($"... Elapsed {this.Profiler.Results()} sec.");
                 return report.ToString();
             }
 

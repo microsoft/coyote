@@ -760,10 +760,6 @@ namespace Microsoft.Coyote.Cli
                                 this.RewritingOptions.OutputDirectory = assembliesDir;
                                 this.RewritingOptions.AssemblyPaths.Add(fullPath);
                             }
-                            else
-                            {
-                                Error.ReportAndExit("Please give a valid .dll or JSON this.Configuration file for binary rewriting.");
-                            }
                         }
                     }
 

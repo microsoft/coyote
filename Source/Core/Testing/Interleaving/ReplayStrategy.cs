@@ -70,8 +70,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
+                Error.Report(ex.Message);
                 next = null;
-                Error.ReportAndExit(ex.Message);
+                return false;
             }
 
             this.StepCount++;
@@ -108,8 +109,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
+                Error.Report(ex.Message);
                 next = false;
-                Error.ReportAndExit(ex.Message);
+                return false;
             }
 
             this.StepCount++;
@@ -146,8 +148,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
+                Error.Report(ex.Message);
                 next = 0;
-                Error.ReportAndExit(ex.Message);
+                return false;
             }
 
             this.StepCount++;

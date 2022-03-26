@@ -44,7 +44,7 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode RunTest(Configuration configuration)
         {
-            Console.WriteLine($". Testing '{configuration.AssemblyToBeAnalyzed}'");
+            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
             TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
 
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote
             {
                 foreach (var path in reportPaths)
                 {
-                    Console.WriteLine($"..... Writing {path}");
+                    Console.WriteLine($"..... Writing {path}.");
                 }
             }
             else
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote
             {
                 foreach (var path in reportPaths)
                 {
-                    Console.WriteLine($"..... Writing {path}");
+                    Console.WriteLine($"..... Writing {path}.");
                 }
             }
             else
@@ -95,12 +95,17 @@ namespace Microsoft.Coyote
             // Load the configuration of the assembly to be replayed.
             LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-            Console.WriteLine($". Replaying '{configuration.ScheduleFile}'");
+            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
             TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
 
             // Emit the report.
-            Console.WriteLine(engine.GetReport());
+            if (engine.TestReport.NumOfFoundBugs > 0)
+            {
+                Console.WriteLine(engine.GetReport());
+            }
+
+            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
             return GetExitCodeFromTestReport(engine.TestReport);
         }
 
@@ -113,11 +118,11 @@ namespace Microsoft.Coyote
             {
                 if (options.AssemblyPaths.Count is 1)
                 {
-                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}");
+                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}.");
                 }
                 else
                 {
-                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}");
+                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}.");
                 }
 
                 var profiler = new Profiler();

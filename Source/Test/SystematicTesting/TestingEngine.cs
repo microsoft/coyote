@@ -308,6 +308,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (aex.InnerException is FileNotFoundException)
                 {
                     Error.Report($"{aex.InnerException.Message}");
+                    throw;
                 }
 
                 Error.Report("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");

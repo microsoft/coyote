@@ -2,7 +2,8 @@ param(
     [string]$dotnet="dotnet",
     [ValidateSet("Debug","Release")]
     [string]$configuration="Release",
-    [bool]$local = $false
+    [bool]$local = $false,
+    [bool]$nuget = $false
 )
 
 Import-Module $PSScriptRoot\..\..\Scripts\powershell\common.psm1 -Force
@@ -22,6 +23,6 @@ if ($null -eq $sdk_version) {
 
 # Build the tests for the samples.
 Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\Common\TestDriver\TestDriver.csproj" `
-    -config $configuration -local $local
+    -config $configuration -local $local -nuget $nuget
 
 Write-Comment -prefix "." -text "Successfully built the Coyote samples" -color "green"

@@ -58,6 +58,11 @@ jobs:
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
+      - name: Archive Coyote binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: coyote-binaries
+          path: ./bin
   build-and-test-samples:
     name: Build and test Coyote samples
     needs: build-and-test
@@ -73,8 +78,15 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Build and test Coyote samples
+      - name: Download Coyote binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: coyote-binaries
+      - name: Build Coyote samples
         run: |
-          ./Samples/Scripts/build-tests.ps1 -local $true
-          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+          ./Samples/Scripts/build.ps1 -local $true -nuget $true
+          ./Samples/Scripts/build-tests.ps1 -local $true -nuget $true
+        shell: pwsh
+      - name: Test Coyote samples
+        run: dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
         shell: pwsh

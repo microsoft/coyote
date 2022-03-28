@@ -15,8 +15,11 @@
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
   </ItemGroup>
-  <Target Name="CoyoteRewriteNuget" Condition="'$(UseLocalCoyote)'=='false'" AfterTargets="AfterBuild" >
+  <Target Name="CoyoteRewriteNuget" Condition="'$(UseNugetPackages)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="coyote rewrite rewrite.coyote.json" />
+  </Target>
+  <Target Name="CoyoteRewriteLocalNuget" Condition="'$(UseLocalNugetPackages)'=='true'" AfterTargets="AfterBuild" >
+    <Exec Command="dotnet coyote rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet ../../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />

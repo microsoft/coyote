@@ -25,16 +25,21 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
 }
 
 # Builds the specified .NET project
-function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config, [bool]$local) {
+function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config, [bool]$local, [bool]$nuget) {
     Write-Comment -prefix "..." -text "Building $solution"
 
-    $command = "build -c $config $solution"
-    if ($local) {
-        $command = "$command /p:UseLocalCoyote=true"
+    $restore_command = "restore $solution"
+    $build_command = "build -c $config $solution --no-restore"
+    if ($local -and $nuget) {
+        $restore_command = "$restore_command -s $PSScriptRoot\..\..\Nuget.config"
+        $build_command = "$build_command /p:UseLocalNugetPackages=true "
+    } elseif ($local) {
+        $restore_command = "$restore_command -s $PSScriptRoot\..\..\Nuget.config"
+        $build_command = "$build_command /p:UseLocalCoyote=true"
     }
 
-    $error_msg = "Failed to build $solution"
-    Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
+    Invoke-ToolCommand -tool $dotnet -cmd $restore_command -error_msg "Failed to restore $solution"
+    Invoke-ToolCommand -tool $dotnet -cmd $build_command -error_msg "Failed to build $solution"
 }
 
 # Runs the specified .NET test using the specified framework.

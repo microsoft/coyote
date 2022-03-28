@@ -10,6 +10,11 @@ Import-Module $PSScriptRoot/../../Scripts/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 
+if ($local.IsPresent -and $nuget.IsPresent) {
+    # Restore the local coyote tool.
+    &dotnet tool restore
+}
+
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
 $dotnet_sdk_path = FindDotNetSdkPath -dotnet $dotnet

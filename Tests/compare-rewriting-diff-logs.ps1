@@ -23,6 +23,7 @@ $expected_hashes = [ordered]@{
 Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
 
 # Compare all IL diff logs.
+$succeeded = $true
 foreach ($kvp in $targets.GetEnumerator()) {
     $project = $($kvp.Value)
     if ($project -eq $targets["actors"]) {
@@ -37,8 +38,12 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $expected_hash = $expected_hashes[$($kvp.Key)]
     if ($new_hash -ne $expected_hash) {
         Write-Error "The '$($kvp.Value)' project's IL diff hash '$new_hash' is not the expected '$expected_hash'."
-        exit 1
+        $succeeded = $false
     }
+}
+
+if (-not $succeeded) {
+    exit 1
 }
 
 Write-Comment -prefix "." -text "Done" -color "green"

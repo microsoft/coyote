@@ -34,7 +34,7 @@ if ($null -eq $sdk_version) {
 }
 
 Write-Comment -prefix "..." -text "Using configuration '$configuration'"
-$solution = Join-Path -Path $ScriptDir -ChildPath "/.." -AdditionalChildPath "Coyote.sln"
+$solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
 if ($ci.IsPresent) {

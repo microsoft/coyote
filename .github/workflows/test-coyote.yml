@@ -82,6 +82,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coyote-binaries
+          path: ./bin
       - name: Build Coyote samples
         run: |
           ./Samples/Scripts/build.ps1 -local -nuget

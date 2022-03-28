@@ -13,7 +13,7 @@ param(
     [switch]$ci
 )
 
-Import-Module $PSScriptRoot/powershell/common.psm1 -Force
+Import-Module $PSScriptRoot/common.psm1 -Force
 
 $all_frameworks = (Get-Variable "framework").Attributes.ValidValues
 $targets = [ordered]@{

@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = 'Stop'
 
-Import-Module $PSScriptRoot\powershell\common.psm1 -Force
+Import-Module $PSScriptRoot\common.psm1 -Force
 
 Write-Comment -prefix "." -text "Running the Coyote CLI package test" -color "yellow"
 

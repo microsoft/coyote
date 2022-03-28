@@ -28,13 +28,14 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
 function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config, [bool]$local, [bool]$nuget) {
     Write-Comment -prefix "..." -text "Building $solution"
 
+    $nuget_config_file = "$PSScriptRoot/../NuGet.config"
     $restore_command = "restore $solution"
     $build_command = "build -c $config $solution --no-restore"
     if ($local -and $nuget) {
-        $restore_command = "$restore_command --configfile $PSScriptRoot\..\..\Nuget.config"
+        $restore_command = "$restore_command --configfile $nuget_config_file"
         $build_command = "$build_command /p:UseLocalNugetPackages=true "
     } elseif ($local) {
-        $restore_command = "$restore_command --configfile $PSScriptRoot\..\..\Nuget.config"
+        $restore_command = "$restore_command --configfile $nuget_config_file"
         $build_command = "$build_command /p:UseLocalCoyote=true"
     }
 
@@ -74,16 +75,6 @@ function Invoke-ToolCommand([String]$tool, [String]$cmd, [String]$error_msg) {
         Write-Error $error_msg
         exit $LASTEXITCODE
     }
-}
-
-function TraverseLink($path) {
-    $item = Get-Item $path
-    if ($item.LinkType -eq "SymbolicLink") {
-        $target = $item.Target
-        Write-Host "Traversing link $target"
-        return TraverseLink($target)
-    }
-    return $path
 }
 
 function FindProgram([String]$name) {
@@ -142,7 +133,7 @@ function FindDotNetRuntimePath([String]$dotnet, [String]$runtime) {
 
 # Finds the dotnet SDK version.
 function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
-    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
+    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("global.json")
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
     Write-Comment -prefix "..." -text "Searching for .NET SDK version '$global_version' in '$dotnet_sdk_path'"
@@ -158,7 +149,7 @@ function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
 
 # Finds the dotnet runtime version.
 function FindDotNetRuntimeVersion([String]$dotnet_runtime_path) {
-    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("..", "global.json")
+    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("global.json")
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
     return FindMatchingVersion -path $dotnet_runtime_path -version $global_version

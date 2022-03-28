@@ -6,7 +6,7 @@ param(
     [switch]$nuget
 )
 
-Import-Module $PSScriptRoot\..\..\Scripts\powershell\common.psm1 -Force
+Import-Module $PSScriptRoot/../../Scripts/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 
@@ -22,31 +22,31 @@ if ($null -eq $sdk_version) {
 }
 
 # Build the task-based samples.
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\AccountManager\AccountManager.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../AccountManager/AccountManager.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\BoundedBuffer\BoundedBuffer.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../BoundedBuffer/BoundedBuffer.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\CoffeeMachineTasks\CoffeeMachineTasks.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineTasks/CoffeeMachineTasks.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 # Build the actor samples.
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\HelloWorldActors\HelloWorldActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../HelloWorldActors/HelloWorldActors.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\CoffeeMachineActors\CoffeeMachineActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineActors/CoffeeMachineActors.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\DrinksServingRobotActors\DrinksServingRobotActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../DrinksServingRobotActors/DrinksServingRobotActors.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\CloudMessaging\CloudMessaging.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CloudMessaging/CloudMessaging.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\Timers\Timers.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Timers/Timers.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\Monitors\Monitors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Monitors/Monitors.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 # Build the web app samples.
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\WebApps\ImageGalleryAspNet\ImageGallery.sln" `
+# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../WebApps/ImageGalleryAspNet/ImageGallery.sln" `
     # -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\WebApps\PetImagesAspNet\PetImages.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../WebApps/PetImagesAspNet/PetImages.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 Write-Comment -prefix "." -text "Successfully built the Coyote samples" -color "green"

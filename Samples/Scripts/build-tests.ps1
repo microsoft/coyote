@@ -6,7 +6,7 @@ param(
     [switch]$nuget
 )
 
-Import-Module $PSScriptRoot\..\..\Scripts\powershell\common.psm1 -Force
+Import-Module $PSScriptRoot/../../Scripts/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 
@@ -22,7 +22,7 @@ if ($null -eq $sdk_version) {
 }
 
 # Build the tests for the samples.
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\Common\TestDriver\TestDriver.csproj" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Common/TestDriver/TestDriver.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 Write-Comment -prefix "." -text "Successfully built the Coyote samples" -color "green"

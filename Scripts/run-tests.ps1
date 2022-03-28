@@ -10,10 +10,10 @@ param(
     [string]$logger = "",
     [ValidateSet("quiet", "minimal", "normal", "detailed", "diagnostic")]
     [string]$v = "normal",
-    [bool]$ci = $false
+    [switch]$ci
 )
 
-Import-Module $PSScriptRoot/powershell/common.psm1 -Force
+Import-Module $PSScriptRoot/common.psm1 -Force
 
 $all_frameworks = (Get-Variable "framework").Attributes.ValidValues
 $targets = [ordered]@{
@@ -46,7 +46,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/$($kvp.Value)/bin" | `
         Where-Object Name -CIn $all_frameworks | Select-Object -expand Name
     foreach ($f in $frameworks) {
-        if ((-not $ci) -and ($f -ne $framework)) {
+        if ((-not $ci.IsPresent) -and ($f -ne $framework)) {
             continue
         }
 

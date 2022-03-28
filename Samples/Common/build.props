@@ -7,6 +7,9 @@
     <LangVersion>10.0</LangVersion>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <UseLocalCoyote>False</UseLocalCoyote>
+    <UseLocalNugetPackages>False</UseLocalNugetPackages>
+    <UseNugetPackages>True</UseNugetPackages>
+    <UseNugetPackages Condition="'$(UseLocalNugetPackages)'=='yes'">False</UseNugetPackages>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>

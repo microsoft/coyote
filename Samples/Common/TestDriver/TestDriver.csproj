@@ -18,8 +18,11 @@
     <!-- <ProjectReference Include="..\..\WebApps\ImageGalleryAspNet\Tests\Tests.csproj" /> -->
     <ProjectReference Include="..\..\WebApps\PetImagesAspNet\PetImages.Tests\PetImages.Tests.csproj" />
   </ItemGroup>
-  <Target Name="CoyoteRewriteNuget" Condition="'$(UseLocalCoyote)'=='false'" AfterTargets="AfterBuild" >
+  <Target Name="CoyoteRewriteNuget" Condition="'$(UseNugetPackages)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="coyote rewrite rewrite.coyote.json" />
+  </Target>
+  <Target Name="CoyoteRewriteLocalNuget" Condition="'$(UseLocalNugetPackages)'=='true'" AfterTargets="AfterBuild" >
+    <Exec Command="dotnet coyote rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet ../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />

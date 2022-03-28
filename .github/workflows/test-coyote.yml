@@ -43,14 +43,14 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Build Coyote projects
-        run: ./Scripts/build.ps1 -ci $true
+        run: ./Scripts/build.ps1 -ci
         shell: pwsh
       - name: Validate Coyote Rewriting
         if: ${{ matrix.platform == 'windows-latest' }}
         run: ./Tests/compare-rewriting-diff-logs.ps1
         shell: pwsh
       - name: Run Coyote Tests
-        run: ./Scripts/run-tests.ps1 -ci $true
+        run: ./Scripts/run-tests.ps1 -ci
         shell: pwsh
       - name: Build and test Coyote NuGet packages
         if: ${{ matrix.platform == 'windows-latest' }}
@@ -58,6 +58,11 @@ jobs:
           ./Scripts/create-nuget-packages.ps1
           ./Scripts/test-cli-package.ps1
         shell: pwsh
+      - name: Archive Coyote binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: coyote-binaries
+          path: ./bin
   build-and-test-samples:
     name: Build and test Coyote samples
     needs: build-and-test
@@ -73,8 +78,16 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Build and test Coyote samples
+      - name: Download Coyote binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: coyote-binaries
+          path: ./bin
+      - name: Build Coyote samples
         run: |
-          ./Samples/Scripts/build-tests.ps1 -local $true
-          dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+          ./Samples/Scripts/build.ps1 -local -nuget
+          ./Samples/Scripts/build-tests.ps1 -local -nuget
+        shell: pwsh
+      - name: Test Coyote samples
+        run: dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
         shell: pwsh

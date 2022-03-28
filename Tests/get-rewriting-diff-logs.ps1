@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Import-Module $PSScriptRoot/../Scripts/powershell/common.psm1 -Force
+Import-Module $PSScriptRoot/../Scripts/common.psm1 -Force
 
 $framework = "net6.0"
 $targets = [ordered]@{

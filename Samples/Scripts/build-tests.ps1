@@ -2,12 +2,18 @@ param(
     [string]$dotnet="dotnet",
     [ValidateSet("Debug","Release")]
     [string]$configuration="Release",
-    [bool]$local = $false
+    [switch]$local,
+    [switch]$nuget
 )
 
-Import-Module $PSScriptRoot\..\..\Scripts\powershell\common.psm1 -Force
+Import-Module $PSScriptRoot/../../Scripts/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
+
+if ($local.IsPresent -and $nuget.IsPresent) {
+    # Restore the local coyote tool.
+    &dotnet tool restore
+}
 
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
@@ -21,7 +27,7 @@ if ($null -eq $sdk_version) {
 }
 
 # Build the tests for the samples.
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot\..\Common\TestDriver\TestDriver.csproj" `
-    -config $configuration -local $local
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Common/TestDriver/TestDriver.csproj" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 Write-Comment -prefix "." -text "Successfully built the Coyote samples" -color "green"

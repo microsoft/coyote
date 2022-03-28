@@ -7,7 +7,7 @@ param(
     [string]$local = ""
 )
 
-Import-Module $PSScriptRoot\powershell\common.psm1 -Force
+Import-Module $PSScriptRoot/common.psm1 -Force
 
 $history = Invoke-Expression "git log --pretty=oneline -n 1"
 $words = $history.Split(' ')
@@ -22,20 +22,20 @@ else {
     $cosmos = ""
 }
 
-$current_dir = (Get-Item -Path ".\").FullName
-$benchmarks_dir = "$PSScriptRoot\..\Tools\BenchmarkRunner\bin\net6.0"
+$current_dir = (Get-Item -Path "./").FullName
+$benchmarks_dir = "$PSScriptRoot/../Tools/BenchmarkRunner/bin/net6.0"
 $benchmark_runner = "BenchmarkRunner.exe"
-$artifacts_dir = "$current_dir\benchmark_$commit"
+$artifacts_dir = "$current_dir/benchmark_$commit"
 
 if (-Not (Test-Path -Path "$benchmarks_dir")) {
     throw "Please build coyote project first"
 }
 
-$custom = "D:\git\lovettchris\BenchmarkDotNet\src\BenchmarkDotNet\bin\Release\netstandard2.0"
+$custom = "D:/git/lovettchris/BenchmarkDotNet/src/BenchmarkDotNet/bin/Release/netstandard2.0"
 if (Test-Path -Path $custom) {
     Write-Host "==> Using a patched version of BenchmarkDotNet..."
-    Copy-Item "$custom\BenchmarkDotNet.dll" "$benchmarks_dir\BenchmarkDotNet.dll" -Force
-    Copy-Item "$custom\BenchmarkDotNet.Annotations.dll" "$benchmarks_dir\BenchmarkDotNet.Annotations.dll" -Force
+    Copy-Item "$custom/BenchmarkDotNet.dll" "$benchmarks_dir/BenchmarkDotNet.dll" -Force
+    Copy-Item "$custom/BenchmarkDotNet.Annotations.dll" "$benchmarks_dir/BenchmarkDotNet.Annotations.dll" -Force
 }
 
 if (Test-Path -Path $artifacts_dir -PathType Container) {
@@ -44,7 +44,7 @@ if (Test-Path -Path $artifacts_dir -PathType Container) {
 
 Write-Comment -prefix "." -text "Running the Coyote performance benchmarks, saving to $artifacts_dir" -color "yellow"
 
-Invoke-Expression "$benchmarks_dir\$benchmark_runner -outdir $artifacts_dir -commit $commit $cosmos"
+Invoke-Expression "$benchmarks_dir/$benchmark_runner -outdir $artifacts_dir -commit $commit $cosmos"
 
 Write-Comment -prefix "." -text "Done" -color "green"
 
@@ -55,9 +55,9 @@ if ($local -ne "") {
         New-Item -Path $local -ItemType Directory
     }
     $index = 1
-    while (Test-Path -Path "$local\benchmark_$commit.$index") {
+    while (Test-Path -Path "$local/benchmark_$commit.$index") {
         $index = $index + 1
     }
 
-    Move-Item -Path $artifacts_dir -Destination "$local\benchmark_$commit.$index"
+    Move-Item -Path $artifacts_dir -Destination "$local/benchmark_$commit.$index"
 }

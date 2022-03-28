@@ -8,13 +8,13 @@ param(
 
 $ScriptDir = $PSScriptRoot
 
-Import-Module $ScriptDir\powershell\common.psm1 -Force
+Import-Module $ScriptDir/common.psm1 -Force
 
 Write-Comment -prefix "." -text "Encoding NuGet signing certificate" -color "yellow"
 Write-Comment -prefix "..." -text "You might need to run 'az login' first" -color "blue"
 
 $guid = [GUID]::NewGuid().ToString()
-$result_file = "$ScriptDir\$guid"
+$result_file = "$ScriptDir/$guid"
 Write-Host $result_file
 
 # # The "Secret Identifier" url from the certificate details.

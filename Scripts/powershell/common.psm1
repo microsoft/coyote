@@ -31,10 +31,10 @@ function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config,
     $restore_command = "restore $solution"
     $build_command = "build -c $config $solution --no-restore"
     if ($local -and $nuget) {
-        $restore_command = "$restore_command -s $PSScriptRoot\..\..\Nuget.config"
+        $restore_command = "$restore_command --configfile $PSScriptRoot\..\..\Nuget.config"
         $build_command = "$build_command /p:UseLocalNugetPackages=true "
     } elseif ($local) {
-        $restore_command = "$restore_command -s $PSScriptRoot\..\..\Nuget.config"
+        $restore_command = "$restore_command --configfile $PSScriptRoot\..\..\Nuget.config"
         $build_command = "$build_command /p:UseLocalCoyote=true"
     }
 

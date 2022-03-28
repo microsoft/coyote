@@ -9,7 +9,6 @@
     <UseLocalCoyote>False</UseLocalCoyote>
     <UseLocalNugetPackages>False</UseLocalNugetPackages>
     <UseNugetPackages>True</UseNugetPackages>
-    <UseNugetPackages>True</UseNugetPackages>
     <UseNugetPackages Condition="'$(UseLocalNugetPackages)'=='yes'">False</UseNugetPackages>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>

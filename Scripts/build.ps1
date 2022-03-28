@@ -4,7 +4,7 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",
-    [bool]$ci = $false
+    [switch]$ci
 )
 
 $ScriptDir = $PSScriptRoot
@@ -37,7 +37,7 @@ Write-Comment -prefix "..." -text "Using configuration '$configuration'"
 $solution = Join-Path -Path $ScriptDir -ChildPath "\.." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
-if ($ci) {
+if ($ci.IsPresent) {
     # Build any supported .NET versions that are installed on this machine.
     if ($version_net4) {
         # Build .NET Framework 4.x as well as the latest version.

@@ -27,7 +27,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: '.\Scripts\build.ps1'
-    arguments: "-ci $true"
+    arguments: "-ci"
     failOnStderr: true
     pwsh: true
 

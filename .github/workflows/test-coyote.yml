@@ -43,14 +43,14 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Build Coyote projects
-        run: ./Scripts/build.ps1 -ci $true
+        run: ./Scripts/build.ps1 -ci
         shell: pwsh
       - name: Validate Coyote Rewriting
         if: ${{ matrix.platform == 'windows-latest' }}
         run: ./Tests/compare-rewriting-diff-logs.ps1
         shell: pwsh
       - name: Run Coyote Tests
-        run: ./Scripts/run-tests.ps1 -ci $true
+        run: ./Scripts/run-tests.ps1 -ci
         shell: pwsh
       - name: Build and test Coyote NuGet packages
         if: ${{ matrix.platform == 'windows-latest' }}
@@ -84,8 +84,8 @@ jobs:
           name: coyote-binaries
       - name: Build Coyote samples
         run: |
-          ./Samples/Scripts/build.ps1 -local $true -nuget $true
-          ./Samples/Scripts/build-tests.ps1 -local $true -nuget $true
+          ./Samples/Scripts/build.ps1 -local -nuget
+          ./Samples/Scripts/build-tests.ps1 -local -nuget
         shell: pwsh
       - name: Test Coyote samples
         run: dotnet ./Samples/Common/bin/net6.0/TestDriver.dll

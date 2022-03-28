@@ -49,13 +49,19 @@ You can find the compiled binaries in the `bin` directory. You can use the `coyo
 automatically test these samples and find bugs. First, read how to use the tool
 [here](../get-started/using-coyote.md). Then, follow the instructions in each sample.
 
-## Using the local Coyote binaries
+## Using the local Coyote packages
 
 By default, the samples use the published `Microsoft.Coyote` [NuGet
-package](https://www.nuget.org/packages/Microsoft.Coyote/). If you want to use the locally built
-Coyote binaries instead, then run the following script in `powershell`:
+package](https://www.nuget.org/packages/Microsoft.Coyote/).
+
+If you want instead to use the locally built Coyote binaries, then run the following script in
+`powershell`:
 ```
-./Samples/Scripts/build.ps1 -local $true
+./Samples/Scripts/build.ps1 -local
 ```
 
-Note: this can make debugging into the Coyote runtime possible.
+Finally, if you want instead to use the locally built Coyote NuGet packages, then run the following
+script in `powershell`:
+```
+./Samples/Scripts/build.ps1 -local -nuget
+```

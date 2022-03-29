@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    public sealed class TestingEngine
+    public sealed class TestingEngine : IDisposable
     {
         /// <summary>
         /// Url with information about the rewriting process.
@@ -806,5 +806,10 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return null;
         }
+
+        /// <summary>
+        /// Releases any held resources.
+        /// </summary>
+        public void Dispose() => this.TestMethodInfo.Dispose();
     }
 }

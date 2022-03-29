@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.InternalTest(test, configuration);
+                using var engine = this.InternalTest(test, configuration);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.InternalTest(test, configuration);
+                using TestingEngine engine = this.InternalTest(test, configuration);
             }
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.InternalTest(test, configuration);
+                using TestingEngine engine = this.InternalTest(test, configuration);
             }
         }
 
@@ -79,13 +79,13 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.InternalTest(test, configuration);
+                using TestingEngine engine = this.InternalTest(test, configuration);
             }
         }
 
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
-            var engine = this.InternalTest(test, configuration);
+            using var engine = this.InternalTest(test, configuration);
             using var writer = new StringWriter();
             var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
             activityCoverageReporter.WriteCoverageText(writer);

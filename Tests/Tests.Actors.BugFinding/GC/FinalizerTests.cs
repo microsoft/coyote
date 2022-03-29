@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             var tracker = new GCTracker();
 
             var config = this.GetConfiguration().WithTestingIterations(2);
-            TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
+            using TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
             {
                 var setup = new SetupEvent(tracker);
                 r.CreateActor(typeof(A), setup);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             var tracker = new GCTracker();
 
             var config = this.GetConfiguration().WithTestingIterations(2);
-            TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
+            using TestingEngine engine = TestingEngine.Create(config, (IActorRuntime r) =>
             {
                 var setup = new SetupEvent(tracker);
                 r.CreateActor(typeof(M), setup);

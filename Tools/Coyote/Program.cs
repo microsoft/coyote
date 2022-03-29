@@ -47,7 +47,7 @@ namespace Microsoft.Coyote
             try
             {
                 Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
-                TestingEngine engine = TestingEngine.Create(configuration);
+                using TestingEngine engine = TestingEngine.Create(configuration);
                 engine.Run();
 
                 string directory = OutputFileManager.CreateOutputDirectory(configuration);
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote
                 LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
                 Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
-                TestingEngine engine = TestingEngine.Create(configuration);
+                using TestingEngine engine = TestingEngine.Create(configuration);
                 engine.Run();
 
                 // Emit the report.

@@ -3,16 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+#if NET || NETCOREAPP3_1
 using System.IO;
+#endif
 using System.Linq;
 using System.Reflection;
+#if NET || NETCOREAPP3_1
 using System.Runtime.Loader;
+#endif
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+#if NET || NETCOREAPP3_1
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
+#endif
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -51,6 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private readonly MethodInfo IterationDisposeMethod;
 
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// The assembly load context, if there is one.
         /// </summary>
@@ -65,6 +72,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The assembly resolver, if there is one.
         /// </summary>
         private readonly ICompilationAssemblyResolver AssemblyResolver;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
@@ -80,6 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private TestMethodInfo(Configuration configuration)
         {
+#if NET || NETCOREAPP3_1
             this.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(configuration.AssemblyToBeAnalyzed);
             this.LoadContext = AssemblyLoadContext.GetLoadContext(this.Assembly);
             this.DependencyContext = DependencyContext.Load(this.Assembly);
@@ -91,6 +100,9 @@ namespace Microsoft.Coyote.SystematicTesting
             });
 
             this.LoadContext.Resolving += this.OnResolving;
+#else
+            this.Assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
+#endif
 
             (this.Method, this.Name) = GetTestMethod(this.Assembly, configuration.TestMethodName);
             this.InitMethod = GetTestSetupMethod(this.Assembly, typeof(TestInitAttribute));
@@ -341,6 +353,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return testMethods;
         }
 
+#if NET || NETCOREAPP3_1
         /// <summary>
         /// Invoked when the resolution of an assembly fails.
         /// </summary>
@@ -375,13 +388,16 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return null;
         }
+#endif
 
         /// <summary>
         /// Releases any held resources.
         /// </summary>
         public void Dispose()
         {
+#if NET || NETCOREAPP3_1
             this.LoadContext.Resolving -= this.OnResolving;
+#endif
         }
     }
 }

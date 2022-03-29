@@ -23,7 +23,7 @@ namespace PetImages.Tests
     public class Tests
     {
         [Fact]
-        public static async Task TestFirstScenario()
+        public async Task TestFirstScenario()
         {
             // Initialize the in-memory service factory.
             using var factory = new ServiceFactory();

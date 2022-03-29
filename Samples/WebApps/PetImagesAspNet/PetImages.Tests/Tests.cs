@@ -22,7 +22,6 @@ namespace PetImages.Tests
 {
     public class Tests
     {
-        [Test]
         [Fact]
         public static async Task TestFirstScenario()
         {

@@ -396,7 +396,10 @@ namespace Microsoft.Coyote.SystematicTesting
         public void Dispose()
         {
 #if NET || NETCOREAPP3_1
-            this.LoadContext.Resolving -= this.OnResolving;
+            if (this.LoadContext != null)
+            {
+                this.LoadContext.Resolving -= this.OnResolving;
+            }
 #endif
         }
     }

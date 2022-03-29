@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                using var engine = this.InternalTest(test, configuration);
+                this.RunCoyoteTest(test, configuration);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                using TestingEngine engine = this.InternalTest(test, configuration);
+                this.RunCoyoteTest(test, configuration);
             }
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                using TestingEngine engine = this.InternalTest(test, configuration);
+                this.RunCoyoteTest(test, configuration);
             }
         }
 
@@ -79,32 +79,31 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                using TestingEngine engine = this.InternalTest(test, configuration);
+                this.RunCoyoteTest(test, configuration);
             }
         }
 
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
-            using var engine = this.InternalTest(test, configuration);
+            TestReport report = this.RunCoyoteTest(test, configuration);
             using var writer = new StringWriter();
-            var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
+            var activityCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);
             activityCoverageReporter.WriteCoverageText(writer);
             string result = writer.ToString().RemoveNamespaceReferences();
             return result;
         }
 
-        private TestingEngine InternalTest(Delegate test, Configuration configuration)
+        private TestReport RunCoyoteTest(Delegate test, Configuration configuration)
         {
             configuration ??= this.GetConfiguration();
             ILogger logger = this.GetLogger(configuration);
 
-            TestingEngine engine = null;
-
             try
             {
-                engine = RunTest(test, configuration, logger);
+                using TestingEngine engine = RunTest(test, configuration, logger);
                 var numErrors = engine.TestReport.NumOfFoundBugs;
                 Assert.True(numErrors is 0, GetBugReport(engine));
+                return engine.TestReport;
             }
             catch (Exception ex)
             {
@@ -115,7 +114,7 @@ namespace Microsoft.Coyote.Tests.Common
                 logger.Dispose();
             }
 
-            return engine;
+            return null;
         }
 
         protected void TestWithError(Action test, Configuration configuration = null, string expectedError = null,

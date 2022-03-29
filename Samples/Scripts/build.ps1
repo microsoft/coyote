@@ -26,27 +26,27 @@ if ($null -eq $sdk_version) {
     exit 1
 }
 
-# # Build the task-based samples.
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../AccountManager/AccountManager.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../BoundedBuffer/BoundedBuffer.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineTasks/CoffeeMachineTasks.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+# Build the task-based samples.
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../AccountManager/AccountManager.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../BoundedBuffer/BoundedBuffer.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineTasks/CoffeeMachineTasks.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
-# # Build the actor samples.
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../HelloWorldActors/HelloWorldActors.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineActors/CoffeeMachineActors.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../DrinksServingRobotActors/DrinksServingRobotActors.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CloudMessaging/CloudMessaging.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Timers/Timers.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-# Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Monitors/Monitors.sln" `
-#     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+# Build the actor samples.
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../HelloWorldActors/HelloWorldActors.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineActors/CoffeeMachineActors.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../DrinksServingRobotActors/DrinksServingRobotActors.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CloudMessaging/CloudMessaging.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Timers/Timers.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Monitors/Monitors.sln" `
+    -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 # Build the web app samples.
 # Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../WebApps/ImageGalleryAspNet/ImageGallery.sln" `

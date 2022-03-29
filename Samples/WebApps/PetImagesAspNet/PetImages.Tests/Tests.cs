@@ -10,20 +10,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PetImages;
 using PetImages.Contracts;
 using PetImages.Tests.MessagingMocks;
 using PetImages.Tests.StorageMocks;
+using Xunit;
+using Xunit.Abstractions;
 
 #pragma warning disable SA1005
 namespace PetImages.Tests
 {
-    [TestClass]
     public class Tests
     {
-        [TestMethod]
-        public async Task TestFirstScenario()
+        [Test]
+        [Fact]
+        public static async Task TestFirstScenario()
         {
             // Initialize the in-memory service factory.
             using var factory = new ServiceFactory();
@@ -49,12 +50,12 @@ namespace PetImages.Tests
             // Finally, assert that only one of the two requests succeeded and the other
             // failed. Note that we do not know which one of the two succeeded as the
             // requests ran concurrently (this is why we use an exclusive OR).
-            Assert.IsTrue(
+            Assert.True(
                (task1.Result == HttpStatusCode.OK && task2.Result == HttpStatusCode.Conflict) ||
                (task1.Result == HttpStatusCode.Conflict && task2.Result == HttpStatusCode.OK));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSecondScenario()
         {
             // Initialize the in-memory service factory.
@@ -74,7 +75,7 @@ namespace PetImages.Tests
             };
 
             var accountResult = await client.CreateAccountAsync(account);
-            Assert.IsTrue(accountResult == HttpStatusCode.OK);
+            Assert.True(accountResult == HttpStatusCode.OK);
 
             imageContainer.EnableRandomizedFaults();
 
@@ -86,21 +87,21 @@ namespace PetImages.Tests
 
             imageContainer.DisableRandomizedFaults();
 
-            Assert.IsTrue(task1.Result == HttpStatusCode.OK || task1.Result == HttpStatusCode.Conflict ||
+            Assert.True(task1.Result == HttpStatusCode.OK || task1.Result == HttpStatusCode.Conflict ||
                 task1.Result == HttpStatusCode.ServiceUnavailable);
-            Assert.IsTrue(task2.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.Conflict ||
+            Assert.True(task2.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.Conflict ||
                 task2.Result == HttpStatusCode.ServiceUnavailable);
 
             if (task1.Result == HttpStatusCode.OK || task2.Result == HttpStatusCode.OK)
             {
                 var (statusCode, content) = await client.GetImageAsync(accountName, imageName);
-                Assert.IsTrue(statusCode == HttpStatusCode.OK,
+                Assert.True(statusCode == HttpStatusCode.OK,
                     $"Status is '{statusCode}', but expected '{HttpStatusCode.OK}'.");
-                Assert.IsTrue(IsDogImage(content), "The image is not a dog image.");
+                Assert.True(IsDogImage(content), "The image is not a dog image.");
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestThirdScenario()
         {
            // Initialize the in-memory service factory.
@@ -120,7 +121,7 @@ namespace PetImages.Tests
            };
 
            var accountResult = await client.CreateAccountAsync(account);
-           Assert.IsTrue(accountResult == HttpStatusCode.OK);
+           Assert.True(accountResult == HttpStatusCode.OK);
 
            var task1 = client.CreateOrUpdateImageAsync(accountName,
                new Image() { Name = imageName, Content = GetDogImageBytes() });
@@ -128,11 +129,11 @@ namespace PetImages.Tests
                new Image() { Name = imageName, Content = GetCatImageBytes() });
            await Task.WhenAll(task1, task2);
 
-           Assert.IsTrue(task1.Result.Item1 == HttpStatusCode.OK);
-           Assert.IsTrue(task2.Result.Item1 == HttpStatusCode.OK);
+           Assert.True(task1.Result.Item1 == HttpStatusCode.OK);
+           Assert.True(task2.Result.Item1 == HttpStatusCode.OK);
 
            var (imageStatusCode, imageContent) = await client.GetImageAsync(accountName, imageName);
-           Assert.IsTrue(imageStatusCode == HttpStatusCode.OK);
+           Assert.True(imageStatusCode == HttpStatusCode.OK);
            byte[] image = imageContent;
 
            byte[] thumbnail;
@@ -146,25 +147,25 @@ namespace PetImages.Tests
                }
            }
 
-           Assert.IsTrue(
+           Assert.True(
                (IsDogImage(image) && IsDogThumbnail(thumbnail)) ||
                (IsCatImage(image) && IsCatThumbnail(thumbnail)),
                "Found a thumbnail that does not correspond to its image.");
         }
 
-        [TestMethod]
+        [Fact]
         public void CoyoteTestFirstScenario()
         {
-            RunCoyoteTest(this.TestFirstScenario);
+            RunCoyoteTest(TestFirstScenario);
         }
 
-        [TestMethod]
+        [Fact]
         public void CoyoteTestSecondScenario()
         {
            RunCoyoteTest(this.TestSecondScenario);
         }
 
-        [TestMethod]
+        [Fact]
         public void CoyoteTestThirdScenario()
         {
            RunCoyoteTest(this.TestThirdScenario);
@@ -217,7 +218,7 @@ namespace PetImages.Tests
                     File.WriteAllText(reproducibleTraceFileName, testingEngine.ReproducibleTrace);
                 }
 
-                Assert.IsTrue(testingEngine.TestReport.NumOfFoundBugs == 0, assertionText);
+                Assert.True(testingEngine.TestReport.NumOfFoundBugs == 0, assertionText);
             }
             finally
             {

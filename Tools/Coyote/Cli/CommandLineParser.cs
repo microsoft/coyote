@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Cli
             };
 
             var exploreOption = new Option<bool>(
-                name: "explore",
+                name: "--explore",
                 description: "Keep testing until the bound (e.g. iteration or time) is reached.")
             {
                 Arity = ArgumentArity.Zero,
@@ -728,7 +728,8 @@ namespace Microsoft.Coyote.Cli
                     if (command.Name is "test" || command.Name is "replay")
                     {
                         // In the case of 'coyote test' or 'replay', the path is the assembly to be tested.
-                        this.Configuration.AssemblyToBeAnalyzed = result.GetValueOrDefault<string>();
+                        string path = Path.GetFullPath(result.GetValueOrDefault<string>());
+                        this.Configuration.AssemblyToBeAnalyzed = path;
                     }
                     else if (command.Name is "rewrite")
                     {

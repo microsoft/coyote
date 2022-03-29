@@ -44,44 +44,53 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode RunTest(Configuration configuration)
         {
-            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
-            TestingEngine engine = TestingEngine.Create(configuration);
-            engine.Run();
-
-            string directory = OutputFileManager.CreateOutputDirectory(configuration);
-            string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
-
-            // Emit the test reports.
-            Console.WriteLine($"... Emitting trace-related reports:");
-            if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
+            try
             {
-                foreach (var path in reportPaths)
+                Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
+                TestingEngine engine = TestingEngine.Create(configuration);
+                engine.Run();
+
+                string directory = OutputFileManager.CreateOutputDirectory(configuration);
+                string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
+
+                // Emit the test reports.
+                Console.WriteLine($"... Emitting trace-related reports:");
+                if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
                 {
-                    Console.WriteLine($"..... Writing {path}.");
+                    foreach (var path in reportPaths)
+                    {
+                        Console.WriteLine($"..... Writing {path}.");
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine($"..... No test reports available.");
-            }
-
-            // Emit the coverage reports.
-            Console.WriteLine($"... Emitting coverage reports:");
-            if (engine.TryEmitCoverageReports(directory, fileName, out reportPaths))
-            {
-                foreach (var path in reportPaths)
+                else
                 {
-                    Console.WriteLine($"..... Writing {path}.");
+                    Console.WriteLine($"..... No test reports available.");
                 }
-            }
-            else
-            {
-                Console.WriteLine($"..... No coverage reports available.");
-            }
 
-            Console.WriteLine(engine.TestReport.GetText(configuration, "..."));
-            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
-            return GetExitCodeFromTestReport(engine.TestReport);
+                // Emit the coverage reports.
+                Console.WriteLine($"... Emitting coverage reports:");
+                if (engine.TryEmitCoverageReports(directory, fileName, out reportPaths))
+                {
+                    foreach (var path in reportPaths)
+                    {
+                        Console.WriteLine($"..... Writing {path}.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"..... No coverage reports available.");
+                }
+
+                Console.WriteLine(engine.TestReport.GetText(configuration, "..."));
+                Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+                return GetExitCodeFromTestReport(engine.TestReport);
+            }
+            catch (Exception ex)
+            {
+                IO.Debug.WriteLine(ex.Message);
+                IO.Debug.WriteLine(ex.StackTrace);
+                return ExitCode.Error;
+            }
         }
 
         /// <summary>
@@ -89,24 +98,33 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode ReplayTest(Configuration configuration)
         {
-            // Set some replay specific options.
-            configuration.SchedulingStrategy = "replay";
-
-            // Load the configuration of the assembly to be replayed.
-            LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
-
-            Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
-            TestingEngine engine = TestingEngine.Create(configuration);
-            engine.Run();
-
-            // Emit the report.
-            if (engine.TestReport.NumOfFoundBugs > 0)
+            try
             {
-                Console.WriteLine(engine.GetReport());
-            }
+                // Set some replay specific options.
+                configuration.SchedulingStrategy = "replay";
 
-            Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
-            return GetExitCodeFromTestReport(engine.TestReport);
+                // Load the configuration of the assembly to be replayed.
+                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
+
+                Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
+                TestingEngine engine = TestingEngine.Create(configuration);
+                engine.Run();
+
+                // Emit the report.
+                if (engine.TestReport.NumOfFoundBugs > 0)
+                {
+                    Console.WriteLine(engine.GetReport());
+                }
+
+                Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+                return GetExitCodeFromTestReport(engine.TestReport);
+            }
+            catch (Exception ex)
+            {
+                IO.Debug.WriteLine(ex.Message);
+                IO.Debug.WriteLine(ex.StackTrace);
+                return ExitCode.Error;
+            }
         }
 
         /// <summary>

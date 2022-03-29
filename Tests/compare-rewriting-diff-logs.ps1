@@ -13,16 +13,17 @@ $targets = [ordered]@{
 }
 
 $expected_hashes = [ordered]@{
-    "rewriting" = "D8A88CC026C77128ED5F4C31604AD8602A2F2C073CD234CBF5C43606911585BD"
-    "rewriting-helpers" = "55C8CBC027DE1044EBA50FB20C5E8A8922CE7E841C8FBDC81447F15B9DD7F6CD"
-    "testing" = "002CDC36FAE9D646378CC6579AF51A31C6637EB0E4D3B504C510CCAE115CC9ED"
-    "actors" = "7CD5CC5B1FDE6ABAA4323E9729000E3BD83F7A5E3DAFF6D673E7E3AAADF1D6FD"
-    "actors-testing" = "0D18E697B6FAA838109D3BE66DD8E79464152E15FC573BE42D9D2DDAF1F92EC0"
+    "rewriting" = "E7EC7D8D2BCF54B7001732945ECD3467C317E241142CAB3B9C7A44B57AB3E3E1"
+    "rewriting-helpers" = "6FA4FB033A77D23E27BE56CA759AB1EFCFAFB0CDF5FD142132BE292BC5F9F990"
+    "testing" = "3552399319AA8778E5484455D0951704AD02A128348A8CA13C1AC6EBE0D18C3A"
+    "actors" = "AC141531A59BEFABCB7327A2E6655708EF7721DAAAF8CF4A4C6E11067E612FCE"
+    "actors-testing" = "A394718E7F102D916529526299EEDF77C19705A248E2B1130F8E04A9A4721EC7"
 }
 
 Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
 
 # Compare all IL diff logs.
+$succeeded = $true
 foreach ($kvp in $targets.GetEnumerator()) {
     $project = $($kvp.Value)
     if ($project -eq $targets["actors"]) {
@@ -37,8 +38,12 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $expected_hash = $expected_hashes[$($kvp.Key)]
     if ($new_hash -ne $expected_hash) {
         Write-Error "The '$($kvp.Value)' project's IL diff hash '$new_hash' is not the expected '$expected_hash'."
-        exit 1
+        $succeeded = $false
     }
+}
+
+if (-not $succeeded) {
+    exit 1
 }
 
 Write-Comment -prefix "." -text "Done" -color "green"

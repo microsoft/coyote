@@ -1,3 +1,18 @@
+## v1.5.2
+- Introduced new command-line interface for the `coyote` tool that builds on top of the
+  `System.CommandLine` library. This brings an improved and more robust user experience (e.g. better
+  CLI error messages), as well as other enhancements such as CLI option grouping.
+- The `--coverage code` CLI option is not supported anymore as it was only supported on Windows and
+  has been superseded by the official .NET cross-platform code coverage infrastructure. See
+  [here](https://docs.microsoft.com/en-us/dotnet/core/additional-tools/dotnet-coverage) and
+  [here](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-code-coverage?tabs=windows).
+  The `--coverage` (or `-c`) CLI option is now used to enable activity coverage (replacing
+  `--coverage activity`), as discussed [here](https://microsoft.github.io/coyote/#how-to/coverage).
+- The `--parallel N` CLI option is not supported anymore to bring the `coyote` tool experience in
+  line with the programmatic way of running Coyote tests (via the `TestingEngine` API), which did
+  not support built-in parallel testing. If needed, running parallel tests can still be achieved by
+  invoking multiple Coyote testing processes in parallel (e.g. via a script).
+
 ## v1.5.1
 - Simplified the `coyote` tool ASP.NET dependency.
 - Partially controlled concurrency is now allowed by default during systematic testing. Disable via

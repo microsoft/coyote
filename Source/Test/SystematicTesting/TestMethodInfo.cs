@@ -3,19 +3,29 @@
 
 using System;
 using System.Collections.Generic;
+#if NET || NETCOREAPP3_1
+using System.IO;
+#endif
 using System.Linq;
 using System.Reflection;
+#if NET || NETCOREAPP3_1
+using System.Runtime.Loader;
+#endif
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+#if NET || NETCOREAPP3_1
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.Resolution;
+#endif
 
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// Maintains information about a method to be tested.
     /// </summary>
-    internal sealed class TestMethodInfo
+    internal sealed class TestMethodInfo : IDisposable
     {
         /// <summary>
         /// The assembly that contains the test method.
@@ -47,40 +57,68 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private readonly MethodInfo IterationDisposeMethod;
 
+#if NET || NETCOREAPP3_1
+        /// <summary>
+        /// The assembly load context, if there is one.
+        /// </summary>
+        private readonly AssemblyLoadContext LoadContext;
+
+        /// <summary>
+        /// The assembly dependency context, if there is one.
+        /// </summary>
+        private readonly DependencyContext DependencyContext;
+
+        /// <summary>
+        /// The assembly resolver, if there is one.
+        /// </summary>
+        private readonly ICompilationAssemblyResolver AssemblyResolver;
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
         /// </summary>
-        private TestMethodInfo(Assembly assembly, Delegate method, string name, MethodInfo initMethod,
-            MethodInfo disposeMethod, MethodInfo iterationDisposeMethod)
+        private TestMethodInfo(Delegate method)
         {
-            this.Assembly = assembly;
+            this.Assembly = method.GetMethodInfo().Module.Assembly;
             this.Method = method;
-            this.Name = name;
-            this.InitMethod = initMethod;
-            this.DisposeMethod = disposeMethod;
-            this.IterationDisposeMethod = iterationDisposeMethod;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
+        /// </summary>
+        private TestMethodInfo(Configuration configuration)
+        {
+#if NET || NETCOREAPP3_1
+            this.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(configuration.AssemblyToBeAnalyzed);
+            this.LoadContext = AssemblyLoadContext.GetLoadContext(this.Assembly);
+            this.DependencyContext = DependencyContext.Load(this.Assembly);
+            this.AssemblyResolver = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
+            {
+                new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(configuration.AssemblyToBeAnalyzed)),
+                new ReferenceAssemblyPathResolver(),
+                new PackageCompilationAssemblyResolver()
+            });
+
+            this.LoadContext.Resolving += this.OnResolving;
+#else
+            this.Assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
+#endif
+
+            (this.Method, this.Name) = GetTestMethod(this.Assembly, configuration.TestMethodName);
+            this.InitMethod = GetTestSetupMethod(this.Assembly, typeof(TestInitAttribute));
+            this.DisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestDisposeAttribute));
+            this.IterationDisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestIterationDisposeAttribute));
         }
 
         /// <summary>
         /// Creates a <see cref="TestMethodInfo"/> instance from the specified delegate.
         /// </summary>
-        internal static TestMethodInfo Create(Delegate method) =>
-            new TestMethodInfo(method.GetMethodInfo().Module.Assembly, method, null, null, null, null);
+        internal static TestMethodInfo Create(Delegate method) => new TestMethodInfo(method);
 
         /// <summary>
         /// Creates a <see cref="TestMethodInfo"/> instance from assembly specified in the configuration.
         /// </summary>
-        internal static TestMethodInfo Create(Configuration configuration)
-        {
-            Assembly assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
-
-            var (testMethod, testName) = GetTestMethod(assembly, configuration.TestMethodName);
-            var initMethod = GetTestSetupMethod(assembly, typeof(TestInitAttribute));
-            var disposeMethod = GetTestSetupMethod(assembly, typeof(TestDisposeAttribute));
-            var iterationDisposeMethod = GetTestSetupMethod(assembly, typeof(TestIterationDisposeAttribute));
-
-            return new TestMethodInfo(assembly, testMethod, testName, initMethod, disposeMethod, iterationDisposeMethod);
-        }
+        internal static TestMethodInfo Create(Configuration configuration) => new TestMethodInfo(configuration);
 
         /// <summary>
         /// Invokes the user-specified initialization method for all iterations executing this test.
@@ -313,6 +351,56 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             return testMethods;
+        }
+
+#if NET || NETCOREAPP3_1
+        /// <summary>
+        /// Invoked when the resolution of an assembly fails.
+        /// </summary>
+        private Assembly OnResolving(AssemblyLoadContext context, AssemblyName assemblyName)
+        {
+            Debug.WriteLine($"<Coyote> Resolving assembly '{assemblyName.Name}'.");
+            RuntimeLibrary runtimeLibrary = this.DependencyContext.RuntimeLibraries.FirstOrDefault(
+                runtime => string.Equals(runtime.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
+            if (runtimeLibrary != null)
+            {
+                var assemblies = new List<string>();
+                var compilationLibrary = new CompilationLibrary(
+                    runtimeLibrary.Type,
+                    runtimeLibrary.Name,
+                    runtimeLibrary.Version,
+                    runtimeLibrary.Hash,
+                    runtimeLibrary.RuntimeAssemblyGroups.SelectMany(group => group.AssetPaths),
+                    runtimeLibrary.Dependencies,
+                    runtimeLibrary.Serviceable);
+                if (this.AssemblyResolver.TryResolveAssemblyPaths(compilationLibrary, assemblies) &&
+                    assemblies.Count > 0)
+                {
+                    return this.LoadContext.LoadFromAssemblyPath(assemblies[0]);
+                }
+                else
+                {
+                    string directory = Path.GetDirectoryName(this.Assembly.Location);
+                    string path = Directory.EnumerateFiles(directory, $"{runtimeLibrary.Name}.dll").FirstOrDefault();
+                    return this.LoadContext.LoadFromAssemblyPath(path);
+                }
+            }
+
+            return null;
+        }
+#endif
+
+        /// <summary>
+        /// Releases any held resources.
+        /// </summary>
+        public void Dispose()
+        {
+#if NET || NETCOREAPP3_1
+            if (this.LoadContext != null)
+            {
+                this.LoadContext.Resolving -= this.OnResolving;
+            }
+#endif
         }
     }
 }

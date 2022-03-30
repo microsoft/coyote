@@ -162,8 +162,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             Configuration config = this.GetConfiguration();
             config.AssemblyToBeAnalyzed = Assembly.GetExecutingAssembly().Location;
             config.TestMethodName = name;
-            var testMethodInfo = TestMethodInfo.Create(config);
-
+            using var testMethodInfo = TestMethodInfo.Create(config);
             Assert.Equal(Assembly.GetExecutingAssembly(), testMethodInfo.Assembly);
             Assert.Equal($"{typeof(EntryPointTests).FullName}.{name}", testMethodInfo.Name);
         }

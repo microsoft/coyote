@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             InMemoryLogger log = new InMemoryLogger();
 
             var config = this.GetConfiguration().WithTestingIterations(3).WithRandomGeneratorSeed(0);
-            TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
+            using TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hello world!");
             });
@@ -80,7 +80,7 @@ Hello world!
         public void TestCustomTaskRuntimeLog()
         {
             var config = this.GetConfiguration().WithRandomGeneratorSeed(0);
-            TestingEngine engine = TestingEngine.Create(config, this.RunAsync);
+            using TestingEngine engine = TestingEngine.Create(config, this.RunAsync);
 
             try
             {

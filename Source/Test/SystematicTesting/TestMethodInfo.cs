@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
@@ -156,8 +157,18 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (testMethods.Count is 0)
             {
-                throw new InvalidOperationException("Cannot detect a Coyote test method declared with the " +
-                    $"'[{typeof(TestAttribute).FullName}]' attribute.");
+                // see if user forgot to make it static!
+                flags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+                testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly);
+                if (testMethods.Count > 0)
+                {
+                    ReportBadTestMethods(testMethods, "test");
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Cannot detect a public static Coyote test method declared with the " +
+                        $"'[{typeof(TestAttribute).FullName}]' attribute.");
+                }
             }
 
             MethodInfo testMethod = testMethods[0];
@@ -224,6 +235,29 @@ namespace Microsoft.Coyote.SystematicTesting
             return (test, $"{testMethod.DeclaringType}.{testMethod.Name}");
         }
 
+        private static void ReportBadTestMethods(List<MethodInfo> testMethods, string caption)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var method in testMethods)
+            {
+                string wrong = null;
+                if (!method.IsStatic)
+                {
+                    wrong = "not static";
+                }
+
+                if (!method.IsPublic)
+                {
+                    wrong = string.IsNullOrEmpty(wrong) ? "not public" : wrong + " and not public";
+                }
+
+                sb.AppendLine($"Ignoring method '{method.DeclaringType.Name + "." + method.Name}' because it is {wrong}");
+            }
+
+            throw new InvalidOperationException($"The following Coyote {caption} methods cannot be used :\n{sb}");
+        }
+
         /// <summary>
         /// Returns the test method with the specified attribute.
         /// Returns null if no such method is found.
@@ -235,6 +269,13 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (testMethods.Count is 0)
             {
+                flags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+                testMethods = FindTestMethodsWithAttribute(attribute, flags, assembly);
+                if (testMethods.Count > 0)
+                {
+                    ReportBadTestMethods(testMethods, "test setup");
+                }
+
                 return null;
             }
             else if (testMethods.Count > 1)
@@ -295,7 +336,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 testMethods = assembly.GetTypes().SelectMany(t => t.GetMethods(bindingFlags)).
-                    Where(m => m.GetCustomAttributes(attribute, false).Length > 0).ToList();
+                    Where(m => m.GetCustomAttributes(attribute, false).Any()).ToList();
             }
             catch (ReflectionTypeLoadException ex)
             {

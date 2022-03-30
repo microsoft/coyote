@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 "PetImages.Exceptions.DatabaseItemAlreadyExistsException");
             RunTest(petImagesTests.TestSecondScenario, configuration,
                 "PetImages.TestSecondScenario",
-                "Assert.IsTrue failed");
+                "Status is 'NotFound', but expected 'OK'");
             RunTest(petImagesTests.TestThirdScenario, configuration,
                 "PetImages.TestThirdScenario",
                 "Assert.IsTrue failed");

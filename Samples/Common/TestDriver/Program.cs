@@ -121,10 +121,10 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 "PetImages.Exceptions.DatabaseItemAlreadyExistsException");
             RunTest(petImagesTests.TestSecondScenario, configuration,
                 "PetImages.TestSecondScenario",
-                "Status is 'NotFound', but expected 'OK'");
+                "Status is 'NotFound', but expected 'OK'.");
             RunTest(petImagesTests.TestThirdScenario, configuration,
                 "PetImages.TestThirdScenario",
-                "Assert.IsTrue failed");
+                "Found a thumbnail that does not correspond to its image.");
 
             stopWatch.Stop();
             Console.WriteLine($"Done testing in {stopWatch.ElapsedMilliseconds}ms. All expected bugs found.");

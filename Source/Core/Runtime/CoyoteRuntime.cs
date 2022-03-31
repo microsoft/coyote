@@ -1115,9 +1115,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
                 {
-                    while (op.Status != OperationStatus.Enabled && this.ExecutionStatus is ExecutionStatus.Running)
+                    while (op.Status is OperationStatus.None && this.ExecutionStatus is ExecutionStatus.Running)
                     {
+                        IO.Debug.WriteLine("<Coyote> Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
+                            Thread.CurrentThread.ManagedThreadId, op.Name, op.Group);
                         SyncMonitor.Wait(this.SyncObject);
+                        IO.Debug.WriteLine("<Coyote> Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);
                     }
                 }
             }
@@ -1333,13 +1336,13 @@ namespace Microsoft.Coyote.Runtime
                 // of the current operation to try give time to the uncontrolled concurrency to be resolved.
                 if (this.LastPostponedSchedulingPoint is null)
                 {
-                    IO.Debug.WriteLine(
-                        "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
-                        Thread.CurrentThread.ManagedThreadId);
                     int attempt = 0;
                     int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionTimeout;
                     while (attempt++ < 10 && !task.IsCompleted)
                     {
+                        IO.Debug.WriteLine(
+                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            Thread.CurrentThread.ManagedThreadId);
                         // Necessary until we have a better synchronization mechanism to give
                         // more chance to another thread to resolve uncontrolled concurrency.
                         SyncMonitor.Wait(this.SyncObject, delay);
@@ -1611,7 +1614,7 @@ namespace Microsoft.Coyote.Runtime
             StringBuilder msg;
             if (this.IsUncontrolledConcurrencyDetected)
             {
-                msg = new StringBuilder($"Potential deadlock detected.");
+                msg = new StringBuilder("Potential deadlock detected.");
             }
             else
             {

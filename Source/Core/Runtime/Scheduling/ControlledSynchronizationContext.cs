@@ -34,8 +34,8 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                IO.Debug.WriteLine("<Coyote> Posting callback from thread '{0}'.",
-                    Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("<Coyote> Posting callback from thread '{0}': {1}",
+                    Thread.CurrentThread.ManagedThreadId, new System.Diagnostics.StackTrace());
                 this.Runtime?.Schedule(() => d(state));
             }
             catch (ThreadInterruptedException)

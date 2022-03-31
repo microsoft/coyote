@@ -172,13 +172,6 @@ namespace Microsoft.Coyote
         internal uint UncontrolledConcurrencyResolutionTimeout;
 
         /// <summary>
-        /// Value that controls the internal between attempts of the the runtime to check if the uncontrolled
-        /// concurrency has been resolved during testing. This value is in milliseconds.
-        /// </summary>
-        [DataMember]
-        internal uint UncontrolledConcurrencyResolutionInterval;
-
-        /// <summary>
         /// The liveness temperature threshold. If it is 0 then it is disabled. By default
         /// this value is assigned to <see cref="MaxFairSchedulingSteps"/> / 2.
         /// </summary>
@@ -290,8 +283,7 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 5000;
             this.ReportPotentialDeadlocksAsBugs = true;
-            this.UncontrolledConcurrencyResolutionTimeout = 1000;
-            this.UncontrolledConcurrencyResolutionInterval = 2;
+            this.UncontrolledConcurrencyResolutionTimeout = 2;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
@@ -563,15 +555,13 @@ namespace Microsoft.Coyote
         /// Updates the value that controls how much time the runtime should wait for
         /// uncontrolled concurrency to resolve before continuing exploration.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 1000.</param>
-        /// <param name="interval">The interval value in milliseconds, which by default is 2.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 2.</param>
         /// <remarks>
         /// Increase the value to give more time to try resolve uncontrolled concurrency.
         /// </remarks>
-        public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout, uint interval)
+        public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout)
         {
             this.UncontrolledConcurrencyResolutionTimeout = timeout;
-            this.UncontrolledConcurrencyResolutionInterval = interval;
             return this;
         }
 

@@ -59,7 +59,8 @@ namespace Microsoft.Coyote.Runtime
                 // based on current knowledge. An access that is considered read-only might not be
                 // considered anymore in later steps or iterations.
                 var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
-                    state => state == op.LastAccessedSharedState));
+                    state => state.StartsWith(op.LastAccessedSharedState) ||
+                    op.LastAccessedSharedState.StartsWith(state)));
                 if (readOnlyAccessOps.Any())
                 {
                     // Return all read-only access operations.

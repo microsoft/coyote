@@ -221,11 +221,6 @@ namespace Microsoft.Coyote.Runtime
         private uint MaxConcurrencyDegree;
 
         /// <summary>
-        /// True if a bug was found, else false.
-        /// </summary>
-        internal bool IsBugFound { get; private set; }
-
-        /// <summary>
         /// Bug report.
         /// </summary>
         internal string BugReport { get; private set; }
@@ -284,7 +279,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsUncontrolledConcurrencyDetected = false;
             this.LastPostponedSchedulingPoint = null;
             this.MaxConcurrencyDegree = 0;
-            this.IsBugFound = false;
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
@@ -380,7 +374,8 @@ namespace Microsoft.Coyote.Runtime
 
                     lock (this.SyncObject)
                     {
-                        this.CheckLivenessErrorsAtTermination();
+                        // Checks for any liveness errors at test termination.
+                        this.SpecificationEngine.CheckLivenessErrors();
                         this.Detach(ExecutionStatus.PathExplored);
                     }
                 }
@@ -1751,21 +1746,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Checks for liveness errors at test termination.
-        /// </summary>
-        /// <remarks>
-        /// The liveness check only happens if no safety errors have been found, and all controlled
-        /// operations have completed to ensure that any found liveness bug is not a false positive.
-        /// </remarks>
-        private void CheckLivenessErrorsAtTermination()
-        {
-            if (!this.IsBugFound && this.OperationMap.All(kvp => kvp.Value.Status is OperationStatus.Completed))
-            {
-                this.SpecificationEngine.CheckLivenessErrors();
-            }
-        }
-
-        /// <summary>
         /// Checks if the scheduling steps bound has been reached. If yes,
         /// it stops the scheduler and kills all enabled machines.
         /// </summary>
@@ -1817,25 +1797,18 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (this.ExecutionStatus != ExecutionStatus.Running)
-                {
-                    return;
-                }
-
-                if (!this.IsBugFound)
+                if (this.ExecutionStatus is ExecutionStatus.Running)
                 {
                     this.BugReport = text;
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
-
-                    this.IsBugFound = true;
                     if (this.Configuration.AttachDebugger)
                     {
                         Debugger.Break();
                     }
-                }
 
-                this.Detach(ExecutionStatus.BugFound);
+                    this.Detach(ExecutionStatus.BugFound);
+                }
             }
         }
 
@@ -2038,10 +2011,11 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.OperationMap.Count,
+                bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
-                if (this.IsBugFound)
+                if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);
                 }
@@ -2092,6 +2066,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler and interrupts all controlled operations.
         /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// </remarks>
         private void Detach(ExecutionStatus status)
         {
             if (this.ExecutionStatus != ExecutionStatus.Running)

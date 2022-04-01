@@ -113,6 +113,24 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalExploredFairSteps { get; internal set; }
 
         /// <summary>
+        /// The min explored scheduling steps in unfair tests.
+        /// </summary>
+        [DataMember]
+        public int MinExploredUnfairSteps { get; internal set; }
+
+        /// <summary>
+        /// The max explored scheduling steps in unfair tests.
+        /// </summary>
+        [DataMember]
+        public int MaxExploredUnfairSteps { get; internal set; }
+
+        /// <summary>
+        /// The total explored scheduling steps (across all testing iterations) in unfair tests.
+        /// </summary>
+        [DataMember]
+        public int TotalExploredUnfairSteps { get; internal set; }
+
+        /// <summary>
         /// Number of times the fair max steps bound was hit in fair tests.
         /// </summary>
         [DataMember]
@@ -170,6 +188,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinExploredFairSteps = -1;
             this.MaxExploredFairSteps = -1;
             this.TotalExploredFairSteps = 0;
+            this.MinExploredUnfairSteps = -1;
+            this.MaxExploredUnfairSteps = -1;
+            this.TotalExploredUnfairSteps = 0;
             this.MaxFairStepsHitInFairTests = 0;
             this.MaxUnfairStepsHitInFairTests = 0;
             this.MaxUnfairStepsHitInUnfairTests = 0;
@@ -229,6 +250,14 @@ namespace Microsoft.Coyote.SystematicTesting
             else
             {
                 this.NumOfExploredUnfairSchedules++;
+                this.TotalExploredUnfairSteps += scheduledSteps;
+                this.MaxExploredUnfairSteps = Math.Max(this.MaxExploredUnfairSteps, scheduledSteps);
+                if (this.MinExploredUnfairSteps < 0 ||
+                    this.MinExploredUnfairSteps > scheduledSteps)
+                {
+                    this.MinExploredUnfairSteps = scheduledSteps;
+                }
+
                 if (isMaxScheduledStepsBoundReached)
                 {
                     this.MaxUnfairStepsHitInUnfairTests++;
@@ -289,6 +318,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
                 this.NumOfExploredUnfairSchedules += testReport.NumOfExploredUnfairSchedules;
+
+                this.TotalExploredFairSteps += testReport.TotalExploredFairSteps;
                 this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, testReport.MaxExploredFairSteps);
                 if (testReport.MinExploredFairSteps >= 0 &&
                     (this.MinExploredFairSteps < 0 ||
@@ -297,7 +328,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinExploredFairSteps = testReport.MinExploredFairSteps;
                 }
 
-                this.TotalExploredFairSteps += testReport.TotalExploredFairSteps;
+                this.TotalExploredUnfairSteps += testReport.TotalExploredUnfairSteps;
+                this.MaxExploredUnfairSteps = Math.Max(this.MaxExploredUnfairSteps, testReport.MaxExploredUnfairSteps);
+                if (testReport.MinExploredUnfairSteps >= 0 &&
+                    (this.MinExploredUnfairSteps < 0 ||
+                    this.MinExploredUnfairSteps > testReport.MinExploredUnfairSteps))
+                {
+                    this.MinExploredUnfairSteps = testReport.MinExploredUnfairSteps;
+                }
+
                 this.MaxFairStepsHitInFairTests += testReport.MaxFairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInFairTests += testReport.MaxUnfairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInUnfairTests += testReport.MaxUnfairStepsHitInUnfairTests;
@@ -425,6 +464,14 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (this.NumOfExploredUnfairSchedules > 0)
             {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Number of scheduling decisions in unfair terminating schedules: {1} (min), {2} (avg), {3} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.MinExploredUnfairSteps < 0 ? 0 : this.MinExploredUnfairSteps,
+                    this.TotalExploredUnfairSteps / this.NumOfExploredUnfairSchedules,
+                    this.MaxExploredUnfairSteps < 0 ? 0 : this.MaxExploredUnfairSteps);
+
                 if (configuration.MaxUnfairSchedulingSteps > 0 &&
                     this.MaxUnfairStepsHitInUnfairTests > 0)
                 {

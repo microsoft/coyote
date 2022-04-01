@@ -70,6 +70,7 @@ namespace Microsoft.Coyote.GenDoc
                     TocPrefix = "ref",
                     RootNamespace = name,
                     VisibilityLevel = XmlDocVisibilityLevel.Protected,
+                    ShouldClean = true,
                     SkipUnbrowsable = true,
                     NamespacePages = true
                 };

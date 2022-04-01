@@ -37,13 +37,14 @@ namespace Microsoft.Coyote.Runtime
         public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops,
             ControlledOperation current)
         {
-            // Find all operations that are not accessing any shared state.
-            var noStateAccessOps = ops.Where(op => op.LastSchedulingPoint != SchedulingPointType.Read &&
-                op.LastSchedulingPoint != SchedulingPointType.Write);
-            if (noStateAccessOps.Any())
+            // Find all operations that are not invoking a user-defined scheduling decision.
+            var noUserDefinedSchedulingOps = ops.Where(
+                op => !SchedulingPoint.IsUserDefined(op.LastSchedulingPoint));
+            if (noUserDefinedSchedulingOps.Any())
             {
-                // There are operations that are not accessing any shared state, so return them.
-                return noStateAccessOps;
+                // One or more operations exist that are not invoking a user-defined
+                // scheduling decision, so return them.
+                return noUserDefinedSchedulingOps;
             }
             else
             {
@@ -51,20 +52,26 @@ namespace Microsoft.Coyote.Runtime
                 var readAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read);
                 var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
 
-                // Update the known 'READ' and 'WRITE' accesses so far.
+                // Update the known 'READ' and 'WRITE' access sets so far.
                 this.ReadAccesses.UnionWith(readAccessOps.Select(op => op.LastAccessedSharedState));
                 this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedSharedState));
 
-                // Find if there are any read-only accesses. Note that this is just an approximation
-                // based on current knowledge. An access that is considered read-only might not be
-                // considered anymore in later steps or iterations.
-                var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
-                    state => state.StartsWith(op.LastAccessedSharedState) ||
-                    op.LastAccessedSharedState.StartsWith(state)));
-                if (readOnlyAccessOps.Any())
+                // Find if any operations are explicitly interleaving, and if yes do not perform any reduction.
+                if (!ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Interleave ||
+                    op.LastSchedulingPoint is SchedulingPointType.Yield))
                 {
-                    // Return all read-only access operations.
-                    return readOnlyAccessOps;
+                    // Find if there are any read-only accesses. Note that this is just an approximation
+                    // based on current knowledge. An access that is considered read-only might not be
+                    // considered anymore in later steps or iterations once the known 'READ' and 'WRITE'
+                    // access sets have been updated.
+                    var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
+                        state => state.StartsWith(op.LastAccessedSharedState) ||
+                        op.LastAccessedSharedState.StartsWith(state)));
+                    if (readOnlyAccessOps.Any())
+                    {
+                        // Return all read-only access operations.
+                        return readOnlyAccessOps;
+                    }
                 }
             }
 

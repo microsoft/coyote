@@ -109,5 +109,18 @@ namespace Microsoft.Coyote.Runtime
                 runtime.ResumeScheduling();
             }
         }
+
+        /// <summary>
+        /// Returns true if the specified scheduling point is used-defined.
+        /// </summary>
+        /// <remarks>
+        /// A user-defined scheduling point is one that can be explicitly created
+        /// by invoking one of the <see cref="SchedulingPoint"/> methods.
+        /// </remarks>
+        internal static bool IsUserDefined(SchedulingPointType type) =>
+            type is SchedulingPointType.Interleave ||
+            type is SchedulingPointType.Yield ||
+            type is SchedulingPointType.Read ||
+            type is SchedulingPointType.Write;
     }
 }

@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>GenToc</AssemblyName>
+    <AssemblyName>GenDoc</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.GenDoc</RootNamespace>
     <OutputType>Exe</OutputType>
-    <OutputPath>..\..\bin\</OutputPath>
+    <OutputPath>.\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <Framework462Supported>false</Framework462Supported>
     <NetCore31Supported>false</NetCore31Supported>
@@ -12,6 +13,11 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="XmlDocMarkdown.Core" Version="2.8.0" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
 </Project>

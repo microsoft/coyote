@@ -1,75 +1,66 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-$PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+$root_dir = "$PSScriptRoot\.."
+$packages_path = "$root_dir\packages"
+$framework = "net6.0"
 
-$CoyoteRoot = Split-Path $PSScriptRoot
-
-$gentoc = "$CoyoteRoot\bin\net6.0\GenToc.exe"
-$ToolPath = "$CoyoteRoot\packages"
-
-if (-Not (Test-Path -Path "$CoyoteRoot\bin")) {
-    throw "please build coyote project first"
-}
+# Build the GenDoc tool.
+$path = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath "Tools", "GenDoc"
+$project = Join-Path -Path $path -ChildPath "GenDoc.csproj"
+$command = "build -c Release $project /p:Platform=""Any CPU"""
+Invoke-ToolCommand -tool "dotnet" -cmd $command -error_msg "Failed to build the GenDoc tool."
+$gendoc = Join-Path -Path $path -ChildPath "bin" -AdditionalChildPath $framework, "GenDoc.exe"
 
 function InstallToolVersion {
     Param ([string] $name, [string] $version)
 
-    $list = dotnet tool list --tool-path $ToolPath
+    $list = dotnet tool list --tool-path $packages_path
     $line = $list | Where-Object { $_ -Match "$name[ ]*([0-9.\-a-z]+).*" }
     $install = $false
     if ($null -eq $line) {
-        Write-Host "$name is not installed."
+        Write-Host "The tool '$name' is not installed."
         $install = $true
-    }
-    elseif (-not ($Matches[1] -eq $version)) {
+    } elseif (-not ($Matches[1] -eq $version)) {
         $old = $Matches[1]
-        Write-Host "upgrading $name from version $old"
-        dotnet tool uninstall $name --tool-path $ToolPath
+        Write-Host "Upgrading '$name' from version '$old'."
+        dotnet tool uninstall $name --tool-path $packages_path
         $install = $true
     }
+
     if ($install) {
-        Write-Host "installing $name version $version."
-        dotnet tool install $name --version "$version" --tool-path $ToolPath
+        Write-Host "Installing '$name' with version '$version'."
+        dotnet tool install $name --version "$version" --tool-path $packages_path
     }
-    return $installed
 }
 
-$inheritdoc = "$ToolPath\InheritDoc.exe"
-$xmldoc = "$ToolPath\xmldocmd.exe"
-$target = "$CoyoteRoot\docs\ref"
+# Install InheritDocTool.
+InstallToolVersion -name "InheritDocTool" -version "2.5.2"
 
-# install InheritDocTool
-$installed = InstallToolVersion -name "InheritDocTool" -version "2.5.2"
-
-# install xmldocmd
-$installed = InstallToolVersion -name "xmldocmd" -version "2.8.0"
-
-$framework_target = "$CoyoteRoot\bin\net6.0"
-Write-Host "processing inherit docs under $framework_target ..." -ForegroundColor Yellow
-& $inheritdoc --base "$framework_target" -o
+$framework_target = "$root_dir\bin\$framework"
+Write-Host "Processing inherit docs under $framework_target ..." -ForegroundColor Yellow
+& "$packages_path\InheritDoc.exe" --base "$framework_target" -o
 
 # Completely clean the ref folder so we start fresh
+$target = "$root_dir\docs\ref"
 if (Test-Path -Path $target) {
     Remove-Item -Recurse -Force $target
 }
 
 Write-Host "Generating new markdown under $target"
-
-# --permalink pretty
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net6.0\Microsoft.Coyote.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
+& $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.dll" -o $target --namespace Microsoft.Coyote
 $coyotetoc = Get-Content -Path "$target\toc.yml"
 
-& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\net6.0\Microsoft.Coyote.Test.dll" "$target" --visibility protected --toc --toc-prefix ref --skip-unbrowsable --namespace-pages
+& $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.Test.dll" -o $target --namespace Microsoft.Coyote.Test
 $newtoc = Get-Content -Path "$target\toc.yml"
 $newtoc = [System.Collections.ArrayList]$newtoc
 $newtoc.RemoveRange(0, 1); # remove -toc and assembly header
 $newtoc.InsertRange(0, $coyotetoc)
 
-# save the merged toc containing both the contents of Microsoft.Coyote.dll and Microsoft.Coyote.Test.dll
+# Save the merged toc containing both the contents of Microsoft.Coyote.dll and Microsoft.Coyote.Test.dll.
 Set-Content -Path "$target\toc.yml" -Value $newtoc
 
 Write-Host "Merging $toc..."
-# Now merge the new toc
+# Now merge the new toc.
 
-& $gentoc "$CoyoteRoot\mkdocs.yml" "$target\toc.yml"
+& $gendoc merge "$root_dir\mkdocs.yml" "$target\toc.yml"

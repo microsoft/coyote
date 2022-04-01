@@ -529,7 +529,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
                         this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"fallbacks to fuzzing due to uncontrolled concurrency");
+                        $"enables systematic fuzzing due to uncontrolled concurrency");
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
                 {

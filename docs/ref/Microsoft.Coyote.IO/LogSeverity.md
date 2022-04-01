@@ -1,6 +1,6 @@
 # LogSeverity enumeration
 
-Flag indicating the type of logging information being provided to the [`ILogger`](ILogger.md).
+Flag indicating the type of logging information being provided to the [`ILogger`](./ILogger.md).
 
 ```csharp
 public enum LogSeverity

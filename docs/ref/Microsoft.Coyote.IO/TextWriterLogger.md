@@ -1,6 +1,6 @@
 # TextWriterLogger class
 
-Bridges custom user provided TextWriter logger so it can be passed into Coyote via the [`ILogger`](ILogger.md) interface.
+Bridges custom user provided TextWriter logger so it can be passed into Coyote via the [`ILogger`](./ILogger.md) interface.
 
 ```csharp
 public class TextWriterLogger : TextWriter, ILogger
@@ -10,7 +10,7 @@ public class TextWriterLogger : TextWriter, ILogger
 
 | name | description |
 | --- | --- |
-| [TextWriterLogger](TextWriterLogger/TextWriterLogger.md)(…) | Initializes a new instance of the [`TextWriterLogger`](TextWriterLogger.md) class. |
+| [TextWriterLogger](TextWriterLogger/TextWriterLogger.md)(…) | Initializes a new instance of the [`TextWriterLogger`](./TextWriterLogger.md) class. |
 | override [Encoding](TextWriterLogger/Encoding.md) { get; } |  |
 | [TextWriter](TextWriterLogger/TextWriter.md) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
 | override [Write](TextWriterLogger/Write.md)(…) | Writes an informational string to the log. (2 methods) |
@@ -20,7 +20,7 @@ public class TextWriterLogger : TextWriter, ILogger
 
 ## See Also
 
-* interface [ILogger](ILogger.md)
+* interface [ILogger](./ILogger.md)
 * namespace [Microsoft.Coyote.IO](../Microsoft.Coyote.IONamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

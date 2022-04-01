@@ -15,7 +15,7 @@ public class TimerInfo : IEquatable<TimerInfo>
 | readonly [OwnerId](TimerInfo/OwnerId.md) | The id of the actor that owns the timer. |
 | readonly [Period](TimerInfo/Period.md) | The time interval between timeout events. |
 | override [Equals](TimerInfo/Equals.md)(…) | Determines whether the specified object is equal to the current object. |
-| [Equals](TimerInfo/Equals.md)(…) | Indicates whether the specified [`TimerInfo`](TimerInfo.md) is equal to the current [`TimerInfo`](TimerInfo.md). |
+| [Equals](TimerInfo/Equals.md)(…) | Indicates whether the specified [`TimerInfo`](./TimerInfo.md) is equal to the current [`TimerInfo`](./TimerInfo.md). |
 | override [GetHashCode](TimerInfo/GetHashCode.md)() | Returns the hash code for this instance. |
 | override [ToString](TimerInfo/ToString.md)() | Returns a string that represents the current instance. |
 

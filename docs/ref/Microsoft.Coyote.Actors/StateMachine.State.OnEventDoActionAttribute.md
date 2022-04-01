@@ -11,11 +11,11 @@ protected sealed class OnEventDoActionAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [OnEventDoActionAttribute](StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute.md)(…) | Initializes a new instance of the [`OnEventDoActionAttribute`](StateMachine.State.OnEventDoActionAttribute.md) class. |
+| [OnEventDoActionAttribute](StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute.md)(…) | Initializes a new instance of the [`OnEventDoActionAttribute`](./StateMachine.State.OnEventDoActionAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

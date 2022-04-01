@@ -11,11 +11,11 @@ protected sealed class OnEventPushStateAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [OnEventPushStateAttribute](StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute.md)(…) | Initializes a new instance of the [`OnEventPushStateAttribute`](StateMachine.State.OnEventPushStateAttribute.md) class. |
+| [OnEventPushStateAttribute](StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute.md)(…) | Initializes a new instance of the [`OnEventPushStateAttribute`](./StateMachine.State.OnEventPushStateAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

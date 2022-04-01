@@ -10,7 +10,7 @@ public sealed class DefaultEvent : Event
 
 | name | description |
 | --- | --- |
-| static [Instance](DefaultEvent/Instance.md) { get; } | Gets a [`DefaultEvent`](DefaultEvent.md) instance. |
+| static [Instance](DefaultEvent/Instance.md) { get; } | Gets a [`DefaultEvent`](./DefaultEvent.md) instance. |
 
 ## See Also
 

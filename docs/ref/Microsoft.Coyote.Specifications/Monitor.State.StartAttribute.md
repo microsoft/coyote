@@ -15,7 +15,7 @@ protected sealed class StartAttribute : Attribute
 
 ## See Also
 
-* class [State](Monitor.State.md)
+* class [State](./Monitor.State.md)
 * namespace [Microsoft.Coyote.Specifications](../Microsoft.Coyote.SpecificationsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

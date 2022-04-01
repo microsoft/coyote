@@ -1,6 +1,6 @@
 # ActorId.Value field
 
-Unique id, when [`NameValue`](NameValue.md) is empty.
+Unique id, when [`NameValue`](./NameValue.md) is empty.
 
 ```csharp
 public readonly ulong Value;

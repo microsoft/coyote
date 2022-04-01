@@ -10,7 +10,7 @@ public class RuntimeException : Exception
 
 | name | description |
 | --- | --- |
-| [RuntimeException](RuntimeException/RuntimeException.md)(…) | Initializes a new instance of the [`RuntimeException`](RuntimeException.md) class. |
+| [RuntimeException](RuntimeException/RuntimeException.md)(…) | Initializes a new instance of the [`RuntimeException`](./RuntimeException.md) class. |
 
 ## See Also
 

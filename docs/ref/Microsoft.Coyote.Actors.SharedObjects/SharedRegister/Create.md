@@ -3,7 +3,7 @@
 Creates a new shared register.
 
 ```csharp
-public static SharedRegister<T> Create<T>(IActorRuntime runtime, T value = default(T))
+public static SharedRegister<T> Create<T>(IActorRuntime runtime, T value = default)
     where T : struct
 ```
 

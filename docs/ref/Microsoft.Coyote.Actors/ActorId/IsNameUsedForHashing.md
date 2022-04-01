@@ -1,6 +1,6 @@
 # ActorId.IsNameUsedForHashing property
 
-True if [`NameValue`](NameValue.md) is used as the unique id, else false.
+True if [`NameValue`](./NameValue.md) is used as the unique id, else false.
 
 ```csharp
 public bool IsNameUsedForHashing { get; }

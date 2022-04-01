@@ -8,7 +8,7 @@ public sealed class AssertionFailureException : RuntimeException
 
 ## See Also
 
-* class [RuntimeException](RuntimeException.md)
+* class [RuntimeException](./RuntimeException.md)
 * namespace [Microsoft.Coyote.Runtime](../Microsoft.Coyote.RuntimeNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

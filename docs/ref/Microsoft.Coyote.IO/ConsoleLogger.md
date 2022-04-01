@@ -10,7 +10,7 @@ public sealed class ConsoleLogger : TextWriter, ILogger
 
 | name | description |
 | --- | --- |
-| [ConsoleLogger](ConsoleLogger/ConsoleLogger.md)() | Initializes a new instance of the [`ConsoleLogger`](ConsoleLogger.md) class. |
+| [ConsoleLogger](ConsoleLogger/ConsoleLogger.md)() | Initializes a new instance of the [`ConsoleLogger`](./ConsoleLogger.md) class. |
 | override [Encoding](ConsoleLogger/Encoding.md) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
 | [LogLevel](ConsoleLogger/LogLevel.md) { get; set; } | The level of detail to report. |
 | [TextWriter](ConsoleLogger/TextWriter.md) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
@@ -25,7 +25,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
-* interface [ILogger](ILogger.md)
+* interface [ILogger](./ILogger.md)
 * namespace [Microsoft.Coyote.IO](../Microsoft.Coyote.IONamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

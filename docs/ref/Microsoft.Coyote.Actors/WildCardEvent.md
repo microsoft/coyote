@@ -10,7 +10,7 @@ public sealed class WildCardEvent : Event
 
 | name | description |
 | --- | --- |
-| [WildCardEvent](WildCardEvent/WildCardEvent.md)() | Initializes a new instance of the [`WildCardEvent`](WildCardEvent.md) class. |
+| [WildCardEvent](WildCardEvent/WildCardEvent.md)() | Initializes a new instance of the [`WildCardEvent`](./WildCardEvent.md) class. |
 
 ## See Also
 

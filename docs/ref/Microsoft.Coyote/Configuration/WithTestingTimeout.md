@@ -12,7 +12,7 @@ public Configuration WithTestingTimeout(int timeout)
 
 ## Remarks
 
-Setting this value overrides the [`TestingIterations`](TestingIterations.md) value.
+Setting this value overrides the [`TestingIterations`](./TestingIterations.md) value.
 
 ## See Also
 

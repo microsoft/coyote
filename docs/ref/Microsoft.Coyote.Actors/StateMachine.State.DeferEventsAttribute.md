@@ -11,11 +11,11 @@ protected sealed class DeferEventsAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [DeferEventsAttribute](StateMachine.State.DeferEventsAttribute/DeferEventsAttribute.md)(…) | Initializes a new instance of the [`DeferEventsAttribute`](StateMachine.State.DeferEventsAttribute.md) class. |
+| [DeferEventsAttribute](StateMachine.State.DeferEventsAttribute/DeferEventsAttribute.md)(…) | Initializes a new instance of the [`DeferEventsAttribute`](./StateMachine.State.DeferEventsAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

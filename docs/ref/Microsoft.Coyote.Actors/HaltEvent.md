@@ -10,7 +10,7 @@ public sealed class HaltEvent : Event
 
 | name | description |
 | --- | --- |
-| static [Instance](HaltEvent/Instance.md) { get; } | Gets a [`HaltEvent`](HaltEvent.md) instance. |
+| static [Instance](HaltEvent/Instance.md) { get; } | Gets a [`HaltEvent`](./HaltEvent.md) instance. |
 
 ## See Also
 

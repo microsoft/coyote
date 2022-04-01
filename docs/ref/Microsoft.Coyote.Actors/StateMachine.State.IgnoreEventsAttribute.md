@@ -11,11 +11,11 @@ protected sealed class IgnoreEventsAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [IgnoreEventsAttribute](StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute.md)(…) | Initializes a new instance of the [`IgnoreEventsAttribute`](StateMachine.State.IgnoreEventsAttribute.md) class. |
+| [IgnoreEventsAttribute](StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute.md)(…) | Initializes a new instance of the [`IgnoreEventsAttribute`](./StateMachine.State.IgnoreEventsAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

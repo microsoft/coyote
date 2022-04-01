@@ -1,6 +1,6 @@
 # OnExceptionOutcome enumeration
 
-The outcome when an [`Actor`](Actor.md) throws an exception.
+The outcome when an [`Actor`](./Actor.md) throws an exception.
 
 ```csharp
 public enum OnExceptionOutcome

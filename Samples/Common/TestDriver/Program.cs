@@ -73,7 +73,8 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 .WithSystematicFuzzingFallbackEnabled(false);
             RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,
                 "CoffeeMachineTasks.Test",
-                "Please do not turn on grinder if there are no beans in the hopper");
+                "Please do not turn on grinder if there are no beans in the hopper",
+                "detected liveness bug in hot state 'Busy'");
 
             // DrinksServingRobotActors tests.
             configuration = Configuration.Create().WithTestingIterations(1000)

@@ -1252,8 +1252,6 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine(
                             "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        // Necessary until we have a better synchronization mechanism to give
-                        // more chance to another thread to resolve uncontrolled concurrency.
                         SyncMonitor.Wait(this.SyncObject, delay);
                         continue;
                     }
@@ -1340,8 +1338,6 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine(
                             "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        // Necessary until we have a better synchronization mechanism to give
-                        // more chance to another thread to resolve uncontrolled concurrency.
                         SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.LastPostponedSchedulingPoint.HasValue)
                         {

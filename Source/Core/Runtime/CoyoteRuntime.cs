@@ -1064,6 +1064,8 @@ namespace Microsoft.Coyote.Runtime
                 // Assign the operation as a member of its group.
                 op.Group.RegisterMember(op);
 
+                IO.Debug.WriteLine("<Coyote> Created operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 if (this.OperationMap.Count is 0)
                 {
                     this.ScheduledOperation = op;

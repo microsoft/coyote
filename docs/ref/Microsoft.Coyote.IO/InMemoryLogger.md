@@ -10,7 +10,7 @@ public sealed class InMemoryLogger : TextWriter, ILogger
 
 | name | description |
 | --- | --- |
-| [InMemoryLogger](InMemoryLogger/InMemoryLogger.md)() | Initializes a new instance of the [`InMemoryLogger`](InMemoryLogger.md) class. |
+| [InMemoryLogger](InMemoryLogger/InMemoryLogger.md)() | Initializes a new instance of the [`InMemoryLogger`](./InMemoryLogger.md) class. |
 | override [Encoding](InMemoryLogger/Encoding.md) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
 | [TextWriter](InMemoryLogger/TextWriter.md) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
 | override [ToString](InMemoryLogger/ToString.md)() | Returns the logged text as a string. |
@@ -31,7 +31,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
-* interface [ILogger](ILogger.md)
+* interface [ILogger](./ILogger.md)
 * namespace [Microsoft.Coyote.IO](../Microsoft.Coyote.IONamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

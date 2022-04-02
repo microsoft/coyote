@@ -10,7 +10,7 @@ public abstract class State
 
 | name | description |
 | --- | --- |
-| [State](StateMachine.State/State.md)() | Initializes a new instance of the [`State`](StateMachine.State.md) class. |
+| [State](StateMachine.State/State.md)() | Initializes a new instance of the [`State`](./StateMachine.State.md) class. |
 | class [DeferEventsAttribute](StateMachine.State.DeferEventsAttribute.md) | Attribute for declaring what events should be deferred in a state. |
 | class [IgnoreEventsAttribute](StateMachine.State.IgnoreEventsAttribute.md) | Attribute for declaring what events should be ignored in a state. |
 | class [OnEntryAttribute](StateMachine.State.OnEntryAttribute.md) | Attribute for declaring what action to perform when entering a state. |
@@ -26,7 +26,7 @@ See [State machines](/coyote/concepts/actors/state-machines) for more informatio
 
 ## See Also
 
-* class [StateMachine](StateMachine.md)
+* class [StateMachine](./StateMachine.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

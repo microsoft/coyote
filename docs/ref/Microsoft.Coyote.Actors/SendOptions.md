@@ -10,7 +10,7 @@ public class SendOptions
 
 | name | description |
 | --- | --- |
-| [SendOptions](SendOptions/SendOptions.md)(…) | Initializes a new instance of the [`SendOptions`](SendOptions.md) class. |
+| [SendOptions](SendOptions/SendOptions.md)(…) | Initializes a new instance of the [`SendOptions`](./SendOptions.md) class. |
 | static [Default](SendOptions/Default.md) { get; } | The default send options. |
 | [Assert](SendOptions/Assert.md) { get; } | Asserts that there must not be more than N instances of the event in the inbox queue of the receiver. |
 | [HashedState](SendOptions/HashedState.md) { get; } | User-defined hash of the event. The default value is 0. Override to improve the accuracy of stateful techniques during testing. |

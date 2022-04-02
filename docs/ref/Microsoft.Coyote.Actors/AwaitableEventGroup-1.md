@@ -1,6 +1,6 @@
 # AwaitableEventGroup&lt;T&gt; class
 
-An object representing an awaitable long running context involving one or more actors. An `AwaitableEventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `AwaitableEventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](Actor/CurrentEventGroup.md)). In this way an `AwaitableEventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `AwaitableEventGroup` using their [`CurrentEventGroup`](Actor/CurrentEventGroup.md) property.
+An object representing an awaitable long running context involving one or more actors. An `AwaitableEventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `AwaitableEventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](./Actor/CurrentEventGroup.md)). In this way an `AwaitableEventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `AwaitableEventGroup` using their [`CurrentEventGroup`](./Actor/CurrentEventGroup.md) property.
 
 ```csharp
 public class AwaitableEventGroup<T> : EventGroup
@@ -14,7 +14,7 @@ public class AwaitableEventGroup<T> : EventGroup
 
 | name | description |
 | --- | --- |
-| [AwaitableEventGroup](AwaitableEventGroup-1/AwaitableEventGroup.md)(…) | Initializes a new instance of the [`AwaitableEventGroup`](AwaitableEventGroup-1.md) class. |
+| [AwaitableEventGroup](AwaitableEventGroup-1/AwaitableEventGroup.md)(…) | Initializes a new instance of the [`AwaitableEventGroup`](./AwaitableEventGroup-1.md) class. |
 | [IsCanceled](AwaitableEventGroup-1/IsCanceled.md) { get; } | Value that indicates whether the task completed execution due to being canceled. |
 | [IsCompleted](AwaitableEventGroup-1/IsCompleted.md) { get; } | Indicates the `AwaitableEventGroup` has been completed. |
 | [IsFaulted](AwaitableEventGroup-1/IsFaulted.md) { get; } | Value that indicates whether the task completed due to an unhandled exception. |
@@ -29,7 +29,7 @@ public class AwaitableEventGroup<T> : EventGroup
 
 ## See Also
 
-* class [EventGroup](EventGroup.md)
+* class [EventGroup](./EventGroup.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

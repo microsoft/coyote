@@ -20,7 +20,7 @@ class Event E { }
 this.RaiseEvent(new E());
 ```
 
-This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](RaiseEvent.md), [`RaiseGotoStateEvent`](RaiseGotoStateEvent.md), [`RaisePushStateEvent`](RaisePushStateEvent.md) or [`RaisePopStateEvent`](RaisePopStateEvent.md) and [`RaiseHaltEvent`](RaiseHaltEvent.md). An Assert is raised if you accidentally try and do two of these operations in a single action.
+This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](./RaiseEvent.md), [`RaiseGotoStateEvent`](./RaiseGotoStateEvent.md), [`RaisePushStateEvent`](./RaisePushStateEvent.md) or [`RaisePopStateEvent`](./RaisePopStateEvent.md) and [`RaiseHaltEvent`](./RaiseHaltEvent.md). An Assert is raised if you accidentally try and do two of these operations in a single action.
 
 ## See Also
 
@@ -53,7 +53,7 @@ class Event E { }
 this.RaiseEvent(new E());
 ```
 
-This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](RaiseEvent.md), [`RaiseGotoStateEvent`](RaiseGotoStateEvent.md), `RaisePushStateEvent` or [`RaisePopStateEvent`](RaisePopStateEvent.md) and [`RaiseHaltEvent`](RaiseHaltEvent.md). An Assert is raised if you accidentally try and do two of these operations in a single action.
+This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](./RaiseEvent.md), [`RaiseGotoStateEvent`](./RaiseGotoStateEvent.md), `RaisePushStateEvent` or [`RaisePopStateEvent`](./RaisePopStateEvent.md) and [`RaiseHaltEvent`](./RaiseHaltEvent.md). An Assert is raised if you accidentally try and do two of these operations in a single action.
 
 ## See Also
 

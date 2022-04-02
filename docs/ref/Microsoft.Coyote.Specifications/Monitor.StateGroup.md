@@ -14,7 +14,7 @@ public abstract class StateGroup
 
 ## See Also
 
-* class [Monitor](Monitor.md)
+* class [Monitor](./Monitor.md)
 * namespace [Microsoft.Coyote.Specifications](../Microsoft.Coyote.SpecificationsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

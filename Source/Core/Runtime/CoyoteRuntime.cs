@@ -190,12 +190,19 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// If this value is not null, then it represents the last scheduling point that
-        /// was postponed. This happens if an uncontrolled thread created a new controlled
-        /// operation and tried to schedule it, but this can only happen from a controlled
-        /// thread. If this value is set, the runtime will try to invoke the scheduler from
-        /// a controlled thread before resuming executing the currently scheduled operation,
-        /// which can potentially increase coverage.
+        /// was postponed, which the runtime will try to schedule in the next available
+        /// thread that invokes a scheduling point.
         /// </summary>
+        /// <remarks>
+        /// A scheduling point can be postponed in two scenarios. The first scenario is
+        /// when an uncontrolled thread creates a new controlled operation and tries to
+        /// schedule it, but this is only allowed from a controlled thread. In this case,
+        /// the runtime will resume scheduling from the next available controlled thread.
+        /// The second scenario is when a controlled operation waits or completes, but a
+        /// potential deadlock is found due to uncontrolled concurrency that has not been
+        /// resolved yet. In this case, the runtime will resume scheduling from the next
+        /// available uncontrolled thread, unless there is a genuine deadlock.
+        /// </remarks>
         private SchedulingPointType? LastPostponedSchedulingPoint;
 
         /// <summary>
@@ -212,11 +219,6 @@ namespace Microsoft.Coyote.Runtime
         /// The max number of operations that were enabled at the same time.
         /// </summary>
         private uint MaxConcurrencyDegree;
-
-        /// <summary>
-        /// True if a bug was found, else false.
-        /// </summary>
-        internal bool IsBugFound { get; private set; }
 
         /// <summary>
         /// Bug report.
@@ -277,7 +279,6 @@ namespace Microsoft.Coyote.Runtime
             this.IsUncontrolledConcurrencyDetected = false;
             this.LastPostponedSchedulingPoint = null;
             this.MaxConcurrencyDegree = 0;
-            this.IsBugFound = false;
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
@@ -373,7 +374,8 @@ namespace Microsoft.Coyote.Runtime
 
                     lock (this.SyncObject)
                     {
-                        this.CheckLivenessErrorsAtTermination();
+                        // Checks for any liveness errors at test termination.
+                        this.SpecificationEngine.CheckLivenessErrors();
                         this.Detach(ExecutionStatus.PathExplored);
                     }
                 }
@@ -790,12 +792,25 @@ namespace Microsoft.Coyote.Runtime
                     return;
                 }
 
-                if (type is SchedulingPointType.Create || type is SchedulingPointType.ContinueWith)
+                ControlledOperation current = null;
+                if (!this.IsThreadControlled(Thread.CurrentThread))
                 {
-                    // If this scheduling point was triggered because a new operation was created by
-                    // an uncontrolled thread, then the scheduling point must be postponed.
-                    if (!this.IsThreadControlled(Thread.CurrentThread))
+                    if (this.LastPostponedSchedulingPoint is SchedulingPointType.Wait ||
+                        this.LastPostponedSchedulingPoint is SchedulingPointType.Complete)
                     {
+                        // A scheduling point was postponed due to a potential deadlock, which has
+                        // now been resolved, so resume it on this uncontrolled thread.
+                        current = this.ScheduledOperation;
+                        type = this.LastPostponedSchedulingPoint.Value;
+                        IO.Debug.WriteLine(
+                            "<Coyote> Resuming scheduling point '{0}' of operation '{1}' in uncontrolled thread '{2}'",
+                            type, current, Thread.CurrentThread.ManagedThreadId);
+                    }
+                    else if (type is SchedulingPointType.Create || type is SchedulingPointType.ContinueWith)
+                    {
+                        // This is a scheduling point that was invoked because a new operation was
+                        // created by an uncontrolled thread, so postpone the scheduling point and
+                        // resume it on the next available controlled thread.
                         IO.Debug.WriteLine("<Coyote> Postponing scheduling point '{0}' in uncontrolled thread '{1}'.",
                             type, Thread.CurrentThread.ManagedThreadId);
                         this.LastPostponedSchedulingPoint = type;
@@ -803,11 +818,12 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                var current = this.GetExecutingOperation();
+                // If the current operation is null, then this is a controlled thread,
+                // so get the currently executing operation to proceed with scheduling.
+                current ??= this.GetExecutingOperation();
                 if (current is null)
                 {
-                    // Cannot schedule the next operation if there is no controlled operation
-                    // executing on the current thread.
+                    // Cannot proceed without having access to the currently executing operation.
                     return;
                 }
 
@@ -842,16 +858,30 @@ namespace Microsoft.Coyote.Runtime
                 // Try to enable any operations with satisfied dependencies before asking the
                 // scheduler to choose the next one to schedule.
                 IEnumerable<ControlledOperation> ops = this.OperationMap.Values;
-                if (this.TryEnableOperationsWithSatisfiedDependencies(current))
+                if (!this.TryEnableOperationsWithSatisfiedDependencies(current))
                 {
-                    // Order the operations by their id.
-                    ops = ops.OrderBy(op => op.Id);
+                    if (this.IsUncontrolledConcurrencyDetected &&
+                        this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                    {
+                        // TODO: optimize and make this more fine-grained.
+                        // If uncontrolled concurrency is detected, then do not check for deadlocks directly,
+                        // but instead leave it to the background deadlock detection timer and postpone the
+                        // scheduling point, which might get resolved from an uncontrolled thread.
+                        IO.Debug.WriteLine(
+                            "<Coyote> Postponing scheduling point '{0}' of operation '{1}' due to potential deadlock.",
+                            type, current);
+                        this.LastPostponedSchedulingPoint = type;
+                        this.PauseOperation(current);
+                        return;
+                    }
+
+                    // Check if the execution has deadlocked.
+                    this.CheckIfExecutionHasDeadlocked(ops);
                 }
 
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
                 {
-                    // Check if the execution has deadlocked.
-                    this.CheckIfExecutionHasDeadlocked(ops);
+                    // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);
                 }
 
@@ -1029,6 +1059,8 @@ namespace Microsoft.Coyote.Runtime
                 // Assign the operation as a member of its group.
                 op.Group.RegisterMember(op);
 
+                IO.Debug.WriteLine("<Coyote> Created operation '{0}' of group '{1}' on thread '{2}'.",
+                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 if (this.OperationMap.Count is 0)
                 {
                     this.ScheduledOperation = op;
@@ -1080,9 +1112,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
                 {
-                    while (op.Status != OperationStatus.Enabled && this.ExecutionStatus is ExecutionStatus.Running)
+                    while (op.Status is OperationStatus.None && this.ExecutionStatus is ExecutionStatus.Running)
                     {
+                        IO.Debug.WriteLine("<Coyote> Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
+                            Thread.CurrentThread.ManagedThreadId, op.Name, op.Group);
                         SyncMonitor.Wait(this.SyncObject);
+                        IO.Debug.WriteLine("<Coyote> Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);
                     }
                 }
             }
@@ -1096,9 +1131,10 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void PauseOperation(ControlledOperation op)
         {
-            if (op.Status is OperationStatus.Completed)
+            if (op.Status is OperationStatus.Completed || op != ExecutingOperation.Value)
             {
-                // The operation is completed, so no need to wait.
+                // Do not wait if the operation is completed or it is not the operation
+                // executing on the current thread.
                 return;
             }
 
@@ -1136,16 +1172,8 @@ namespace Microsoft.Coyote.Runtime
         {
             IO.Debug.WriteLine("<Coyote> Trying to enable any operation with satisfied dependencies.");
 
-            Stopwatch elapsedDelay = null;
-            if (this.IsUncontrolledConcurrencyDetected &&
-                this.Configuration.IsPartiallyControlledConcurrencyAllowed)
-            {
-                elapsedDelay = new Stopwatch();
-                elapsedDelay.Start();
-            }
-
             int attempt = 0;
-            int resolutionInterval = (int)this.Configuration.UncontrolledConcurrencyResolutionInterval;
+            int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionTimeout;
             uint enabledOpsCount = 0;
             while (true)
             {
@@ -1217,20 +1245,14 @@ namespace Microsoft.Coyote.Runtime
                     bool isConcurrencyUnresolved = enabledOpsDelta is 0 && statusChanges is 0 &&
                         (isNoEnabledOpsCaseResolved || isSomeEnabledOpsCaseResolved);
 
-                    // Retry if there is unresolved concurrency and any attempts left, or if there are no enabled
-                    // operations and the accumulated delay is less than the specified deadlock timeout limit.
-                    if ((++attempt < 5 && isConcurrencyUnresolved) ||
-                        (enabledOpsCount is 0 && elapsedDelay.ElapsedMilliseconds <
-                        this.Configuration.UncontrolledConcurrencyResolutionTimeout))
+                    // Retry if there is unresolved concurrency and attempts left.
+                    if (++attempt < 5 && isConcurrencyUnresolved)
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
                             "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        // Necessary until we have a better synchronization mechanism to give
-                        // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, resolutionInterval);
-                        Thread.Yield();
+                        SyncMonitor.Wait(this.SyncObject, delay);
                         continue;
                     }
                 }
@@ -1240,7 +1262,6 @@ namespace Microsoft.Coyote.Runtime
 
             IO.Debug.WriteLine("<Coyote> There are {0} enabled operations.", enabledOpsCount);
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, enabledOpsCount);
-            elapsedDelay?.Stop();
             return enabledOpsCount > 0;
         }
 
@@ -1310,17 +1331,14 @@ namespace Microsoft.Coyote.Runtime
                 // of the current operation to try give time to the uncontrolled concurrency to be resolved.
                 if (this.LastPostponedSchedulingPoint is null)
                 {
-                    IO.Debug.WriteLine(
-                        "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
-                        Thread.CurrentThread.ManagedThreadId);
                     int attempt = 0;
-                    int resolutionInterval = (int)this.Configuration.UncontrolledConcurrencyResolutionInterval;
+                    int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionTimeout;
                     while (attempt++ < 10 && !task.IsCompleted)
                     {
-                        // Necessary until we have a better synchronization mechanism to give
-                        // more chance to another thread to resolve uncontrolled concurrency.
-                        SyncMonitor.Wait(this.SyncObject, resolutionInterval);
-                        Thread.Yield();
+                        IO.Debug.WriteLine(
+                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            Thread.CurrentThread.ManagedThreadId);
+                        SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.LastPostponedSchedulingPoint.HasValue)
                         {
                             // A scheduling point from an uncontrolled thread has been postponed,
@@ -1560,6 +1578,12 @@ namespace Microsoft.Coyote.Runtime
 #endif
         private void CheckIfExecutionHasDeadlocked(IEnumerable<ControlledOperation> ops)
         {
+            if (ops.Any(op => op.Status is OperationStatus.Enabled))
+            {
+                // There are still enabled operations, so the execution is not deadlocked.
+                return;
+            }
+
             var blockedOnReceiveOperations = ops.Where(op => op.Status is OperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is OperationStatus.BlockedOnWaitAll ||
                 op.Status is OperationStatus.BlockedOnWaitAny).ToList();
@@ -1568,6 +1592,7 @@ namespace Microsoft.Coyote.Runtime
             var totalCount = blockedOnReceiveOperations.Count + blockedOnWaitOperations.Count + blockedOnResources.Count;
             if (totalCount is 0)
             {
+                // There are no blocked operations, so the execution is not deadlocked.
                 return;
             }
 
@@ -1705,6 +1730,7 @@ namespace Microsoft.Coyote.Runtime
                     try
                     {
                         // Start the next timeout period.
+                        IO.Debug.WriteLine("<Coyote> Resolved periodic deadlock check.");
                         this.StartMonitoringDeadlocks();
                     }
                     catch (ObjectDisposedException)
@@ -1712,21 +1738,6 @@ namespace Microsoft.Coyote.Runtime
                         // Benign race condition while disposing the timer.
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Checks for liveness errors at test termination.
-        /// </summary>
-        /// <remarks>
-        /// The liveness check only happens if no safety errors have been found, and all controlled
-        /// operations have completed to ensure that any found liveness bug is not a false positive.
-        /// </remarks>
-        private void CheckLivenessErrorsAtTermination()
-        {
-            if (!this.IsBugFound && this.OperationMap.All(kvp => kvp.Value.Status is OperationStatus.Completed))
-            {
-                this.SpecificationEngine.CheckLivenessErrors();
             }
         }
 
@@ -1782,25 +1793,18 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                if (this.ExecutionStatus != ExecutionStatus.Running)
-                {
-                    return;
-                }
-
-                if (!this.IsBugFound)
+                if (this.ExecutionStatus is ExecutionStatus.Running)
                 {
                     this.BugReport = text;
                     this.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
-
-                    this.IsBugFound = true;
                     if (this.Configuration.AttachDebugger)
                     {
                         Debugger.Break();
                     }
-                }
 
-                this.Detach(ExecutionStatus.BugFound);
+                    this.Detach(ExecutionStatus.BugFound);
+                }
             }
         }
 
@@ -2003,10 +2007,11 @@ namespace Microsoft.Coyote.Runtime
         {
             lock (this.SyncObject)
             {
-                report.SetSchedulingStatistics(this.IsBugFound, this.BugReport, this.OperationMap.Count,
+                bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
-                if (this.IsBugFound)
+                if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);
                 }
@@ -2057,6 +2062,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Detaches the scheduler and interrupts all controlled operations.
         /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// </remarks>
         private void Detach(ExecutionStatus status)
         {
             if (this.ExecutionStatus != ExecutionStatus.Running)

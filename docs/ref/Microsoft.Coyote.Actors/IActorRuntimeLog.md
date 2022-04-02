@@ -1,6 +1,6 @@
 # IActorRuntimeLog interface
 
-Interface that allows an external module to track what is happening in the [`IActorRuntime`](IActorRuntime.md).
+Interface that allows an external module to track what is happening in the [`IActorRuntime`](./IActorRuntime.md).
 
 ```csharp
 public interface IActorRuntimeLog

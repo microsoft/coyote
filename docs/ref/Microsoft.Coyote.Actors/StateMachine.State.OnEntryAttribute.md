@@ -11,11 +11,11 @@ protected sealed class OnEntryAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [OnEntryAttribute](StateMachine.State.OnEntryAttribute/OnEntryAttribute.md)(…) | Initializes a new instance of the [`OnEntryAttribute`](StateMachine.State.OnEntryAttribute.md) class. |
+| [OnEntryAttribute](StateMachine.State.OnEntryAttribute/OnEntryAttribute.md)(…) | Initializes a new instance of the [`OnEntryAttribute`](./StateMachine.State.OnEntryAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

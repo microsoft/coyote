@@ -8,7 +8,7 @@ protected void RaiseHaltEvent()
 
 ## Remarks
 
-This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](RaiseEvent.md), [`RaiseGotoStateEvent`](RaiseGotoStateEvent.md), [`RaisePushStateEvent`](RaisePushStateEvent.md) or [`RaisePopStateEvent`](RaisePopStateEvent.md) and `RaiseHaltEvent`. An Assert is raised if you accidentally try and do two of these operations in a single action.
+This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: [`RaiseEvent`](./RaiseEvent.md), [`RaiseGotoStateEvent`](./RaiseGotoStateEvent.md), [`RaisePushStateEvent`](./RaisePushStateEvent.md) or [`RaisePopStateEvent`](./RaisePopStateEvent.md) and `RaiseHaltEvent`. An Assert is raised if you accidentally try and do two of these operations in a single action.
 
 ## See Also
 

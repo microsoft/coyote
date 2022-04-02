@@ -17,13 +17,13 @@ public abstract class StateMachine : Actor
 
 | name | description |
 | --- | --- |
-| [StateMachine](StateMachine/StateMachine.md)() | Initializes a new instance of the [`StateMachine`](StateMachine.md) class. |
+| [StateMachine](StateMachine/StateMachine.md)() | Initializes a new instance of the [`StateMachine`](./StateMachine.md) class. |
 | [CurrentState](StateMachine/CurrentState.md) { get; } | Gets the Type of the current state. |
 | override [OnEventHandledAsync](StateMachine/OnEventHandledAsync.md)(…) | Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless the handler of the dequeued event raised an event or caused the actor to halt (either normally or due to an exception). Unless this callback raises an event, the actor will either become idle or dequeue the next event from its inbox. |
 | [RaiseEvent](StateMachine/RaiseEvent.md)(…) | Raises the specified [`Event`](../Microsoft.Coyote/Event.md) at the end of the current action. |
 | [RaiseGotoStateEvent](StateMachine/RaiseGotoStateEvent.md)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
 | [RaiseGotoStateEvent&lt;TState&gt;](StateMachine/RaiseGotoStateEvent.md)() | Raise a special event that performs a goto state operation at the end of the current action. |
-| [RaiseHaltEvent](StateMachine/RaiseHaltEvent.md)() | Raises a [`HaltEvent`](HaltEvent.md) to halt the actor at the end of the current action. |
+| [RaiseHaltEvent](StateMachine/RaiseHaltEvent.md)() | Raises a [`HaltEvent`](./HaltEvent.md) to halt the actor at the end of the current action. |
 | [RaisePopStateEvent](StateMachine/RaisePopStateEvent.md)() | Raise a special event that performs a pop state operation at the end of the current action. |
 | [RaisePushStateEvent](StateMachine/RaisePushStateEvent.md)(…) | Raise a special event that performs a push state operation at the end of the current action. |
 | [RaisePushStateEvent&lt;TState&gt;](StateMachine/RaisePushStateEvent.md)() | Raise a special event that performs a push state operation at the end of the current action. |
@@ -34,7 +34,7 @@ See [State machines](/coyote/concepts/actors/state-machines) for more informatio
 
 ## See Also
 
-* class [Actor](Actor.md)
+* class [Actor](./Actor.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

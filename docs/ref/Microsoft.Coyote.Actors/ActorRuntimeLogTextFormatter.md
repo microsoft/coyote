@@ -10,7 +10,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 
 | name | description |
 | --- | --- |
-| [ActorRuntimeLogTextFormatter](ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md)() | Initializes a new instance of the [`ActorRuntimeLogTextFormatter`](ActorRuntimeLogTextFormatter.md) class. |
+| [ActorRuntimeLogTextFormatter](ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md)() | Initializes a new instance of the [`ActorRuntimeLogTextFormatter`](./ActorRuntimeLogTextFormatter.md) class. |
 | [Logger](ActorRuntimeLogTextFormatter/Logger.md) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILogger.md) interface to the logger. |
 | virtual [OnAssertionFailure](ActorRuntimeLogTextFormatter/OnAssertionFailure.md)(…) | Invoked when the specified assertion failure has occurred. |
 | virtual [OnCompleted](ActorRuntimeLogTextFormatter/OnCompleted.md)() | Invoked when a log is complete (and is about to be closed). |
@@ -50,7 +50,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
-* interface [IActorRuntimeLog](IActorRuntimeLog.md)
+* interface [IActorRuntimeLog](./IActorRuntimeLog.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

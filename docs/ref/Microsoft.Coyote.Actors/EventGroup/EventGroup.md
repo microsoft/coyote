@@ -3,7 +3,7 @@
 Initializes a new instance of the [`EventGroup`](../EventGroup.md) class.
 
 ```csharp
-public EventGroup(Guid id = default(Guid), string name = null)
+public EventGroup(Guid id = default, string name = null)
 ```
 
 | parameter | description |

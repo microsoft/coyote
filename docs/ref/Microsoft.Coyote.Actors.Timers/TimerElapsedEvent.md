@@ -10,7 +10,7 @@ public class TimerElapsedEvent : Event
 
 | name | description |
 | --- | --- |
-| [TimerElapsedEvent](TimerElapsedEvent/TimerElapsedEvent.md)() | Initializes a new instance of the [`TimerElapsedEvent`](TimerElapsedEvent.md) class. |
+| [TimerElapsedEvent](TimerElapsedEvent/TimerElapsedEvent.md)() | Initializes a new instance of the [`TimerElapsedEvent`](./TimerElapsedEvent.md) class. |
 | [Info](TimerElapsedEvent/Info.md) { get; } | Stores information about the timer. |
 
 ## Remarks

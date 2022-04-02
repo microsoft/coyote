@@ -1,6 +1,6 @@
 # Configuration.WithMaxSchedulingSteps method (1 of 2)
 
-Updates the configuration with the specified number of maximum scheduling steps to explore per iteration during systematic testing. The [`MaxUnfairSchedulingSteps`](MaxUnfairSchedulingSteps.md) is assigned the *maxSteps* value, whereas the [`MaxFairSchedulingSteps`](MaxFairSchedulingSteps.md) is assigned a value using the default heuristic, which is 10 * *maxSteps*.
+Updates the configuration with the specified number of maximum scheduling steps to explore per iteration during systematic testing. The [`MaxUnfairSchedulingSteps`](./MaxUnfairSchedulingSteps.md) is assigned the *maxSteps* value, whereas the [`MaxFairSchedulingSteps`](./MaxFairSchedulingSteps.md) is assigned a value using the default heuristic, which is 10 * *maxSteps*.
 
 ```csharp
 public Configuration WithMaxSchedulingSteps(uint maxSteps)
@@ -20,7 +20,7 @@ public Configuration WithMaxSchedulingSteps(uint maxSteps)
 
 # Configuration.WithMaxSchedulingSteps method (2 of 2)
 
-Updates the configuration with the specified number of maximum unfair and fair scheduling steps to explore per iteration during systematic testing. It is recommended to use [`WithMaxSchedulingSteps`](WithMaxSchedulingSteps.md) instead of this overloaded method.
+Updates the configuration with the specified number of maximum unfair and fair scheduling steps to explore per iteration during systematic testing. It is recommended to use [`WithMaxSchedulingSteps`](./WithMaxSchedulingSteps.md) instead of this overloaded method.
 
 ```csharp
 public Configuration WithMaxSchedulingSteps(uint maxUnfairSteps, uint maxFairSteps)

@@ -11,11 +11,11 @@ protected sealed class OnEventGotoStateAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [OnEventGotoStateAttribute](StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute.md)(…) | Initializes a new instance of the [`OnEventGotoStateAttribute`](StateMachine.State.OnEventGotoStateAttribute.md) class. (2 constructors) |
+| [OnEventGotoStateAttribute](StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute.md)(…) | Initializes a new instance of the [`OnEventGotoStateAttribute`](./StateMachine.State.OnEventGotoStateAttribute.md) class. (2 constructors) |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

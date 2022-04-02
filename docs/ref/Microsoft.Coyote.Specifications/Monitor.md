@@ -18,7 +18,7 @@ public abstract class Monitor
 
 | name | description |
 | --- | --- |
-| [Monitor](Monitor/Monitor.md)() | Initializes a new instance of the [`Monitor`](Monitor.md) class. |
+| [Monitor](Monitor/Monitor.md)() | Initializes a new instance of the [`Monitor`](./Monitor.md) class. |
 | [CurrentState](Monitor/CurrentState.md) { get; } | Gets the current state. |
 | virtual [HashedState](Monitor/HashedState.md) { get; } | User-defined hashed state of the monitor. Override to improve the accuracy of stateful techniques during testing. |
 | [Logger](Monitor/Logger.md) { get; } | The logger installed to the runtime. |

@@ -10,14 +10,14 @@ public sealed class ActorId : IComparable<ActorId>, IEquatable<ActorId>
 
 | name | description |
 | --- | --- |
-| [IsNameUsedForHashing](ActorId/IsNameUsedForHashing.md) { get; } | True if [`NameValue`](ActorId/NameValue.md) is used as the unique id, else false. |
+| [IsNameUsedForHashing](ActorId/IsNameUsedForHashing.md) { get; } | True if [`NameValue`](./ActorId/NameValue.md) is used as the unique id, else false. |
 | [Runtime](ActorId/Runtime.md) { get; } | The runtime that executes the actor with this id. |
 | readonly [Name](ActorId/Name.md) | Name used for logging. |
 | readonly [NameValue](ActorId/NameValue.md) | Unique id, when non-empty. |
 | readonly [Type](ActorId/Type.md) | The type of the actor associated with this id. |
-| readonly [Value](ActorId/Value.md) | Unique id, when [`NameValue`](ActorId/NameValue.md) is empty. |
-| [CompareTo](ActorId/CompareTo.md)(…) | Compares the specified [`ActorId`](ActorId.md) with the current [`ActorId`](ActorId.md) for ordering or sorting purposes. |
-| [Equals](ActorId/Equals.md)(…) | Indicates whether the specified [`ActorId`](ActorId.md) is equal to the current [`ActorId`](ActorId.md). |
+| readonly [Value](ActorId/Value.md) | Unique id, when [`NameValue`](./ActorId/NameValue.md) is empty. |
+| [CompareTo](ActorId/CompareTo.md)(…) | Compares the specified [`ActorId`](./ActorId.md) with the current [`ActorId`](./ActorId.md) for ordering or sorting purposes. |
+| [Equals](ActorId/Equals.md)(…) | Indicates whether the specified [`ActorId`](./ActorId.md) is equal to the current [`ActorId`](./ActorId.md). |
 | override [Equals](ActorId/Equals.md)(…) | Determines whether the specified object is equal to the current object. |
 | override [GetHashCode](ActorId/GetHashCode.md)() | Returns the hash code for this instance. |
 | override [ToString](ActorId/ToString.md)() | Returns a string that represents the current actor id. |

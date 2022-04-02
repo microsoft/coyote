@@ -11,7 +11,7 @@ public sealed class RewritingSignatureAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [RewritingSignatureAttribute](RewritingSignatureAttribute/RewritingSignatureAttribute.md)(…) | Initializes a new instance of the [`RewritingSignatureAttribute`](RewritingSignatureAttribute.md) class. |
+| [RewritingSignatureAttribute](RewritingSignatureAttribute/RewritingSignatureAttribute.md)(…) | Initializes a new instance of the [`RewritingSignatureAttribute`](./RewritingSignatureAttribute.md) class. |
 | readonly [Signature](RewritingSignatureAttribute/Signature.md) | Signature identifying parameters used during rewriting. |
 | readonly [Version](RewritingSignatureAttribute/Version.md) | The version of Coyote used for the rewriting. |
 

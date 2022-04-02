@@ -396,6 +396,7 @@ namespace Microsoft.Coyote.Actors
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
                 var op = actor.Operation;
+                op.Status = OperationStatus.None;
                 this.Runtime.TaskFactory.StartNew(async state =>
                 {
                     await this.RunActorEventHandlerAsync(actor, initialEvent, isFresh);
@@ -1273,6 +1274,7 @@ namespace Microsoft.Coyote.Actors
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
                 var op = actor.Operation;
+                op.Status = OperationStatus.None;
                 this.Runtime.TaskFactory.StartNew(async state =>
                 {
                     try

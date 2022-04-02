@@ -3,13 +3,12 @@
 Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration.
 
 ```csharp
-public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout, uint interval)
+public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout)
 ```
 
 | parameter | description |
 | --- | --- |
-| timeout | The timeout value in milliseconds, which by default is 1000. |
-| interval | The interval value in milliseconds, which by default is 2. |
+| timeout | The timeout value in milliseconds, which by default is 2. |
 
 ## Remarks
 

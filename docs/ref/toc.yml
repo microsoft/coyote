@@ -940,6 +940,12 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
         - name: TotalExploredFairSteps
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
+        - name: MinExploredUnfairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredUnfairSteps
+        - name: MaxExploredUnfairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredUnfairSteps
+        - name: TotalExploredUnfairSteps
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredUnfairSteps
         - name: MaxFairStepsHitInFairTests
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
         - name: MaxUnfairStepsHitInFairTests
@@ -989,6 +995,8 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
         - name: IsTestRewritten
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
+        - name: Dispose
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Dispose
         - name: TestReport
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
         - name: Logger

@@ -10,7 +10,7 @@ public abstract class State
 
 | name | description |
 | --- | --- |
-| [State](Monitor.State/State.md)() | Initializes a new instance of the [`State`](Monitor.State.md) class. |
+| [State](Monitor.State/State.md)() | Initializes a new instance of the [`State`](./Monitor.State.md) class. |
 | class [ColdAttribute](Monitor.State.ColdAttribute.md) | Attribute for declaring a cold monitor state. A monitor that is in a cold state satisfies a liveness property. |
 | class [HotAttribute](Monitor.State.HotAttribute.md) | Attribute for declaring a hot monitor state. A monitor that is in a hot state violates a liveness property. |
 | class [IgnoreEventsAttribute](Monitor.State.IgnoreEventsAttribute.md) | Attribute for declaring what events should be ignored in a monitor state. |
@@ -22,7 +22,7 @@ public abstract class State
 
 ## See Also
 
-* class [Monitor](Monitor.md)
+* class [Monitor](./Monitor.md)
 * namespace [Microsoft.Coyote.Specifications](../Microsoft.Coyote.SpecificationsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

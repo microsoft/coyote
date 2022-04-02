@@ -3,7 +3,7 @@
 Testing engine that can run a controlled concurrency test using a specified configuration.
 
 ```csharp
-public sealed class TestingEngine
+public sealed class TestingEngine : IDisposable
 ```
 
 ## Public Members
@@ -15,6 +15,7 @@ public sealed class TestingEngine
 | [ReadableTrace](TestingEngine/ReadableTrace.md) { get; } | The readable trace, if any. |
 | [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport.md) { get; set; } | Data structure containing information gathered during testing. |
+| [Dispose](TestingEngine/Dispose.md)() | Releases any held resources. |
 | [GetReport](TestingEngine/GetReport.md)() | Returns a report with the testing results. |
 | [IsTestRewritten](TestingEngine/IsTestRewritten.md)() | Checks if the test executed by the testing engine has been rewritten with the current version. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack.md)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |

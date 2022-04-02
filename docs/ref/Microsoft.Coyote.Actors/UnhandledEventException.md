@@ -1,6 +1,6 @@
 # UnhandledEventException class
 
-Signals that an [`Actor`](Actor.md) received an unhandled event.
+Signals that an [`Actor`](./Actor.md) received an unhandled event.
 
 ```csharp
 public sealed class UnhandledEventException : RuntimeException
@@ -10,7 +10,7 @@ public sealed class UnhandledEventException : RuntimeException
 
 | name | description |
 | --- | --- |
-| [CurrentStateName](UnhandledEventException/CurrentStateName.md) | The name of the current state, if the actor that threw the exception is a [`StateMachine`](StateMachine.md) and a state exists, else null. |
+| [CurrentStateName](UnhandledEventException/CurrentStateName.md) | The name of the current state, if the actor that threw the exception is a [`StateMachine`](./StateMachine.md) and a state exists, else null. |
 | [UnhandledEvent](UnhandledEventException/UnhandledEvent.md) | The unhandled event. |
 
 ## See Also

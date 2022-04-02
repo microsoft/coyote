@@ -1,6 +1,6 @@
 # DequeueStatus enumeration
 
-The status returned as the result of an [`Actor`](Actor.md) dequeue operation.
+The status returned as the result of an [`Actor`](./Actor.md) dequeue operation.
 
 ```csharp
 public enum DequeueStatus

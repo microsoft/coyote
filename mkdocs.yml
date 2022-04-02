@@ -608,6 +608,9 @@ nav:
         - MinExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps.md
         - MaxExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps.md
         - TotalExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps.md
+        - MinExploredUnfairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredUnfairSteps.md
+        - MaxExploredUnfairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredUnfairSteps.md
+        - TotalExploredUnfairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredUnfairSteps.md
         - MaxFairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests.md
         - MaxUnfairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests.md
         - MaxUnfairStepsHitInUnfairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests.md
@@ -635,6 +638,7 @@ nav:
         - TryEmitCoverageReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitCoverageReports.md
         - RegisterPerIterationCallBack: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack.md
         - IsTestRewritten: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten.md
+        - Dispose: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Dispose.md
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport.md
         - Logger: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger.md
         - ReadableTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace.md

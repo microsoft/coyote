@@ -336,14 +336,6 @@ namespace Microsoft.Coyote.Cli
                 ArgumentHelpName = "TIMEOUT"
             };
 
-            var uncontrolledConcurrencyIntervalOption = new Option<int>(
-                name: "--uncontrolled-concurrency-interval",
-                getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionInterval,
-                description: "Controls the interval (in ms) between attempts to resolve uncontrolled concurrency.")
-            {
-                ArgumentHelpName = "INTERVAL"
-            };
-
             var skipPotentialDeadlocksOption = new Option<bool>(
                 name: "--skip-potential-deadlocks",
                 description: "Only report a deadlock when the runtime can fully determine that it is genuine " +
@@ -420,7 +412,6 @@ namespace Microsoft.Coyote.Cli
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             deadlockTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
-            uncontrolledConcurrencyIntervalOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
@@ -444,7 +435,6 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, timeoutDelayOption);
             this.AddOption(command, deadlockTimeoutOption);
             this.AddOption(command, uncontrolledConcurrencyTimeoutOption);
-            this.AddOption(command, uncontrolledConcurrencyIntervalOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, failOnMaxStepsOption);
             this.AddOption(command, noFuzzingFallbackOption);
@@ -876,9 +866,6 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "uncontrolled-concurrency-timeout":
                         this.Configuration.UncontrolledConcurrencyResolutionTimeout = (uint)result.GetValueOrDefault<int>();
-                        break;
-                    case "uncontrolled-concurrency-interval":
-                        this.Configuration.UncontrolledConcurrencyResolutionInterval = (uint)result.GetValueOrDefault<int>();
                         break;
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;

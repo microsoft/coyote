@@ -3,7 +3,7 @@
 Initializes a new instance of the [`AwaitableEventGroup`](../AwaitableEventGroup-1.md) class.
 
 ```csharp
-public AwaitableEventGroup(Guid id = default(Guid), string name = null)
+public AwaitableEventGroup(Guid id = default, string name = null)
 ```
 
 | parameter | description |

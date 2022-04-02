@@ -1,6 +1,6 @@
 # RuntimeFactory class
 
-Provides methods for creating a [`IActorRuntime`](IActorRuntime.md) runtime.
+Provides methods for creating a [`IActorRuntime`](./IActorRuntime.md) runtime.
 
 ```csharp
 public static class RuntimeFactory

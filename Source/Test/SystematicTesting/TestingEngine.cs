@@ -529,9 +529,14 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
                         this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"switching to fuzzing due to uncontrolled concurrency");
+                        $"enables systematic fuzzing due to uncontrolled concurrency");
                 }
-                else if (runtime.IsBugFound)
+                else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
+                {
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
+                        $"hit bound of '{this.Scheduler.StepCount}' scheduling steps");
+                }
+                else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {
                     if (!this.Scheduler.IsReplayingSchedule)
                     {

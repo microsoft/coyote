@@ -14,7 +14,7 @@ public abstract class StateGroup
 
 ## See Also
 
-* class [StateMachine](StateMachine.md)
+* class [StateMachine](./StateMachine.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

@@ -1,6 +1,6 @@
 # Actor.StartTimer method
 
-Starts a timer that sends a [`TimerElapsedEvent`](../../Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) to this actor after the specified due time. The timer accepts an optional payload to be used during timeout. The timer is automatically disposed after it timeouts. To manually stop and dispose the timer, invoke the [`StopTimer`](StopTimer.md) method.
+Starts a timer that sends a [`TimerElapsedEvent`](../../Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) to this actor after the specified due time. The timer accepts an optional payload to be used during timeout. The timer is automatically disposed after it timeouts. To manually stop and dispose the timer, invoke the [`StopTimer`](./StopTimer.md) method.
 
 ```csharp
 protected TimerInfo StartTimer(TimeSpan startDelay, TimerElapsedEvent customEvent = null)

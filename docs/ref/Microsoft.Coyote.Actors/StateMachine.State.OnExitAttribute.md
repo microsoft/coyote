@@ -11,11 +11,11 @@ protected sealed class OnExitAttribute : Attribute
 
 | name | description |
 | --- | --- |
-| [OnExitAttribute](StateMachine.State.OnExitAttribute/OnExitAttribute.md)(…) | Initializes a new instance of the [`OnExitAttribute`](StateMachine.State.OnExitAttribute.md) class. |
+| [OnExitAttribute](StateMachine.State.OnExitAttribute/OnExitAttribute.md)(…) | Initializes a new instance of the [`OnExitAttribute`](./StateMachine.State.OnExitAttribute.md) class. |
 
 ## See Also
 
-* class [State](StateMachine.State.md)
+* class [State](./StateMachine.State.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

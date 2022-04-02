@@ -1,6 +1,6 @@
 # OnEventDroppedHandler delegate
 
-Handles the [`OnEventDropped`](IActorRuntime/OnEventDropped.md) event.
+Handles the [`OnEventDropped`](./IActorRuntime/OnEventDropped.md) event.
 
 ```csharp
 public delegate void OnEventDroppedHandler(Event e, ActorId target);
@@ -9,7 +9,7 @@ public delegate void OnEventDroppedHandler(Event e, ActorId target);
 ## See Also
 
 * class [Event](../Microsoft.Coyote/Event.md)
-* class [ActorId](ActorId.md)
+* class [ActorId](./ActorId.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

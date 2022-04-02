@@ -1,3 +1,8 @@
+## v1.5.3
+- Improved the assembly loading logic when using the `coyote` tool.
+- Fixed rare deadlock in test execution paths that exhibit partially-controlled concurrency.
+- Various other runtime improvements.
+
 ## v1.5.2
 - Introduced new command-line interface for the `coyote` tool that builds on top of the
   `System.CommandLine` library. This brings an improved and more robust user experience (e.g. better
@@ -31,7 +36,7 @@
 - New option for skipping potential deadlocks in the presence of partially-controlled concurrency.
 - The actor logging method `LogExceptionThrown` is now only called if the exception was not handled.
   The `LogExceptionHandled` method can be used instead for handled exceptions.
-- Runtime improvements and fixes.
+- Various other runtime improvements and fixes.
 
 ## v1.4.3
 - Added support for the `netstandard2.0` target.

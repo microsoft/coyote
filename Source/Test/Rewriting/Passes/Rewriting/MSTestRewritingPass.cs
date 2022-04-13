@@ -219,6 +219,10 @@ namespace Microsoft.Coyote.Rewriting
                         this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
                             false, (uint)this.Configuration.StrategyBound);
                         break;
+                    case "taskpct":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithTaskPCTStrategy",
+                            false, (uint)this.Configuration.StrategyBound);
+                        break;
                     case "dfs":
                         this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy",
                             this.Configuration.ScheduleTrace);

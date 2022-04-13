@@ -38,6 +38,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new PrioritizationStrategy(configuration, generator);
             }
+            else if (configuration.SchedulingStrategy is "taskpct")
+            {
+                strategy = new TaskPCTStrategy(configuration, generator);
+            }
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
                 var prefixStrategy = new PrioritizationStrategy(configuration, generator);

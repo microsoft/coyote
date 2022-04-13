@@ -351,6 +351,21 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the priority-based scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible priority changes, which by default can be up to 10.
+        /// </summary>
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        public Configuration WithTaskPCTStrategy(bool isFair = false, uint priorityChangeBound = 10)
+        {
+            // FN_TODO: fix fair-taskpct
+            this.SchedulingStrategy = isFair ? "fair-taskpct" : "taskpct";
+            this.StrategyBound = (int)priorityChangeBound;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>

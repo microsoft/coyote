@@ -11,6 +11,23 @@ namespace Microsoft.Coyote.Runtime
     /// </summary>
     internal class ControlledOperation : IEquatable<ControlledOperation>
     {
+        public ControlledOperation ParentTask = null;
+
+        public bool IsContinuationTask = false;
+
+         // TODO: make it internal or private, initialize properly inside a constructor
+        // public List<AsyncOperation> Spawnees = new List<AsyncOperation>();
+
+        public bool LastMoveNextHandled = true;
+
+        // public int AsyncStateMachineID = -1;
+
+        public int TaskGroupID = -1;
+
+        public bool IsOwnerSpawnOperation = false;
+
+        public bool IsDelayTaskOperation = false;
+
         /// <summary>
         /// The unique id of the operation.
         /// </summary>

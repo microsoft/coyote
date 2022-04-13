@@ -17,6 +17,48 @@ namespace Microsoft.Coyote.SystematicTesting
     public class TestReport : ITestReport
     {
         /// <summary>
+        /// Number of Spawn Tasks observed.
+        /// </summary>
+        [DataMember]
+        public int NumSpawnTasks { get; set; }
+
+        /// <summary>
+        /// Number of Continuation Tasks observed.
+        /// </summary>
+        [DataMember]
+        public int NumContinuationTasks { get; set; }
+
+        /// <summary>
+        /// Number of Delay Tasks observed.
+        /// </summary>
+        [DataMember]
+        public int NumDelayTasks;
+
+        /// <summary>
+        /// Number of times Start method is called by AsyncStateMachines.
+        /// </summary>
+        [DataMember]
+        public int NumOfAsyncStateMachineStart;
+
+        /// <summary>
+        /// Number of Start method calls by AsyncStateMachines in which correct owner operation was not set.
+        /// </summary>
+        [DataMember]
+        public int NumOfAsyncStateMachineStartMissed;
+
+        /// <summary>
+        /// Number of times MoveNext method is called by AsyncStateMachines.
+        /// </summary>
+        [DataMember]
+        public int NumOfMoveNext;
+
+        /// <summary>
+        /// Number of times setting correct parent or priority on a MoveNext method call is missed.
+        /// </summary>
+        [DataMember]
+        public int NumOfMoveNextMissed;
+
+        /// <summary>
         /// Configuration of the program-under-test.
         /// </summary>
         [DataMember]
@@ -202,7 +244,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <inheritdoc/>
         void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations,
-            int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
+            int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair, int numSpawnTasks, int numContinuationTasks, int numDelayTasks, int numOfAsyncStateMachineStart, int numOfAsyncStateMachineStartMissed, int numOfMoveNext, int numOfMoveNextMissed)
         {
             if (isBugFound)
             {
@@ -263,6 +305,14 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MaxUnfairStepsHitInUnfairTests++;
                 }
             }
+
+            this.NumContinuationTasks = numContinuationTasks;
+            this.NumSpawnTasks = numSpawnTasks;
+            this.NumDelayTasks = numDelayTasks;
+            this.NumOfAsyncStateMachineStart = numOfAsyncStateMachineStart;
+            this.NumOfAsyncStateMachineStartMissed = numOfAsyncStateMachineStartMissed;
+            this.NumOfMoveNext = numOfMoveNext;
+            this.NumOfMoveNextMissed = numOfMoveNextMissed;
         }
 
         /// <inheritdoc/>
@@ -347,6 +397,13 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 this.InternalErrors.UnionWith(testReport.InternalErrors);
+                this.NumSpawnTasks += testReport.NumSpawnTasks;
+                this.NumContinuationTasks += testReport.NumContinuationTasks;
+                this.NumDelayTasks += testReport.NumDelayTasks;
+                this.NumOfAsyncStateMachineStart += testReport.NumOfAsyncStateMachineStart;
+                this.NumOfAsyncStateMachineStartMissed += testReport.NumOfAsyncStateMachineStartMissed;
+                this.NumOfMoveNext += testReport.NumOfMoveNext;
+                this.NumOfMoveNextMissed += testReport.NumOfMoveNextMissed;
             }
 
             return true;
@@ -483,6 +540,69 @@ namespace Microsoft.Coyote.SystematicTesting
                         (double)this.MaxUnfairStepsHitInUnfairTests / this.NumOfExploredUnfairSchedules * 100);
                 }
             }
+
+            // if (this.NumContinuationTasks > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of continuation tasks is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumContinuationTasks);
+            // }
+
+            // if (this.NumSpawnTasks > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of new spawn tasks is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumSpawnTasks);
+            // }
+
+            // if (this.NumDelayTasks > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of new delay tasks is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumDelayTasks);
+            // }
+
+            // if (this.NumOfAsyncStateMachineStart > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of times Start method is called by AsyncStateMachines is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumOfAsyncStateMachineStart);
+            // }
+
+            // if (this.NumOfAsyncStateMachineStartMissed > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of Start method calls by AsyncStateMachines in which correct owner operation was not set is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumOfAsyncStateMachineStartMissed);
+            // }
+
+            // if (this.NumOfMoveNext > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of times MoveNext method is called by AsyncStateMachines is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumOfMoveNext);
+            // }
+
+            // if (this.NumOfMoveNextMissed > 0)
+            // {
+            report.AppendLine();
+            report.AppendFormat(
+            "{0} Number of times setting correct parent or priority on a MoveNext method call is missed is.",
+            prefix.Equals("...") ? "....." : prefix,
+            this.NumOfMoveNextMissed);
+            // }
 
             return report.ToString();
         }

@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.Runtime
 
                     this.CompleteOperation(op);
 
-                    lock (this.SyncObject)
+                    using (SynchronizedSection.Enter(this.SyncObject))
                     {
                         // Checks for any liveness errors at test termination.
                         this.SpecificationEngine.CheckLivenessErrors();
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Task task)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
@@ -492,7 +492,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action callback)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
@@ -782,7 +782,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void ScheduleNextOperation(SchedulingPointType type, bool isSuppressible = true, bool isYielding = false)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running ||
                     this.SchedulingPolicy != SchedulingPolicy.Interleaving)
@@ -902,7 +902,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void SuppressScheduling()
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("<Coyote> Suppressing scheduling of enabled operations.");
                 this.IsSchedulerSuppressed = true;
@@ -914,7 +914,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void ResumeScheduling()
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("<Coyote> Resuming scheduling of enabled operations.");
                 this.IsSchedulerSuppressed = false;
@@ -932,7 +932,7 @@ namespace Microsoft.Coyote.Runtime
         {
             int delay = 0;
             ControlledOperation current = null;
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
@@ -970,7 +970,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool GetNextNondeterministicBooleanChoice(int maxValue)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 // Checks if the current operation is controlled by the runtime.
                 this.GetExecutingOperation();
@@ -1004,7 +1004,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal int GetNextNondeterministicIntegerChoice(int maxValue)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 // Checks if the current operation is controlled by the runtime.
                 this.GetExecutingOperation();
@@ -1032,7 +1032,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private int GetNondeterministicDelay(ControlledOperation op, int maxValue)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -1054,7 +1054,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="op">The operation to register.</param>
         internal void RegisterOperation(ControlledOperation op)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 // Assign the operation as a member of its group.
                 op.Group.RegisterMember(op);
@@ -1086,7 +1086,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void StartOperation(ControlledOperation op)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("<Coyote> Started operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
@@ -1108,7 +1108,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void WaitOperationStart(ControlledOperation op)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
                 {
@@ -1127,7 +1127,7 @@ namespace Microsoft.Coyote.Runtime
         /// Pauses the execution of the specified operation.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private void PauseOperation(ControlledOperation op)
         {
@@ -1153,7 +1153,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void CompleteOperation(ControlledOperation op)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("<Coyote> Completed operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
@@ -1166,7 +1166,7 @@ namespace Microsoft.Coyote.Runtime
         /// true if there is at least one operation enabled, else false.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private bool TryEnableOperationsWithSatisfiedDependencies(ControlledOperation current)
         {
@@ -1250,7 +1250,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
-                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            "<Coyote> [!] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
                         SyncMonitor.Wait(this.SyncObject, delay);
                         continue;
@@ -1269,7 +1269,7 @@ namespace Microsoft.Coyote.Runtime
         /// Tries to enable the specified operation, if its dependencies have been satisfied.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private bool TryEnableOperation(ControlledOperation op)
         {
@@ -1321,7 +1321,7 @@ namespace Microsoft.Coyote.Runtime
         /// it tries to invoke an uncontrolled scheduling point, or the timeout expires.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private void TryPauseAndResolveUncontrolledTask(Task task)
         {
@@ -1336,7 +1336,7 @@ namespace Microsoft.Coyote.Runtime
                     while (attempt++ < 10 && !task.IsCompleted)
                     {
                         IO.Debug.WriteLine(
-                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            "<Coyote> [?] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
                         SyncMonitor.Wait(this.SyncObject, delay);
                         if (this.LastPostponedSchedulingPoint.HasValue)
@@ -1367,7 +1367,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal ControlledOperation GetExecutingOperation()
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 var op = ExecutingOperation.Value;
                 if (op is null)
@@ -1389,7 +1389,7 @@ namespace Microsoft.Coyote.Runtime
         internal TControlledOperation GetExecutingOperation<TControlledOperation>()
             where TControlledOperation : ControlledOperation
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 var op = ExecutingOperation.Value;
                 if (op is null)
@@ -1407,7 +1407,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal ControlledOperation GetOperationWithId(ulong operationId)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 this.OperationMap.TryGetValue(operationId, out ControlledOperation op);
                 return op;
@@ -1421,7 +1421,7 @@ namespace Microsoft.Coyote.Runtime
         internal TControlledOperation GetOperationWithId<TControlledOperation>(ulong operationId)
             where TControlledOperation : ControlledOperation
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.OperationMap.TryGetValue(operationId, out ControlledOperation op) &&
                     op is TControlledOperation expected)
@@ -1442,7 +1442,7 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private IEnumerable<ControlledOperation> GetRegisteredOperations()
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 return this.OperationMap.Values;
             }
@@ -1695,7 +1695,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void CheckIfExecutionHasDeadlocked(object state)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
@@ -1767,7 +1767,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void NotifyUnhandledException(Exception ex, string message)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
@@ -1791,7 +1791,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void NotifyAssertionFailure(string text)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus is ExecutionStatus.Running)
                 {
@@ -1813,7 +1813,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void NotifyUncontrolledInvocation(string methodName)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.SchedulingPolicy != SchedulingPolicy.None)
                 {
@@ -1849,7 +1849,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void NotifyUncontrolledTaskWait(Task task)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
@@ -1871,7 +1871,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void NotifyUncontrolledTaskReturned(Task task, string methodName)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.SchedulingPolicy != SchedulingPolicy.None)
                 {
@@ -2005,7 +2005,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void PopulateTestReport(ITestReport report)
         {
-            lock (this.SyncObject)
+            using (SynchronizedSection.Enter(this.SyncObject))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
                 report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
@@ -2063,7 +2063,7 @@ namespace Microsoft.Coyote.Runtime
         /// Detaches the scheduler and interrupts all controlled operations.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a 'lock(this.SyncObject)' statement.
+        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private void Detach(ExecutionStatus status)
         {

@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Resource that can be used to synchronize asynchronous operations.
     /// </summary>
-    internal struct SynchronizedSection : IDisposable
+    public struct SynchronizedSection : IDisposable
     {
         /// <summary>
         /// Thread local variable that specifies whether the current thread has
@@ -47,14 +47,16 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Enters the synchronized section that is guarded by the specified synchronization object.
+        /// When the synchronized section gets disposed, the thread will automatically exit it.
         /// </summary>
-        internal static SynchronizedSection Enter(object syncObject) =>
+        public static SynchronizedSection Enter(object syncObject) =>
             new SynchronizedSection(syncObject, true).InvokeAction();
 
         /// <summary>
         /// Exits the synchronized section that is guarded by the specified synchronization object.
+        /// When the synchronized section gets disposed, the thread will automatically enter it.
         /// </summary>
-        internal static SynchronizedSection Exit(object syncObject) =>
+        public static SynchronizedSection Exit(object syncObject) =>
             new SynchronizedSection(syncObject, false).InvokeAction();
 
         /// <summary>
@@ -70,6 +72,10 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.Exit();
             }
+            else
+            {
+                // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Skip");
+            }
 
             return this;
         }
@@ -81,7 +87,7 @@ namespace Microsoft.Coyote.Runtime
         {
             SyncMonitor.Enter(this.SyncObject);
             IsEntered.Value = true;
-            Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Enter");
+            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Enter");
         }
 
         /// <summary>
@@ -89,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void Exit()
         {
-            Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Exit");
+            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Exit");
             IsEntered.Value = false;
             SyncMonitor.Exit(this.SyncObject);
         }

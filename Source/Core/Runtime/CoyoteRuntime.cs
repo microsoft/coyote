@@ -14,7 +14,6 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
-using SyncMonitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -332,7 +331,7 @@ namespace Microsoft.Coyote.Runtime
                     // Configures the execution context of the current thread with data
                     // related to the runtime and the operation executed by this thread.
                     this.SetCurrentExecutionContext(op);
-                    this.StartOperation(op);
+                    this.StartOperation(op, null);
 
                     Task task = Task.CompletedTask;
                     Task actorQuiescenceTask = Task.CompletedTask;
@@ -443,48 +442,52 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            // Check if an existing controlled operation is stored in the state of the task.
-            ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation();
-            var thread = new Thread(() =>
+            // Used to pause the currently executing thread until the operation starts executing.
+            using (var handshake = new ManualResetEventSlim(false))
             {
-                try
+                // Check if an existing controlled operation is stored in the state of the task.
+                ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation();
+                var thread = new Thread(() =>
                 {
-                    // Configures the execution context of the current thread with data
-                    // related to the runtime and the operation executed by this thread.
-                    this.SetCurrentExecutionContext(op);
-                    this.StartOperation(op);
-                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    try
                     {
-                        this.DelayOperation();
+                        // Configures the execution context of the current thread with data
+                        // related to the runtime and the operation executed by this thread.
+                        this.SetCurrentExecutionContext(op);
+                        this.StartOperation(op, handshake);
+                        if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                        {
+                            this.DelayOperation();
+                        }
+
+                        this.ControlledTaskScheduler.ExecuteTask(task);
+
+                        this.CompleteOperation(op);
+                        this.ScheduleNextOperation(SchedulingPointType.Complete);
                     }
+                    catch (Exception ex)
+                    {
+                        this.ProcessUnhandledExceptionInOperation(op, ex);
+                    }
+                    finally
+                    {
+                        CleanCurrentExecutionContext();
+                    }
+                });
 
-                    this.ControlledTaskScheduler.ExecuteTask(task);
+                thread.Name = Guid.NewGuid().ToString();
+                thread.IsBackground = true;
 
-                    this.CompleteOperation(op);
-                    this.ScheduleNextOperation(SchedulingPointType.Complete);
-                }
-                catch (Exception ex)
-                {
-                    this.ProcessUnhandledExceptionInOperation(op, ex);
-                }
-                finally
-                {
-                    CleanCurrentExecutionContext();
-                }
-            });
+                // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+                this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
+                this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
+                this.ControlledTasks.TryAdd(task, op);
 
-            thread.Name = Guid.NewGuid().ToString();
-            thread.IsBackground = true;
+                thread.Start();
 
-            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
-            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
-            this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
-            this.ControlledTasks.TryAdd(task, op);
-
-            thread.Start();
-
-            this.WaitOperationStart(op);
-            this.ScheduleNextOperation(SchedulingPointType.Create);
+                this.WaitOperationStart(op, handshake);
+                this.ScheduleNextOperation(SchedulingPointType.Create);
+            }
         }
 
         /// <summary>
@@ -500,45 +503,49 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            ControlledOperation op = this.CreateControlledOperation();
-            var thread = new Thread(() =>
+            // Used to pause the currently executing thread until the operation starts executing.
+            using (var handshake = new ManualResetEventSlim(false))
             {
-                try
+                ControlledOperation op = this.CreateControlledOperation();
+                var thread = new Thread(() =>
                 {
-                    // Configures the execution context of the current thread with data
-                    // related to the runtime and the operation executed by this thread.
-                    this.SetCurrentExecutionContext(op);
-                    this.StartOperation(op);
-                    if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    try
                     {
-                        this.DelayOperation();
+                        // Configures the execution context of the current thread with data
+                        // related to the runtime and the operation executed by this thread.
+                        this.SetCurrentExecutionContext(op);
+                        this.StartOperation(op, handshake);
+                        if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                        {
+                            this.DelayOperation();
+                        }
+
+                        callback();
+                        this.CompleteOperation(op);
+                        this.ScheduleNextOperation(SchedulingPointType.Complete);
                     }
+                    catch (Exception ex)
+                    {
+                        this.ProcessUnhandledExceptionInOperation(op, ex);
+                    }
+                    finally
+                    {
+                        CleanCurrentExecutionContext();
+                    }
+                });
 
-                    callback();
-                    this.CompleteOperation(op);
-                    this.ScheduleNextOperation(SchedulingPointType.Complete);
-                }
-                catch (Exception ex)
-                {
-                    this.ProcessUnhandledExceptionInOperation(op, ex);
-                }
-                finally
-                {
-                    CleanCurrentExecutionContext();
-                }
-            });
+                thread.Name = Guid.NewGuid().ToString();
+                thread.IsBackground = true;
 
-            thread.Name = Guid.NewGuid().ToString();
-            thread.IsBackground = true;
+                // TODO: optimize by using a real threadpool instead of creating a new thread each time.
+                this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
+                this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
 
-            // TODO: optimize by using a real threadpool instead of creating a new thread each time.
-            this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
-            this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
+                thread.Start();
 
-            thread.Start();
-
-            this.WaitOperationStart(op);
-            this.ScheduleNextOperation(SchedulingPointType.ContinueWith);
+                this.WaitOperationStart(op, handshake);
+                this.ScheduleNextOperation(SchedulingPointType.ContinueWith);
+            }
         }
 
         /// <summary>
@@ -890,7 +897,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Pause the currently scheduled operation, and enable the next one.
                     this.ScheduledOperation = next;
-                    SyncMonitor.PulseAll(this.SyncObject);
+                    next.Signal();
                     this.PauseOperation(current);
                 }
             }
@@ -1081,10 +1088,11 @@ namespace Microsoft.Coyote.Runtime
         /// Starts the execution of the specified controlled operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
+        /// <param name="handshake">Used to perform a synchronized handshake.</param>
         /// <remarks>
         /// This method performs a handshake with <see cref="WaitOperationStart"/>.
         /// </remarks>
-        private void StartOperation(ControlledOperation op)
+        private void StartOperation(ControlledOperation op, ManualResetEventSlim handshake)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
@@ -1093,7 +1101,9 @@ namespace Microsoft.Coyote.Runtime
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    SyncMonitor.PulseAll(this.SyncObject);
+                    // SyncMonitor.PulseAll(this.SyncObject);
+                    // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Set handshake for '{op}'");
+                    handshake?.Set();
                     this.PauseOperation(op);
                 }
             }
@@ -1103,10 +1113,11 @@ namespace Microsoft.Coyote.Runtime
         /// Waits for the specified controlled operation to start executing.
         /// </summary>
         /// <param name="op">The operation to wait.</param>
+        /// <param name="handshake">Used to perform a synchronized handshake.</param>
         /// <remarks>
         /// This method performs a handshake with <see cref="StartOperation"/>.
         /// </remarks>
-        private void WaitOperationStart(ControlledOperation op)
+        private void WaitOperationStart(ControlledOperation op, ManualResetEventSlim handshake)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
@@ -1116,7 +1127,13 @@ namespace Microsoft.Coyote.Runtime
                     {
                         IO.Debug.WriteLine("<Coyote> Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
                             Thread.CurrentThread.ManagedThreadId, op.Name, op.Group);
-                        SyncMonitor.Wait(this.SyncObject);
+                        using (SynchronizedSection.Exit(this.SyncObject))
+                        {
+                            // SyncMonitor.Wait(this.SyncObject);
+                            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Wait handshake for '{op}'");
+                            handshake.Wait();
+                        }
+
                         IO.Debug.WriteLine("<Coyote> Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);
                     }
                 }
@@ -1127,7 +1144,8 @@ namespace Microsoft.Coyote.Runtime
         /// Pauses the execution of the specified operation.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
+        /// It is assumed that this method is invoked by the same thread executing the operation
+        /// and that it runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
         private void PauseOperation(ControlledOperation op)
         {
@@ -1142,7 +1160,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 IO.Debug.WriteLine("<Coyote> Sleeping operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
-                SyncMonitor.Wait(this.SyncObject);
+                using (SynchronizedSection.Exit(this.SyncObject))
+                {
+                    // SyncMonitor.Wait(this.SyncObject);
+                    op.WaitSignal();
+                }
+
                 IO.Debug.WriteLine("<Coyote> Waking up operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
             }
@@ -1173,7 +1196,8 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine("<Coyote> Trying to enable any operation with satisfied dependencies.");
 
             int attempt = 0;
-            int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionTimeout;
+            int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionDelay;
+            uint maxAttempts = this.Configuration.UncontrolledConcurrencyResolutionAttempts;
             uint enabledOpsCount = 0;
             while (true)
             {
@@ -1246,13 +1270,18 @@ namespace Microsoft.Coyote.Runtime
                         (isNoEnabledOpsCaseResolved || isSomeEnabledOpsCaseResolved);
 
                     // Retry if there is unresolved concurrency and attempts left.
-                    if (++attempt < 5 && isConcurrencyUnresolved)
+                    if (++attempt < maxAttempts && isConcurrencyUnresolved)
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
                             "<Coyote> [!] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        SyncMonitor.Wait(this.SyncObject, delay);
+                        using (SynchronizedSection.Exit(this.SyncObject))
+                        {
+                            // SyncMonitor.Wait(this.SyncObject, delay);
+                            Thread.SpinWait(delay);
+                        }
+
                         continue;
                     }
                 }
@@ -1332,13 +1361,19 @@ namespace Microsoft.Coyote.Runtime
                 if (this.LastPostponedSchedulingPoint is null)
                 {
                     int attempt = 0;
-                    int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionTimeout;
-                    while (attempt++ < 10 && !task.IsCompleted)
+                    int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionDelay;
+                    uint maxAttempts = this.Configuration.UncontrolledConcurrencyResolutionAttempts;
+                    while (attempt++ < maxAttempts && !task.IsCompleted)
                     {
                         IO.Debug.WriteLine(
                             "<Coyote> [?] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
-                        SyncMonitor.Wait(this.SyncObject, delay);
+                        using (SynchronizedSection.Exit(this.SyncObject))
+                        {
+                            // SyncMonitor.Wait(this.SyncObject, delay);
+                            Thread.SpinWait(delay);
+                        }
+
                         if (this.LastPostponedSchedulingPoint.HasValue)
                         {
                             // A scheduling point from an uncontrolled thread has been postponed,
@@ -2136,6 +2171,11 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 RuntimeProvider.Deregister(this.Id);
+
+                foreach (var op in this.OperationMap.Values)
+                {
+                    op.Dispose();
+                }
 
                 this.ThreadPool.Clear();
                 this.OperationMap.Clear();

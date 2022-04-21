@@ -165,11 +165,18 @@ namespace Microsoft.Coyote
         internal bool ReportPotentialDeadlocksAsBugs;
 
         /// <summary>
-        /// Value that controls how much time the runtime should wait for the uncontrolled concurrency
-        /// to resolve during testing before timing out. This value is in milliseconds.
+        /// Value that controls how many times the runtime can check if each instance
+        /// of uncontrolled concurrency has resolved during testing before timing out.
         /// </summary>
         [DataMember]
-        internal uint UncontrolledConcurrencyResolutionTimeout;
+        internal uint UncontrolledConcurrencyResolutionAttempts;
+
+        /// <summary>
+        /// Value that controls how much time the runtime should wait between each attempt
+        /// to resolve uncontrolled concurrency during testing before timing out.
+        /// </summary>
+        [DataMember]
+        internal uint UncontrolledConcurrencyResolutionDelay;
 
         /// <summary>
         /// The liveness temperature threshold. If it is 0 then it is disabled. By default
@@ -283,7 +290,8 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 5000;
             this.ReportPotentialDeadlocksAsBugs = true;
-            this.UncontrolledConcurrencyResolutionTimeout = 2;
+            this.UncontrolledConcurrencyResolutionAttempts = 10;
+            this.UncontrolledConcurrencyResolutionDelay = 1000;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
@@ -552,16 +560,22 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls how much time the runtime should wait for
-        /// uncontrolled concurrency to resolve before continuing exploration.
+        /// Updates the values that controls how much time the runtime should wait for each
+        /// instance of uncontrolled concurrency to resolve before continuing exploration.
+        /// The attempts value controls how many times the runtime can check if uncontrolled
+        /// concurrency has resolved, whereas the delay value controls how long the runtime
+        /// waits between each retry.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 2.</param>
+        /// <param name="attempts">The number of attempts, which by default is 10.</param>
+        /// <param name="delay">The delay value is the number of busy loops to perform, which by default is 1000.</param>
         /// <remarks>
-        /// Increase the value to give more time to try resolve uncontrolled concurrency.
+        /// Increasing each of the values allows more time to try resolve uncontrolled
+        /// concurrency at the cost of slower testing.
         /// </remarks>
-        public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout)
+        public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint attempts, uint delay)
         {
-            this.UncontrolledConcurrencyResolutionTimeout = timeout;
+            this.UncontrolledConcurrencyResolutionAttempts = attempts;
+            this.UncontrolledConcurrencyResolutionDelay = delay;
             return this;
         }
 

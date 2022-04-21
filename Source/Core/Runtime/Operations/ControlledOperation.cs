@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Represents an operation that can be controlled during testing.
     /// </summary>
-    internal class ControlledOperation : IEquatable<ControlledOperation>
+    internal class ControlledOperation : IEquatable<ControlledOperation>, IDisposable
     {
         /// <summary>
         /// The unique id of the operation.
@@ -37,6 +38,11 @@ namespace Microsoft.Coyote.Runtime
         /// Set of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
         internal readonly HashSet<object> Dependencies;
+
+        /// <summary>
+        /// Synchronization mechanism for controlling the execution of this operation.
+        /// </summary>
+        internal ManualResetEventSlim SyncEvent;
 
         /// <summary>
         /// The type of the last encountered scheduling point.
@@ -88,11 +94,35 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
             this.Dependencies = new HashSet<object>();
+            this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
+        }
+
+        /// <summary>
+        /// Pauses the execution of the operation until it receives a signal.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method is invoked by the same thread executing the operation.
+        /// </remarks>
+        internal void WaitSignal()
+        {
+            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] WaitSignal '{this}'");
+            this.SyncEvent.Wait();
+            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Reset '{this}'");
+            this.SyncEvent.Reset();
+        }
+
+        /// <summary>
+        /// Signals the operation to resume its execution.
+        /// </summary>
+        internal void Signal()
+        {
+            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Signal '{this}'");
+            this.SyncEvent.Set();
         }
 
         /// <summary>
@@ -153,5 +183,13 @@ namespace Microsoft.Coyote.Runtime
         /// to the current <see cref="ControlledOperation"/>.
         /// </summary>
         bool IEquatable<ControlledOperation>.Equals(ControlledOperation other) => this.Equals(other);
+
+        /// <summary>
+        /// Releases any held resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.SyncEvent.Dispose();
+        }
     }
 }

@@ -1269,7 +1269,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // Implement a simple retry logic to try resolve uncontrolled concurrency.
                         IO.Debug.WriteLine(
-                            "<Coyote> [!] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {
@@ -1360,7 +1360,7 @@ namespace Microsoft.Coyote.Runtime
                     while (attempt++ < maxAttempts && !task.IsCompleted)
                     {
                         IO.Debug.WriteLine(
-                            "<Coyote> [?] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
+                            "<Coyote> Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {

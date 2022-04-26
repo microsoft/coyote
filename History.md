@@ -1,3 +1,6 @@
+## v1.5.4
+- Significantly improved runtime performance during partially-controlled concurrency testing.
+
 ## v1.5.3
 - Improved the assembly loading logic when using the `coyote` tool.
 - Fixed rare deadlock in test execution paths that exhibit partially-controlled concurrency.

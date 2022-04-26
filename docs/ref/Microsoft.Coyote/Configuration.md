@@ -42,7 +42,7 @@ public class Configuration
 | [WithTestingTimeout](Configuration/WithTestingTimeout.md)(…) | Updates the configuration with the specified systematic testing timeout in seconds. |
 | [WithTimeoutDelay](Configuration/WithTimeoutDelay.md)(…) | Updates the value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. |
 | [WithTraceVisualizationEnabled](Configuration/WithTraceVisualizationEnabled.md)(…) | Updates the configuration with trace visualization enabled or disabled. If enabled, the testing engine can produce a DGML graph representing an execution leading up to a bug. |
-| [WithUncontrolledConcurrencyResolutionTimeout](Configuration/WithUncontrolledConcurrencyResolutionTimeout.md)(…) | Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration. |
+| [WithUncontrolledConcurrencyResolutionTimeout](Configuration/WithUncontrolledConcurrencyResolutionTimeout.md)(…) | Updates the values that control how much time the runtime should wait for each instance of uncontrolled concurrency to resolve before continuing exploration. The *attempts* parameter controls how many times to check if uncontrolled concurrency has resolved, whereas the *delay* parameter controls how long the runtime waits between each retry. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration with verbose output enabled or disabled. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled.md)(…) | Updates the configuration with XML log generation enabled or disabled. |
 

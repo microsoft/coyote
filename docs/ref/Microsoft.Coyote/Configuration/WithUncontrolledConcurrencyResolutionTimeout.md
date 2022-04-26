@@ -1,18 +1,19 @@
 # Configuration.WithUncontrolledConcurrencyResolutionTimeout method
 
-Updates the value that controls how much time the runtime should wait for uncontrolled concurrency to resolve before continuing exploration.
+Updates the values that control how much time the runtime should wait for each instance of uncontrolled concurrency to resolve before continuing exploration. The *attempts* parameter controls how many times to check if uncontrolled concurrency has resolved, whereas the *delay* parameter controls how long the runtime waits between each retry.
 
 ```csharp
-public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint timeout)
+public Configuration WithUncontrolledConcurrencyResolutionTimeout(uint attempts, uint delay)
 ```
 
 | parameter | description |
 | --- | --- |
-| timeout | The timeout value in milliseconds, which by default is 2. |
+| attempts | The number of attempts, which by default is 10. |
+| delay | The delay value is the number of busy loops to perform, which by default is 1000. |
 
 ## Remarks
 
-Increase the value to give more time to try resolve uncontrolled concurrency.
+Increasing each of the values allows more time to try resolve uncontrolled concurrency at the cost of slower testing.
 
 ## See Also
 

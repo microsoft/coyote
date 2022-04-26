@@ -328,12 +328,21 @@ namespace Microsoft.Coyote.Cli
                 ArgumentHelpName = "TIMEOUT"
             };
 
-            var uncontrolledConcurrencyTimeoutOption = new Option<int>(
-                name: "--uncontrolled-concurrency-timeout",
-                getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionTimeout,
-                description: "Controls how much time (in ms) to try resolve uncontrolled concurrency.")
+            var uncontrolledConcurrencyResolutionAttemptsOption = new Option<int>(
+                name: "--resolve-uncontrolled-concurrency-attempts",
+                getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionAttempts,
+                description: "Controls how many times to try resolve each instance of uncontrolled concurrency.")
             {
-                ArgumentHelpName = "TIMEOUT"
+                ArgumentHelpName = "ATTEMPTS"
+            };
+
+            var uncontrolledConcurrencyResolutionDelayOption = new Option<int>(
+                name: "--resolve-uncontrolled-concurrency-delay",
+                getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionDelay,
+                description: "Controls how much time (in number of busy loops) to wait between each attempt to " +
+                    "resolve each instance of uncontrolled concurrency.")
+            {
+                ArgumentHelpName = "DELAY"
             };
 
             var skipPotentialDeadlocksOption = new Option<bool>(
@@ -411,7 +420,8 @@ namespace Microsoft.Coyote.Cli
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             deadlockTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
-            uncontrolledConcurrencyTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
@@ -434,7 +444,8 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
             this.AddOption(command, deadlockTimeoutOption);
-            this.AddOption(command, uncontrolledConcurrencyTimeoutOption);
+            this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
+            this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, failOnMaxStepsOption);
             this.AddOption(command, noFuzzingFallbackOption);
@@ -864,8 +875,11 @@ namespace Microsoft.Coyote.Cli
                     case "deadlock-timeout":
                         this.Configuration.DeadlockTimeout = (uint)result.GetValueOrDefault<int>();
                         break;
-                    case "uncontrolled-concurrency-timeout":
-                        this.Configuration.UncontrolledConcurrencyResolutionTimeout = (uint)result.GetValueOrDefault<int>();
+                    case "resolve-uncontrolled-concurrency-attempts":
+                        this.Configuration.UncontrolledConcurrencyResolutionAttempts = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "resolve-uncontrolled-concurrency-delay":
+                        this.Configuration.UncontrolledConcurrencyResolutionDelay = (uint)result.GetValueOrDefault<int>();
                         break;
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;

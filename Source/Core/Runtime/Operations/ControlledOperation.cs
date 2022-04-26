@@ -110,20 +110,14 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void WaitSignal()
         {
-            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] WaitSignal '{this}'");
             this.SyncEvent.Wait();
-            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Reset '{this}'");
             this.SyncEvent.Reset();
         }
 
         /// <summary>
         /// Signals the operation to resume its execution.
         /// </summary>
-        internal void Signal()
-        {
-            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Signal '{this}'");
-            this.SyncEvent.Set();
-        }
+        internal void Signal() => this.SyncEvent.Set();
 
         /// <summary>
         /// Sets the specified dependency.

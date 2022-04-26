@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Resource that can be used to synchronize asynchronous operations.
     /// </summary>
-    public struct SynchronizedSection : IDisposable
+    internal struct SynchronizedSection : IDisposable
     {
         /// <summary>
         /// Thread local variable that specifies whether the current thread has
@@ -49,14 +49,14 @@ namespace Microsoft.Coyote.Runtime
         /// Enters the synchronized section that is guarded by the specified synchronization object.
         /// When the synchronized section gets disposed, the thread will automatically exit it.
         /// </summary>
-        public static SynchronizedSection Enter(object syncObject) =>
+        internal static SynchronizedSection Enter(object syncObject) =>
             new SynchronizedSection(syncObject, true).InvokeAction();
 
         /// <summary>
         /// Exits the synchronized section that is guarded by the specified synchronization object.
         /// When the synchronized section gets disposed, the thread will automatically enter it.
         /// </summary>
-        public static SynchronizedSection Exit(object syncObject) =>
+        internal static SynchronizedSection Exit(object syncObject) =>
             new SynchronizedSection(syncObject, false).InvokeAction();
 
         /// <summary>

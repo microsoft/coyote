@@ -83,7 +83,6 @@
 | class [RuntimeException](./Microsoft.Coyote.Runtime/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
 | static class [RuntimeProvider](./Microsoft.Coyote.Runtime/RuntimeProvider.md) | Provides methods for creating or accessing a [`ICoyoteRuntime`](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
 | static class [SchedulingPoint](./Microsoft.Coyote.Runtime/SchedulingPoint.md) | Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing. |
-| struct [SynchronizedSection](./Microsoft.Coyote.Runtime/SynchronizedSection.md) | Resource that can be used to synchronize asynchronous operations. |
 
 ## Microsoft.Coyote.Specifications namespace
 

@@ -124,8 +124,8 @@ namespace Microsoft.Coyote.Rewriting
                 if (type.Name is nameof(System.Threading.Thread) && method != null &&
                     (method.Name is nameof(System.Threading.Thread.Start) ||
                     method.Name is nameof(System.Threading.Thread.Join) ||
-                    // method.Name is nameof(System.Threading.Thread.SpinWait) ||
-                    // method.Name is nameof(System.Threading.Thread.Sleep) ||
+                    method.Name is nameof(System.Threading.Thread.SpinWait) ||
+                    method.Name is nameof(System.Threading.Thread.Sleep) ||
                     method.Name is nameof(System.Threading.Thread.Yield) ||
                     method.Name is nameof(System.Threading.Thread.Interrupt) ||
                     method.Name is nameof(System.Threading.Thread.Suspend) ||
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Rewriting
                 else if (type.Name is nameof(System.Threading.EventWaitHandle) ||
                     type.Name is nameof(System.Threading.ExecutionContext) ||
                     type.Name is nameof(System.Threading.ManualResetEvent) ||
-                    // type.Name is nameof(System.Threading.ManualResetEventSlim) ||
+                    type.Name is nameof(System.Threading.ManualResetEventSlim) ||
                     type.Name is nameof(System.Threading.Mutex) ||
                     type.Name is nameof(System.Threading.ReaderWriterLock) ||
                     type.Name is nameof(System.Threading.ReaderWriterLockSlim) ||

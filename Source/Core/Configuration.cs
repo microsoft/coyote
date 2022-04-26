@@ -560,11 +560,11 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the values that controls how much time the runtime should wait for each
+        /// Updates the values that control how much time the runtime should wait for each
         /// instance of uncontrolled concurrency to resolve before continuing exploration.
-        /// The attempts value controls how many times the runtime can check if uncontrolled
-        /// concurrency has resolved, whereas the delay value controls how long the runtime
-        /// waits between each retry.
+        /// The <paramref name="attempts"/> parameter controls how many times to check if
+        /// uncontrolled concurrency has resolved, whereas the <paramref name="delay"/>
+        /// parameter controls how long the runtime waits between each retry.
         /// </summary>
         /// <param name="attempts">The number of attempts, which by default is 10.</param>
         /// <param name="delay">The delay value is the number of busy loops to perform, which by default is 1000.</param>

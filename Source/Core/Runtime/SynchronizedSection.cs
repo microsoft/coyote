@@ -72,10 +72,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.Exit();
             }
-            else
-            {
-                // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Skip");
-            }
 
             return this;
         }
@@ -87,7 +83,6 @@ namespace Microsoft.Coyote.Runtime
         {
             SyncMonitor.Enter(this.SyncObject);
             IsEntered.Value = true;
-            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Enter");
         }
 
         /// <summary>
@@ -95,7 +90,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void Exit()
         {
-            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Exit");
             IsEntered.Value = false;
             SyncMonitor.Exit(this.SyncObject);
         }

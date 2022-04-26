@@ -443,7 +443,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // Used to pause the currently executing thread until the operation starts executing.
-            using (var handshake = new ManualResetEventSlim(false))
+            using (var handshakeSync = new ManualResetEventSlim(false))
             {
                 // Check if an existing controlled operation is stored in the state of the task.
                 ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation();
@@ -454,7 +454,7 @@ namespace Microsoft.Coyote.Runtime
                         // Configures the execution context of the current thread with data
                         // related to the runtime and the operation executed by this thread.
                         this.SetCurrentExecutionContext(op);
-                        this.StartOperation(op, handshake);
+                        this.StartOperation(op, handshakeSync);
                         if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                         {
                             this.DelayOperation();
@@ -485,7 +485,7 @@ namespace Microsoft.Coyote.Runtime
 
                 thread.Start();
 
-                this.WaitOperationStart(op, handshake);
+                this.WaitOperationStart(op, handshakeSync);
                 this.ScheduleNextOperation(SchedulingPointType.Create);
             }
         }
@@ -504,7 +504,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // Used to pause the currently executing thread until the operation starts executing.
-            using (var handshake = new ManualResetEventSlim(false))
+            using (var handshakeSync = new ManualResetEventSlim(false))
             {
                 ControlledOperation op = this.CreateControlledOperation();
                 var thread = new Thread(() =>
@@ -514,7 +514,7 @@ namespace Microsoft.Coyote.Runtime
                         // Configures the execution context of the current thread with data
                         // related to the runtime and the operation executed by this thread.
                         this.SetCurrentExecutionContext(op);
-                        this.StartOperation(op, handshake);
+                        this.StartOperation(op, handshakeSync);
                         if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                         {
                             this.DelayOperation();
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.Runtime
 
                 thread.Start();
 
-                this.WaitOperationStart(op, handshake);
+                this.WaitOperationStart(op, handshakeSync);
                 this.ScheduleNextOperation(SchedulingPointType.ContinueWith);
             }
         }
@@ -1088,11 +1088,11 @@ namespace Microsoft.Coyote.Runtime
         /// Starts the execution of the specified controlled operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
-        /// <param name="handshake">Used to perform a synchronized handshake.</param>
+        /// <param name="handshakeSync">Used to perform a synchronized handshake.</param>
         /// <remarks>
         /// This method performs a handshake with <see cref="WaitOperationStart"/>.
         /// </remarks>
-        private void StartOperation(ControlledOperation op, ManualResetEventSlim handshake)
+        private void StartOperation(ControlledOperation op, ManualResetEventSlim handshakeSync)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
@@ -1101,9 +1101,7 @@ namespace Microsoft.Coyote.Runtime
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    // SyncMonitor.PulseAll(this.SyncObject);
-                    // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Set handshake for '{op}'");
-                    handshake?.Set();
+                    handshakeSync?.Set();
                     this.PauseOperation(op);
                 }
             }
@@ -1113,11 +1111,11 @@ namespace Microsoft.Coyote.Runtime
         /// Waits for the specified controlled operation to start executing.
         /// </summary>
         /// <param name="op">The operation to wait.</param>
-        /// <param name="handshake">Used to perform a synchronized handshake.</param>
+        /// <param name="handshakeSync">Used to perform a synchronized handshake.</param>
         /// <remarks>
         /// This method performs a handshake with <see cref="StartOperation"/>.
         /// </remarks>
-        private void WaitOperationStart(ControlledOperation op, ManualResetEventSlim handshake)
+        private void WaitOperationStart(ControlledOperation op, ManualResetEventSlim handshakeSync)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
@@ -1129,9 +1127,7 @@ namespace Microsoft.Coyote.Runtime
                             Thread.CurrentThread.ManagedThreadId, op.Name, op.Group);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {
-                            // SyncMonitor.Wait(this.SyncObject);
-                            // Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] Wait handshake for '{op}'");
-                            handshake.Wait();
+                            handshakeSync.Wait();
                         }
 
                         IO.Debug.WriteLine("<Coyote> Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);
@@ -1162,7 +1158,6 @@ namespace Microsoft.Coyote.Runtime
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
                 using (SynchronizedSection.Exit(this.SyncObject))
                 {
-                    // SyncMonitor.Wait(this.SyncObject);
                     op.WaitSignal();
                 }
 
@@ -1278,7 +1273,6 @@ namespace Microsoft.Coyote.Runtime
                             Thread.CurrentThread.ManagedThreadId);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {
-                            // SyncMonitor.Wait(this.SyncObject, delay);
                             Thread.SpinWait(delay);
                         }
 
@@ -1370,7 +1364,6 @@ namespace Microsoft.Coyote.Runtime
                             Thread.CurrentThread.ManagedThreadId);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {
-                            // SyncMonitor.Wait(this.SyncObject, delay);
                             Thread.SpinWait(delay);
                         }
 

@@ -791,6 +791,15 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
+      - name: SynchronizedSection
+        link: ref/Microsoft.Coyote.Runtime/SynchronizedSection
+        subfolderitems:
+        - name: Enter
+          link: ref/Microsoft.Coyote.Runtime/SynchronizedSection/Enter
+        - name: Exit
+          link: ref/Microsoft.Coyote.Runtime/SynchronizedSection/Exit
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Runtime/SynchronizedSection/Dispose
     - name: Microsoft.Coyote.Specifications
       link: ref/Microsoft.Coyote.SpecificationsNamespace
       subfolderitems:

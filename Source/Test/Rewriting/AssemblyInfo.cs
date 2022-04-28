@@ -184,12 +184,12 @@ namespace Microsoft.Coyote.Rewriting
                                 {
                                     if (method.FullName.Contains("MoveNext"))
                                     {
-                                        // Console.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.FullName: {method.FullName}, method: {method}");
+                                        // IO.Debug.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.FullName: {method.FullName}, method: {method}");
                                         // var instructionList = method.Body.Instructions.ToList();
-                                        // Console.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.Body(complere): ");
+                                        // IO.Debug.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.Body(complere): ");
                                         // foreach (var instruction in instructionList)
                                         // {
-                                        //     Console.WriteLine($"          {instruction}");
+                                        //     IO.Debug.WriteLine($"          {instruction}");
                                         // }
 
                                         var processor = method.Body.GetILProcessor();
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Rewriting
 
                                         if (asyncTaskMethodBuilderFieldRef == null)
                                         {
-                                            Console.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
+                                            IO.Debug.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
                                         }
                                         else
                                         {
@@ -221,18 +221,18 @@ namespace Microsoft.Coyote.Rewriting
                                             processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldflda, asyncTaskMethodBuilderFieldRef));
                                             processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldarg_0));
 
-                                            // Console.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body: {method.Body.ToString()}, asyncTaskMethodBuilderFieldRef: {asyncTaskMethodBuilderFieldRef}, onMoveNextMethod: {onMoveNextMethod}");
+                                            // IO.Debug.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body: {method.Body.ToString()}, asyncTaskMethodBuilderFieldRef: {asyncTaskMethodBuilderFieldRef}, onMoveNextMethod: {onMoveNextMethod}");
                                             // instructionList = method.Body.Instructions.ToList();
-                                            // Console.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body(complere): ");
+                                            // IO.Debug.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body(complere): ");
                                             // foreach (var instruction in instructionList)
                                             // {
-                                            //     Console.WriteLine($"          {instruction}");
+                                            //     IO.Debug.WriteLine($"          {instruction}");
                                             // }
                                         }
                                     }
                                 }
 
-                                // Console.WriteLine($"F_REWRITING_OUT ==> type.FullName: {type.FullName}, type: {type}");
+                                // IO.Debug.WriteLine($"F_REWRITING_OUT ==> type.FullName: {type.FullName}, type: {type}");
                             }
                         }
                     }

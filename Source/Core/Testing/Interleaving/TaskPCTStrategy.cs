@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal void PrintTaskPCTStatsForIteration(uint iteration)
         {
             Debug.WriteLine(string.Empty);
-            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [PrintTaskPCTStatsForIteration] TASK-PCT STATS for ITERATION: {iteration}");
+            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [PrintTaskPCTStatsForIteration] TASK-PCT STATS for ITERATION: {iteration}");
             Debug.WriteLine($"                  TOTAL ASYNC OPS: {this.AllRegisteredOperations.Count}");
             Debug.WriteLine($"                  TOTAL ASYNC OP GROUPS (#PRIORITIES): {this.PrioritizedOperations.Count}");
             Debug.WriteLine($"                  #PRIORITY_SWITCHES: {this.ActualNumberOfPrioritySwitches}");
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 /*if (envPCTProbabilityBool)
                 {*/
                 Debug.WriteLine(string.Empty);
-                Console.WriteLine($"===========<IMP_TaskPCTStrategy> PROBABILITY STATS for ITERATION: {iteration - 1}");
+                Debug.WriteLine($"===========<IMP_TaskPCTStrategy> PROBABILITY STATS for ITERATION: {iteration - 1}");
 
                 int n_theory = this.AllRegisteredOperations.Count; // FN_TODO : think are we measuring corrent parameters for probabilities?
                 int d_theory = Math.Max(this.Configuration.StrategyBound, 1);
@@ -391,7 +391,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             ControlledOperation highestEnabledOperation = this.GetEnabledOperationWithHighestPriority(enabledOps);
             next = enabledOps.First(op => op.Equals(highestEnabledOperation));
             Debug.WriteLine("<PCTLog> next operation scheduled is: '{0}'.", next);
-            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [GetNextOperation] NEXT operation to be scheduled: {next}.");
+            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [GetNextOperation] NEXT operation to be scheduled: {next}.");
             this.StepCount++;
             this.DebugPrintBeforeGetNextOperation(ops);
             return true;
@@ -412,13 +412,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
                         if (this.PrioritizedOperations.Count == 0)
                         {
                             this.PrioritizedOperations.Add(this.DelayOperationGroup);
-                            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted [FIRST] delay asyncOp: {asyncOp} into new DelayOperationGroup with priority: 0");
+                            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted [FIRST] delay asyncOp: {asyncOp} into new DelayOperationGroup with priority: 0");
                         }
                         else
                         {
                             int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count + 1);
                             this.PrioritizedOperations.Insert(index, this.DelayOperationGroup);
-                            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted delay asyncOp: {asyncOp} into new DelayOperationGroup with priority: {index}");
+                            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted delay asyncOp: {asyncOp} into new DelayOperationGroup with priority: {index}");
                         }
 
                         this.ControlledOperationToOperationsGroupMap.Add(asyncOp, this.DelayOperationGroup);
@@ -427,7 +427,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     {
                         this.DelayOperationGroup.InsertOperation(asyncOp);
                         this.ControlledOperationToOperationsGroupMap.Add(asyncOp, this.DelayOperationGroup);
-                        Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted delay asyncOp: {asyncOp} into old DelayOperationGroup which has priority: {this.PrioritizedOperations.IndexOf(this.DelayOperationGroup)}");
+                        Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_4: inserted delay asyncOp: {asyncOp} into old DelayOperationGroup which has priority: {this.PrioritizedOperations.IndexOf(this.DelayOperationGroup)}");
                     }
                 }
                 else
@@ -438,13 +438,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
                         if (this.PrioritizedOperations.Count == 0)
                         {
                             this.PrioritizedOperations.Add(this.NonAsyncStateMachineOperationGroup);
-                            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted [FIRST] delay/non-task asyncOp: {asyncOp} into new NonAsyncStateMachineOperationGroup with priority: 0");
+                            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted [FIRST] delay/non-task asyncOp: {asyncOp} into new NonAsyncStateMachineOperationGroup with priority: 0");
                         }
                         else
                         {
                             int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count + 1);
                             this.PrioritizedOperations.Insert(index, this.NonAsyncStateMachineOperationGroup);
-                            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted delay/non-task asyncOp: {asyncOp} into new NonAsyncStateMachineOperationGroup with priority: {index}");
+                            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted delay/non-task asyncOp: {asyncOp} into new NonAsyncStateMachineOperationGroup with priority: {index}");
                         }
 
                         this.ControlledOperationToOperationsGroupMap.Add(asyncOp, this.NonAsyncStateMachineOperationGroup);
@@ -453,7 +453,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     {
                         this.NonAsyncStateMachineOperationGroup.InsertOperation(asyncOp);
                         this.ControlledOperationToOperationsGroupMap.Add(asyncOp, this.NonAsyncStateMachineOperationGroup);
-                        Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted delay/non-task owner asyncOp: {asyncOp} into old NonAsyncStateMachineOperationGroup which has priority: {this.PrioritizedOperations.IndexOf(this.NonAsyncStateMachineOperationGroup)}");
+                        Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_3: inserted delay/non-task owner asyncOp: {asyncOp} into old NonAsyncStateMachineOperationGroup which has priority: {this.PrioritizedOperations.IndexOf(this.NonAsyncStateMachineOperationGroup)}");
                     }
                 }
             }
@@ -466,13 +466,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (this.PrioritizedOperations.Count == 0)
                     {
                         this.PrioritizedOperations.Add(newOperationGroup);
-                        Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_1: inserted [FIRST] owner asyncOp: {asyncOp} into a new chain with priority: 0");
+                        Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_1: inserted [FIRST] owner asyncOp: {asyncOp} into a new chain with priority: 0");
                     }
                     else
                     {
                         int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count + 1);
                         this.PrioritizedOperations.Insert(index, newOperationGroup);
-                        Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_1: inserted owner asyncOp: {asyncOp} into a new chain with priority: {index}");
+                        Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_1: inserted owner asyncOp: {asyncOp} into a new chain with priority: {index}");
                     }
 
                     this.ControlledOperationToOperationsGroupMap.Add(asyncOp, newOperationGroup);
@@ -499,7 +499,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.ControlledOperationToOperationsGroupMap[asyncOp] = this.ControlledOperationToOperationsGroupMap[asyncOp.ParentTask];
 
             asyncOp.LastMoveNextHandled = true;
-            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_2: moved asyncOp: {asyncOp} from old chain of {oldChainOwner} (priority: {this.PrioritizedOperations.IndexOf(this.ControlledOperationToOperationsGroupMap[oldChainOwner])}) to new chain of {newChainOwner} (priority: {this.PrioritizedOperations.IndexOf(this.ControlledOperationToOperationsGroupMap[newChainOwner])}).");
+            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [InsertControlledOperationIntoOperationGroup] CASE_2: moved asyncOp: {asyncOp} from old chain of {oldChainOwner} (priority: {this.PrioritizedOperations.IndexOf(this.ControlledOperationToOperationsGroupMap[oldChainOwner])}) to new chain of {newChainOwner} (priority: {this.PrioritizedOperations.IndexOf(this.ControlledOperationToOperationsGroupMap[newChainOwner])}).");
         }
 
         /// <summary>
@@ -511,15 +511,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 if (current.IsContinuationTask)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW continuation task: {current}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW continuation task: {current}.");
                 }
                 else if (current.IsDelayTaskOperation)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW delay task: {current}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW delay task: {current}.");
                 }
                 else
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW spawn task: {current}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW spawn task: {current}.");
                 }
 
                 this.InsertNewControlledOperationIntoOperationGroup(current);
@@ -532,19 +532,19 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 this.AllRegisteredOperations.Add(op);
                 if (op.IsContinuationTask)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW continuation task: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW continuation task: {op}.");
                 }
                 else if (op.IsOwnerSpawnOperation)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW spawn task: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW spawn task: {op}.");
                 }
                 else if (current.IsDelayTaskOperation)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW delay task: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW delay task: {op}.");
                 }
                 else
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW non-task operation: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] handling NEW non-task operation: {op}.");
                 }
 
                 this.InsertNewControlledOperationIntoOperationGroup(op);
@@ -554,11 +554,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 if (op.IsContinuationTask)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] changing priority due to MoveNext of continuation task: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] changing priority due to MoveNext of continuation task: {op}.");
                 }
                 else if (op.IsOwnerSpawnOperation)
                 {
-                    Console.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] changing priority due to MoveNext of spawn task: {op}.");
+                    Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [SetNewOperationPriorities] changing priority due to MoveNext of spawn task: {op}.");
                 }
                 else
                 {
@@ -590,7 +590,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 deprioritizedOperation = this.GetEnabledOperationWithHighestPriority(ops);
                 // Debug.WriteLine("<PCTLog> operation '{0}' is deprioritized.", deprioritizedOperation.Name);
                 Debug.WriteLine($"<PCTLog> operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} is deprioritized.");
-                Console.WriteLine($"===========<IMP_TaskPCTStrategy> [DeprioritizeEnabledOperationWithHighestPriority] operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} is deprioritized.");
+                Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [DeprioritizeEnabledOperationWithHighestPriority] operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} is deprioritized.");
             }
             else if (isYielding)
             {
@@ -598,7 +598,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 deprioritizedOperation = current;
                 // Debug.WriteLine("<PCTLog> operation '{0}' yields its priority.", deprioritizedOperation.Name);
                 Debug.WriteLine($"<PCTLog> operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} yields its priority.");
-                Console.WriteLine($"===========<IMP_TaskPCTStrategy> [DeprioritizeEnabledOperationWithHighestPriority] operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} yields its priority.");
+                Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [DeprioritizeEnabledOperationWithHighestPriority] operationGroup of owner op: {this.ControlledOperationToOperationsGroupMap[deprioritizedOperation].GetOwnerOperation()} yields its priority.");
             }
 
             if (deprioritizedOperation != null)
@@ -730,7 +730,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         {
             if (Debug.IsEnabled)
             {
-                Console.WriteLine($"===========<IMP_TaskPCTStrategy> [DebugPrintOperationPriorityList].");
+                Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [DebugPrintOperationPriorityList].");
                 Debug.Write($"                  SIZE of each ASYNC OP GROUP:");
                 int maxSizeOperationgroup = 0;
                 for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)

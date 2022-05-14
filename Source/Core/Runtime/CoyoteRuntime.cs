@@ -779,11 +779,11 @@ namespace Microsoft.Coyote.Runtime
                     ControlledOperation currentOperation = this.ScheduledOperation;
                     if (currentOperation == null)
                     {
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null so setting currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
+                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null so setting currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
                         currentOperation = ExecutingOperation.Value;
                         if (currentOperation == null)
                         {
-                            IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
+                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
                             this.NumOfMoveNextMissed++;
                             return;
                         }
@@ -798,13 +798,14 @@ namespace Microsoft.Coyote.Runtime
                     if (currentOperation.IsDelayTaskOperation || currentOperation.Name.Contains("Delay"))
                     {
                         // FN_TODO: think about this case!
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
+                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
                         return;
                     }
 
                     if (parent == null)
                     {
                         this.NumOfMoveNextMissed++;
+                        Console.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] currentOperation: {currentOperation} but parent is null :(");
                         // FN_DOUBT: should we do below line?
                         // currentOperation.ParentTask = ThreadLocalParentAsyncOperation.Value;
                         // Console.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] parent is null (this.NumOfMoveNextMissed++;), so setting parent to ThreadLocalParentAsyncOperation.Value: {ThreadLocalParentAsyncOperation.Value}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {ThreadLocalParentAsyncOperation?.Value}");

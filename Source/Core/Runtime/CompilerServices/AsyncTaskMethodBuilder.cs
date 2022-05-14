@@ -48,17 +48,17 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.ParentOperation = default;
 
             // // this.ParentOperation = CoyoteRuntime.ThreadLocalParentAsyncOperation.Value;
-            // this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
-            // if (this.ParentOperation == null)
-            // {
-            //     this.Runtime?.OnAsyncStateMachineStart(true);
-            //     Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentAsyncOperation?.Value}");
-            // }
-            // else
-            // {
-            //     this.Runtime?.OnAsyncStateMachineStart(false);
-            //     IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentAsyncOperation?.Value}");
-            // }
+            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            if (this.ParentOperation == null)
+            {
+                this.Runtime?.OnAsyncStateMachineStart(true);
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            }
+            else
+            {
+                this.Runtime?.OnAsyncStateMachineStart(false);
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            }
         }
 
         /// <summary>
@@ -210,18 +210,18 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.MethodBuilder = default;
             this.ParentOperation = default;
 
-            // // this.ParentOperation = CoyoteRuntime.ThreadLocalParentAsyncOperation.Value;
-            // this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
-            // if (this.ParentOperation == null)
-            // {
-            //     this.Runtime?.OnAsyncStateMachineStart(true);
-            //     Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentAsyncOperation?.Value}");
-            // }
-            // else
-            // {
-            //     this.Runtime?.OnAsyncStateMachineStart(false);
-            //     IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentAsyncOperation?.Value}");
-            // }
+            // this.ParentOperation = CoyoteRuntime.ThreadLocalParentAsyncOperation.Value;
+            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            if (this.ParentOperation == null)
+            {
+                this.Runtime?.OnAsyncStateMachineStart(true);
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            }
+            else
+            {
+                this.Runtime?.OnAsyncStateMachineStart(false);
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            }
         }
 
         /// <summary>

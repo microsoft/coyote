@@ -328,6 +328,14 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.TrackTelemetry();
             }
+
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numSpawnTasks: {this.TestReport.NumSpawnTasks}: (Number of Spawn Tasks observed).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numContinuationTasks: {this.TestReport.NumContinuationTasks}: (Number of Continuation Tasks observed).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numDelayTasks: {this.TestReport.NumDelayTasks}: (Number of Delay Tasks observed).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfAsyncStateMachineStart: {this.TestReport.NumOfAsyncStateMachineStart}: (Number of times Start method is called by AsyncStateMachines).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfAsyncStateMachineStartMissed: {this.TestReport.NumOfAsyncStateMachineStartMissed}: (Number of Start method calls by AsyncStateMachines in which correct owner operation was not set).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfMoveNext: {this.TestReport.NumOfMoveNext}: (Number of times MoveNext method is called by AsyncStateMachines).");
+            Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfMoveNextMissed: {this.TestReport.NumOfMoveNextMissed}: (Number of times setting correct parent or priority on a MoveNext method call is missed).");
         }
 
         /// <summary>
@@ -364,6 +372,14 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
 
                     uint iteration = 0;
+                    int numSpawnTasks = 0;
+                    int numContinuationTasks = 0;
+                    int numDelayTasks = 0;
+                    int numOfAsyncStateMachineStart = 0;
+                    int numOfAsyncStateMachineStartMissed = 0;
+                    int numOfMoveNext = 0;
+                    int numOfMoveNextMissed = 0;
+
                     while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
@@ -385,6 +401,23 @@ namespace Microsoft.Coyote.SystematicTesting
                             // capture the seed used by the scheduling strategy in the next iteration.
                             this.Scheduler.ValueGenerator.Seed += 1;
                         }
+
+                        Console.WriteLine(string.Empty);
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> iteratino: {iteration}.");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numSpawnTasks: {this.TestReport.NumSpawnTasks - numSpawnTasks}: (Number of Spawn Tasks observed).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numContinuationTasks: {this.TestReport.NumContinuationTasks - numContinuationTasks}: (Number of Continuation Tasks observed).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numDelayTasks: {this.TestReport.NumDelayTasks - numDelayTasks}: (Number of Delay Tasks observed).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfAsyncStateMachineStart: {this.TestReport.NumOfAsyncStateMachineStart - numOfAsyncStateMachineStart}: (Number of times Start method is called by AsyncStateMachines).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfAsyncStateMachineStartMissed: {this.TestReport.NumOfAsyncStateMachineStartMissed - numOfAsyncStateMachineStartMissed}: (Number of Start method calls by AsyncStateMachines in which correct owner operation was not set).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfMoveNext: {this.TestReport.NumOfMoveNext - numOfMoveNext}: (Number of times MoveNext method is called by AsyncStateMachines).");
+                        Console.WriteLine($"--------------------COYOTE TESTING DONE: <TASKPCT_WORK_RUNTIME_LOG> numOfMoveNextMissed: {this.TestReport.NumOfMoveNextMissed - numOfMoveNextMissed}: (Number of times setting correct parent or priority on a MoveNext method call is missed).");
+                        numSpawnTasks = this.TestReport.NumSpawnTasks;
+                        numContinuationTasks = this.TestReport.NumContinuationTasks;
+                        numDelayTasks = this.TestReport.NumDelayTasks;
+                        numOfAsyncStateMachineStart = this.TestReport.NumOfAsyncStateMachineStart;
+                        numOfAsyncStateMachineStartMissed = this.TestReport.NumOfAsyncStateMachineStartMissed;
+                        numOfMoveNext = this.TestReport.NumOfMoveNext;
+                        numOfMoveNextMissed = this.TestReport.NumOfMoveNextMissed;
 
                         iteration++;
                     }

@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The controlled operations that are members of this group.
         /// </summary>
-        private readonly HashSet<ControlledOperation> Members;
+        public readonly HashSet<ControlledOperation> Members;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
@@ -59,6 +59,8 @@ namespace Microsoft.Coyote.Runtime
         /// Registers the specified operation as a member of this group.
         /// </summary>
         internal void RegisterMember(ControlledOperation member) => this.Members.Add(member);
+
+        internal void RemoveMember(ControlledOperation member) => this.Members.Remove(member);
 
         /// <summary>
         /// Returns an enumerator that iterates through the members of this group.
@@ -116,6 +118,23 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a string that represents the current group id.
         /// </summary>
         public override string ToString() => this.Id.ToString();
+
+        /// <summary>
+        /// Returns a string that represents the current group id.
+        /// </summary>
+        public void DebugPrintMembers()
+        {
+            // if (IO.Debug.IsEnabled)
+            // {
+            Console.Write($"MEMBERS OF OP_GROUP_{this.Id} (SIZE: {this.Members.Count}): ");
+            foreach (ControlledOperation member in this.Members)
+            {
+                Console.Write($"{member}, ");
+            }
+
+            Console.WriteLine();
+            // }
+        }
 
         /// <summary>
         /// Indicates whether the specified <see cref="OperationGroup"/> is equal

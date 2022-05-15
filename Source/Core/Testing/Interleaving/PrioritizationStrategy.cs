@@ -247,11 +247,29 @@ namespace Microsoft.Coyote.Testing.Interleaving
             // IO.Debug.WriteLine();
         }
 
+        private void RemoveEmptyOperationGroups()
+        {
+            List<OperationGroup> operationGroupsToRemove = new List<OperationGroup>();
+            foreach (var group in this.PrioritizedOperationGroups)
+            {
+                if (group.Members.Count == 0)
+                {
+                    operationGroupsToRemove.Add(group);
+                }
+            }
+
+            foreach (var group in operationGroupsToRemove)
+            {
+                this.PrioritizedOperationGroups.Remove(group);
+            }
+        }
+
         /// <inheritdoc/>
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.DebugPrintBeforeGetNextOperation(ops);
+            this.RemoveEmptyOperationGroups();
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);
 
@@ -274,9 +292,19 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
+            Console.WriteLine($"idx: {idx}, ops.Count(): {ops.Count()}");
+            Console.Write($"ops: ");
+            for (int i = 0; i < ops.Count(); i++)
+            {
+                Console.Write($"{ops.ElementAt(i)}, ");
+            }
+
+            Console.WriteLine(string.Empty);
+
             next = ops.ElementAt(idx);
             this.StepCount++;
             DebugPrintAfterGetNextOperation(next);
+            this.DebugPrintOperationPriorityList();
             return true;
         }
 
@@ -431,10 +459,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
                         Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled]", idx, group);
+                        group.DebugPrintMembers();
                     }
                     else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
                         Debug.WriteLine("  |_ [{0}] operation group with id '{1}'", idx, group);
+                        group.DebugPrintMembers();
                     }
                 }
             }

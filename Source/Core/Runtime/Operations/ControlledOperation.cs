@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Runtime
         /// The group where this operation has membership. This can be used
         /// by the scheduler to optimize exploration.
         /// </summary>
-        internal readonly OperationGroup Group;
+        internal OperationGroup Group;
 
         /// <summary>
         /// Set of dependencies that must get satisfied before this operation can resume executing.

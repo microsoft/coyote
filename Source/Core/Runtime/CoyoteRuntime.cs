@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.Runtime
                 Thread.CurrentThread.ManagedThreadId);
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(true);
 
             this.NumSpawnTasks++;
 
@@ -453,21 +453,59 @@ namespace Microsoft.Coyote.Runtime
             return this.CompletionSource.Task;
         }
 
+        internal OperationGroup DelayGroup;
+        internal OperationGroup ContDummyGroup;
+
         /// <summary>
         /// Creates a new controlled operation with an optional delay.
         /// </summary>
-        private ControlledOperation CreateControlledOperation(uint delay = 0)
+        private ControlledOperation CreateControlledOperation(bool isSpawn, uint delay = 0)
         {
             // Assign the operation group associated with the execution context of the
             // current thread, if such a group exists, else the group of the currently
             // executing operation, if such an operation exists.
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
 
+            if (isSpawn || delay > 0)
+            {
+                group = null;
+            }
+
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?
                 new DelayOperation(operationId, $"Delay({operationId})", delay) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
+            if (delay > 0)
+            {
+                if (this.DelayGroup == null)
+                {
+                    this.DelayGroup = op.Group;
+                    IO.Debug.WriteLine($"<Coyote> Created DelayGroup:{this.DelayGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
+                }
+                else
+                {
+                    op.Group.RemoveMember(op); // TODO: might give error
+                    op.Group = this.DelayGroup;
+                    this.DelayGroup.RegisterMember(op);
+                }
+            }
+
+            // else if (!isSpawn)
+            // {
+            //     if (this.ContDummyGroup == null)
+            //     {
+            //         this.ContDummyGroup = op.Group;
+            //         IO.Debug.WriteLine($"<Coyote> Created ContDummyGroup:{this.ContDummyGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
+            //     }
+            //     else
+            //     {
+            //         op.Group.RemoveMember(op); // TODO: might give error
+            //         op.Group = this.ContDummyGroup;
+            //         this.ContDummyGroup.RegisterMember(op);
+            //     }
+            // }
+
             this.RegisterOperation(op);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
             {
@@ -491,7 +529,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // Check if an existing controlled operation is stored in the state of the task.
-            ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation();
+            ControlledOperation op = task.AsyncState as ControlledOperation ?? this.CreateControlledOperation(true);
 
             // FN_TODO: make sure that this scheduleTask() method is called only by owner operation of a chain of async state machines
 
@@ -528,8 +566,8 @@ namespace Microsoft.Coyote.Runtime
                 op.TaskGroupID = -1;
                 op.IsOwnerSpawnOperation = false;
                 op.IsDelayTaskOperation = true;
-                IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [RunTestAsync] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {ThreadLocalParentControlledOperation?.Value}");
-                IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [RunTestAsync] parent of delay task : {op} is set to : null.");
+                IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [ScheduleTask] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {ThreadLocalParentControlledOperation?.Value}");
+                IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [ScheduleTask] parent of delay task : {op} is set to : null.");
 
                 var delayTrace = Environment.GetEnvironmentVariable("DELAY_TRACE");
                 if (delayTrace == "1")
@@ -603,7 +641,7 @@ namespace Microsoft.Coyote.Runtime
                 }
             }
 
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(false);
 
             // FN_TODO: make sure that this schedule() method is called only by continuation tasks
             // ControlledOperation spawner = ExecutingOperation.Value;
@@ -717,7 +755,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(timeout);
+                ControlledOperation op = this.CreateControlledOperation(false, timeout);
 
                 // FN_TODO: should we set some metadata in the ControlledOperation for delays here
 
@@ -823,6 +861,9 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation task: {currentOperation} is set to: {currentOperation.ParentTask}");
                     }
 
+                    currentOperation.Group.RemoveMember(currentOperation); // TODO
+                    currentOperation.Group = currentOperation.ParentTask.Group;
+                    currentOperation.ParentTask.Group.RegisterMember(currentOperation);
                     currentOperation.LastMoveNextHandled = false;
                     currentOperation.TaskGroupID = this.AsyncStateMachineOwnerOperationsList.IndexOf(currentOperation.ParentTask);
 

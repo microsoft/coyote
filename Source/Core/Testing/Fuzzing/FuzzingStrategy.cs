@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// </summary>
         internal static FuzzingStrategy Create(Configuration configuration, IRandomValueGenerator generator)
         {
-            // FN_TODO: add taskpct and fairtaskpct in fuxxying also
+            // FN_TODO: add task-pct hacks for fuzzying strategies as well.
             switch (configuration.SchedulingStrategy)
             {
                 case "prioritization":

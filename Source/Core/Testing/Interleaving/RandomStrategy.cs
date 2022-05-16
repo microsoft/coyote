@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
 
+// FN_TODO: Experiment by adding task-pct hacks for random strategy as well to schedule groups/chains of tasks.
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>

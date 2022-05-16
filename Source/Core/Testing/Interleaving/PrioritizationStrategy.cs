@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             List<OperationGroup> operationGroupsToRemove = new List<OperationGroup>();
             foreach (var group in this.PrioritizedOperationGroups)
             {
-                if (group.Members.Count == 0)
+                if (group.GetMembersCount() == 0)
                 {
                     operationGroupsToRemove.Add(group);
                 }

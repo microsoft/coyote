@@ -32,31 +32,31 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Number of Delay Tasks observed.
         /// </summary>
         [DataMember]
-        public int NumDelayTasks;
+        public int NumDelayTasks { get; set; }
 
         /// <summary>
         /// Number of times Start method is called by AsyncStateMachines.
         /// </summary>
         [DataMember]
-        public int NumOfAsyncStateMachineStart;
+        public int NumOfAsyncStateMachineStart { get; set; }
 
         /// <summary>
         /// Number of Start method calls by AsyncStateMachines in which correct owner operation was not set.
         /// </summary>
         [DataMember]
-        public int NumOfAsyncStateMachineStartMissed;
+        public int NumOfAsyncStateMachineStartMissed { get; set; }
 
         /// <summary>
         /// Number of times MoveNext method is called by AsyncStateMachines.
         /// </summary>
         [DataMember]
-        public int NumOfMoveNext;
+        public int NumOfMoveNext { get; set; }
 
         /// <summary>
         /// Number of times setting correct parent or priority on a MoveNext method call is missed.
         /// </summary>
         [DataMember]
-        public int NumOfMoveNextMissed;
+        public int NumOfMoveNextMissed { get; set; }
 
         /// <summary>
         /// Configuration of the program-under-test.
@@ -541,68 +541,47 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            // if (this.NumContinuationTasks > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of continuation tasks is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumContinuationTasks);
-            // }
 
-            // if (this.NumSpawnTasks > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of new spawn tasks is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumSpawnTasks);
-            // }
 
-            // if (this.NumDelayTasks > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of new delay tasks is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumDelayTasks);
-            // }
 
-            // if (this.NumOfAsyncStateMachineStart > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of times Start method is called by AsyncStateMachines is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumOfAsyncStateMachineStart);
-            // }
 
-            // if (this.NumOfAsyncStateMachineStartMissed > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of Start method calls by AsyncStateMachines in which correct owner operation was not set is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumOfAsyncStateMachineStartMissed);
-            // }
 
-            // if (this.NumOfMoveNext > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of times MoveNext method is called by AsyncStateMachines is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumOfMoveNext);
-            // }
 
-            // if (this.NumOfMoveNextMissed > 0)
-            // {
             report.AppendLine();
             report.AppendFormat(
             "{0} Number of times setting correct parent or priority on a MoveNext method call is missed is.",
             prefix.Equals("...") ? "....." : prefix,
             this.NumOfMoveNextMissed);
-            // }
 
             return report.ToString();
         }

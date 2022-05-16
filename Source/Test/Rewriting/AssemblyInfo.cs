@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using Mono.Cecil;
@@ -152,7 +151,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         internal void Invoke(Pass pass)
         {
-            // REWRITING: control ultimately reaches here for running a pass on an assembly.
             pass.VisitAssembly(this);
             foreach (var module in this.Definition.Modules)
             {
@@ -162,80 +160,59 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"......... Type: {type.FullName}");
 
-                    // string envRewritingHack = Environment.GetEnvironmentVariable("F_COYOTE_REWRITING_HACK"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-                    // bool envRewritingHackBool = false;
-                    // if (envRewritingHack != null)
-                    // {
-                    //     envRewritingHackBool = bool.Parse(envRewritingHack);
-                    // }
-
-                    bool envRewritingHackBool = true;
-
-                    if (envRewritingHackBool)
+                    // Finding whether type is an object of class IAsyncStateMachine.
+                    bool isAsyncStateMachineType = type.Interfaces.Any(i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
+                    if (isAsyncStateMachineType)
                     {
-                        bool isAsyncStateMachineType = type.Interfaces.Any(i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
-                        if (isAsyncStateMachineType)
+                        // Making sure that this IAsyncStateMachine class is not already instrumented.
+                        if (!this.IAsyncStateMachineTypesSet.Contains(type))
                         {
-                            if (!this.IAsyncStateMachineTypesSet.Contains(type))
+                            this.IAsyncStateMachineTypesSet.Add(type);
+
+                            // Iterating over all methods of this IAsyncStateMachine class.
+                            Collection<MethodDefinition> methods = type.Methods;
+                            foreach (MethodDefinition method in methods)
                             {
-                                this.IAsyncStateMachineTypesSet.Add(type);
-                                Collection<MethodDefinition> methods = type.Methods;
-                                foreach (MethodDefinition method in methods)
+                                // Instrumenting the MoveNext method of this IAsyncStateMachine class.
+                                if (method.FullName.Contains("MoveNext"))
                                 {
-                                    if (method.FullName.Contains("MoveNext"))
+                                    var instructionList = method.Body.Instructions.ToList();
+                                    var processor = method.Body.GetILProcessor();
+
+                                    // Finding the AsyncTaskMethodBuilder field reference.
+                                    FieldReference asyncTaskMethodBuilderFieldRef = null;
+                                    foreach (FieldReference field in type.Fields)
                                     {
-                                        Debug.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.FullName: {method.FullName}, method: {method}");
-                                        var instructionList = method.Body.Instructions.ToList();
-                                        Debug.WriteLine($"F_REWRITING_OUT MN BEFORE ==> method.Body(complere): ");
-                                        // TODO:fix: why below loop gives error while rewriting imageGallery (in net5)?
-                                        // foreach (var instruction in instructionList)
-                                        // {
-                                        //     Debug.WriteLine($"          {instruction}");
-                                        // }
-
-                                        var processor = method.Body.GetILProcessor();
-
-                                        FieldReference asyncTaskMethodBuilderFieldRef = null;
-                                        foreach (FieldReference field in type.Fields)
+                                        if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder"))
                                         {
-                                            if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder"))
-                                            {
-                                                asyncTaskMethodBuilderFieldRef = field;
-                                            }
-                                        }
-
-                                        if (asyncTaskMethodBuilderFieldRef == null)
-                                        {
-                                            Console.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
-                                            // Specification.Assert(false, $"EYRYRYOR: in FN_REWRITING for type: {type}");
-                                        }
-                                        else
-                                        {
-                                            asyncTaskMethodBuilderFieldRef = asyncTaskMethodBuilderFieldRef.Resolve();
-                                            asyncTaskMethodBuilderFieldRef = method.Module.ImportReference(asyncTaskMethodBuilderFieldRef);
-
-                                            TypeDefinition asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncTaskMethodBuilder)).Resolve();
-                                            MethodReference onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(
-                                                m => m.Name is nameof(AsyncTaskMethodBuilder.OnMoveNext));
-                                            onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
-
-                                            processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Call, onMoveNextMethod));
-                                            processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldflda, asyncTaskMethodBuilderFieldRef));
-                                            processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldarg_0));
-
-                                            Debug.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body: {method.Body.ToString()}, asyncTaskMethodBuilderFieldRef: {asyncTaskMethodBuilderFieldRef}, onMoveNextMethod: {onMoveNextMethod}");
-                                            instructionList = method.Body.Instructions.ToList();
-                                            Debug.WriteLine($"F_REWRITING_OUT MN AFTER ==> method.Body(complere): ");
-                                            // TODO:fix: why below loop gives error while rewriting imageGallery (in net5)?
-                                            // foreach (var instruction in instructionList)
-                                            // {
-                                            //     Debug.WriteLine($"          {instruction}");
-                                            // }
+                                            asyncTaskMethodBuilderFieldRef = field;
                                         }
                                     }
-                                }
 
-                                Debug.WriteLine($"F_REWRITING_OUT ==> type.FullName: {type.FullName}, type: {type}");
+                                    if (asyncTaskMethodBuilderFieldRef == null)
+                                    {
+                                        // TODO: Fix this isses/error of non-existence of AsyncTaskMethodBuilder field reference in this IAsyncStateMachine class.
+                                        // Specification.Assert(false, $"EYRYRYOR: in FN_REWRITING for type: {type}");
+                                        Console.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
+                                    }
+                                    else
+                                    {
+                                        asyncTaskMethodBuilderFieldRef = asyncTaskMethodBuilderFieldRef.Resolve();
+                                        asyncTaskMethodBuilderFieldRef = method.Module.ImportReference(asyncTaskMethodBuilderFieldRef);
+
+                                        // Inserting call to the OnMoveNext method of AsyncTaskMethodBuilder field at the befining of the MoveNext method of this IAsyncStateMachine class.
+                                        TypeDefinition asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncTaskMethodBuilder)).Resolve();
+                                        MethodReference onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(
+                                            m => m.Name is nameof(AsyncTaskMethodBuilder.OnMoveNext));
+                                        onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
+
+                                        processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Call, onMoveNextMethod));
+                                        processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldflda, asyncTaskMethodBuilderFieldRef));
+                                        processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldarg_0));
+
+                                        instructionList = method.Body.Instructions.ToList();
+                                    }
+                                }
                             }
                         }
                     }

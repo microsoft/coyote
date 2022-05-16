@@ -207,12 +207,10 @@ namespace Microsoft.Coyote.Cli
                 ArgumentHelpName = "TIMEOUT"
             };
 
-            // FN_TODO: add fair-taskpct
             var allowedStrategies = new HashSet<string>
             {
                 "random",
                 "prioritization",
-                "taskpct",
                 "fair-prioritization",
                 "probabilistic",
                 "rl",
@@ -792,7 +790,6 @@ namespace Microsoft.Coyote.Cli
                         string strategy = result.GetValueOrDefault<string>();
                         switch (strategy)
                         {
-                            case "taskpct":
                             case "prioritization":
                             case "fair-prioritization":
                                 if (strategyBound is null)

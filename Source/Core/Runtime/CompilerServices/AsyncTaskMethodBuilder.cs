@@ -45,9 +45,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = default;
-
-            // // this.ParentOperation = CoyoteRuntime.ThreadLocalParentAsyncOperation.Value;
             this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
             if (this.ParentOperation == null)
             {
@@ -77,7 +74,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            // this.ParentOperation = CoyoteRuntime.ThreadLocalParentControlledOperation.Value;
             this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
             if (this.ParentOperation == null)
             {
@@ -113,9 +109,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Callback to AsyncTaskMethodBuilder before MoveNext method at IL level.
+        /// Callback to AsyncTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
         /// </summary>
-        // [DebuggerHidden]
+        [DebuggerHidden]
         public void OnMoveNext()
         {
             IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
@@ -208,9 +204,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = default;
-
-            // this.ParentOperation = CoyoteRuntime.ThreadLocalParentAsyncOperation.Value;
             this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
             if (this.ParentOperation == null)
             {
@@ -279,9 +272,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Callback to AsyncTaskMethodBuilder before MoveNext method at IL level.
+        /// Callback to AsyncTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
         /// </summary>
-        // [DebuggerHidden]
+        [DebuggerHidden]
         public void OnMoveNext()
         {
             IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");

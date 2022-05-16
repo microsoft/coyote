@@ -38,7 +38,18 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The controlled operations that are members of this group.
         /// </summary>
-        public readonly HashSet<ControlledOperation> Members;
+        private readonly HashSet<ControlledOperation> Members;
+
+        // FN_TODO: remove this comment if no error.
+        // internal HashSet<ControlledOperation> GetMembers()
+        // {
+        //     return this.Members;
+        // }
+
+        internal int GetMembersCount()
+        {
+            return this.Members.Count;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.

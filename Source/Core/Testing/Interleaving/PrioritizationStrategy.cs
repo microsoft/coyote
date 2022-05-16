@@ -47,7 +47,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
         private readonly HashSet<ControlledOperation> registeredOps;
 
-        private int ContextSwitchNumber;
+        private int ContextSwitchNumber = 0;
+
+        private int MaxNumberOfOperationGroups = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
@@ -63,15 +65,34 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.ActualNumberOfPrioritySwitches = 0;
             this.registeredOps = new HashSet<ControlledOperation>();
             this.ContextSwitchNumber = 0;
+            this.MaxNumberOfOperationGroups = 0;
         }
 
         internal void PrintTaskPCTStatsForIteration(uint iteration)
         {
             Console.WriteLine(string.Empty);
             Console.WriteLine($"===========<IMP_TaskPCTStrategy> [PrintTaskPCTStatsForIteration] TASK-PCT STATS for ITERATION: {iteration}");
-            Console.WriteLine($"                  TOTAL ASYNC OPS (#PRIORITIES):: {this.PrioritizedOperationGroups.Count}");
+            Console.WriteLine($"                  TOTAL ASYNC OPS at the end: {this.registeredOps.Count}");
+            Console.WriteLine($"                  MAX TOTAL (#PRIORITIES) throughout the iteration: {this.MaxNumberOfOperationGroups}");
+            Console.WriteLine($"                  TOTAL (#PRIORITIES) at the end: {this.PrioritizedOperationGroups.Count}");
             Console.WriteLine($"                  #PRIORITY_SWITCHES: {this.ActualNumberOfPrioritySwitches}");
-            this.DebugPrintOperationPriorityList();
+
+            for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
+            {
+                var group = this.PrioritizedOperationGroups[idx];
+                if (group.Any(m => m.Status is OperationStatus.Enabled))
+                {
+                    Console.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled] whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
+                    group.DebugPrintMembers();
+                }
+                else if (group.Any(m => m.Status != OperationStatus.Completed))
+                {
+                    Console.WriteLine("  |_ [{0}] operation group with id '{1}' whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
+                    group.DebugPrintMembers();
+                }
+            }
+
+            // this.DebugPrintOperationPriorityList();
         }
 
         /// <inheritdoc/>
@@ -106,6 +127,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 this.DebugPrintPriorityChangePoints();
                 this.registeredOps.Clear();
                 this.ContextSwitchNumber = 0;
+                this.MaxNumberOfOperationGroups = 0;
             }
 
             this.NumPriorityChangePoints = 0;
@@ -305,6 +327,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.StepCount++;
             DebugPrintAfterGetNextOperation(next);
             this.DebugPrintOperationPriorityList();
+            this.MaxNumberOfOperationGroups = Math.Max(this.MaxNumberOfOperationGroups, this.PrioritizedOperationGroups.Count);
             return true;
         }
 
@@ -458,12 +481,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     var group = this.PrioritizedOperationGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled]", idx, group);
+                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled] whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
                         group.DebugPrintMembers();
                     }
                     else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}'", idx, group);
+                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}' whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
                         group.DebugPrintMembers();
                     }
                 }

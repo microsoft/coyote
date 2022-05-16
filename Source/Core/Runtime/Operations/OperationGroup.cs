@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Runtime
         {
             // if (IO.Debug.IsEnabled)
             // {
-            Console.Write($"MEMBERS OF OP_GROUP_{this.Id} (SIZE: {this.Members.Count}): ");
+            Console.Write($"      |_ MEMBERS OF OP_GROUP_{this.Id} (SIZE: {this.Members.Count}): ");
             foreach (ControlledOperation member in this.Members)
             {
                 Console.Write($"{member}, ");

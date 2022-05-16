@@ -286,11 +286,23 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
         }
 
+        private void HandleOperationsDoingMoveNext()
+        {
+            foreach (var op in this.registeredOps.Where(op => !op.LastMoveNextHandled))
+            {
+                op.Group.RemoveMember(op);
+                op.Group = op.ParentTask.Group;
+                op.ParentTask.Group.RegisterMember(op);
+            }
+        }
+
         /// <inheritdoc/>
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.DebugPrintBeforeGetNextOperation(ops);
+            this.HandleOperationsDoingMoveNext();
+
             this.RemoveEmptyOperationGroups();
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);

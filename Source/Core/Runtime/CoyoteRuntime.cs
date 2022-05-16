@@ -454,7 +454,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         internal OperationGroup DelayGroup;
-        internal OperationGroup ContDummyGroup;
+        // internal OperationGroup ContDummyGroup;
 
         /// <summary>
         /// Creates a new controlled operation with an optional delay.
@@ -471,6 +471,11 @@ namespace Microsoft.Coyote.Runtime
                 group = null;
             }
 
+            if (delay > 0)
+            {
+                group = this.DelayGroup;
+            }
+
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?
@@ -482,12 +487,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     this.DelayGroup = op.Group;
                     IO.Debug.WriteLine($"<Coyote> Created DelayGroup:{this.DelayGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
-                }
-                else
-                {
-                    op.Group.RemoveMember(op); // TODO: might give error
-                    op.Group = this.DelayGroup;
-                    this.DelayGroup.RegisterMember(op);
                 }
             }
 
@@ -861,9 +860,9 @@ namespace Microsoft.Coyote.Runtime
                         IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation task: {currentOperation} is set to: {currentOperation.ParentTask}");
                     }
 
-                    currentOperation.Group.RemoveMember(currentOperation); // TODO
-                    currentOperation.Group = currentOperation.ParentTask.Group;
-                    currentOperation.ParentTask.Group.RegisterMember(currentOperation);
+                    // currentOperation.Group.RemoveMember(currentOperation); // TODO
+                    // currentOperation.Group = currentOperation.ParentTask.Group;
+                    // currentOperation.ParentTask.Group.RegisterMember(currentOperation);
                     currentOperation.LastMoveNextHandled = false;
                     currentOperation.TaskGroupID = this.AsyncStateMachineOwnerOperationsList.IndexOf(currentOperation.ParentTask);
 

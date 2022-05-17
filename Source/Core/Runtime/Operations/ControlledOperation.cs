@@ -11,18 +11,12 @@ namespace Microsoft.Coyote.Runtime
     /// </summary>
     internal class ControlledOperation : IEquatable<ControlledOperation>
     {
+        // New metadata fields for implementation and debugging of pct for async-await
         public ControlledOperation ParentTask = null;
-
-        public bool IsContinuationTask = false;
-
-         // TODO: make it internal or private, initialize properly inside a constructor
-        // public List<AsyncOperation> Spawnees = new List<AsyncOperation>();
 
         public bool LastMoveNextHandled = true;
 
-        // public int AsyncStateMachineID = -1;
-
-        public int TaskGroupID = -1;
+        public bool IsContinuationTask = false;
 
         public bool IsOwnerSpawnOperation = false;
 

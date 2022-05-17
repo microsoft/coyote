@@ -50,6 +50,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             return true;
         }
 
+        // FOR DEBUGGING
         private void DebugPrintBeforeGetNextOperation(IEnumerable<ControlledOperation> opss)
         {
             this.ContextSwitchNumber += 1;
@@ -126,6 +127,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             int cases = 0;
 
+            // FOR TASKS_EXECUTION_VISUALIZATION_GRAPHS WORK
             if (newConcurrentOps.Count == 0)
             {
                 Console.WriteLine($"     <TaskSummaryLog> T-case 1.): No new task added.");
@@ -173,15 +175,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
             // IO.Debug.WriteLine(string.Empty);
         }
 
+        // FOR DEBUGGING
         private static void DebugPrintAfterGetNextOperation(ControlledOperation next)
         {
             IO.Debug.WriteLine($"          next = {next}");
             Console.WriteLine($"     <TaskSummaryLog> Scheduled: {next}");
-            // IO.Debug.WriteLine();
-            // IO.Debug.WriteLine();
-            // IO.Debug.WriteLine();
-            // IO.Debug.WriteLine();
-            // IO.Debug.WriteLine();
         }
 
         /// <inheritdoc/>

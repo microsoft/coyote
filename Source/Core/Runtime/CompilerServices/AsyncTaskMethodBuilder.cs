@@ -45,16 +45,16 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            this.ParentOperation = this.Runtime.GetExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
-                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}.");
             }
             else
             {
                 this.Runtime?.OnAsyncStateMachineStart(false);
-                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}.");
             }
         }
 
@@ -74,21 +74,21 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
+            this.ParentOperation = this.Runtime.GetExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
-                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Start] ParentOperation=Null, setting parent missed stateMachine.ToString(): {stateMachine.ToString()} thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Start] ParentOperation=Null, setting parent missed stateMachine.ToString(): {stateMachine.ToString()} thread {Thread.CurrentThread.ManagedThreadId}.");
             }
             else
             {
                 this.Runtime?.OnAsyncStateMachineStart(false);
-                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}.");
             }
 
             IO.Debug.WriteLine("<AsyncBuilder> Started state machine on runtime '{0}' and thread '{1}'.",
                 this.Runtime?.Id, Thread.CurrentThread.ManagedThreadId);
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [DebuggerHidden]
         public void OnMoveNext()
         {
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
             this.Runtime?.SetParentOnMoveNext(this.ParentOperation);
         }
 
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [AwaitUnsafeOnCompleted] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [AwaitUnsafeOnCompleted] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
@@ -204,16 +204,16 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            this.ParentOperation = this.Runtime.GetExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
-                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Constructor] this.ParentOperation: Null, setting parent missed, thread {Thread.CurrentThread.ManagedThreadId}.");
             }
             else
             {
                 this.Runtime?.OnAsyncStateMachineStart(false);
-                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Constructor] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}.");
             }
         }
 
@@ -235,22 +235,21 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            this.ParentOperation = CoyoteRuntime.ThreadLocalParentControlledOperation.Value;
-            this.ParentOperation = CoyoteRuntime.ExecutingOperation.Value;
+            this.ParentOperation = this.Runtime.GetExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
-                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Start] ParentOperation=Null, setting parent missed stateMachine.ToString(): {stateMachine.ToString()} thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                Console.WriteLine($"===========<F_AsyncBuilder-Error> [Start] ParentOperation=Null, setting parent missed stateMachine.ToString(): {stateMachine.ToString()} thread {Thread.CurrentThread.ManagedThreadId}.");
             }
             else
             {
                 this.Runtime?.OnAsyncStateMachineStart(false);
-                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}.");
             }
 
             IO.Debug.WriteLine("<AsyncBuilder> Started state machine on runtime '{0}' and thread '{1}'.",
                 this.Runtime?.Id, Thread.CurrentThread.ManagedThreadId);
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}.");
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -277,7 +276,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         [DebuggerHidden]
         public void OnMoveNext()
         {
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [onMoveNext] ParentOperation: {this.ParentOperation}, thread: {Thread.CurrentThread.ManagedThreadId}.");
             this.Runtime?.SetParentOnMoveNext(this.ParentOperation);
         }
 
@@ -312,7 +311,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [AwaitUnsafeOnCompleted] thread {Thread.CurrentThread.ManagedThreadId}, Task: ?, tlid: {CoyoteRuntime.ThreadLocalParentControlledOperation?.Value}");
+            IO.Debug.WriteLine($"===========<F_AsyncBuilder> [AwaitUnsafeOnCompleted] thread {Thread.CurrentThread.ManagedThreadId}.");
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)

@@ -55,6 +55,11 @@ namespace Microsoft.Coyote.Runtime
         private static readonly ThreadLocal<ControlledOperation> ExecutingOperation =
             new ThreadLocal<ControlledOperation>(false);
 
+        public static ControlledOperation GiveExecutingOperation()
+        {
+            return ExecutingOperation.Value;
+        }
+
         /// <summary>
         /// The runtime executing the current operation.
         /// </summary>

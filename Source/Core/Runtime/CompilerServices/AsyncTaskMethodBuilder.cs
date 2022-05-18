@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = this.Runtime.GetExecutingOperation();
+            this.ParentOperation = CoyoteRuntime.GiveExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
-            this.ParentOperation = this.Runtime.GetExecutingOperation();
+            this.ParentOperation = CoyoteRuntime.GiveExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
-            this.ParentOperation = this.Runtime.GetExecutingOperation();
+            this.ParentOperation = CoyoteRuntime.GiveExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);
@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            this.ParentOperation = this.Runtime.GetExecutingOperation();
+            this.ParentOperation = CoyoteRuntime.GiveExecutingOperation();
             if (this.ParentOperation == null)
             {
                 this.Runtime?.OnAsyncStateMachineStart(true);

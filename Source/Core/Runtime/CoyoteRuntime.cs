@@ -469,10 +469,20 @@ namespace Microsoft.Coyote.Runtime
                 group = null;
             }
 
-            // Force delay tasks, make the Group as the DelayGroup whose reference is saved in this runtime.
-            if (delay > 0)
+            string envDelaySeparateGroup = Environment.GetEnvironmentVariable("DELAY_SEPARATE_GROUP"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+            bool envDelaySeparateGroupBool = false;
+            if (envDelaySeparateGroup != null)
             {
-                group = this.DelayGroup;
+               envDelaySeparateGroupBool = bool.Parse(envDelaySeparateGroup);
+            }
+
+            if (envDelaySeparateGroupBool)
+            {
+                // Force delay tasks, make the Group as the DelayGroup whose reference is saved in this runtime.
+                if (delay > 0)
+                {
+                    group = this.DelayGroup;
+                }
             }
 
             // Create a new controlled operation using the next available operation id.
@@ -481,13 +491,16 @@ namespace Microsoft.Coyote.Runtime
                 new DelayOperation(operationId, $"Delay({operationId})", delay) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
 
-            // Initialzing the DelayGroup when a delay task is created for the first time.
-            if (delay > 0)
+            if (envDelaySeparateGroupBool)
             {
-                if (this.DelayGroup == null)
+                // Initialzing the DelayGroup when a delay task is created for the first time.
+                if (delay > 0)
                 {
-                    this.DelayGroup = op.Group;
-                    IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [CreateControlledOperation] Created DelayGroup:{this.DelayGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
+                    if (this.DelayGroup == null)
+                    {
+                        this.DelayGroup = op.Group;
+                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [CreateControlledOperation] Created DelayGroup:{this.DelayGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
+                    }
                 }
             }
 
@@ -749,6 +762,7 @@ namespace Microsoft.Coyote.Runtime
             this.NumOfAsyncStateMachineStart++;
         }
 
+        // FN_TODO: we should execute this method only for prioritization strategy.
         internal void SetParentOnMoveNext(ControlledOperation parent)
         {
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
@@ -756,7 +770,7 @@ namespace Microsoft.Coyote.Runtime
                 // try catch block to catch ThreadInterruptedException.
                 try
                 {
-                    IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [SetParentOnMoveNext] parent: {parent}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
+                    Console.WriteLine($"===========<F_CoyoteRuntime> [SetParentOnMoveNext] parent: {parent}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
                     this.NumOfMoveNext++;
                     ControlledOperation currentOperation = this.ScheduledOperation;
                     // FN_TODO: Think whether the below if block is actually required or not.
@@ -777,7 +791,7 @@ namespace Microsoft.Coyote.Runtime
                     // If parent of currentOperation is already correct then we need not do a scheduling step.
                     if (currentOperation.ParentTask == parent)
                     {
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
+                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
                         return;
                     }
 
@@ -786,8 +800,22 @@ namespace Microsoft.Coyote.Runtime
                     // If currentOperation is a delayTask doing a MoveNext then ignore this MoveNext callback.
                     if (currentOperation.IsDelayTaskOperation || currentOperation.Name.Contains("Delay"))
                     {
-                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
-                        return;
+                        string envDelayMoveNext = Environment.GetEnvironmentVariable("ALLOW_DELAY_MOVE_NEXT"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+                        bool envDelayMoveNextBool = false;
+                        if (envDelayMoveNext != null)
+                        {
+                            envDelayMoveNextBool = bool.Parse(envDelayMoveNext);
+                        }
+
+                        if (!envDelayMoveNextBool)
+                        {
+                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> Allowing delays to call moveNext for now, parent of Delay task: {currentOperation} is set to = {parent} and must not be changed");
+                        }
                     }
 
                     // ERROR_CASE: If the parent/owner operation in the AsyncTaskMethodBuilder class is null, then we miss this MoveNext callBack.
@@ -809,7 +837,7 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // this.NumOfMoveNext++;
                         currentOperation.ParentTask = parent;
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation task: {currentOperation} is set to: {currentOperation.ParentTask}");
+                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation/delay/spawn task: {currentOperation} is set to: {currentOperation.ParentTask}");
                     }
 
                     // currentOperation.Group.RemoveMember(currentOperation); // TODO

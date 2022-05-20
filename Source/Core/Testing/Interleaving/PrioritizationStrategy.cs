@@ -325,7 +325,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
 
-
             next = ops.ElementAt(idx);
             this.StepCount++;
             DebugPrintAfterGetNextOperation(next);

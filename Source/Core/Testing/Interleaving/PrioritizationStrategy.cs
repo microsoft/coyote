@@ -324,14 +324,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
-            Console.WriteLine($"idx: {idx}, ops.Count(): {ops.Count()}");
-            Console.Write($"ops: ");
-            for (int i = 0; i < ops.Count(); i++)
-            {
-                Console.Write($"{ops.ElementAt(i)}, ");
-            }
-
-            Console.WriteLine(string.Empty);
 
             next = ops.ElementAt(idx);
             this.StepCount++;

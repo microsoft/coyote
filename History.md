@@ -1,3 +1,6 @@
+## v1.5.5
+- Fixed a bug in `coyote rewrite`.
+
 ## v1.5.4
 - Significantly improved runtime performance during partially-controlled concurrency testing.
 

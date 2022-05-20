@@ -164,16 +164,24 @@ namespace Microsoft.Coyote.Rewriting
                 TypeReference newElementType = arrayType.ElementType.IsGenericInstance ?
                     this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten) :
                     this.RewriteAndImportType(arrayType.ElementType, options, onlyImport, ref isRewritten);
-                ArrayType newArrayType = new ArrayType(newElementType, arrayType.Rank);
-                return newArrayType;
+                return new ArrayType(newElementType, arrayType.Rank);
             }
             else if (type is ByReferenceType refType)
             {
                 TypeReference newElementType = refType.ElementType.IsGenericInstance ?
                     this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten) :
                     this.RewriteAndImportType(refType.ElementType, options, onlyImport, ref isRewritten);
-                ByReferenceType newReferenceType = new ByReferenceType(newElementType);
-                return newReferenceType;
+                return new ByReferenceType(newElementType);
+            }
+            else if (type is RequiredModifierType reqModType)
+            {
+                TypeReference newModifierType = reqModType.ModifierType.IsGenericInstance ?
+                    this.RewriteType(reqModType.ModifierType, options, onlyImport, ref isRewritten) :
+                    this.RewriteAndImportType(reqModType.ModifierType, options, onlyImport, ref isRewritten);
+                TypeReference newElementType = reqModType.ElementType.IsGenericInstance ?
+                    this.RewriteType(reqModType.ElementType, options, onlyImport, ref isRewritten) :
+                    this.RewriteAndImportType(reqModType.ElementType, options, onlyImport, ref isRewritten);
+                return new RequiredModifierType(newModifierType, newElementType);
             }
 
             return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten);

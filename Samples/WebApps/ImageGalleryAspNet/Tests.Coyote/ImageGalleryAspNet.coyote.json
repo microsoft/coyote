@@ -5,5 +5,6 @@
       "ImageGalleryService.dll",
       "ImageGalleryTests.dll",
       "TraceReplayer.dll"
-  ]
+  ],
+  "IsRewritingConcurrentCollections":"false"
 }

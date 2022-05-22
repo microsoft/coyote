@@ -20,13 +20,34 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Target Name="CoyoteRewriteNuget" Condition="'$(UseNugetPackages)'=='true'" AfterTargets="AfterBuild" >
+    <ItemGroup>
+    <!-- <PackageReference Include="Microsoft.Coyote" Version="$(CoyoteVersion)" />
+    <PackageReference Include="Microsoft.Coyote.Test" Version="$(CoyoteVersion)" /> -->
+    <Reference Include="Microsoft.Coyote">
+      <HintPath>..\..\..\..\bin\netcoreapp3.1\Microsoft.Coyote.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Coyote.Test">
+      <HintPath>..\..\..\..\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="rewrite.coyote.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <!-- <Target Name="CoyoteRewriteNuget" Condition="'$(UseNugetPackages)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="coyote rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocalNuget" Condition="'$(UseLocalNugetPackages)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet coyote rewrite rewrite.coyote.json" />
-  </Target>
-  <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
+  </Target> -->
+  <!-- <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet ../../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />
+  </Target> -->
+  <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
+    <Exec Command="..\..\..\..\bin\$(TargetFramework)\coyote.exe rewrite rewrite.coyote.json -d -v" />
+  </Target>
+  <Target Name="CoyoteRewriteLinux" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
+    <Exec Command="..\..\..\..\bin\$(TargetFramework)\coyote rewrite rewrite.coyote.json -d -v" />
   </Target>
 </Project>

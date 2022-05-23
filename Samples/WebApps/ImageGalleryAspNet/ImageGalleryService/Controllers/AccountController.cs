@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using ImageGallery.Logging;
 using ImageGallery.Models;
@@ -14,6 +15,23 @@ namespace ImageGallery.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly IDatabaseProvider DatabaseProvider;
         private IContainerProvider AccountContainer;
         private readonly IBlobContainerProvider StorageProvider;
@@ -28,6 +46,7 @@ namespace ImageGallery.Controllers
 
         private async Task<IContainerProvider> GetOrCreateContainer()
         {
+            await InjectYieldsAtMethodStart();
             if (this.AccountContainer == null)
             {
                 this.AccountContainer = await this.DatabaseProvider.CreateContainerIfNotExistsAsync(Constants.AccountCollectionName, "/id");
@@ -40,6 +59,7 @@ namespace ImageGallery.Controllers
         [Route("api/account/create")]
         public async Task<ActionResult<Account>> Create(Account account)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Creating account with id '{0}' (name: '{1}', email: '{2}').",
                 account.Id, account.Name, account.Email);
 
@@ -66,6 +86,7 @@ namespace ImageGallery.Controllers
         [Route("api/account/update")]
         public async Task<ActionResult<Account>> Update(Account account)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Updating account with id '{0}' (name: '{1}', email: '{2}').",
                 account.Id, account.Name, account.Email);
 
@@ -92,6 +113,7 @@ namespace ImageGallery.Controllers
         [Route("api/account/get/")]
         public async Task<ActionResult<Account>> Get(string id)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Getting account with id '{0}'.", id);
 
             // Check if the account exists in Cosmos DB.
@@ -115,6 +137,7 @@ namespace ImageGallery.Controllers
         [Route("api/account/delete/")]
         public async Task<ActionResult> Delete(string id)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Deleting account with id '{0}'.", id);
 
             // Check if the account exists in Cosmos DB.

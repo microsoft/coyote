@@ -16,6 +16,23 @@ namespace ImageGallery.Store.Cosmos
     /// </summary>
     public class ContainerProvider : IContainerProvider
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly Container Container;
 
         public ContainerProvider(Container container)
@@ -26,6 +43,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<T> CreateItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var timestamp = DateTime.UtcNow;
             entity.CreatedTime = timestamp;
             entity.ChangedTime = timestamp;
@@ -37,6 +55,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<T> ReplaceItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var timestamp = DateTime.UtcNow;
             entity.ChangedTime = timestamp;
 
@@ -47,6 +66,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<T> UpsertItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var timestamp = DateTime.UtcNow;
 
             if (!entity.CreatedTime.HasValue)
@@ -67,6 +87,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<T> ReadItemAsync<T>(string partitionKey, string id, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var readResponse = await this.Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions);
             return readResponse.Resource;
         }
@@ -74,6 +95,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<IList<T>> ReadItemsAcrossPartitionsAsync<T>(Expression<Func<T, bool>> predicate)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var feedIterator = this.Container.GetItemLinqQueryable<T>(allowSynchronousQueryExecution: true)
                 .Where(predicate)
                 .ToFeedIterator();
@@ -92,6 +114,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<IList<T>> ReadItemsInPartitionAsync<T>(string partitionKey, Expression<Func<T, bool>> predicate)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             var feedIterator = this.Container.GetItemLinqQueryable<T>(
                 allowSynchronousQueryExecution: true,
                 requestOptions: new QueryRequestOptions()
@@ -115,6 +138,7 @@ namespace ImageGallery.Store.Cosmos
         public async Task<bool> ExistsItemAsync<T>(string partitionKey, string id, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
+            await InjectYieldsAtMethodStart();
             try
             {
                 await this.Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions);

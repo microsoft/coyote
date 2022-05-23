@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,6 +16,23 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
     /// </summary>
     internal class MockBlobContainerProvider : IBlobContainerProvider
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte[]>> Containers;
         private readonly MockLogger Logger;
 
@@ -26,6 +44,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task CreateContainerAsync(string containerName)
         {
+            await InjectYieldsAtMethodStart();
             // Used to model asynchrony in the request.
             await Task.Yield();
 
@@ -35,6 +54,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task CreateContainerIfNotExistsAsync(string containerName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Creating container '{0}' if it does not exist.", containerName);
@@ -43,6 +63,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task DeleteContainerAsync(string containerName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting container '{0}'.", containerName);
@@ -51,6 +72,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task<bool> DeleteContainerIfExistsAsync(string containerName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting container '{0}' if it exists.", containerName);
@@ -59,6 +81,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task CreateBlobAsync(string containerName, string blobName, byte[] blobContents)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Creating blob '{0}' in container '{1}'.", blobName, containerName);
@@ -67,6 +90,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task<byte[]> GetBlobAsync(string containerName, string blobName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Getting blob '{0}' from container '{1}'.", blobName, containerName);
@@ -75,6 +99,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task<bool> ExistsBlobAsync(string containerName, string blobName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Checking if blob '{0}' exists in container '{1}'.", blobName, containerName);
@@ -84,6 +109,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task DeleteBlobAsync(string containerName, string blobName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting blob '{0}' from container '{1}'.", blobName, containerName);
@@ -92,6 +118,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task<bool> DeleteBlobIfExistsAsync(string containerName, string blobName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting blob '{0}' from container '{1}' if it exists.", blobName, containerName);
@@ -105,6 +132,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task DeleteAllBlobsAsync(string containerName)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting container '{0}'.", containerName);
@@ -116,6 +144,7 @@ namespace ImageGallery.Tests.Mocks.AzureStorage
 
         public async Task<BlobPage> GetBlobListAsync(string containerName, string continuationId, int pageSize)
         {
+            await InjectYieldsAtMethodStart();
             await Task.Yield();
             if (!this.Containers.TryGetValue(containerName, out ConcurrentDictionary<string, byte[]> container))
             {

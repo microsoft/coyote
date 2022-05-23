@@ -218,6 +218,9 @@ namespace ImageGallery.Tests
             config = config.WithActivityCoverageReported(false);
             config = config.WithPotentialDeadlocksReportedAsBugs(false);
 
+            // Added to ignore the error: task not intercepted and controlled during testing, so it can interfere with the ability to reproduce bug traces.
+            config = config.WithNoBugTraceRepro();
+
             // FN_DOUBT:
             // config = config.WithLivenessTemperatureThreshold()// doubt.
             // config = config.WithReplayStrategy() // doubt: how to do this schedule trace business.

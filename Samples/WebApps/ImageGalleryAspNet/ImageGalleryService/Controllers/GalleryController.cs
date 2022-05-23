@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using ImageGallery.Models;
 using ImageGallery.Store.AzureStorage;
@@ -14,6 +15,23 @@ namespace ImageGallery.Controllers
     [ApiController]
     public class GalleryController : ControllerBase
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly IDatabaseProvider DatabaseProvider;
         private IContainerProvider AccountContainer;
         private readonly IBlobContainerProvider StorageProvider;
@@ -28,6 +46,7 @@ namespace ImageGallery.Controllers
 
         private async Task<IContainerProvider> GetOrCreateContainer()
         {
+            await InjectYieldsAtMethodStart();
             if (this.AccountContainer == null)
             {
                 this.AccountContainer = await this.DatabaseProvider.CreateContainerIfNotExistsAsync(Constants.AccountCollectionName, "/id");
@@ -40,6 +59,7 @@ namespace ImageGallery.Controllers
         [Route("api/gallery/store")]
         public async Task<ActionResult> Store(Image image)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Storing image with name '{0}' and acccount id '{1}'.",
                 image.Name, image.AccountId);
 
@@ -66,6 +86,7 @@ namespace ImageGallery.Controllers
         [Route("api/gallery/get/")]
         public async Task<ActionResult<Image>> Get(string accountId, string imageName)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Getting image with name '{0}' and acccount id '{1}'.",
                 imageName, accountId);
 
@@ -90,6 +111,7 @@ namespace ImageGallery.Controllers
         [Route("api/gallery/getlist/")]
         public async Task<ActionResult<Image>> GetList(string accountId, string pageId)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Getting image list for acccount id '{0}' using continuation {1}.",
                 accountId, pageId);
 
@@ -111,6 +133,7 @@ namespace ImageGallery.Controllers
         [Route("api/gallery/delete/")]
         public async Task<ActionResult> Delete(string accountId, string imageName)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Deleting image with name '{0}' and acccount id '{1}'.",
                 imageName, accountId);
 
@@ -148,6 +171,7 @@ namespace ImageGallery.Controllers
         [Route("api/gallery/deleteall/")]
         public async Task<ActionResult> DeleteAllImages(string accountId)
         {
+            await InjectYieldsAtMethodStart();
             this.Logger.LogInformation("Deleting all images in acccount id '{0}'.", accountId);
 
             // First, check if the account exists in Cosmos DB.

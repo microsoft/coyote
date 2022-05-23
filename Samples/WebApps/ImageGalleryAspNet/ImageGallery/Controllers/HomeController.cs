@@ -16,6 +16,23 @@ namespace ImageGallery.Controllers
 {
     public class HomeController : Controller
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         public static string ImageGalleryServiceUrl;
 
         public HomeController(IServiceProvider provider)
@@ -26,6 +43,7 @@ namespace ImageGallery.Controllers
         [Authorize]
         public async Task<IActionResult> Index([FromForm] GalleryViewModel model)
         {
+            await InjectYieldsAtMethodStart();
             var user = GetUser();
             if (model == null) 
             {
@@ -57,6 +75,7 @@ namespace ImageGallery.Controllers
         [Route("Upload")]
         public async Task<ActionResult> Upload()
         {
+            await InjectYieldsAtMethodStart();
             try
             {
                 var files = Request.Form.Files;
@@ -98,6 +117,7 @@ namespace ImageGallery.Controllers
         [Authorize]
         public async Task<IActionResult> GetImage(string id)
         {
+            await InjectYieldsAtMethodStart();
             var user = GetUser();
             var client = new ImageGalleryClient(new HttpClient(), ImageGalleryServiceUrl);
             var image = await client.GetImageAsync(user, id);
@@ -117,6 +137,7 @@ namespace ImageGallery.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteImage(string id)
         {
+            await InjectYieldsAtMethodStart();
             var user = GetUser();
             var client = new ImageGalleryClient(new HttpClient(), ImageGalleryServiceUrl);
             await client.DeleteImageAsync(user, id);
@@ -127,6 +148,7 @@ namespace ImageGallery.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteAll()
         {
+            await InjectYieldsAtMethodStart();
             var user = GetUser();
             var client = new ImageGalleryClient(new HttpClient(), ImageGalleryServiceUrl);
             await client.DeleteAllImagesAsync(user);

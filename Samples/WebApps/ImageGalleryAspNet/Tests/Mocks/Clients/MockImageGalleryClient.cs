@@ -18,6 +18,23 @@ namespace ImageGallery.Tests.Mocks.Clients
 {
     internal class MockImageGalleryClient : ImageGalleryClient
     {
+//         static async Task InjectYieldsAtMethodStart()
+//         {
+//             string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+//             int envYiledLoopInt = 0;
+//             if (envYiledLoop != null)
+//             {
+// #pragma warning disable CA1305 // Specify IFormatProvider
+//                 envYiledLoopInt = int.Parse(envYiledLoop);
+// #pragma warning restore CA1305 // Specify IFormatProvider
+//             }
+
+//             for (int i = 0; i < envYiledLoopInt; i++)
+//             {
+//                 await Task.Yield();
+//             }
+//         }
+
         internal readonly IBlobContainerProvider AzureStorageProvider;
         internal readonly IClientProvider CosmosClientProvider;
         private IDatabaseProvider CosmosDbProvider;
@@ -34,6 +51,7 @@ namespace ImageGallery.Tests.Mocks.Clients
 
         internal async Task<IDatabaseProvider> InitializeCosmosDbAsync()
         {
+            await InjectYieldsAtMethodStart();
             this.CosmosDbProvider = await this.CosmosClientProvider.CreateDatabaseIfNotExistsAsync(Constants.DatabaseName);
             await this.CosmosDbProvider.CreateContainerIfNotExistsAsync(Constants.AccountCollectionName, "/id");
             return this.CosmosDbProvider;
@@ -45,6 +63,7 @@ namespace ImageGallery.Tests.Mocks.Clients
 
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new AccountController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Create(accountCopy));
                 var res = ExtractServiceResponse<Account>(actionResult.Result);
@@ -64,6 +83,7 @@ namespace ImageGallery.Tests.Mocks.Clients
 
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new AccountController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Update(accountCopy));
                 var res = ExtractServiceResponse<Account>(actionResult.Result);
@@ -89,6 +109,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new AccountController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Get(id));
                 var res = ExtractServiceResponse<Account>(actionResult.Result);
@@ -110,6 +131,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new AccountController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Delete(id));
                 var statusCode = ExtractHttpStatusCode(actionResult);
@@ -138,6 +160,7 @@ namespace ImageGallery.Tests.Mocks.Clients
 
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new GalleryController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Store(imageCopy));
                 var statusCode = ExtractHttpStatusCode(actionResult);
@@ -164,6 +187,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new GalleryController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Get(accountId, imageId));
                 var res = ExtractServiceResponse<Image>(actionResult.Result);
@@ -185,6 +209,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new GalleryController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.Delete(accountId, imageId));
                 var statusCode = ExtractHttpStatusCode(actionResult);
@@ -211,6 +236,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new GalleryController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.DeleteAllImages(accountId));
                 var statusCode = ExtractHttpStatusCode(actionResult);
@@ -237,6 +263,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         {
             return Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 var controller = new GalleryController(this.CosmosDbProvider, this.AzureStorageProvider, this.Logger);
                 var actionResult = await InvokeControllerAction(async () => await controller.GetList(accountId, continuationId));
                 var res = ExtractServiceResponse<ImageList>(actionResult.Result);
@@ -260,6 +287,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         /// </summary>
         private static async Task<ActionResult> InvokeControllerAction(Func<Task<ActionResult>> lambda)
         {
+            await InjectYieldsAtMethodStart();
             try
             {
                 return await lambda();
@@ -276,6 +304,7 @@ namespace ImageGallery.Tests.Mocks.Clients
         /// </summary>
         private static async Task<ActionResult<T>> InvokeControllerAction<T>(Func<Task<ActionResult<T>>> lambda)
         {
+            await InjectYieldsAtMethodStart();
             try
             {
                 return await lambda();

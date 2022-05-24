@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Rewriting
         private static TypeReference ResolveGenericArgumentType(GenericInstanceType genericType,
             MethodReference methodReference)
         {
-            TypeReference argType = genericType.GenericArguments.FirstOrDefault().GetElementType();
+            TypeReference argType = genericType.GenericArguments.FirstOrDefault();
             if (argType is GenericParameter gp)
             {
                 if (gp.Type is GenericParameterType.Type &&

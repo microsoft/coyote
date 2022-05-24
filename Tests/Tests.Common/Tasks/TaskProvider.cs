@@ -17,6 +17,8 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
         public static Task GetTask() => Task.CompletedTask;
 
         public static Task<T> GetGenericTask<T>() => Task.FromResult<T>(default(T));
+
+        public static Task<(int, bool)> GetValueTupleTask() => Task.FromResult((0, true));
     }
 
     /// <summary>

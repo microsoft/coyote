@@ -1,5 +1,9 @@
+## v1.5.6
+- Fixed a bug in `coyote rewrite` when checking uncontrolled tasks from methods with a nested
+  generic return type.
+
 ## v1.5.5
-- Fixed a bug in `coyote rewrite`.
+- Added support in `coyote rewrite` for rewriting types with a required modifier (`modreq`).
 
 ## v1.5.4
 - Significantly improved runtime performance during partially-controlled concurrency testing.

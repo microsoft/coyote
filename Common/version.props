@@ -2,7 +2,7 @@
 <!-- This file may be overwritten by automation. Only values allowed here are VersionPrefix and VersionSuffix. -->
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.5.6</VersionPrefix>
+    <VersionPrefix>1.5.7</VersionPrefix>
     <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 </Project>

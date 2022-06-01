@@ -1,3 +1,8 @@
+## v1.5.7
+- Fixed a bug where a thrown exception was not propagating properly when invoking `Task.WaitAll`
+  during systematic testing.
+- Fixed a bug in `coyote rewrite` related to return types with nested generics.
+
 ## v1.5.6
 - Fixed a bug in `coyote rewrite` when checking uncontrolled tasks from methods with a nested
   generic return type.

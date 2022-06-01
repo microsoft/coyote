@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
@@ -215,6 +217,37 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await tcs.Task;
             },
             configuration: this.GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAnyWithExceptionThrown()
+        {
+            this.TestWithException<InvalidOperationException>(async () =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                Task[] tasks = new Task[2];
+
+                tasks[0] = Task.Run(async () =>
+                {
+                    await tcs.Task;
+                });
+
+                tasks[1] = Task.Run(() =>
+                {
+                    throw new InvalidOperationException("Task failed.");
+                });
+
+                int index = Task.WaitAny(tasks, Timeout.Infinite);
+                tcs.SetResult(true);
+                await tcs.Task;
+
+                Specification.Assert(index is 1, "The second task did not finish first.");
+                Specification.Assert(tasks[1].Status is TaskStatus.Faulted, "The second task is not faulted.");
+                Specification.Assert(tasks[1].Exception != null, "The second task has not thrown an exception.");
+
+                throw tasks[1].Exception.Flatten().InnerException;
+            },
+            replay: true);
         }
 
         private static void AssertCompleted(Task task1, Task task2) =>

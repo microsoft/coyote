@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: support timeouts during testing, this would become false if there is a timeout.
-                runtime.WaitAllTasksComplete(tasks);
+                runtime.WaitUntilTasksComplete(tasks, waitAll: true);
             }
 
             return SystemTask.WaitAll(tasks, millisecondsTimeout, cancellationToken);
@@ -386,7 +386,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: support timeouts during testing, this would become -1 if there is a timeout.
-                return runtime.WaitAnyTaskCompletes(tasks);
+                runtime.WaitUntilTasksComplete(tasks, waitAll: false);
             }
 
             return SystemTask.WaitAny(tasks, millisecondsTimeout, cancellationToken);

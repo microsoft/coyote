@@ -598,92 +598,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Waits for all of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
-        internal void WaitAllTasksComplete(Task[] tasks)
-        {
-            // TODO: support timeouts and cancellations during testing.
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length > 0)
-            {
-                var callerOp = this.GetExecutingOperation();
-                this.WaitUntilTasksComplete(callerOp, tasks, waitAll: true);
-            }
-        }
-
-        /// <summary>
-        /// Waits for any of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal int WaitAnyTaskCompletes(Task[] tasks)
-        {
-            // TODO: support timeouts and cancellations during testing.
-            if (tasks is null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
-            else if (tasks.Length is 0)
-            {
-                throw new ArgumentException("The tasks argument contains no tasks.");
-            }
-
-            var callerOp = this.GetExecutingOperation();
-            this.WaitUntilTasksComplete(callerOp, tasks, waitAll: false);
-
-            int result = -1;
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                if (tasks[i].IsCompleted)
-                {
-                    result = i;
-                    break;
-                }
-            }
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return result;
-        }
-
-        /// <summary>
-        /// Blocks the specified operation until all or any of the tasks complete.
-        /// </summary>
-        private void WaitUntilTasksComplete(ControlledOperation op, Task[] tasks, bool waitAll)
-        {
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            {
-                // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
-                // tasks are not completed. If that is the case, then we add all tasks to `Dependencies` and wait
-                // at least one to complete. If, however, even one task is completed, then we should not wait, as it
-                // can cause potential deadlocks.
-                if (waitAll || tasks.All(task => !task.IsCompleted))
-                {
-                    foreach (var task in tasks)
-                    {
-                        if (!task.IsCompleted)
-                        {
-                            IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' is waiting for task '{2}'.",
-                                op.Name, op.Group, task.Id);
-                            op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
-                        }
-                    }
-
-                    if (op.Dependencies.Count > 0)
-                    {
-                        op.Status = waitAll ? OperationStatus.BlockedOnWaitAll : OperationStatus.BlockedOnWaitAny;
-                        this.ScheduleNextOperation(SchedulingPointType.Wait);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Blocks the currently executing operation until the task completes.
         /// </summary>
         internal void WaitUntilTaskCompletes(Task task)
@@ -720,6 +634,41 @@ namespace Microsoft.Coyote.Runtime
                 op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
                 op.Status = OperationStatus.BlockedOnWaitAll;
                 this.ScheduleNextOperation(SchedulingPointType.Wait);
+            }
+        }
+
+        /// <summary>
+        /// Blocks the specified operation until all or any of the tasks complete.
+        /// </summary>
+        internal void WaitUntilTasksComplete(Task[] tasks, bool waitAll)
+        {
+            // TODO: support timeouts and cancellations during testing.
+            if (tasks != null && tasks.Length > 0)
+            {
+                var op = this.GetExecutingOperation();
+
+                // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
+                // tasks are not completed. If that is the case, then we add all tasks to `Dependencies` and wait
+                // at least one to complete. If, however, even one task is completed, then we should not wait, as it
+                // can cause potential deadlocks.
+                if (waitAll || tasks.All(task => !task.IsCompleted))
+                {
+                    foreach (var task in tasks)
+                    {
+                        if (!task.IsCompleted)
+                        {
+                            IO.Debug.WriteLine("<Coyote> Operation '{0}' of group '{1}' is waiting for task '{2}'.",
+                                op.Name, op.Group, task.Id);
+                            op.SetDependency(task, this.ControlledTasks.ContainsKey(task));
+                        }
+                    }
+
+                    if (op.Dependencies.Count > 0)
+                    {
+                        op.Status = waitAll ? OperationStatus.BlockedOnWaitAll : OperationStatus.BlockedOnWaitAny;
+                        this.ScheduleNextOperation(SchedulingPointType.Wait);
+                    }
+                }
             }
         }
 

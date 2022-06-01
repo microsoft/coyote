@@ -232,6 +232,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 }
 
                 Specification.Assert(!succeeded, "Waiting the task should not succeed.");
+                Specification.Assert(tasks[0].Status is TaskStatus.Faulted, "The task is not faulted.");
                 throw exception;
             },
             replay: true);

@@ -22,6 +22,9 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
 
         public static Task<(TLeft, TRight)> GetGenericValueTupleTask<TLeft, TRight>() =>
             Task.FromResult((default(TLeft), default(TRight)));
+
+        public static Task<(T, (TLeft, TRight))> GetGenericNestedValueTupleTask<T, TLeft, TRight>() =>
+            Task.FromResult((default(T), (default(TLeft), default(TRight))));
     }
 
     /// <summary>

@@ -92,6 +92,16 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericNestedValueTupleTask()
+        {
+            this.Test(async () =>
+            {
+                var task = TaskProvider.GetGenericNestedValueTupleTask<int, bool, short>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsGenericTaskFromGenericClass()
         {
             this.Test(async () =>

@@ -82,6 +82,16 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericValueTupleTask()
+        {
+            this.Test(async () =>
+            {
+                var task = TaskProvider.GetGenericValueTupleTask<int, bool>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsGenericTaskFromGenericClass()
         {
             this.Test(async () =>
@@ -107,6 +117,16 @@ namespace Microsoft.Coyote.Rewriting.Tests
             this.Test(async () =>
             {
                 var task = GenericTaskProvider<object, bool>.Nested<short>.GetGenericMethodTask<int>();
+                await task;
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledMethodReturnsGenericValueTupleTaskFromGenericMethod()
+        {
+            this.Test(async () =>
+            {
+                var task = GenericTaskProvider<object, bool>.Nested<short>.GetGenericValueTupleTask<int>();
                 await task;
             });
         }

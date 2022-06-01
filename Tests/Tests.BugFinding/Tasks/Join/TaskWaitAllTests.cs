@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
@@ -203,6 +205,35 @@ namespace Microsoft.Coyote.BugFinding.Tests
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Deadlock detected.", e);
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAllWithExceptionThrown()
+        {
+            this.TestWithException<InvalidOperationException>(() =>
+            {
+                Task[] tasks = new Task[1];
+                tasks[0] = Task.Run(() =>
+                {
+                    throw new InvalidOperationException("Task failed.");
+                });
+
+                bool succeeded = false;
+                Exception exception = null;
+                try
+                {
+                    succeeded = Task.WaitAll(tasks, Timeout.Infinite);
+                }
+                catch (AggregateException e)
+                {
+                    exception = e.Flatten().InnerException;
+                }
+
+                Specification.Assert(!succeeded, "Waiting the task should not succeed.");
+                Specification.Assert(tasks[0].Status is TaskStatus.Faulted, "The task is not faulted.");
+                throw exception;
             },
             replay: true);
         }

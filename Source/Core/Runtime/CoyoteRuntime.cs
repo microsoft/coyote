@@ -601,23 +601,18 @@ namespace Microsoft.Coyote.Runtime
         /// Waits for all of the provided controlled task objects to complete execution within
         /// a specified number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
-        internal bool WaitAllTasksComplete(Task[] tasks)
+        internal void WaitAllTasksComplete(Task[] tasks)
         {
-            // TODO: support cancellations during testing.
+            // TODO: support timeouts and cancellations during testing.
             if (tasks is null)
             {
                 throw new ArgumentNullException(nameof(tasks));
             }
-            else if (tasks.Length is 0)
+            else if (tasks.Length > 0)
             {
-                return true;
+                var callerOp = this.GetExecutingOperation();
+                this.WaitUntilTasksComplete(callerOp, tasks, waitAll: true);
             }
-
-            var callerOp = this.GetExecutingOperation();
-            this.WaitUntilTasksComplete(callerOp, tasks, waitAll: true);
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return true;
         }
 
         /// <summary>
@@ -629,7 +624,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal int WaitAnyTaskCompletes(Task[] tasks)
         {
-            // TODO: support cancellations during testing.
+            // TODO: support timeouts and cancellations during testing.
             if (tasks is null)
             {
                 throw new ArgumentNullException(nameof(tasks));

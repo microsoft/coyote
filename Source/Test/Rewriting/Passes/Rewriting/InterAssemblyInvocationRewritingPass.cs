@@ -209,7 +209,10 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference wrapMethod = null;
             if (returnType is GenericInstanceType genericType)
             {
-                TypeReference argType = ResolveGenericArgumentType(genericType, methodReference);
+                GenericInstanceType resolvedType = ResolveGenericTypeArguments(genericType, methodReference);
+                TypeReference argType = resolvedType.HasGenericArguments ?
+                    resolvedType.GenericArguments.FirstOrDefault() :
+                    resolvedType;
                 MethodDefinition genericMethod = providerType.Methods.FirstOrDefault(
                     m => m.Name == interceptionMethodName && m.HasGenericParameters);
                 MethodReference wrapReference = this.Module.ImportReference(genericMethod);
@@ -231,7 +234,10 @@ namespace Microsoft.Coyote.Rewriting
             var returnType = methodReference.ReturnType;
             if (returnType is GenericInstanceType genericType)
             {
-                TypeReference argType = ResolveGenericArgumentType(genericType, methodReference);
+                GenericInstanceType resolvedType = ResolveGenericTypeArguments(genericType, methodReference);
+                TypeReference argType = resolvedType.HasGenericArguments ?
+                    resolvedType.GenericArguments.FirstOrDefault() :
+                    resolvedType;
                 returnType = MakeGenericType(genericType.ElementType, argType);
                 returnType = this.Module.ImportReference(returnType);
             }
@@ -240,27 +246,37 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Resolves the specified generic argument type of the given method reference.
+        /// Resolves the generic arguments of the specified type using the given method reference.
         /// </summary>
-        private static TypeReference ResolveGenericArgumentType(GenericInstanceType genericType,
+        private static GenericInstanceType ResolveGenericTypeArguments(GenericInstanceType genericType,
             MethodReference methodReference)
         {
-            TypeReference argType = genericType.GenericArguments.FirstOrDefault();
-            if (argType is GenericParameter gp)
+            GenericInstanceType resolvedType = new GenericInstanceType(genericType.ElementType);
+            foreach (var genericArgument in genericType.GenericArguments)
             {
-                if (gp.Type is GenericParameterType.Type &&
-                    methodReference.DeclaringType is GenericInstanceType dgt)
+                TypeReference argType = genericArgument;
+                if (argType is GenericParameter gp)
                 {
-                    argType = dgt.GenericArguments[gp.Position];
+                    if (gp.Type is GenericParameterType.Type &&
+                        methodReference.DeclaringType is GenericInstanceType dgt)
+                    {
+                        argType = dgt.GenericArguments[gp.Position];
+                    }
+                    else if (gp.Type is GenericParameterType.Method &&
+                        methodReference is GenericInstanceMethod gim)
+                    {
+                        argType = gim.GenericArguments[gp.Position];
+                    }
                 }
-                else if (gp.Type is GenericParameterType.Method &&
-                    methodReference is GenericInstanceMethod gim)
+                else if (argType is GenericInstanceType git)
                 {
-                    argType = gim.GenericArguments[gp.Position];
+                    argType = ResolveGenericTypeArguments(git, methodReference);
                 }
+
+                resolvedType.GenericArguments.Add(argType);
             }
 
-            return argType;
+            return resolvedType;
         }
 
         /// <summary>

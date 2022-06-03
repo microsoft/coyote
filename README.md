@@ -1,7 +1,6 @@
 # `Coyote`
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
-[![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/coyote_dev?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=coyote_dev)
 
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
@@ -30,6 +29,12 @@ Coyote is made with :heart: by Microsoft Research.
 Getting started with Coyote is easy! Check out
 [https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
 documentation, how-tos, samples and more information about the project. Enjoy!
+
+If you are a Microsoft employee, please consider joining the internal-only [Friends of Coyote Teams
+channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47),
+to be part of our community and learn from each other. Otherwise, please feel free to start a
+[discussion](https://github.com/microsoft/coyote/discussions) with us or open an
+[issue](https://github.com/microsoft/coyote/issues) on GitHub, thank you!
 
 ## Contributing
 

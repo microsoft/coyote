@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Rewriting
                                     FieldReference asyncTaskMethodBuilderFieldRef = null;
                                     foreach (FieldReference field in type.Fields)
                                     {
-                                        if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder"))
+                                        if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder") || field.FieldType.FullName.Contains("AsyncValueTaskMethodBuilder"))
                                         {
                                             asyncTaskMethodBuilderFieldRef = field;
                                         }

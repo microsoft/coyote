@@ -856,7 +856,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
         [Theory(Timeout = 10000)]
         [InlineData(1)]
-        public void TestReplicatingStorageLivenessBug(uint seed)
+        public void TestReplicatingStorageLivenessBug(ulong seed)
         {
             var configuration = this.GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 200;

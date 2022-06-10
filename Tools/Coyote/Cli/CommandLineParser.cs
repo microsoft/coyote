@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var seedOption = new Option<int>(
+            var seedOption = new Option<long>(
                 name: "--seed",
                 description: "Specify the random value generator seed.")
             {
@@ -852,7 +852,7 @@ namespace Microsoft.Coyote.Cli
                         this.Configuration.IsSharedStateReductionEnabled = true;
                         break;
                     case "seed":
-                        this.Configuration.RandomGeneratorSeed = (uint)result.GetValueOrDefault<int>();
+                        this.Configuration.RandomGeneratorSeed = (ulong)result.GetValueOrDefault<long>();
                         break;
                     case "liveness-temperature-threshold":
                         this.Configuration.LivenessTemperatureThreshold = result.GetValueOrDefault<int>();

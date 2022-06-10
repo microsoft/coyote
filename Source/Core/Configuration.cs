@@ -67,7 +67,7 @@ namespace Microsoft.Coyote
         /// this value is null indicating that no seed has been set.
         /// </summary>
         [DataMember]
-        public uint? RandomGeneratorSeed { get; internal set; }
+        public ulong? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
         /// If true, the seed will increment in each testing iteration.
@@ -569,7 +569,7 @@ namespace Microsoft.Coyote
         /// Updates the seed used by the random value generator during systematic testing.
         /// </summary>
         /// <param name="seed">The seed used by the random value generator.</param>
-        public Configuration WithRandomGeneratorSeed(uint seed)
+        public Configuration WithRandomGeneratorSeed(ulong seed)
         {
             this.RandomGeneratorSeed = seed;
             return this;

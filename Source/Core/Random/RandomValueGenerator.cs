@@ -18,12 +18,12 @@ namespace Microsoft.Coyote
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        private uint RandomSeed;
+        private ulong RandomSeed;
 
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        public uint Seed
+        public ulong Seed
         {
             get => this.RandomSeed;
 

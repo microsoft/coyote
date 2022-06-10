@@ -11,7 +11,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        uint Seed { get; set; }
+        ulong Seed { get; set; }
 
         /// <summary>
         /// Returns a non-negative random number.

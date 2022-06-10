@@ -11,6 +11,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 {
     public static class Program
     {
+        // TaskYieldInjector taskYieldInjector = new TaskYieldInjector();
         private static bool RunForever = false;
 
         public static void Main()
@@ -30,11 +31,19 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
         [Microsoft.Coyote.SystematicTesting.Test]
         public static async Task Execute(ICoyoteRuntime runtime)
         {
+            await TaskYieldInjector.InjectYieldsAtMethodStart();
             LogWriter.Initialize(runtime.Logger, RunForever);
             runtime.OnFailure += OnRuntimeFailure;
+            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             Specification.RegisterMonitor<LivenessMonitor>();
             IFailoverDriver driver = new FailoverDriver(RunForever);
             await driver.RunTest();
+            await TaskYieldInjector.InjectYieldsAtMethodEnd();
+        }
+
+        public static void PrintHello(string str)
+        {
+            Console.WriteLine("Hello, World! str: " + str);
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
     /// </summary>
     internal class FailoverDriver : IFailoverDriver
     {
+        // public TaskYieldInjector TaskYieldInjector = new TaskYieldInjector();
         private readonly ISensors Sensors;
         private ICoffeeMachine CoffeeMachine;
         private bool IsInitialized;
@@ -42,6 +43,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         public async Task RunTest()
         {
+            await TaskYieldInjector.InjectYieldsAtMethodStart();
             bool halted = true;
             while (this.RunForever || this.Iterations <= 1)
             {
@@ -96,9 +98,11 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 this.Iterations++;
             }
 
+            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             // Shutdown the sensors because test is now complete.
             this.Log.WriteLine("Test is complete, press ENTER to continue...");
             await this.Sensors.TerminateAsync();
+            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         internal void OnStopTest()

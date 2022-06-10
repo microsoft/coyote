@@ -12,6 +12,10 @@ namespace Microsoft.Coyote.Runtime
     internal class ControlledOperation : IEquatable<ControlledOperation>
     {
         // New metadata fields for implementation and debugging of pct for async-await
+
+        // public bool LowerPriorityDueToDelay = false;
+        public int NumDelayTasksExecuted = 0;
+
         public ControlledOperation ParentTask = null;
 
         public bool LastMoveNextHandled = true;

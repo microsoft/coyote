@@ -294,12 +294,66 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
         }
 
+        private void HandleOperationsDoingDelay(int delaysDeprioritizationThresholdInt)
+        {
+            // Deprioritize all the groups of all the operations which called a Task.delay API
+            foreach (var op in this.registeredOps.Where(op => op.NumDelayTasksExecuted > delaysDeprioritizationThresholdInt))
+            {
+                Console.WriteLine($"####################<F_PrioritizationStrategy> [HandleOperationsDoingDelay] priority of group of op: {op} = {this.PrioritizedOperationGroups.IndexOf(op.Group)} is lowered as it called Task.Delay() {op.NumDelayTasksExecuted} times which is >= than DelaysDeprioritizationThresholdInt = {delaysDeprioritizationThresholdInt}.");
+
+                // FN_TODO: should we deprioritice groups of those tasks whose parent has also called Task.delay?
+
+                string envDelaysDeprioritizeBy1 = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZE_BY_1"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+                bool envDelaysDeprioritizeBy1Bool = false;
+                if (envDelaysDeprioritizeBy1 != null)
+                {
+                    envDelaysDeprioritizeBy1Bool = bool.Parse(envDelaysDeprioritizeBy1);
+                }
+
+                // FN_TODO: should we make sure that we deprioritize only highest priority groups calling Delays?
+                if (envDelaysDeprioritizeBy1Bool)
+                {
+                    int index = this.PrioritizedOperationGroups.IndexOf(op.Group);
+                    this.PrioritizedOperationGroups.Remove(op.Group);
+                    if (this.PrioritizedOperationGroups.Count == 0)
+                    {
+                        this.PrioritizedOperationGroups.Add(op.Group);
+                    }
+                    else
+                    {
+                        this.PrioritizedOperationGroups.Insert(index + 1, op.Group);
+                    }
+                }
+                else
+                {
+                    this.PrioritizedOperationGroups.Remove(op.Group);
+                    this.PrioritizedOperationGroups.Add(op.Group);
+                }
+
+                // op.LowerPriorityDueToDelay = false;
+                op.NumDelayTasksExecuted = 0;
+            }
+        }
+
         /// <inheritdoc/>
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             this.DebugPrintBeforeGetNextOperation(ops);
             this.HandleOperationsDoingMoveNext();
+
+            // keep DELAYS_DEPRIORITIZATION_THRESHOLD <= 0 if do not want to deprioritize on delays (INFINITE_THRESHOLD).
+            string envDelaysDeprioritizationThreshold = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZATION_THRESHOLD"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+            int envDelaysDeprioritizationThresholdInt = 0;
+            if (envDelaysDeprioritizationThreshold != null)
+            {
+                envDelaysDeprioritizationThresholdInt = int.Parse(envDelaysDeprioritizationThreshold);
+            }
+
+            if (envDelaysDeprioritizationThresholdInt > 0)
+            {
+                this.HandleOperationsDoingDelay(envDelaysDeprioritizationThresholdInt);
+            }
 
             this.RemoveEmptyOperationGroups();
             // Set the priority of any new operation groups.

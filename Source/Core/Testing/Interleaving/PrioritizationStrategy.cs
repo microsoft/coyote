@@ -344,7 +344,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             // keep DELAYS_DEPRIORITIZATION_THRESHOLD <= 0 if do not want to deprioritize on delays (INFINITE_THRESHOLD).
             string envDelaysDeprioritizationThreshold = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZATION_THRESHOLD"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-            int envDelaysDeprioritizationThresholdInt = 0;
+            int envDelaysDeprioritizationThresholdInt = 1;
             if (envDelaysDeprioritizationThreshold != null)
             {
                 envDelaysDeprioritizationThresholdInt = int.Parse(envDelaysDeprioritizationThreshold);

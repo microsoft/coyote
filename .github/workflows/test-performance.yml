@@ -32,9 +32,8 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Setup Powershell
-        run: dotnet tool install -g powershell
+        run: ./Scripts/install-pwsh.cmd
       - name: Build Coyote projects
-        if: ${{ always() }}
         run: ./Scripts/build.ps1 -ci
         shell: pwsh
       - name: Run Performance Benchmark 1

@@ -21,6 +21,9 @@ jobs:
     runs-on: self-hosted
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
+      COSMOS_ACCOUNT_URI: ${{ secrets.AZURE_COSMOSDB_ENDPOINT }}
+      COSMOS_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_PRIMARY_KEY }}
+      LocalBenchmarks: ${{ secrets.LocalBenchmarks }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup NuGet.exe

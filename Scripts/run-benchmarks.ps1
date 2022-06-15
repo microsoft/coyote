@@ -12,14 +12,21 @@ Import-Module $PSScriptRoot/common.psm1 -Force
 $history = Invoke-Expression "git log --pretty=oneline -n 1"
 $words = $history.Split(' ')
 $commit = $words[0]
+$cosmos = ""
+
 if ($store -ne "") {
     $env:AZURE_COSMOSDB_ENDPOINT = $store
     $env:AZURE_STORAGE_PRIMARY_KEY = $key
+}
+
+if ($env:AZURE_COSMOSDB_ENDPOINT -ne "")
+{
     Write-Host "Results will be saved to $ENV:AZURE_COSMOSDB_ENDPOINT"
     $cosmos = "-cosmos"
 }
-else {
-    $cosmos = ""
+
+if ($local -eq ""){
+    $local = $Env:LocalBenchmarks
 }
 
 $current_dir = (Get-Item -Path "./").FullName

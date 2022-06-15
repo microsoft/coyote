@@ -21,8 +21,8 @@ jobs:
     runs-on: self-hosted
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
-      COSMOS_ACCOUNT_URI: ${{ secrets.AZURE_COSMOSDB_ENDPOINT }}
-      COSMOS_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_PRIMARY_KEY }}
+      AZURE_COSMOSDB_ENDPOINT: ${{ secrets.AZURE_COSMOSDB_ENDPOINT }}
+      AZURE_STORAGE_PRIMARY_KEY: ${{ secrets.AZURE_STORAGE_PRIMARY_KEY }}
       LocalBenchmarks: ${{ secrets.LocalBenchmarks }}
     steps:
       - uses: actions/checkout@v2
@@ -40,17 +40,17 @@ jobs:
         run: ./Scripts/build.ps1 -ci
         shell: pwsh
       - name: Run Performance Benchmark 1
-        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        run: ./Scripts/run-benchmarks.ps1
         shell: pwsh
       - name: Run Performance Benchmark 2
-        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        run: ./Scripts/run-benchmarks.ps1
         shell: pwsh
       - name: Run Performance Benchmark 3
-        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        run: ./Scripts/run-benchmarks.ps1
         shell: pwsh
       - name: Run Performance Benchmark 4
-        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        run: ./Scripts/run-benchmarks.ps1
         shell: pwsh
       - name: Run Performance Benchmark 5
-        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        run: ./Scripts/run-benchmarks.ps1
         shell: pwsh

@@ -246,6 +246,15 @@ namespace Microsoft.Coyote.Benchmarking
 
                     foreach (var report in summary.Reports)
                     {
+                        if (!report.Success)
+                        {
+                            if (!report.BuildResult.IsBuildSuccess)
+                            {
+                                Console.WriteLine(report.BuildResult.ErrorMessage);
+                                return 1;
+                            }
+                        }
+
                         var data = this.GetEntities(report);
                         if (data.Count > 0)
                         {
@@ -290,6 +299,11 @@ namespace Microsoft.Coyote.Benchmarking
             {
                 double msPerTest = row.Nanoseconds / 1000000.0 / row.Operations;
                 times.Add(msPerTest);
+            }
+
+            if (times.Count == 0)
+            {
+                return results;
             }
 
             var entity = new PerfEntity(this.MachineName, this.RuntimeVersion, this.CommitId, testName, 0)

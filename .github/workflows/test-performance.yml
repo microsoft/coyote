@@ -34,6 +34,7 @@ jobs:
       - name: Setup Powershell
         run: dotnet tool install -g powershell
       - name: Build Coyote projects
+        if: ${{ always() }}
         run: ./Scripts/build.ps1 -ci
         shell: pwsh
       - name: Run Performance Benchmark 1

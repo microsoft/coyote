@@ -17,7 +17,7 @@ on:
     branches: [ main ]
 jobs:
   build-and-test:
-    name: Build and test Coyote
+    name: Performance Test Coyote
     runs-on: self-hosted
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1

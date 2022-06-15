@@ -69,6 +69,7 @@ namespace Microsoft.Coyote.Benchmarking
             public UnitType UnitType => UnitType.Dimensionless;
             public string Unit => SizeUnit.B.Name;
             public bool TheGreaterTheBetter => false;
+            public int PriorityInCategory => 0;
         }
     }
 }

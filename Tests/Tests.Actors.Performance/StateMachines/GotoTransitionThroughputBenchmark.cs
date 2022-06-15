@@ -8,7 +8,6 @@ using BenchmarkDotNet.Jobs;
 
 namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     // [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]

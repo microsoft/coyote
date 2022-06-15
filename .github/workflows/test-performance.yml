@@ -1,0 +1,51 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: Coyote Performance CI
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+    branches: [ main ]
+jobs:
+  build-and-test:
+    name: Build and test Coyote
+    runs-on: self-hosted
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NuGet.exe
+        uses: NuGet/setup-nuget@v1
+        with:
+          nuget-version: '6.x'
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build Coyote projects
+        run: ./Scripts/build.ps1 -ci
+        shell: pwsh
+      - name: Run Performance Benchmark 1
+        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        shell: pwsh
+      - name: Run Performance Benchmark 2
+        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        shell: pwsh
+      - name: Run Performance Benchmark 3
+        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        shell: pwsh
+      - name: Run Performance Benchmark 4
+        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        shell: pwsh
+      - name: Run Performance Benchmark 5
+        run: ./Scripts/run-benchmarks.ps1 -store $Env:COSMOS_ACCOUNT_URI -key $Env:COSMOS_ACCOUNT_KEY  -local $Env:LocalBenchmarks
+        shell: pwsh

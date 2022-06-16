@@ -7,6 +7,7 @@ param(
 )
 
 Import-Module $PSScriptRoot/../../Scripts/common.psm1 -Force
+CheckPSVersion
 
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 

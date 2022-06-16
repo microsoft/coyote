@@ -1,6 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+function CheckPSVersion() {
+     $ver = $PSVersionTable["PSVersion"]
+     if ($ver -lt [version]"7.0.0") {
+         Write-Error "Please use latest version of 'pwsh' to run this script"
+         Write-Error "You can install it using: dotnet tool install -f powershell" 
+         Exit 1
+     }
+}
+
 # Invokes the specified coyote tool command on the specified target.
 function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [String]$target, [String]$key) {
     Write-Comment -prefix "..." -text "Rewriting '$target' ($framework)"
@@ -29,14 +38,15 @@ function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config,
     Write-Comment -prefix "..." -text "Building $solution"
 
     $nuget_config_file = "$PSScriptRoot/../NuGet.config"
+    $platform = "/p:Platform=`"Any CPU`""
     $restore_command = "restore $solution"
     $build_command = "build -c $config $solution --no-restore"
     if ($local -and $nuget) {
-        $restore_command = "$restore_command --configfile $nuget_config_file"
-        $build_command = "$build_command /p:UseLocalNugetPackages=true "
+        $restore_command = "$restore_command --configfile $nuget_config_file $platform"
+        $build_command = "$build_command /p:UseLocalNugetPackages=true $platform"
     } elseif ($local) {
-        $restore_command = "$restore_command --configfile $nuget_config_file"
-        $build_command = "$build_command /p:UseLocalCoyote=true"
+        $restore_command = "$restore_command --configfile $nuget_config_file $platform"
+        $build_command = "$build_command /p:UseLocalCoyote=true $platform"
     }
 
     Invoke-ToolCommand -tool $dotnet -cmd $restore_command -error_msg "Failed to restore $solution"

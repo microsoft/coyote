@@ -11,6 +11,8 @@ $ScriptDir = $PSScriptRoot
 
 Import-Module $ScriptDir/common.psm1 -Force
 
+CheckPSVersion
+
 Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 
 if ($host.Version.Major -lt 7)

@@ -142,65 +142,41 @@ namespace Microsoft.Coyote.Rewriting
         /// Returns the rewritten type for the specified type, or returns the original
         /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport, ref bool isRewritten, bool x = false)
+        private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport, ref bool isRewritten)
         {
             TypeReference result = type;
             if (type is ArrayType arrayType)
             {
-                if (x)
-                {
-                    Console.WriteLine($"Rewriting type {type}");
-                    Console.WriteLine($"   > 2");
-                }
-
-                TypeReference newElementType = this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten, x);
+                TypeReference newElementType = this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten);
                 return new ArrayType(newElementType, arrayType.Rank);
             }
             else if (type is ByReferenceType refType)
             {
-                if (x)
-                {
-                    Console.WriteLine($"Rewriting type {type}");
-                    Console.WriteLine($"   > 3: {refType.ElementType}");
-                }
-
-                TypeReference newElementType = this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten, true);
+                TypeReference newElementType = this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten);
                 return new ByReferenceType(newElementType);
             }
             else if (type is RequiredModifierType reqModType)
             {
-                if (x)
-                {
-                    Console.WriteLine($"Rewriting type {type}");
-                    Console.WriteLine($"   > 4");
-                }
-
-                TypeReference newModifierType = this.RewriteType(reqModType.ModifierType, options, onlyImport, ref isRewritten, x);
-                TypeReference newElementType = this.RewriteType(reqModType.ElementType, options, onlyImport, ref isRewritten, x);
+                TypeReference newModifierType = this.RewriteType(reqModType.ModifierType, options, onlyImport, ref isRewritten);
+                TypeReference newElementType = this.RewriteType(reqModType.ElementType, options, onlyImport, ref isRewritten);
                 return new RequiredModifierType(newModifierType, newElementType);
             }
             else if (type is GenericInstanceType genericType)
             {
-                if (x)
-                {
-                    Console.WriteLine($"Rewriting type {type}");
-                    Console.WriteLine($"   > 1");
-                }
-
                 TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options,
-                    onlyImport, ref isRewritten, x);
+                    onlyImport, ref isRewritten);
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
                      new GenericInstanceType(newElementType);
                 for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
                 {
                     newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx],
-                        options & ~Options.AllowStaticRewrittenType, false, ref isRewritten, x));
+                        options & ~Options.AllowStaticRewrittenType, false, ref isRewritten));
                 }
 
                 return newGenericType;
             }
 
-            return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten, x);
+            return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten);
         }
 
         /// <summary>
@@ -208,36 +184,21 @@ namespace Microsoft.Coyote.Rewriting
         /// if there is nothing to rewrite.
         /// </summary>
         private TypeReference RewriteAndImportType(TypeReference type, Options options, bool onlyImport,
-            ref bool isRewritten, bool x = false)
+            ref bool isRewritten)
         {
             TypeReference result = type;
             if (!type.IsGenericParameter && !type.IsByReference)
             {
-                if (x)
-                {
-                    Console.WriteLine($"Rewriting and importing type {type}");
-                }
-
                 // Rewrite the type if it is a known type. If the rewritten type is static,
                 // then only allow if this is a declaring type.
                 if (!onlyImport && this.KnownTypes.TryGetValue(type.FullName, out Type newType) &&
                     IsRewrittenTypeAllowed(newType, options))
                 {
-                    if (x)
-                    {
-                        Console.WriteLine($"   >>>>> 1");
-                    }
-
                     result = this.Module.ImportReference(newType);
                     isRewritten = true;
                 }
                 else if (type.Module != this.Module)
                 {
-                    if (x)
-                    {
-                        Console.WriteLine($"   >>>>> 2");
-                    }
-
                     // Import the type to the current module.
                     result = this.Module.ImportReference(type);
                 }

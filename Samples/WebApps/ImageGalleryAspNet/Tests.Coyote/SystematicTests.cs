@@ -156,7 +156,7 @@ namespace ImageGallery.Tests
                 #pragma warning disable CA1305 // Specify IFormatProvider
                 uint envSeedInt = uint.Parse(envSeed);
                 #pragma warning restore CA1305 // Specify IFormatProvider
-                config = config.WithRandomGeneratorSeed(envSeedInt);
+                // config = config.WithRandomGeneratorSeed(envSeedInt);
             }
 
             // --------------------------------------------END [SEED]---------------------------------------------------------------------------------------------------------------------------------------------

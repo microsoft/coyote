@@ -16,6 +16,23 @@ namespace PetImages.Controllers
     [Route("api/[controller]")]
     public class ImageController : ControllerBase
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly IAccountContainer AccountContainer;
         private readonly IImageContainer ImageContainer;
         private readonly IBlobContainer BlobContainer;
@@ -36,6 +53,8 @@ namespace PetImages.Controllers
         [HttpPost("create/{accountName}")]
         public async Task<ActionResult<Image>> CreateImageAsync([FromRoute] string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -75,6 +94,8 @@ namespace PetImages.Controllers
         [HttpPost("create-fixed/{accountName}")]
         public async Task<ActionResult<Image>> CreateImageAsyncFixed([FromRoute] string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -104,6 +125,8 @@ namespace PetImages.Controllers
         [HttpGet("contents/{accountName}/{imageName}")]
         public async Task<ActionResult<byte[]>> GetImageContentsAsync([FromRoute] string accountName, [FromRoute] string imageName)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -130,6 +153,8 @@ namespace PetImages.Controllers
         [HttpGet("thumbnail/{accountName}/{imageName}")]
         public async Task<ActionResult<byte[]>> GetImageThumbnailAsync([FromRoute] string accountName, [FromRoute] string imageName)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -162,6 +187,8 @@ namespace PetImages.Controllers
         [HttpPut("update/{accountName}")]
         public async Task<ActionResult<Image>> CreateOrUpdateImageAsync([FromRoute] string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();
@@ -189,6 +216,8 @@ namespace PetImages.Controllers
         [HttpPut("update-fixed/{accountName}")]
         public async Task<ActionResult<Image>> CreateOrUpdateImageAsyncFixed([FromRoute] string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             if (!await StorageHelper.DoesItemExist<AccountItem>(this.AccountContainer, partitionKey: accountName, id: accountName))
             {
                 return this.NotFound();

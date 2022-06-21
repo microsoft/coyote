@@ -12,6 +12,23 @@ namespace PetImages.Tests.MessagingMocks
 {
     public class MockMessagingClient : IMessagingClient
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly IWorker GenerateThumbnailWorker;
 
         public MockMessagingClient(IBlobContainer blobContainer)
@@ -24,6 +41,7 @@ namespace PetImages.Tests.MessagingMocks
             // Fire-and-forget the task to model sending an asynchronous message over the network.
             _ = Task.Run(async () =>
             {
+                await InjectYieldsAtMethodStart();
                 try
                 {
                     if (message.Type == Message.GenerateThumbnailMessageType)

@@ -15,6 +15,23 @@ namespace PetImages.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly IAccountContainer AccountContainer;
 
         public AccountController(IAccountContainer accountContainer)
@@ -29,6 +46,8 @@ namespace PetImages.Controllers
         [Produces(typeof(ActionResult<Account>))]
         public async Task<ActionResult<Account>> CreateAccountAsync(Account account)
         {
+            await InjectYieldsAtMethodStart();
+
             var accountItem = account.ToItem();
 
             if (await StorageHelper.DoesItemExist<AccountItem>(
@@ -49,6 +68,8 @@ namespace PetImages.Controllers
         [HttpPost("create-fixed")]
         public async Task<ActionResult<Account>> CreateAccountAsyncFixed(Account account)
         {
+            await InjectYieldsAtMethodStart();
+
             var accountItem = account.ToItem();
 
             try

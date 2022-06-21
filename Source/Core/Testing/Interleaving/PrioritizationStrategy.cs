@@ -377,7 +377,18 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 ops = ops.Where(op => nextGroup.IsMember(op));
             }
 
-            int idx = this.RandomValueGenerator.Next(ops.Count());
+            int idx = 0;
+            string envRandomChains = System.Environment.GetEnvironmentVariable("TASK_PCT_RANDOM_INSIDE_CHAINS");
+            bool envRandomChainsBool = false;
+            if (envRandomChains != null)
+            {
+                envRandomChainsBool = bool.Parse(envRandomChains);
+            }
+
+            if (envRandomChainsBool)
+            {
+                idx = this.RandomValueGenerator.Next(ops.Count());
+            }
 
             next = ops.ElementAt(idx);
             this.StepCount++;

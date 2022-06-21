@@ -20,6 +20,23 @@ namespace PetImages.Tests
 {
     internal class ServiceClient : IClient
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         private readonly HttpClient Client;
 
         internal ServiceClient(ServiceFactory factory)
@@ -33,6 +50,8 @@ namespace PetImages.Tests
 
         public async Task<HttpStatusCode> CreateAccountAsync(Account account)
         {
+            await InjectYieldsAtMethodStart();
+
             var response = await this.Client.PostAsync(new Uri($"/api/account/create", UriKind.RelativeOrAbsolute),
                 JsonContent.Create(account));
             return response.StatusCode;
@@ -40,6 +59,8 @@ namespace PetImages.Tests
 
         public async Task<HttpStatusCode> CreateImageAsync(string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             var response = await this.Client.PostAsync(new Uri($"/api/image/create/{accountName}",
                 UriKind.RelativeOrAbsolute), JsonContent.Create(image));
             return response.StatusCode;
@@ -47,6 +68,8 @@ namespace PetImages.Tests
 
         public async Task<(HttpStatusCode, Image)> CreateOrUpdateImageAsync(string accountName, Image image)
         {
+            await InjectYieldsAtMethodStart();
+
             var response = await this.Client.PutAsync(new Uri($"/api/image/update/{accountName}",
                 UriKind.RelativeOrAbsolute), JsonContent.Create(image));
             var stream = await response.Content.ReadAsStreamAsync();
@@ -57,6 +80,8 @@ namespace PetImages.Tests
 
         public async Task<(HttpStatusCode, byte[])> GetImageAsync(string accountName, string imageName)
         {
+            await InjectYieldsAtMethodStart();
+
             var response = await this.Client.GetAsync(new Uri($"/api/image/contents/{accountName}/{imageName}",
                 UriKind.RelativeOrAbsolute));
             var stream = await response.Content.ReadAsStreamAsync();
@@ -67,6 +92,8 @@ namespace PetImages.Tests
 
         public async Task<(HttpStatusCode, byte[])> GetImageThumbnailAsync(string accountName, string imageName)
         {
+            await InjectYieldsAtMethodStart();
+
             var response = await this.Client.GetAsync(new Uri($"/api/image/thumbnail/{accountName}/{imageName}",
                 UriKind.RelativeOrAbsolute));
             var stream = await response.Content.ReadAsStreamAsync();

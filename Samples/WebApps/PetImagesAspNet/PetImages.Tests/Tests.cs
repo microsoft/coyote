@@ -22,9 +22,28 @@ namespace PetImages.Tests
 {
     public class Tests
     {
+        public static async Task InjectYieldsAtMethodStart()
+        {
+            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
+            int envYiledLoopInt = 0;
+            if (envYiledLoop != null)
+            {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                envYiledLoopInt = int.Parse(envYiledLoop);
+#pragma warning restore CA1305 // Specify IFormatProvider
+            }
+
+            for (int i = 0; i < envYiledLoopInt; i++)
+            {
+                await Task.Yield();
+            }
+        }
+
         [Fact]
         public async Task TestFirstScenario()
         {
+            await InjectYieldsAtMethodStart();
+
             // Initialize the in-memory service factory.
             using var factory = new ServiceFactory();
             await factory.InitializeAccountContainerAsync();
@@ -57,6 +76,8 @@ namespace PetImages.Tests
         [Fact]
         public async Task TestSecondScenario()
         {
+            await InjectYieldsAtMethodStart();
+
             // Initialize the in-memory service factory.
             using var factory = new ServiceFactory();
             await factory.InitializeAccountContainerAsync();
@@ -103,6 +124,8 @@ namespace PetImages.Tests
         [Fact]
         public async Task TestThirdScenario()
         {
+           await InjectYieldsAtMethodStart();
+
            // Initialize the in-memory service factory.
            using var factory = new ServiceFactory();
            await factory.InitializeAccountContainerAsync();
@@ -306,7 +329,7 @@ namespace PetImages.Tests
                 #pragma warning disable CA1305 // Specify IFormatProvider
                 uint envSeedInt = uint.Parse(envSeed);
                 #pragma warning restore CA1305 // Specify IFormatProvider
-                config = config.WithRandomGeneratorSeed(envSeedInt);
+                // config = config.WithRandomGeneratorSeed(envSeedInt);
             }
 
             // --------------------------------------------END [SEED]---------------------------------------------------------------------------------------------------------------------------------------------
@@ -389,9 +412,9 @@ namespace PetImages.Tests
                 testingEngine.Run();
 
                 string assertionText = testingEngine.TestReport.GetText(config);
-                assertionText +=
-                    $"{Environment.NewLine} Random Generator Seed: " +
-                    $"{testingEngine.TestReport.Configuration.RandomGeneratorSeed}{Environment.NewLine}";
+                // assertionText +=
+                //     $"{Environment.NewLine} Random Generator Seed: " +
+                //     $"{testingEngine.TestReport.Configuration.RandomGeneratorSeed}{Environment.NewLine}";
                 foreach (var bugReport in testingEngine.TestReport.BugReports)
                 {
                     assertionText +=

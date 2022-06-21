@@ -36,6 +36,8 @@ namespace Microsoft.Coyote.Rewriting
                 typeof(Runtime.CompilerServices.AsyncValueTaskMethodBuilder);
             this.KnownTypes[NameCache.GenericAsyncValueTaskMethodBuilder] =
                 typeof(Runtime.CompilerServices.AsyncValueTaskMethodBuilder<>);
+            this.KnownTypes[NameCache.AsyncVoidMethodBuilder] =
+                typeof(Runtime.CompilerServices.AsyncVoidMethodBuilder);
             this.KnownTypes[NameCache.TaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter);
             this.KnownTypes[NameCache.GenericTaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter<>);
             this.KnownTypes[NameCache.ValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter);

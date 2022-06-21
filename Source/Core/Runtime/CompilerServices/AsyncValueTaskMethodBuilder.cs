@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Callback to AsyncTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
+        /// Callback to AsyncValueTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
         /// </summary>
         [DebuggerHidden]
         public void OnMoveNext()
@@ -280,7 +280,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Callback to AsyncTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
+        /// Callback to AsyncValueTaskMethodBuilder before MoveNext method for IAsyncStateMachine class at the IL level.
         /// </summary>
         [DebuggerHidden]
         public void OnMoveNext()

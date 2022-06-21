@@ -192,9 +192,12 @@ namespace Microsoft.Coyote.Rewriting
                         ((type.Name == NameCache.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) ||
                         (type.Name == NameCache.AsyncValueTaskMethodBuilderName ||
+                        type.Name.StartsWith("AsyncValueTaskMethodBuilder`")) ||
+                        (type.Name == NameCache.AsyncVoidMethodBuilderName ||
                         type.Name.StartsWith("AsyncValueTaskMethodBuilder`"))) &&
                         (method.Name is nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException) ||
-                        method.Name is nameof(SystemCompiler.AsyncValueTaskMethodBuilder.SetException)))
+                        method.Name is nameof(SystemCompiler.AsyncValueTaskMethodBuilder.SetException) ||
+                        method.Name is nameof(SystemCompiler.AsyncVoidMethodBuilder.SetException)))
                     {
                         return true;
                     }

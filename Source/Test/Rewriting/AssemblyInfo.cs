@@ -181,11 +181,25 @@ namespace Microsoft.Coyote.Rewriting
 
                                     // Finding the AsyncTaskMethodBuilder field reference.
                                     FieldReference asyncTaskMethodBuilderFieldRef = null;
+                                    string builderType = "AsyncTaskMethodBuilder";
                                     foreach (FieldReference field in type.Fields)
                                     {
-                                        if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder") || field.FieldType.FullName.Contains("AsyncValueTaskMethodBuilder"))
+                                        if (field.FieldType.FullName.Contains("AsyncTaskMethodBuilder"))
                                         {
                                             asyncTaskMethodBuilderFieldRef = field;
+                                            break;
+                                        }
+                                        else if (field.FieldType.FullName.Contains("AsyncValueTaskMethodBuilder"))
+                                        {
+                                            asyncTaskMethodBuilderFieldRef = field;
+                                            builderType = "AsyncValueTaskMethodBuilder";
+                                            break;
+                                        }
+                                        else if (field.FieldType.FullName.Contains("AsyncVoidMethodBuilder"))
+                                        {
+                                            asyncTaskMethodBuilderFieldRef = field;
+                                            builderType = "AsyncVoidMethodBuilder";
+                                            break;
                                         }
                                     }
 
@@ -213,10 +227,26 @@ namespace Microsoft.Coyote.Rewriting
                                         asyncTaskMethodBuilderFieldRef = method.Module.ImportReference(asyncTaskMethodBuilderFieldRef);
 
                                         // Inserting call to the OnMoveNext method of AsyncTaskMethodBuilder field at the befining of the MoveNext method of this IAsyncStateMachine class.
-                                        TypeDefinition asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncTaskMethodBuilder)).Resolve();
-                                        MethodReference onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(
-                                            m => m.Name is nameof(AsyncTaskMethodBuilder.OnMoveNext));
-                                        onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
+                                        TypeDefinition asyncTaskMethodBuilderType = null;
+                                        MethodReference onMoveNextMethod = null;
+                                        if (builderType == "AsyncTaskMethodBuilder")
+                                        {
+                                            asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncTaskMethodBuilder)).Resolve();
+                                            onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(m => m.Name is nameof(AsyncTaskMethodBuilder.OnMoveNext));
+                                            onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
+                                        }
+                                        else if (builderType == "AsyncValueTaskMethodBuilder")
+                                        {
+                                            asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncValueTaskMethodBuilder)).Resolve();
+                                            onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(m => m.Name is nameof(AsyncValueTaskMethodBuilder.OnMoveNext));
+                                            onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
+                                        }
+                                        else
+                                        {
+                                            asyncTaskMethodBuilderType = method.Module.ImportReference(typeof(AsyncVoidMethodBuilder)).Resolve();
+                                            onMoveNextMethod = asyncTaskMethodBuilderType.Methods.FirstOrDefault(m => m.Name is nameof(AsyncVoidMethodBuilder.OnMoveNext));
+                                            onMoveNextMethod = method.Module.ImportReference(onMoveNextMethod);
+                                        }
 
                                         processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Call, onMoveNextMethod));
                                         processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Ldflda, asyncTaskMethodBuilderFieldRef));

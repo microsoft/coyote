@@ -145,7 +145,23 @@ namespace Microsoft.Coyote.Rewriting
         private TypeReference RewriteType(TypeReference type, Options options, bool onlyImport, ref bool isRewritten)
         {
             TypeReference result = type;
-            if (type is GenericInstanceType genericType)
+            if (type is ArrayType arrayType)
+            {
+                TypeReference newElementType = this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten);
+                return new ArrayType(newElementType, arrayType.Rank);
+            }
+            else if (type is ByReferenceType refType)
+            {
+                TypeReference newElementType = this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten);
+                return new ByReferenceType(newElementType);
+            }
+            else if (type is RequiredModifierType reqModType)
+            {
+                TypeReference newModifierType = this.RewriteType(reqModType.ModifierType, options, onlyImport, ref isRewritten);
+                TypeReference newElementType = this.RewriteType(reqModType.ElementType, options, onlyImport, ref isRewritten);
+                return new RequiredModifierType(newModifierType, newElementType);
+            }
+            else if (type is GenericInstanceType genericType)
             {
                 TypeReference newElementType = this.RewriteAndImportType(genericType.ElementType, options,
                     onlyImport, ref isRewritten);
@@ -158,30 +174,6 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 return newGenericType;
-            }
-            else if (type is ArrayType arrayType)
-            {
-                TypeReference newElementType = arrayType.ElementType.IsGenericInstance ?
-                    this.RewriteType(arrayType.ElementType, options, onlyImport, ref isRewritten) :
-                    this.RewriteAndImportType(arrayType.ElementType, options, onlyImport, ref isRewritten);
-                return new ArrayType(newElementType, arrayType.Rank);
-            }
-            else if (type is ByReferenceType refType)
-            {
-                TypeReference newElementType = refType.ElementType.IsGenericInstance ?
-                    this.RewriteType(refType.ElementType, options, onlyImport, ref isRewritten) :
-                    this.RewriteAndImportType(refType.ElementType, options, onlyImport, ref isRewritten);
-                return new ByReferenceType(newElementType);
-            }
-            else if (type is RequiredModifierType reqModType)
-            {
-                TypeReference newModifierType = reqModType.ModifierType.IsGenericInstance ?
-                    this.RewriteType(reqModType.ModifierType, options, onlyImport, ref isRewritten) :
-                    this.RewriteAndImportType(reqModType.ModifierType, options, onlyImport, ref isRewritten);
-                TypeReference newElementType = reqModType.ElementType.IsGenericInstance ?
-                    this.RewriteType(reqModType.ElementType, options, onlyImport, ref isRewritten) :
-                    this.RewriteAndImportType(reqModType.ElementType, options, onlyImport, ref isRewritten);
-                return new RequiredModifierType(newModifierType, newElementType);
             }
 
             return this.RewriteAndImportType(type, options, onlyImport, ref isRewritten);

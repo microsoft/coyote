@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.10.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <Target Name="CoyoteRewriteWin" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
     <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite $(OutputPath)Tests.Performance.dll" />

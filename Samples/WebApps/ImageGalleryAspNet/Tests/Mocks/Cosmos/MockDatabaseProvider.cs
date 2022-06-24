@@ -8,7 +8,6 @@ using ImageGallery.Logging;
 using ImageGallery.Store.Cosmos;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace ImageGallery.Tests.Mocks.Cosmos
 {
@@ -17,23 +16,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
     /// </summary>
     internal class MockDatabaseProvider : IDatabaseProvider
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         private readonly string DatabaseName;
         private readonly MockCosmosState CosmosState;
         private readonly MockLogger Logger;
@@ -47,7 +29,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
 
         public async Task<IContainerProvider> CreateContainerAsync(string id, string partitionKeyPath)
         {
-            await InjectYieldsAtMethodStart();
             // Used to model asynchrony in the request.
             await Task.Yield();
 
@@ -70,7 +51,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
 
         public async Task<IContainerProvider> CreateContainerIfNotExistsAsync(string id, string partitionKeyPath)
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Creating container '{0}' in database '{1}' if it does not exist.", id, this.DatabaseName);
@@ -105,7 +85,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
 
         public async Task DeleteAsync()
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
             this.Logger.LogInformation("Deleting database '{0}'.", this.DatabaseName);
             this.CosmosState.DeleteDatabase(this.DatabaseName);

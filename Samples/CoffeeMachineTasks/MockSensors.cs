@@ -80,7 +80,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
     /// </summary>
     internal class MockSensors : ISensors
     {
-        // public TaskYieldInjector TaskYieldInjector = new TaskYieldInjector();
         private readonly AsyncLock Lock;
         private bool PowerOn;
         private bool WaterHeaterButton;
@@ -140,64 +139,45 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         public async Task<bool> GetPowerSwitchAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             // to model real async behavior we insert a delay here.
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.PowerOn;
         }
 
         public async Task<double> GetWaterLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.WaterLevel;
         }
 
         public async Task<double> GetHopperLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.HopperLevel;
         }
 
         public async Task<double> GetWaterTemperatureAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.WaterTemperature;
         }
 
         public async Task<double> GetPortaFilterCoffeeLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.PortaFilterCoffeeLevel;
         }
 
         public async Task<bool> GetReadDoorOpenAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.DoorOpen;
         }
 
         public async Task SetPowerSwitchAsync(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
+
             // NOTE: you should not use C# locks that interact with Tasks (like Task.Run) because
             // it can result in deadlocks, instead use the Coyote AsyncLock as follows.
             using (await this.Lock.AcquireAsync())
@@ -217,15 +197,12 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                     this.ShotTimer = null;
                 }
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         public async Task SetWaterHeaterButtonAsync(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
+
             using (await this.Lock.AcquireAsync())
             {
                 this.WaterHeaterButton = value;
@@ -236,22 +213,16 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                     Specification.Assert(false, "Please do not turn on heater if there is no water");
                 }
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         public async Task SetGrinderButtonAsync(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await this.OnGrinderButtonChanged(value);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task OnGrinderButtonChanged(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             using (await this.Lock.AcquireAsync())
             {
                 this.GrinderButton = value;
@@ -275,16 +246,12 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                     this.CoffeeLevelTimer = null;
                 }
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         public async Task SetShotButtonAsync(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
+
             using (await this.Lock.AcquireAsync())
             {
                 this.ShotButton = value;
@@ -309,22 +276,16 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                     this.ShotTimer = null;
                 }
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         public async Task SetDumpGrindsButtonAsync(bool value)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await Task.Delay(1);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if (value)
             {
                 // This is a toggle button, in no time grinds are dumped (just for simplicity).
                 this.PortaFilterCoffeeLevel = 0;
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private void MonitorWaterTemperature()

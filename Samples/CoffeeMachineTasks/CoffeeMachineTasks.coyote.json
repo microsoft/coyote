@@ -1,7 +1,0 @@
-{
-  "AssembliesPath": ".\\obj\\Debug\\net6.0",
-  "Assemblies": [
-    "CoffeeMachineTasks.dll"
-  ],
-  "IsRewritingConcurrentCollections":"false"
-}

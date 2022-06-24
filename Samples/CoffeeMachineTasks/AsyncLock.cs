@@ -16,8 +16,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
     /// </summary>
     public class AsyncLock
     {
-        // TaskYieldInjector taskYieldInjector = new TaskYieldInjector();
-
         /// <summary>
         /// Queue of tasks awaiting to acquire the lock.
         /// </summary>
@@ -44,7 +42,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
         /// </summary>
         public virtual async Task<Releaser> AcquireAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             TaskCompletionSource<object> awaiter;
             lock (this.Awaiters)
             {
@@ -60,13 +57,11 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 }
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if (awaiter != null)
             {
                 await awaiter.Task;
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return new Releaser(this);
         }
 

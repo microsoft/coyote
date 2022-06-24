@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Text;
 using System.Threading.Tasks;
 using ImageGallery.Logging;
@@ -16,27 +15,9 @@ namespace ImageGallery.Tests
     [TestClass]
     public class UnitTests
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         [TestMethod]
         public async Task TestConcurrentAccountRequestsAsync()
         {
-            await InjectYieldsAtMethodStart();
             var logger = new MockLogger();
             var cosmosState = new MockCosmosState(logger);
 
@@ -70,7 +51,6 @@ namespace ImageGallery.Tests
         [TestMethod]
         public async Task TestConcurrentAccountAndImageRequestsAsync()
         {
-            await InjectYieldsAtMethodStart();
             var logger = new MockLogger();
             var cosmosState = new MockCosmosState(logger);
 

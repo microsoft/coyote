@@ -14,23 +14,6 @@ namespace ImageGallery.Middleware
     /// </summary>
     public class RequestLoggingMiddleware
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         private readonly RequestDelegate NextRequest;
 
         public RequestLoggingMiddleware(RequestDelegate next)
@@ -40,7 +23,6 @@ namespace ImageGallery.Middleware
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            await InjectYieldsAtMethodStart();
             RequestId.Create(httpContext.TraceIdentifier);
             await NextRequest(httpContext);
         }

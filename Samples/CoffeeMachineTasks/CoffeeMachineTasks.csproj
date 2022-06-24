@@ -24,23 +24,4 @@
   <ItemGroup>
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="CoffeeMachineTasks.coyote.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-     <Reference Include="Microsoft.Coyote">
-      <HintPath>..\..\bin\net5.0\Microsoft.Coyote.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Coyote.Test">
-      <HintPath>..\..\bin\net5.0\Microsoft.Coyote.Test.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite CoffeeMachineTasks.coyote.json -d -v" />
-  </Target>
-  <Target Name="CoyoteRewriteLinux" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote rewrite CoffeeMachineTasks.coyote.json -d -v" />
-  </Target>
 </Project>

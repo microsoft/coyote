@@ -14,25 +14,4 @@
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
   </ItemGroup>
-  <ItemGroup>
-    <!-- <PackageReference Include="Microsoft.Coyote" Version="$(CoyoteVersion)" />
-    <PackageReference Include="Microsoft.Coyote.Test" Version="$(CoyoteVersion)" /> -->
-    <Reference Include="Microsoft.Coyote">
-      <HintPath>..\..\..\..\bin\netcoreapp3.1\Microsoft.Coyote.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Coyote.Test">
-      <HintPath>..\..\..\..\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="ImageGalleryAspNet.coyote.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <Target Name="CoyoteRewriteWindows" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\..\..\bin\$(TargetFramework)\coyote.exe rewrite ImageGalleryAspNet.coyote.json -d -v" />
-  </Target>
-  <Target Name="CoyoteRewriteLinux" AfterTargets="AfterBuild" Condition="'$(OS)'!='Windows_NT'">
-    <Exec Command="..\..\..\..\bin\$(TargetFramework)\coyote rewrite ImageGalleryAspNet.coyote.json -d -v" />
-  </Target>
 </Project>

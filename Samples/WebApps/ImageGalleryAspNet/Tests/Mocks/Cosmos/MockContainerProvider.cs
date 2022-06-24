@@ -19,23 +19,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
     /// </summary>
     internal class MockContainerProvider : IContainerProvider
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         private readonly string DatabaseName;
         private readonly string ContainerName;
         private readonly MockCosmosState CosmosState;
@@ -52,7 +35,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<T> CreateItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             // Used to model asynchrony in the request.
             await Task.Yield();
 
@@ -83,7 +65,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<T> ReplaceItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Replacing item with partition key '{0}' and id '{1}' in container '{2}' of database '{3}'.",
@@ -107,7 +88,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<T> UpsertItemAsync<T>(T entity, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Upserting item with partition key '{0}' and id '{1}' in container '{2}' of database '{3}'.",
@@ -138,7 +118,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task DeleteItemAsync<T>(string id, string partitionKey, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Deleting item with partition key '{0}' and id '{1}' in container '{2}' of database '{3}'.",
@@ -158,7 +137,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<T> ReadItemAsync<T>(string partitionKey, string id, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Reading item with partition key '{0}' and id '{1}' in container '{2}' of database '{3}'.",
@@ -176,7 +154,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<IList<T>> ReadItemsAcrossPartitionsAsync<T>(Expression<Func<T, bool>> predicate)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Reading items across partitions in container '{1}' of database '{2}'.",
@@ -199,7 +176,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<IList<T>> ReadItemsInPartitionAsync<T>(string partitionKey, Expression<Func<T, bool>> predicate)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Reading items with partition key '{0}' in container '{1}' of database '{2}'.",
@@ -222,7 +198,6 @@ namespace ImageGallery.Tests.Mocks.Cosmos
         public async Task<bool> ExistsItemAsync<T>(string partitionKey, string id, ItemRequestOptions requestOptions = null)
             where T : CosmosEntity
         {
-            await InjectYieldsAtMethodStart();
             await Task.Yield();
 
             this.Logger.LogInformation("Checking if item with partition key '{0}' and id '{1}' exists in container '{2}' of database '{3}'.",

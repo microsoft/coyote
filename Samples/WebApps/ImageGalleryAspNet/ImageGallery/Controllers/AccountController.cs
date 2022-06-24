@@ -16,23 +16,6 @@ namespace ImageGallery.Controllers
 
     public class AccountController : Controller
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         public static string ImageGalleryServiceUrl; 
 
         public AccountController(IServiceProvider provider)
@@ -49,7 +32,6 @@ namespace ImageGallery.Controllers
 
         private async Task<bool> ValidateLoginAsync(string userName, string password)
         {
-            await InjectYieldsAtMethodStart();
             var client = new ImageGalleryClient(new HttpClient(), ImageGalleryServiceUrl);
             var account = await client.GetAccountAsync(userName);
             if (account != null)
@@ -62,7 +44,6 @@ namespace ImageGallery.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string password, string returnUrl = null)
         {
-            await InjectYieldsAtMethodStart();
             ViewData["ReturnUrl"] = returnUrl;
 
             // Normally Identity handles sign in, but you can do it directly
@@ -96,7 +77,6 @@ namespace ImageGallery.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await InjectYieldsAtMethodStart();
             await HttpContext.SignOutAsync();
             return Redirect("/");
         }

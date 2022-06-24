@@ -37,10 +37,8 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
     /// <summary>
     /// Implementation of the ICoffeeMachine interface.
     /// </summary>
-    /// </summary>
     internal class CoffeeMachine : ICoffeeMachine
     {
-        // TaskYieldInjector taskYieldInjector = new TaskYieldInjector();
         private readonly object SyncObject = new object();
         private bool Initialized;
         private ISensors Sensors;
@@ -60,7 +58,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         public async Task<bool> InitializeAsync(ISensors sensors)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.Log.WriteLine("initializing...");
 
             lock (this.SyncObject)
@@ -70,17 +67,14 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 this.RegisterSensorEvents(true);
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             await this.CheckSensors();
 
             this.Initialized = !this.RefillRequired && string.IsNullOrEmpty(this.Error);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.Initialized;
         }
 
         public async Task<string> MakeCoffeeAsync(int shots)
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             if (!this.Initialized)
             {
                 throw new Exception("Please make sure InitializeAsync returns true.");
@@ -101,7 +95,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
             this.Log.WriteLine($"Coffee requested, shots={shots}");
             this.ShotsRequested = shots;
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
 
             // Grind beans until porta filter is full. Turn on shot button for desired time dump the
             // grinds, while checking for error conditions, e.g. out of water or coffee beans.
@@ -122,13 +115,11 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 return "<halted>";
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
             return this.Error;
         }
 
         public async Task CheckSensors()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.Log.WriteLine("checking initial state of sensors...");
 
             // When this state machine starts it has to figure out the state of the sensors.
@@ -142,7 +133,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             await this.Sensors.SetGrinderButtonAsync(false);
             await this.Sensors.SetShotButtonAsync(false);
             await this.Sensors.SetWaterHeaterButtonAsync(false);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
 
             // Need to check water and hopper levels and if the porta filter
             // has coffee in it we need to dump those grinds.
@@ -150,42 +140,31 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             await this.CheckHopperLevelAsync();
             await this.CheckPortaFilterCoffeeLevelAsync();
             await this.CheckDoorOpenAsync();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task CheckWaterLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.WaterLevel = await this.Sensors.GetWaterLevelAsync();
             this.Log.WriteLine("Water level is {0} %", (int)this.WaterLevel.Value);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if ((int)this.WaterLevel.Value <= 0)
             {
                 this.OnRefillRequired("is out of water");
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task CheckHopperLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.HopperLevel = await this.Sensors.GetHopperLevelAsync();
             this.Log.WriteLine("Hopper level is {0} %", (int)this.HopperLevel.Value);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if ((int)this.HopperLevel.Value == 0)
             {
                 this.OnRefillRequired("out of coffee beans");
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task CheckPortaFilterCoffeeLevelAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.PortaFilterCoffeeLevel = await this.Sensors.GetPortaFilterCoffeeLevelAsync();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if (this.PortaFilterCoffeeLevel > 0)
             {
                 // Dump these grinds because they could be old, we have no idea how long
@@ -193,27 +172,20 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 this.Log.WriteLine("Dumping old smelly grinds!");
                 await this.Sensors.SetDumpGrindsButtonAsync(true);
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task CheckDoorOpenAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.DoorOpen = await this.Sensors.GetReadDoorOpenAsync();
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             if (this.DoorOpen.Value != false)
             {
                 this.Log.WriteLine("Cannot safely operate coffee machine with the door open!");
                 this.OnError();
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task StartHeatingWater()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             if (!this.Halted)
             {
                 // Start heater and keep monitoring the water temp till it reaches 100!
@@ -225,15 +197,10 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             {
                 this.Log.WriteLine("Ignoring StartHeatingWater on a Halted Coffee machine");
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
-
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task OnWaterHot()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.Log.WriteLine("Coffee machine water temperature is now 100");
             if (this.Heating)
             {
@@ -243,14 +210,11 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 this.Log.WriteLine("Turning off the water heater");
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             this.OnReady();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task MonitorWaterTemperature()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             while (!this.IsBroken)
             {
                 this.WaterTemperature = await this.Sensors.GetWaterTemperatureAsync();
@@ -275,9 +239,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
                 await Task.Delay(TimeSpan.FromSeconds(0.1));
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private void OnReady()
@@ -288,39 +249,29 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         private async Task GrindBeans()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             // Grind beans until porta filter is full.
             this.Log.WriteLine("Grinding beans...");
 
             // Turn on the grinder!
             await this.Sensors.SetGrinderButtonAsync(true);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
 
             // We now receive a stream of PortaFilterCoffeeLevelChanged events so we keep monitoring
             // the porta filter till it is full, and the bean level in case we get empty.
             await this.MonitorPortaFilter();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task MonitorPortaFilter()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             while (this.PortaFilterCoffeeLevel < 100 && !this.RefillRequired && !this.IsBroken)
             {
                 await Task.Delay(TimeSpan.FromSeconds(0.1));
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private async Task OnHopperEmpty()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             await this.Sensors.SetGrinderButtonAsync(false);
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             this.OnRefillRequired("out of coffee beans");
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private Task MakeShotsAsync()
@@ -337,7 +288,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         private async Task MonitorShotsAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             try
             {
                 while (!this.IsBroken)
@@ -376,9 +326,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             {
                 // Cancelled.
             }
-
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private Task CleanupAsync()
@@ -405,7 +352,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
 
         public async Task TerminateAsync()
         {
-            await TaskYieldInjector.InjectYieldsAtMethodStart();
             this.Halted = true;
             this.Log.WriteLine("Coffee Machine Terminating...");
             var sensors = this.Sensors;
@@ -420,7 +366,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
                 src.TrySetCanceled();
             }
 
-            await TaskYieldInjector.InjectYieldsAtMethodMiddle();
             // Stop listening to the sensors.
             this.RegisterSensorEvents(false);
 
@@ -429,7 +374,6 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             this.Log.WriteWarning("# Coffee Machine Halted                                         #");
             this.Log.WriteWarning("#################################################################");
             this.Log.WriteLine(string.Empty);
-            await TaskYieldInjector.InjectYieldsAtMethodEnd();
         }
 
         private void RegisterSensorEvents(bool register)

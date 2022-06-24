@@ -12,23 +12,6 @@ namespace ImageGallery.Store.Cosmos
     /// </summary>
     public class ClientProvider : IClientProvider, IDisposable
     {
-        public static async Task InjectYieldsAtMethodStart()
-        {
-            string envYiledLoop = Environment.GetEnvironmentVariable("YIELDS_METHOD_START");
-            int envYiledLoopInt = 0;
-            if (envYiledLoop != null)
-            {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                envYiledLoopInt = int.Parse(envYiledLoop);
-#pragma warning restore CA1305 // Specify IFormatProvider
-            }
-
-            for (int i = 0; i < envYiledLoopInt; i++)
-            {
-                await Task.Yield();
-            }
-        }
-
         private bool IsDsposed = false;
 
         protected CosmosClient CosmosClient { get; }
@@ -40,14 +23,12 @@ namespace ImageGallery.Store.Cosmos
 
         public async Task<IDatabaseProvider> CreateDatabaseAsync(string id)
         {
-            await InjectYieldsAtMethodStart();
             var database = await this.CosmosClient.CreateDatabaseAsync(id);
             return new DatabaseProvider(database);
         }
 
         public async Task<IDatabaseProvider> CreateDatabaseIfNotExistsAsync(string id)
         {
-            await InjectYieldsAtMethodStart();
             var database = await this.CosmosClient.CreateDatabaseIfNotExistsAsync(id);
             return new DatabaseProvider(database);
         }

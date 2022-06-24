@@ -830,7 +830,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
         [Theory(Timeout = 10000)]
         [InlineData(20)]
-        public void TestLivenessBugInChordProtocol(ulong seed)
+        public void TestLivenessBugInChordProtocol(uint seed)
         {
             var configuration = this.GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 200;

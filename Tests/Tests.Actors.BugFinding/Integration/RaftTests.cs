@@ -1217,7 +1217,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
         [Theory(Timeout = 10000)]
         [InlineData(3)]
-        public void TestMultipleLeadersInRaftProtocol(ulong seed)
+        public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
             var configuration = this.GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 100;

@@ -1513,7 +1513,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
         [Theory(Timeout = 10000)]
         [InlineData(323)]
-        public void TestSequenceNotSortedInChainReplicationProtocol(ulong seed)
+        public void TestSequenceNotSortedInChainReplicationProtocol(uint seed)
         {
             this.TestWithError(r =>
             {

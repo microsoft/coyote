@@ -54,9 +54,6 @@ nunit-*.xml
 [Rr]eleasePS/
 dlldata.c
 
-Samples/WebApps/ImageGalleryAspNet/ALL_OUTPUT_FILES_FN/
-Samples/WebApps/PetImagesAspNet/ALL_OUTPUT_FILES_FN/
-
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 

@@ -40,12 +40,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
 
-        // FN_TODO: remove this comment if no error.
-        // internal HashSet<ControlledOperation> GetMembers()
-        // {
-        //     return this.Members;
-        // }
-
         internal int GetMembersCount()
         {
             return this.Members.Count;

@@ -31,6 +31,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 #pragma warning disable IDE0044 // Add readonly modifier
         private SystemCompiler.AsyncVoidMethodBuilder MethodBuilder;
 #pragma warning restore IDE0044 // Add readonly modifier
+
+        /// <summary>
+        /// ControlledOperation which created this builder object.
+        /// </summary>
         private ControlledOperation ParentOperation;
 
         // FN_ISSUE: Difference from the AsyncTaskMethodBuilder.

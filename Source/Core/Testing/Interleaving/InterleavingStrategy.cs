@@ -38,8 +38,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new PrioritizationStrategy(configuration, generator);
             }
-
-            // FN_TODO: Think about better async-await scheduling for fair-pct as well.
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
                 var prefixStrategy = new PrioritizationStrategy(configuration, generator);

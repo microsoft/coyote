@@ -207,21 +207,11 @@ namespace Microsoft.Coyote.Rewriting
                                     {
                                         // TODO: Fix this isses/error of non-existence of AsyncTaskMethodBuilder field reference in this IAsyncStateMachine class.
                                         // Specification.Assert(false, $"EYRYRYOR: in FN_REWRITING for type: {type}");
-                                        Console.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
+                                        Debug.WriteLine($"EYRYRYOR: in FN_REWRITING for type: {type}");
                                     }
                                     else
                                     {
-                                        string envRewriteSuccess = Environment.GetEnvironmentVariable("REWRITE_SUCCESS_LOG");
-                                        bool envRewriteSuccessBool = false;
-                                        if (envRewriteSuccess != null)
-                                        {
-                                            envRewriteSuccessBool = bool.Parse(envRewriteSuccess);
-                                        }
-
-                                        if (envRewriteSuccessBool)
-                                        {
-                                            Console.WriteLine($"SUCCESS: in FN_REWRITING for type: {type}");
-                                        }
+                                        Debug.WriteLine($"SUCCESS: in FN_REWRITING for type: {type}");
 
                                         asyncTaskMethodBuilderFieldRef = asyncTaskMethodBuilderFieldRef.Resolve();
                                         asyncTaskMethodBuilderFieldRef = method.Module.ImportReference(asyncTaskMethodBuilderFieldRef);

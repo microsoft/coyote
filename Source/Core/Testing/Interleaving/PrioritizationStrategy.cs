@@ -43,12 +43,19 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private readonly int MaxPriorityChanges;
 
+        /// <summary>
+        /// Tracks the number of times priority of an operationGroup is lowered due to pct algorithm.
+        /// </summary>
         private int ActualNumberOfPrioritySwitches = 0;
 
+        /// <summary>
+        /// Set to keep track of all the controlledOperation seen by this exploration strategy.
+        /// </summary>
         private readonly HashSet<ControlledOperation> registeredOps;
 
-        private int ContextSwitchNumber = 0;
-
+        /// <summary>
+        /// Max number of operationgroups present in the pct queue at some point during the program's execution.
+        /// </summary>
         private int MaxNumberOfOperationGroups = 0;
 
         /// <summary>
@@ -64,35 +71,37 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.MaxPriorityChanges = configuration.StrategyBound;
             this.ActualNumberOfPrioritySwitches = 0;
             this.registeredOps = new HashSet<ControlledOperation>();
-            this.ContextSwitchNumber = 0;
             this.MaxNumberOfOperationGroups = 0;
         }
 
+        /// <summary>
+        /// For debugging: prints the stats of this exploraiton strategy at the end of each iteration.
+        /// </summary>
         internal void PrintTaskPCTStatsForIteration(uint iteration)
         {
-            Console.WriteLine(string.Empty);
-            Console.WriteLine($"===========<IMP_TaskPCTStrategy> [PrintTaskPCTStatsForIteration] TASK-PCT STATS for ITERATION: {iteration}");
-            Console.WriteLine($"                  TOTAL ASYNC OPS at the end: {this.registeredOps.Count}");
-            Console.WriteLine($"                  MAX TOTAL (#PRIORITIES) throughout the iteration: {this.MaxNumberOfOperationGroups}");
-            Console.WriteLine($"                  TOTAL (#PRIORITIES) at the end: {this.PrioritizedOperationGroups.Count}");
-            Console.WriteLine($"                  #PRIORITY_SWITCHES: {this.ActualNumberOfPrioritySwitches}");
+            Debug.WriteLine(string.Empty);
+            Debug.WriteLine($"===========<IMP_TaskPCTStrategy> [PrintTaskPCTStatsForIteration] TASK-PCT STATS for ITERATION: {iteration}");
+            Debug.WriteLine($"                  TOTAL ASYNC OPS at the end: {this.registeredOps.Count}");
+            Debug.WriteLine($"                  MAX TOTAL (#PRIORITIES) throughout the iteration: {this.MaxNumberOfOperationGroups}");
+            Debug.WriteLine($"                  TOTAL (#PRIORITIES) at the end: {this.PrioritizedOperationGroups.Count}");
+            Debug.WriteLine($"                  #PRIORITY_SWITCHES: {this.ActualNumberOfPrioritySwitches}");
 
             for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
             {
                 var group = this.PrioritizedOperationGroups[idx];
                 if (group.Any(m => m.Status is OperationStatus.Enabled))
                 {
-                    Console.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled] whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
+                    Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled] whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
                     group.DebugPrintMembers();
                 }
                 else if (group.Any(m => m.Status != OperationStatus.Completed))
                 {
-                    Console.WriteLine("  |_ [{0}] operation group with id '{1}' whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
+                    Debug.WriteLine("  |_ [{0}] operation group with id '{1}' whose OWNER is: {2} has PRIORITY: '{3}'.", idx, group, group.Owner, this.PrioritizedOperationGroups.IndexOf(group));
                     group.DebugPrintMembers();
                 }
             }
 
-            // this.DebugPrintOperationPriorityList();
+            this.DebugPrintOperationPriorityList();
         }
 
         /// <inheritdoc/>
@@ -126,7 +135,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
                 this.DebugPrintPriorityChangePoints();
                 this.registeredOps.Clear();
-                this.ContextSwitchNumber = 0;
                 this.MaxNumberOfOperationGroups = 0;
             }
 
@@ -135,138 +143,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
             return true;
         }
 
-        // FOR DEBUGGING
-        private void DebugPrintBeforeGetNextOperation(IEnumerable<ControlledOperation> opss)
-        {
-            this.ContextSwitchNumber += 1;
-            var ops = opss.ToList();
-            IO.Debug.WriteLine($"          ops.Count = {ops.Count}");
-            int countt = 0;
-            foreach (var op in ops)
-            {
-                if (countt == 0)
-                {
-                    IO.Debug.Write($"          {op}");
-                }
-                else
-                {
-                    IO.Debug.Write($", {op}");
-                }
-
-                countt++;
-            }
-
-            IO.Debug.WriteLine(string.Empty);
-
-            countt = 0;
-            foreach (var op in ops)
-            {
-                if (countt == 0)
-                {
-                    IO.Debug.Write($"          {op.Status}");
-                }
-                else
-                {
-                    IO.Debug.Write($", {op.Status}");
-                }
-
-                countt++;
-            }
-
-            IO.Debug.WriteLine(string.Empty);
-
-            countt = 0;
-            foreach (var op in ops)
-            {
-                if (countt == 0)
-                {
-                    IO.Debug.Write($"          {op.GetType()}");
-                }
-                else
-                {
-                    IO.Debug.Write($", {op.GetType()}");
-                }
-
-                countt++;
-            }
-
-            IO.Debug.WriteLine(string.Empty);
-
-            HashSet<ControlledOperation> newConcurrentOps = new HashSet<ControlledOperation>();
-            foreach (var op in ops)
-            {
-                if (!this.registeredOps.Contains(op))
-                {
-                    newConcurrentOps.Add(op);
-                    this.registeredOps.Add(op);
-                }
-            }
-
-            IO.Debug.WriteLine($"          # new operations added {newConcurrentOps.Count}");
-            // Specification.Assert((newConcurrentOps.Count <= 1) || (newConcurrentOps.Count == 2 && this.ContextSwitchNumber == 1),
-            //     $"     <TaskSummaryLog-ERROR> At most one new operation must be added across context switch.");
-            if (!((newConcurrentOps.Count <= 1) || (newConcurrentOps.Count == 2 && this.ContextSwitchNumber == 1)))
-            {
-                Console.WriteLine($"     <TaskSummaryLog-ERROR> At most one new operation must be added across context switch.");
-            }
-
-            int cases = 0;
-
-            // FOR TASKS_EXECUTION_VISUALIZATION_GRAPHS WORK
-            if (newConcurrentOps.Count == 0)
-            {
-                Console.WriteLine($"     <TaskSummaryLog> T-case 1.): No new task added.");
-                cases = 1;
-            }
-
-            foreach (var op in newConcurrentOps)
-            {
-                IO.Debug.WriteLine($"          newConcurrentOps: {op}, Spawner: {op.ParentTask}");
-                if (op.IsContinuationTask)
-                {
-                    if (op.ParentTask == null)
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 3.): Continuation task {op} (id = {op.Id}) is the first task to be created!");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 3.): Continuation task {op} (id = {op.Id}) created by {op.ParentTask} (id = {op.ParentTask.Id}).");
-                    }
-
-                    cases = 3;
-                }
-                else
-                {
-                    if (op.ParentTask == null)
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 2.): Spawn task {op} (id = {op.Id}) is the first task to be created!");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 2.): Spawn task {op} (id = {op.Id}) created by {op.ParentTask} (id = {op.ParentTask.Id}).");
-                    }
-
-                    cases = 2;
-                }
-            }
-
-            // Specification.Assert( (cases == 1) || (cases == 2) || (cases == 3),
-            //     $"     <TaskSummaryLog-ERROR> At most one new operation must be added across context switch.");
-            if (!((cases == 1) || (cases == 2) || (cases == 3)))
-            {
-                Console.WriteLine($"     <TaskSummaryLog-ERROR> At most one new operation must be added across context switch.");
-            }
-
-            // IO.Debug.WriteLine(string.Empty);
-        }
-
-        // FOR DEBUGGING
-        private static void DebugPrintAfterGetNextOperation(ControlledOperation next)
-        {
-            IO.Debug.WriteLine($"          next = {next}");
-            Console.WriteLine($"     <TaskSummaryLog> Scheduled: {next}");
-        }
-
+        /// <summary>
+        /// Removes the Operationgroup references which are empty now due to handling of priorities at MoveNext method calls.
+        /// </summary>
         private void RemoveEmptyOperationGroups()
         {
             List<OperationGroup> operationGroupsToRemove = new List<OperationGroup>();
@@ -284,51 +163,39 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
         }
 
+        /// <summary>
+        /// Corrects the operationgroup of those controlled Operations which have executed the MoveNext method.
+        /// </summary>
         private void HandleOperationsDoingMoveNext()
         {
+            List<ControlledOperation> operationsWhoseMoveNextIsHandled = new List<ControlledOperation>();
             foreach (var op in this.registeredOps.Where(op => !op.LastMoveNextHandled))
             {
                 op.Group.RemoveMember(op);
                 op.Group = op.ParentTask.Group;
                 op.ParentTask.Group.RegisterMember(op);
+                operationsWhoseMoveNextIsHandled.Add(op);
+            }
+
+            foreach (var op in operationsWhoseMoveNextIsHandled)
+            {
+                op.LastMoveNextHandled = true;
             }
         }
 
+        /// <summary>
+        /// Lowers the priority of operationGroup which at least one operation has executed delay beyond a threshold.
+        /// </summary>
         private void HandleOperationsDoingDelay(int delaysDeprioritizationThresholdInt)
         {
             // Deprioritize all the groups of all the operations which called a Task.delay API
             foreach (var op in this.registeredOps.Where(op => op.NumDelayTasksExecuted > delaysDeprioritizationThresholdInt))
             {
-                Console.WriteLine($"####################<F_PrioritizationStrategy> [HandleOperationsDoingDelay] priority of group of op: {op} = {this.PrioritizedOperationGroups.IndexOf(op.Group)} is lowered as it called Task.Delay() {op.NumDelayTasksExecuted} times which is >= than DelaysDeprioritizationThresholdInt = {delaysDeprioritizationThresholdInt}.");
+                Debug.WriteLine($"####################<F_PrioritizationStrategy> [HandleOperationsDoingDelay] priority of group of op: {op} = {this.PrioritizedOperationGroups.IndexOf(op.Group)} is lowered as it called Task.Delay() {op.NumDelayTasksExecuted} times which is >= than DelaysDeprioritizationThresholdInt = {delaysDeprioritizationThresholdInt}.");
 
                 // FN_TODO: should we deprioritice groups of those tasks whose parent has also called Task.delay?
-
-                string envDelaysDeprioritizeBy1 = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZE_BY_1"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-                bool envDelaysDeprioritizeBy1Bool = false;
-                if (envDelaysDeprioritizeBy1 != null)
-                {
-                    envDelaysDeprioritizeBy1Bool = bool.Parse(envDelaysDeprioritizeBy1);
-                }
-
-                // FN_TODO: should we make sure that we deprioritize only highest priority groups calling Delays?
-                if (envDelaysDeprioritizeBy1Bool)
-                {
-                    int index = this.PrioritizedOperationGroups.IndexOf(op.Group);
-                    this.PrioritizedOperationGroups.Remove(op.Group);
-                    if (this.PrioritizedOperationGroups.Count == 0)
-                    {
-                        this.PrioritizedOperationGroups.Add(op.Group);
-                    }
-                    else
-                    {
-                        this.PrioritizedOperationGroups.Insert(index + 1, op.Group);
-                    }
-                }
-                else
-                {
-                    this.PrioritizedOperationGroups.Remove(op.Group);
-                    this.PrioritizedOperationGroups.Add(op.Group);
-                }
+                this.PrioritizedOperationGroups.Remove(op.Group);
+                this.PrioritizedOperationGroups.Add(op.Group);
 
                 // op.LowerPriorityDueToDelay = false;
                 op.NumDelayTasksExecuted = 0;
@@ -339,11 +206,23 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            this.DebugPrintBeforeGetNextOperation(ops);
+            // Store all the controlledOperations in the registeredOps set.
+            foreach (var op in ops)
+            {
+                if (!this.registeredOps.Contains(op))
+                {
+                    this.registeredOps.Add(op);
+                }
+            }
+
+            // Corrent priorities of all the operations which executed a MoveNext method.
             this.HandleOperationsDoingMoveNext();
 
-            // keep DELAYS_DEPRIORITIZATION_THRESHOLD <= 0 if do not want to deprioritize on delays (INFINITE_THRESHOLD).
+            // Environemnt variable to provide threshold on #delays before deprioritizing operationGroup of the calling controlledOperation
+            // Keep DELAYS_DEPRIORITIZATION_THRESHOLD <= 0 if do not want to deprioritize on delays (INFINITE_THRESHOLD).
             string envDelaysDeprioritizationThreshold = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZATION_THRESHOLD"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+
+            // Default threshold for deprioritizing operationsGroups when any of its operation called Task.Delay() once, i.e. we deprioritize operationGroup after every delay.
             int envDelaysDeprioritizationThresholdInt = 1;
             if (envDelaysDeprioritizationThreshold != null)
             {
@@ -355,6 +234,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 this.HandleOperationsDoingDelay(envDelaysDeprioritizationThresholdInt);
             }
 
+            // Removing operationGrups which are empty now due to handling of priorities at MoveNext method calls.
             this.RemoveEmptyOperationGroups();
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);
@@ -377,8 +257,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 ops = ops.Where(op => nextGroup.IsMember(op));
             }
 
+            // Environemnt varibale to choose whether to randomize insode operationGroups or not.
             int idx = 0;
-            string envRandomChains = System.Environment.GetEnvironmentVariable("TASK_PCT_RANDOM_INSIDE_CHAINS");
+            string envRandomChains = Environment.GetEnvironmentVariable("TASK_PCT_RANDOM_INSIDE_CHAINS");
             bool envRandomChainsBool = false;
             if (envRandomChains != null)
             {
@@ -392,8 +273,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             next = ops.ElementAt(idx);
             this.StepCount++;
-            DebugPrintAfterGetNextOperation(next);
-            this.DebugPrintOperationPriorityList();
+            // this.DebugPrintOperationPriorityList();
             this.MaxNumberOfOperationGroups = Math.Max(this.MaxNumberOfOperationGroups, this.PrioritizedOperationGroups.Count);
             return true;
         }

@@ -14,6 +14,8 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
+using Microsoft.Coyote.Testing.Interleaving;
+
 using SyncMonitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.Runtime
@@ -99,12 +101,40 @@ namespace Microsoft.Coyote.Runtime
             SchedulingPolicy.None;
 
         // Fields for logging async-await program's properties.
+
+        /// <summary>
+        /// Logs number of spawn task operations registered in the CoyoteRuntime.
+        /// </summary>
         public int NumSpawnTasks;
+
+        /// <summary>
+        /// Logs number of continuation task operations registered in the CoyoteRuntime.
+        /// </summary>
         public int NumContinuationTasks;
+
+        /// <summary>
+        /// Logs number of delay task operations registered in the CoyoteRuntime.
+        /// </summary>
         public int NumDelayTasks;
+
+        /// <summary>
+        /// Logs the number of times MoveNext method is executed by all the  task operations during the program execution.
+        /// </summary>
         public int NumOfMoveNext;
+
+        /// <summary>
+        /// Logs the number of times priority correction was missed for pct at MoveNext method calls due to some error. Ideally it must be 0.
+        /// </summary>
         public int NumOfMoveNextMissed;
+
+        /// <summary>
+        /// Logs the number of times Start method or constructor is executed by task builder objects by all the  task operations during the program execution.
+        /// </summary>
         public int NumOfAsyncStateMachineStart;
+
+        /// <summary>
+        /// Logs the number of times we miss to set the owner operation at the invocation of Start method or constructor by task builder objects due to some error. Ideally it must be 0.
+        /// </summary>
         public int NumOfAsyncStateMachineStartMissed;
 
         /// <summary>
@@ -419,7 +449,6 @@ namespace Microsoft.Coyote.Runtime
                 catch (ThreadInterruptedException)
                 {
                     // Ignore the thread interruption.
-                    // Console.WriteLine($"===========<F_CoyoteRuntime-POTENTIAL-ERROR> [RunTestAsync] ThreadInterruptedException caught here.");
                 }
                 catch (Exception ex)
                 {
@@ -448,9 +477,6 @@ namespace Microsoft.Coyote.Runtime
             return this.CompletionSource.Task;
         }
 
-        // A separate Operatioin Group to keep the delay tasks in a single bucket.
-        internal OperationGroup DelayGroup;
-
         /// <summary>
         /// Creates a new controlled operation with an optional delay.
         /// </summary>
@@ -463,25 +489,13 @@ namespace Microsoft.Coyote.Runtime
             // For continuation tasks, set the group as default (execution context or group of the currently executing operation).
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
 
-            // For spawns start a new Operation group making the spawn task as the leader.
-            if (isSpawn || delay > 0)
+            // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
             {
-                group = null;
-            }
-
-            string envDelaySeparateGroup = Environment.GetEnvironmentVariable("DELAY_SEPARATE_GROUP"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-            bool envDelaySeparateGroupBool = false;
-            if (envDelaySeparateGroup != null)
-            {
-               envDelaySeparateGroupBool = bool.Parse(envDelaySeparateGroup);
-            }
-
-            if (envDelaySeparateGroupBool)
-            {
-                // Force delay tasks, make the Group as the DelayGroup whose reference is saved in this runtime.
-                if (delay > 0)
+                // For spawns start a new Operation group making the spawn task as the leader.
+                if (isSpawn)
                 {
-                    group = this.DelayGroup;
+                    group = null;
                 }
             }
 
@@ -490,20 +504,6 @@ namespace Microsoft.Coyote.Runtime
             ControlledOperation op = delay > 0 ?
                 new DelayOperation(operationId, $"Delay({operationId})", delay) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
-
-            if (envDelaySeparateGroupBool)
-            {
-                // Initialzing the DelayGroup when a delay task is created for the first time.
-                if (delay > 0)
-                {
-                    if (this.DelayGroup == null)
-                    {
-                        this.DelayGroup = op.Group;
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [CreateControlledOperation] Created DelayGroup:{this.DelayGroup} on thread {Thread.CurrentThread.ManagedThreadId}.");
-                    }
-                }
-            }
-
             this.RegisterOperation(op);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
             {
@@ -571,7 +571,6 @@ namespace Microsoft.Coyote.Runtime
                 catch (ThreadInterruptedException)
                 {
                     // Ignore the thread interruption.
-                    // Console.WriteLine($"===========<F_CoyoteRuntime-POTENTIAL-ERROR> [Schedule(Task task)] ThreadInterruptedException caught here.");
                 }
                 catch (Exception ex)
                 {
@@ -612,8 +611,6 @@ namespace Microsoft.Coyote.Runtime
 
             ControlledOperation op = this.CreateControlledOperation(false);
 
-            // FN_TODO: make sure that this schedule() method is called only by continuation tasks
-            // ControlledOperation spawner = ExecutingOperation.Value;
             this.NumContinuationTasks++;
 
             // Setting some metadata for ControlledOperation op.
@@ -632,8 +629,8 @@ namespace Microsoft.Coyote.Runtime
             {
                 StackTrace stackTrace = new StackTrace();
                 // IO.Debug.WriteLine($"--------------------SCHEDULE-CALLBACK: Method: {callback.Method}, MethodInfo: {callback.GetMethodInfo()}");
-                Console.WriteLine($"--------------------<CONTINUATION> stackTrace: '{stackTrace}'.");
-                Console.WriteLine($"--------------------<CONTINUATION> op.Id: {op.Id}, op.Name: {op.Name}, op.ParentTask: {op.ParentTask}");
+                IO.Debug.WriteLine($"--------------------<CONTINUATION> stackTrace: '{stackTrace}'.");
+                IO.Debug.WriteLine($"--------------------<CONTINUATION> op.Id: {op.Id}, op.Name: {op.Name}, op.ParentTask: {op.ParentTask}");
             }
 
             var thread = new Thread(() =>
@@ -657,7 +654,6 @@ namespace Microsoft.Coyote.Runtime
                 catch (ThreadInterruptedException)
                 {
                     // Ignore the thread interruption.
-                    // Console.WriteLine($"===========<F_CoyoteRuntime-POTENTIAL-ERROR> [Schedule(Action callback)] ThreadInterruptedException caught here.");
                 }
                 catch (Exception ex)
                 {
@@ -685,141 +681,172 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the specified delay to be executed asynchronously.
         /// </summary>
-// #if !DEBUG
-//         [DebuggerStepThrough]
-// #endif
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
-            try
+            // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
+            {
+                try
+                {
+                    if (delay.TotalMilliseconds is 0)
+                    {
+                        // If the delay is 0, then complete synchronously.
+                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] cancellationToken: {cancellationToken}.");
+                        return Task.CompletedTask;
+                    }
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    {
+                        this.NumDelayTasks++;
+                        ControlledOperation parentOp = this.ScheduledOperation;
+                        // FN_TODO: Think whether the below if block is actually required or not.
+                        if (parentOp == null)
+                        {
+                            // ERROR_CASE: Setting ControlledOperation as ExecutingOperation.Value in case this.ScheduledOperation is null
+                            IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] this.ScheduledOperation is null so trying to set currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
+                            parentOp = ExecutingOperation.Value;
+                            if (parentOp == null)
+                            {
+                                // ERROR_CASE: If both this.ScheduledOperation and ExecutingOperation.Value is null then we don't know whose priority to lower because of this delay invocation.
+                                IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
+                                // this.NumOfMoveNextMissed++;
+                                return Task.CompletedTask;
+                            }
+                        }
+
+                        // Log the number of times parentOp (and thus its operation group) has called delay to decide whether threshold for deprioritization has been reached.
+                        parentOp.NumDelayTasksExecuted += 1;
+                        IO.Debug.WriteLine($"####################<F_CoyoteRuntime> [ScheduleDelay] parentOp called Task.Delay(), thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
+                        // FN_TODO: FIX: These extra scheduling steps due to MoveNext instrumentations must not use the Max-steps budget provided by the user.
+                        this.Configuration.MaxUnfairSchedulingSteps++;
+                        // FN_TODO: Do something like above line for MaxFairSchedulingSteps.
+                        // FN_TODO: DOUBT: Think about what should be the SchedulingPointType here {Default, ContinueWith, LastPostponedSchedulingPoint.Value}?
+                        // Schedule to check in the pct strategy whether threshold for deprioritization has been reached.
+                        this.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
+                    }
+                }
+                catch (ThreadInterruptedException)
+                {
+                    // Ignore the thread interruption.
+                }
+
+                return Task.CompletedTask;
+            }
+            else
             {
                 if (delay.TotalMilliseconds is 0)
                 {
                     // If the delay is 0, then complete synchronously.
-                    Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] cancellationToken: {cancellationToken}.");
                     return Task.CompletedTask;
                 }
 
+                // TODO: support cancellations during testing.
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    this.NumDelayTasks++;
-                    ControlledOperation parentOp = this.ScheduledOperation;
-                    // FN_TODO: Think whether the below if block is actually required or not.
-                    if (parentOp == null)
+                    uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
+                    if (timeout is 0)
                     {
-                        // ERROR_CASE: Setting ControlledOperation as ExecutingOperation.Value in case this.ScheduledOperation is null
-                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] this.ScheduledOperation is null so trying to set currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
-                        parentOp = ExecutingOperation.Value;
-                        if (parentOp == null)
-                        {
-                            // ERROR_CASE: If both this.ScheduledOperation and ExecutingOperation.Value is null then we miss this MoveNext callback.
-                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [ScheduleDelay] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
-                            // this.NumOfMoveNextMissed++;
-                            return Task.CompletedTask;
-                        }
+                        // If the delay is 0, then complete synchronously.
+                        return Task.CompletedTask;
                     }
 
-                    // parentOp.LowerPriorityDueToDelay = true;
-                    parentOp.NumDelayTasksExecuted += 1;
-                    Console.WriteLine($"####################<F_CoyoteRuntime> [ScheduleDelay] parentOp called Task.Delay(), thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
-                    this.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
+                    // TODO: cache the dummy delay action to optimize memory.
+
+                    ControlledOperation op = this.CreateControlledOperation(false, timeout);
+
+                    // OLD implementaton to handle delay operations in PCT
+
+                    // this.NumDelayTasks++;
+
+                    // // Setting some metadata for ControlledOperation op
+                    // op.ParentTask = null;
+                    // op.LastMoveNextHandled = true;
+                    // op.IsContinuationTask = false;
+                    // op.IsOwnerSpawnOperation = false;
+                    // op.IsDelayTaskOperation = true;
+                    // IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [ScheduleDelay] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
+                    // IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [ScheduleDelay] parent of delay task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
+
+                    // // FOR DEBUGGING
+                    // var delayTrace = Environment.GetEnvironmentVariable("DELAY_TRACE");
+                    // if (delayTrace == "1")
+                    // {
+                    //     StackTrace stackTrace = new StackTrace();
+                    //     IO.Debug.WriteLine($"--------------------<DELAY> stackTrace: '{stackTrace}'.");
+                    //     IO.Debug.WriteLine($"--------------------<DELAY> op.Id: {op.Id}, op.Name: {op.Name}, op.ParentTask: null");
+                    // }
+
+                    return this.TaskFactory.StartNew(state =>
+                    {
+                        var delayedOp = state as ControlledOperation;
+                        delayedOp.Status = OperationStatus.Delayed;
+                        this.ScheduleNextOperation(SchedulingPointType.Yield);
+                    },
+                    op,
+                    cancellationToken,
+                    this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
+                    this.TaskFactory.Scheduler);
                 }
+
+                var current = this.GetExecutingOperation();
+                if (current is null)
+                {
+                    // Cannot fuzz the delay of an uncontrolled operation.
+                    return Task.Delay(delay, cancellationToken);
+                }
+
+                return Task.Delay(TimeSpan.FromMilliseconds(
+                    this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay)));
             }
-            catch (ThreadInterruptedException)
-            {
-                // Ignore the thread interruption.
-                // FOR DEBUGGING
-                // Console.WriteLine($"===========<F_CoyoteRuntime-POTENTIAL-ERROR> [ScheduleDelay] ThreadInterruptedException caught here.");
-            }
-
-            return Task.CompletedTask;
-
-            // // TODO: support cancellations during testing.
-            // if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            // {
-            //     uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
-            //     if (timeout is 0)
-            //     {
-            //         // If the delay is 0, then complete synchronously.
-            //         return Task.CompletedTask;
-            //     }
-
-            // // TODO: cache the dummy delay action to optimize memory.
-            //     ControlledOperation op = this.CreateControlledOperation(false, timeout);
-
-            // this.NumDelayTasks++;
-
-            // // Setting some metadata for ControlledOperation op
-            //     op.ParentTask = null;
-            //     op.LastMoveNextHandled = true;
-            //     op.IsContinuationTask = false;
-            //     op.IsOwnerSpawnOperation = false;
-            //     op.IsDelayTaskOperation = true;
-            //     IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [ScheduleDelay] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
-            //     IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [ScheduleDelay] parent of delay task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
-
-            // // FOR DEBUGGING
-            //     var delayTrace = Environment.GetEnvironmentVariable("DELAY_TRACE");
-            //     if (delayTrace == "1")
-            //     {
-            //         StackTrace stackTrace = new StackTrace();
-            //         IO.Debug.WriteLine($"--------------------<DELAY> stackTrace: '{stackTrace}'.");
-            //         IO.Debug.WriteLine($"--------------------<DELAY> op.Id: {op.Id}, op.Name: {op.Name}, op.ParentTask: null");
-            //     }
-
-            // return this.TaskFactory.StartNew(state =>
-            //     {
-            //         var delayedOp = state as ControlledOperation;
-            //         delayedOp.Status = OperationStatus.Delayed;
-            //         this.ScheduleNextOperation(SchedulingPointType.Yield);
-            //     },
-            //     op,
-            //     cancellationToken,
-            //     this.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
-            //     this.TaskFactory.Scheduler);
-            // }
-
-            // var current = this.GetExecutingOperation();
-            // if (current is null)
-            // {
-            //     // Cannot fuzz the delay of an uncontrolled operation.
-            //     return Task.Delay(delay, cancellationToken);
-            // }
-
-            // return Task.Delay(TimeSpan.FromMilliseconds(
-            //     this.GetNondeterministicDelay(current, (int)this.Configuration.TimeoutDelay)));
         }
 
+        /// <summary>
+        /// Callback from Start method of some task builder (AsyncTaskMethodBuilder, AsyncValueTaskMethodBuilder, AsyncVoidMethodBuilder).
+        /// This callback is just to log whehter on start of the asyncStateMachine, the owner/parent operation if correctly set.
+        /// </summary>
         internal void OnAsyncStateMachineStart(bool missed)
         {
-            if (missed)
+            // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
             {
-                this.NumOfAsyncStateMachineStartMissed++;
-            }
+                if (missed)
+                {
+                    this.NumOfAsyncStateMachineStartMissed++;
+                }
 
-            this.NumOfAsyncStateMachineStart++;
+                this.NumOfAsyncStateMachineStart++;
+            }
         }
 
-        // FN_TODO: we should execute this method only for prioritization strategy.
+        /// <summary>
+        /// Callback from MoveNext method of asyncStateMachine.
+        /// This callback is to correct the immediate parent of the ScheduledOperation, put it in corrent OperationGroup and
+        /// then call ScheduleNextOperation to force an interleaving point.
+        /// </summary>
         internal void SetParentOnMoveNext(ControlledOperation parent)
         {
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
             {
                 // try catch block to catch ThreadInterruptedException.
                 try
                 {
-                    Console.WriteLine($"===========<F_CoyoteRuntime> [SetParentOnMoveNext] parent: {parent}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
+                    IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [SetParentOnMoveNext] parent: {parent}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
                     this.NumOfMoveNext++;
                     ControlledOperation currentOperation = this.ScheduledOperation;
                     // FN_TODO: Think whether the below if block is actually required or not.
                     if (currentOperation == null)
                     {
                         // ERROR_CASE: Setting ControlledOperation as ExecutingOperation.Value in case this.ScheduledOperation is null
-                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null so trying to set currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
+                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null so trying to set currentOperation to ExecutingOperation.Value: {ExecutingOperation.Value}");
                         currentOperation = ExecutingOperation.Value;
                         if (currentOperation == null)
                         {
                             // ERROR_CASE: If both this.ScheduledOperation and ExecutingOperation.Value is null then we miss this MoveNext callback.
-                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
+                            IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Error> [SetParentOnMoveNext] this.ScheduledOperation is null and ExecutingOperation.Value is also null.");
                             this.NumOfMoveNextMissed++;
                             return;
                         }
@@ -828,89 +855,59 @@ namespace Microsoft.Coyote.Runtime
                     // If parent of currentOperation is already correct then we need not do a scheduling step.
                     if (currentOperation.ParentTask == parent)
                     {
-                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of spawn/delay/continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
-                        // FOR TASKS_EXECUTION_VISUALIZATION_GRAPHS WORK
-                        if (currentOperation.IsContinuationTask)
-                        {
-                            Console.WriteLine($"     <TaskSummaryLog> T-case 4.): Continuation task {currentOperation} (id = {currentOperation.Id}) created by {currentOperation.ParentTask} (id = {currentOperation.ParentTask.Id}).");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"     <TaskSummaryLog> T-case 5.): Spawn task {currentOperation} (id = {currentOperation.Id}) created by {currentOperation.ParentTask} (id = {currentOperation.ParentTask.Id}).");
-                        }
-
+                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of spawn/delay/continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
                         return;
                     }
 
+                    // OLD implementaton to handle delay operations in PCT
                     // FN_TODO: Think about the possibility of this case and how to handle this!
-                    // FN_TODO: Log the number of MoveNext cakkbacks due to delay tasks in a separate variable.
+                    // FN_TODO: Log the number of MoveNext callbacks due to delay tasks in a separate variable.
                     // If currentOperation is a delayTask doing a MoveNext then ignore this MoveNext callback.
-                    if (currentOperation.IsDelayTaskOperation || currentOperation.Name.Contains("Delay"))
-                    {
-                        string envDelayMoveNext = Environment.GetEnvironmentVariable("ALLOW_DELAY_MOVE_NEXT"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-                        bool envDelayMoveNextBool = true;
-                        if (envDelayMoveNext != null)
-                        {
-                            envDelayMoveNextBool = bool.Parse(envDelayMoveNext);
-                        }
+                    // if (currentOperation.IsDelayTaskOperation || currentOperation.Name.Contains("Delay"))
+                    // {
+                    //     string envDelayMoveNext = Environment.GetEnvironmentVariable("ALLOW_DELAY_MOVE_NEXT"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
+                    //     bool envDelayMoveNextBool = true;
+                    //     if (envDelayMoveNext != null)
+                    //     {
+                    //         envDelayMoveNextBool = bool.Parse(envDelayMoveNext);
+                    //     }
 
-                        if (!envDelayMoveNextBool)
-                        {
-                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> Allowing delays to call moveNext for now, parent of Delay task: {currentOperation} is set to = {parent} and must not be changed");
-                        }
-                    }
+                    // if (!envDelayMoveNextBool)
+                    //     {
+                    //         IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] parent of Delay task: {currentOperation} was = {currentOperation.ParentTask} and must not be changed");
+                    //         return;
+                    //     }
+                    //     else
+                    //     {
+                    //         IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-POTENTIAL-ERROR> Allowing delays to call moveNext for now, parent of Delay task: {currentOperation} is set to = {parent} and must not be changed");
+                    //     }
+                    // }
 
                     // ERROR_CASE: If the parent/owner operation in the AsyncTaskMethodBuilder class is null, then we miss this MoveNext callBack.
                     if (parent == null)
                     {
                         this.NumOfMoveNextMissed++;
-                        Console.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] currentOperation: {currentOperation} but parent is null :(");
-                        // FN_DOUBT: should we do below line?
-                        // currentOperation.ParentTask = ThreadLocalParentAsyncOperation.Value;
-                        // Console.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] parent is null (this.NumOfMoveNextMissed++;), so setting parent to ThreadLocalParentAsyncOperation.Value: {ThreadLocalParentAsyncOperation.Value}, thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}, tlid: {ThreadLocalParentAsyncOperation?.Value}");
-                        // if (currentOperation.ParentTask == null)
-                        // {
-                        //     Console.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] parent is still null :(");
-                        //     return;
-                        // }
+                        IO.Debug.WriteLine($"===========<F_CoyoteRuntime-Error> [SetParentOnMoveNext] currentOperation: {currentOperation} but parent is null :(");
                         return;
                     }
                     else
                     {
                         // this.NumOfMoveNext++;
                         currentOperation.ParentTask = parent;
-                        Console.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation/delay/spawn task: {currentOperation} is set to: {currentOperation.ParentTask}");
+                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [SetParentOnMoveNext] parent of continuation/delay/spawn task: {currentOperation} is set to: {currentOperation.ParentTask}");
                     }
 
-                    // currentOperation.Group.RemoveMember(currentOperation); // TODO
-                    // currentOperation.Group = currentOperation.ParentTask.Group;
-                    // currentOperation.ParentTask.Group.RegisterMember(currentOperation);
                     currentOperation.LastMoveNextHandled = false;
 
-                    // FOR TASKS_EXECUTION_VISUALIZATION_GRAPHS WORK
-                    if (currentOperation.IsContinuationTask)
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 4.): Continuation task {currentOperation} (id = {currentOperation.Id}) created by {currentOperation.ParentTask} (id = {currentOperation.ParentTask.Id}).");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"     <TaskSummaryLog> T-case 5.): Spawn task {currentOperation} (id = {currentOperation.Id}) created by {currentOperation.ParentTask} (id = {currentOperation.ParentTask.Id}).");
-                    }
-
                     // FN_TODO: FIX: These extra scheduling steps due to MoveNext instrumentations must not use the Max-steps budget provided by the user.
-                    // FN_TODT: DOUBT: Think about what should be the SchedulingPointType here {Default, ContinueWith, LastPostponedSchedulingPoint.Value}?
+                    this.Configuration.MaxUnfairSchedulingSteps++;
+                    // FN_TODO: Do something like above line for MaxFairSchedulingSteps.
+                    // FN_TODO: DOUBT: Think about what should be the SchedulingPointType here {Default, ContinueWith, LastPostponedSchedulingPoint.Value}?
                     this.ScheduleNextOperation(SchedulingPointType.Default, isSuppressible: false);
                 }
                 catch (ThreadInterruptedException)
                 {
                     // Ignore the thread interruption.
-                    // FOR DEBUGGING
-                    // Console.WriteLine($"===========<F_CoyoteRuntime-POTENTIAL-ERROR> [SetParentOnMoveNext] ThreadInterruptedException caught here.");
                 }
             }
         }

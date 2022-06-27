@@ -13,17 +13,34 @@ namespace Microsoft.Coyote.Runtime
     {
         // New metadata fields for implementation and debugging of pct for async-await
 
-        // public bool LowerPriorityDueToDelay = false;
+        /// <summary>
+        /// Number of Task.Delay() calls executed by this controlled operation.
+        /// </summary>
         public int NumDelayTasksExecuted = 0;
 
+        /// <summary>
+        /// Immediate parent of this controlled operation. For spawns it is this ControlledOperation itself.
+        /// </summary>
         public ControlledOperation ParentTask = null;
 
+        /// <summary>
+        /// Boolean flag to track whether the priority has been corrected due to the last MoveNext method executed by this controlled operation.
+        /// </summary>
         public bool LastMoveNextHandled = true;
 
+        /// <summary>
+        /// Boolean flag indicating whether or not this conteolled operation is of type continuation task.
+        /// </summary>
         public bool IsContinuationTask = false;
 
+        /// <summary>
+        /// Boolean flag indicating whether or not this conteolled operation is of type spawn task.
+        /// </summary>
         public bool IsOwnerSpawnOperation = false;
 
+        /// <summary>
+        /// Boolean flag indicating whether or not this conteolled operation is of type delay task.
+        /// </summary>
         public bool IsDelayTaskOperation = false;
 
         /// <summary>

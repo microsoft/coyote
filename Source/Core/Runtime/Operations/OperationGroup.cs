@@ -40,6 +40,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
 
+        /// <summary>
+        /// Returns the size of this operation group, i.e. the number of controlled operations in this operation group.
+        /// </summary>
         internal int GetMembersCount()
         {
             return this.Members.Count;
@@ -65,6 +68,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RegisterMember(ControlledOperation member) => this.Members.Add(member);
 
+        /// <summary>
+        /// Removes the input ControlledOperation from this OperationGroup.
+        /// </summary>
         internal void RemoveMember(ControlledOperation member) => this.Members.Remove(member);
 
         /// <summary>
@@ -129,16 +135,13 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public void DebugPrintMembers()
         {
-            // if (IO.Debug.IsEnabled)
-            // {
-            Console.Write($"      |_ MEMBERS OF OP_GROUP_{this.Id} (SIZE: {this.Members.Count}): ");
+            IO.Debug.Write($"      |_ MEMBERS OF OP_GROUP_{this.Id} (SIZE: {this.Members.Count}): ");
             foreach (ControlledOperation member in this.Members)
             {
-                Console.Write($"{member}, ");
+                IO.Debug.Write($"{member}, ");
             }
 
-            Console.WriteLine();
-            // }
+            IO.Debug.WriteLine(string.Empty);
         }
 
         /// <summary>

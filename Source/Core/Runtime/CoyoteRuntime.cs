@@ -490,7 +490,7 @@ namespace Microsoft.Coyote.Runtime
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
 
             // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Configuration.SchedulingStrategy == "prioritization")
             {
                 // For spawns start a new Operation group making the spawn task as the leader.
                 if (isSpawn)
@@ -687,7 +687,7 @@ namespace Microsoft.Coyote.Runtime
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Configuration.SchedulingStrategy == "prioritization")
             {
                 try
                 {
@@ -810,7 +810,7 @@ namespace Microsoft.Coyote.Runtime
         internal void OnAsyncStateMachineStart(bool missed)
         {
             // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Configuration.SchedulingStrategy == "prioritization")
             {
                 if (missed)
                 {
@@ -829,7 +829,7 @@ namespace Microsoft.Coyote.Runtime
         internal void SetParentOnMoveNext(ControlledOperation parent)
         {
             // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Scheduler.Strategy.GetType() == typeof(PrioritizationStrategy))
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Configuration.SchedulingStrategy == "prioritization")
             {
                 // try catch block to catch ThreadInterruptedException.
                 try

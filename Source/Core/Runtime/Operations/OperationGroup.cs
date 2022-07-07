@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Runtime
         public override string ToString() => this.Id.ToString();
 
         /// <summary>
-        /// Returns a string that represents the current group id.
+        /// Prints the size and all the members of this OperationGroup.
         /// </summary>
         public void DebugPrintMembers()
         {

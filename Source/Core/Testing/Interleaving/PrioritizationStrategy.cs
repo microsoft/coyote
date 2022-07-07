@@ -183,25 +183,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
         }
 
-        /// <summary>
-        /// Lowers the priority of operationGroup which at least one operation has executed delay beyond a threshold.
-        /// </summary>
-        private void HandleOperationsDoingDelay(int delaysDeprioritizationThresholdInt)
-        {
-            // Deprioritize all the groups of all the operations which called a Task.delay API
-            foreach (var op in this.registeredOps.Where(op => op.NumDelayTasksExecuted > delaysDeprioritizationThresholdInt))
-            {
-                Debug.WriteLine($"####################<F_PrioritizationStrategy> [HandleOperationsDoingDelay] priority of group of op: {op} = {this.PrioritizedOperationGroups.IndexOf(op.Group)} is lowered as it called Task.Delay() {op.NumDelayTasksExecuted} times which is >= than DelaysDeprioritizationThresholdInt = {delaysDeprioritizationThresholdInt}.");
-
-                // FN_TODO: should we deprioritice groups of those tasks whose parent has also called Task.delay?
-                this.PrioritizedOperationGroups.Remove(op.Group);
-                this.PrioritizedOperationGroups.Add(op.Group);
-
-                // op.LowerPriorityDueToDelay = false;
-                op.NumDelayTasksExecuted = 0;
-            }
-        }
-
         /// <inheritdoc/>
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
@@ -218,24 +199,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
             // Corrent priorities of all the operations which executed a MoveNext method.
             this.HandleOperationsDoingMoveNext();
 
-            // Environemnt variable to provide threshold on #delays before deprioritizing operationGroup of the calling controlledOperation
-            // Keep DELAYS_DEPRIORITIZATION_THRESHOLD <= 0 if do not want to deprioritize on delays (INFINITE_THRESHOLD).
-            string envDelaysDeprioritizationThreshold = Environment.GetEnvironmentVariable("DELAYS_DEPRIORITIZATION_THRESHOLD"); // NOTE: OLP_TEST_VERBOSITY muse be string, either "true" or "false"
-
-            // Default threshold for deprioritizing operationsGroups when any of its operation called Task.Delay() once, i.e. we deprioritize operationGroup after every delay.
-            int envDelaysDeprioritizationThresholdInt = 1;
-            if (envDelaysDeprioritizationThreshold != null)
-            {
-                envDelaysDeprioritizationThresholdInt = int.Parse(envDelaysDeprioritizationThreshold);
-            }
-
-            if (envDelaysDeprioritizationThresholdInt > 0)
-            {
-                this.HandleOperationsDoingDelay(envDelaysDeprioritizationThresholdInt);
-            }
-
             // Removing operationGrups which are empty now due to handling of priorities at MoveNext method calls.
             this.RemoveEmptyOperationGroups();
+
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);
 
@@ -256,6 +222,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(ops);
                 ops = ops.Where(op => nextGroup.IsMember(op));
             }
+
+            // Making sure that ops contains only ENABLED operation of the highest priority OperationGroup.
+            ops = ops.Where(op => op.Status == OperationStatus.Enabled);
 
             // Environemnt varibale to choose whether to randomize insode operationGroups or not.
             int idx = 0;

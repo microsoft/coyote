@@ -27,6 +27,20 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Hack to read currently executing OprationGroup.
+        /// </summary>
+        public static string GiveExecutingOperationGroup()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                return runtime.GiveExecutingOperationGroup();
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Attempts to yield execution to another controlled operation.
         /// </summary>
         /// <remarks>

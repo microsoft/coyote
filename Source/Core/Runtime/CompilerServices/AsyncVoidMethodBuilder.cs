@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             else
             {
                 this.Runtime?.OnAsyncStateMachineStart(false);
-                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] thread {Thread.CurrentThread.ManagedThreadId}.");
+                IO.Debug.WriteLine($"===========<F_AsyncBuilder> [Start] this.ParentOperation: {this.ParentOperation}, thread {Thread.CurrentThread.ManagedThreadId}.");
             }
 
             IO.Debug.WriteLine("<AsyncBuilder> Started state machine on runtime '{0}' and thread '{1}'.",

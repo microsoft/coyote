@@ -392,7 +392,13 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine($"===========<FN_CoyoteRuntime> [RunTestAsync] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}");
             IO.Debug.WriteLine($"===========<FN_CoyoteRuntime> [RunTestAsync] parent of first (test case) task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
             var spawnTrace = Environment.GetEnvironmentVariable("SPAWN_TRACE");
-            if (spawnTrace == "1")
+            bool spawnTraceBool = false;
+            if (spawnTrace != null)
+            {
+                spawnTraceBool = bool.Parse(spawnTrace);
+            }
+
+            if (spawnTraceBool)
             {
                 StackTrace stackTrace = new StackTrace();
                 IO.Debug.WriteLine($"--------------------<SPAWN> stackTrace: '{stackTrace}'.");
@@ -553,7 +559,13 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [Schedule(Task task)] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
             IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> Schedule(Task task)] parent of spawn task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
             var spawnTrace = Environment.GetEnvironmentVariable("SPAWN_TRACE");
-            if (spawnTrace == "1")
+            bool spawnTraceBool = false;
+            if (spawnTrace != null)
+            {
+                spawnTraceBool = bool.Parse(spawnTrace);
+            }
+
+            if (spawnTraceBool)
             {
                 StackTrace stackTrace = new StackTrace();
                 IO.Debug.WriteLine($"--------------------<SPAWN> stackTrace: '{stackTrace}'.");
@@ -636,7 +648,13 @@ namespace Microsoft.Coyote.Runtime
             IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [Schedule(Action callback)] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
             IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [Schedule(Action callback)] parent of spawn task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
             var contTrace = Environment.GetEnvironmentVariable("CONT_TRACE");
-            if (contTrace == "1")
+            bool contTraceBool = false;
+            if (contTrace != null)
+            {
+                contTraceBool = bool.Parse(contTrace);
+            }
+
+            if (contTraceBool)
             {
                 StackTrace stackTrace = new StackTrace();
                 // IO.Debug.WriteLine($"--------------------SCHEDULE-CALLBACK: Method: {callback.Method}, MethodInfo: {callback.GetMethodInfo()}");
@@ -730,7 +748,13 @@ namespace Microsoft.Coyote.Runtime
 
                 // FOR DEBUGGING
                 var delayTrace = Environment.GetEnvironmentVariable("DELAY_TRACE");
-                if (delayTrace == "1")
+                bool delayTraceBool = false;
+                if (delayTrace != null)
+                {
+                    delayTraceBool = bool.Parse(delayTrace);
+                }
+
+                if (delayTraceBool)
                 {
                     StackTrace stackTrace = new StackTrace();
                     IO.Debug.WriteLine($"--------------------<DELAY> stackTrace: '{stackTrace}'.");

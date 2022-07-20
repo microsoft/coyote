@@ -1,3 +1,6 @@
+## v1.5.8
+- Fixed a bug in `coyote rewrite` related to rewriting nested types.
+
 ## v1.5.7
 - Fixed a bug where a thrown exception was not propagating properly when invoking `Task.WaitAll`
   during systematic testing.

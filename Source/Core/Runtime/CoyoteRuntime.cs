@@ -502,7 +502,8 @@ namespace Microsoft.Coyote.Runtime
             // executing operation, if such an operation exists.
 
             // For continuation tasks, set the group as default (execution context or group of the currently executing operation).
-            OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+            // OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+            OperationGroup group = null;
 
             // Execute this code only for PCT (or PrioritizationStrategy) interleacing strategy.
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.Configuration.SchedulingStrategy == "prioritization")
@@ -646,7 +647,7 @@ namespace Microsoft.Coyote.Runtime
 
             // FOR DEBUGGING
             IO.Debug.WriteLine($"===========<F_CoyoteRuntime> [Schedule(Action callback)] [before context switch] thread: {Thread.CurrentThread.ManagedThreadId}, Task: {Task.CurrentId}.");
-            IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [Schedule(Action callback)] parent of spawn task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
+            IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime> [Schedule(Action callback)] parent of continuation task : {op} is set to : {op.ParentTask} and its opGroup is: {op.Group}.");
             var contTrace = Environment.GetEnvironmentVariable("CONT_TRACE");
             bool contTraceBool = false;
             if (contTrace != null)
@@ -834,11 +835,11 @@ namespace Microsoft.Coyote.Runtime
                     }
 
                     // If parent of currentOperation is already correct then we need not do a scheduling step.
-                    if (currentOperation.ParentTask == parent)
-                    {
-                        IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of spawn/delay/continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
-                        return;
-                    }
+                    // if (currentOperation.ParentTask == parent)
+                    // {
+                    //     IO.Debug.WriteLine($"===========<F_IMP_CoyoteRuntime-Different> [SetParentOnMoveNext] parent of spawn/delay/continuation task: {currentOperation} was already correct = {currentOperation.ParentTask}");
+                    //     return;
+                    // }
 
                     // OLD implementaton to handle delay operations in PCT
                     // FN_TODO: Think about the possibility of this case and how to handle this!

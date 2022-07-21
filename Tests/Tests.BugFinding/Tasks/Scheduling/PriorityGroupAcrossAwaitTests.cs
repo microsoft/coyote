@@ -36,24 +36,27 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
         }
 
-        // [Fact]
-        // public void Test2()
-        // {
-        //     this.TestWithError(async () =>
-        //     {
-        //         Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+        [Fact]
+        public void Test1Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
 
-        // string opGroup1 = SchedulingPoint.GiveExecutingOperationGroup();
-        //         await Task.Yield();
-        //         string opGroup2 = SchedulingPoint.GiveExecutingOperationGroup();
-        //         Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup2, "opGroup1 != opGroup2");
+                string opGroup1 = SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Yield();
+                string opGroup2 = SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup2, "opGroup1 != opGroup2");
 
-        // Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
-        //     },
-        //     configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
-        //     expectedError: "opGroup1 != opGroup2",
-        //     replay: true);
-        // }
+                Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup1 != opGroup2"
+                },
+            replay: true);
+        }
 
         [Fact]
         public void Test2()
@@ -70,6 +73,28 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test2Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Yield();
+                string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup2, "opGroup1 != opGroup2");
+
+                Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup1 != opGroup2"
+                },
+            replay: true);
         }
 
         [Fact]
@@ -90,6 +115,31 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test3Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(() =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup2, "opGroup1 != opGroup2");
+
+                Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup1 != opGroup2"
+                },
+            replay: true);
         }
 
         [Fact]
@@ -120,6 +170,39 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact]
+        public void Test4Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.CompletedTask;
+                    string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup3, "opGroup2 != opGroup3");
+
+                    Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup4, "opGroup1 != opGroup4");
+
+                Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup2 != opGroup3",
+                    "opGroup1 != opGroup4"
+                },
+            replay: true);
+        }
+
+        [Fact]
         public void Test5()
         {
             this.Test(async () =>
@@ -144,6 +227,39 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test5Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Delay(10);
+                    string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup3, "opGroup2 != opGroup3");
+
+                    Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup4, "opGroup1 != opGroup4");
+
+                Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup2 != opGroup3",
+                    "opGroup1 != opGroup4"
+                },
+            replay: true);
         }
 
         [Fact]
@@ -174,6 +290,39 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact]
+        public void Test6Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Yield();
+                    string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup3, "opGroup2 != opGroup3");
+
+                    Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup4, "opGroup1 != opGroup4");
+
+                Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup2 != opGroup3",
+                    "opGroup1 != opGroup4"
+                },
+            replay: true);
+        }
+
+        [Fact]
         public void Test7()
         {
             this.Test(async () =>
@@ -201,6 +350,42 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test7Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup3, "opGroup2 != opGroup3");
+
+                    Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup4, "opGroup1 != opGroup4");
+
+                Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup2 != opGroup3",
+                    "opGroup1 != opGroup4"
+                },
+            replay: true);
         }
 
         [Fact]
@@ -241,6 +426,50 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact]
+        public void Test8Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(async () =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                        string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        await Task.CompletedTask;
+                        string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Specifications.Specification.Assert(opGroup3 == opGroup4, "opGroup3 != opGroup4");
+
+                        Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup5 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup5, "opGroup2 != opGroup5");
+
+                    Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup6 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup6, "opGroup1 != opGroup6");
+
+                Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup3 != opGroup4",
+                    "opGroup2 != opGroup5",
+                    "opGroup1 != opGroup6"
+                },
+            replay: true);
+        }
+
+        [Fact]
         public void Test9()
         {
             this.Test(async () =>
@@ -278,6 +507,50 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact]
+        public void Test9Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(async () =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                        string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        await Task.Delay(10);
+                        string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Specifications.Specification.Assert(opGroup3 == opGroup4, "opGroup3 != opGroup4");
+
+                        Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup5 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup5, "opGroup2 != opGroup5");
+
+                    Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup6 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup6, "opGroup1 != opGroup6");
+
+                Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup3 != opGroup4",
+                    "opGroup2 != opGroup5",
+                    "opGroup1 != opGroup6"
+                },
+            replay: true);
+        }
+
+        [Fact]
         public void Test10()
         {
             this.Test(async () =>
@@ -312,6 +585,50 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test10Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(async () =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                        string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        await Task.Yield();
+                        string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Specifications.Specification.Assert(opGroup3 == opGroup4, "opGroup3 != opGroup4");
+
+                        Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup5 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup5, "opGroup2 != opGroup5");
+
+                    Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup6 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup6, "opGroup1 != opGroup6");
+
+                Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup3 != opGroup4",
+                    "opGroup2 != opGroup5",
+                    "opGroup1 != opGroup6"
+                },
+            replay: true);
         }
 
         [Fact]
@@ -353,6 +670,55 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-7 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test11Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup3, "opGroup2 != opGroup3");
+
+                    Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup5 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup3 == opGroup4, "opGroup3 != opGroup4");
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup4 == opGroup5, "opGroup4 != opGroup5");
+
+                    Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup6 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup6, "opGroup1 != opGroup5");
+
+                Console.WriteLine($"Test-7 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup2 != opGroup3",
+                    "opGroup3 != opGroup4",
+                    "opGroup4 != opGroup5",
+                    "opGroup1 != opGroup5"
+                },
+            replay: true);
         }
 
         // TODO: fix the exception this test case
@@ -440,6 +806,71 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Console.WriteLine($"Test-9 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
             },
             configuration: this.GetConfiguration().WithTestingIterations(1000).WithPrioritizationStrategy(false, 0));
+        }
+
+        [Fact]
+        public void Test13Failing()
+        {
+            this.TestWithError(async () =>
+            {
+                Console.WriteLine($"Test-1 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                string opGroup1 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                await Task.Run(async () =>
+                {
+                    string opGroup2 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+
+                    Console.WriteLine($"Test-2 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine($"Test-3 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                        string opGroup3 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Runtime.SchedulingPoint.Interleave();
+                        string opGroup4 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Specifications.Specification.Assert(opGroup3 == opGroup4, "opGroup3 != opGroup4");
+
+                        Console.WriteLine($"Test-4 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup5 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup2 == opGroup5, "opGroup2 != opGroup5");
+
+                    Console.WriteLine($"Test-5 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                    string opGroup6 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine($"Test-6 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+
+                        string opGroup7 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Runtime.SchedulingPoint.Interleave();
+                        string opGroup8 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                        Microsoft.Coyote.Specifications.Specification.Assert(opGroup7 == opGroup8, "opGroup7 != opGroup8");
+
+                        Console.WriteLine($"Test-7 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                    });
+                    string opGroup9 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup5 == opGroup6, "opGroup5 != opGroup6");
+                    Microsoft.Coyote.Specifications.Specification.Assert(opGroup6 == opGroup9, "opGroup6 != opGroup9");
+
+                    Console.WriteLine($"Test-8 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+                });
+                string opGroup10 = Microsoft.Coyote.Runtime.SchedulingPoint.GiveExecutingOperationGroup();
+                Microsoft.Coyote.Specifications.Specification.Assert(opGroup1 == opGroup10, "opGroup1 != opGroup10");
+
+                Console.WriteLine($"Test-9 (thread: {Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId})");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(1000).WithRandomStrategy(),
+            expectedErrors: new string[]
+                {
+                    "opGroup3 != opGroup4",
+                    "opGroup2 != opGroup5",
+                    "opGroup7 != opGroup8",
+                    "opGroup5 != opGroup6",
+                    "opGroup6 != opGroup9",
+                    "opGroup1 != opGroup10"
+                },
+            replay: true);
         }
 
         // TODO: think how to add such test cases which call lambda's of other tests

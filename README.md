@@ -15,7 +15,7 @@ controllers). In regular unit tests, you would typically avoid concurrency due t
 with Coyote you are encouraged to embrace concurrency in your tests to find bugs.
 
 Coyote is used by many teams in [Azure](https://azure.microsoft.com/) to test their distributed
-systems and services, and has has found hundreds of concurrency-related bugs before deploying code
+systems and services, and has found hundreds of concurrency-related bugs before deploying code
 in production and affecting users. In the words of an Azure service architect:
 > Coyote found several issues early in the dev process, this sort of issues that would usually bleed
 > through into production and become very expensive to fix later.

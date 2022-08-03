@@ -69,9 +69,9 @@ beginning to the end for N iterations (in the above example N was configured to 
 hood, Coyote uses intelligent search strategies to explore all kinds of execution paths that might
 hide a bug in each iteration.
 
-The awesome thing is that once a bug is found, Coyote gives you a trace that you can use to reliably
-*reproduce* the bug as many times as you want, making debugging and fixing the issue significantly
-easier.
+The awesome thing is that once a bug is found, Coyote gives you a trace through the `engine.TestReport`
+API that you can use to reliably *reproduce* the bug as many times as you want, making debugging and
+fixing the issue significantly easier.
 
 ## Get started
 

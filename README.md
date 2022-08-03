@@ -8,7 +8,7 @@
 
 Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.
 
-Using Coyote, you easily test the *concurrency* and other *nondeterminism* in your C# code, by
+Using Coyote, you can easily test the *concurrency* and other *nondeterminism* in your C# code, by
 writing what we call a *concurrency unit test*. These look like your regular unit tests, but can
 reliably test concurrent workloads (such as actors, tasks, or concurrent requests to ASP.NET
 controllers). In regular unit tests, you would typically avoid concurrency due to flakiness, but

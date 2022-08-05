@@ -45,4 +45,4 @@ of_ previously.
 production, they simply worked from the start.
 - Coyote gave developers a significant confidence boost by providing full failover and concurrency testing at each check-in, right on their desktops as the code was written.
 
-Read more about it in this [arXiv technical paper](https://arxiv.org/abs/2002.04903). (Note that the paper still refers to P#, the name of the previous incarnation of Coyote.)
+Read more about it in this [SoCC'21 paper](https://www.microsoft.com/en-us/research/uploads/prod/2021/09/poolmanager-coyote.pdf).

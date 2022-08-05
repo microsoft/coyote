@@ -153,18 +153,6 @@ namespace Microsoft.Coyote.Actors
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
 
         /// <summary>
-        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
-        /// </summary>
-        /// <param name="log">The log writer to register.</param>
-        void RegisterLog(IActorRuntimeLog log);
-
-        /// <summary>
-        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
-        /// </summary>
-        /// <param name="log">The previously registered log writer to unregister.</param>
-        void RemoveLog(IActorRuntimeLog log);
-
-        /// <summary>
         /// The old way of setting the <see cref="ICoyoteRuntime.Logger"/> property.
         /// </summary>
         /// <remarks>

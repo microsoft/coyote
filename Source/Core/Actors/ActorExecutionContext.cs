@@ -75,16 +75,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
         /// </summary>
-        internal readonly ActorLogWriter LogWriter;
+        internal ActorLogWriter LogWriter => this.Runtime.LogWriter as ActorLogWriter;
 
         /// <inheritdoc/>
         public ILogger Logger
         {
-            get => this.LogWriter.Logger;
+            get => this.Runtime.LogWriter.Logger;
 
             set
             {
-                using var v = this.LogWriter.SetLogger(value);
+                using var v = this.Runtime.LogWriter.SetLogger(value);
             }
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, ActorLogWriter logWriter)
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
@@ -133,7 +133,6 @@ namespace Microsoft.Coyote.Actors
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
             this.CoverageInfo = new CoverageInfo();
-            this.LogWriter = logWriter;
             this.QuiescenceSyncObject = new object();
         }
 
@@ -829,12 +828,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public void RegisterLog(IActorRuntimeLog log) => this.LogWriter.RegisterLog(log);
-
-        /// <inheritdoc/>
-        public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
-
-        /// <inheritdoc/>
         public void RegisterLog(IRuntimeLog log) => this.Runtime.RegisterLog(log);
 
         /// <inheritdoc/>
@@ -910,8 +903,8 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, ActorLogWriter logWriter)
-                : base(configuration, runtime, logWriter)
+            internal Mock(Configuration configuration, CoyoteRuntime runtime)
+                : base(configuration, runtime)
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();

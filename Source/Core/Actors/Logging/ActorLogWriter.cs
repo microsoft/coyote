@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors.Timers;
@@ -19,8 +18,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorLogWriter"/> class.
         /// </summary>
-        internal ActorLogWriter(Configuration configuration)
-            : base(configuration)
+        internal ActorLogWriter(Configuration configuration, ActorRuntimeLogTextFormatter textFormatter)
+            : base(configuration, textFormatter)
         {
         }
 
@@ -30,7 +29,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that has been created.</param>
         /// <param name="creatorName">The name of the creator, or null.</param>
         /// <param name="creatorType">The type of the creator, or null.</param>
-        public void LogCreateActor(ActorId id, string creatorName, string creatorType)
+        internal void LogCreateActor(ActorId id, string creatorName, string creatorType)
         {
             if (this.Logs.Count > 0)
             {
@@ -50,7 +49,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the state machine that has been created.</param>
         /// <param name="creatorName">The name of the creator, or null.</param>
         /// <param name="creatorType">The type of the creator, or null.</param>
-        public void LogCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        internal void LogCreateStateMachine(ActorId id, string creatorName, string creatorType)
         {
             if (this.Logs.Count > 0)
             {
@@ -71,7 +70,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="handlingStateName">The state that declared this action (can be different from currentStateName in the case of PushStates.</param>
         /// <param name="currentStateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
-        public void LogExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
+        internal void LogExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
             if (this.Logs.Count > 0)
             {
@@ -95,7 +94,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event being sent.</param>
         /// <param name="eventGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
-        public void LogSendEvent(ActorId targetActorId, string senderName, string senderType, string senderState,
+        internal void LogSendEvent(ActorId targetActorId, string senderName, string senderType, string senderState,
             Event e, Guid eventGroupId, bool isTargetHalted)
         {
             if (this.Logs.Count > 0)
@@ -116,7 +115,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor raising the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The event being raised.</param>
-        public void LogRaiseEvent(ActorId id, string stateName, Event e)
+        internal void LogRaiseEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -136,7 +135,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor handling the event.</param>
         /// <param name="stateName">The name of the current state.</param>
         /// <param name="e">The event being handled.</param>
-        public void LogHandleRaisedEvent(ActorId id, string stateName, Event e)
+        internal void LogHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -155,7 +154,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
         /// <param name="e">The event being enqueued.</param>
-        public void LogEnqueueEvent(ActorId id, Event e)
+        internal void LogEnqueueEvent(ActorId id, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -175,7 +174,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that the event is being dequeued by.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The event being dequeued.</param>
-        public void LogDequeueEvent(ActorId id, string stateName, Event e)
+        internal void LogDequeueEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -197,7 +196,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event being received.</param>
         /// <param name="wasBlocked">The state machine was waiting for one or more specific events,
         /// and <paramref name="e"/> was one of them.</param>
-        public void LogReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
+        internal void LogReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             if (this.Logs.Count > 0)
             {
@@ -217,7 +216,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that is entering the wait state.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="eventType">The type of the event being waited for.</param>
-        public void LogWaitEvent(ActorId id, string stateName, Type eventType)
+        internal void LogWaitEvent(ActorId id, string stateName, Type eventType)
         {
             if (this.Logs.Count > 0)
             {
@@ -237,7 +236,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that is entering the wait state.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="eventTypes">The types of the events being waited for, if any.</param>
-        public void LogWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
+        internal void LogWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
         {
             if (this.Logs.Count > 0)
             {
@@ -257,7 +256,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor entering or exiting the state.</param>
         /// <param name="stateName">The name of the state being entered or exited.</param>
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
-        public void LogStateTransition(ActorId id, string stateName, bool isEntry)
+        internal void LogStateTransition(ActorId id, string stateName, bool isEntry)
         {
             if (this.Logs.Count > 0)
             {
@@ -277,7 +276,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor.</param>
         /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        public void LogGotoState(ActorId id, string currentStateName, string newStateName)
+        internal void LogGotoState(ActorId id, string currentStateName, string newStateName)
         {
             if (this.Logs.Count > 0)
             {
@@ -297,7 +296,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor being pushed to the state.</param>
         /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        public void LogPushState(ActorId id, string currentStateName, string newStateName)
+        internal void LogPushState(ActorId id, string currentStateName, string newStateName)
         {
             if (this.Logs.Count > 0)
             {
@@ -317,7 +316,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="currStateName">The name of the current state.</param>
         /// <param name="restoredStateName">The name of the state being re-entered, if any.</param>
-        public void LogPopState(ActorId id, string currStateName, string restoredStateName)
+        internal void LogPopState(ActorId id, string currStateName, string restoredStateName)
         {
             if (this.Logs.Count > 0)
             {
@@ -336,7 +335,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="id">The id of the actor that has been halted.</param>
         /// <param name="inboxSize">Approximate size of the inbox.</param>
-        public void LogHalt(ActorId id, int inboxSize)
+        internal void LogHalt(ActorId id, int inboxSize)
         {
             if (this.Logs.Count > 0)
             {
@@ -356,7 +355,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="id">The id of the actor that the state will execute in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        public void LogDefaultEventHandler(ActorId id, string stateName)
+        internal void LogDefaultEventHandler(ActorId id, string stateName)
         {
             if (this.Logs.Count > 0)
             {
@@ -376,7 +375,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that the state will execute in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="dequeueStatus">The status returned as the result of the last dequeue operation.</param>
-        public void LogEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        internal void LogEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
         {
             if (this.Logs.Count > 0)
             {
@@ -398,7 +397,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The event that cannot be handled.</param>
-        public void LogPopStateUnhandledEvent(ActorId id, string stateName, Event e)
+        internal void LogPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -419,7 +418,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
         /// <param name="ex">The exception.</param>
-        public void LogExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
+        internal void LogExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
         {
             if (this.Logs.Count > 0)
             {
@@ -440,7 +439,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
         /// <param name="ex">The exception.</param>
-        public void LogExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
+        internal void LogExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
         {
             if (this.Logs.Count > 0)
             {
@@ -458,7 +457,7 @@ namespace Microsoft.Coyote.Actors
         /// Logs that the specified actor timer has been created.
         /// </summary>
         /// <param name="info">Handle that contains information about the timer.</param>
-        public void LogCreateTimer(TimerInfo info)
+        internal void LogCreateTimer(TimerInfo info)
         {
             if (this.Logs.Count > 0)
             {
@@ -476,7 +475,7 @@ namespace Microsoft.Coyote.Actors
         /// Logs that the specified actor timer has been stopped.
         /// </summary>
         /// <param name="info">Handle that contains information about the timer.</param>
-        public void LogStopTimer(TimerInfo info)
+        internal void LogStopTimer(TimerInfo info)
         {
             if (this.Logs.Count > 0)
             {
@@ -491,53 +490,10 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        protected override RuntimeLogTextFormatter GetOrCreateLogTextFormatter()
-        {
-            var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
-            if (textLog is null)
+        protected override RuntimeLogTextFormatter CreateLogTextFormatter(ILogger logger) =>
+            new ActorRuntimeLogTextFormatter()
             {
-                if (this.Logger is null)
-                {
-                    this.Logger = new ConsoleLogger() { LogLevel = this.LogLevel };
-                }
-
-                textLog = new ActorRuntimeLogTextFormatter
-                {
-                    Logger = this.Logger
-                };
-
-                this.Logs.Add(textLog);
-            }
-
-            return textLog;
-        }
-
-        /// <summary>
-        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
-        /// </summary>
-        internal void RegisterLog(IActorRuntimeLog log)
-        {
-            if (log is null)
-            {
-                throw new InvalidOperationException("Cannot register a null log.");
-            }
-
-            // Make sure we only have one text logger.
-            if (log is ActorRuntimeLogTextFormatter a)
-            {
-                var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
-                if (textLog != null)
-                {
-                    this.Logs.Remove(textLog);
-                }
-
-                if (this.Logger != null)
-                {
-                    a.Logger = this.Logger;
-                }
-            }
-
-            this.Logs.Add(log);
-        }
+                Logger = logger
+            };
     }
 }

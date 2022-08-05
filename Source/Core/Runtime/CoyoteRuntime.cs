@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.Runtime
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
-            this.LogWriter = new ActorLogWriter(configuration);
+            this.LogWriter = new ActorLogWriter(configuration, new ActorRuntimeLogTextFormatter());
 
             this.ValueGenerator = valueGenerator;
             this.SpecificationMonitors = new List<Specifications.Monitor>();
@@ -321,8 +321,8 @@ namespace Microsoft.Coyote.Runtime
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
 
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
-                new ActorExecutionContext.Mock(configuration, this, this.LogWriter as ActorLogWriter) :
-                new ActorExecutionContext(configuration, this, this.LogWriter as ActorLogWriter);
+                new ActorExecutionContext.Mock(configuration, this) :
+                new ActorExecutionContext(configuration, this);
         }
 
         /// <summary>
@@ -807,6 +807,8 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine("<Coyote> Suppressing scheduling point in operation '{0}'.", current.Name);
                     return;
                 }
+
+                this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -1523,23 +1525,31 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy != SchedulingPolicy.None ||
                 this.Configuration.IsMonitoringEnabledInInProduction)
             {
-                Specifications.Monitor monitor;
                 using (SynchronizedSection.Enter(this.SyncObject))
                 {
                     // Only one monitor per type is allowed.
-                    if (this.SpecificationMonitors.Any(m => m.GetType() == type))
+                    if (!this.SpecificationMonitors.Any(m => m.GetType() == type))
                     {
-                        return false;
+                        var monitor = (Specifications.Monitor)Activator.CreateInstance(type);
+                        monitor.Initialize(this.Configuration, this, this.LogWriter);
+                        monitor.InitializeStateInformation();
+                        this.SpecificationMonitors.Add(monitor);
+                        if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                        {
+                            this.SuppressScheduling();
+                            this.IsSpecificationInvoked = true;
+                            monitor.GotoStartState();
+                            this.IsSpecificationInvoked = false;
+                            this.ResumeScheduling();
+                        }
+                        else
+                        {
+                            monitor.GotoStartState();
+                        }
+
+                        return true;
                     }
-
-                    monitor = (Specifications.Monitor)Activator.CreateInstance(type);
-                    monitor.Initialize(this.Configuration, this, this.LogWriter);
-                    monitor.InitializeStateInformation();
-                    this.SpecificationMonitors.Add(monitor);
                 }
-
-                monitor.GotoStartState();
-                return true;
             }
 
             return false;
@@ -1555,13 +1565,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName)
         {
-            this.Assert(e != null, "Cannot monitor a null event.");
             if (this.SchedulingPolicy != SchedulingPolicy.None ||
                 this.Configuration.IsMonitoringEnabledInInProduction)
             {
-                Specifications.Monitor monitor = null;
                 using (SynchronizedSection.Enter(this.SyncObject))
                 {
+                    Specifications.Monitor monitor = null;
                     foreach (var m in this.SpecificationMonitors)
                     {
                         if (m.GetType() == type)
@@ -1570,21 +1579,19 @@ namespace Microsoft.Coyote.Runtime
                             break;
                         }
                     }
-                }
 
-                if (monitor != null)
-                {
-                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    if (monitor != null)
                     {
-                        this.SuppressScheduling();
-                        this.IsSpecificationInvoked = true;
-                        monitor.MonitorEvent(e, senderName, senderType, senderStateName);
-                        this.IsSpecificationInvoked = false;
-                        this.ResumeScheduling();
-                    }
-                    else
-                    {
-                        lock (monitor)
+                        this.Assert(e != null, "Cannot invoke monitor '{0}' with a null event.", type.FullName);
+                        if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                        {
+                            this.SuppressScheduling();
+                            this.IsSpecificationInvoked = true;
+                            monitor.MonitorEvent(e, senderName, senderType, senderStateName);
+                            this.IsSpecificationInvoked = false;
+                            this.ResumeScheduling();
+                        }
+                        else
                         {
                             monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                         }

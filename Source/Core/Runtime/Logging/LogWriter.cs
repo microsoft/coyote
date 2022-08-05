@@ -32,14 +32,20 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="LogWriter"/> class.
         /// </summary>
-        internal LogWriter(Configuration configuration)
+        internal LogWriter(Configuration configuration, RuntimeLogTextFormatter textFormatter)
         {
             this.Logs = new HashSet<IRuntimeLog>();
             this.LogLevel = configuration.LogLevel;
 
             if (configuration.IsVerbose)
             {
-                this.GetOrCreateLogTextFormatter();
+                this.Logger = new ConsoleLogger()
+                {
+                    LogLevel = this.LogLevel
+                };
+
+                textFormatter.Logger = this.Logger;
+                this.Logs.Add(textFormatter);
             }
             else
             {
@@ -51,7 +57,7 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified monitor has been created.
         /// </summary>
         /// <param name="monitorType">The name of the type of the monitor that has been created.</param>
-        public void LogCreateMonitor(string monitorType)
+        internal void LogCreateMonitor(string monitorType)
         {
             if (this.Logs.Count > 0)
             {
@@ -68,7 +74,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorType">Name of type of the monitor that is executing the action.</param>
         /// <param name="stateName">The name of the state in which the action is being executed.</param>
         /// <param name="actionName">The name of the action being executed.</param>
-        public void LogMonitorExecuteAction(string monitorType, string stateName, string actionName)
+        internal void LogMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
             if (this.Logs.Count > 0)
             {
@@ -88,7 +94,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="e">The event being processed.</param>
-        public void LogMonitorProcessEvent(string monitorType, string stateName, string senderName,
+        internal void LogMonitorProcessEvent(string monitorType, string stateName, string senderName,
             string senderType, string senderStateName, Event e)
         {
             if (this.Logs.Count > 0)
@@ -106,7 +112,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorType">Name of type of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
         /// <param name="e">The event being raised.</param>
-        public void LogMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        internal void LogMonitorRaiseEvent(string monitorType, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
@@ -126,7 +132,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
         /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
         /// else no liveness state is available.</param>
-        public void LogMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
+        internal void LogMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
         {
             if (this.Logs.Count > 0)
             {
@@ -144,7 +150,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="stateName">The name of the current state.</param>
         /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
         /// else no liveness state is available.</param>
-        public void LogMonitorError(string monitorType, string stateName, bool? isInHotState)
+        internal void LogMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
             if (this.Logs.Count > 0)
             {
@@ -161,7 +167,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="result">The random boolean result.</param>
         /// <param name="callerName">The name of the caller, if any.</param>
         /// <param name="callerType">The type of the caller, if any.</param>
-        public void LogRandom(bool result, string callerName, string callerType)
+        internal void LogRandom(bool result, string callerName, string callerType)
         {
             if (this.Logs.Count > 0)
             {
@@ -178,7 +184,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="result">The random integer result.</param>
         /// <param name="callerName">The name of the caller, if any.</param>
         /// <param name="callerType">The type of the caller, if any.</param>
-        public void LogRandom(int result, string callerName, string callerType)
+        internal void LogRandom(int result, string callerName, string callerType)
         {
             if (this.Logs.Count > 0)
             {
@@ -193,7 +199,7 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified assertion failure has occurred.
         /// </summary>
         /// <param name="error">The text of the error.</param>
-        public void LogAssertionFailure(string error)
+        internal void LogAssertionFailure(string error)
         {
             if (this.Logs.Count > 0)
             {
@@ -216,65 +222,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns all registered logs of type <typeparamref name="TRuntimeLog"/>, if there are any.
-        /// </summary>
-        public IEnumerable<TRuntimeLog> GetLogsOfType<TRuntimeLog>()
-            where TRuntimeLog : IRuntimeLog =>
-            this.Logs.OfType<TRuntimeLog>();
-
-        /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
-        /// </summary>
-        internal ILogger SetLogger(ILogger logger)
-        {
-            var prevLogger = this.Logger;
-            if (logger is null)
-            {
-                this.Logger = new NullLogger();
-
-                var textLog = this.GetLogsOfType<RuntimeLogTextFormatter>().FirstOrDefault();
-                if (textLog != null)
-                {
-                    textLog.Logger = this.Logger;
-                }
-            }
-            else
-            {
-                this.Logger = logger;
-
-                // Overrides the original verbosity flag and creates a new text logger.
-                var textLog = this.GetOrCreateLogTextFormatter();
-                textLog.Logger = this.Logger;
-            }
-
-            return prevLogger;
-        }
-
-        /// <summary>
-        /// Returns an existing or new <see cref="RuntimeLogTextFormatter"/>.
-        /// </summary>
-        protected virtual RuntimeLogTextFormatter GetOrCreateLogTextFormatter()
-        {
-            var textLog = this.GetLogsOfType<RuntimeLogTextFormatter>().FirstOrDefault();
-            if (textLog is null)
-            {
-                if (this.Logger is null)
-                {
-                    this.Logger = new ConsoleLogger() { LogLevel = this.LogLevel };
-                }
-
-                textLog = new RuntimeLogTextFormatter
-                {
-                    Logger = this.Logger
-                };
-
-                this.Logs.Add(textLog);
-            }
-
-            return textLog;
-        }
-
-        /// <summary>
         /// Use this method to register an <see cref="IRuntimeLog"/>.
         /// </summary>
         internal void RegisterLog(IRuntimeLog log)
@@ -284,18 +231,14 @@ namespace Microsoft.Coyote.Runtime
                 throw new InvalidOperationException("Cannot register a null log.");
             }
 
-            // Make sure we only have one text logger.
-            if (log is RuntimeLogTextFormatter a)
+            // Make sure we only have one text logger by replacing the previous one, if it exists.
+            if (log is RuntimeLogTextFormatter textFormatter)
             {
-                var textLog = this.GetLogsOfType<RuntimeLogTextFormatter>().FirstOrDefault();
-                if (textLog != null)
-                {
-                    this.Logs.Remove(textLog);
-                }
-
+                var previousTextFormatter = this.GetLogsOfType<RuntimeLogTextFormatter>().FirstOrDefault();
+                this.RemoveLog(previousTextFormatter);
                 if (this.Logger != null)
                 {
-                    a.Logger = this.Logger;
+                    textFormatter.Logger = this.Logger;
                 }
             }
 
@@ -312,5 +255,46 @@ namespace Microsoft.Coyote.Runtime
                 this.Logs.Remove(log);
             }
         }
+
+        /// <summary>
+        /// Returns all registered logs of type <typeparamref name="TRuntimeLog"/>, if there are any.
+        /// </summary>
+        internal IEnumerable<TRuntimeLog> GetLogsOfType<TRuntimeLog>()
+            where TRuntimeLog : IRuntimeLog =>
+            this.Logs.OfType<TRuntimeLog>();
+
+        /// <summary>
+        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// </summary>
+        internal ILogger SetLogger(ILogger logger)
+        {
+            var previousLogger = this.Logger;
+            this.Logger = logger ?? new NullLogger();
+
+            var textFormatter = this.GetLogsOfType<RuntimeLogTextFormatter>().FirstOrDefault();
+            if (this.Logger is NullLogger)
+            {
+                this.RemoveLog(textFormatter);
+            }
+            else if (textFormatter is null)
+            {
+                this.Logs.Add(this.CreateLogTextFormatter(this.Logger));
+            }
+            else
+            {
+                textFormatter.Logger = this.Logger;
+            }
+
+            return previousLogger;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="RuntimeLogTextFormatter"/>.
+        /// </summary>
+        protected virtual RuntimeLogTextFormatter CreateLogTextFormatter(ILogger logger) =>
+            new RuntimeLogTextFormatter()
+            {
+                Logger = logger
+            };
     }
 }

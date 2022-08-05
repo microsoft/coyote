@@ -7,47 +7,21 @@ using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
-    /// Manages the installed <see cref="TextWriter"/> and all registered
-    /// <see cref="IActorRuntimeLog"/> objects.
+    /// Manages the installed <see cref="TextWriter"/> and all registered <see cref="IActorRuntimeLog"/> objects.
     /// </summary>
-    internal sealed class LogWriter
+    internal sealed class ActorLogWriter : LogWriter
     {
         /// <summary>
-        /// The set of registered log writers.
+        /// Initializes a new instance of the <see cref="ActorLogWriter"/> class.
         /// </summary>
-        private readonly HashSet<IActorRuntimeLog> Logs;
-
-        /// <summary>
-        /// Used to log messages.
-        /// </summary>
-        internal ILogger Logger { get; private set; }
-
-        /// <summary>
-        /// The log level to report.
-        /// </summary>
-        private LogSeverity LogLevel { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LogWriter"/> class.
-        /// </summary>
-        internal LogWriter(Configuration configuration)
+        internal ActorLogWriter(Configuration configuration)
+            : base(configuration)
         {
-            this.Logs = new HashSet<IActorRuntimeLog>();
-
-            this.LogLevel = configuration.LogLevel;
-
-            if (configuration.IsVerbose)
-            {
-                this.GetOrCreateTextLog();
-            }
-            else
-            {
-                this.Logger = new NullLogger();
-            }
         }
 
         /// <summary>
@@ -62,7 +36,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnCreateActor(id, creatorName, creatorType);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnCreateActor(id, creatorName, creatorType);
+                    }
                 }
             }
         }
@@ -79,7 +56,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnCreateStateMachine(id, creatorName, creatorType);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnCreateStateMachine(id, creatorName, creatorType);
+                    }
                 }
             }
         }
@@ -97,7 +77,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnExecuteAction(id, handlingStateName, currentStateName, actionName);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnExecuteAction(id, handlingStateName, currentStateName, actionName);
+                    }
                 }
             }
         }
@@ -119,7 +102,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnSendEvent(targetActorId, senderName, senderType, senderState, e, eventGroupId, isTargetHalted);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnSendEvent(targetActorId, senderName, senderType, senderState, e, eventGroupId, isTargetHalted);
+                    }
                 }
             }
         }
@@ -136,7 +122,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnRaiseEvent(id, stateName, e);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnRaiseEvent(id, stateName, e);
+                    }
                 }
             }
         }
@@ -153,7 +142,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnHandleRaisedEvent(id, stateName, e);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnHandleRaisedEvent(id, stateName, e);
+                    }
                 }
             }
         }
@@ -169,7 +161,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnEnqueueEvent(id, e);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnEnqueueEvent(id, e);
+                    }
                 }
             }
         }
@@ -186,7 +181,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnDequeueEvent(id, stateName, e);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnDequeueEvent(id, stateName, e);
+                    }
                 }
             }
         }
@@ -205,7 +203,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnReceiveEvent(id, stateName, e, wasBlocked);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnReceiveEvent(id, stateName, e, wasBlocked);
+                    }
                 }
             }
         }
@@ -222,7 +223,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnWaitEvent(id, stateName, eventType);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnWaitEvent(id, stateName, eventType);
+                    }
                 }
             }
         }
@@ -239,24 +243,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnWaitEvent(id, stateName, eventTypes);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified random result has been obtained.
-        /// </summary>
-        /// <param name="result">The random result (may be bool or int).</param>
-        /// <param name="callerName">The name of the caller, if any.</param>
-        /// <param name="callerType">The type of the caller, if any.</param>
-        public void LogRandom(object result, string callerName, string callerType)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnRandom(result, callerName, callerType);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnWaitEvent(id, stateName, eventTypes);
+                    }
                 }
             }
         }
@@ -273,7 +263,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnStateTransition(id, stateName, isEntry);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnStateTransition(id, stateName, isEntry);
+                    }
                 }
             }
         }
@@ -290,7 +283,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnGotoState(id, currentStateName, newStateName);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnGotoState(id, currentStateName, newStateName);
+                    }
                 }
             }
         }
@@ -307,7 +303,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPushState(id, currentStateName, newStateName);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnPushState(id, currentStateName, newStateName);
+                    }
                 }
             }
         }
@@ -324,7 +323,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPopState(id, currStateName, restoredStateName);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnPopState(id, currStateName, restoredStateName);
+                    }
                 }
             }
         }
@@ -340,7 +342,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnHalt(id, inboxSize);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnHalt(id, inboxSize);
+                    }
                 }
             }
         }
@@ -357,7 +362,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnDefaultEventHandler(id, stateName);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnDefaultEventHandler(id, stateName);
+                    }
                 }
             }
         }
@@ -374,7 +382,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnEventHandlerTerminated(id, stateName, dequeueStatus);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnEventHandlerTerminated(id, stateName, dequeueStatus);
+                    }
                 }
             }
         }
@@ -393,7 +404,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPopStateUnhandledEvent(id, stateName, e);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnPopStateUnhandledEvent(id, stateName, e);
+                    }
                 }
             }
         }
@@ -411,7 +425,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnExceptionThrown(id, stateName, actionName, ex);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnExceptionThrown(id, stateName, actionName, ex);
+                    }
                 }
             }
         }
@@ -429,7 +446,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnExceptionHandled(id, stateName, actionName, ex);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnExceptionHandled(id, stateName, actionName, ex);
+                    }
                 }
             }
         }
@@ -444,7 +464,10 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnCreateTimer(info);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnCreateTimer(info);
+                    }
                 }
             }
         }
@@ -459,182 +482,16 @@ namespace Microsoft.Coyote.Actors
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnStopTimer(info);
+                    if (log is IActorRuntimeLog actorLog)
+                    {
+                        actorLog.OnStopTimer(info);
+                    }
                 }
             }
         }
 
-        /// <summary>
-        /// Logs that the specified monitor has been created.
-        /// </summary>
-        /// <param name="monitorType">The name of the type of the monitor that has been created.</param>
-        public void LogCreateMonitor(string monitorType)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnCreateMonitor(monitorType);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified monitor executes an action.
-        /// </summary>
-        /// <param name="monitorType">Name of type of the monitor that is executing the action.</param>
-        /// <param name="stateName">The name of the state in which the action is being executed.</param>
-        /// <param name="actionName">The name of the action being executed.</param>
-        public void LogMonitorExecuteAction(string monitorType, string stateName, string actionName)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnMonitorExecuteAction(monitorType, stateName, actionName);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified monitor is about to process an event.
-        /// </summary>
-        /// <param name="monitorType">Name of type of the monitor that will process the event.</param>
-        /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="senderName">The name of the sender, if any.</param>
-        /// <param name="senderType">The type of the sender, if any.</param>
-        /// <param name="senderStateName">The name of the state the sender is in.</param>
-        /// <param name="e">The event being processed.</param>
-        public void LogMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnMonitorProcessEvent(monitorType, stateName, senderName, senderType, senderStateName, e);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified monitor raised an event.
-        /// </summary>
-        /// <param name="monitorType">Name of type of the monitor raising the event.</param>
-        /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="e">The event being raised.</param>
-        public void LogMonitorRaiseEvent(string monitorType, string stateName, Event e)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnMonitorRaiseEvent(monitorType, stateName, e);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified monitor enters or exits a state.
-        /// </summary>
-        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state.</param>
-        /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
-        /// is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
-        /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
-        /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
-        /// else no liveness state is available.</param>
-        public void LogMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnMonitorStateTransition(monitorType, stateName, isEntry, isInHotState);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified monitor has found an error.
-        /// </summary>
-        /// <param name="monitorType">The name of the type of the monitor.</param>
-        /// <param name="stateName">The name of the current state.</param>
-        /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
-        /// else no liveness state is available.</param>
-        public void LogMonitorError(string monitorType, string stateName, bool? isInHotState)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnMonitorError(monitorType, stateName, isInHotState);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logs that the specified assertion failure has occurred.
-        /// </summary>
-        /// <param name="error">The text of the error.</param>
-        public void LogAssertionFailure(string error)
-        {
-            if (this.Logs.Count > 0)
-            {
-                foreach (var log in this.Logs)
-                {
-                    log.OnAssertionFailure(error);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Use this method to notify all logs that the test iteration is complete.
-        /// </summary>
-        internal void LogCompletion()
-        {
-            foreach (var log in this.Logs)
-            {
-                log.OnCompleted();
-            }
-        }
-
-        /// <summary>
-        /// Returns all registered logs of type <typeparamref name="TActorRuntimeLog"/>,
-        /// if there are any.
-        /// </summary>
-        public IEnumerable<TActorRuntimeLog> GetLogsOfType<TActorRuntimeLog>()
-            where TActorRuntimeLog : IActorRuntimeLog =>
-            this.Logs.OfType<TActorRuntimeLog>();
-
-        /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
-        /// </summary>
-        internal ILogger SetLogger(ILogger logger)
-        {
-            var prevLogger = this.Logger;
-            if (logger is null)
-            {
-                this.Logger = new NullLogger();
-
-                var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
-                if (textLog != null)
-                {
-                    textLog.Logger = this.Logger;
-                }
-            }
-            else
-            {
-                this.Logger = logger;
-
-                // This overrides the original IsVerbose flag and creates a text logger anyway!
-                var textLog = this.GetOrCreateTextLog();
-                textLog.Logger = this.Logger;
-            }
-
-            return prevLogger;
-        }
-
-        private ActorRuntimeLogTextFormatter GetOrCreateTextLog()
+        /// <inheritdoc/>
+        protected override RuntimeLogTextFormatter GetOrCreateLogTextFormatter()
         {
             var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
             if (textLog is null)
@@ -665,7 +522,7 @@ namespace Microsoft.Coyote.Actors
                 throw new InvalidOperationException("Cannot register a null log.");
             }
 
-            // Make sure we only have one text logger
+            // Make sure we only have one text logger.
             if (log is ActorRuntimeLogTextFormatter a)
             {
                 var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
@@ -681,17 +538,6 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.Logs.Add(log);
-        }
-
-        /// <summary>
-        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
-        /// </summary>
-        internal void RemoveLog(IActorRuntimeLog log)
-        {
-            if (log != null)
-            {
-                this.Logs.Remove(log);
-            }
         }
     }
 }

@@ -40,10 +40,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
         {
             next = false;
-            if (this.RandomValueGenerator.Next(maxValue) is 0)
+            if (this.RandomValueGenerator.Next(2) is 0)
             {
                 next = true;
             }

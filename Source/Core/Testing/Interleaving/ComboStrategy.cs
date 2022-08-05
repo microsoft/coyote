@@ -56,15 +56,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
             {
-                return this.SuffixStrategy.GetNextBooleanChoice(current, maxValue, out next);
+                return this.SuffixStrategy.GetNextBooleanChoice(current, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextBooleanChoice(current, maxValue, out next);
+                return this.PrefixStrategy.GetNextBooleanChoice(current, out next);
             }
         }
 

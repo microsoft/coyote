@@ -60,9 +60,9 @@ namespace Microsoft.Coyote.Specifications
         private Configuration Configuration;
 
         /// <summary>
-        /// Responsible for checking specifications.
+        /// The runtime that is managing this monitor.
         /// </summary>
-        private SpecificationEngine SpecificationEngine;
+        private CoyoteRuntime Runtime;
 
         /// <summary>
         /// The active monitor state.
@@ -163,10 +163,10 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Initializes this monitor.
         /// </summary>
-        internal void Initialize(Configuration configuration, SpecificationEngine specificationEngine, LogWriter logWriter)
+        internal void Initialize(Configuration configuration, CoyoteRuntime runtime, LogWriter logWriter)
         {
             this.Configuration = configuration;
-            this.SpecificationEngine = specificationEngine;
+            this.Runtime = runtime;
             this.LogWriter = logWriter;
         }
 
@@ -247,7 +247,43 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 this.LogMonitorError(this);
-                this.SpecificationEngine.Assert(false);
+                this.Runtime.Assert(false);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+        protected void Assert(bool predicate, string s, object arg0)
+        {
+            if (!predicate)
+            {
+                this.LogMonitorError(this);
+                this.Runtime.Assert(false, s, arg0);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+        protected void Assert(bool predicate, string s, object arg0, object arg1)
+        {
+            if (!predicate)
+            {
+                this.LogMonitorError(this);
+                this.Runtime.Assert(false, s, arg0, arg1);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+        protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
+        {
+            if (!predicate)
+            {
+                this.LogMonitorError(this);
+                this.Runtime.Assert(false, s, arg0, arg1, arg2);
             }
         }
 
@@ -259,7 +295,7 @@ namespace Microsoft.Coyote.Specifications
             if (!predicate)
             {
                 this.LogMonitorError(this);
-                this.SpecificationEngine.Assert(false, s, args);
+                this.Runtime.Assert(false, s, args);
             }
         }
 
@@ -657,6 +693,12 @@ namespace Microsoft.Coyote.Specifications
         internal void GotoStartState()
         {
             this.LogWriter.LogCreateMonitor(this.Name);
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving
+                && this.Configuration.IsActivityCoverageReported)
+            {
+                this.ReportActivityCoverage(this.Runtime.DefaultActorExecutionContext.CoverageInfo);
+            }
+
             this.ExecuteCurrentStateOnEntry(DefaultEvent.Instance);
         }
 
@@ -883,8 +925,8 @@ namespace Microsoft.Coyote.Specifications
                 "Action '{0}' in {1} must either accept no parameters or a single parameter of type 'Event'.",
                 action.Name, this.Name);
 
-            this.Assert(action.ReturnType == typeof(void) || action.ReturnType == typeof(Transition),
-                "Action '{0}' in {1} must have 'void' or 'Transition' return type.",
+            this.Assert(action.ReturnType == typeof(void),
+                "Action '{0}' in {1} must have 'void' return type.",
                 action.Name, this.Name);
 
             return action;
@@ -1006,7 +1048,7 @@ namespace Microsoft.Coyote.Specifications
         private void ReportUnhandledException(Exception ex, string actionName)
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
-            this.SpecificationEngine.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
+            this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
                 this.Name, state, actionName);
         }
 

@@ -161,7 +161,8 @@ namespace Microsoft.Coyote.Actors.Tests
 <DequeueLog> M() dequeued event 'E'.
 <ActionLog> M() invoked action 'Act'.
 <MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.
-<MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.";
+<MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.
+<RandomLog> Thread '' nondeterministically chose ''.";
 
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();

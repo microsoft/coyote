@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Runtime
     /// <remarks>
     /// Invoking scheduling methods is thread-safe.
     /// </remarks>
-    internal sealed class CoyoteRuntime : IDisposable
+    internal sealed class CoyoteRuntime : ICoyoteRuntime, IDisposable
     {
         /// <summary>
         /// Provides access to the runtime associated with each controlled thread, or null
@@ -113,11 +113,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
-        /// Responsible for checking specifications.
-        /// </summary>
-        private readonly SpecificationEngine SpecificationEngine;
-
-        /// <summary>
         /// Pool of threads that execute controlled operations.
         /// </summary>
         private readonly ConcurrentDictionary<ulong, Thread> ThreadPool;
@@ -153,6 +148,21 @@ namespace Microsoft.Coyote.Runtime
         private ControlledOperation ScheduledOperation;
 
         /// <summary>
+        /// Responsible for generating random values.
+        /// </summary>
+        internal readonly IRandomValueGenerator ValueGenerator;
+
+        /// <summary>
+        /// List of all registered safety and liveness specification monitors.
+        /// </summary>
+        private readonly List<Specifications.Monitor> SpecificationMonitors;
+
+        /// <summary>
+        /// List of all registered task liveness monitors.
+        /// </summary>
+        private readonly List<TaskLivenessMonitor> TaskLivenessMonitors;
+
+        /// <summary>
         /// Timer implementing a deadlock monitor.
         /// </summary>
         private readonly Timer DeadlockMonitor;
@@ -183,11 +193,6 @@ namespace Microsoft.Coyote.Runtime
         internal ExecutionStatus ExecutionStatus { get; private set; }
 
         /// <summary>
-        /// True if interleavings of enabled operations are suppressed, else false.
-        /// </summary>
-        private bool IsSchedulerSuppressed;
-
-        /// <summary>
         /// If this value is not null, then it represents the last scheduling point that
         /// was postponed, which the runtime will try to schedule in the next available
         /// thread that invokes a scheduling point.
@@ -203,6 +208,16 @@ namespace Microsoft.Coyote.Runtime
         /// available uncontrolled thread, unless there is a genuine deadlock.
         /// </remarks>
         private SchedulingPointType? LastPostponedSchedulingPoint;
+
+        /// <summary>
+        /// True if interleavings of enabled operations are suppressed, else false.
+        /// </summary>
+        private bool IsSchedulerSuppressed;
+
+        /// <summary>
+        /// True if the runtime is currently executing inside a specification, else false.
+        /// </summary>
+        private bool IsSpecificationInvoked;
 
         /// <summary>
         /// True if uncontrolled concurrency was detected, else false.
@@ -225,24 +240,23 @@ namespace Microsoft.Coyote.Runtime
         internal string BugReport { get; private set; }
 
         /// <summary>
-        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
+        /// Responsible for writing to all registered <see cref="IRuntimeLog"/> objects.
         /// </summary>
         internal LogWriter LogWriter { get; private set; }
 
-        /// <summary>
-        /// Used to log text messages. Use <see cref="ICoyoteRuntime.SetLogger"/>
-        /// to replace the logger with a custom one.
-        /// </summary>
-        internal ILogger Logger
+        /// <inheritdoc/>
+        public ILogger Logger
         {
-            get { return this.LogWriter.Logger; }
-            set { using var v = this.LogWriter.SetLogger(value); }
+            get => this.LogWriter.Logger;
+
+            set
+            {
+                using var v = this.LogWriter.SetLogger(value);
+            }
         }
 
-        /// <summary>
-        /// Callback that is fired when an exception is thrown that includes failed assertions.
-        /// </summary>
-        internal event OnFailureHandler OnFailure;
+        /// <inheritdoc/>
+        public event OnFailureHandler OnFailure;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
@@ -275,6 +289,7 @@ namespace Microsoft.Coyote.Runtime
             this.IsRunning = true;
             this.ExecutionStatus = ExecutionStatus.Running;
             this.IsSchedulerSuppressed = false;
+            this.IsSpecificationInvoked = false;
             this.IsUncontrolledConcurrencyDetected = false;
             this.LastPostponedSchedulingPoint = null;
             this.MaxConcurrencyDegree = 0;
@@ -292,10 +307,13 @@ namespace Microsoft.Coyote.Runtime
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
-            this.SpecificationEngine = new SpecificationEngine(configuration, this);
-            this.Scheduler?.SetSpecificationEngine(this.SpecificationEngine);
+            this.LogWriter = new ActorLogWriter(configuration);
 
-            this.LogWriter = new LogWriter(configuration);
+            this.ValueGenerator = valueGenerator;
+            this.SpecificationMonitors = new List<Specifications.Monitor>();
+            this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
+            this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
+                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
             this.SyncContext = new ControlledSynchronizationContext(this);
@@ -303,11 +321,8 @@ namespace Microsoft.Coyote.Runtime
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
 
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
-                new ActorExecutionContext.Mock(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter) :
-                new ActorExecutionContext(configuration, this, this.SpecificationEngine, valueGenerator, this.LogWriter);
-
-            this.DeadlockMonitor = new Timer(this.CheckIfExecutionHasDeadlocked, new SchedulingActivityInfo(),
-                    Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                new ActorExecutionContext.Mock(configuration, this, this.LogWriter as ActorLogWriter) :
+                new ActorExecutionContext(configuration, this, this.LogWriter as ActorLogWriter);
         }
 
         /// <summary>
@@ -374,7 +389,7 @@ namespace Microsoft.Coyote.Runtime
                     using (SynchronizedSection.Enter(this.SyncObject))
                     {
                         // Checks for any liveness errors at test termination.
-                        this.SpecificationEngine.CheckLivenessErrors();
+                        this.CheckLivenessErrors();
                         this.Detach(ExecutionStatus.PathExplored);
                     }
                 }
@@ -565,7 +580,7 @@ namespace Microsoft.Coyote.Runtime
             // TODO: support cancellations during testing.
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay);
+                uint timeout = (uint)this.GetNextNondeterministicIntegerChoice((int)this.Configuration.TimeoutDelay, null, null);
                 if (timeout is 0)
                 {
                     // If the delay is 0, then complete synchronously.
@@ -789,7 +804,7 @@ namespace Microsoft.Coyote.Runtime
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
-                    IO.Debug.WriteLine("<Coyote> Supressing scheduling point in operation '{0}'.", current.Name);
+                    IO.Debug.WriteLine("<Coyote> Suppressing scheduling point in operation '{0}'.", current.Name);
                     return;
                 }
 
@@ -828,6 +843,12 @@ namespace Microsoft.Coyote.Runtime
 
                     // Check if the execution has deadlocked.
                     this.CheckIfExecutionHasDeadlocked(ops);
+                }
+
+                if (this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                {
+                    // Check if the liveness threshold has been reached if scheduling is fair.
+                    this.CheckLivenessThresholdExceeded();
                 }
 
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
@@ -910,71 +931,97 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        /// <summary>
-        /// Returns a controlled nondeterministic boolean choice.
-        /// </summary>
-        internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType) =>
-            this.DefaultActorExecutionContext.GetNondeterministicBooleanChoice(maxValue, callerName, callerType);
+        /// <inheritdoc/>
+        public bool RandomBoolean() => this.GetNextNondeterministicBooleanChoice(null, null);
 
         /// <summary>
         /// Returns the next nondeterministic boolean choice.
         /// </summary>
-        internal bool GetNextNondeterministicBooleanChoice(int maxValue)
+        internal bool GetNextNondeterministicBooleanChoice(string callerName, string callerType)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
-                // Checks if the current operation is controlled by the runtime.
-                this.GetExecutingOperation();
-
-                // Checks if the scheduling steps bound has been reached.
-                this.CheckIfSchedulingStepsBoundIsReached();
-
-                if (this.Configuration.IsProgramStateHashingEnabled)
+                bool result;
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
+                    // Checks if the current operation is controlled by the runtime.
+                    this.GetExecutingOperation();
+
+                    // Checks if the scheduling steps bound has been reached.
+                    this.CheckIfSchedulingStepsBoundIsReached();
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                    {
+                        // Check if the liveness threshold has been reached if scheduling is fair.
+                        this.CheckLivenessThresholdExceeded();
+                    }
+
+                    if (this.Configuration.IsProgramStateHashingEnabled)
+                    {
+                        // Update the current operation with the hashed program state.
+                        this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
+                    }
+
+                    if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, out result))
+                    {
+                        this.Detach(ExecutionStatus.BoundReached);
+                    }
+                }
+                else
+                {
+                    result = this.ValueGenerator.Next(2) is 0 ? true : false;
                 }
 
-                if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
-                {
-                    this.Detach(ExecutionStatus.BoundReached);
-                }
-
-                return choice;
+                this.LogWriter.LogRandom(result, callerName, callerType);
+                return result;
             }
         }
 
-        /// <summary>
-        /// Returns a controlled nondeterministic integer choice.
-        /// </summary>
-        internal int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType) =>
-            this.DefaultActorExecutionContext.GetNondeterministicIntegerChoice(maxValue, callerName, callerType);
+        /// <inheritdoc/>
+        public int RandomInteger(int maxValue) => this.GetNextNondeterministicIntegerChoice(maxValue, null, null);
 
         /// <summary>
         /// Returns the next nondeterministic integer choice.
         /// </summary>
-        internal int GetNextNondeterministicIntegerChoice(int maxValue)
+        internal int GetNextNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
-                // Checks if the current operation is controlled by the runtime.
-                this.GetExecutingOperation();
-
-                // Checks if the scheduling steps bound has been reached.
-                this.CheckIfSchedulingStepsBoundIsReached();
-
-                if (this.Configuration.IsProgramStateHashingEnabled)
+                int result;
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
+                    // Checks if the current operation is controlled by the runtime.
+                    this.GetExecutingOperation();
+
+                    // Checks if the scheduling steps bound has been reached.
+                    this.CheckIfSchedulingStepsBoundIsReached();
+
+                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                    {
+                        // Check if the liveness threshold has been reached if scheduling is fair.
+                        this.CheckLivenessThresholdExceeded();
+                    }
+
+                    if (this.Configuration.IsProgramStateHashingEnabled)
+                    {
+                        // Update the current operation with the hashed program state.
+                        this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
+                    }
+
+                    if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out result))
+                    {
+                        this.Detach(ExecutionStatus.BoundReached);
+                    }
+                }
+                else
+                {
+                    result = this.ValueGenerator.Next(maxValue);
                 }
 
-                if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
-                {
-                    this.Detach(ExecutionStatus.BoundReached);
-                }
-
-                return choice;
+                this.LogWriter.LogRandom(result, callerName, callerType);
+                return result;
             }
         }
 
@@ -1454,57 +1501,185 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
 
-                hash = (hash * 31) + this.SpecificationEngine.GetHashedMonitorState();
+                foreach (var monitor in this.SpecificationMonitors)
+                {
+                    hash *= 31 + monitor.GetHashedState();
+                }
+
                 return hash;
             }
         }
 
-        /// <summary>
-        /// Registers a new specification monitor of the specified <see cref="Type"/>.
-        /// </summary>
-        internal void RegisterMonitor<T>()
-            where T : Specifications.Monitor => this.DefaultActorExecutionContext.RegisterMonitor<T>();
+        /// <inheritdoc/>
+        public void RegisterMonitor<T>()
+            where T : Specifications.Monitor =>
+            this.TryCreateMonitor(typeof(T));
 
         /// <summary>
-        /// Invokes the specified monitor with the specified <see cref="Event"/>.
+        /// Tries to create a new <see cref="Specifications.Monitor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal void Monitor<T>(Event e)
-            where T : Specifications.Monitor => this.DefaultActorExecutionContext.Monitor<T>(e);
+        private bool TryCreateMonitor(Type type)
+        {
+            if (this.SchedulingPolicy != SchedulingPolicy.None ||
+                this.Configuration.IsMonitoringEnabledInInProduction)
+            {
+                Specifications.Monitor monitor;
+                using (SynchronizedSection.Enter(this.SyncObject))
+                {
+                    // Only one monitor per type is allowed.
+                    if (this.SpecificationMonitors.Any(m => m.GetType() == type))
+                    {
+                        return false;
+                    }
+
+                    monitor = (Specifications.Monitor)Activator.CreateInstance(type);
+                    monitor.Initialize(this.Configuration, this, this.LogWriter);
+                    monitor.InitializeStateInformation();
+                    this.SpecificationMonitors.Add(monitor);
+                }
+
+                monitor.GotoStartState();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
+        public void Monitor<T>(Event e)
+            where T : Specifications.Monitor =>
+            this.InvokeMonitor(typeof(T), e, null, null, null);
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
+        /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
-        internal void Assert(bool predicate) => this.SpecificationEngine.Assert(predicate);
+        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName)
+        {
+            this.Assert(e != null, "Cannot monitor a null event.");
+            if (this.SchedulingPolicy != SchedulingPolicy.None ||
+                this.Configuration.IsMonitoringEnabledInInProduction)
+            {
+                Specifications.Monitor monitor = null;
+                using (SynchronizedSection.Enter(this.SyncObject))
+                {
+                    foreach (var m in this.SpecificationMonitors)
+                    {
+                        if (m.GetType() == type)
+                        {
+                            monitor = m;
+                            break;
+                        }
+                    }
+                }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
-        /// </summary>
-        internal void Assert(bool predicate, string s, object arg0) => this.SpecificationEngine.Assert(predicate, s, arg0);
+                if (monitor != null)
+                {
+                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    {
+                        this.SuppressScheduling();
+                        this.IsSpecificationInvoked = true;
+                        monitor.MonitorEvent(e, senderName, senderType, senderStateName);
+                        this.IsSpecificationInvoked = false;
+                        this.ResumeScheduling();
+                    }
+                    else
+                    {
+                        lock (monitor)
+                        {
+                            monitor.MonitorEvent(e, senderName, senderType, senderStateName);
+                        }
+                    }
+                }
+            }
+        }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
-        /// </summary>
-        internal void Assert(bool predicate, string s, object arg0, object arg1) =>
-            this.SpecificationEngine.Assert(predicate, s, arg0, arg1);
+        /// <inheritdoc/>
+        public void Assert(bool predicate)
+        {
+            if (!predicate)
+            {
+                string msg = "Detected an assertion failure.";
+                if (this.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    throw new AssertionFailureException(msg);
+                }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
-        /// </summary>
-        internal void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
-            this.SpecificationEngine.Assert(predicate, s, arg0, arg1, arg2);
+                this.NotifyAssertionFailure(msg);
+            }
+        }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an exception.
-        /// </summary>
-        internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
+        /// <inheritdoc/>
+        public void Assert(bool predicate, string s, object arg0)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
+                if (this.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Assert(bool predicate, string s, object arg0, object arg1)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
+                if (this.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
+                if (this.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Assert(bool predicate, string s, params object[] args)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, args);
+                if (this.SchedulingPolicy is SchedulingPolicy.None)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.NotifyAssertionFailure(msg);
+            }
+        }
 
         /// <summary>
         /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
         /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
+        internal void MonitorTaskCompletion(Task task)
+        {
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                task.Status != TaskStatus.RanToCompletion)
+            {
+                var monitor = new TaskLivenessMonitor(task);
+                this.TaskLivenessMonitors.Add(monitor);
+            }
+        }
 
         /// <summary>
         /// Starts a background timer that monitors for potential deadlocks.
@@ -1530,9 +1705,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Checks if the task returned from the specified method is uncontrolled.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void CheckIfReturnedTaskIsUncontrolled(Task task, string methodName)
         {
             if (this.IsTaskUncontrolled(task))
@@ -1545,9 +1717,6 @@ namespace Microsoft.Coyote.Runtime
         /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
         /// but there is one or more blocked operations that are waiting some resource to complete.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         private void CheckIfExecutionHasDeadlocked(IEnumerable<ControlledOperation> ops)
         {
             if (ops.Any(op => op.Status is OperationStatus.Enabled))
@@ -1709,6 +1878,64 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // Benign race condition while disposing the timer.
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks for liveness errors.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckLivenessErrors()
+        {
+            foreach (var monitor in this.TaskLivenessMonitors)
+            {
+                if (!monitor.IsSatisfied)
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
+                        FormatSpecificationMonitorStackTrace(monitor.StackTrace));
+                    this.NotifyAssertionFailure(msg);
+                }
+            }
+
+            // Checks if there is a specification monitor stuck in a hot state.
+            foreach (var monitor in this.SpecificationMonitors)
+            {
+                if (monitor.IsInHotState(out string stateName))
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
+                        monitor.GetType().FullName, stateName);
+                    this.NotifyAssertionFailure(msg);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if a liveness monitor exceeded its threshold and, if yes, it reports an error.
+        /// </summary>
+        internal void CheckLivenessThresholdExceeded()
+        {
+            foreach (var monitor in this.TaskLivenessMonitors)
+            {
+                if (monitor.IsLivenessThresholdExceeded(this.Configuration.LivenessTemperatureThreshold))
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "Found potential liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
+                        FormatSpecificationMonitorStackTrace(monitor.StackTrace));
+                    this.NotifyAssertionFailure(msg);
+                }
+            }
+
+            foreach (var monitor in this.SpecificationMonitors)
+            {
+                if (monitor.IsLivenessThresholdExceeded(this.Configuration.LivenessTemperatureThreshold))
+                {
+                    string msg = $"{monitor.Name} detected potential liveness bug in hot state '{monitor.CurrentStateName}'.";
+                    this.NotifyAssertionFailure(msg);
                 }
             }
         }
@@ -1898,6 +2125,26 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Throws an <see cref="AssertionFailureException"/> exception containing the specified exception.
+        /// </summary>
+        internal void WrapAndThrowException(Exception exception, string s, params object[] args)
+        {
+            string msg = string.Format(CultureInfo.InvariantCulture, s, args);
+            string message = string.Format(CultureInfo.InvariantCulture,
+                "Exception '{0}' was thrown in {1}: {2}\n" +
+                "from location '{3}':\n" +
+                "The stack trace is:\n{4}",
+                exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
+
+            if (this.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                throw new AssertionFailureException(message, exception);
+            }
+
+            this.NotifyUnhandledException(exception, message);
+        }
+
+        /// <summary>
         /// Formats the message of the uncontrolled concurrency exception.
         /// </summary>
         private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
@@ -1956,6 +2203,28 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrEmpty(line)));
+        }
+
+        /// <summary>
+        /// Formats the specified stack trace of a specification monitor.
+        /// </summary>
+        private static string FormatSpecificationMonitorStackTrace(StackTrace trace)
+        {
+            StringBuilder sb = new StringBuilder();
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if ((line.Contains("at Microsoft.Coyote.Specifications") ||
+                    line.Contains("at Microsoft.Coyote.Runtime")) &&
+                    !line.Contains($"at {typeof(Specification).FullName}.{nameof(Specification.Monitor)}"))
+                {
+                    continue;
+                }
+
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -2026,10 +2295,14 @@ namespace Microsoft.Coyote.Runtime
         private void SetControlledSynchronizationContext() =>
             SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
-        /// <summary>
-        /// Forces the scheduler to terminate.
-        /// </summary>
-        public void ForceStop() => this.IsRunning = false;
+        /// <inheritdoc/>
+        public void RegisterLog(IRuntimeLog log) => this.LogWriter.RegisterLog(log);
+
+        /// <inheritdoc/>
+        public void RemoveLog(IRuntimeLog log) => this.LogWriter.RemoveLog(log);
+
+        /// <inheritdoc/>
+        public void Stop() => this.IsRunning = false;
 
         /// <summary>
         /// Detaches the scheduler and interrupts all controlled operations.
@@ -2124,8 +2397,9 @@ namespace Microsoft.Coyote.Runtime
                 this.DefaultActorExecutionContext.Dispose();
                 this.ControlledTaskScheduler.Dispose();
                 this.SyncContext.Dispose();
-                this.SpecificationEngine.Dispose();
                 this.DeadlockMonitor.Dispose();
+                this.SpecificationMonitors.Clear();
+                this.TaskLivenessMonitors.Clear();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {

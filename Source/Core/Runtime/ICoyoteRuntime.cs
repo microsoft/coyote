@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 
@@ -14,10 +13,10 @@ namespace Microsoft.Coyote.Runtime
     public interface ICoyoteRuntime : IDisposable
     {
         /// <summary>
-        /// Get or set the  <see cref="ILogger"/> used to log messages.
+        /// Get or set the <see cref="ILogger"/> used to log messages.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
         /// </remarks>
         ILogger Logger { get; set; }
 
@@ -47,23 +46,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>The nondeterministic boolean choice.</returns>
         /// <remarks>
-        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
+        /// See <see href="/coyote/concepts/non-determinism">Program non-determinism</see>
         /// for more information.
         /// </remarks>
         bool RandomBoolean();
-
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled
-        /// during analysis or testing. The value is used to generate a number
-        /// in the range [0..maxValue), where 0 triggers true.
-        /// </summary>
-        /// <param name="maxValue">The max value.</param>
-        /// <returns>The nondeterministic boolean choice.</returns>
-        /// <remarks>
-        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
-        /// for more information.
-        /// </remarks>
-        bool RandomBoolean(int maxValue);
 
         /// <summary>
         /// Returns a nondeterministic integer choice, that can be
@@ -73,7 +59,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <returns>The nondeterministic integer choice.</returns>
         /// <remarks>
-        /// See <see href="/coyote/concepts/non-determinism" >Program non-determinism</see>
+        /// See <see href="/coyote/concepts/non-determinism">Program non-determinism</see>
         /// for more information.
         /// </remarks>
         int RandomInteger(int maxValue);
@@ -120,20 +106,19 @@ namespace Microsoft.Coyote.Runtime
         void Assert(bool predicate, string s, params object[] args);
 
         /// <summary>
-        /// The old way of setting the <see cref="Logger"/> property.
+        /// Use this method to register an <see cref="IRuntimeLog"/>.
         /// </summary>
-        /// <remarks>
-        /// The new way is to just set the Logger property to an <see cref="ILogger"/> object.
-        /// This method is only here for compatibility and has a minor perf impact as it has to
-        /// wrap the writer in an object that implements the <see cref="ILogger"/> interface.
-        /// </remarks>
-        /// <param name="writer">The writer to use for logging.</param>
-        /// <returns>The previously installed logger.</returns>
-        [Obsolete("Please set the Logger property directory instead of calling this method.")]
-        TextWriter SetLogger(TextWriter writer);
+        /// <param name="log">The log writer to register.</param>
+        void RegisterLog(IRuntimeLog log);
 
         /// <summary>
-        /// Terminates the runtime and notifies each active actor to halt execution.
+        /// Use this method to unregister a previously registered <see cref="IRuntimeLog"/>.
+        /// </summary>
+        /// <param name="log">The previously registered log writer to unregister.</param>
+        void RemoveLog(IRuntimeLog log);
+
+        /// <summary>
+        /// Terminates the runtime, causing any executing operations to eventually complete.
         /// </summary>
         void Stop();
     }

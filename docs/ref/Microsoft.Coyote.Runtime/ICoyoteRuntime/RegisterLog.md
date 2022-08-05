@@ -1,13 +1,18 @@
-# ICoyoteRuntime.Stop method
+# ICoyoteRuntime.RegisterLog method
 
-Terminates the runtime, causing any executing operations to eventually complete.
+Use this method to register an [`IRuntimeLog`](../IRuntimeLog.md).
 
 ```csharp
-public void Stop()
+public void RegisterLog(IRuntimeLog log)
 ```
+
+| parameter | description |
+| --- | --- |
+| log | The log writer to register. |
 
 ## See Also
 
+* interface [IRuntimeLog](../IRuntimeLog.md)
 * interface [ICoyoteRuntime](../ICoyoteRuntime.md)
 * namespace [Microsoft.Coyote.Runtime](../ICoyoteRuntime.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

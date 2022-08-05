@@ -12,10 +12,6 @@ public abstract class Event
 | --- | --- |
 | [Event](Event/Event.md)() | The default constructor. |
 
-## Remarks
-
-See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
-
 ## See Also
 
 * namespace [Microsoft.Coyote](../Microsoft.CoyoteNamespace.md)

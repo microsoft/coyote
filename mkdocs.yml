@@ -231,15 +231,11 @@ nav:
         - CreateActor: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor.md
         - SendEvent: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent.md
         - GetCurrentEventGroup: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup.md
-        - RegisterLog: ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog.md
-        - RemoveLog: ref/Microsoft.Coyote.Actors/IActorRuntime/RemoveLog.md
         - OnEventDropped: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md
       - ActorRuntimeLogTextFormatter:
         - Overview: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md
-        - OnAssertionFailure: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnAssertionFailure.md
         - OnCreateActor: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor.md
         - OnCreateStateMachine: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine.md
-        - OnCreateMonitor: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateMonitor.md
         - OnCreateTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer.md
         - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler.md
         - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md
@@ -250,11 +246,6 @@ nav:
         - OnExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction.md
         - OnGotoState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState.md
         - OnHalt: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt.md
-        - OnMonitorExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction.md
-        - OnMonitorProcessEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent.md
-        - OnMonitorRaiseEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent.md
-        - OnMonitorStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorStateTransition.md
-        - OnMonitorError: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorError.md
         - OnPopState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState.md
         - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent.md
         - OnPushState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState.md
@@ -265,10 +256,7 @@ nav:
         - OnStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition.md
         - OnStopTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer.md
         - OnWaitEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent.md
-        - OnRandom: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom.md
-        - OnCompleted: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCompleted.md
         - ActorRuntimeLogTextFormatter: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md
-        - Logger: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/Logger.md
       - IActorRuntimeLog:
         - Overview: ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md
         - OnCreateActor: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor.md
@@ -293,15 +281,6 @@ nav:
         - OnExceptionHandled: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled.md
         - OnCreateTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer.md
         - OnStopTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer.md
-        - OnCreateMonitor: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateMonitor.md
-        - OnMonitorExecuteAction: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorExecuteAction.md
-        - OnMonitorProcessEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorProcessEvent.md
-        - OnMonitorRaiseEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorRaiseEvent.md
-        - OnMonitorStateTransition: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorStateTransition.md
-        - OnMonitorError: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorError.md
-        - OnRandom: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom.md
-        - OnAssertionFailure: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure.md
-        - OnCompleted: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted.md
       - RuntimeFactory:
         - Overview: ref/Microsoft.Coyote.Actors/RuntimeFactory.md
         - Create: ref/Microsoft.Coyote.Actors/RuntimeFactory/Create.md
@@ -509,9 +488,35 @@ nav:
         - RandomBoolean: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomBoolean.md
         - RandomInteger: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomInteger.md
         - Assert: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Assert.md
+        - RegisterLog: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RegisterLog.md
+        - RemoveLog: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RemoveLog.md
         - Stop: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Stop.md
         - Logger: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Logger.md
         - OnFailure: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md
+      - IRuntimeLog:
+        - Overview: ref/Microsoft.Coyote.Runtime/IRuntimeLog.md
+        - OnCreateMonitor: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnCreateMonitor.md
+        - OnMonitorExecuteAction: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorExecuteAction.md
+        - OnMonitorProcessEvent: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorProcessEvent.md
+        - OnMonitorRaiseEvent: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorRaiseEvent.md
+        - OnMonitorStateTransition: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorStateTransition.md
+        - OnMonitorError: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorError.md
+        - OnRandom: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnRandom.md
+        - OnAssertionFailure: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnAssertionFailure.md
+        - OnCompleted: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnCompleted.md
+      - RuntimeLogTextFormatter:
+        - Overview: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter.md
+        - OnCreateMonitor: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnCreateMonitor.md
+        - OnMonitorExecuteAction: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorExecuteAction.md
+        - OnMonitorProcessEvent: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorProcessEvent.md
+        - OnMonitorRaiseEvent: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorRaiseEvent.md
+        - OnMonitorStateTransition: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorStateTransition.md
+        - OnMonitorError: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorError.md
+        - OnRandom: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnRandom.md
+        - OnAssertionFailure: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnAssertionFailure.md
+        - OnCompleted: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnCompleted.md
+        - RuntimeLogTextFormatter: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/RuntimeLogTextFormatter.md
+        - Logger: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/Logger.md
       - OnFailureHandler: ref/Microsoft.Coyote.Runtime/OnFailureHandler.md
       - RuntimeProvider:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md

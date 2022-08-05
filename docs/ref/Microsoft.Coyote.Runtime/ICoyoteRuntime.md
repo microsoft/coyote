@@ -15,10 +15,11 @@ public interface ICoyoteRuntime : IDisposable
 | [Assert](ICoyoteRuntime/Assert.md)(…) | Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](./AssertionFailureException.md) exception. (5 methods) |
 | [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor.md)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/Event.md). |
 | [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
-| [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](ICoyoteRuntime/RandomInteger.md)(…) | Returns a nondeterministic integer choice, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |
+| [RegisterLog](ICoyoteRuntime/RegisterLog.md)(…) | Use this method to register an [`IRuntimeLog`](./IRuntimeLog.md). |
 | [RegisterMonitor&lt;T&gt;](ICoyoteRuntime/RegisterMonitor.md)() | Registers a new specification monitor of the specified Type. |
-| [Stop](ICoyoteRuntime/Stop.md)() | Terminates the runtime and notifies each active actor to halt execution. |
+| [RemoveLog](ICoyoteRuntime/RemoveLog.md)(…) | Use this method to unregister a previously registered [`IRuntimeLog`](./IRuntimeLog.md). |
+| [Stop](ICoyoteRuntime/Stop.md)() | Terminates the runtime, causing any executing operations to eventually complete. |
 
 ## See Also
 

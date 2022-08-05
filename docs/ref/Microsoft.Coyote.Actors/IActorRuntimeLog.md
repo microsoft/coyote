@@ -3,17 +3,14 @@
 Interface that allows an external module to track what is happening in the [`IActorRuntime`](./IActorRuntime.md).
 
 ```csharp
-public interface IActorRuntimeLog
+public interface IActorRuntimeLog : IRuntimeLog
 ```
 
 ## Members
 
 | name | description |
 | --- | --- |
-| [OnAssertionFailure](IActorRuntimeLog/OnAssertionFailure.md)(…) | Invoked when the specified assertion failure has occurred. |
-| [OnCompleted](IActorRuntimeLog/OnCompleted.md)() | Invoked when a log is complete (and is about to be closed). |
 | [OnCreateActor](IActorRuntimeLog/OnCreateActor.md)(…) | Invoked when the specified actor has been created. |
-| [OnCreateMonitor](IActorRuntimeLog/OnCreateMonitor.md)(…) | Invoked when the specified monitor has been created. |
 | [OnCreateStateMachine](IActorRuntimeLog/OnCreateStateMachine.md)(…) | Invoked when the specified state machine has been created. |
 | [OnCreateTimer](IActorRuntimeLog/OnCreateTimer.md)(…) | Invoked when the specified actor timer has been created. |
 | [OnDefaultEventHandler](IActorRuntimeLog/OnDefaultEventHandler.md)(…) | Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed. |
@@ -26,16 +23,10 @@ public interface IActorRuntimeLog
 | [OnGotoState](IActorRuntimeLog/OnGotoState.md)(…) | Invoked when the specified state machine performs a goto transition to the specified state. |
 | [OnHalt](IActorRuntimeLog/OnHalt.md)(…) | Invoked when the specified actor has been halted. |
 | [OnHandleRaisedEvent](IActorRuntimeLog/OnHandleRaisedEvent.md)(…) | Invoked when the specified actor handled a raised event. |
-| [OnMonitorError](IActorRuntimeLog/OnMonitorError.md)(…) | Invoked when the specified monitor finds an error. |
-| [OnMonitorExecuteAction](IActorRuntimeLog/OnMonitorExecuteAction.md)(…) | Invoked when the specified monitor executes an action. |
-| [OnMonitorProcessEvent](IActorRuntimeLog/OnMonitorProcessEvent.md)(…) | Invoked when the specified monitor is about to process an event. |
-| [OnMonitorRaiseEvent](IActorRuntimeLog/OnMonitorRaiseEvent.md)(…) | Invoked when the specified monitor raised an event. |
-| [OnMonitorStateTransition](IActorRuntimeLog/OnMonitorStateTransition.md)(…) | Invoked when the specified monitor enters or exits a state. |
 | [OnPopState](IActorRuntimeLog/OnPopState.md)(…) | Invoked when the specified state machine has popped its current state. |
 | [OnPopStateUnhandledEvent](IActorRuntimeLog/OnPopStateUnhandledEvent.md)(…) | Invoked when the specified event cannot be handled in the current state, its exit handler is executed and then the state is popped and any previous "current state" is reentered. This handler is called when that pop has been done. |
 | [OnPushState](IActorRuntimeLog/OnPushState.md)(…) | Invoked when the specified state machine is being pushed to a state. |
 | [OnRaiseEvent](IActorRuntimeLog/OnRaiseEvent.md)(…) | Invoked when the specified state machine raises an event. |
-| [OnRandom](IActorRuntimeLog/OnRandom.md)(…) | Invoked when the specified controlled nondeterministic result has been obtained. |
 | [OnReceiveEvent](IActorRuntimeLog/OnReceiveEvent.md)(…) | Invoked when the specified event is received by an actor. |
 | [OnSendEvent](IActorRuntimeLog/OnSendEvent.md)(…) | Invoked when the specified event is sent to a target actor. |
 | [OnStateTransition](IActorRuntimeLog/OnStateTransition.md)(…) | Invoked when the specified state machine enters or exits a state. |
@@ -48,6 +39,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
+* interface [IRuntimeLog](../Microsoft.Coyote.Runtime/IRuntimeLog.md)
 * namespace [Microsoft.Coyote.Actors](../Microsoft.Coyote.ActorsNamespace.md)
 * assembly [Microsoft.Coyote](../Microsoft.Coyote.md)
 

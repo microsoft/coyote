@@ -249,23 +249,15 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
         - name: GetCurrentEventGroup
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
-        - name: RegisterLog
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
-        - name: RemoveLog
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/RemoveLog
         - name: OnEventDropped
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
       - name: ActorRuntimeLogTextFormatter
         link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter
         subfolderitems:
-        - name: OnAssertionFailure
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnAssertionFailure
         - name: OnCreateActor
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor
         - name: OnCreateStateMachine
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine
-        - name: OnCreateMonitor
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateMonitor
         - name: OnCreateTimer
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer
         - name: OnDefaultEventHandler
@@ -286,16 +278,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState
         - name: OnHalt
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt
-        - name: OnMonitorExecuteAction
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction
-        - name: OnMonitorProcessEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent
-        - name: OnMonitorRaiseEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
-        - name: OnMonitorStateTransition
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
-        - name: OnMonitorError
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorError
         - name: OnPopState
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
         - name: OnPopStateUnhandledEvent
@@ -316,14 +298,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer
         - name: OnWaitEvent
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
-        - name: OnRandom
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom
-        - name: OnCompleted
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCompleted
         - name: ActorRuntimeLogTextFormatter
           link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
-        - name: Logger
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/Logger
       - name: IActorRuntimeLog
         link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog
         subfolderitems:
@@ -371,24 +347,6 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer
         - name: OnStopTimer
           link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer
-        - name: OnCreateMonitor
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateMonitor
-        - name: OnMonitorExecuteAction
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorExecuteAction
-        - name: OnMonitorProcessEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorProcessEvent
-        - name: OnMonitorRaiseEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorRaiseEvent
-        - name: OnMonitorStateTransition
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorStateTransition
-        - name: OnMonitorError
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorError
-        - name: OnRandom
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
-        - name: OnAssertionFailure
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure
-        - name: OnCompleted
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
       - name: RuntimeFactory
         link: ref/Microsoft.Coyote.Actors/RuntimeFactory
         subfolderitems:
@@ -763,12 +721,62 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomInteger
         - name: Assert
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Assert
+        - name: RegisterLog
+          link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RegisterLog
+        - name: RemoveLog
+          link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RemoveLog
         - name: Stop
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Stop
         - name: Logger
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Logger
         - name: OnFailure
           link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure
+      - name: IRuntimeLog
+        link: ref/Microsoft.Coyote.Runtime/IRuntimeLog
+        subfolderitems:
+        - name: OnCreateMonitor
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnCreateMonitor
+        - name: OnMonitorExecuteAction
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorStateTransition
+        - name: OnMonitorError
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnMonitorError
+        - name: OnRandom
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnRandom
+        - name: OnAssertionFailure
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnAssertionFailure
+        - name: OnCompleted
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeLog/OnCompleted
+      - name: RuntimeLogTextFormatter
+        link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter
+        subfolderitems:
+        - name: OnCreateMonitor
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnCreateMonitor
+        - name: OnMonitorExecuteAction
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorStateTransition
+        - name: OnMonitorError
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnMonitorError
+        - name: OnRandom
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnRandom
+        - name: OnAssertionFailure
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnAssertionFailure
+        - name: OnCompleted
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/OnCompleted
+        - name: RuntimeLogTextFormatter
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/RuntimeLogTextFormatter
+        - name: Logger
+          link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/Logger
       - name: OnFailureHandler
         link: ref/Microsoft.Coyote.Runtime/OnFailureHandler
       - name: RuntimeProvider

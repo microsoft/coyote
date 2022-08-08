@@ -1,3 +1,6 @@
+## v1.5.9
+- Improved the runtime to try enforce atomicity when invoking a specification `Monitor`.
+
 ## v1.5.8
 - Fixed a bug in `coyote rewrite` related to rewriting nested types.
 

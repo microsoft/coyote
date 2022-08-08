@@ -9,7 +9,7 @@
       ]
     },
     "microsoft.coyote.cli": {
-      "version": "1.5.8",
+      "version": "1.5.9",
       "commands": [
         "coyote"
       ]

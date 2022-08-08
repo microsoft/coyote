@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Samples.HelloWorldActors
             {
                 string greeting = this.RandomBoolean() ? "Hello World!" : "Good Morning";
                 this.SendEvent(ge.Caller, new GreetingEvent(greeting));
-                if (this.RandomBoolean(10))
+                if (this.RandomInteger(10) is 0)
                 {
                     // bug: a 1 in 10 chance of sending too many greetings.
                     this.SendEvent(ge.Caller, new GreetingEvent(greeting));

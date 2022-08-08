@@ -12,7 +12,6 @@ public class Generator
 | --- | --- |
 | static [Create](Generator/Create.md)() | Creates a new pseudo-random value generator. |
 | [NextBoolean](Generator/NextBoolean.md)() | Returns a random boolean, that can be controlled during testing. |
-| [NextBoolean](Generator/NextBoolean.md)(…) | Returns a random boolean, that can be controlled during testing. |
 | [NextInteger](Generator/NextInteger.md)(…) | Returns a random integer, that can be controlled during testing. |
 
 ## Remarks

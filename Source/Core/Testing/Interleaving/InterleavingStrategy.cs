@@ -75,10 +75,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Returns the next boolean choice.
         /// </summary>
         /// <param name="current">The currently scheduled operation.</param>
-        /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next);
+        internal abstract bool GetNextBooleanChoice(ControlledOperation current, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.

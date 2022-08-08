@@ -43,11 +43,6 @@ namespace Microsoft.Coyote.Actors
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// Responsible for checking specifications.
-        /// </summary>
-        private readonly SpecificationEngine SpecificationEngine;
-
-        /// <summary>
         /// Map from unique actor ids to actors.
         /// </summary>
         protected readonly ConcurrentDictionary<ActorId, Actor> ActorMap;
@@ -78,23 +73,18 @@ namespace Microsoft.Coyote.Actors
         internal readonly CoverageInfo CoverageInfo;
 
         /// <summary>
-        /// Responsible for generating random values.
-        /// </summary>
-        private readonly IRandomValueGenerator ValueGenerator;
-
-        /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
         /// </summary>
-        internal readonly LogWriter LogWriter;
+        internal ActorLogWriter LogWriter => this.Runtime.LogWriter as ActorLogWriter;
 
         /// <inheritdoc/>
         public ILogger Logger
         {
-            get => this.LogWriter.Logger;
+            get => this.Runtime.LogWriter.Logger;
 
             set
             {
-                using var v = this.LogWriter.SetLogger(value);
+                using var v = this.Runtime.LogWriter.SetLogger(value);
             }
         }
 
@@ -134,19 +124,15 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
-            IRandomValueGenerator valueGenerator, LogWriter logWriter)
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
-            this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
             this.CoverageInfo = new CoverageInfo();
-            this.ValueGenerator = valueGenerator;
-            this.LogWriter = logWriter;
             this.QuiescenceSyncObject = new object();
         }
 
@@ -502,25 +488,13 @@ namespace Microsoft.Coyote.Actors
         private ulong GetNextOperationId() => this.Runtime.GetNextOperationId();
 
         /// <inheritdoc/>
-        public bool RandomBoolean() => this.GetNondeterministicBooleanChoice(2, null, null);
-
-        /// <inheritdoc/>
-        public bool RandomBoolean(int maxValue) => this.GetNondeterministicBooleanChoice(maxValue, null, null);
+        public bool RandomBoolean() => this.GetNondeterministicBooleanChoice(null, null);
 
         /// <summary>
         /// Returns a controlled nondeterministic boolean choice.
         /// </summary>
-        internal virtual bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
-        {
-            bool result = false;
-            if (this.ValueGenerator.Next(maxValue) is 0)
-            {
-                result = true;
-            }
-
-            this.LogWriter.LogRandom(result, callerName, callerType);
-            return result;
-        }
+        internal virtual bool GetNondeterministicBooleanChoice(string callerName, string callerType) =>
+            this.Runtime.GetNextNondeterministicBooleanChoice(callerName, callerType);
 
         /// <inheritdoc/>
         public int RandomInteger(int maxValue) => this.GetNondeterministicIntegerChoice(maxValue, null, null);
@@ -528,12 +502,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns a controlled nondeterministic integer choice.
         /// </summary>
-        internal virtual int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
-        {
-            var result = this.ValueGenerator.Next(maxValue);
-            this.LogWriter.LogRandom(result, callerName, callerType);
-            return result;
-        }
+        internal virtual int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType) =>
+            this.Runtime.GetNextNondeterministicIntegerChoice(maxValue, callerName, callerType);
 
         /// <summary>
         /// Logs that the specified actor invoked an action.
@@ -783,49 +753,39 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void RegisterMonitor<T>()
             where T : Monitor =>
-            this.TryCreateMonitor(typeof(T));
+            this.Runtime.RegisterMonitor<T>();
 
         /// <inheritdoc/>
         public void Monitor<T>(Event e)
-            where T : Monitor
-        {
-            // If the event is null then report an error and exit.
-            this.Assert(e != null, "Cannot monitor a null event.");
-            this.InvokeMonitor(typeof(T), e, null, null, null);
-        }
-
-        /// <summary>
-        /// Tries to create a new <see cref="Specifications.Monitor"/> of the specified <see cref="Type"/>.
-        /// </summary>
-        protected bool TryCreateMonitor(Type type) => this.SpecificationEngine.TryCreateMonitor(
-            type, this.CoverageInfo, this.LogWriter);
+            where T : Monitor =>
+            this.Runtime.Monitor<T>(e);
 
         /// <summary>
         /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
         internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName) =>
-            this.SpecificationEngine.InvokeMonitor(type, e, senderName, senderType, senderStateName);
+            this.Runtime.InvokeMonitor(type, e, senderName, senderType, senderStateName);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Assert(bool predicate) => this.SpecificationEngine.Assert(predicate);
+        public void Assert(bool predicate) => this.Runtime.Assert(predicate);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Assert(bool predicate, string s, object arg0) => this.SpecificationEngine.Assert(predicate, s, arg0);
+        public void Assert(bool predicate, string s, object arg0) => this.Runtime.Assert(predicate, s, arg0);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Assert(bool predicate, string s, object arg0, object arg1) => this.SpecificationEngine.Assert(predicate, s, arg0, arg1);
+        public void Assert(bool predicate, string s, object arg0, object arg1) => this.Runtime.Assert(predicate, s, arg0, arg1);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
-            this.SpecificationEngine.Assert(predicate, s, arg0, arg1, arg2);
+            this.Runtime.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
+        public void Assert(bool predicate, string s, params object[] args) => this.Runtime.Assert(predicate, s, args);
 
         /// <summary>
         /// Asserts that the actor calling an actor method is also the actor that is currently executing.
@@ -852,7 +812,7 @@ namespace Microsoft.Coyote.Actors
         [DebuggerHidden]
 #endif
         internal void WrapAndThrowException(Exception exception, string s, params object[] args) =>
-            this.SpecificationEngine.WrapAndThrowException(exception, s, args);
+            this.Runtime.WrapAndThrowException(exception, s, args);
 
         /// <inheritdoc/>
         [Obsolete("Please set the Logger property directory instead of calling this method.")]
@@ -868,10 +828,10 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public void RegisterLog(IActorRuntimeLog log) => this.LogWriter.RegisterLog(log);
+        public void RegisterLog(IRuntimeLog log) => this.Runtime.RegisterLog(log);
 
         /// <inheritdoc/>
-        public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
+        public void RemoveLog(IRuntimeLog log) => this.Runtime.RemoveLog(log);
 
         /// <summary>
         /// Returns a task that completes once all actors reach quiescence.
@@ -893,7 +853,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public void Stop() => this.Runtime.ForceStop();
+        public void Stop() => this.Runtime.Stop();
 
         /// <summary>
         /// Disposes runtime resources.
@@ -943,9 +903,8 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, SpecificationEngine specificationEngine,
-                IRandomValueGenerator valueGenerator, LogWriter logWriter)
-                : base(configuration, runtime, specificationEngine, valueGenerator, logWriter)
+            internal Mock(Configuration configuration, CoyoteRuntime runtime)
+                : base(configuration, runtime)
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
@@ -1336,7 +1295,7 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Returns a controlled nondeterministic boolean choice.
             /// </summary>
-            internal override bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
+            internal override bool GetNondeterministicBooleanChoice(string callerName, string callerType)
             {
                 var caller = this.Runtime.GetExecutingOperation<ActorOperation>()?.Actor;
                 if (caller is Actor callerActor)
@@ -1344,9 +1303,7 @@ namespace Microsoft.Coyote.Actors
                     this.IncrementActorProgramCounter(callerActor.Id);
                 }
 
-                var choice = this.Runtime.GetNextNondeterministicBooleanChoice(maxValue);
-                this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
-                return choice;
+                return this.Runtime.GetNextNondeterministicBooleanChoice(callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             }
 
             /// <summary>
@@ -1360,9 +1317,7 @@ namespace Microsoft.Coyote.Actors
                     this.IncrementActorProgramCounter(callerActor.Id);
                 }
 
-                var choice = this.Runtime.GetNextNondeterministicIntegerChoice(maxValue);
-                this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
-                return choice;
+                return this.Runtime.GetNextNondeterministicIntegerChoice(maxValue, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             }
 
             /// <inheritdoc/>

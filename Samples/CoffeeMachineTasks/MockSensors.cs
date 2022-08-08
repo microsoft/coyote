@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
             this.GrinderButton = false;
             this.PortaFilterCoffeeLevel = 0;
             this.ShotButton = false;
-            this.DoorOpen = this.RandomGenerator.NextBoolean(5);
+            this.DoorOpen = this.RandomGenerator.NextInteger(5) is 0;
             this.WaterHeaterTimer = new ControlledTimer("WaterHeaterTimer", TimeSpan.FromSeconds(0.1), this.MonitorWaterTemperature);
         }
 

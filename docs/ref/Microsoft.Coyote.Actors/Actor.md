@@ -38,7 +38,6 @@ public abstract class Actor
 | virtual [OnInitializeAsync](Actor/OnInitializeAsync.md)(…) | Asynchronous callback that is invoked when the actor is initialized with an optional event. |
 | [RaiseHaltEvent](Actor/RaiseHaltEvent.md)() | Raises a [`HaltEvent`](./HaltEvent.md) to halt the actor at the end of the current action. |
 | [RandomBoolean](Actor/RandomBoolean.md)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
-| [RandomBoolean](Actor/RandomBoolean.md)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](Actor/RandomInteger.md)(…) | Returns a nondeterministic integer, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |
 | [ReceiveEventAsync](Actor/ReceiveEventAsync.md)(…) | Waits to receive an [`Event`](../Microsoft.Coyote/Event.md) of the specified type that satisfies an optional predicate. (3 methods) |
 | [SendEvent](Actor/SendEvent.md)(…) | Sends an asynchronous [`Event`](../Microsoft.Coyote/Event.md) to a target. |

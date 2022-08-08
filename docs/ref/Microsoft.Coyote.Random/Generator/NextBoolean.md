@@ -1,25 +1,9 @@
-# Generator.NextBoolean method (1 of 2)
+# Generator.NextBoolean method
 
 Returns a random boolean, that can be controlled during testing.
 
 ```csharp
 public bool NextBoolean()
-```
-
-## See Also
-
-* class [Generator](../Generator.md)
-* namespace [Microsoft.Coyote.Random](../Generator.md)
-* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
-
----
-
-# Generator.NextBoolean method (2 of 2)
-
-Returns a random boolean, that can be controlled during testing.
-
-```csharp
-public bool NextBoolean(int maxValue)
 ```
 
 ## See Also

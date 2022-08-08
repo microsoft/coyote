@@ -491,7 +491,12 @@ namespace Microsoft.Coyote.Actors.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnRandom(object result, string callerName, string callerType)
+        public void OnRandom(bool result, string callerName, string callerType)
+        {
+        }
+
+        /// <inheritdoc/>
+        public void OnRandom(int result, string callerName, string callerType)
         {
         }
 

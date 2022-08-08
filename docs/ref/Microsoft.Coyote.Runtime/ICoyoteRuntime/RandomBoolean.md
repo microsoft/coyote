@@ -1,38 +1,10 @@
-# ICoyoteRuntime.RandomBoolean method (1 of 2)
+# ICoyoteRuntime.RandomBoolean method
 
 Returns a nondeterministic boolean choice, that can be controlled during analysis or testing.
 
 ```csharp
 public bool RandomBoolean()
 ```
-
-## Return Value
-
-The nondeterministic boolean choice.
-
-## Remarks
-
-See [Program non-determinism](/coyote/concepts/non-determinism) for more information.
-
-## See Also
-
-* interface [ICoyoteRuntime](../ICoyoteRuntime.md)
-* namespace [Microsoft.Coyote.Runtime](../ICoyoteRuntime.md)
-* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
-
----
-
-# ICoyoteRuntime.RandomBoolean method (2 of 2)
-
-Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true.
-
-```csharp
-public bool RandomBoolean(int maxValue)
-```
-
-| parameter | description |
-| --- | --- |
-| maxValue | The max value. |
 
 ## Return Value
 

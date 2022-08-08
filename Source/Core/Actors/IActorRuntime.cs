@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -151,15 +153,16 @@ namespace Microsoft.Coyote.Actors
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
 
         /// <summary>
-        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
+        /// The old way of setting the <see cref="ICoyoteRuntime.Logger"/> property.
         /// </summary>
-        /// <param name="log">The log writer to register.</param>
-        void RegisterLog(IActorRuntimeLog log);
-
-        /// <summary>
-        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
-        /// </summary>
-        /// <param name="log">The previously registered log writer to unregister.</param>
-        void RemoveLog(IActorRuntimeLog log);
+        /// <remarks>
+        /// The new way is to just set the Logger property to an <see cref="ILogger"/> object.
+        /// This method is only here for compatibility and has a minor perf impact as it has to
+        /// wrap the writer in an object that implements the <see cref="ILogger"/> interface.
+        /// </remarks>
+        /// <param name="writer">The writer to use for logging.</param>
+        /// <returns>The previously installed logger.</returns>
+        [Obsolete("Please set the Logger property directly instead of calling this method.")]
+        TextWriter SetLogger(TextWriter writer);
     }
 }

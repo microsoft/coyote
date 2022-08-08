@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
             // Since this is a mock, we randomly it to false with one chance out of 5 just
             // to test this error condition, if the door is open, the machine should not
             // agree to do anything for you.
-            this.DoorOpen = this.RandomBoolean(5);
+            this.DoorOpen = this.RandomInteger(5) is 0;
             if (this.DoorOpen)
             {
                 this.Monitor<DoorSafetyMonitor>(new DoorOpenEvent(this.DoorOpen));

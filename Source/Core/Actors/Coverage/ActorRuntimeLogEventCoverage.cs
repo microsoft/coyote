@@ -209,7 +209,11 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
         }
 
-        public void OnRandom(object result, string callerName, string callerType)
+        public void OnRandom(bool result, string callerName, string callerType)
+        {
+        }
+
+        public void OnRandom(int result, string callerName, string callerType)
         {
         }
 

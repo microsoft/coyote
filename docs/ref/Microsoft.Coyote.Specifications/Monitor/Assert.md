@@ -1,4 +1,4 @@
-# Monitor.Assert method (1 of 2)
+# Monitor.Assert method (1 of 5)
 
 Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
@@ -14,12 +14,60 @@ protected void Assert(bool predicate)
 
 ---
 
-# Monitor.Assert method (2 of 2)
+# Monitor.Assert method (2 of 5)
+
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
+
+```csharp
+protected void Assert(bool predicate, string s, object arg0)
+```
+
+## See Also
+
+* class [Monitor](../Monitor.md)
+* namespace [Microsoft.Coyote.Specifications](../Monitor.md)
+* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
+
+---
+
+# Monitor.Assert method (3 of 5)
 
 Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
 
 ```csharp
 protected void Assert(bool predicate, string s, params object[] args)
+```
+
+## See Also
+
+* class [Monitor](../Monitor.md)
+* namespace [Microsoft.Coyote.Specifications](../Monitor.md)
+* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
+
+---
+
+# Monitor.Assert method (4 of 5)
+
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
+
+```csharp
+protected void Assert(bool predicate, string s, object arg0, object arg1)
+```
+
+## See Also
+
+* class [Monitor](../Monitor.md)
+* namespace [Microsoft.Coyote.Specifications](../Monitor.md)
+* assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)
+
+---
+
+# Monitor.Assert method (5 of 5)
+
+Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception.
+
+```csharp
+protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
 ```
 
 ## See Also

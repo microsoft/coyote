@@ -319,18 +319,7 @@ namespace Microsoft.Coyote.Actors
         /// controlled during analysis or testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool RandomBoolean() => this.Context.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
-
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing. The value is used
-        /// to generate a number in the range [0..maxValue), where 0
-        /// triggers true.
-        /// </summary>
-        /// <param name="maxValue">The max value.</param>
-        /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool RandomBoolean(int maxValue) =>
-            this.Context.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
+        protected bool RandomBoolean() => this.Context.GetNondeterministicBooleanChoice(this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during

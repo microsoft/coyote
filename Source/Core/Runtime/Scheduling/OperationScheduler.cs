@@ -100,13 +100,6 @@ namespace Microsoft.Coyote.Runtime
                     this.ReplayStrategy = replayStrategy;
                     this.IsReplayingSchedule = true;
                 }
-
-                // Wrap the strategy inside a liveness checking strategy.
-                if (configuration.IsLivenessCheckingEnabled)
-                {
-                    this.Strategy = new TemperatureCheckingStrategy(configuration, generator,
-                        this.Strategy as InterleavingStrategy);
-                }
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
@@ -128,17 +121,6 @@ namespace Microsoft.Coyote.Runtime
         internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
             IRandomValueGenerator valueGenerator) =>
             new OperationScheduler(configuration, policy, valueGenerator);
-
-        /// <summary>
-        /// Sets the specification engine.
-        /// </summary>
-        internal void SetSpecificationEngine(SpecificationEngine specificationEngine)
-        {
-            if (this.Strategy is TemperatureCheckingStrategy temperatureCheckingStrategy)
-            {
-                temperatureCheckingStrategy.SetSpecificationEngine(specificationEngine);
-            }
-        }
 
         /// <summary>
         /// Initializes the next iteration.
@@ -194,13 +176,12 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the next boolean choice.
         /// </summary>
         /// <param name="current">The currently scheduled operation.</param>
-        /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBooleanChoice(ControlledOperation current, int maxValue, out bool next)
+        internal bool GetNextBooleanChoice(ControlledOperation current, out bool next)
         {
             if (this.Strategy is InterleavingStrategy strategy &&
-                strategy.GetNextBooleanChoice(current, maxValue, out next))
+                strategy.GetNextBooleanChoice(current, out next))
             {
                 this.Trace.AddNondeterministicBooleanChoice(next);
                 return true;

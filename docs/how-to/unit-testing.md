@@ -5,6 +5,11 @@ Common unit testing frameworks like
 [xUnit.net](https://xunit.net/) and [nunit](https://nunit.org/) cannot easily call the `coyote`
 command line tool for testing. In this case you can use the Coyote `TestingEngine` directly.
 
+Note that before running a Coyote test, you must first use `coyote rewrite` from the `coyote`
+command line tool (typically as a post-build task) to rewrite your binaries so that Coyote can
+inject logic that takes control of the concurrent execution during testing. Learn more about this
+step in [rewriting binaries](../get-started/using-coyote.md#building-the-samples).
+
 The Coyote `TestingEngine` is included in the `Microsoft.Coyote.Test` package. The following shows
 a complete example using xUnit. The project simply includes xUnit and the Coyote packages:
 

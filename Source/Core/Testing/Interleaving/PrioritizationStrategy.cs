@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             // Check if there are at least two operation groups that can be scheduled,
             // otherwise skip the priority checking and changing logic.
-            if (ops.Select(op => op.Group).Skip(1).Any())
+            if (ops.Select(op => op.Group).Distinct().Skip(1).Any())
             {
                 // Try to change the priority of the highest priority operation group.
                 // If the shared-state reduction is enabled, check if there is at least

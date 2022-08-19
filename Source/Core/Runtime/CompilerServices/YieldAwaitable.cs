@@ -26,6 +26,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         internal YieldAwaitable(SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
         {
+            if (RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime))
+            {
+                // Upon await Task.Yield(), we want the continuation after yield to execute with the same priority as the code before await Task.Yield().
+                runtime.EndingControlledOpForLastTask = runtime.GetExecutingOperation();
+            }
             this.Awaiter = new YieldAwaiter(ref awaiter);
         }
 

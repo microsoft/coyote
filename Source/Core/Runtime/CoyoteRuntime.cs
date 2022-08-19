@@ -258,6 +258,8 @@ namespace Microsoft.Coyote.Runtime
         /// <inheritdoc/>
         public event OnFailureHandler OnFailure;
 
+        internal ControlledOperation EndingControlledOpForLastTask;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
@@ -323,6 +325,8 @@ namespace Microsoft.Coyote.Runtime
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
                 new ActorExecutionContext.Mock(configuration, this) :
                 new ActorExecutionContext(configuration, this);
+
+            this.EndingControlledOpForLastTask = null;
         }
 
         /// <summary>
@@ -429,6 +433,27 @@ namespace Microsoft.Coyote.Runtime
             // current thread, if such a group exists, else the group of the currently
             // executing operation, if such an operation exists.
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+            group = null;
+
+            // Create a new controlled operation using the next available operation id.
+            ulong operationId = this.GetNextOperationId();
+            ControlledOperation op = delay > 0 ?
+                new DelayOperation(operationId, $"Delay({operationId})", delay) :
+                new ControlledOperation(operationId, $"Op({operationId})", group);
+            this.RegisterOperation(op);
+            if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
+            {
+                op.IsSourceUncontrolled = true;
+            }
+
+            return op;
+        }
+
+        private ControlledOperation CreateControlledOperation(OperationGroup group, uint delay = 0)
+        {
+            // Assign the operation group associated with the execution context of the
+            // current thread, if such a group exists, else the group of the currently
+            // executing operation, if such an operation exists.
 
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
@@ -521,7 +546,7 @@ namespace Microsoft.Coyote.Runtime
             // Used to pause the currently executing thread until the operation starts executing.
             using (var handshakeSync = new ManualResetEventSlim(false))
             {
-                ControlledOperation op = this.CreateControlledOperation();
+                ControlledOperation op = this.CreateControlledOperation(this.EndingControlledOpForLastTask?.Group);
                 var thread = new Thread(() =>
                 {
                     try

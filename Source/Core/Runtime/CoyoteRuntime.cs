@@ -546,6 +546,10 @@ namespace Microsoft.Coyote.Runtime
             // Used to pause the currently executing thread until the operation starts executing.
             using (var handshakeSync = new ManualResetEventSlim(false))
             {
+                // Assumption/Observation: Control will flow here immediately after SetResult() of the awaitedTask 
+                // before any other SetResult is called (this is because there is no ScheduleNextOperation in 
+                // between. No other task can complete in between SetResult and Schedule(Action callback))
+                // so the value of EndingControlledOpForLastTask will correctly be the continuation's awaitedTask rather than some other task
                 ControlledOperation op = this.CreateControlledOperation(this.EndingControlledOpForLastTask?.Group);
                 var thread = new Thread(() =>
                 {

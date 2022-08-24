@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 // We store the Executing Controlled Operation in a data member of the runtime
                 // so that we can access it in the Schedule(Action callback) method which will be called immediately
                 // after this SetResult method is called because the task has now completed.
-                this.Runtime.EndingControlledOpForLastTask = this.Runtime.GetExecutingOperation();
+                this.Runtime.ThreadLocalEndingControlledOpForLastTask.Value = this.Runtime.GetExecutingOperation();
             }
         }
 
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 // We store the Executing Controlled Operation in a data member of the runtime
                 // so that we can access it in the Schedule(Action callback) method which will be called immediately
                 // after this SetResult method is called because the task has now completed.
-                this.Runtime.EndingControlledOpForLastTask = this.Runtime.GetExecutingOperation();
+                this.Runtime.ThreadLocalEndingControlledOpForLastTask.Value = this.Runtime.GetExecutingOperation();
             }
         }
 

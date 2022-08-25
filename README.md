@@ -22,6 +22,10 @@ in production and affecting users. In the words of an Azure service architect:
 
 Coyote is made with :heart: by Microsoft Research.
 
+**New:** Check out our experimental [systematic testing library for
+C++](https://github.com/microsoft/cpp-systematic-testing) that is based on the same research and
+technology that powers Coyote.
+
 ## How it works?
 
 Consider the following simple test:
@@ -59,12 +63,12 @@ public async Task CoyoteTestTask()
 }
 ```
 
-Next, you run the `coyote rewrite` CLI (typically as a post-build task) to automatically rewrite the
-IL of your test and production binaries. This allows Coyote to inject hooks that take control of the
-concurrent execution during testing.
+Next, you run the `coyote rewrite` command from the CLI (typically as a post-build task) to
+automatically rewrite the IL of your test and production binaries. This allows Coyote to inject
+hooks that take control of the concurrent execution during testing.
 
-You then run the concurrent unit test from your favorite unit testing framework (such as
-[xUnit](https://xunit.net/) above). Coyote will take over and repeatedly execute the test from
+You can then run the concurrent unit test from your favorite unit testing framework (such as
+[xUnit](https://xunit.net/)). Coyote will take over and repeatedly execute the test from
 beginning to the end for N iterations (in the above example N was configured to `10`). Under the
 hood, Coyote uses intelligent search strategies to explore all kinds of execution paths that might
 hide a bug in each iteration.

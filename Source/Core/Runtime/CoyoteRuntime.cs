@@ -429,6 +429,7 @@ namespace Microsoft.Coyote.Runtime
             // current thread, if such a group exists, else the group of the currently
             // executing operation, if such an operation exists.
             OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+            group = null;
 
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();

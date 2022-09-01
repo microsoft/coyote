@@ -1,14 +1,14 @@
-# Configuration.WithIncrementalSeedGenerationEnabled method
+# Configuration.WithDebugLoggingEnabled method
 
-Updates the configuration with incremental seed generation enabled or disabled.
+Updates the configuration with debug logging enabled or disabled.
 
 ```csharp
-public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
+public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
 ```
 
 | parameter | description |
 | --- | --- |
-| isIncremental | If true, then incremental seed generation is used. |
+| isDebugLoggingEnabled | If true, then debug messages are logged. |
 
 ## See Also
 

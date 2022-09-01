@@ -128,8 +128,8 @@ nav:
         - WithPotentialDeadlocksReportedAsBugs: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs.md
         - WithUncontrolledConcurrencyResolutionTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
-        - WithIncrementalSeedGenerationEnabled: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled.md
         - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
+        - WithDebugLoggingEnabled: ref/Microsoft.Coyote/Configuration/WithDebugLoggingEnabled.md
         - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
         - WithTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
@@ -518,6 +518,22 @@ nav:
         - RuntimeLogTextFormatter: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/RuntimeLogTextFormatter.md
         - Logger: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/Logger.md
       - OnFailureHandler: ref/Microsoft.Coyote.Runtime/OnFailureHandler.md
+      - IOperationBuilder:
+        - Overview: ref/Microsoft.Coyote.Runtime/IOperationBuilder.md
+        - Name: ref/Microsoft.Coyote.Runtime/IOperationBuilder/Name.md
+        - GroupId: ref/Microsoft.Coyote.Runtime/IOperationBuilder/GroupId.md
+        - HashedStateCallback: ref/Microsoft.Coyote.Runtime/IOperationBuilder/HashedStateCallback.md
+      - Operation:
+        - Overview: ref/Microsoft.Coyote.Runtime/Operation.md
+        - GetNextId: ref/Microsoft.Coyote.Runtime/Operation/GetNextId.md
+        - CreateNext: ref/Microsoft.Coyote.Runtime/Operation/CreateNext.md
+        - CreateFrom: ref/Microsoft.Coyote.Runtime/Operation/CreateFrom.md
+        - Start: ref/Microsoft.Coyote.Runtime/Operation/Start.md
+        - PauseUntil: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil.md
+        - PauseUntilCompleted: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted.md
+        - ScheduleNext: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext.md
+        - Complete: ref/Microsoft.Coyote.Runtime/Operation/Complete.md
+        - TryReset: ref/Microsoft.Coyote.Runtime/Operation/TryReset.md
       - RuntimeProvider:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md
         - Create: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create.md

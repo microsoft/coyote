@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Starts executing the operation with the specified id.
         /// </summary>
-        public static void Start(ulong operationId)
+        public static void Start(ulong operationId, ManualResetEventSlim handshakeSync)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
@@ -75,7 +75,25 @@ namespace Microsoft.Coyote.Runtime
                     throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
                 }
 
-                runtime.StartOperation(op);
+                runtime.StartOperation(op, handshakeSync);
+            }
+        }
+
+        /// <summary>
+        /// Waits for the operation with the specified id to start executing.
+        /// </summary>
+        private static void WaitOperationStart(ulong operationId, ManualResetEventSlim handshakeSync)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                var op = runtime.GetOperationWithId(operationId);
+                if (op is null)
+                {
+                    throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
+                }
+
+                runtime.WaitOperationStart(op, handshakeSync);
             }
         }
 

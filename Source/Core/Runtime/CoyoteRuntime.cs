@@ -792,7 +792,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// This method performs a handshake with <see cref="WaitOperationStart"/>.
         /// </remarks>
-        private void StartOperation(ControlledOperation op, ManualResetEventSlim handshakeSync)
+        internal void StartOperation(ControlledOperation op, ManualResetEventSlim handshakeSync)
         {
             // Configures the execution context of the current thread with data
             // related to the runtime and the operation executed by this thread.
@@ -819,7 +819,7 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// This method performs a handshake with <see cref="StartOperation"/>.
         /// </remarks>
-        private void WaitOperationStart(ControlledOperation op, ManualResetEventSlim handshakeSync)
+        internal void WaitOperationStart(ControlledOperation op, ManualResetEventSlim handshakeSync)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {

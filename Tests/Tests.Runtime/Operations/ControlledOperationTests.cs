@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         {
         }
 
-        // [Fact(Timeout = 5000)]
+        [Fact(Timeout = 5000)]
         public void TestThreadOperationInstrumentation()
         {
             this.Test(() =>
@@ -24,21 +24,16 @@ namespace Microsoft.Coyote.Runtime.Tests
                 Specification.Assert(operationId.HasValue, $"Unable to create next operation.");
 
                 int value = 0;
-                Thread thread;
-                using (var handshakeSync = new ManualResetEventSlim(false))
+                Thread thread = new Thread(state =>
                 {
-                    thread = new Thread(state =>
-                    {
-                        Operation.Start((ulong)state, handshakeSync);
-                        value = 1;
-                        Operation.Complete();
-                        Operation.ScheduleNext();
-                    });
-
-                    Operation.WaitOperationStart(operationId.Value, handshakeSync);
-                }
+                    Operation.Start((ulong)state);
+                    value = 1;
+                    Operation.Complete();
+                    Operation.ScheduleNext();
+                });
 
                 thread.Start(operationId.Value);
+                Operation.WaitOperationStart(operationId.Value);
                 Operation.ScheduleNext();
 
                 Operation.PauseUntilCompleted(operationId.Value);

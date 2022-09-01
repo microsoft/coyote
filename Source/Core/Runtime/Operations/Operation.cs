@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Starts executing the operation with the specified id.
         /// </summary>
-        public static void Start(ulong operationId, ManualResetEventSlim handshakeSync)
+        public static void Start(ulong operationId)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
@@ -75,14 +75,14 @@ namespace Microsoft.Coyote.Runtime
                     throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
                 }
 
-                runtime.StartOperation(op, handshakeSync);
+                runtime.StartOperation(op);
             }
         }
 
         /// <summary>
         /// Waits for the operation with the specified id to start executing.
         /// </summary>
-        public static void WaitOperationStart(ulong operationId, ManualResetEventSlim handshakeSync)
+        public static void WaitOperationStart(ulong operationId)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Runtime
                     throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
                 }
 
-                runtime.WaitOperationStart(op, handshakeSync);
+                runtime.WaitOperationStart(op);
             }
         }
 

@@ -45,9 +45,14 @@ namespace Microsoft.Coyote.Runtime
         internal readonly List<Func<bool>> Dependencies;
 
         /// <summary>
+        /// Synchronization mechanism for waiting for this operation to start executing.
+        /// </summary>
+        private ManualResetEventSlim StartEvent;
+
+        /// <summary>
         /// Synchronization mechanism for controlling the execution of this operation.
         /// </summary>
-        internal ManualResetEventSlim SyncEvent;
+        private ManualResetEventSlim SyncEvent;
 
         /// <summary>
         /// The type of the last encountered scheduling point.
@@ -100,6 +105,7 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
             this.Dependencies = new List<Func<bool>>();
+            this.StartEvent = operationId > 0 ? new ManualResetEventSlim(false) : null;
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
@@ -109,6 +115,19 @@ namespace Microsoft.Coyote.Runtime
 
             // Register this operation with the runtime.
             this.Runtime.RegisterOperation(this);
+        }
+
+        /// <summary>
+        /// Starts the execution of this operation.
+        /// </summary>
+        internal void Start() => this.StartEvent?.Set();
+
+        /// <summary>
+        /// Pauses the current thread until this operation starts executing.
+        /// </summary>
+        internal void WaitToStart()
+        {
+            this.StartEvent?.Wait();
         }
 
         /// <summary>
@@ -192,6 +211,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public void Dispose()
         {
+            this.StartEvent?.Dispose();
             this.SyncEvent.Dispose();
         }
     }

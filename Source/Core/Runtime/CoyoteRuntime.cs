@@ -422,19 +422,15 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Task task)
         {
+            ControlledOperation op;
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
-            }
 
-            // Used to pause the currently executing thread until the operation starts executing.
-            using (var handshakeSync = new ManualResetEventSlim(false))
-            {
                 // Check if an existing controlled operation is stored in the state of the task.
-                ControlledOperation op;
                 if (task.AsyncState is ControlledOperation existingOp)
                 {
                     op = existingOp;
@@ -444,7 +440,11 @@ namespace Microsoft.Coyote.Runtime
                 {
                     op = this.CreateControlledOperation();
                 }
+            }
 
+            // Used to pause the currently executing thread until the operation starts executing.
+            using (var handshakeSync = new ManualResetEventSlim(false))
+            {
                 var thread = new Thread(() =>
                 {
                     try
@@ -490,18 +490,20 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action callback)
         {
+            ControlledOperation op;
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
                 }
+
+                op = this.CreateControlledOperation();
             }
 
             // Used to pause the currently executing thread until the operation starts executing.
             using (var handshakeSync = new ManualResetEventSlim(false))
             {
-                ControlledOperation op = this.CreateControlledOperation();
                 var thread = new Thread(() =>
                 {
                     try

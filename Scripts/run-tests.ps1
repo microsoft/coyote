@@ -4,7 +4,7 @@
 param(
     [ValidateSet("net6.0", "net5.0", "netcoreapp3.1", "net462")]
     [string]$framework = "net6.0",
-    [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
+    [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -17,6 +17,7 @@ Import-Module $PSScriptRoot/common.psm1 -Force
 
 $all_frameworks = (Get-Variable "framework").Attributes.ValidValues
 $targets = [ordered]@{
+    "runtime" = "Tests.Runtime"
     "rewriting" = "Tests.Rewriting"
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"

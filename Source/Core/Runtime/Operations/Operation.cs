@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Waits for the operation with the specified id to start executing.
         /// </summary>
-        private static void WaitOperationStart(ulong operationId, ManualResetEventSlim handshakeSync)
+        public static void WaitOperationStart(ulong operationId, ManualResetEventSlim handshakeSync)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)

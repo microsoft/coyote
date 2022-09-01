@@ -21,13 +21,6 @@
         <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
         <dependency id="Mono.Cecil" version="0.11.4"/>
       </group>
-      <group targetFramework=".NET5.0">
-        <dependency id="Microsoft.Coyote" version="$version$"/>
-        <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
-        <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
-        <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
-        <dependency id="Mono.Cecil" version="0.11.4"/>
-      </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="Microsoft.Coyote" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
@@ -52,12 +45,6 @@
     <file src="..\..\bin\net6.0\*.pdb" target="lib\net6.0" />
     <file src="..\..\bin\net6.0\*.config" target="lib\net6.0" />
     <file src="..\..\bin\net6.0\*.runtimeconfig.json" target="lib\net6.0" />
-    <!-- .NET 5.0 -->
-    <file src="..\..\bin\net5.0\*.dll" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\*.xml" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\*.pdb" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\*.config" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\*.runtimeconfig.json" target="lib\net5.0" />
     <!-- .NET Core 3.1 -->
     <file src="..\..\bin\netcoreapp3.1\*.dll" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.xml" target="lib\netcoreapp3.1" />

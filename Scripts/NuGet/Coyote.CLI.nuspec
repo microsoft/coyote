@@ -24,12 +24,6 @@
     <file src="..\..\bin\net6.0\*.pdb" target="tools\net6.0\any" />
     <file src="..\..\bin\net6.0\*.config" target="tools\net6.0\any" />
     <file src="..\..\bin\net6.0\*.runtimeconfig.json" target="tools\net6.0\any" />
-    <!-- .NET 5.0 -->
-    <file src="..\..\bin\net5.0\*.dll" target="tools\net5.0\any" />
-    <file src="..\..\bin\net5.0\*.xml" target="tools\net5.0\any" />
-    <file src="..\..\bin\net5.0\*.pdb" target="tools\net5.0\any" />
-    <file src="..\..\bin\net5.0\*.config" target="tools\net5.0\any" />
-    <file src="..\..\bin\net5.0\*.runtimeconfig.json" target="tools\net5.0\any" />
     <!-- .NET Core 3.1 -->
     <file src="..\..\bin\netcoreapp3.1\*.dll" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.xml" target="tools\netcoreapp3.1\any" />

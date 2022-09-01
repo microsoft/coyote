@@ -17,9 +17,6 @@
       <group targetFramework=".NET6.0">
         <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
       </group>
-      <group targetFramework=".NET5.0">
-        <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
-      </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="System.Threading.Tasks.Extensions" version="4.5.4"/>
       </group>
@@ -37,10 +34,6 @@
     <file src="..\..\bin\net6.0\Microsoft.Coyote.dll" target="lib\net6.0" />
     <file src="..\..\bin\net6.0\Microsoft.Coyote.xml" target="lib\net6.0" />
     <file src="..\..\bin\net6.0\Microsoft.Coyote.pdb" target="lib\net6.0" />
-    <!-- .NET 5.0 -->
-    <file src="..\..\bin\net5.0\Microsoft.Coyote.dll" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\Microsoft.Coyote.xml" target="lib\net5.0" />
-    <file src="..\..\bin\net5.0\Microsoft.Coyote.pdb" target="lib\net5.0" />
     <!-- .NET Core 3.1 -->
     <file src="..\..\bin\netcoreapp3.1\*.dll" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.xml" target="lib\netcoreapp3.1" />

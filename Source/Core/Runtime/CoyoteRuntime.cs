@@ -343,9 +343,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 try
                 {
-                    // Configures the execution context of the current thread with data
-                    // related to the runtime and the operation executed by this thread.
-                    this.SetCurrentExecutionContext(op);
                     this.StartOperation(op, null);
 
                     Task task = Task.CompletedTask;
@@ -452,9 +449,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     try
                     {
-                        // Configures the execution context of the current thread with data
-                        // related to the runtime and the operation executed by this thread.
-                        this.SetCurrentExecutionContext(op);
                         this.StartOperation(op, handshakeSync);
                         if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                         {
@@ -512,9 +506,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     try
                     {
-                        // Configures the execution context of the current thread with data
-                        // related to the runtime and the operation executed by this thread.
-                        this.SetCurrentExecutionContext(op);
                         this.StartOperation(op, handshakeSync);
                         if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                         {
@@ -801,6 +792,10 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private void StartOperation(ControlledOperation op, ManualResetEventSlim handshakeSync)
         {
+            // Configures the execution context of the current thread with data
+            // related to the runtime and the operation executed by this thread.
+            this.SetCurrentExecutionContext(op);
+
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("[coyote::debug] Started operation '{0}' of group '{1}' on thread '{2}'.",

@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             foreach (var group in ops.Select(op => op.Group).Where(g => !this.PrioritizedOperationGroups.Contains(g)))
             {
                 // Randomly choose a priority for this group.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
+                int index = group.IsDelayOperation ? this.PrioritizedOperationGroups.Count : this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
                 this.PrioritizedOperationGroups.Insert(index, group);
                 Debug.WriteLine("<ScheduleLog> Assigned priority '{0}' for operation group '{1}'.", index, group);
             }

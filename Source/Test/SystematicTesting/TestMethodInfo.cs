@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName assemblyName)
         {
-            Debug.WriteLine($"<Coyote> Resolving assembly '{assemblyName.Name}'.");
+            Debug.WriteLine($"[coyote::debug] Resolving assembly '{assemblyName.Name}'.");
             RuntimeLibrary runtimeLibrary = this.DependencyContext.RuntimeLibraries.FirstOrDefault(
                 runtime => string.Equals(runtime.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
             if (runtimeLibrary != null)

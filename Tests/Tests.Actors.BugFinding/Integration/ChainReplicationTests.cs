@@ -1525,7 +1525,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 .WithPrioritizationStrategy(true, 1)
                 .WithMaxSchedulingSteps(100)
                 .WithTestingIterations(5)
-                .WithIncrementalSeedGenerationEnabled()
                 .WithRandomGeneratorSeed(seed),
             expectedError: "Sequence is not sorted.",
             replay: true);

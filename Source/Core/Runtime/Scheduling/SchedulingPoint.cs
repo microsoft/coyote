@@ -10,10 +10,27 @@ namespace Microsoft.Coyote.Runtime
     /// between operations should be explored during testing.
     /// </summary>
     /// <remarks>
-    /// These methods are no-op in production.
+    /// These methods are thread-safe and no-op unless the test engine is attached.
     /// </remarks>
     public static class SchedulingPoint
     {
+        /// <summary>
+        /// Explores a possible interleaving with another controlled operation.
+        /// This is an internal interleaving that can be suppressed.
+        /// </summary>
+        internal static void Default()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                runtime.ScheduleNextOperation(SchedulingPointType.Default);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
+            }
+        }
+
         /// <summary>
         /// Explores a possible interleaving with another controlled operation.
         /// </summary>
@@ -23,6 +40,10 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
             }
         }
 
@@ -39,6 +60,10 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
             }
         }
 
@@ -60,6 +85,10 @@ namespace Microsoft.Coyote.Runtime
                 runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
                 op.LastAccessedSharedState = string.Empty;
             }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
+            }
         }
 
         /// <summary>
@@ -78,6 +107,10 @@ namespace Microsoft.Coyote.Runtime
                 op.LastAccessedSharedState = state;
                 runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
                 op.LastAccessedSharedState = string.Empty;
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            {
+                runtime.DelayOperation();
             }
         }
 

@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Started state machine on runtime '{0}' and thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Started state machine on runtime '{0}' and thread '{1}'.",
                 this.Runtime?.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.Start(ref stateMachine);
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         public void SetResult()
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set state machine task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Set state machine task '{0}' from thread '{1}'.",
                 this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult();
         }
@@ -127,9 +127,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         private void AssignStateMachineTask(Task builderTask)
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Assigned state machine task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
                 builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.OnAsyncStateMachineScheduleMoveNext(builderTask);
+            this.Runtime.RegisterKnownControlledTask(builderTask);
         }
     }
 
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Started state machine on runtime '{0}' and thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Started state machine on runtime '{0}' and thread '{1}'.",
                 this.Runtime?.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.Start(ref stateMachine);
         }
@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <param name="result">The result to use to complete the task.</param>
         public void SetResult(TResult result)
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Set state machine task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Set state machine task '{0}' from thread '{1}'.",
                 this.MethodBuilder.Task.Id, Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult(result);
         }
@@ -252,9 +252,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         private void AssignStateMachineTask(Task<TResult> builderTask)
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Assigned state machine task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
                 builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.OnAsyncStateMachineScheduleMoveNext(builderTask);
+            this.Runtime.RegisterKnownControlledTask(builderTask);
         }
     }
 }

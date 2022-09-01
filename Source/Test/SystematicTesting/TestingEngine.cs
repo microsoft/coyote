@@ -379,13 +379,9 @@ namespace Microsoft.Coyote.SystematicTesting
                             break;
                         }
 
-                        if (this.Scheduler.ValueGenerator != null && this.Configuration.IsSchedulingSeedIncremental)
-                        {
-                            // Increments the seed in the random number generator (if one is used), to
-                            // capture the seed used by the scheduling strategy in the next iteration.
-                            this.Scheduler.ValueGenerator.Seed += 1;
-                        }
-
+                        // Increments the seed in the random number generator, to capture the seed used
+                        // by the scheduling strategy in the next iteration.
+                        this.Scheduler.ValueGenerator.Seed++;
                         iteration++;
                     }
 
@@ -495,13 +491,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     if (runtimeLogger != null)
                     {
                         this.ReadableTrace = string.Empty;
-                        if (this.Configuration.IsTelemetryEnabled)
-                        {
-                            this.ReadableTrace += $"<TelemetryLog> Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.\n";
-                        }
-
                         this.ReadableTrace += runtimeLogger.ToString();
-                        this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
+                        this.ReadableTrace += this.TestReport.GetText(this.Configuration, "[coyote::report]");
                     }
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)

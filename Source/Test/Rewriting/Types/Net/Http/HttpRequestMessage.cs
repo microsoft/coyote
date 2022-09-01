@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
                     {
                         // Assigns a header containing the identifier of the currently executing runtime.
                         string runtimeId = runtime.Id.ToString();
-                        IO.Debug.WriteLine("<Coyote> Assigned runtime '{0}' to the '{1} {2}' request from thread '{3}'.",
+                        IO.Debug.WriteLine("[coyote::debug] Assigned runtime '{0}' to the '{1} {2}' request from thread '{3}'.",
                             runtimeId, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
                         request.Headers.Add(HttpRequestHeader.RuntimeId, runtimeId);
                     }
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
                         var op = runtime.GetExecutingOperation();
                         if (op != null)
                         {
-                            IO.Debug.WriteLine("<Coyote> Assigned operation '{0}' to the '{1} {2}' request from thread '{3}'.",
+                            IO.Debug.WriteLine("[coyote::debug] Assigned operation '{0}' to the '{1} {2}' request from thread '{3}'.",
                                 op.Name, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);
                             request.Headers.Add(HttpRequestHeader.SourceOperationId, op.Id.ToString());
                         }

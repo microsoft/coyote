@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Runtime;
 
 using SystemConcurrent = System.Collections.Concurrent;
 using SystemGenerics = System.Collections.Generic;
@@ -22,13 +23,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+        public static int get_Count(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            return concurrentDictionary.Count;
+            SchedulingPoint.Default();
+            return instance.Count;
         }
 
         /// <summary>
@@ -37,13 +38,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static bool get_IsEmpty(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+        public static bool get_IsEmpty(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            return concurrentDictionary.IsEmpty;
+            SchedulingPoint.Default();
+            return instance.IsEmpty;
         }
 
         /// <summary>
@@ -52,14 +53,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static TValue get_Item(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue get_Item(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            return concurrentDictionary[key];
+            SchedulingPoint.Default();
+            return instance[key];
         }
 
         /// <summary>
@@ -68,14 +69,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static void set_Item(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static void set_Item(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue value)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            concurrentDictionary[key] = value;
+            SchedulingPoint.Default();
+            instance[key] = value;
         }
 
         /// <summary>
@@ -85,13 +86,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
         public static SystemGenerics.ICollection<TKey> get_Keys(
-            SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            return concurrentDictionary.Keys;
+            SchedulingPoint.Default();
+            return instance.Keys;
         }
 
         /// <summary>
@@ -101,13 +102,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
         public static SystemGenerics.ICollection<TValue> get_Values(
-            SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Helper.Interleave();
-            return concurrentDictionary.Values;
+            SchedulingPoint.Default();
+            return instance.Values;
         }
 
         /// <summary>
@@ -115,11 +116,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// already exist, or updates a key/value pair in the concurrent dictionary
         /// if the key already exists.
         /// </summary>
-        public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory)
         {
-            Helper.Interleave();
-            return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory);
+            SchedulingPoint.Default();
+            return instance.AddOrUpdate(key, addValueFactory, updateValueFactory);
         }
 
         /// <summary>
@@ -127,11 +128,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// already exist, or updates a key/value pair in the concurrent dictionary
         /// if the key already exists.
         /// </summary>
-        public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory)
         {
-            Helper.Interleave();
-            return concurrentDictionary.AddOrUpdate(key, addValue, updateValueFactory);
+            SchedulingPoint.Default();
+            return instance.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
 #if NET || NETCOREAPP3_1
@@ -140,64 +141,64 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// already exist, or updates a key/value pair in the concurrent dictionary
         /// if the key already exists.
         /// </summary>
-        public static TValue AddOrUpdate<TArg>(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue AddOrUpdate<TArg>(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TArg, TValue> addValueFactory, Func<TKey, TValue, TArg, TValue> updateValueFactory,
             TArg factoryArgument)
         {
-            Helper.Interleave();
-            return concurrentDictionary.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
+            SchedulingPoint.Default();
+            return instance.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
         }
 #endif
 
         /// <summary>
         /// Removes all keys and values from the concurrent dictionary.
         /// </summary>
-        public static void Clear(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+        public static void Clear(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            Helper.Interleave();
-            concurrentDictionary.Clear();
+            SchedulingPoint.Default();
+            instance.Clear();
         }
 
         /// <summary>
         /// Determines whether the concurrent dictionary contains the specified key.
         /// </summary>
-        public static bool ContainsKey(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool ContainsKey(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key)
         {
-            Helper.Interleave();
-            return concurrentDictionary.ContainsKey(key);
+            SchedulingPoint.Default();
+            return instance.ContainsKey(key);
         }
 
         /// <summary>
         /// Returns an enumerator that iterates through the concurrent dictionary.
         /// </summary>
         public static SystemGenerics.IEnumerator<SystemGenerics.KeyValuePair<TKey, TValue>> GetEnumerator(
-            SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            Helper.Interleave();
-            return concurrentDictionary.GetEnumerator();
+            SchedulingPoint.Default();
+            return instance.GetEnumerator();
         }
 
         /// <summary>
         /// Adds a key/value pair to the concurrent dictionary if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.
         /// </summary>
-        public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TValue> valueFactory)
         {
-            Helper.Interleave();
-            return concurrentDictionary.GetOrAdd(key, valueFactory);
+            SchedulingPoint.Default();
+            return instance.GetOrAdd(key, valueFactory);
         }
 
         /// <summary>
         /// Adds a key/value pair to the concurrent dictionary if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.
         /// </summary>
-        public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue value)
         {
-            Helper.Interleave();
-            return concurrentDictionary.GetOrAdd(key, value);
+            SchedulingPoint.Default();
+            return instance.GetOrAdd(key, value);
         }
 
 #if NET || NETCOREAPP3_1
@@ -205,11 +206,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// Adds a key/value pair to the concurrent dictionary if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.
         /// </summary>
-        public static TValue GetOrAdd<TArg>(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static TValue GetOrAdd<TArg>(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TArg, TValue> valueFactory, TArg factoryArgument)
         {
-            Helper.Interleave();
-            return concurrentDictionary.GetOrAdd(key, valueFactory, factoryArgument);
+            SchedulingPoint.Default();
+            return instance.GetOrAdd(key, valueFactory, factoryArgument);
         }
 #endif
 
@@ -217,42 +218,42 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// Copies the key and value pairs stored in the concurrent dictionary to a new array.
         /// </summary>
         public static SystemGenerics.KeyValuePair<TKey, TValue>[] ToArray(
-            SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            Helper.Interleave();
-            return concurrentDictionary.ToArray();
+            SchedulingPoint.Default();
+            return instance.ToArray();
         }
 
         /// <summary>
         /// Attempts to add the specified key and value to the concurrent dictionary.
         /// </summary>
-        public static bool TryAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool TryAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue value)
         {
-            Helper.Interleave();
-            return concurrentDictionary.TryAdd(key, value);
+            SchedulingPoint.Default();
+            return instance.TryAdd(key, value);
         }
 
         /// <summary>
         /// Attempts to get the value associated with the specified key
         /// from the concurrent dictionary.
         /// </summary>
-        public static bool TryGetValue(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool TryGetValue(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, out TValue value)
         {
-            Helper.Interleave();
-            return concurrentDictionary.TryGetValue(key, out value);
+            SchedulingPoint.Default();
+            return instance.TryGetValue(key, out value);
         }
 
         /// <summary>
         /// Attempts to remove and return the value that has the specified key
         /// from the concurrent dictionary.
         /// </summary>
-        public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, out TValue value)
         {
-            Helper.Interleave();
-            return concurrentDictionary.TryRemove(key, out value);
+            SchedulingPoint.Default();
+            return instance.TryRemove(key, out value);
         }
 
 #if NET
@@ -260,22 +261,22 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// Attempts to remove and return the value that has the specified key
         /// from the concurrent dictionary.
         /// </summary>
-        public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             SystemGenerics.KeyValuePair<TKey, TValue> item)
         {
-            Helper.Interleave();
-            return concurrentDictionary.TryRemove(item);
+            SchedulingPoint.Default();
+            return instance.TryRemove(item);
         }
 #endif
 
         /// <summary>
         /// Updates the value associated with key to newValue if the existing value with key is equal to comparisonValue.
         /// </summary>
-        public static bool TryUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+        public static bool TryUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue newValue, TValue comparisonValue)
         {
-            Helper.Interleave();
-            return concurrentDictionary.TryUpdate(key, newValue, comparisonValue);
+            SchedulingPoint.Default();
+            return instance.TryUpdate(key, newValue, comparisonValue);
         }
     }
 #pragma warning restore CA1000 // Do not declare static members on generic types

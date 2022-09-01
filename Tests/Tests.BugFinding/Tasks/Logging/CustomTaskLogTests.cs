@@ -40,17 +40,17 @@ namespace Microsoft.Coyote.BugFinding.Tests
 ..... Using the random[seed:0] exploration strategy.
 ... Running test iterations:
 ..... Iteration #1
-<TestLog> Runtime '' started test on thread ''.
+[coyote::test] Runtime '' started test on thread ''.
 Hello world!
-<TestLog> Exploration finished [reached the end of the test method].
+[coyote::test] Exploration finished [reached the end of the test method].
 ..... Iteration #2
-<TestLog> Runtime '' started test on thread ''.
+[coyote::test] Runtime '' started test on thread ''.
 Hello world!
-<TestLog> Exploration finished [reached the end of the test method].
+[coyote::test] Exploration finished [reached the end of the test method].
 ..... Iteration #3
-<TestLog> Runtime '' started test on thread ''.
+[coyote::test] Runtime '' started test on thread ''.
 Hello world!
-<TestLog> Exploration finished [reached the end of the test method].
+[coyote::test] Exploration finished [reached the end of the test method].
 ";
             expected = expected.RemoveNonDeterministicValues();
 
@@ -91,21 +91,21 @@ Hello world!
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
-                string expected = @"<TestLog> Runtime '' started test on thread ''.
+                string expected = @"[coyote::test] Runtime '' started test on thread ''.
 Task '' is running.
 Task '' completed.
 Task '' is running.
 Task '' completed.
-<ErrorLog> Reached test assertion.
-<TestLog> Exploration finished [found a bug using the 'random' strategy].
-<StrategyLog> Testing statistics:
-<StrategyLog> Found 1 bug.
-<StrategyLog> Scheduling statistics:
-<StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
-<StrategyLog> Found 100.00% buggy schedules.
-<StrategyLog> Controlled 3 operations: 3 (), 3 (), 3 ().
-<StrategyLog> Degree of concurrency: 2 (), 2 (), 2 ().
-<StrategyLog> Number of scheduling decisions in fair terminating schedules: 4 (), 4 (), 4 ().";
+[coyote::error] Reached test assertion.
+[coyote::test] Exploration finished [found a bug using the 'random' strategy].
+[coyote::report] Testing statistics:
+[coyote::report] Found 1 bug.
+[coyote::report] Scheduling statistics:
+[coyote::report] Explored 1 schedule: 1 fair and 0 unfair.
+[coyote::report] Found 100.00% buggy schedules.
+[coyote::report] Controlled 3 operations: 3 (), 3 (), 3 ().
+[coyote::report] Degree of concurrency: 2 (), 2 (), 2 ().
+[coyote::report] Number of scheduling decisions in fair terminating schedules: 4 (), 4 (), 4 ().";
 
                 string actual = engine.ReadableTrace.ToString();
                 actual = actual.RemoveNonDeterministicValues();

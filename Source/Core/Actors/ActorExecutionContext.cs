@@ -269,13 +269,7 @@ namespace Microsoft.Coyote.Actors
         protected ActorOperation GetOrCreateActorOperation(ActorId id, Actor actor)
         {
             var op = this.Runtime.GetOperationWithId<ActorOperation>(id.Value);
-            if (op is null)
-            {
-                op = new ActorOperation(id.Value, id.Name, actor);
-                this.Runtime.RegisterOperation(op);
-            }
-
-            return op;
+            return op ?? new ActorOperation(id.Value, id.Name, actor, this.Runtime);
         }
 
         /// <inheritdoc/>
@@ -381,13 +375,11 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                var op = actor.Operation;
-                op.Status = OperationStatus.None;
                 this.Runtime.TaskFactory.StartNew(async state =>
                 {
                     await this.RunActorEventHandlerAsync(actor, initialEvent, isFresh);
                 },
-                op,
+                actor.Operation,
                 default,
                 this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
                 this.Runtime.TaskFactory.Scheduler);
@@ -1232,8 +1224,6 @@ namespace Microsoft.Coyote.Actors
             /// <param name="syncCaller">Caller actor that is blocked for quiescence.</param>
             private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
             {
-                var op = actor.Operation;
-                op.Status = OperationStatus.None;
                 this.Runtime.TaskFactory.StartNew(async state =>
                 {
                     try
@@ -1256,7 +1246,7 @@ namespace Microsoft.Coyote.Actors
                     }
                     catch (Exception ex)
                     {
-                        this.Runtime.ProcessUnhandledExceptionInOperation(op, ex);
+                        this.Runtime.ProcessUnhandledExceptionInOperation(actor.Operation, ex);
                     }
                     finally
                     {
@@ -1266,7 +1256,7 @@ namespace Microsoft.Coyote.Actors
                         }
                     }
                 },
-                op,
+                actor.Operation,
                 default,
                 this.Runtime.TaskFactory.CreationOptions | TaskCreationOptions.DenyChildAttach,
                 this.Runtime.TaskFactory.Scheduler);

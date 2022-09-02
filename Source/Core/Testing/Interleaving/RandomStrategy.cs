@@ -33,7 +33,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            int idx = this.RandomValueGenerator.Next(ops.Count());
+            int idx = 0;
+            if (ops.Skip(1).Any())
+            {
+                var groups = ops.Select(op => op.Group).Distinct();
+                if (groups.Skip(1).Any())
+                {
+                    idx = this.RandomValueGenerator.Next(groups.Count());
+                    OperationGroup nextGroup = groups.ElementAt(idx);
+                    ops = ops.Where(op => nextGroup.IsMember(op));
+                }
+
+                idx = this.RandomValueGenerator.Next(ops.Count());
+            }
+
             next = ops.ElementAt(idx);
             this.StepCount++;
             return true;

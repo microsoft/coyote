@@ -458,7 +458,7 @@ namespace Microsoft.Coyote.Runtime
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?
-                new DelayOperation(operationId, $"Delay({operationId})", delay, group) :
+                new DelayOperation(operationId, $"Delay({operationId})", delay) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
             this.RegisterOperation(op);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))

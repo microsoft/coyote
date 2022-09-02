@@ -21,11 +21,5 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Delay = delay > int.MaxValue ? int.MaxValue : (int)delay;
         }
-
-        internal DelayOperation(ulong operationId, string name, uint delay, OperationGroup group)
-            : base(operationId, name, group)
-        {
-            this.Delay = delay > int.MaxValue ? int.MaxValue : (int)delay;
-        }
     }
 }

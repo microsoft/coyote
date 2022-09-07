@@ -699,7 +699,7 @@ namespace Microsoft.Coyote.Actors
             if (innerException.GetBaseException() is ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
+                Debug.WriteLine($"[coyote::warning] {innerException.GetType().Name} was thrown from {this.Id}.");
             }
             else
             {

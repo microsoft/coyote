@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Runtime
         /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
-            IO.Debug.WriteLine("<Coyote> Enqueuing task '{0}' from thread '{1}'.",
+            IO.Debug.WriteLine("[coyote::debug] Enqueuing task '{0}' from thread '{1}'.",
                 task.Id, Thread.CurrentThread.ManagedThreadId);
             this.Runtime?.Schedule(task);
         }

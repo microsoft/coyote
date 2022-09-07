@@ -106,12 +106,12 @@ namespace Microsoft.Coyote.Telemetry
                 {
                     try
                     {
-                        IO.Debug.WriteLine("<TelemetryLog> Tracking event: {0}.", name);
+                        IO.Debug.WriteLine("[coyote::telemetry] Tracking event: {0}.", name);
                         this.Client.TrackEvent(new EventTelemetry(name));
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("<TelemetryLog> Error sending event: {0}", ex.Message);
+                        IO.Debug.WriteLine("[coyote::telemetry] Error sending event: {0}", ex.Message);
                     }
                 }
             }
@@ -128,12 +128,12 @@ namespace Microsoft.Coyote.Telemetry
                 {
                     try
                     {
-                        IO.Debug.WriteLine("<TelemetryLog> Tracking metric: {0}={1}.", name, value);
+                        IO.Debug.WriteLine("[coyote::telemetry] Tracking metric: {0}={1}.", name, value);
                         this.Client.TrackMetric(new MetricTelemetry(name, value));
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("<TelemetryLog> Error sending metric: {0}", ex.Message);
+                        IO.Debug.WriteLine("[coyote::telemetry] Error sending metric: {0}", ex.Message);
                     }
                 }
             }
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Telemetry
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("<TelemetryLog> Error flushing: {0}", ex.Message);
+                        IO.Debug.WriteLine("[coyote::telemetry] Error flushing: {0}", ex.Message);
                     }
                 }
             }

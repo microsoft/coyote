@@ -23,8 +23,8 @@ namespace Microsoft.Coyote.Web
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpOperation"/> class.
         /// </summary>
-        private HttpOperation(ulong operationId, HttpMethod method, string path)
-            : base(operationId, $"{method}HttpOp({operationId})")
+        private HttpOperation(ulong operationId, HttpMethod method, string path, CoyoteRuntime runtime)
+            : base(operationId, $"{method}HttpOp({operationId})", null, runtime)
         {
             this.Method = method;
             this.Path = path;
@@ -39,8 +39,7 @@ namespace Microsoft.Coyote.Web
 #pragma warning restore CA1801 // Parameter not used
         {
             ulong operationId = runtime.GetNextOperationId();
-            var op = new HttpOperation(operationId, method, path);
-            runtime.RegisterOperation(op);
+            var op = new HttpOperation(operationId, method, path, runtime);
             if (runtime.GetExecutingOperation() is null)
             {
                 op.IsSourceUncontrolled = true;

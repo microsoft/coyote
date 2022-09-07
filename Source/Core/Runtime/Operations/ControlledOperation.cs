@@ -13,17 +13,22 @@ namespace Microsoft.Coyote.Runtime
     internal class ControlledOperation : IEquatable<ControlledOperation>, IDisposable
     {
         /// <summary>
-        /// The unique id of the operation.
+        /// The runtime managing this operation.
+        /// </summary>
+        internal readonly CoyoteRuntime Runtime;
+
+        /// <summary>
+        /// The unique id of this operation.
         /// </summary>
         internal ulong Id { get; }
 
         /// <summary>
-        /// The unique name of the operation.
+        /// The name of this operation.
         /// </summary>
         internal string Name { get; }
 
         /// <summary>
-        /// The status of the operation. An operation can be scheduled only
+        /// The status of this operation. An operation can be scheduled only
         /// if it is <see cref="OperationStatus.Enabled"/>.
         /// </summary>
         internal OperationStatus Status;
@@ -35,14 +40,14 @@ namespace Microsoft.Coyote.Runtime
         internal readonly OperationGroup Group;
 
         /// <summary>
-        /// Set of dependencies that must get satisfied before this operation can resume executing.
+        /// List of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
-        internal readonly HashSet<object> Dependencies;
+        internal readonly List<Func<bool>> Dependencies;
 
         /// <summary>
         /// Synchronization mechanism for controlling the execution of this operation.
         /// </summary>
-        internal ManualResetEventSlim SyncEvent;
+        private ManualResetEventSlim SyncEvent;
 
         /// <summary>
         /// The type of the last encountered scheduling point.
@@ -87,26 +92,30 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group, CoyoteRuntime runtime)
         {
+            this.Runtime = runtime;
             this.Id = operationId;
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
-            this.Dependencies = new HashSet<object>();
+            this.Dependencies = new List<Func<bool>>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
+
+            // Register this operation with the runtime.
+            this.Runtime.RegisterNewOperation(this);
         }
 
         /// <summary>
-        /// Pauses the execution of the operation until it receives a signal.
+        /// Pauses the execution of this operation until it receives a signal.
         /// </summary>
         /// <remarks>
-        /// It is assumed that this method is invoked by the same thread executing the operation.
+        /// It is assumed that this method is invoked by the same thread executing this operation.
         /// </remarks>
         internal void WaitSignal()
         {
@@ -115,21 +124,21 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Signals the operation to resume its execution.
+        /// Signals this operation to resume its execution.
         /// </summary>
         internal void Signal() => this.SyncEvent.Set();
 
         /// <summary>
-        /// Sets the specified dependency.
+        /// Sets a callback that returns true when a dependency has been satisfied.
         /// </summary>
-        internal void SetDependency(object dependency, bool isControlled)
+        internal void SetDependencyCallback(Func<bool> callback, bool isControlled)
         {
-            this.Dependencies.Add(dependency);
+            this.Dependencies.Add(callback);
             this.IsAnyDependencyUncontrolled |= !isControlled;
         }
 
         /// <summary>
-        /// Unblocks the operation by clearing its dependencies.
+        /// Unblocks this operation by clearing its dependencies.
         /// </summary>
         internal void Unblock()
         {

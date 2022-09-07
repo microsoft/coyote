@@ -70,12 +70,6 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// If true, the seed will increment in each testing iteration.
-        /// </summary>
-        [DataMember]
-        internal bool IsSchedulingSeedIncremental;
-
-        /// <summary>
         /// If this option is enabled and uncontrolled concurrency is detected, then the
         /// runtime will attempt to partially control the concurrency of the application,
         /// instead of immediately failing with an error.
@@ -275,7 +269,6 @@ namespace Microsoft.Coyote
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
-            this.IsSchedulingSeedIncremental = false;
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
@@ -590,16 +583,6 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with incremental seed generation enabled or disabled.
-        /// </summary>
-        /// <param name="isIncremental">If true, then incremental seed generation is used.</param>
-        public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
-        {
-            this.IsSchedulingSeedIncremental = isIncremental;
-            return this;
-        }
-
-        /// <summary>
         /// Updates the configuration so that the tester continues running test iterations
         /// up to a bound, even if a bug is already found.
         /// </summary>
@@ -629,7 +612,6 @@ namespace Microsoft.Coyote
         /// Updates the configuration with debug logging enabled or disabled.
         /// </summary>
         /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
         {
             this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;

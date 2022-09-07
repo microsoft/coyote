@@ -18,8 +18,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorOperation"/> class.
         /// </summary>
-        internal ActorOperation(ulong operationId, string name, Actor actor)
-            : base(operationId, name)
+        internal ActorOperation(ulong operationId, string name, Actor actor, CoyoteRuntime runtime)
+            : base(operationId, name, null, runtime)
         {
             this.Actor = actor;
         }

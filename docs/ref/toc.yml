@@ -53,10 +53,10 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
-        - name: WithIncrementalSeedGenerationEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled
         - name: WithVerbosityEnabled
           link: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
+        - name: WithDebugLoggingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithDebugLoggingEnabled
         - name: WithActivityCoverageReported
           link: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported
         - name: WithTraceVisualizationEnabled
@@ -779,6 +779,36 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/Logger
       - name: OnFailureHandler
         link: ref/Microsoft.Coyote.Runtime/OnFailureHandler
+      - name: IOperationBuilder
+        link: ref/Microsoft.Coyote.Runtime/IOperationBuilder
+        subfolderitems:
+        - name: Name
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/Name
+        - name: GroupId
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/GroupId
+        - name: HashedStateCallback
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/HashedStateCallback
+      - name: Operation
+        link: ref/Microsoft.Coyote.Runtime/Operation
+        subfolderitems:
+        - name: GetNextId
+          link: ref/Microsoft.Coyote.Runtime/Operation/GetNextId
+        - name: CreateNext
+          link: ref/Microsoft.Coyote.Runtime/Operation/CreateNext
+        - name: CreateFrom
+          link: ref/Microsoft.Coyote.Runtime/Operation/CreateFrom
+        - name: Start
+          link: ref/Microsoft.Coyote.Runtime/Operation/Start
+        - name: PauseUntil
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil
+        - name: PauseUntilCompleted
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted
+        - name: ScheduleNext
+          link: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext
+        - name: Complete
+          link: ref/Microsoft.Coyote.Runtime/Operation/Complete
+        - name: TryReset
+          link: ref/Microsoft.Coyote.Runtime/Operation/TryReset
       - name: RuntimeProvider
         link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:

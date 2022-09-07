@@ -19,7 +19,7 @@ public static class SchedulingPoint
 
 ## Remarks
 
-These methods are no-op in production.
+These methods are thread-safe and no-op unless the test engine is attached.
 
 ## See Also
 

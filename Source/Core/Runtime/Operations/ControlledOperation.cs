@@ -126,7 +126,6 @@ namespace Microsoft.Coyote.Runtime
             // so keep executing them until the queue is drained.
             while (this.Continuations.Count > 0)
             {
-                Console.WriteLine($">>> Executing next continuation for {this}");
                 var nextContinuation = this.Continuations.Dequeue();
                 nextContinuation();
             }

@@ -290,6 +290,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var checkLockRacesOption = new Option<bool>(
+                name: "--check-lock-races",
+                description: "Enables exploration of race conditions when accessing lock-based synchronization primitives.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var reduceSharedStateOption = new Option<bool>(
                 name: "--reduce-shared-state",
                 description: "Enables shared state reduction based on 'READ' and 'WRITE' scheduling points.")
@@ -315,7 +322,7 @@ namespace Microsoft.Coyote.Cli
             var timeoutDelayOption = new Option<int>(
                 name: "--timeout-delay",
                 getDefaultValue: () => (int)configuration.TimeoutDelay,
-                description: "Controls the frequency of timeouts by built-in timers (not a unit of time).")
+                description: "Controls the frequency of timeouts (not a unit of time).")
             {
                 ArgumentHelpName = "DELAY"
             };
@@ -326,6 +333,15 @@ namespace Microsoft.Coyote.Cli
                 description: "Controls how much time (in ms) to wait before reporting a potential deadlock.")
             {
                 ArgumentHelpName = "TIMEOUT"
+            };
+
+            var maxFuzzDelayOption = new Option<int>(
+                name: "--max-fuzz-delay",
+                getDefaultValue: () => (int)configuration.MaxFuzzingDelay,
+                description: "Controls the maximum time (in number of busy loops) an operation might " +
+                    "get delayed during systematic fuzzing.")
+            {
+                ArgumentHelpName = "DELAY"
             };
 
             var uncontrolledConcurrencyResolutionAttemptsOption = new Option<int>(
@@ -420,6 +436,7 @@ namespace Microsoft.Coyote.Cli
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             deadlockTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            maxFuzzDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
 
@@ -439,11 +456,13 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, coverageOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
+            this.AddOption(command, checkLockRacesOption);
             this.AddOption(command, reduceSharedStateOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
             this.AddOption(command, deadlockTimeoutOption);
+            this.AddOption(command, maxFuzzDelayOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
@@ -859,6 +878,9 @@ namespace Microsoft.Coyote.Cli
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
                         break;
+                    case "check-lock-races":
+                        this.Configuration.IsLockAccessRaceCheckingEnabled = true;
+                        break;
                     case "reduce-shared-state":
                         this.Configuration.IsSharedStateReductionEnabled = true;
                         break;
@@ -874,6 +896,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "deadlock-timeout":
                         this.Configuration.DeadlockTimeout = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "max-fuzz-delay":
+                        this.Configuration.MaxFuzzingDelay = (uint)result.GetValueOrDefault<int>();
                         break;
                     case "resolve-uncontrolled-concurrency-attempts":
                         this.Configuration.UncontrolledConcurrencyResolutionAttempts = (uint)result.GetValueOrDefault<int>();

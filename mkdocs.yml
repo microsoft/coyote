@@ -119,6 +119,8 @@ nav:
         - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
         - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
+        - WithMaxFuzzingDelay: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay.md
+        - WithLockAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled.md
         - WithSharedStateReductionEnabled: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
@@ -138,6 +140,7 @@ nav:
         - SchedulingStrategy: ref/Microsoft.Coyote/Configuration/SchedulingStrategy.md
         - TestingIterations: ref/Microsoft.Coyote/Configuration/TestingIterations.md
         - RandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed.md
+        - MaxFuzzingDelay: ref/Microsoft.Coyote/Configuration/MaxFuzzingDelay.md
         - MaxUnfairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps.md
         - MaxFairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps.md
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
@@ -531,12 +534,15 @@ nav:
         - Start: ref/Microsoft.Coyote.Runtime/Operation/Start.md
         - PauseUntil: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil.md
         - PauseUntilCompleted: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted.md
+        - PauseUntilAsync: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilAsync.md
+        - PauseUntilCompletedAsync: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync.md
         - ScheduleNext: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext.md
         - Complete: ref/Microsoft.Coyote.Runtime/Operation/Complete.md
         - TryReset: ref/Microsoft.Coyote.Runtime/Operation/TryReset.md
       - RuntimeProvider:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md
         - Create: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create.md
+        - Current: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current.md
       - SchedulingPoint:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
         - Interleave: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Interleave.md
@@ -545,6 +551,7 @@ nav:
         - Write: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Write.md
         - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
         - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
+      - TaskServices: ref/Microsoft.Coyote.Runtime/TaskServices.md
     - Microsoft.Coyote.Specifications:
       - Namespace Overview: ref/Microsoft.Coyote.SpecificationsNamespace.md
       - Monitor:

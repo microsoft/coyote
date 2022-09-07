@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.Count;
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.IsEmpty;
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance[key];
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance[key] = value;
         }
 
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.Keys;
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.Values;
         }
 
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.AddOrUpdate(key, addValueFactory, updateValueFactory);
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static TValue AddOrUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             TKey key, Func<TKey, TArg, TValue> addValueFactory, Func<TKey, TValue, TArg, TValue> updateValueFactory,
             TArg factoryArgument)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
         }
 #endif
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Clear(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.Clear();
         }
 
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool ContainsKey(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.ContainsKey(key);
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static SystemGenerics.IEnumerator<SystemGenerics.KeyValuePair<TKey, TValue>> GetEnumerator(
             SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetEnumerator();
         }
 
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TValue> valueFactory)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetOrAdd(key, valueFactory);
         }
 
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static TValue GetOrAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue value)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetOrAdd(key, value);
         }
 
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static TValue GetOrAdd<TArg>(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, Func<TKey, TArg, TValue> valueFactory, TArg factoryArgument)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetOrAdd(key, valueFactory, factoryArgument);
         }
 #endif
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static SystemGenerics.KeyValuePair<TKey, TValue>[] ToArray(
             SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.ToArray();
         }
 
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool TryAdd(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue value)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryAdd(key, value);
         }
 
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool TryGetValue(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, out TValue value)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryGetValue(key, out value);
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, out TValue value)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryRemove(key, out value);
         }
 
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool TryRemove(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             SystemGenerics.KeyValuePair<TKey, TValue> item)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryRemove(item);
         }
 #endif
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         public static bool TryUpdate(SystemConcurrent.ConcurrentDictionary<TKey, TValue> instance,
             TKey key, TValue newValue, TValue comparisonValue)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryUpdate(key, newValue, comparisonValue);
         }
     }

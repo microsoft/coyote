@@ -1,6 +1,6 @@
 # Operation.PauseUntil method
 
-Pauses the currently executing operation until the specified condition gets satisfied.
+Pauses the currently executing operation until the specified condition gets resolved.
 
 ```csharp
 public static void PauseUntil(Func<bool> condition)

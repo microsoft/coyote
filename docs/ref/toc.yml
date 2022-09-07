@@ -35,6 +35,10 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
         - name: WithSystematicFuzzingFallbackEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
+        - name: WithMaxFuzzingDelay
+          link: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay
+        - name: WithLockAccessRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -73,6 +77,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/TestingIterations
         - name: RandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed
+        - name: MaxFuzzingDelay
+          link: ref/Microsoft.Coyote/Configuration/MaxFuzzingDelay
         - name: MaxUnfairSchedulingSteps
           link: ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
         - name: MaxFairSchedulingSteps
@@ -803,6 +809,10 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil
         - name: PauseUntilCompleted
           link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted
+        - name: PauseUntilAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilAsync
+        - name: PauseUntilCompletedAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync
         - name: ScheduleNext
           link: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext
         - name: Complete
@@ -814,6 +824,8 @@ toc:
         subfolderitems:
         - name: Create
           link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create
+        - name: Current
+          link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current
       - name: SchedulingPoint
         link: ref/Microsoft.Coyote.Runtime/SchedulingPoint
         subfolderitems:
@@ -829,6 +841,8 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
+      - name: TaskServices
+        link: ref/Microsoft.Coyote.Runtime/TaskServices
     - name: Microsoft.Coyote.Specifications
       link: ref/Microsoft.Coyote.SpecificationsNamespace
       subfolderitems:

@@ -19,29 +19,24 @@ namespace Microsoft.Coyote.Runtime
         Enabled,
 
         /// <summary>
-        /// The operation is waiting for all of its dependencies to complete.
+        /// The operation is paused until a dependency is resolved.
         /// </summary>
-        BlockedOnWaitAll,
+        Paused,
 
         /// <summary>
-        /// The operation is waiting for any of its dependencies to complete.
+        /// The operation is paused until a delay completes.
         /// </summary>
-        BlockedOnWaitAny,
+        PausedOnDelay,
 
         /// <summary>
-        /// The operation is waiting to receive an event.
+        /// The operation is paused until it acquires a resource.
         /// </summary>
-        BlockedOnReceive,
+        PausedOnResource,
 
         /// <summary>
-        /// The operation is waiting to acquire a resource.
+        /// The operation is paused until receives an event.
         /// </summary>
-        BlockedOnResource,
-
-        /// <summary>
-        /// The operation is delayed.
-        /// </summary>
-        Delayed,
+        PausedOnReceive,
 
         /// <summary>
         /// The operation is completed.

@@ -18,7 +18,6 @@ namespace Microsoft.Coyote.Rewriting.Types
     /// </summary>
     internal static class NameCache
     {
-        internal static string RuntimeCompilerNamespace { get; } = typeof(RuntimeCompiler.AsyncTaskMethodBuilder).Namespace;
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
 
@@ -70,6 +69,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string TaskParallel { get; } = typeof(SystemTasks.Parallel).FullName;
 
         internal static string Monitor { get; } = typeof(SystemThreading.Monitor).FullName;
+        internal static string SemaphoreSlim { get; } = typeof(SystemThreading.SemaphoreSlim).FullName;
 
         internal static string GenericList { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionary { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;

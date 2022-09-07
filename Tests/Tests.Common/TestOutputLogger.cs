@@ -19,9 +19,14 @@ namespace Microsoft.Coyote.Tests.Common
         private readonly ITestOutputHelper TestOutput;
 
         /// <summary>
-        /// Saved current line since ITestOutputHelper provides no "Write" method.
+        /// Saves current line since ITestOutputHelper provides no "Write" method.
         /// </summary>
-        private readonly StringBuilder Line = new StringBuilder();
+        private readonly StringBuilder CurrentLine = new StringBuilder();
+
+        /// <summary>
+        /// Serializes access to the string writer.
+        /// </summary>
+        private readonly object Lock;
 
         /// <summary>
         /// False means don't write anything.
@@ -42,6 +47,7 @@ namespace Microsoft.Coyote.Tests.Common
         public TestOutputLogger(ITestOutputHelper output, bool isVerbose = false)
         {
             this.TestOutput = output;
+            this.Lock = new object();
             this.IsVerbose = isVerbose;
         }
 
@@ -61,7 +67,10 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                this.Line.Append(value);
+                lock (this.Lock)
+                {
+                    this.CurrentLine.Append(value);
+                }
             }
         }
 
@@ -88,7 +97,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                this.FlushLine();
+                this.FlushCurrentLine();
                 this.TestOutput.WriteLine(value);
             }
         }
@@ -102,16 +111,19 @@ namespace Microsoft.Coyote.Tests.Common
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
+            this.FlushCurrentLine();
             base.Dispose(disposing);
-            this.FlushLine();
         }
 
-        private void FlushLine()
+        private void FlushCurrentLine()
         {
-            if (this.Line.Length > 0)
+            lock (this.Lock)
             {
-                this.TestOutput.WriteLine(this.Line.ToString());
-                this.Line.Length = 0;
+                if (this.CurrentLine.Length > 0)
+                {
+                    this.TestOutput.WriteLine(this.CurrentLine.ToString());
+                    this.CurrentLine.Length = 0;
+                }
             }
         }
     }

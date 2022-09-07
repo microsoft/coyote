@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading;
+using Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -80,14 +80,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Pauses the currently executing operation until the specified condition gets satisfied.
+        /// Pauses the currently executing operation until the specified condition gets resolved.
         /// </summary>
         public static void PauseUntil(Func<bool> condition)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                runtime.PauseOperationUntil(condition);
+                runtime.PauseOperationUntil(default, condition);
             }
         }
 
@@ -102,9 +102,47 @@ namespace Microsoft.Coyote.Runtime
                 var op = runtime.GetOperationWithId(operationId);
                 if (op != null)
                 {
-                    runtime.PauseOperationUntil(() => op.Status == OperationStatus.Completed);
+                    runtime.PauseOperationUntil(default, () => op.Status == OperationStatus.Completed);
                 }
             }
+        }
+
+        /// <summary>
+        /// Asynchronously pauses the currently executing operation until the operation with the specified id completes.
+        /// If <paramref name="resumeAsynchronously"/> is set to true, then after the asynchronous pause, a new operation
+        /// will be created to execute the continuation.
+        /// </summary>
+        public static PausedOperationAwaitable PauseUntilAsync(Func<bool> condition, bool resumeAsynchronously = false)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                return runtime.PauseOperationUntilAsync(condition, resumeAsynchronously);
+            }
+
+            return new PausedOperationAwaitable(runtime, null, condition, resumeAsynchronously);
+        }
+
+        /// <summary>
+        /// Asynchronously pauses the currently executing operation until the operation with the specified id completes.
+        /// If <paramref name="resumeAsynchronously"/> is set to true, then after the asynchronous pause, a new operation
+        /// will be created to execute the continuation.
+        /// </summary>
+        public static PausedOperationAwaitable PauseUntilCompletedAsync(ulong operationId, bool resumeAsynchronously = false)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                var op = runtime.GetOperationWithId(operationId);
+                if (op is null)
+                {
+                    throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
+                }
+
+                return runtime.PauseOperationUntilAsync(() => op.Status == OperationStatus.Completed, resumeAsynchronously);
+            }
+
+            return new PausedOperationAwaitable(runtime, null, () => true, resumeAsynchronously);
         }
 
         /// <summary>
@@ -113,7 +151,22 @@ namespace Microsoft.Coyote.Runtime
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        public static void ScheduleNext() => SchedulingPoint.Default();
+        public static void ScheduleNext()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
+        }
 
         /// <summary>
         /// Completes the currently executing operation.
@@ -121,13 +174,10 @@ namespace Microsoft.Coyote.Runtime
         public static void Complete()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                ControlledOperation current = runtime.GetExecutingOperation();
-                if (current != null)
-                {
-                    runtime.CompleteOperation(current);
-                }
+                runtime.CompleteOperation(current);
             }
         }
 

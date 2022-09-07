@@ -42,5 +42,8 @@ namespace Microsoft.Coyote.Tests.Common
             text = Regex.Replace(text, @"Microsoft.Coyote.Tests.Common\.", string.Empty);
             return Regex.Replace(text, @"Microsoft\.[^+]*\+", string.Empty);
         }
+
+        public static string RemoveDebugLines(this string text) =>
+            Regex.Replace(text, @"^\[coyote::debug\].*\n", string.Empty, RegexOptions.Multiline);
     }
 }

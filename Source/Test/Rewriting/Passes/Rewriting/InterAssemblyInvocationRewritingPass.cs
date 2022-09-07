@@ -5,14 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Rewriting.Types;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 #if NET || NETCOREAPP3_1
 using HttpClient = Microsoft.Coyote.Rewriting.Types.Net.Http.HttpClient;
 #endif
-using RuntimeCompiler = Microsoft.Coyote.Runtime.CompilerServices;
+using NameCache = Microsoft.Coyote.Rewriting.Types.NameCache;
+using TaskAwaiter = Microsoft.Coyote.Runtime.CompilerServices.TaskAwaiter;
+using ValueTaskAwaiter = Microsoft.Coyote.Runtime.CompilerServices.ValueTaskAwaiter;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -80,8 +81,8 @@ namespace Microsoft.Coyote.Rewriting
                     NameCache.TaskAwaiterName, NameCache.SystemCompilerNamespace))
                 {
                     MethodReference interceptionMethod = this.CreateInterceptionMethod(
-                        typeof(RuntimeCompiler.TaskAwaiter), methodReference,
-                        nameof(RuntimeCompiler.TaskAwaiter.Wrap));
+                        typeof(TaskAwaiter), methodReference,
+                        nameof(TaskAwaiter.Wrap));
                     Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
                     Debug.WriteLine($"............. [+] {newInstruction}");
 
@@ -92,8 +93,8 @@ namespace Microsoft.Coyote.Rewriting
                     NameCache.ValueTaskAwaiterName, NameCache.SystemCompilerNamespace))
                 {
                     MethodReference interceptionMethod = this.CreateInterceptionMethod(
-                        typeof(RuntimeCompiler.ValueTaskAwaiter), methodReference,
-                        nameof(RuntimeCompiler.ValueTaskAwaiter.Wrap));
+                        typeof(ValueTaskAwaiter), methodReference,
+                        nameof(ValueTaskAwaiter.Wrap));
                     Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
                     Debug.WriteLine($"............. [+] {newInstruction}");
 

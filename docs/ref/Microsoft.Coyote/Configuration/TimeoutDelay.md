@@ -1,6 +1,6 @@
 # Configuration.TimeoutDelay property
 
-Value that controls the probability of triggering a timeout each time an operation gets delayed or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
+Value that controls the probability of triggering a timeout during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
 
 ```csharp
 public uint TimeoutDelay { get; }

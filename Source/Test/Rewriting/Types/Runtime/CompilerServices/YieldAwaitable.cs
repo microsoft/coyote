@@ -2,17 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Runtime.CompilerServices;
+using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTask = System.Threading.Tasks.Task;
 
-namespace Microsoft.Coyote.Runtime.CompilerServices
+namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
 {
     /// <summary>
     /// Provides an awaitable object that is the outcome of invoking <see cref="SystemTask.Yield"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct YieldAwaitable
     {
@@ -36,10 +35,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public YieldAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
-        /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
+        /// Provides an awaiter for an awaitable object.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct YieldAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        /// <remarks>This type is intended for compiler use only.</remarks>
+        public struct YieldAwaiter : IControllableAwaiter, SystemCompiler.ICriticalNotifyCompletion, SystemCompiler.INotifyCompletion
         {
             /// <summary>
             /// The yield awaiter.
@@ -47,7 +46,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly SystemCompiler.YieldAwaitable.YieldAwaiter Awaiter;
 
             /// <summary>
-            /// This value is always false, as yielding is always required.
+            /// True if the awaiter has completed, else false.
             /// </summary>
 #pragma warning disable CA1822 // Mark members as static
             public bool IsCompleted => false;
@@ -65,7 +64,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <summary>
-            /// Ends the await on the completed task.
+            /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public void GetResult() => this.Awaiter.GetResult();
 

@@ -80,24 +80,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Waits for the operation with the specified id to start executing.
-        /// </summary>
-        public static void WaitOperationStart(ulong operationId)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                var op = runtime.GetOperationWithId(operationId);
-                if (op is null)
-                {
-                    throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
-                }
-
-                runtime.WaitOperationStart(op);
-            }
-        }
-
-        /// <summary>
         /// Pauses the currently executing operation until the specified condition gets satisfied.
         /// </summary>
         public static void PauseUntil(Func<bool> condition)

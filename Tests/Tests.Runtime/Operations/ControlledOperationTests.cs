@@ -33,7 +33,6 @@ namespace Microsoft.Coyote.Runtime.Tests
                 });
 
                 thread.Start(operationId.Value);
-                Operation.WaitOperationStart(operationId.Value);
                 Operation.ScheduleNext();
 
                 Operation.PauseUntilCompleted(operationId.Value);

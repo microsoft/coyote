@@ -123,6 +123,12 @@ namespace Microsoft.Coyote.Runtime
         private readonly Dictionary<ulong, ControlledOperation> OperationMap;
 
         /// <summary>
+        /// Map from newly created operations that have not started executing yet
+        /// to an event handler that is set when the operation starts.
+        /// </summary>
+        private readonly Dictionary<ControlledOperation, ManualResetEventSlim> PendingStartOperationMap;
+
+        /// <summary>
         /// Map from unique controlled thread names to their corresponding operations.
         /// </summary>
         private readonly ConcurrentDictionary<string, ControlledOperation> ControlledThreads;
@@ -296,6 +302,7 @@ namespace Microsoft.Coyote.Runtime
 
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
+            this.PendingStartOperationMap = new Dictionary<ControlledOperation, ManualResetEventSlim>();
             this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new HashSet<Task>();
@@ -477,7 +484,6 @@ namespace Microsoft.Coyote.Runtime
 
             thread.Start();
 
-            this.WaitOperationStart(op);
             this.ScheduleNextOperation(SchedulingPointType.Create);
         }
 
@@ -530,7 +536,6 @@ namespace Microsoft.Coyote.Runtime
 
             thread.Start();
 
-            this.WaitOperationStart(op);
             this.ScheduleNextOperation(SchedulingPointType.ContinueWith);
         }
 
@@ -743,23 +748,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Registers the specified controlled operation.
+        /// Registers the specified newly created controlled operation.
         /// </summary>
-        /// <param name="op">The operation to register.</param>
-        internal void RegisterOperation(ControlledOperation op)
+        /// <param name="op">The newly created operation to register.</param>
+        internal void RegisterNewOperation(ControlledOperation op)
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
                     return;
-                }
-
-                // Assign the operation as a member of its group.
-                op.Group.RegisterMember(op);
-                if (this.OperationMap.Count is 0)
-                {
-                    this.ScheduledOperation = op;
                 }
 
 #if NETSTANDARD2_0 || NETFRAMEWORK
@@ -771,6 +769,21 @@ namespace Microsoft.Coyote.Runtime
                 this.OperationMap.TryAdd(op.Id, op);
 #endif
 
+                // Assign the operation as a member of its group.
+                op.Group.RegisterMember(op);
+                if (this.OperationMap.Count is 1)
+                {
+                    // This is the first operation registered, so schedule it.
+                    this.ScheduledOperation = op;
+                }
+                else
+                {
+                    // As this is not the first operation getting created, assign an event
+                    // handler so that the next scheduling decision cannot be made until
+                    // this operation starts executing to avoid race conditions.
+                    this.PendingStartOperationMap.Add(op, new ManualResetEventSlim(false));
+                }
+
                 IO.Debug.WriteLine("[coyote::debug] Created operation '{0}' of group '{1}' on thread '{2}'.",
                     op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
             }
@@ -780,12 +793,14 @@ namespace Microsoft.Coyote.Runtime
         /// Starts the execution of the specified controlled operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="WaitOperationsStart"/>.
+        /// </remarks>
         internal void StartOperation(ControlledOperation op)
         {
             // Configures the execution context of the current thread with data
             // related to the runtime and the operation executed by this thread.
             this.SetCurrentExecutionContext(op);
-
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("[coyote::debug] Started operation '{0}' of group '{1}' on thread '{2}'.",
@@ -793,33 +808,49 @@ namespace Microsoft.Coyote.Runtime
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    op.Start();
+                    // If this operation has an associated handler that notifies another awaiting
+                    // operation about this operation starting its execution, then set the handler.
+                    if (this.PendingStartOperationMap.TryGetValue(op, out ManualResetEventSlim handler))
+                    {
+                        handler.Set();
+                    }
+
+                    // Pause the operation as soon as it starts executing to allow the runtime
+                    // to explore a potential interleaving with another executing operation.
                     this.PauseOperation(op);
                 }
             }
         }
 
         /// <summary>
-        /// Waits for the specified controlled operation to start executing.
+        /// Waits for all recently created operations to start executing.
         /// </summary>
-        /// <param name="op">The operation to wait.</param>
-        internal void WaitOperationStart(ControlledOperation op)
+        /// <remarks>
+        /// This method performs a handshake with <see cref="StartOperation"/>. It is assumed that this
+        /// method is invoked by the same thread executing the operation and that it runs in the scope
+        /// of a <see cref="SynchronizedSection"/>.
+        /// </remarks>
+        private void WaitOperationsStart()
         {
-            using (SynchronizedSection.Enter(this.SyncObject))
+            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving && this.OperationMap.Count > 1)
+                while (this.PendingStartOperationMap.Count > 0)
                 {
-                    while (op.Status is OperationStatus.None && this.ExecutionStatus is ExecutionStatus.Running)
+                    var pendingOp = this.PendingStartOperationMap.First();
+                    while (pendingOp.Key.Status is OperationStatus.None && this.ExecutionStatus is ExecutionStatus.Running)
                     {
                         IO.Debug.WriteLine("[coyote::debug] Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
-                            Thread.CurrentThread.ManagedThreadId, op.Name, op.Group);
+                            Thread.CurrentThread.ManagedThreadId, pendingOp.Key.Name, pendingOp.Key.Group);
                         using (SynchronizedSection.Exit(this.SyncObject))
                         {
-                            op.WaitToStart();
+                            pendingOp.Value.Wait();
                         }
 
                         IO.Debug.WriteLine("[coyote::debug] Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);
                     }
+
+                    pendingOp.Value.Dispose();
+                    this.PendingStartOperationMap.Remove(pendingOp.Key);
                 }
             }
         }
@@ -892,6 +923,8 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.SyncObject))
             {
+                // Wait for all recently created operations to start executing.
+                this.WaitOperationsStart();
                 if (this.ExecutionStatus != ExecutionStatus.Running ||
                     this.SchedulingPolicy != SchedulingPolicy.Interleaving)
                 {
@@ -1077,8 +1110,9 @@ namespace Microsoft.Coyote.Runtime
                     op.Status = OperationStatus.None;
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        // Increment the count of reset operations that have not yet started executing.
-                        // this.NumOperationsNotStarted++;
+                        // Assign an event handler so that the next scheduling decision cannot be
+                        // made until this operation starts executing to avoid race conditions.
+                        this.PendingStartOperationMap.Add(op, new ManualResetEventSlim(false));
                     }
 
                     return true;
@@ -2439,25 +2473,33 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 RuntimeProvider.Deregister(this.Id);
-
-                foreach (var op in this.OperationMap.Values)
+                using (SynchronizedSection.Enter(this.SyncObject))
                 {
-                    op.Dispose();
+                    foreach (var op in this.OperationMap.Values)
+                    {
+                        op.Dispose();
+                    }
+
+                    foreach (var handler in this.PendingStartOperationMap.Values)
+                    {
+                        handler.Dispose();
+                    }
+
+                    this.ThreadPool.Clear();
+                    this.OperationMap.Clear();
+                    this.PendingStartOperationMap.Clear();
+                    this.ControlledThreads.Clear();
+                    this.ControlledTasks.Clear();
+                    this.UncontrolledTasks.Clear();
+                    this.UncontrolledInvocations.Clear();
+                    this.SpecificationMonitors.Clear();
+                    this.TaskLivenessMonitors.Clear();
+
+                    this.DefaultActorExecutionContext.Dispose();
+                    this.ControlledTaskScheduler.Dispose();
+                    this.SyncContext.Dispose();
+                    this.DeadlockMonitor.Dispose();
                 }
-
-                this.ThreadPool.Clear();
-                this.OperationMap.Clear();
-                this.ControlledThreads.Clear();
-                this.ControlledTasks.Clear();
-                this.UncontrolledTasks.Clear();
-                this.UncontrolledInvocations.Clear();
-
-                this.DefaultActorExecutionContext.Dispose();
-                this.ControlledTaskScheduler.Dispose();
-                this.SyncContext.Dispose();
-                this.DeadlockMonitor.Dispose();
-                this.SpecificationMonitors.Clear();
-                this.TaskLivenessMonitors.Clear();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {

@@ -15,7 +15,9 @@ public static class Operation
 | static [CreateNext](Operation/CreateNext.md)() | Creates a new controlled operation and returns its unique id, or null if the test engine is detached. |
 | static [GetNextId](Operation/GetNextId.md)() | Returns the next available unique operation id, or null if the test engine is detached. |
 | static [PauseUntil](Operation/PauseUntil.md)(…) | Pauses the currently executing operation until the specified condition gets satisfied. |
+| static [PauseUntilAsync](Operation/PauseUntilAsync.md)(…) | Asynchronously pauses the currently executing operation until the operation with the specified id completes. If *resumeAsynchronously* is set to true, then after the asynchronous pause, a new operation will be created to execute the continuation. |
 | static [PauseUntilCompleted](Operation/PauseUntilCompleted.md)(…) | Pauses the currently executing operation until the operation with the specified id completes. |
+| static [PauseUntilCompletedAsync](Operation/PauseUntilCompletedAsync.md)(…) | Asynchronously pauses the currently executing operation until the operation with the specified id completes. If *resumeAsynchronously* is set to true, then after the asynchronous pause, a new operation will be created to execute the continuation. |
 | static [ScheduleNext](Operation/ScheduleNext.md)() | Schedules the next enabled operation, which can include the currently executing operation. |
 | static [Start](Operation/Start.md)(…) | Starts executing the operation with the specified id. |
 | static [TryReset](Operation/TryReset.md)(…) | Tries to reset the the operation with the specified id so that it can be reused. This is only allowed if the operation is already completed. |

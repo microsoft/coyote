@@ -35,6 +35,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
         - name: WithSystematicFuzzingFallbackEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
+        - name: WithLockAccessRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -803,6 +805,10 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil
         - name: PauseUntilCompleted
           link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted
+        - name: PauseUntilAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilAsync
+        - name: PauseUntilCompletedAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync
         - name: ScheduleNext
           link: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext
         - name: Complete

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime.CompilerServices;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
 
@@ -911,6 +912,23 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Asynchronously pauses the currently executing operation until the specified condition gets satisfied.
+        /// </summary>
+        internal PausedOperationAwaitable PauseOperationUntilAsync(Func<bool> condition, bool resumeAsynchronously)
+        {
+            using (SynchronizedSection.Enter(this.SyncObject))
+            {
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    ControlledOperation current = this.GetExecutingOperation();
+                    return new PausedOperationAwaitable(this, current, condition, resumeAsynchronously);
+                }
+            }
+
+            return new PausedOperationAwaitable(this, null, condition, resumeAsynchronously);
+        }
+
+        /// <summary>
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
         /// <param name="type">The type of the scheduling point.</param>
@@ -1086,6 +1104,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void CompleteOperation(ControlledOperation op)
         {
+            op.ExecuteContinuations();
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 IO.Debug.WriteLine("[coyote::debug] Completed operation '{0}' of group '{1}' on thread '{2}'.",

@@ -13,9 +13,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
     /// Represents a builder for asynchronous methods that return a controlled value task.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [StructLayout(LayoutKind.Auto)]
     public struct AsyncValueTaskMethodBuilder
@@ -143,9 +142,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
     /// <summary>
     /// Represents a builder for asynchronous methods that return a <see cref="Task{TResult}"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [StructLayout(LayoutKind.Auto)]
     public struct AsyncValueTaskMethodBuilder<TResult>
@@ -231,7 +229,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 where TStateMachine : IAsyncStateMachine
         {
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+            if (this.Runtime != null && awaiter is IControllableAwaiter<TResult> controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
                 var builderTask = this.MethodBuilder.Task;
@@ -252,7 +250,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TStateMachine : IAsyncStateMachine
         {
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
+            if (this.Runtime != null && awaiter is IControllableAwaiter<TResult> controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
                 var builderTask = this.MethodBuilder.Task;

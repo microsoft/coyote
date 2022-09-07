@@ -3,8 +3,9 @@
 
 using System;
 using Microsoft.Coyote.Runtime;
-
+using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCancellationToken = System.Threading.CancellationToken;
+using SystemCompiler = System.Runtime.CompilerServices;
 using SystemSemaphoreSlim = System.Threading.SemaphoreSlim;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTasks = System.Threading.Tasks;
@@ -13,266 +14,224 @@ using SystemTimeout = System.Threading.Timeout;
 namespace Microsoft.Coyote.Rewriting.Types.Threading
 {
     /// <summary>
-    /// A semaphore that limits the number of tasks that can access a resource. During testing,
-    /// the semaphore is automatically replaced with a controlled mocked version.
+    /// Provides methods for creating semaphores that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public class SemaphoreSlim : IDisposable
+    public static class SemaphoreSlim
     {
-        /// <summary>
-        /// Limits the number of tasks that can access a resource.
-        /// </summary>
-        private readonly SystemSemaphoreSlim Instance;
-
-        /// <summary>
-        /// Number of remaining tasks that can enter the semaphore.
-        /// </summary>
-        public virtual int CurrentCount => this.Instance.CurrentCount;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SemaphoreSlim"/> class.
-        /// </summary>
-        protected SemaphoreSlim(SystemSemaphoreSlim semaphore)
-        {
-            this.Instance = semaphore;
-        }
-
-        /// <summary>
-        /// Creates a new semaphore.
-        /// </summary>
-        public static SemaphoreSlim Create(int initialCount, int maxCount) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            new Mock(initialCount, maxCount) :
-            new SemaphoreSlim(new SystemSemaphoreSlim(initialCount, maxCount));
-
         /// <summary>
         /// Blocks the current task until it can enter the semaphore.
         /// </summary>
-        public virtual void Wait() => this.Instance.Wait();
+        public static void Wait(SystemSemaphoreSlim instance) =>
+            Wait(instance, SystemTimeout.Infinite, SystemCancellationToken.None);
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore, using a timespan
         /// that specifies the timeout.
         /// </summary>
-        public virtual bool Wait(TimeSpan timeout) => this.Instance.Wait(timeout);
+        public static bool Wait(SystemSemaphoreSlim instance, TimeSpan timeout) =>
+            Wait(instance, timeout, SystemCancellationToken.None);
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore, using a 32-bit signed integer
         /// that specifies the timeout.
         /// </summary>
-        public virtual bool Wait(int millisecondsTimeout) => this.Instance.Wait(millisecondsTimeout);
+        public static bool Wait(SystemSemaphoreSlim instance, int millisecondsTimeout) =>
+            Wait(instance, millisecondsTimeout, SystemCancellationToken.None);
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore, while observing a cancellation token.
         /// </summary>
-        public virtual void Wait(SystemCancellationToken cancellationToken) => this.Instance.Wait(cancellationToken);
+        public static void Wait(SystemSemaphoreSlim instance, SystemCancellationToken cancellationToken) =>
+            Wait(instance, SystemTimeout.Infinite, cancellationToken);
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore, using a timespan
         /// that specifies the timeout, while observing a cancellation token.
         /// </summary>
-        public virtual bool Wait(TimeSpan timeout, SystemCancellationToken cancellationToken) =>
-            this.Instance.Wait(timeout, cancellationToken);
+        public static bool Wait(SystemSemaphoreSlim instance, TimeSpan timeout, SystemCancellationToken cancellationToken)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return Wait(instance, (int)totalMilliseconds, cancellationToken);
+        }
 
         /// <summary>
         /// Blocks the current task until it can enter the semaphore, using a 32-bit signed integer
         /// that specifies the timeout, while observing a cancellation token.
         /// </summary>
-        public virtual bool Wait(int millisecondsTimeout, SystemCancellationToken cancellationToken) =>
-            this.Instance.Wait(millisecondsTimeout, cancellationToken);
+        public static bool Wait(SystemSemaphoreSlim instance, int millisecondsTimeout, SystemCancellationToken cancellationToken)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                {
+                    runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                }
+
+                runtime.PauseOperationUntil(() => instance.CurrentCount > 0);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+            {
+                runtime.DelayOperation();
+            }
+
+            return instance.Wait(millisecondsTimeout, cancellationToken);
+        }
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore.
         /// </summary>
-        public virtual SystemTask WaitAsync() => this.Instance.WaitAsync();
-
-        /// <summary>
-        /// Asynchronously waits to enter the semaphore, using a timespan
-        /// that specifies the timeout.
-        /// </summary>
-        public virtual SystemTasks.Task<bool> WaitAsync(TimeSpan timeout) => this.Instance.WaitAsync(timeout);
-
-        /// <summary>
-        /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
-        /// that specifies the timeout.
-        /// </summary>
-        public virtual SystemTasks.Task<bool> WaitAsync(int millisecondsTimeout) =>
-            this.Instance.WaitAsync(millisecondsTimeout);
+        public static SystemTask WaitAsync(SystemSemaphoreSlim instance) => WaitAsync(instance, SystemTimeout.Infinite, default);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, while observing a cancellation token.
         /// </summary>
-        public virtual SystemTask WaitAsync(SystemCancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(cancellationToken);
+        public static SystemTask WaitAsync(SystemSemaphoreSlim instance, SystemCancellationToken cancellationToken) =>
+            WaitAsync(instance, SystemTimeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout.
+        /// </summary>
+        public static SystemTasks.Task<bool> WaitAsync(SystemSemaphoreSlim instance, int millisecondsTimeout) =>
+            WaitAsync(instance, millisecondsTimeout, default);
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a timespan that specifies the timeout.
+        /// </summary>
+        public static SystemTasks.Task<bool> WaitAsync(SystemSemaphoreSlim instance, TimeSpan timeout) =>
+            WaitAsync(instance, timeout, default);
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a timespan
         /// that specifies the timeout, while observing a cancellation token.
         /// </summary>
-        public virtual SystemTasks.Task<bool> WaitAsync(TimeSpan timeout, SystemCancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(timeout, cancellationToken);
+        public static SystemTasks.Task<bool> WaitAsync(SystemSemaphoreSlim instance, TimeSpan timeout, SystemCancellationToken cancellationToken)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return WaitAsync(instance, (int)totalMilliseconds, cancellationToken);
+        }
 
         /// <summary>
         /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
         /// that specifies the timeout, while observing a cancellation token.
         /// </summary>
-        public virtual SystemTasks.Task<bool> WaitAsync(int millisecondsTimeout, SystemCancellationToken cancellationToken) =>
-            this.Instance.WaitAsync(millisecondsTimeout, cancellationToken);
-
-        /// <summary>
-        /// Releases the semaphore.
-        /// </summary>
-        public virtual void Release() => this.Instance.Release();
-
-        /// <summary>
-        /// Releases resources used by the semaphore.
-        /// </summary>
-        private void Dispose(bool disposing)
+        public static async SystemTasks.Task<bool> WaitAsync2(SystemSemaphoreSlim instance, int millisecondsTimeout, SystemCancellationToken cancellationToken)
         {
-            if (!disposing)
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                return;
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                {
+                    runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                }
+
+                await runtime.PauseOperationUntilAsync(() =>
+                {
+                    return instance.CurrentCount > 0;
+                }, true);
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+            {
+                runtime.DelayOperation();
             }
 
-            this.Instance?.Dispose();
+            return await instance.WaitAsync(millisecondsTimeout, cancellationToken);
         }
 
         /// <summary>
-        /// Releases resources used by the semaphore.
+        /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout, while observing a cancellation token.
         /// </summary>
-        public void Dispose()
+        [SystemCompiler.AsyncStateMachine(typeof(WaitAsyncStateMachine))]
+        public static SystemTasks.Task<bool> WaitAsync(SystemSemaphoreSlim instance, int millisecondsTimeout, SystemCancellationToken cancellationToken)
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                {
+                    runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                }
+
+                var stateMachine = new WaitAsyncStateMachine(runtime, instance, millisecondsTimeout, cancellationToken);
+                stateMachine.Builder.Start(ref stateMachine);
+                return stateMachine.Builder.Task;
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+            {
+                runtime.DelayOperation();
+            }
+
+            return instance.WaitAsync(millisecondsTimeout, cancellationToken);
         }
 
         /// <summary>
-        /// Mock implementation of a semaphore that can be controlled during systematic testing.
+        /// Implements an asynchronous state machine that is used to drive and take control of the
+        /// <see cref="WaitAsync(SystemSemaphoreSlim, int, SystemCancellationToken)"/> method.
         /// </summary>
-        private sealed class Mock : SemaphoreSlim
+        [SystemCompiler.CompilerGenerated]
+        private class WaitAsyncStateMachine : AsyncStateMachine<bool>
         {
-            /// <summary>
-            /// The resource associated with this semaphore.
-            /// </summary>
-            private readonly Resource Resource;
+            private SystemSemaphoreSlim Instance;
+            private int MillisecondsTimeout;
+            private SystemCancellationToken CancellationToken;
 
             /// <summary>
-            /// The maximum number of requests that can be granted concurrently.
+            /// Initializes a new instance of the <see cref="WaitAsyncStateMachine"/> class.
             /// </summary>
-            private readonly int MaxCount;
-
-            /// <summary>
-            /// The number of requests that have been granted concurrently.
-            /// </summary>
-            private int NumAcquired;
-
-            /// <summary>
-            /// Number of remaining tasks that can enter the semaphore.
-            /// </summary>
-            public override int CurrentCount => this.MaxCount - this.NumAcquired;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Mock"/> class.
-            /// </summary>
-            internal Mock(int initialCount, int maxCount)
-                : base(default)
+            internal WaitAsyncStateMachine(CoyoteRuntime runtime, SystemSemaphoreSlim instance,
+                int millisecondsTimeout, SystemCancellationToken cancellationToken)
+                : base(runtime, 2)
             {
-                this.Resource = new Resource();
-                this.Resource.Runtime.Assert(initialCount >= 0,
-                    "Cannot create semaphore with initial count of {0}. The count must be equal or greater than 0.", initialCount);
-                this.Resource.Runtime.Assert(initialCount <= maxCount,
-                    "Cannot create semaphore with initial count of {0}. The count be equal or less than max count of {1}.",
-                    initialCount, maxCount);
-                this.Resource.Runtime.Assert(maxCount > 0,
-                    "Cannot create semaphore with max count of {0}. The count must be greater than 0.", maxCount);
-                this.MaxCount = maxCount;
-                this.NumAcquired = maxCount - initialCount;
+                this.Instance = instance;
+                this.MillisecondsTimeout = millisecondsTimeout;
+                this.CancellationToken = cancellationToken;
             }
 
             /// <inheritdoc/>
-            public override void Wait() => this.Wait(SystemTimeout.Infinite, default);
-
-            /// <inheritdoc/>
-            public override bool Wait(TimeSpan timeout) => this.Wait(timeout, default);
-
-            /// <inheritdoc/>
-            public override bool Wait(int millisecondsTimeout) => this.Wait(millisecondsTimeout, default);
-
-            /// <inheritdoc/>
-            public override void Wait(SystemCancellationToken cancellationToken) =>
-                this.Wait(SystemTimeout.Infinite, cancellationToken);
-
-            /// <inheritdoc/>
-            public override bool Wait(TimeSpan timeout, SystemCancellationToken cancellationToken)
+            protected override bool TryExecuteState(uint state)
             {
-                long totalMilliseconds = (long)timeout.TotalMilliseconds;
-                if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+                if (state is 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout));
+                    this.Awaiter = this.Runtime.PauseOperationUntilAsync(() =>
+                    {
+                        return this.Instance.CurrentCount > 0;
+                    }, true).GetAwaiter();
+                    return ((IControllableAwaiter)this.Awaiter).IsDone;
                 }
 
-                return this.Wait((int)totalMilliseconds, default);
+                var task = this.Instance.WaitAsync(this.MillisecondsTimeout, this.CancellationToken);
+                this.Awaiter = new TaskAwaiter<bool>(task);
+                return ((IControllableAwaiter<bool>)this.Awaiter).IsDone;
             }
 
             /// <inheritdoc/>
-            public override bool Wait(int millisecondsTimeout, SystemCancellationToken cancellationToken)
+            protected override void CompleteState(uint state)
             {
-                // TODO: support cancellations during testing.
-                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
-
-                // We need this loop, because when a resource gets released it notifies all asynchronous
-                // operations waiting to acquire it, even if such an operation is still blocked.
-                while (this.CurrentCount is 0)
+                if (state is 0)
                 {
-                    // The resource is not available yet, notify the scheduler that the executing
-                    // operation is blocked, so that it cannot be scheduled during systematic testing
-                    // exploration, which could deadlock.
-                    this.Resource.Wait();
+                    ((IControllableAwaiter)this.Awaiter).WaitCompletion();
                 }
-
-                this.NumAcquired++;
-
-                // TODO: support timeouts during testing, this would become false if there is a timeout.
-                return true;
-            }
-
-            /// <inheritdoc/>
-            public override SystemTask WaitAsync() => this.WaitAsync(SystemTimeout.Infinite, default);
-
-            /// <inheritdoc/>
-            public override SystemTasks.Task<bool> WaitAsync(TimeSpan timeout) => this.WaitAsync(timeout, default);
-
-            /// <inheritdoc/>
-            public override SystemTasks.Task<bool> WaitAsync(int millisecondsTimeout) =>
-                this.WaitAsync(millisecondsTimeout, default);
-
-            /// <inheritdoc/>
-            public override SystemTask WaitAsync(SystemCancellationToken cancellationToken) =>
-                this.WaitAsync(SystemTimeout.Infinite, cancellationToken);
-
-            /// <inheritdoc/>
-            public override SystemTasks.Task<bool> WaitAsync(TimeSpan timeout, SystemCancellationToken cancellationToken) =>
-                SystemTask.FromResult(this.Wait(timeout, cancellationToken));
-
-            /// <inheritdoc/>
-            public override SystemTasks.Task<bool> WaitAsync(int millisecondsTimeout, SystemCancellationToken cancellationToken) =>
-                SystemTask.FromResult(this.Wait(millisecondsTimeout, cancellationToken));
-
-            /// <inheritdoc/>
-            public override void Release()
-            {
-                this.NumAcquired--;
-                this.Resource.Runtime.Assert(this.NumAcquired >= 0,
-                    "Cannot release semaphore as it has reached max count of {0}.", this.MaxCount);
-
-                // Release the semaphore and notify any awaiting asynchronous operations.
-                this.Resource.SignalAll();
-
-                // This must be called outside the context of the semaphore, because it notifies
-                // the scheduler to try schedule another operation that could in turn try to
-                // acquire this semaphore causing a deadlock.
-                this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Release);
+                else if (state is 1)
+                {
+                    this.Result = ((IControllableAwaiter<bool>)this.Awaiter).WaitCompletion();
+                }
             }
         }
     }

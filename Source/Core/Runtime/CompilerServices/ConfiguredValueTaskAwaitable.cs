@@ -10,9 +10,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
     /// Provides an awaitable object that is the outcome of invoking <see cref="ValueTask.ConfigureAwait"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredValueTaskAwaitable
     {
@@ -36,9 +35,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public ConfiguredValueTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
-        /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
+        /// Provides an awaiter for an awaitable object.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+        /// <remarks>This type is intended for compiler use only.</remarks>
         public struct ConfiguredValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
@@ -57,9 +56,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly CoyoteRuntime Runtime;
 
             /// <summary>
-            /// Gets a value that indicates whether the controlled value task has completed.
+            /// True if the awaiter has completed, else false.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+            /// <inheritdoc/>
+            bool IControllableAwaiter.IsDone => this.IsCompleted;
 
             /// <inheritdoc/>
             bool IControllableAwaiter.IsControlled =>
@@ -83,7 +85,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <summary>
-            /// Ends the await on the completed value task.
+            /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public void GetResult()
             {
@@ -94,6 +96,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 this.Awaiter.GetResult();
             }
+
+            /// <inheritdoc/>
+            void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Schedules the continuation action for the value task associated with this awaiter.
@@ -111,9 +116,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
     /// <summary>
     /// Provides an awaitable object that enables configured awaits on a <see cref="ValueTask{TResult}"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredValueTaskAwaitable<TResult>
     {
@@ -137,10 +141,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public ConfiguredValueTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
-        /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
+        /// Provides an awaiter for an awaitable object.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        /// <remarks>This type is intended for compiler use only.</remarks>
+        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter<TResult>, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The inner task being awaited.
@@ -158,12 +162,15 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly CoyoteRuntime Runtime;
 
             /// <summary>
-            /// Gets a value that indicates whether the controlled value task has completed.
+            /// True if the awaiter has completed, else false.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
             /// <inheritdoc/>
-            bool IControllableAwaiter.IsControlled =>
+            bool IControllableAwaiter<TResult>.IsDone => this.IsCompleted;
+
+            /// <inheritdoc/>
+            bool IControllableAwaiter<TResult>.IsControlled =>
                 !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
             /// <summary>
@@ -184,7 +191,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <summary>
-            /// Ends the await on the completed value task.
+            /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public TResult GetResult()
             {
@@ -195,6 +202,9 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 return this.Awaiter.GetResult();
             }
+
+            /// <inheritdoc/>
+            TResult IControllableAwaiter<TResult>.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Schedules the continuation action for the value task associated with this awaiter.

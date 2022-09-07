@@ -40,6 +40,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly OperationGroup Group;
 
         /// <summary>
+        /// Queue of continuations that this operation must execute before it completes.
+        /// </summary>
+        private readonly Queue<Action> Continuations;
+
+        /// <summary>
         /// List of dependencies that must get satisfied before this operation can resume executing.
         /// </summary>
         internal readonly List<Func<bool>> Dependencies;
@@ -99,6 +104,7 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
+            this.Continuations = new Queue<Action>();
             this.Dependencies = new List<Func<bool>>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
@@ -109,6 +115,21 @@ namespace Microsoft.Coyote.Runtime
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);
+        }
+
+        /// <summary>
+        /// Executes all continuations of this operation in order, if there are any.
+        /// </summary>
+        internal void ExecuteContinuations()
+        {
+            // New continuations can be added while executing a continuation,
+            // so keep executing them until the queue is drained.
+            while (this.Continuations.Count > 0)
+            {
+                Console.WriteLine($">>> Executing next continuation for {this}");
+                var nextContinuation = this.Continuations.Dequeue();
+                nextContinuation();
+            }
         }
 
         /// <summary>
@@ -127,6 +148,11 @@ namespace Microsoft.Coyote.Runtime
         /// Signals this operation to resume its execution.
         /// </summary>
         internal void Signal() => this.SyncEvent.Set();
+
+        /// <summary>
+        /// Sets a callback that executes the next continuation of this operation.
+        /// </summary>
+        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
 
         /// <summary>
         /// Sets a callback that returns true when a dependency has been satisfied.

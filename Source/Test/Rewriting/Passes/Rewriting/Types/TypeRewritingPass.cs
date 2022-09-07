@@ -77,6 +77,7 @@ namespace Microsoft.Coyote.Rewriting
 
             // Populate the map with the known synchronization types.
             this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
+            this.KnownTypes[NameCache.SemaphoreSlim] = typeof(Types.Threading.SemaphoreSlim);
 
 #if NET || NETCOREAPP3_1
             // Populate the map with the known HTTP and web-related types.

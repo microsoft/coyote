@@ -11,9 +11,9 @@ using SystemTasks = System.Threading.Tasks;
 namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
-    /// Implements a task awaiter. This type is intended for compiler use only.
+    /// Implements a task awaiter.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public readonly struct TaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
@@ -36,9 +36,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// Gets a value that indicates whether the controlled task has completed.
+        /// True if the awaiter has completed, else false.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter.IsDone => this.IsCompleted;
 
         /// <inheritdoc/>
         bool IControllableAwaiter.IsControlled =>
@@ -67,13 +70,16 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Ends the wait for the completion of the controlled task.
+        /// Ends asynchronously waiting for the completion of the awaiter.
         /// </summary>
         public void GetResult()
         {
             this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             this.Awaiter.GetResult();
         }
+
+        /// <inheritdoc/>
+        void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
@@ -111,12 +117,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     }
 
     /// <summary>
-    /// Implements a generic task awaiter. This type is intended for compiler use only.
+    /// Implements a generic task awaiter.
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter<TResult> : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter<TResult> : IControllableAwaiter<TResult>, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -137,12 +143,15 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// Gets a value that indicates whether the controlled task has completed.
+        /// True if the awaiter has completed, else false.
         /// </summary>
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <inheritdoc/>
-        bool IControllableAwaiter.IsControlled =>
+        bool IControllableAwaiter<TResult>.IsDone => this.IsCompleted;
+
+        /// <inheritdoc/>
+        bool IControllableAwaiter<TResult>.IsControlled =>
             !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
@@ -168,13 +177,16 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         }
 
         /// <summary>
-        /// Ends the wait for the completion of the controlled task.
+        /// Ends asynchronously waiting for the completion of the awaiter.
         /// </summary>
         public TResult GetResult()
         {
             this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             return this.Awaiter.GetResult();
         }
+
+        /// <inheritdoc/>
+        TResult IControllableAwaiter<TResult>.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.

@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly PausedOperationAwaiter Awaiter;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PausedOperationAwaitable"/> struct.
+        /// Initializes a new instance of the <see cref="PausedOperationAwaitable"/> class.
         /// </summary>
         internal PausedOperationAwaitable(CoyoteRuntime runtime, ControlledOperation op, Func<bool> condition,
             bool resumeAsynchronously) =>
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             bool IControllableAwaiter.IsControlled => true;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PausedOperationAwaiter"/> struct.
+            /// Initializes a new instance of the <see cref="PausedOperationAwaiter"/> class.
             /// </summary>
             internal PausedOperationAwaiter(CoyoteRuntime runtime, ControlledOperation op, Func<bool> condition,
                 bool resumeAsynchronously)

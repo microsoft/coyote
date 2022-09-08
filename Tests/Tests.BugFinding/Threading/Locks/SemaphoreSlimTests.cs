@@ -153,25 +153,37 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 0;
                 var semaphore = new SemaphoreSlim(1, 1);
 
+                IO.Debug.WriteLine($">>> [0] PRE-TASK-RUN-1 {Thread.CurrentThread.ManagedThreadId}");
                 var t1 = Task.Run(async () =>
                 {
+                    IO.Debug.WriteLine($">>> [1] PRE-WAIT {Thread.CurrentThread.ManagedThreadId}");
                     await semaphore.WaitAsync();
+                    IO.Debug.WriteLine($">>> [1] AFTER-WAIT {Thread.CurrentThread.ManagedThreadId}");
                     value++;
                     SchedulingPoint.Interleave();
+                    IO.Debug.WriteLine($">>> [1] PRE-RELEASE {Thread.CurrentThread.ManagedThreadId}");
                     value--;
                     semaphore.Release();
+                    IO.Debug.WriteLine($">>> [1] AFTER-RELEASE {Thread.CurrentThread.ManagedThreadId}");
                 });
 
+                IO.Debug.WriteLine($">>> [0] PRE-TASK-RUN-2 {Thread.CurrentThread.ManagedThreadId}");
                 var t2 = Task.Run(async () =>
                 {
+                    IO.Debug.WriteLine($">>> [2] PRE-WAIT {Thread.CurrentThread.ManagedThreadId}");
                     await semaphore.WaitAsync();
+                    IO.Debug.WriteLine($">>> [2] AFTER-WAIT {Thread.CurrentThread.ManagedThreadId}");
                     value++;
                     SchedulingPoint.Interleave();
+                    IO.Debug.WriteLine($">>> [2] PRE-RELEASE {Thread.CurrentThread.ManagedThreadId}");
                     value--;
                     semaphore.Release();
+                    IO.Debug.WriteLine($">>> [2] AFTER-RELEASE {Thread.CurrentThread.ManagedThreadId}");
                 });
 
+                IO.Debug.WriteLine($">>> [0] PRE-WAIT {Thread.CurrentThread.ManagedThreadId}");
                 await Task.WhenAll(t1, t2);
+                IO.Debug.WriteLine($">>> [0] END {Thread.CurrentThread.ManagedThreadId}");
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);

@@ -162,20 +162,19 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     semaphore.Release();
                 });
 
-                // var t2 = Task.Run(async () =>
-                // {
-                //     await semaphore.WaitAsync();
-                //     value++;
-                //     SchedulingPoint.Interleave();
-                //     value--;
-                //     semaphore.Release();
-                // });
+                var t2 = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    value--;
+                    semaphore.Release();
+                });
 
-                // await Task.WhenAll(t1, t2);
-                await t1;
+                await Task.WhenAll(t1, t2);
 
-                // int expected = 0;
-                // Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                int expected = 0;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
             configuration: this.GetConfiguration().WithDebugLoggingEnabled().WithTestingIterations(100));
         }

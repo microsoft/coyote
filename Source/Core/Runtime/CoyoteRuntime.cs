@@ -906,7 +906,9 @@ namespace Microsoft.Coyote.Runtime
                         // TODO: can we identify when the dependency is uncontrolled?
                         current.SetDependencyCallback(condition, true);
                         current.Status = OperationStatus.BlockedOnWaitAll;
+                        IO.Debug.WriteLine($">>> PauseOperationUntil BEFORE '{current}'.");
                         this.ScheduleNextOperation(SchedulingPointType.Wait);
+                        IO.Debug.WriteLine($">>> PauseOperationUntil AFTER '{current}'.");
                     }
                 }
             }

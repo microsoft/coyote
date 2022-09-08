@@ -100,6 +100,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// </summary>
             public void UnsafeOnCompleted(Action continuation)
             {
+                IO.Debug.WriteLine($">>> Scheduling continuation for operation '{this.Operation}'.");
                 if (this.ResumeAsynchronously)
                 {
                     this.Runtime.Schedule(continuation);

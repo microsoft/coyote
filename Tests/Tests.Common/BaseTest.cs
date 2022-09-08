@@ -886,6 +886,8 @@ namespace Microsoft.Coyote.Tests.Common
                 report += bug + "\n";
             }
 
+            report += engine.ReadableTrace;
+
             return report;
         }
 

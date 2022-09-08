@@ -1939,9 +1939,6 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.");
             }
 
-            msg.AppendLine();
-            msg.Append(this.Logger.TextWriter.ToString());
-
             this.NotifyAssertionFailure(msg.ToString());
         }
 

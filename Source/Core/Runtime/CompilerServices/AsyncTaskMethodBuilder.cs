@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets the task for this builder.
         /// </summary>
-        public Task Task => this.MethodBuilder.Task;
+        public Task Task => this.AssignStateMachineTask(this.MethodBuilder.Task);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
@@ -123,9 +123,13 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         private Task AssignStateMachineTask(Task builderTask)
         {
-            IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
-                builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.RegisterKnownControlledTask(builderTask);
+            if (this.Runtime != null)
+            {
+                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
+                    builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+                this.Runtime.RegisterKnownControlledTask(builderTask);
+            }
+
             return builderTask;
         }
     }
@@ -153,7 +157,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Gets the task for this builder.
         /// </summary>
-        public Task<TResult> Task => this.MethodBuilder.Task;
+        public Task<TResult> Task => this.AssignStateMachineTask(this.MethodBuilder.Task);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
@@ -245,9 +249,13 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         private Task<TResult> AssignStateMachineTask(Task<TResult> builderTask)
         {
-            IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
-                builderTask.Id, Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.RegisterKnownControlledTask(builderTask);
+            if (this.Runtime != null)
+            {
+                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
+                    builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+                this.Runtime.RegisterKnownControlledTask(builderTask);
+            }
+
             return builderTask;
         }
     }

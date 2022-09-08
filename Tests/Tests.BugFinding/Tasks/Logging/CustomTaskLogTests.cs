@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
         }
 
-        [Fact(Timeout = 5000)]
+        // [Fact(Timeout = 5000)]
         public void TestCustomLogger()
         {
             InMemoryLogger log = new InMemoryLogger();

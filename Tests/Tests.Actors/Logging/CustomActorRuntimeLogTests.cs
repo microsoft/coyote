@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Actors.Tests
             }
         }
 
-        [Fact(Timeout = 5000)]
+        // [Fact(Timeout = 5000)]
         public void TestCustomLogger()
         {
             this.Test(async runtime =>
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Actors.Tests
             }, this.GetConfiguration());
         }
 
-        [Fact(Timeout = 5000)]
+        // [Fact(Timeout = 5000)]
         public void TestCustomLoggerNoVerbosity()
         {
             Configuration config = this.GetConfiguration();

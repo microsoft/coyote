@@ -169,7 +169,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
             });
 
             var t = Task.WhenAll(t1, t2);
-            IO.Debug.WriteLine($">>> Waiting for task '{t.Id}' to complete.");
+            IO.Debug.WriteLine($">>> Waiting for t1 task '{t1.Id}' to complete.");
+            IO.Debug.WriteLine($">>> Waiting for t2 task '{t2.Id}' to complete.");
+            IO.Debug.WriteLine($">>> Waiting for t task '{t.Id}' to complete.");
             await t;
 
             int expected = 0;

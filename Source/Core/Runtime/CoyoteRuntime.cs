@@ -379,6 +379,7 @@ namespace Microsoft.Coyote.Runtime
                     }
 
                     // Wait for the task to complete and propagate any exceptions.
+                    IO.Debug.WriteLine($">>> Waiting for main task '{task.Id}' to complete.");
                     this.WaitUntilTaskCompletes(op, task);
                     task.GetAwaiter().GetResult();
 

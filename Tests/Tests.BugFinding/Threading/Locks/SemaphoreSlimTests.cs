@@ -171,7 +171,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     semaphore.Release();
                 });
 
-                await Task.WhenAll(t1, t2);
+                var t = Task.WhenAll(t1, t2);
+                IO.Debug.WriteLine($">>> Waiting for task '{t.Id}' to complete.");
+                await t;
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);

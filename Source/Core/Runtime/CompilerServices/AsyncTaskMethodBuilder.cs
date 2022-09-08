@@ -89,6 +89,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
+        [DebuggerHidden]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
@@ -104,6 +105,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
+        [DebuggerHidden]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
@@ -213,6 +215,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
+        [DebuggerHidden]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
                 where TAwaiter : INotifyCompletion
                 where TStateMachine : IAsyncStateMachine
@@ -228,6 +231,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
+        [DebuggerHidden]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine

@@ -125,8 +125,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             if (this.Runtime != null)
             {
-                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
-                    builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'. {2}",
+                    builderTask.Id, Thread.CurrentThread.ManagedThreadId, new System.Diagnostics.StackTrace());
                 this.Runtime.RegisterKnownControlledTask(builderTask);
             }
 
@@ -251,8 +251,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             if (this.Runtime != null)
             {
-                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'.",
-                    builderTask.Id, Thread.CurrentThread.ManagedThreadId);
+                IO.Debug.WriteLine("[coyote::debug] Assigned state machine task '{0}' from thread '{1}'. {2}",
+                    builderTask.Id, Thread.CurrentThread.ManagedThreadId, new System.Diagnostics.StackTrace());
                 this.Runtime.RegisterKnownControlledTask(builderTask);
             }
 

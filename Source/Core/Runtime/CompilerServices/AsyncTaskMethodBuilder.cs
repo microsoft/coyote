@@ -237,7 +237,15 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine($">>> AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted-1 {awaiter.GetType()} '{System.Threading.Thread.CurrentThread.ManagedThreadId}'.");
-            this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+            if (awaiter is PausedOperationAwaitable.PausedOperationAwaiter)
+            {
+                awaiter.UnsafeOnCompleted(stateMachine.MoveNext);
+            }
+            else
+            {
+                this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+            }
+
             IO.Debug.WriteLine($">>> AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted-2 {awaiter.GetType()} '{System.Threading.Thread.CurrentThread.ManagedThreadId}'.");
             if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)

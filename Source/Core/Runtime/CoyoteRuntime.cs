@@ -1940,6 +1940,15 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.");
             }
 
+            IO.Debug.WriteLine("The following tasks are still running:");
+            foreach (var t in this.ControlledTasks.Keys)
+            {
+                if (!t.IsCompleted)
+                {
+                    IO.Debug.WriteLine($"  task '{t.Id}'");
+                }
+            }
+
             this.NotifyAssertionFailure(msg.ToString());
         }
 

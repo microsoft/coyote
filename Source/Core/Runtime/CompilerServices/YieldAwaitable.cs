@@ -53,9 +53,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 #pragma warning restore CA1822 // Mark members as static
 
             /// <inheritdoc/>
-            bool IControllableAwaiter.IsDone => this.IsCompleted;
-
-            /// <inheritdoc/>
             bool IControllableAwaiter.IsControlled => true;
 
             /// <summary>
@@ -70,9 +67,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public void GetResult() => this.Awaiter.GetResult();
-
-            /// <inheritdoc/>
-            void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Schedules the continuation action for the task associated with this awaiter.

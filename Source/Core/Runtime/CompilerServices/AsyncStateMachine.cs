@@ -96,6 +96,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                             // Schedule the continuation to execute after the current state completes.
                             this.CurrentStatus = Status.Waiting;
                             AsyncStateMachine<TResult> stateMachine = this;
+                            IO.Debug.WriteLine($">>> WaitAsyncStateMachine::MoveNext BEFORE AwaitUnsafeOnCompleted '{System.Threading.Thread.CurrentThread.ManagedThreadId}'.");
                             this.Builder.AwaitUnsafeOnCompleted(ref this.Awaiter, ref stateMachine);
                             return;
                         }

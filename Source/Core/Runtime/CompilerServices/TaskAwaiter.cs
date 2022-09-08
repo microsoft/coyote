@@ -41,9 +41,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <inheritdoc/>
-        bool IControllableAwaiter.IsDone => this.IsCompleted;
-
-        /// <inheritdoc/>
         bool IControllableAwaiter.IsControlled =>
             !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
@@ -77,9 +74,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             this.Awaiter.GetResult();
         }
-
-        /// <inheritdoc/>
-        void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
@@ -122,7 +116,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct TaskAwaiter<TResult> : IControllableAwaiter<TResult>, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct TaskAwaiter<TResult> : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic TaskAwaiter<> as TaskAwaiter.
@@ -148,10 +142,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <inheritdoc/>
-        bool IControllableAwaiter<TResult>.IsDone => this.IsCompleted;
-
-        /// <inheritdoc/>
-        bool IControllableAwaiter<TResult>.IsControlled =>
+        bool IControllableAwaiter.IsControlled =>
             !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
@@ -184,9 +175,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
             return this.Awaiter.GetResult();
         }
-
-        /// <inheritdoc/>
-        TResult IControllableAwaiter<TResult>.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.

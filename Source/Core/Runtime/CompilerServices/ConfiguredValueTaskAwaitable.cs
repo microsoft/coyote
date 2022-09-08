@@ -61,9 +61,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
             /// <inheritdoc/>
-            bool IControllableAwaiter.IsDone => this.IsCompleted;
-
-            /// <inheritdoc/>
             bool IControllableAwaiter.IsControlled =>
                 !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
@@ -96,9 +93,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 this.Awaiter.GetResult();
             }
-
-            /// <inheritdoc/>
-            void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Schedules the continuation action for the value task associated with this awaiter.
@@ -144,7 +138,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Provides an awaiter for an awaitable object.
         /// </summary>
         /// <remarks>This type is intended for compiler use only.</remarks>
-        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter<TResult>, ICriticalNotifyCompletion, INotifyCompletion
+        public struct ConfiguredValueTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The inner task being awaited.
@@ -167,10 +161,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
             /// <inheritdoc/>
-            bool IControllableAwaiter<TResult>.IsDone => this.IsCompleted;
-
-            /// <inheritdoc/>
-            bool IControllableAwaiter<TResult>.IsControlled =>
+            bool IControllableAwaiter.IsControlled =>
                 !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
             /// <summary>
@@ -202,9 +193,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
                 return this.Awaiter.GetResult();
             }
-
-            /// <inheritdoc/>
-            TResult IControllableAwaiter<TResult>.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Schedules the continuation action for the value task associated with this awaiter.

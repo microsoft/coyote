@@ -210,16 +210,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 IO.Debug.WriteLine($">>> WaitAsyncStateMachine::TryExecuteState state({state}) '{System.Threading.Thread.CurrentThread.ManagedThreadId}'.");
                 if (state is 0)
                 {
-                    this.Awaiter = this.Runtime.PauseOperationUntilAsync(() =>
+                    var pauseAwaiter = this.Runtime.PauseOperationUntilAsync(() =>
                     {
                         return this.Instance.CurrentCount > 0;
                     }, true).GetAwaiter();
-                    return ((IControllableAwaiter)this.Awaiter).IsDone;
+                    this.Awaiter = pauseAwaiter;
+                    return pauseAwaiter.IsCompleted;
                 }
 
                 var task = this.Instance.WaitAsync(this.MillisecondsTimeout, this.CancellationToken);
-                this.Awaiter = new TaskAwaiter<bool>(task);
-                return ((IControllableAwaiter<bool>)this.Awaiter).IsDone;
+                var taskAwaiter = new TaskAwaiter<bool>(task);
+                this.Awaiter = taskAwaiter;
+                return taskAwaiter.IsCompleted;
             }
 
             /// <inheritdoc/>
@@ -227,11 +229,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 if (state is 0)
                 {
-                    ((IControllableAwaiter)this.Awaiter).WaitCompletion();
+                    ((PausedOperationAwaitable.PausedOperationAwaiter)this.Awaiter).GetResult();
                 }
                 else if (state is 1)
                 {
-                    this.Result = ((IControllableAwaiter<bool>)this.Awaiter).WaitCompletion();
+                    this.Result = ((TaskAwaiter<bool>)this.Awaiter).GetResult();
                 }
             }
         }

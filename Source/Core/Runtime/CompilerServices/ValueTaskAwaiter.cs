@@ -43,9 +43,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <inheritdoc/>
-        bool IControllableAwaiter.IsDone => this.IsCompleted;
-
-        /// <inheritdoc/>
         bool IControllableAwaiter.IsControlled =>
             !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
@@ -85,9 +82,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
             this.Awaiter.GetResult();
         }
-
-        /// <inheritdoc/>
-        void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled value task completes.
@@ -155,7 +149,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct ValueTaskAwaiter<TResult> : IControllableAwaiter<TResult>, ICriticalNotifyCompletion, INotifyCompletion
+    public readonly struct ValueTaskAwaiter<TResult> : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
         // the generic ValueTaskAwaiter<> as ValueTaskAwaiter.
@@ -181,10 +175,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
         /// <inheritdoc/>
-        bool IControllableAwaiter<TResult>.IsDone => this.IsCompleted;
-
-        /// <inheritdoc/>
-        bool IControllableAwaiter<TResult>.IsControlled =>
+        bool IControllableAwaiter.IsControlled =>
             !this.Runtime?.IsTaskUncontrolled(this.AwaitedTask) ?? false;
 
         /// <summary>
@@ -224,9 +215,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
             return this.Awaiter.GetResult();
         }
-
-        /// <inheritdoc/>
-        TResult IControllableAwaiter<TResult>.WaitCompletion() => this.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the controlled value task completes.

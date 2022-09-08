@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 where TStateMachine : IAsyncStateMachine
         {
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter<TResult> controllableAwaiter &&
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
                 var builderTask = this.MethodBuilder.Task;
@@ -246,7 +246,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             where TStateMachine : IAsyncStateMachine
         {
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter<TResult> controllableAwaiter &&
+            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
                 controllableAwaiter.IsControlled)
             {
                 var builderTask = this.MethodBuilder.Task;

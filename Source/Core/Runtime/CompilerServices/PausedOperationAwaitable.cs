@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
     /// </summary>
     /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public readonly struct PausedOperationAwaitable
+    public class PausedOperationAwaitable
 {
         /// <summary>
         /// The paused operation awaiter.
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// the specified condition gets satisfied.
         /// </summary>
         /// <remarks>This type is intended for compiler use only.</remarks>
-        public struct PausedOperationAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        public class PausedOperationAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
             /// The runtime managing the paused operation.
@@ -72,9 +72,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <inheritdoc/>
-            bool IControllableAwaiter.IsDone => this.IsCompleted;
-
-            /// <inheritdoc/>
             bool IControllableAwaiter.IsControlled => true;
 
             /// <summary>
@@ -93,9 +90,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public void GetResult() => this.Runtime.PauseOperationUntil(this.Condition);
-
-            /// <inheritdoc/>
-            void IControllableAwaiter.WaitCompletion() => this.GetResult();
 
             /// <summary>
             /// Sets the action to perform when the controlled task completes.

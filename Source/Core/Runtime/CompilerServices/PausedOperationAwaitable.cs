@@ -62,7 +62,14 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             /// <summary>
             /// True if the awaiter has completed, else false.
             /// </summary>
-            public bool IsCompleted => this.Operation != null ? this.Condition() : true;
+            public bool IsCompleted
+            {
+                get
+                {
+                    IO.Debug.WriteLine($">>> PausedOperationAwaiter::IsCompleted {this.Condition()} '{this.Operation}'.");
+                    return this.Operation != null ? this.Condition() : true;
+                }
+            }
 
             /// <inheritdoc/>
             bool IControllableAwaiter.IsDone => this.IsCompleted;

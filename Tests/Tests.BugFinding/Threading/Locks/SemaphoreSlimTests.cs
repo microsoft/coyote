@@ -152,20 +152,28 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
             var t1 = Task.Run(async () =>
             {
+                IO.Debug.WriteLine($">>> [T1] 1 '{Thread.CurrentThread.ManagedThreadId}'.");
                 await semaphore.WaitAsync();
+                IO.Debug.WriteLine($">>> [T1] 2 '{Thread.CurrentThread.ManagedThreadId}'.");
                 value++;
                 SchedulingPoint.Interleave();
                 value--;
+                IO.Debug.WriteLine($">>> [T1] 3 '{Thread.CurrentThread.ManagedThreadId}'.");
                 semaphore.Release();
+                IO.Debug.WriteLine($">>> [T1] 4 '{Thread.CurrentThread.ManagedThreadId}'.");
             });
 
             var t2 = Task.Run(async () =>
             {
+                IO.Debug.WriteLine($">>> [T2] 1 '{Thread.CurrentThread.ManagedThreadId}'.");
                 await semaphore.WaitAsync();
+                IO.Debug.WriteLine($">>> [T2] 2 '{Thread.CurrentThread.ManagedThreadId}'.");
                 value++;
                 SchedulingPoint.Interleave();
                 value--;
+                IO.Debug.WriteLine($">>> [T2] 3 '{Thread.CurrentThread.ManagedThreadId}'.");
                 semaphore.Release();
+                IO.Debug.WriteLine($">>> [T2] 4 '{Thread.CurrentThread.ManagedThreadId}'.");
             });
 
             var t = Task.WhenAll(t1, t2);

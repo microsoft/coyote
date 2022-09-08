@@ -145,39 +145,41 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        private static async Task FooAsync()
+        {
+            int value = 0;
+            var semaphore = new SemaphoreSlim(1, 1);
+
+            var t1 = Task.Run(async () =>
+            {
+                await semaphore.WaitAsync();
+                value++;
+                SchedulingPoint.Interleave();
+                value--;
+                semaphore.Release();
+            });
+
+            var t2 = Task.Run(async () =>
+            {
+                await semaphore.WaitAsync();
+                value++;
+                SchedulingPoint.Interleave();
+                value--;
+                semaphore.Release();
+            });
+
+            var t = Task.WhenAll(t1, t2);
+            IO.Debug.WriteLine($">>> Waiting for task '{t.Id}' to complete.");
+            await t;
+
+            int expected = 0;
+            Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+        }
+
         [Fact(Timeout = 5000)]
         public void TestSemaphoreWithAsyncAccess()
         {
-            this.Test(async () =>
-            {
-                int value = 0;
-                var semaphore = new SemaphoreSlim(1, 1);
-
-                var t1 = Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    value++;
-                    SchedulingPoint.Interleave();
-                    value--;
-                    semaphore.Release();
-                });
-
-                var t2 = Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    value++;
-                    SchedulingPoint.Interleave();
-                    value--;
-                    semaphore.Release();
-                });
-
-                var t = Task.WhenAll(t1, t2);
-                IO.Debug.WriteLine($">>> Waiting for task '{t.Id}' to complete.");
-                await t;
-
-                int expected = 0;
-                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
-            },
+            this.Test(FooAsync,
             configuration: this.GetConfiguration().WithDebugLoggingEnabled().WithTestingIterations(100));
         }
 

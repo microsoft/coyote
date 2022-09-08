@@ -76,7 +76,7 @@ Hello world!
             Specification.Assert(false, "Reached test assertion.");
         }
 
-        [Fact(Timeout = 5000)]
+        // [Fact(Timeout = 5000)]
         public void TestCustomTaskRuntimeLog()
         {
             var config = this.GetConfiguration().WithRandomGeneratorSeed(0);

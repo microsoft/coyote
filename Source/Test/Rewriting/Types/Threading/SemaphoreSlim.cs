@@ -207,6 +207,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <inheritdoc/>
             protected override bool TryExecuteState(uint state)
             {
+                IO.Debug.WriteLine($">>> WaitAsyncStateMachine::TryExecuteState state({state}) '{System.Threading.Thread.CurrentThread.ManagedThreadId}'.");
                 if (state is 0)
                 {
                     this.Awaiter = this.Runtime.PauseOperationUntilAsync(() =>

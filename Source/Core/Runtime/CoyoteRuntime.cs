@@ -892,6 +892,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void PauseOperationUntil(Func<bool> condition)
         {
+            IO.Debug.WriteLine($">>> PauseOperationUntil BEFOREx2 '{Thread.CurrentThread.ManagedThreadId}'.");
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
@@ -912,6 +913,8 @@ namespace Microsoft.Coyote.Runtime
                     }
                 }
             }
+
+            IO.Debug.WriteLine($">>> PauseOperationUntil AFTERx2 '{Thread.CurrentThread.ManagedThreadId}'.");
         }
 
         /// <summary>
@@ -924,6 +927,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     ControlledOperation current = this.GetExecutingOperation();
+                    IO.Debug.WriteLine($">>> PauseOperationUntilAsync BEFORE '{current}'.");
                     return new PausedOperationAwaitable(this, current, condition, resumeAsynchronously);
                 }
             }

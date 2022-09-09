@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 this.PrioritizedOperationGroups.Remove(group);
                 if (Debug.IsEnabled)
                 {
-                    Debug.WriteLine($"<Coyote> Removing completed group {group} from list of prioritized operation groups.");
+                    Debug.WriteLine($"<Coyote> Removed completed group {group} from list of prioritized operation groups.");
                 }
             }
         }

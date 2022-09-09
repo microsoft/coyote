@@ -107,6 +107,19 @@ namespace Microsoft.Coyote.Runtime
             return false;
         }
 
+        internal bool IsAllMembersCompleted()
+        {
+            foreach (ControlledOperation op in this.Members)
+            {
+                if (!(op.Status == OperationStatus.Completed))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>

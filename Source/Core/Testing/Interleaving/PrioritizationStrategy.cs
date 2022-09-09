@@ -135,11 +135,34 @@ namespace Microsoft.Coyote.Testing.Interleaving
             return null;
         }
 
+        private void CleanupPrioritizedOperationGroups()
+        {
+            List<OperationGroup> groupsToRemove = new List<OperationGroup>();
+            foreach (OperationGroup group in this.PrioritizedOperationGroups)
+            {
+                if (group.IsAllMembersCompleted())
+                {
+                    groupsToRemove.Add(group);
+                }
+            }
+
+            foreach (OperationGroup group in groupsToRemove)
+            {
+                this.PrioritizedOperationGroups.Remove(group);
+                if (Debug.IsEnabled)
+                {
+                    Debug.WriteLine($"<Coyote> Removing completed group {group} from list of prioritized operation groups.");
+                }
+            }
+        }
+
         /// <summary>
         /// Sets a random priority to any new operation groups.
         /// </summary>
         private void SetNewOperationGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
+            this.CleanupPrioritizedOperationGroups();
+
             int count = this.PrioritizedOperationGroups.Count;
             if (count is 0)
             {

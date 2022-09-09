@@ -108,6 +108,22 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Determines whether all members of this OperationGroup have completed.
+        /// </summary>
+        internal bool IsAllMembersCompleted()
+        {
+            foreach (ControlledOperation op in this.Members)
+            {
+                if (!(op.Status == OperationStatus.Completed))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
         public override int GetHashCode() => this.Id.GetHashCode();

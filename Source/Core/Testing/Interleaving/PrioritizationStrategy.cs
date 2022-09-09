@@ -72,7 +72,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
                 if (this.MaxPriorityChanges > 0)
                 {
-                    var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    // var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    var priorityChanges = this.MaxPriorityChanges;
                     var range = Enumerable.Range(0, this.MaxPriorityChangePoints);
                     foreach (int point in this.Shuffle(range).Take(priorityChanges))
                     {

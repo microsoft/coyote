@@ -63,12 +63,10 @@ namespace Microsoft.Coyote.Tests.Common
         {
             lock (this.Lock)
             {
-                if (this.IsDisposed)
+                if (!this.IsDisposed)
                 {
-                    throw new ObjectDisposedException(nameof(TestOutputLogger));
+                    this.CurrentLine.Append(value);
                 }
-
-                this.CurrentLine.Append(value);
             }
         }
 
@@ -88,13 +86,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             lock (this.Lock)
             {
-                if (this.IsDisposed)
+                if (!this.IsDisposed)
                 {
-                    throw new ObjectDisposedException(nameof(TestOutputLogger));
+                    this.FlushCurrentLine();
+                    this.TestOutput.WriteLine(value);
                 }
-
-                this.FlushCurrentLine();
-                this.TestOutput.WriteLine(value);
             }
         }
 

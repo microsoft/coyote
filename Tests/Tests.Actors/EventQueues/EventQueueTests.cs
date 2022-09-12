@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestEnqueueEvent()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             Assert.Equal(0, queue.Size);
 
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestDequeueEvent()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             var (deqeueStatus, e, group, info) = queue.Dequeue();
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestEnqueueEventWithHandlerNotRunning()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             var (deqeueStatus, e, group, info) = queue.Dequeue();
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestRaiseEvent()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
             queue.RaiseEvent(new E1(), null);
             Assert.True(queue.IsEventRaised);
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -294,7 +294,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -329,7 +329,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public void TestIgnoreEvent()
         {
             int notificationCount = 0;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
@@ -461,7 +461,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public void TestDeferEvent()
         {
             int notificationCount = 0;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {

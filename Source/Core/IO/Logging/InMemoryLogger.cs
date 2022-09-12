@@ -50,10 +50,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public override void Write(string value)
-        {
-            this.Write(LogSeverity.Informational, value);
-        }
+        public override void Write(string value) => this.Write(LogSeverity.Informational, value);
 
         /// <inheritdoc/>
         public void Write(LogSeverity severity, string value)
@@ -76,17 +73,11 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
-        {
-            string msg = string.Format(format, args);
-            this.Write(severity, msg);
-        }
+        public void Write(LogSeverity severity, string format, params object[] args) =>
+            this.Write(severity, string.Format(format, args));
 
         /// <inheritdoc/>
-        public override void WriteLine(string value)
-        {
-            this.WriteLine(LogSeverity.Informational, value);
-        }
+        public override void WriteLine(string value) => this.WriteLine(LogSeverity.Informational, value);
 
         /// <inheritdoc/>
         public void WriteLine(LogSeverity severity, string value)
@@ -109,11 +100,8 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
-        {
-            string msg = string.Format(format, args);
-            this.WriteLine(severity, msg);
-        }
+        public void WriteLine(LogSeverity severity, string format, params object[] args) =>
+            this.WriteLine(severity, string.Format(format, args));
 
         /// <summary>
         /// Returns the logged text as a string.

@@ -795,7 +795,7 @@ namespace Microsoft.Coyote.Tests.Common
                 Logger = logger
             };
 
-            engine.RegisterPerIterationCallBack(iteration => logger.Reset());
+            engine.RegisterStartIterationCallBack(iteration => logger.Reset());
             engine.Run();
             return engine;
         }

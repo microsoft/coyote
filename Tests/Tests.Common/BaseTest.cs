@@ -286,18 +286,17 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
-                var engine = RunTest(test, configuration, logger);
+                using var engine = RunTest(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReplayStrategy(engine.ReproducibleTrace);
 
-                    engine = RunTest(test, configuration, logger);
-
-                    string replayError = engine.Scheduler.GetReplayError();
+                    using var replayEngine = RunTest(test, configuration, logger);
+                    string replayError = replayEngine.Scheduler.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
-                    CheckErrors(engine, errorChecker);
+                    CheckErrors(replayEngine, errorChecker);
                 }
             }
             catch (Exception ex)
@@ -382,8 +381,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
-                var engine = RunTest(test, configuration, logger);
-
+                using var engine = RunTest(test, configuration, logger);
                 CheckErrors(engine, exceptionType);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
@@ -391,11 +389,10 @@ namespace Microsoft.Coyote.Tests.Common
                     configuration.SchedulingStrategy = "replay";
                     configuration.ScheduleTrace = engine.ReproducibleTrace;
 
-                    engine = RunTest(test, configuration, logger);
-
-                    string replayError = engine.Scheduler.GetReplayError();
+                    using var replayEngine = RunTest(test, configuration, logger);
+                    string replayError = replayEngine.Scheduler.GetReplayError();
                     Assert.True(replayError.Length is 0, replayError);
-                    CheckErrors(engine, exceptionType);
+                    CheckErrors(replayEngine, exceptionType);
                 }
             }
             catch (Exception ex)

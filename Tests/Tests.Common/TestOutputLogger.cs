@@ -20,9 +20,9 @@ namespace Microsoft.Coyote.Tests.Common
         private readonly ITestOutputHelper TestOutput;
 
         /// <summary>
-        /// Saves current line since ITestOutputHelper provides no 'Write' method.
+        /// Saves the log until the end of the test.
         /// </summary>
-        private readonly StringBuilder CurrentLine = new StringBuilder();
+        private readonly StringBuilder Log;
 
         /// <summary>
         /// Serializes access to the string writer.
@@ -47,6 +47,7 @@ namespace Microsoft.Coyote.Tests.Common
         public TestOutputLogger(ITestOutputHelper output)
         {
             this.TestOutput = output;
+            this.Log = new StringBuilder();
             this.Lock = new object();
             this.IsDisposed = false;
         }
@@ -65,7 +66,7 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 if (!this.IsDisposed)
                 {
-                    this.CurrentLine.Append(value);
+                    this.Log.Append(value);
                 }
             }
         }
@@ -88,8 +89,7 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 if (!this.IsDisposed)
                 {
-                    this.FlushCurrentLine();
-                    this.TestOutput.WriteLine(value);
+                    this.Log.AppendLine(value);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 if (!this.IsDisposed)
                 {
-                    this.FlushCurrentLine();
+                    this.FlushLog();
                     this.IsDisposed = true;
                 }
             }
@@ -113,12 +113,12 @@ namespace Microsoft.Coyote.Tests.Common
             base.Dispose(disposing);
         }
 
-        private void FlushCurrentLine()
+        private void FlushLog()
         {
-            if (this.CurrentLine.Length > 0)
+            if (this.Log.Length > 0)
             {
-                this.TestOutput.WriteLine(this.CurrentLine.ToString());
-                this.CurrentLine.Clear();
+                this.TestOutput.WriteLine(this.Log.ToString());
+                this.Log.Clear();
             }
         }
     }

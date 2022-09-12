@@ -98,6 +98,29 @@ namespace Microsoft.Coyote.Tests.Common
         public void WriteLine(LogSeverity severity, string format, params object[] args) =>
             this.WriteLine(severity, string.Format(format, args));
 
+        /// <summary>
+        /// Write all buffered log to the test output logger.
+        /// </summary>
+        private void FlushLog()
+        {
+            if (this.Log.Length > 0)
+            {
+                this.TestOutput.WriteLine(this.Log.ToString());
+                this.Log.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Resets the logger, discarding any buffered log.
+        /// </summary>
+        public void Reset()
+        {
+            lock (this.Lock)
+            {
+                this.Log.Clear();
+            }
+        }
+
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
@@ -111,15 +134,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             base.Dispose(disposing);
-        }
-
-        private void FlushLog()
-        {
-            if (this.Log.Length > 0)
-            {
-                this.TestOutput.WriteLine(this.Log.ToString());
-                this.Log.Clear();
-            }
         }
     }
 }

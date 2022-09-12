@@ -96,8 +96,8 @@ namespace Microsoft.Coyote.Tests.Common
         private TestReport RunCoyoteTest(Delegate test, Configuration configuration)
         {
             configuration ??= this.GetConfiguration();
-            ILogger logger = new TestOutputLogger(this.TestOutput);
 
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using TestingEngine engine = RunTest(test, configuration, logger);
@@ -282,8 +282,7 @@ namespace Microsoft.Coyote.Tests.Common
                 configuration = configuration.WithTestingIterations(configuration.TestingIterations * 50);
             }
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using var engine = RunTest(test, configuration, logger);
@@ -377,8 +376,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using var engine = RunTest(test, configuration, logger);
@@ -409,8 +407,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             configuration ??= this.GetConfiguration();
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -438,8 +435,7 @@ namespace Microsoft.Coyote.Tests.Common
             uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
             {
-                ILogger logger = new TestOutputLogger(this.TestOutput);
-
+                var logger = new TestOutputLogger(this.TestOutput);
                 try
                 {
                     configuration.IsMonitoringEnabledInInProduction = true;
@@ -517,8 +513,7 @@ namespace Microsoft.Coyote.Tests.Common
             configuration ??= this.GetConfiguration();
 
             string errorMessage = string.Empty;
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -562,8 +557,7 @@ namespace Microsoft.Coyote.Tests.Common
             configuration ??= this.GetConfiguration();
 
             string errorMessage = string.Empty;
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -611,8 +605,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -659,8 +652,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -707,8 +699,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -757,8 +748,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger = new TestOutputLogger(this.TestOutput);
-
+            var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
@@ -798,13 +788,14 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        private static TestingEngine RunTest(Delegate test, Configuration configuration, ILogger logger)
+        private static TestingEngine RunTest(Delegate test, Configuration configuration, TestOutputLogger logger)
         {
             var engine = new TestingEngine(configuration, test)
             {
                 Logger = logger
             };
 
+            engine.RegisterPerIterationCallBack(iteration => logger.Reset());
             engine.Run();
             return engine;
         }

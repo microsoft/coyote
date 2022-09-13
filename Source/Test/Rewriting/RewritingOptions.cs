@@ -286,8 +286,8 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private static string GetTargetFramework()
         {
-            var targetFramework = Assembly.GetExecutingAssembly()
-                .GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
+            var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            var targetFramework = assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
                 .SingleOrDefault() as TargetFrameworkAttribute;
             var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, StringSplitOptions.None);
 
@@ -300,6 +300,10 @@ namespace Microsoft.Coyote.Rewriting
                         tokens[1] is "v5.0" ? "net5.0" :
                         tokens[1] is "v3.1" ? "netcoreapp3.1" :
                         resolvedFramework;
+                }
+                else if (tokens[0] == ".NETStandard")
+                {
+                    resolvedFramework = tokens[1] is "v2.0" ? "netstandard2.0" : resolvedFramework;
                 }
                 else if (tokens[0] == ".NETFramework")
                 {

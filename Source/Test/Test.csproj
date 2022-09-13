@@ -5,7 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
     <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
-    <!-- <NetStandard2Supported>false</NetStandard2Supported> -->
+    <Framework462Supported>false</Framework462Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -22,9 +22,6 @@
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Text.Json" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>

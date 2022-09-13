@@ -323,17 +323,27 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         private static void TestMultiCatchBlockMethod()
         {
             // Test we can handle multiple catch blocks.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
+            catch (NotSupportedException)
+            {
+                throw;
+            }
             catch (InvalidOperationException)
             {
+                exceptionHandled = true;
                 throw;
             }
             catch (Exception)
             {
-                Console.WriteLine("exception handled");
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
@@ -346,17 +356,23 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         private static void TestMultiCatchFilterMethod()
         {
             // Test we can handle multiple catch blocks with a filter.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
-            catch (InvalidOperationException)
+            catch (NotSupportedException)
             {
                 throw;
             }
-            catch (Exception e) when (!(e is NullReferenceException))
+            catch (Exception e) when (!(e is NotSupportedException))
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
@@ -369,21 +385,27 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         private static void TestMultiCatchBlockWithFilterMethod()
         {
             // Test we can handle multiple catch blocks with a filter.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
-            catch (InvalidOperationException)
+            catch (NullReferenceException)
             {
                 throw;
             }
             catch (Exception e) when (!(e is NullReferenceException))
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+                throw;
             }
-            catch (NullReferenceException)
+            catch (InvalidOperationException)
             {
-                Console.WriteLine("Don't care!");
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
@@ -396,17 +418,21 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         private static void TestExceptionHandlerInsideLockMethod()
         {
             object l = new object();
-
             lock (l)
             {
+                bool exceptionHandled = false;
                 try
                 {
                     throw new InvalidOperationException();
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("exception handled");
+                    exceptionHandled = true;
                     throw;
+                }
+                finally
+                {
+                    Assert.True(exceptionHandled, "Exception was not handled.");
                 }
             }
         }
@@ -419,6 +445,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
 
         private static void TestTryUsingTryMethod()
         {
+            bool exceptionHandled = false;
             try
             {
                 using var s = new StringWriter();
@@ -434,7 +461,11 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             }
             catch (Exception)
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 

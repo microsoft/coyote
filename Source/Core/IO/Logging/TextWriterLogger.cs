@@ -42,13 +42,13 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
             this.Write(value);
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
+        public void Write(VerbosityLevel level, string format, params object[] args)
         {
             this.Write(format, args);
         }
@@ -66,13 +66,13 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
             this.WriteLine(value);
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        public void WriteLine(VerbosityLevel level, string format, params object[] args)
         {
             this.WriteLine(format, args);
         }

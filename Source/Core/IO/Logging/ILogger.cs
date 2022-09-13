@@ -31,19 +31,19 @@ namespace Microsoft.Coyote.IO
         public void Write(string format, params object[] args);
 
         /// <summary>
-        /// Writes a string to the log.
+        /// Writes a string to the log with the specified verbosity level.
         /// </summary>
-        /// <param name="severity">The severity of the issue being logged.</param>
+        /// <param name="level">The level of verbosity during logging.</param>
         /// <param name="value">The string to write.</param>
-        public void Write(LogSeverity severity, string value);
+        public void Write(VerbosityLevel level, string value);
 
         /// <summary>
-        /// Writes a string to the log.
+        /// Writes a string to the log with the specified verbosity level.
         /// </summary>
-        /// <param name="severity">The severity of the issue being logged.</param>
+        /// <param name="level">The level of verbosity during logging.</param>
         /// <param name="format">The string format to write.</param>
         /// <param name="args">The arguments needed to format the string.</param>
-        public void Write(LogSeverity severity, string format, params object[] args);
+        public void Write(VerbosityLevel level, string format, params object[] args);
 
         /// <summary>
         /// Writes an informational string to the log.
@@ -59,18 +59,20 @@ namespace Microsoft.Coyote.IO
         public void WriteLine(string format, params object[] args);
 
         /// <summary>
-        /// Writes a string followed by a line terminator to the text string or stream.
+        /// Writes a string followed by a line terminator to the text string or stream
+        /// with the specified verbosity level.
         /// </summary>
-        /// <param name="severity">The severity of the issue being logged.</param>
+        /// <param name="level">The level of verbosity during logging.</param>
         /// <param name="value">The string to write.</param>
-        public void WriteLine(LogSeverity severity, string value);
+        public void WriteLine(VerbosityLevel level, string value);
 
         /// <summary>
-        /// Writes a string followed by a line terminator to the text string or stream.
+        /// Writes a string followed by a line terminator to the text string or stream
+        /// with the specified verbosity level.
         /// </summary>
-        /// <param name="severity">The severity of the issue being logged.</param>
+        /// <param name="level">The level of verbosity during logging.</param>
         /// <param name="format">The string format to write.</param>
         /// <param name="args">The arguments needed to format the string.</param>
-        public void WriteLine(LogSeverity severity, string format, params object[] args);
+        public void WriteLine(VerbosityLevel level, string format, params object[] args);
     }
 }

@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.IO
         public override void Write(string value) => this.Write(LogSeverity.Informational, value);
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
             try
             {
@@ -73,14 +73,14 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args) =>
+        public void Write(VerbosityLevel level, string format, params object[] args) =>
             this.Write(severity, string.Format(format, args));
 
         /// <inheritdoc/>
         public override void WriteLine(string value) => this.WriteLine(LogSeverity.Informational, value);
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args) =>
+        public void WriteLine(VerbosityLevel level, string format, params object[] args) =>
             this.WriteLine(severity, string.Format(format, args));
 
         /// <summary>

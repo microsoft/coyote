@@ -225,11 +225,11 @@ namespace Microsoft.Coyote
         /// </summary>
         internal string ScheduleTrace;
 
-        /// <summary>
-        /// If true, then messages are logged.
-        /// </summary>
-        [DataMember]
-        public bool IsVerbose { get; internal set; }
+        // /// <summary>
+        // /// If true, then messages are logged.
+        // /// </summary>
+        // [DataMember]
+        // public bool IsVerbose { get; internal set; }
 
         /// <summary>
         /// If true, then debug verbosity is enabled.
@@ -238,10 +238,10 @@ namespace Microsoft.Coyote
         internal bool IsDebugVerbosityEnabled;
 
         /// <summary>
-        /// The level of detail to provide in verbose logging.
+        /// The level of verbosity during logging.
         /// </summary>
         [DataMember]
-        public LogSeverity LogLevel { get; internal set; }
+        public VerbosityLevel VerbosityLevel { get; internal set; }
 
         /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote
 
             this.IsVerbose = false;
             this.IsDebugVerbosityEnabled = false;
-            this.LogLevel = LogSeverity.Informational;
+            this.VerbosityLevel = VerbosityLevel.Info;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -635,12 +635,10 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Updates the configuration with verbose output enabled or disabled.
         /// </summary>
-        /// <param name="isVerbose">If true, then messages are logged.</param>
-        /// <param name="logLevel">The level of detail to provide in verbose logging.</param>
-        public Configuration WithVerbosityEnabled(bool isVerbose = true, LogSeverity logLevel = LogSeverity.Informational)
+        /// <param name="level">The level of verbosity during logging.</param>
+        public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)
         {
-            this.IsVerbose = isVerbose;
-            this.LogLevel = logLevel;
+            this.VerbosityLevel = level;
             return this;
         }
 

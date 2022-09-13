@@ -15,13 +15,6 @@ namespace Microsoft.Coyote.IO
     /// </remarks>
     public sealed class ConsoleLogger : TextWriter, ILogger
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConsoleLogger"/> class.
-        /// </summary>
-        public ConsoleLogger()
-        {
-        }
-
         /// <inheritdoc/>
         public TextWriter TextWriter => this;
 
@@ -32,9 +25,17 @@ namespace Microsoft.Coyote.IO
         public override Encoding Encoding => Console.OutputEncoding;
 
         /// <summary>
-        /// The level of detail to report.
+        /// The level of verbosity during logging.
         /// </summary>
-        public LogSeverity LogLevel { get; set; }
+        public VerbosityLevel VerbosityLevel { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleLogger"/> class.
+        /// </summary>
+        public ConsoleLogger(VerbosityLevel level)
+        {
+            this.VerbosityLevel = level;
+        }
 
         /// <inheritdoc/>
         public override void Write(string value)
@@ -43,7 +44,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
             switch (severity)
             {
@@ -79,7 +80,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
+        public void Write(VerbosityLevel level, string format, params object[] args)
         {
             string value = string.Format(format, args);
             this.Write(severity, value);
@@ -106,7 +107,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
             switch (severity)
             {
@@ -144,7 +145,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        public void WriteLine(VerbosityLevel level, string format, params object[] args)
         {
             string value = string.Format(format, args);
             this.WriteLine(severity, value);

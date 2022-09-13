@@ -98,10 +98,12 @@ namespace Microsoft.Coyote.Cli
 
             var allowedVerbosityLevels = new HashSet<string>
             {
-                "quiet",
-                "minimal",
-                "normal",
-                "detailed"
+                "none",
+                "error",
+                "warning",
+                "info",
+                "debug",
+                "exhaustive"
             };
 
             var verbosityOption = new Option<string>(
@@ -952,21 +954,24 @@ namespace Microsoft.Coyote.Cli
                     case "verbosity":
                         switch (result.GetValueOrDefault<string>())
                         {
-                            case "quiet":
-                                this.Configuration.IsVerbose = false;
+                            case "none":
+                                this.Configuration.VerbosityLevel = VerbosityLevel.None;
                                 break;
-                            case "minimal":
-                                this.Configuration.LogLevel = LogSeverity.Error;
-                                this.Configuration.IsVerbose = true;
+                            case "error":
+                                this.Configuration.VerbosityLevel = VerbosityLevel.Error;
                                 break;
-                            case "normal":
-                                this.Configuration.LogLevel = LogSeverity.Warning;
-                                this.Configuration.IsVerbose = true;
+                            case "warning":
+                                this.Configuration.VerbosityLevel = VerbosityLevel.Warning;
                                 break;
-                            case "detailed":
+                            case "debug":
+                                this.Configuration.VerbosityLevel = VerbosityLevel.Debug;
+                                break;
+                            case "exhaustive":
+                                this.Configuration.VerbosityLevel = VerbosityLevel.Exhaustive;
+                                break;
+                            case "info":
                             default:
-                                this.Configuration.LogLevel = LogSeverity.Informational;
-                                this.Configuration.IsVerbose = true;
+                                this.Configuration.VerbosityLevel = VerbosityLevel.Info;
                                 break;
                         }
 

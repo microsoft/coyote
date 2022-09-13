@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.IO
         public override Encoding Encoding => Encoding.Unicode;
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
+        public void Write(VerbosityLevel level, string format, params object[] args)
         {
         }
 
@@ -49,12 +49,12 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        public void WriteLine(VerbosityLevel level, string format, params object[] args)
         {
         }
     }

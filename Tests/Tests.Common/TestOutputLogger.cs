@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Tests.Common
         public override void Write(string format, params object[] args) =>
             this.Write(LogSeverity.Informational, string.Format(format, args));
 
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
             lock (this.Lock)
             {
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args) =>
+        public void Write(VerbosityLevel level, string format, params object[] args) =>
             this.Write(severity, string.Format(format, args));
 
         /// <inheritdoc/>
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Tests.Common
             this.WriteLine(LogSeverity.Informational, string.Format(format, args));
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
             lock (this.Lock)
             {
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args) =>
+        public void WriteLine(VerbosityLevel level, string format, params object[] args) =>
             this.WriteLine(severity, string.Format(format, args));
 
         /// <summary>

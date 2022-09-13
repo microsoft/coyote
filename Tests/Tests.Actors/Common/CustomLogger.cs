@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string value)
+        public void Write(VerbosityLevel level, string value)
         {
             if (this.StringBuilder != null)
             {
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
+        public void Write(VerbosityLevel level, string format, params object[] args)
         {
             if (this.StringBuilder != null)
             {
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string value)
+        public void WriteLine(VerbosityLevel level, string value)
         {
             if (this.StringBuilder != null)
             {
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors.Tests
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        public void WriteLine(VerbosityLevel level, string format, params object[] args)
         {
             if (this.StringBuilder != null)
             {

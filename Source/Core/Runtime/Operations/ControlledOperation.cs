@@ -145,6 +145,7 @@ namespace Microsoft.Coyote.Runtime
             }
             catch (ObjectDisposedException)
             {
+                // The handler was disposed, so we can ignore this exception.
             }
         }
 

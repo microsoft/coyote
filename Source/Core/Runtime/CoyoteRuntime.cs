@@ -731,7 +731,14 @@ namespace Microsoft.Coyote.Runtime
                             Thread.CurrentThread.ManagedThreadId, pendingOp.Key.Name, pendingOp.Key.Group);
                         using (SynchronizedSection.Exit(this.RuntimeLock))
                         {
-                            pendingOp.Value.Wait();
+                            try
+                            {
+                                pendingOp.Value.Wait();
+                            }
+                            catch (ObjectDisposedException)
+                            {
+                                // The handler was disposed, so we can ignore this exception.
+                            }
                         }
 
                         IO.Debug.WriteLine("[coyote::debug] Waking up thread '{0}'.", Thread.CurrentThread.ManagedThreadId);

@@ -21,7 +21,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default installed runtime instance.
         /// </summary>
-        internal static CoyoteRuntime DefaultRuntime { get; private set; } = CreateWithConfiguration(default);
+        internal static CoyoteRuntime Default { get; private set; } = CreateWithConfiguration(default);
+
+        /// <summary>
+        /// The runtime installed in the current execution context.
+        /// </summary>
+        public static ICoyoteRuntime Current => CoyoteRuntime.Current;
 
         /// <summary>
         /// Protects access to the default installed runtime.
@@ -62,7 +67,7 @@ namespace Microsoft.Coyote.Runtime
             lock (SyncObject)
             {
                 // Assign the newly created runtime as the default installed runtime.
-                return DefaultRuntime = CreateWithConfiguration(configuration);
+                return Default = CreateWithConfiguration(configuration);
             }
         }
 

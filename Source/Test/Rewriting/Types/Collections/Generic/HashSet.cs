@@ -416,36 +416,40 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             internal void CheckDataRace(bool isWriteAccess)
             {
                 var runtime = CoyoteRuntime.Current;
-                void Interleave()
-                {
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-                    {
-                        runtime.ScheduleNextOperation(SchedulingPointType.Default);
-                    }
-                    else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        runtime.DelayOperation();
-                    }
-                }
-
                 if (isWriteAccess)
                 {
                     runtime.Assert(this.WriterCount is 0,
                         $"Found write/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
                     runtime.Assert(this.ReaderCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
-
                     SystemInterlocked.Increment(ref this.WriterCount);
-                    Interleave();
-                    SystemInterlocked.Decrement(ref this.WriterCount);
                 }
                 else
                 {
                     runtime.Assert(this.WriterCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
-
                     SystemInterlocked.Increment(ref this.ReaderCount);
-                    Interleave();
+                }
+
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
+                {
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    {
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                    }
+                    else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        runtime.DelayOperation(current);
+                    }
+                }
+
+                if (isWriteAccess)
+                {
+                    SystemInterlocked.Decrement(ref this.WriterCount);
+                }
+                else
+                {
                     SystemInterlocked.Decrement(ref this.ReaderCount);
                 }
             }

@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.Count;
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.IsEmpty;
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Clear(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.Clear();
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void CopyTo(SystemConcurrent.ConcurrentStack<T> instance, T[] array, int index)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.CopyTo(array, index);
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetEnumerator();
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Push(SystemConcurrent.ConcurrentStack<T> instance, T item)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.Push(item);
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void PushRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.PushRange(items);
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void PushRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items, int startIndex, int count)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.PushRange(items, startIndex, count);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static T[] ToArray(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.ToArray();
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPeek(SystemConcurrent.ConcurrentStack<T> instance, out T result)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryPeek(out result);
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPop(SystemConcurrent.ConcurrentStack<T> instance, out T result)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryPop(out result);
         }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items, int startIndex, int count)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryPopRange(items, startIndex, count);
         }
 
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryPopRange(items);
         }
     }

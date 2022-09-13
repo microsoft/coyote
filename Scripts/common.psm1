@@ -61,10 +61,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    # TODO: workaround until .NET fixes normal logging.
-    # See https://github.com/dotnet/sdk/issues/16122
-    # $command = "test $target -f $framework --no-build -v $verbosity --blame"
-    $command = "test $target -f $framework --no-build -v $verbosity --logger 'console;verbosity=normal' --blame"
+    $command = "test $target -f $framework --no-build -v $verbosity --logger 'trx' --blame --blame-crash"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }
@@ -211,7 +208,11 @@ function FindMatchingVersion([String]$path, [version]$version) {
 }
 
 function Write-Comment([String]$prefix, [String]$text, [String]$color = "white") {
-    Write-Host "$prefix " -b "black" -nonewline; Write-Host $text -b "black" -f $color
+    if ($prefix.Length -gt 0) {
+        $prefix = "$prefix "
+    }
+
+    Write-Host $prefix -b "black" -nonewline; Write-Host $text -b "black" -f $color
 }
 
 function Write-Error([String]$text) {

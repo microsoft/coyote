@@ -40,9 +40,14 @@ namespace Microsoft.Coyote.Runtime
         internal readonly OperationGroup Group;
 
         /// <summary>
-        /// List of dependencies that must get satisfied before this operation can resume executing.
+        /// Queue of continuations that this operation must execute before it completes.
         /// </summary>
-        internal readonly List<Func<bool>> Dependencies;
+        private readonly Queue<Action> Continuations;
+
+        /// <summary>
+        /// Dependency that must get resolved before this operation can resume executing.
+        /// </summary>
+        private Func<bool> Dependency;
 
         /// <summary>
         /// Synchronization mechanism for controlling the execution of this operation.
@@ -71,9 +76,9 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsSourceUncontrolled;
 
         /// <summary>
-        /// True if at least one of the dependencies is uncontrolled, else false.
+        /// True if the dependency is uncontrolled, else false.
         /// </summary>
-        internal bool IsAnyDependencyUncontrolled;
+        internal bool IsDependencyUncontrolled;
 
         /// <summary>
         /// True if this is the root operation, else false.
@@ -81,13 +86,13 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsRoot => this.Id is 0;
 
         /// <summary>
-        /// True if this operation is currently blocked, else false.
+        /// True if this operation is currently paused, else false.
         /// </summary>
-        internal bool IsBlocked =>
-            this.Status is OperationStatus.BlockedOnWaitAll ||
-            this.Status is OperationStatus.BlockedOnWaitAny ||
-            this.Status is OperationStatus.BlockedOnReceive ||
-            this.Status is OperationStatus.BlockedOnResource;
+        internal bool IsPaused =>
+            this.Status is OperationStatus.Paused ||
+            this.Status is OperationStatus.PausedOnDelay ||
+            this.Status is OperationStatus.PausedOnResource ||
+            this.Status is OperationStatus.PausedOnReceive;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
@@ -99,16 +104,30 @@ namespace Microsoft.Coyote.Runtime
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
-            this.Dependencies = new List<Func<bool>>();
+            this.Continuations = new Queue<Action>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
-            this.IsAnyDependencyUncontrolled = false;
+            this.IsDependencyUncontrolled = false;
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);
+        }
+
+        /// <summary>
+        /// Executes all continuations of this operation in order, if there are any.
+        /// </summary>
+        internal void ExecuteContinuations()
+        {
+            // New continuations can be added while executing a continuation,
+            // so keep executing them until the queue is drained.
+            while (this.Continuations.Count > 0)
+            {
+                var nextContinuation = this.Continuations.Dequeue();
+                nextContinuation();
+            }
         }
 
         /// <summary>
@@ -119,8 +138,15 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         internal void WaitSignal()
         {
-            this.SyncEvent.Wait();
-            this.SyncEvent.Reset();
+            try
+            {
+                this.SyncEvent.Wait();
+                this.SyncEvent.Reset();
+            }
+            catch (ObjectDisposedException)
+            {
+                // The handler was disposed, so we can ignore this exception.
+            }
         }
 
         /// <summary>
@@ -129,22 +155,34 @@ namespace Microsoft.Coyote.Runtime
         internal void Signal() => this.SyncEvent.Set();
 
         /// <summary>
-        /// Sets a callback that returns true when a dependency has been satisfied.
+        /// Sets a callback that executes the next continuation of this operation.
         /// </summary>
-        internal void SetDependencyCallback(Func<bool> callback, bool isControlled)
+        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
+
+        /// <summary>
+        /// Pauses this operation and sets a callback that returns true when the
+        /// dependency causing the pause has been resolved.
+        /// </summary>
+        internal void PauseWithDependency(Func<bool> callback, bool isControlled)
         {
-            this.Dependencies.Add(callback);
-            this.IsAnyDependencyUncontrolled |= !isControlled;
+            this.Status = OperationStatus.Paused;
+            this.Dependency = callback;
+            this.IsDependencyUncontrolled = !isControlled;
         }
 
         /// <summary>
-        /// Unblocks this operation by clearing its dependencies.
+        /// Tries to enable this operation if its dependency has been resolved.
         /// </summary>
-        internal void Unblock()
+        internal bool TryEnable()
         {
-            this.Dependencies.Clear();
-            this.IsAnyDependencyUncontrolled = false;
-            this.Status = OperationStatus.Enabled;
+            if (this.Status is OperationStatus.Paused && (this.Dependency?.Invoke() ?? true))
+            {
+                this.Dependency = null;
+                this.IsDependencyUncontrolled = false;
+                this.Status = OperationStatus.Enabled;
+            }
+
+            return this.Status is OperationStatus.Enabled;
         }
 
         /// <summary>

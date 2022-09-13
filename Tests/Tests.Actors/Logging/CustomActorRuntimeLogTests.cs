@@ -129,6 +129,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCustomLogger()
         {
+            var config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 using CustomLogger logger = new CustomLogger();
@@ -141,6 +142,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 await Task.Delay(200);
                 Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
+                string result = logger.ToString();
                 string expected = @"<CreateLog> TestMonitor was created.
 <MonitorLog> TestMonitor enters state 'Init'.
 <MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.
@@ -164,17 +166,17 @@ namespace Microsoft.Coyote.Actors.Tests
 <MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.
 <RandomLog> Thread '' nondeterministically chose ''.";
 
-                string actual = logger.ToString().RemoveNonDeterministicValues();
-                expected = expected.NormalizeNewLines();
-                actual = actual.SortLines(); // threading makes this non-deterministic otherwise.
-                expected = expected.SortLines();
-                Assert.Equal(expected, actual);
-            }, this.GetConfiguration());
+                result = result.RemoveNonDeterministicValues().RemoveDebugLines().SortLines();
+                expected = expected.NormalizeNewLines().SortLines();
+
+                Assert.Equal(expected, result);
+            }, config);
         }
 
         [Fact(Timeout = 5000)]
         public void TestGraphLogger()
         {
+            var config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 using CustomLogger logger = new CustomLogger();
@@ -189,6 +191,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 await Task.Delay(200);
                 Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
+                string result = graphBuilder.Graph.ToString();
                 string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
   <Nodes>
     <Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
@@ -214,11 +217,11 @@ namespace Microsoft.Coyote.Actors.Tests
 </DirectedGraph>
 ";
 
-                string dgml = graphBuilder.Graph.ToString();
-                string actual = dgml.RemoveNonDeterministicValues();
+                result = result.RemoveNonDeterministicValues();
                 expected = expected.RemoveNonDeterministicValues();
-                Assert.Equal(expected, actual);
-            }, this.GetConfiguration());
+
+                Assert.Equal(expected, result);
+            }, config);
         }
 
         [Fact(Timeout = 5000)]
@@ -256,6 +259,7 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 5000)]
         public void TestCustomActorRuntimeLogFormatter()
         {
+            var config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 var tcs = new TaskCompletionSource<bool>();
@@ -272,15 +276,18 @@ namespace Microsoft.Coyote.Actors.Tests
                 await this.WaitAsync(tcs.Task, 5000);
                 await Task.Delay(200);
 
+                string result = logger.ToString();
                 string expected = @"CreateActor
 CreateStateMachine
 StateTransition
 StateTransition
 StateTransition";
-                string actual = logger.ToString().RemoveNonDeterministicValues();
+
+                result = result.RemoveNonDeterministicValues().RemoveDebugLines();
                 expected = expected.NormalizeNewLines();
-                Assert.Equal(expected, actual);
-            }, this.GetConfiguration());
+
+                Assert.Equal(expected, result);
+            }, config);
         }
 
         internal class PingEvent : Event
@@ -372,6 +379,7 @@ StateTransition";
         [Fact(Timeout = 5000)]
         public void TestGraphLoggerInstances()
         {
+            var config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 using CustomLogger logger = new CustomLogger();
@@ -393,18 +401,19 @@ StateTransition";
                 await Task.Delay(1000);
                 Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string actual = graphBuilder.Graph.ToString();
-                actual = actual.RemoveInstanceIds();
+                string result = graphBuilder.Graph.ToString();
+                result = result.RemoveInstanceIds();
 
-                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
-            }, this.GetConfiguration());
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", result);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", result);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", result);
+            }, config);
         }
 
         [Fact(Timeout = 5000)]
         public void TestGraphLoggerCollapsed()
         {
+            var config = this.GetConfiguration();
             this.Test(async runtime =>
             {
                 using CustomLogger logger = new CustomLogger();
@@ -426,11 +435,11 @@ StateTransition";
                 await Task.Delay(1000);
                 Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string actual = graphBuilder.Graph.ToString();
+                string result = graphBuilder.Graph.ToString();
 
-                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
-            }, this.GetConfiguration());
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", result);
+                Assert.Contains("<Node Id='Microsoft.Coyote.Actors.Tests.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", result);
+            }, config);
         }
     }
 }

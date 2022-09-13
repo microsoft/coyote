@@ -13,6 +13,6 @@
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit" Version="2.4.2" />
   </ItemGroup>
 </Project>

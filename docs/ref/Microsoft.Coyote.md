@@ -87,6 +87,7 @@
 | class [RuntimeLogTextFormatter](./Microsoft.Coyote.Runtime/RuntimeLogTextFormatter.md) | This class implements [`IRuntimeLog`](./Microsoft.Coyote.Runtime/IRuntimeLog.md) and generates output in a a human readable text format. |
 | static class [RuntimeProvider](./Microsoft.Coyote.Runtime/RuntimeProvider.md) | Provides methods for creating or accessing a [`ICoyoteRuntime`](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
 | static class [SchedulingPoint](./Microsoft.Coyote.Runtime/SchedulingPoint.md) | Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing. |
+| static class [TaskServices](./Microsoft.Coyote.Runtime/TaskServices.md) | Provides methods for interacting with tasks using the runtime. |
 
 ## Microsoft.Coyote.Specifications namespace
 

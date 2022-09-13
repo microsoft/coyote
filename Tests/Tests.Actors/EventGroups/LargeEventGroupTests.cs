@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.SendEvent(id, new SpawnEvent() { Count = 4 }, op);
                 var result = await this.GetResultAsync(op.Task);
                 Assert.Equal(41, op.Count);
-            });
+            }, configuration: this.GetConfiguration());
         }
     }
 }

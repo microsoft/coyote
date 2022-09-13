@@ -10,7 +10,7 @@ late at night scratching your head. Read further to learn how to find this bug u
 
 You will also need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -84,7 +84,7 @@ You will see the following output:
 ..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
 ```
 
-Open the DGML diagram using Visual Studio 2019 and you will see the following:
+Open the DGML diagram using Visual Studio 2022 and you will see the following:
 
 ![monitors](../../assets/images/Monitors.svg)
 

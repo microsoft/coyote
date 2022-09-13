@@ -16,34 +16,21 @@ namespace Microsoft.Coyote.Runtime
     {
         /// <summary>
         /// Explores a possible interleaving with another controlled operation.
-        /// This is an internal interleaving that can be suppressed.
-        /// </summary>
-        internal static void Default()
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            {
-                runtime.ScheduleNextOperation(SchedulingPointType.Default);
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
-            }
-        }
-
-        /// <summary>
-        /// Explores a possible interleaving with another controlled operation.
         /// </summary>
         public static void Interleave()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Interleave, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -57,13 +44,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Yield()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -78,16 +69,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Read(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedSharedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
-                op.LastAccessedSharedState = string.Empty;
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Read, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -101,16 +93,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Write(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedSharedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
-                op.LastAccessedSharedState = string.Empty;
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-            {
-                runtime.DelayOperation();
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Write, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 

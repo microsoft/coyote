@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Web
         {
             ulong operationId = runtime.GetNextOperationId();
             var op = new HttpOperation(operationId, method, path, runtime);
-            if (runtime.GetExecutingOperation() is null)
+            if (!runtime.TryGetExecutingOperation(out _))
             {
                 op.IsSourceUncontrolled = true;
             }

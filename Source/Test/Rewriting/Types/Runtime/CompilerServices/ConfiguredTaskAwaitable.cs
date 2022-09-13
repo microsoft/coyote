@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Runtime.CompilerServices;
+using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Runtime.CompilerServices
+namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
 {
     /// <summary>
     /// Provides an awaitable object that is the outcome of invoking <see cref="SystemTask.ConfigureAwait"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredTaskAwaitable
     {
@@ -37,10 +37,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public ConfiguredTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
-        /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
+        /// Provides an awaiter for an awaitable object.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        /// <remarks>This type is intended for compiler use only.</remarks>
+        public struct ConfiguredTaskAwaiter : IControllableAwaiter, SystemCompiler.ICriticalNotifyCompletion, SystemCompiler.INotifyCompletion
         {
             /// <summary>
             /// The task being awaited.
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly CoyoteRuntime Runtime;
 
             /// <summary>
-            /// Gets a value that indicates whether the controlled task has completed.
+            /// True if the awaiter has completed, else false.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
@@ -83,11 +83,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <summary>
-            /// Ends the await on the completed task.
+            /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public void GetResult()
             {
-                this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
+                TaskServices.WaitUntilTaskCompletes(this.Runtime, this.AwaitedTask);
                 this.Awaiter.GetResult();
             }
 
@@ -107,9 +107,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 
     /// <summary>
     /// Provides an awaitable object that enables configured awaits on a <see cref="SystemTasks.Task{TResult}"/>.
-    /// This type is intended for compiler use only.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredTaskAwaitable<TResult>
     {
@@ -133,10 +132,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public ConfiguredTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
-        /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
+        /// Provides an awaiter for an awaitable object.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        public struct ConfiguredTaskAwaiter : IControllableAwaiter, ICriticalNotifyCompletion, INotifyCompletion
+        /// <remarks>This type is intended for compiler use only.</remarks>
+        public struct ConfiguredTaskAwaiter : IControllableAwaiter, SystemCompiler.ICriticalNotifyCompletion, SystemCompiler.INotifyCompletion
         {
             /// <summary>
             /// The task being awaited.
@@ -154,7 +153,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             private readonly CoyoteRuntime Runtime;
 
             /// <summary>
-            /// Gets a value that indicates whether the controlled task has completed.
+            /// True if the awaiter has completed, else false.
             /// </summary>
             public bool IsCompleted => this.AwaitedTask?.IsCompleted ?? this.Awaiter.IsCompleted;
 
@@ -179,11 +178,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             }
 
             /// <summary>
-            /// Ends the await on the completed task.
+            /// Ends asynchronously waiting for the completion of the awaiter.
             /// </summary>
             public TResult GetResult()
             {
-                this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
+                TaskServices.WaitUntilTaskCompletes(this.Runtime, this.AwaitedTask);
                 return this.Awaiter.GetResult();
             }
 

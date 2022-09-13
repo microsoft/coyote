@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
@@ -330,10 +331,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None && tasks != null)
             {
                 // TODO: support timeouts during testing, this would become false if there is a timeout.
-                runtime.WaitUntilTasksComplete(tasks, waitAll: true);
+                TaskServices.WaitUntilAllTasksComplete(runtime, tasks);
             }
 
             return SystemTask.WaitAll(tasks, millisecondsTimeout, cancellationToken);
@@ -383,10 +384,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             SystemCancellationToken cancellationToken)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None && tasks != null)
             {
                 // TODO: support timeouts during testing, this would become -1 if there is a timeout.
-                runtime.WaitUntilTasksComplete(tasks, waitAll: false);
+                TaskServices.WaitUntilAnyTaskCompletes(runtime, tasks);
             }
 
             return SystemTask.WaitAny(tasks, millisecondsTimeout, cancellationToken);
@@ -437,7 +438,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                runtime.WaitUntilTaskCompletes(task);
+                TaskServices.WaitUntilTaskCompletes(runtime, task);
             }
 
             return task.Wait(millisecondsTimeout, cancellationToken);
@@ -534,7 +535,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                runtime.WaitUntilTaskCompletes(task);
+                TaskServices.WaitUntilTaskCompletes(runtime, task);
             }
 
             return task.Result;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Text;
 using Microsoft.Coyote.IO;
@@ -19,14 +20,14 @@ namespace Microsoft.Coyote.Tests.Common
         private readonly ITestOutputHelper TestOutput;
 
         /// <summary>
-        /// Saved current line since ITestOutputHelper provides no "Write" method.
+        /// Saves the log until the end of the test.
         /// </summary>
-        private readonly StringBuilder Line = new StringBuilder();
+        private readonly StringBuilder Log;
 
         /// <summary>
-        /// False means don't write anything.
+        /// Serializes access to the string writer.
         /// </summary>
-        public bool IsVerbose { get; set; }
+        private readonly object Lock;
 
         /// <inheritdoc/>
         public TextWriter TextWriter => this;
@@ -35,84 +36,93 @@ namespace Microsoft.Coyote.Tests.Common
         public override Encoding Encoding => Encoding.Unicode;
 
         /// <summary>
+        /// True if this logger is disposed, else false.
+        /// </summary>
+        private bool IsDisposed;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TestOutputLogger"/> class.
         /// </summary>
         /// <param name="output">The test output helper.</param>
-        /// <param name="isVerbose">If true, then messages are logged. The default value is false.</param>
-        public TestOutputLogger(ITestOutputHelper output, bool isVerbose = false)
+        public TestOutputLogger(ITestOutputHelper output)
         {
             this.TestOutput = output;
-            this.IsVerbose = isVerbose;
+            this.Log = new StringBuilder();
+            this.Lock = new object();
+            this.IsDisposed = false;
         }
 
         /// <inheritdoc/>
-        public override void Write(string value)
-        {
+        public override void Write(string value) =>
             this.Write(LogSeverity.Informational, value);
-        }
 
         /// <inheritdoc/>
-        public override void Write(string format, params object[] args)
-        {
+        public override void Write(string format, params object[] args) =>
             this.Write(LogSeverity.Informational, string.Format(format, args));
-        }
 
         public void Write(LogSeverity severity, string value)
         {
-            if (this.IsVerbose)
+            lock (this.Lock)
             {
-                this.Line.Append(value);
+                if (!this.IsDisposed)
+                {
+                    this.Log.Append(value);
+                }
             }
         }
 
         /// <inheritdoc/>
-        public void Write(LogSeverity severity, string format, params object[] args)
-        {
+        public void Write(LogSeverity severity, string format, params object[] args) =>
             this.Write(severity, string.Format(format, args));
-        }
 
         /// <inheritdoc/>
-        public override void WriteLine(string value)
-        {
-            this.WriteLine(LogSeverity.Informational, value);
-        }
+        public override void WriteLine(string value) => this.WriteLine(LogSeverity.Informational, value);
 
         /// <inheritdoc/>
-        public override void WriteLine(string format, params object[] args)
-        {
-            this.Write(LogSeverity.Informational, string.Format(format, args));
-        }
+        public override void WriteLine(string format, params object[] args) =>
+            this.WriteLine(LogSeverity.Informational, string.Format(format, args));
 
         /// <inheritdoc/>
         public void WriteLine(LogSeverity severity, string value)
         {
-            if (this.IsVerbose)
+            lock (this.Lock)
             {
-                this.FlushLine();
-                this.TestOutput.WriteLine(value);
+                if (!this.IsDisposed)
+                {
+                    this.Log.AppendLine(value);
+                }
             }
         }
 
         /// <inheritdoc/>
-        public void WriteLine(LogSeverity severity, string format, params object[] args)
-        {
+        public void WriteLine(LogSeverity severity, string format, params object[] args) =>
             this.WriteLine(severity, string.Format(format, args));
+
+        /// <summary>
+        /// Write all buffered log to the test output logger.
+        /// </summary>
+        private void FlushLog()
+        {
+            if (this.Log.Length > 0)
+            {
+                this.TestOutput.WriteLine(this.Log.ToString());
+                this.Log.Clear();
+            }
         }
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-            this.FlushLine();
-        }
-
-        private void FlushLine()
-        {
-            if (this.Line.Length > 0)
+            lock (this.Lock)
             {
-                this.TestOutput.WriteLine(this.Line.ToString());
-                this.Line.Length = 0;
+                if (!this.IsDisposed)
+                {
+                    this.FlushLog();
+                    this.IsDisposed = true;
+                }
             }
+
+            base.Dispose(disposing);
         }
     }
 }

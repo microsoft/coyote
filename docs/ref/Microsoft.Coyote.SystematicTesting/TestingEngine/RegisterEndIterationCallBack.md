@@ -1,9 +1,9 @@
-# TestingEngine.RegisterPerIterationCallBack method
+# TestingEngine.RegisterEndIterationCallBack method
 
 Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration.
 
 ```csharp
-public void RegisterPerIterationCallBack(Action<uint> callback)
+public void RegisterEndIterationCallBack(Action<uint> callback)
 ```
 
 ## See Also

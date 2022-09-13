@@ -410,33 +410,33 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
                     runtime.Assert(this.ReaderCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.Dictionary<TKey, TValue>)}'.");
                     SystemInterlocked.Increment(ref this.WriterCount);
-
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-                    {
-                        runtime.ScheduleNextOperation(SchedulingPointType.Default);
-                    }
-                    else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        runtime.DelayOperation();
-                    }
-
-                    SystemInterlocked.Decrement(ref this.WriterCount);
                 }
                 else
                 {
                     runtime.Assert(this.WriterCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.Dictionary<TKey, TValue>)}'.");
                     SystemInterlocked.Increment(ref this.ReaderCount);
+                }
 
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
+                {
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
                     }
                     else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
-                        runtime.DelayOperation();
+                        runtime.DelayOperation(current);
                     }
+                }
 
+                if (isWriteAccess)
+                {
+                    SystemInterlocked.Decrement(ref this.WriterCount);
+                }
+                else
+                {
                     SystemInterlocked.Decrement(ref this.ReaderCount);
                 }
             }

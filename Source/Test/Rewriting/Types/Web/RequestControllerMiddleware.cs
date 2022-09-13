@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 await runtime.TaskFactory.StartNew(state =>
                     {
                         SystemTask task = this.Next(context);
-                        runtime.WaitUntilTaskCompletes(task);
+                        TaskServices.WaitUntilTaskCompletes(runtime, op, task);
                         task.GetAwaiter().GetResult();
                     },
                     op,

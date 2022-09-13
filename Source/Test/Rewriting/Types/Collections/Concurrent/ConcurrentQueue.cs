@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.Count;
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.IsEmpty;
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Clear(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.Clear();
         }
 #endif
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void CopyTo(SystemConcurrent.ConcurrentQueue<T> instance, T[] array, int index)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.CopyTo(array, index);
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Enqueue(SystemConcurrent.ConcurrentQueue<T> instance, T item)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             instance.Enqueue(item);
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.GetEnumerator();
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static T[] ToArray(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.ToArray();
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryDequeue(SystemConcurrent.ConcurrentQueue<T> instance, out T result)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryDequeue(out result);
         }
 
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPeek(SystemConcurrent.ConcurrentQueue<T> instance, out T result)
         {
-            SchedulingPoint.Default();
+            Operation.ScheduleNext();
             return instance.TryPeek(out result);
         }
     }

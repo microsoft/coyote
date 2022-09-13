@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueDequeueEvents()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueReceiveEvents()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueReceiveEventsAlternateType()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 

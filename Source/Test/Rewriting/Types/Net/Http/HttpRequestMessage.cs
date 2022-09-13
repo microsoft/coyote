@@ -61,8 +61,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
                     if (!request.Headers.Contains(HttpRequestHeader.SourceOperationId))
                     {
                         // Assigns a header containing the identifier of the currently executing operation.
-                        var op = runtime.GetExecutingOperation();
-                        if (op != null)
+                        if (runtime.TryGetExecutingOperation(out ControlledOperation op))
                         {
                             IO.Debug.WriteLine("[coyote::debug] Assigned operation '{0}' to the '{1} {2}' request from thread '{3}'.",
                                 op.Name, request.Method, request.RequestUri, SystemThread.CurrentThread.ManagedThreadId);

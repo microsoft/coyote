@@ -91,10 +91,22 @@ namespace Microsoft.Coyote
         internal bool IsSystematicFuzzingFallbackEnabled;
 
         /// <summary>
+        /// Value that controls the maximum time an operation might get delayed during systematic fuzzing.
+        /// </summary>
+        [DataMember]
+        public uint MaxFuzzingDelay { get; internal set; }
+
+        /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, checking races during lock accesses is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsLockAccessRaceCheckingEnabled;
 
         /// <summary>
         /// If this option is enabled, shared state reduction is enabled during systematic testing.
@@ -136,10 +148,10 @@ namespace Microsoft.Coyote
         internal bool ConsiderDepthBoundHitAsBug;
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time an operation gets delayed
-        /// or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the
-        /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
-        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
+        /// Value that controls the probability of triggering a timeout during systematic testing.
+        /// Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds
+        /// to a 50% probability), or increase the value to decrease the frequency (e.g. a value of
+        /// 10 corresponds to a 10% probability).
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
@@ -272,7 +284,9 @@ namespace Microsoft.Coyote
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
+            this.MaxFuzzingDelay = 1000;
             this.IsLivenessCheckingEnabled = true;
+            this.IsLockAccessRaceCheckingEnabled = false;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -281,7 +295,7 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
-            this.DeadlockTimeout = 5000;
+            this.DeadlockTimeout = 1000;
             this.ReportPotentialDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyResolutionAttempts = 10;
             this.UncontrolledConcurrencyResolutionDelay = 1000;
@@ -437,6 +451,29 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the value that controls the maximum time an operation might get delayed
+        /// during systematic fuzzing.
+        /// </summary>
+        /// <param name="delay">The maximum delay during systematic fuzzing, which by default is 1000.</param>
+        public Configuration WithMaxFuzzingDelay(uint delay)
+        {
+            this.MaxFuzzingDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking for lock accesses enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when concurrent operations try to access lock-based synchronization primitives.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races during lock accesses is enabled.</param>
+        public Configuration WithLockAccessRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsLockAccessRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with shared state reduction enabled or disabled. If this
         /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
         /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
@@ -511,8 +548,7 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls the probability of triggering a timeout each time an
-        /// operation gets delayed or a built-in timer gets scheduled during systematic testing.
+        /// Updates the value that controls the probability of triggering a timeout during systematic testing.
         /// </summary>
         /// <param name="delay">The timeout delay during testing, which by default is 10.</param>
         /// <remarks>
@@ -525,10 +561,10 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls how much time the deadlock monitor should
+        /// Updates the value that controls how much time the background deadlock monitor should
         /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 5000.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 1000.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>

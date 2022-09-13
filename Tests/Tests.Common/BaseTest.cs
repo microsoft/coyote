@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Xunit;
@@ -795,7 +794,6 @@ namespace Microsoft.Coyote.Tests.Common
                 Logger = logger
             };
 
-            engine.RegisterStartIterationCallBack(iteration => logger.Reset());
             engine.Run();
             return engine;
         }
@@ -835,22 +833,15 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.IsType(exceptionType, engine.TestReport.ThrownException);
         }
 
-        /// <summary>
-        /// Throw an exception of the specified type.
-        /// </summary>
-        /// <typeparam name="T">The type of the exception.</typeparam>
         protected static void ThrowException<T>()
             where T : Exception, new() =>
             throw new T();
 
-        protected virtual Configuration GetConfiguration()
-        {
-            return Configuration.Create()
-                .WithDebugLoggingEnabled()
-                .WithTelemetryEnabled(false)
-                .WithPartiallyControlledConcurrencyAllowed(false)
-                .WithSystematicFuzzingFallbackEnabled(false);
-        }
+        protected virtual Configuration GetConfiguration() => Configuration.Create()
+            .WithDebugLoggingEnabled()
+            .WithTelemetryEnabled(false)
+            .WithPartiallyControlledConcurrencyAllowed(false)
+            .WithSystematicFuzzingFallbackEnabled(false);
 
         protected static string GetBugReport(TestingEngine engine)
         {

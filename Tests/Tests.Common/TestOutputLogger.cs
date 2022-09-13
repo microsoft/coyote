@@ -110,17 +110,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        /// <summary>
-        /// Resets the logger, discarding any buffered log.
-        /// </summary>
-        public void Reset()
-        {
-            lock (this.Lock)
-            {
-                this.Log.Clear();
-            }
-        }
-
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {

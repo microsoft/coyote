@@ -61,7 +61,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    $command = "test $target -f $framework --no-build -v $verbosity --logger 'trx;verbosity=normal' --blame"
+    $command = "test $target -f $framework --no-build -v $verbosity --logger 'trx' --blame --blame-crash"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }

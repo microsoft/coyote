@@ -31,10 +31,8 @@ $aspnet_runtime_path = FindDotNetRuntimePath -dotnet $dotnet -runtime "AspNetCor
 $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime_path
 
 # Restore the local ilverify tool.
+&dotnet tool restore
 $ilverify = "dotnet ilverify"
-if (Test-Path -Path $PSScriptRoot/../bin/nuget) {
-    &dotnet tool restore
-}
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 

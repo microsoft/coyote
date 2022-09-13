@@ -1876,7 +1876,6 @@ namespace Microsoft.Coyote.Runtime
                 }
                 catch (TaskCanceledException)
                 {
-                    IO.Debug.WriteLine("[coyote::debug] Canceled periodic monitoring for potential deadlocks in runtime '{0}'.", this.Id);
                     break;
                 }
             }

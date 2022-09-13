@@ -40,14 +40,33 @@ namespace Microsoft.Coyote.IO
         /// <inheritdoc/>
         public override void Write(string value)
         {
-            this.Write(LogSeverity.Informational, value);
+            this.Write(VerbosityLevel.Info, value);
         }
 
         /// <inheritdoc/>
         public void Write(VerbosityLevel level, string value)
         {
-            switch (severity)
+            switch (level)
             {
+                case Exhaustive:
+                case Debug:
+                case Info:
+                case Warning:
+                case Error:
+                case None:
+                default:
+                    break;
+
+                case None:
+                case Error:
+                case Warning:
+                case Info:
+                case Debug:
+                case Exhaustive:
+                default:
+                    break;
+
+
                 case LogSeverity.Informational:
                     if (this.LogLevel <= LogSeverity.Informational)
                     {
@@ -89,7 +108,7 @@ namespace Microsoft.Coyote.IO
         /// <inheritdoc/>
         public override void WriteLine(string value)
         {
-            this.WriteLine(LogSeverity.Informational, value);
+            this.WriteLine(VerbosityLevel.Info, value);
         }
 
         /// <inheritdoc/>
@@ -109,7 +128,7 @@ namespace Microsoft.Coyote.IO
         /// <inheritdoc/>
         public void WriteLine(VerbosityLevel level, string value)
         {
-            switch (severity)
+            switch (level)
             {
                 case LogSeverity.Informational:
                     if (this.LogLevel <= LogSeverity.Informational)

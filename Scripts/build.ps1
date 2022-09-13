@@ -61,7 +61,7 @@ if ($ci.IsPresent) {
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
-if ($nuget.IsPresent) {
+if ($nuget.IsPresent -and $ci.IsPresent) {
     if ($IsWindows) {
         # Check that NuGet.exe is installed.
         $nuget_cli = "nuget"
@@ -103,7 +103,7 @@ if ($nuget.IsPresent) {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"
     }
 } elseif ($IsWindows) {
-    Write-Comment -text "Skipped building the Coyote NuGet packages (enable with -nuget)." -color "yellow"
+    Write-Comment -text "Skipped building the Coyote NuGet packages (enable with -nuget -ci)." -color "yellow"
 }
 
 Write-Comment -text "Done." -color "green"

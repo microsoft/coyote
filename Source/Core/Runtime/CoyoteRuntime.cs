@@ -836,7 +836,8 @@ namespace Microsoft.Coyote.Runtime
                     return;
                 }
 
-                // Check if this the currently executing thread is uncontrolled.
+                // Check if the currently executing thread is uncontrolled.
+                bool isThreadUncontrolled = false;
                 if (current is null && !this.IsThreadControlled(Thread.CurrentThread))
                 {
                     if (this.LastPostponedSchedulingPoint is SchedulingPointType.Pause ||
@@ -859,6 +860,8 @@ namespace Microsoft.Coyote.Runtime
                         this.LastPostponedSchedulingPoint = type;
                         return;
                     }
+
+                    isThreadUncontrolled = true;
                 }
 
                 // If the current operation was provided as argument to this method, or it is null, then this
@@ -942,6 +945,12 @@ namespace Microsoft.Coyote.Runtime
                     this.ScheduledOperation = next;
                     next.Signal();
                     this.PauseOperation(current);
+                }
+                else if (isThreadUncontrolled)
+                {
+                    // If the current operation is the next operation to schedule, and the current thread
+                    // is uncontrolled, then we need to signal the current operation to resume execution.
+                    next.Signal();
                 }
             }
         }
@@ -1871,6 +1880,12 @@ namespace Microsoft.Coyote.Runtime
                             IO.Debug.WriteLine("[coyote::debug] Passed periodic check for potential deadlocks in runtime '{0}'.", this.Id);
                             info.OperationCount = this.OperationMap.Count;
                             info.StepCount = this.Scheduler.StepCount;
+                            if (this.LastPostponedSchedulingPoint is SchedulingPointType.Pause ||
+                                this.LastPostponedSchedulingPoint is SchedulingPointType.Complete)
+                            {
+                                // A scheduling point was postponed due to a potential deadlock, so try to check if it has been resolved.
+                                this.ScheduleNextOperation(default, this.LastPostponedSchedulingPoint.Value, isSuppressible: false);
+                            }
                         }
                     }
                 }

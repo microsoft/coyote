@@ -43,7 +43,7 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Build Coyote projects
-        run: ./Scripts/build.ps1 -ci
+        run: ./Scripts/build.ps1 -ci -nuget
         shell: pwsh
       - name: Validate Coyote Rewriting
         if: ${{ matrix.platform == 'windows-latest' }}
@@ -51,12 +51,6 @@ jobs:
         shell: pwsh
       - name: Run Coyote Tests
         run: ./Scripts/run-tests.ps1 -ci
-        shell: pwsh
-      - name: Build and test Coyote NuGet packages
-        if: ${{ matrix.platform == 'windows-latest' }}
-        run: |
-          ./Scripts/create-nuget-packages.ps1
-          ./Scripts/test-cli-package.ps1
         shell: pwsh
       - name: Archive Coyote binaries
         uses: actions/upload-artifact@v3

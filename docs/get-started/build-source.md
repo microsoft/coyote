@@ -12,7 +12,7 @@ the github repo</a>
 
 **Optional:**
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
+- [Visual Studio 2022](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
 on Windows.
 - [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 
@@ -20,7 +20,7 @@ on Windows.
 
 Clone the [Coyote repo](http://github.com/microsoft/coyote), then open `Coyote.sln` and build.
 
-You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer
+You can also use the following `PowerShell` command line from a Visual Studio 2022 Developer
 Command Prompt:
 
 ```plain
@@ -29,11 +29,11 @@ powershell -f Scripts/build.ps1
 
 ### Building the NuGet packages
 
-In the Coyote project run this `PowerShell` command line from a Visual Studio 2019 Developer
+In the Coyote project run this `PowerShell` command line from a Visual Studio 2022 Developer
 Command Prompt:
 
 ```plain
-powershell -f .\Scripts\create-nuget-packages.ps1
+powershell -f Scripts/build.ps1 -nuget
 ```
 
 ### Installing the Coyote command line tool package
@@ -55,7 +55,7 @@ Now you are ready to [start using Coyote](using-coyote.md).
 ### Running the tests
 
 To run all available tests, execute the following `PowerShell` command line from a Visual Studio
-2019 Developer Command Prompt:
+2022 Developer Command Prompt:
 
 ```plain
 powershell -f Scripts/run-tests.ps1

@@ -208,7 +208,11 @@ function FindMatchingVersion([String]$path, [version]$version) {
 }
 
 function Write-Comment([String]$prefix, [String]$text, [String]$color = "white") {
-    Write-Host "$prefix " -b "black" -nonewline; Write-Host $text -b "black" -f $color
+    if ($prefix.Length -gt 0) {
+        $prefix = "$prefix "
+    }
+
+    Write-Host $prefix -b "black" -nonewline; Write-Host $text -b "black" -f $color
 }
 
 function Write-Error([String]$text) {

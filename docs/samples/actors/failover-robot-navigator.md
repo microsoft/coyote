@@ -109,7 +109,7 @@ before coding and pushing to production.
 
 To run the `DrinksServingRobotActors` example, you will need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -480,7 +480,7 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 ..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.dgml
 ```
 
-Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also
+Open this with Visual Studio 2022 and you will see a diagram like this.  Here the diagram is also
 animated using the contents of the `--xml-trace` output so you can see the sequence of events
 leading up to the bug.  `MockStateMachineTimer` information was removed from this graph just to
 simplify the diagram:

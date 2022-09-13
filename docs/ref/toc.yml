@@ -1043,8 +1043,14 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports
         - name: TryEmitCoverageReports
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitCoverageReports
-        - name: RegisterPerIterationCallBack
-          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
+        - name: RegisterStartIterationCallBack
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterStartIterationCallBack
+        - name: RegisterEndIterationCallBack
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterEndIterationCallBack
+        - name: InvokeStartIterationCallBacks
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeStartIterationCallBacks
+        - name: InvokeEndIterationCallBacks
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeEndIterationCallBacks
         - name: IsTestRewritten
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
         - name: Dispose

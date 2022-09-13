@@ -664,7 +664,10 @@ nav:
         - ThrowIfBugFound: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound.md
         - TryEmitReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports.md
         - TryEmitCoverageReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitCoverageReports.md
-        - RegisterPerIterationCallBack: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack.md
+        - RegisterStartIterationCallBack: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterStartIterationCallBack.md
+        - RegisterEndIterationCallBack: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterEndIterationCallBack.md
+        - InvokeStartIterationCallBacks: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeStartIterationCallBacks.md
+        - InvokeEndIterationCallBacks: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeEndIterationCallBacks.md
         - IsTestRewritten: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten.md
         - Dispose: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Dispose.md
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport.md

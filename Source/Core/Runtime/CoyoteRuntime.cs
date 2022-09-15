@@ -2285,7 +2285,8 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
+                int numGroups = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numGroups,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
                 if (isBugFound)

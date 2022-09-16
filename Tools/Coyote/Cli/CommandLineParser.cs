@@ -487,9 +487,9 @@ namespace Microsoft.Coyote.Cli
                 HelpName = "PATH"
             };
 
-            var scheduleFileArg = new Argument("schedule", $"*.schedule file containing the execution to replay.")
+            var traceFileArg = new Argument("trace", $"*.trace file containing the execution path to replay.")
             {
-                HelpName = "SCHEDULE_FILE"
+                HelpName = "TRACE_FILE"
             };
 
             var methodOption = new Option<string>(
@@ -515,13 +515,13 @@ namespace Microsoft.Coyote.Cli
 
             // Add validators.
             pathArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".dll", ".exe"));
-            scheduleFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".schedule"));
+            traceFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".trace"));
 
             // Build command.
             var command = new Command("replay", "Replay bugs that Coyote discovered during systematic testing.\n" +
                 $"Learn more at {LearnAboutReplayUrl}.");
             this.AddArgument(command, pathArg);
-            this.AddArgument(command, scheduleFileArg);
+            this.AddArgument(command, traceFileArg);
             this.AddOption(command, methodOption);
             this.AddOption(command, breakOption);
             this.AddOption(command, outputDirectoryOption);
@@ -596,7 +596,7 @@ namespace Microsoft.Coyote.Cli
 
             // Build command.
             var command = new Command("rewrite", "Rewrite your assemblies to inject logic that allows " +
-                "Coyote to take control of the schedule during systematic testing.\n" +
+                "Coyote to take control of the execution during systematic testing.\n" +
                 $"Learn more at {LearnAboutRewritingUrl}.");
             this.AddArgument(command, pathArg);
             this.AddOption(command, assertDataRacesOption);
@@ -785,10 +785,12 @@ namespace Microsoft.Coyote.Cli
                     }
 
                     break;
-                case "schedule":
+                case "trace":
                     if (command.Name is "replay")
                     {
-                        this.Configuration.ScheduleFile = result.GetValueOrDefault<string>();
+                        string traceFile = result.GetValueOrDefault<string>();
+                        string traceFileContents = File.ReadAllText(traceFile);
+                        this.Configuration.WithReproducibleTrace(traceFileContents);
                     }
 
                     break;

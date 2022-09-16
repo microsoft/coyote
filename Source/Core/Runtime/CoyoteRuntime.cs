@@ -1068,6 +1068,18 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        /// <summary>
+        /// Takes a snapshot of all scheduling decisions until now in the current test execution,
+        /// and replays them as a schedule prefix from the next iteration and onwards.
+        /// </summary>
+        internal void SnapshotSchedulePrefix()
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                IO.Debug.WriteLine("[coyote::debug] Snapshots all scheduling decisions until now in runtime '{0}'.", this.Id);
+            }
+        }
+
         /// <inheritdoc/>
         public bool RandomBoolean() => this.GetNextNondeterministicBooleanChoice(null, null);
 
@@ -1100,7 +1112,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, out result))
+                    if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }
@@ -1147,7 +1159,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out result))
+                    if (!this.Scheduler.GetNextInteger(this.ScheduledOperation, maxValue, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }

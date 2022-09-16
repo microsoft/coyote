@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             int state = this.CaptureExecutionStep(current);
@@ -110,34 +110,26 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             next = this.GetNextOperationByPolicy(state, ops);
             this.LastOperation = next.Id;
-
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeBooleanChoiceQValues(state);
-
             next = this.GetNextBooleanChoiceByPolicy(state);
-
             this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeIntegerChoiceQValues(state, maxValue);
-
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
-
             this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
-            this.StepCount++;
             return true;
         }
 

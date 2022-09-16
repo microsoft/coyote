@@ -30,17 +30,16 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             next = false;
             if (this.RandomValueGenerator.Next(2) is 0)
@@ -48,20 +47,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 next = true;
             }
 
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
-            this.StepCount++;
             return true;
         }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
 
         /// <inheritdoc/>
         internal override bool IsMaxStepsReached()

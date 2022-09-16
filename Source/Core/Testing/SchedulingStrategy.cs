@@ -34,6 +34,11 @@ namespace Microsoft.Coyote.Testing
         internal bool IsFair { get; }
 
         /// <summary>
+        /// Text describing the last exploration error, if there was any.
+        /// </summary>
+        protected internal string ErrorText { get; protected set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ExplorationStrategy"/> class.
         /// </summary>
         protected ExplorationStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
@@ -43,6 +48,7 @@ namespace Microsoft.Coyote.Testing
             this.MaxSteps = isFair ? configuration.MaxFairSchedulingSteps : configuration.MaxUnfairSchedulingSteps;
             this.StepCount = 0;
             this.IsFair = isFair;
+            this.ErrorText = string.Empty;
         }
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);

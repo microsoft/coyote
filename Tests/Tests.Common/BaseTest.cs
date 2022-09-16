@@ -289,10 +289,9 @@ namespace Microsoft.Coyote.Tests.Common
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    configuration.WithReplayStrategy(engine.ReproducibleTrace);
-
+                    configuration.WithReproducibleTrace(engine.ReproducibleTrace);
                     using var replayEngine = RunTest(test, configuration, logger);
-                    string replayError = replayEngine.Scheduler.GetReplayError();
+                    string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, errorChecker);
                 }
@@ -383,11 +382,9 @@ namespace Microsoft.Coyote.Tests.Common
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    configuration.SchedulingStrategy = "replay";
-                    configuration.ScheduleTrace = engine.ReproducibleTrace;
-
+                    configuration.WithReproducibleTrace(engine.ReproducibleTrace);
                     using var replayEngine = RunTest(test, configuration, logger);
-                    string replayError = replayEngine.Scheduler.GetReplayError();
+                    string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, exceptionType);
                 }

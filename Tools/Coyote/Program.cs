@@ -59,7 +59,7 @@ namespace Microsoft.Coyote
                 {
                     foreach (var path in reportPaths)
                     {
-                        Console.WriteLine($"..... Writing {path}.");
+                        Console.WriteLine($"..... Writing {path}");
                     }
                 }
                 else
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote
                 {
                     foreach (var path in reportPaths)
                     {
-                        Console.WriteLine($"..... Writing {path}.");
+                        Console.WriteLine($"..... Writing {path}");
                     }
                 }
                 else
@@ -100,13 +100,10 @@ namespace Microsoft.Coyote
         {
             try
             {
-                // Set some replay specific options.
-                configuration.SchedulingStrategy = "replay";
-
                 // Load the configuration of the assembly to be replayed.
                 LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-                Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
+                Console.WriteLine($". Reproducing trace in {configuration.AssemblyToBeAnalyzed}.");
                 using TestingEngine engine = TestingEngine.Create(configuration);
                 engine.Run();
 

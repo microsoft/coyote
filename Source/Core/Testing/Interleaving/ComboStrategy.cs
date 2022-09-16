@@ -42,42 +42,42 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
             {
-                return this.SuffixStrategy.GetNextOperation(ops, current, isYielding, out next);
+                return this.SuffixStrategy.NextOperation(ops, current, isYielding, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextOperation(ops, current, isYielding, out next);
+                return this.PrefixStrategy.NextOperation(ops, current, isYielding, out next);
             }
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
             {
-                return this.SuffixStrategy.GetNextBooleanChoice(current, out next);
+                return this.SuffixStrategy.NextBoolean(current, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextBooleanChoice(current, out next);
+                return this.PrefixStrategy.NextBoolean(current, out next);
             }
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             if (this.PrefixStrategy.IsMaxStepsReached())
             {
-                return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
+                return this.SuffixStrategy.NextInteger(current, maxValue, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextIntegerChoice(current, maxValue, out next);
+                return this.PrefixStrategy.NextInteger(current, maxValue, out next);
             }
         }
 

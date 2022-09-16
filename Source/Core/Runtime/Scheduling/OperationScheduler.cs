@@ -23,12 +23,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The installed program exploration strategy.
         /// </summary>
-        private ExplorationStrategy Strategy;
-
-        /// <summary>
-        /// The installed replay strategy, if any.
-        /// </summary>
-        private readonly ReplayStrategy ReplayStrategy;
+        private readonly ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed schedule reducers, if any.
@@ -46,9 +41,15 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
-        /// The explored schedule trace.
+        /// The trace explored in the current iteration.
         /// </summary>
-        internal ScheduleTrace Trace { get; private set; }
+        internal readonly ScheduleTrace Trace;
+
+        /// <summary>
+        /// The prefix trace, if there is any specified. The scheduler will attempt
+        /// to reproduce this trace, before performing any new exploration.
+        /// </summary>
+        private ScheduleTrace PrefixTrace;
 
         /// <summary>
         /// The count of exploration steps in the current iteration.
@@ -69,16 +70,19 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Checks if the scheduler is replaying the schedule trace.
         /// </summary>
-        internal bool IsReplayingSchedule { get; private set; }
+        internal bool IsReplaying { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator)
+        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator,
+            ScheduleTrace prefixTrace)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
             this.ValueGenerator = generator;
+            this.Trace = ScheduleTrace.Create();
+            this.PrefixTrace = prefixTrace;
 
             this.Reducers = new List<IScheduleReducer>();
             if (configuration.IsSharedStateReductionEnabled)
@@ -94,12 +98,8 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                this.Strategy = InterleavingStrategy.Create(configuration, generator);
-                if (this.Strategy is ReplayStrategy replayStrategy)
-                {
-                    this.ReplayStrategy = replayStrategy;
-                    this.IsReplayingSchedule = true;
-                }
+                this.Strategy = InterleavingStrategy.Create(configuration, generator, prefixTrace);
+                this.IsReplaying = prefixTrace.Length > 0;
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
@@ -110,17 +110,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration) =>
+        internal static OperationScheduler Setup(Configuration configuration, ScheduleTrace prefixTrace) =>
             new OperationScheduler(configuration,
                 configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Interleaving,
-                new RandomValueGenerator(configuration));
+                new RandomValueGenerator(configuration), prefixTrace);
 
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
             IRandomValueGenerator valueGenerator) =>
-            new OperationScheduler(configuration, policy, valueGenerator);
+            new OperationScheduler(configuration, policy, valueGenerator, ScheduleTrace.Create());
 
         /// <summary>
         /// Initializes the next iteration.
@@ -129,8 +129,7 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
         internal bool InitializeNextIteration(uint iteration)
         {
-            this.Trace?.Dispose();
-            this.Trace = new ScheduleTrace();
+            this.Trace.Clear();
             return this.Strategy.InitializeNextIteration(iteration);
         }
 
@@ -178,10 +177,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal bool GetNextBoolean(ControlledOperation current, out bool next)
         {
             if (this.Strategy is InterleavingStrategy strategy &&
-                strategy.GetNextBooleanChoice(current, out next))
+                strategy.GetNextBoolean(current, out next))
             {
                 this.Trace.AddNondeterministicBooleanChoice(next);
                 return true;
@@ -198,10 +197,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal bool GetNextInteger(ControlledOperation current, int maxValue, out int next)
         {
             if (this.Strategy is InterleavingStrategy strategy &&
-                strategy.GetNextIntegerChoice(current, maxValue, out next))
+                strategy.GetNextInteger(current, maxValue, out next))
             {
                 this.Trace.AddNondeterministicIntegerChoice(next);
                 return true;
@@ -229,8 +228,8 @@ namespace Microsoft.Coyote.Runtime
         internal string GetDescription() => this.Strategy.GetDescription();
 
         /// <summary>
-        /// Returns the replay error, if there is any.
+        /// Returns the last scheduling error, or the empty string if there is none.
         /// </summary>
-        internal string GetReplayError() => this.ReplayStrategy?.ErrorText ?? string.Empty;
+        internal string GetLastError() => this.Strategy.ErrorText;
     }
 }

@@ -1526,8 +1526,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 .WithMaxSchedulingSteps(100)
                 .WithTestingIterations(5)
                 .WithRandomGeneratorSeed(seed),
-            expectedError: "Sequence is not sorted.",
-            replay: true);
+            expectedError: "Sequence is not sorted.");
         }
     }
 }

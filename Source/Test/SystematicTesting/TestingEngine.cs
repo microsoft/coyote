@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.SystematicTesting
         public string ReadableTrace { get; private set; }
 
         /// <summary>
-        /// The reproducable trace, if any.
+        /// The reproducible trace, if any.
         /// </summary>
         public string ReproducibleTrace { get; private set; }
 
@@ -161,8 +161,9 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             try
             {
+                ScheduleTrace prefixTrace = TraceReport.FromJson(configuration);
                 TestMethodInfo testMethodInfo = TestMethodInfo.Create(configuration);
-                return new TestingEngine(configuration, testMethodInfo);
+                return new TestingEngine(configuration, testMethodInfo, prefixTrace);
             }
             catch (Exception ex)
             {
@@ -211,14 +212,18 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Initializes a new instance of the <see cref="TestingEngine"/> class.
         /// </summary>
         internal TestingEngine(Configuration configuration, Delegate test)
-            : this(configuration, TestMethodInfo.Create(test))
+            : this(configuration, TestMethodInfo.Create(test), TraceReport.FromJson(configuration))
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestingEngine"/> class.
         /// </summary>
-        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo)
+        /// <remarks>
+        /// If a non-empty prefix trace is provided, then the testing engine will attempt
+        /// to replay it before performing any new exploration.
+        /// </remarks>
+        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo, ScheduleTrace prefixTrace)
         {
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;
@@ -244,10 +249,9 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Do some sanity checking.
             string error = string.Empty;
-            if (configuration.IsSystematicFuzzingEnabled &&
-                (configuration.SchedulingStrategy is "replay" || configuration.ScheduleFile.Length > 0))
+            if (configuration.IsSystematicFuzzingEnabled && prefixTrace.Length > 0)
             {
-                error = "Replaying a bug trace is not currently supported in systematic fuzzing.";
+                error = "Replaying an execution trace is not supported in systematic fuzzing.";
             }
 
             if (!string.IsNullOrEmpty(error))
@@ -256,8 +260,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 throw new InvalidOperationException(error);
             }
 
-            this.Scheduler = OperationScheduler.Setup(configuration);
+            // Parse the trace if one is provided, and update any configuration values.
+            this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
 
+            // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration);
         }
 
@@ -358,15 +364,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     methodInfo.InitializeAllIterations();
 
-                    if (this.Scheduler.IsReplayingSchedule)
-                    {
-                        this.Logger.WriteLine(LogSeverity.Important, "... Replaying the trace{0}.",
-                            this.Configuration.ScheduleFile.Length > 0 ? $" from {this.Configuration.ScheduleFile}" : string.Empty);
-                    }
-                    else
-                    {
-                        this.Logger.WriteLine(LogSeverity.Important, "... Running test iterations:");
-                    }
+                    this.Logger.WriteLine(LogSeverity.Important, this.Scheduler.IsReplaying ?
+                        "... Running test." : "... Running test iterations:");
 
                     uint iteration = 0;
                     while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
@@ -379,7 +378,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         // Runs the next iteration.
                         bool runNext = this.RunNextIteration(methodInfo, iteration);
                         if ((!this.Configuration.RunTestIterationsToCompletion && this.TestReport.NumOfFoundBugs > 0) ||
-                            this.Scheduler.IsReplayingSchedule || !runNext)
+                            this.Scheduler.IsReplaying || !runNext)
                         {
                             break;
                         }
@@ -425,7 +424,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 return false;
             }
 
-            if (!this.Scheduler.IsReplayingSchedule && this.ShouldPrintIteration(iteration + 1))
+            if (!this.Scheduler.IsReplaying && this.ShouldPrintIteration(iteration + 1))
             {
                 this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
 
@@ -491,7 +490,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.GatherTestingStatistics(runtime);
 
-                if (!this.Scheduler.IsReplayingSchedule && this.TestReport.NumOfFoundBugs > 0)
+                if (!this.Scheduler.IsReplaying && this.TestReport.NumOfFoundBugs > 0)
                 {
                     if (runtimeLogger != null)
                     {
@@ -502,8 +501,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        this.ReproducibleTrace = this.Scheduler.Trace.Serialize(
-                            this.Configuration, this.Scheduler.IsScheduleFair);
+                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler.Trace, this.Configuration);
                     }
                 }
             }
@@ -534,7 +532,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {
-                    if (!this.Scheduler.IsReplayingSchedule)
+                    if (!this.Scheduler.IsReplaying)
                     {
                         this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                             $"found bug #{this.TestReport.NumOfFoundBugs}");
@@ -542,7 +540,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
                 }
-                else if (this.Scheduler.IsReplayingSchedule)
+                else if (this.Scheduler.IsReplaying)
                 {
                     this.Logger.WriteLine(LogSeverity.Error, "Failed to reproduce the bug.");
                 }
@@ -569,7 +567,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public string GetReport()
         {
-            if (this.Scheduler.IsReplayingSchedule)
+            if (this.Scheduler.IsReplaying)
             {
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
@@ -636,7 +634,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
-                    string reproTracePath = Path.Combine(directory, fileName + ".schedule");
+                    string reproTracePath = Path.Combine(directory, fileName + ".trace");
                     File.WriteAllText(reproTracePath, this.ReproducibleTrace);
                     paths.Add(reproTracePath);
                 }
@@ -703,7 +701,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void TrackTelemetry()
         {
-            bool isReplaying = this.Scheduler.IsReplayingSchedule;
+            bool isReplaying = this.Scheduler.IsReplaying;
             TelemetryClient.TrackEvent(isReplaying ? "replay" : "test");
             if (Debugger.IsAttached)
             {

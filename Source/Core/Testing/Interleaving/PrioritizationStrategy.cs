@@ -10,7 +10,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A probabilistic priority-based scheduling strategy.
+    /// A (fair) probabilistic priority-based scheduling strategy.
     /// </summary>
     /// <remarks>
     /// This strategy is based on the PCT algorithm described in the following paper:

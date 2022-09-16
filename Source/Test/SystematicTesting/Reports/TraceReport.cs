@@ -121,7 +121,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 foreach (var decision in report.Decisions)
                 {
-                    Console.WriteLine(decision);
                     if (decision.StartsWith("op("))
                     {
                         ulong id = ulong.Parse(decision.Substring(3, decision.Length - 4));

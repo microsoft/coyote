@@ -102,20 +102,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
-        }
-
-        /// <inheritdoc/>
         internal override string GetDescription() =>
             $"prioritization[seed:{this.RandomValueGenerator.Seed}]";
     }

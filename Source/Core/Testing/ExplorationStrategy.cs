@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Testing
         /// <summary>
         /// True if this is a fair strategy, else false.
         /// </summary>
-        internal bool IsFair { get; }
+        internal readonly bool IsFair;
 
         /// <summary>
         /// Text describing the last exploration error, if there was any.
@@ -61,12 +61,12 @@ namespace Microsoft.Coyote.Testing
         /// <summary>
         /// Returns the count of explored steps.
         /// </summary>
-        internal abstract int GetStepCount();
+        internal virtual int GetStepCount() => this.StepCount;
 
         /// <summary>
         /// True if the strategy has reached the max exploration steps for the current iteration.
         /// </summary>
-        internal abstract bool IsMaxStepsReached();
+        internal virtual bool IsMaxStepsReached() => this.MaxSteps is 0 ? false : this.StepCount >= this.MaxSteps;
 
         /// <summary>
         /// Returns a description of the strategy.

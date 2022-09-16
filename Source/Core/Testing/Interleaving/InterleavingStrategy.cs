@@ -39,13 +39,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             else if (configuration.SchedulingStrategy is "prioritization")
             {
-                strategy = new PrioritizationStrategy(configuration, generator);
+                strategy = new PrioritizationStrategy(configuration, generator, false);
             }
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
-                var prefixStrategy = new PrioritizationStrategy(configuration, generator);
-                var suffixStrategy = new RandomStrategy(configuration, generator);
-                strategy = new ComboStrategy(configuration, generator, prefixStrategy, suffixStrategy);
+                strategy = new PrioritizationStrategy(configuration, generator, true);
             }
             else if (configuration.SchedulingStrategy is "probabilistic")
             {
@@ -62,6 +60,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             strategy.TracePrefix = tracePrefix;
             return strategy;
+        }
+
+        /// <inheritdoc/>
+        internal override bool InitializeNextIteration(uint iteration)
+        {
+            this.StepCount = 0;
+            return true;
         }
 
         /// <summary>
@@ -227,16 +232,16 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <returns>True if there is a next choice, else false.</returns>
         internal abstract bool NextInteger(ControlledOperation current, int maxValue, out int next);
 
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
         /// <summary>
         /// Resets the strategy.
         /// </summary>
         /// <remarks>
         /// This is typically invoked by parent strategies to reset child strategies.
         /// </remarks>
-        internal abstract void Reset();
+        internal virtual void Reset()
+        {
+            this.StepCount = 0;
+        }
 
         /// <summary>
         /// Formats the error message.

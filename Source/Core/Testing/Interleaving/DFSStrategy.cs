@@ -66,8 +66,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             // DebugPrintSchedule();
-            this.StepCount = 0;
-
             this.SchIndex = 0;
             this.NondetIndex = 0;
 
@@ -134,7 +132,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
             }
 
-            return true;
+            return base.InitializeNextIteration(iteration);
         }
 
         /// <inheritdoc/>
@@ -265,17 +263,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
-        }
-
-        /// <inheritdoc/>
         internal override string GetDescription() => "dfs";
 
         /// <summary>
@@ -333,7 +320,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.IntNondetStack.Clear();
             this.SchIndex = 0;
             this.NondetIndex = 0;
-            this.StepCount = 0;
+            base.Reset();
         }
 
         /// <summary>

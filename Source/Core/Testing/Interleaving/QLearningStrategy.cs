@@ -102,6 +102,16 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
+        internal override bool InitializeNextIteration(uint iteration)
+        {
+            this.LearnQValues();
+            this.ExecutionPath.Clear();
+            this.LastOperation = 0;
+            this.Epochs++;
+            return base.InitializeNextIteration(iteration);
+        }
+
+        /// <inheritdoc/>
         internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
@@ -329,17 +339,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     qValues.Add(opValue, 0);
                 }
             }
-        }
-
-        /// <inheritdoc/>
-        internal override bool InitializeNextIteration(uint iteration)
-        {
-            this.LearnQValues();
-            this.ExecutionPath.Clear();
-            this.LastOperation = 0;
-            this.Epochs++;
-
-            return base.InitializeNextIteration(iteration);
         }
 
         /// <summary>

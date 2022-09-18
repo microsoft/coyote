@@ -1068,6 +1068,20 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        /// <summary>
+        /// Takes a snapshot of the decisions taken during the current execution trace, which allows
+        /// the scheduler to replay them as a trace prefix in subsequent iterations.
+        /// </summary>
+        internal void SnapshotTracePrefix()
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                ExecutionTrace trace = this.Scheduler.SnapshotTracePrefix();
+                IO.Debug.WriteLine("[coyote::debug] Saved snapshot of current execution trace with length '{0}' in runtime '{1}'.",
+                    trace.Length, this.Id);
+            }
+        }
+
         /// <inheritdoc/>
         public bool RandomBoolean() => this.GetNextNondeterministicBooleanChoice(null, null);
 
@@ -1100,7 +1114,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, out result))
+                    if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }
@@ -1147,7 +1161,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out result))
+                    if (!this.Scheduler.GetNextInteger(this.ScheduledOperation, maxValue, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }

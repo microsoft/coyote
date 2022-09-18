@@ -175,7 +175,7 @@ This time the test immediately (and always) fails!
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.0798435 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -315,7 +315,7 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.0902799 sec.
 ... Testing statistics:
 ..... Found 1 bug.

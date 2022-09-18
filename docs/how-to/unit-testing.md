@@ -101,7 +101,7 @@ produce the log files.  You will see the following output:
 ```plain
 Coyote found 1 bugs
 See log file: d:\temp\test\mytest_0.txt
-See log file: d:\temp\test\mytest_0.schedule
+See log file: d:\temp\test\mytest_0.trace
 ```
 
 And the log file contains the familiar output of `coyote test` as follows:
@@ -160,16 +160,16 @@ You can also easily replay and debug a trace, similar to using `coyote replay` f
 tool. To do this you need to configure the `TestingEngine` to run in replay mode:
 ```csharp
 var trace = ...
-var config = Configuration.Create().WithReplayStrategy(trace);
+var config = Configuration.Create().WithReproducibleTrace(trace);
 ```
-The input to the `WithReplayStrategy` method should either be the contents of a `.schedule` file or
+The input to the `WithReproducibleTrace` method should either be the contents of a `.trace` file or
 the `string` value of `TestingEngine.ReproducibleTrace` (from a previous run).
 
 Then you add breakpoints to debug and replay as follows:
 
 ```csharp
 var trace = ...
-var config = Configuration.Create().WithReplayStrategy(trace);
+var config = Configuration.Create().WithReproducibleTrace(trace);
 TestingEngine engine = TestingEngine.Create(config, CoyoteTestMethod);
 engine.Run();
 ```

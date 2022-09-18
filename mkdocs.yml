@@ -109,13 +109,13 @@ nav:
       - Configuration:
         - Overview: ref/Microsoft.Coyote/Configuration.md
         - Create: ref/Microsoft.Coyote/Configuration/Create.md
+        - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
+        - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
+        - WithReproducibleTrace: ref/Microsoft.Coyote/Configuration/WithReproducibleTrace.md
         - WithRandomStrategy: ref/Microsoft.Coyote/Configuration/WithRandomStrategy.md
         - WithProbabilisticStrategy: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy.md
         - WithPrioritizationStrategy: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy.md
         - WithRLStrategy: ref/Microsoft.Coyote/Configuration/WithRLStrategy.md
-        - WithReplayStrategy: ref/Microsoft.Coyote/Configuration/WithReplayStrategy.md
-        - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
-        - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
         - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
@@ -551,6 +551,7 @@ nav:
         - Write: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Write.md
         - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
         - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
+        - Snapshot: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Snapshot.md
       - TaskServices: ref/Microsoft.Coyote.Runtime/TaskServices.md
     - Microsoft.Coyote.Specifications:
       - Namespace Overview: ref/Microsoft.Coyote.SpecificationsNamespace.md

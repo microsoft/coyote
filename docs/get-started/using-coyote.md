@@ -165,10 +165,10 @@ The `coyote` replayer can be used to deterministically reproduce and debug buggy
 by `coyote test`). To run the replayer use the following command:
 
 ```plain
-coyote replay ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
+coyote replay ${YOUR_PROGRAM} ${TRACE}.trace
 ```
 
-Where `${SCHEDULE_TRACE}}.schedule` is the trace file dumped by `coyote test`.
+Where `${TRACE}}.trace` is the JSON trace file dumped by `coyote test`.
 
 You can attach the Visual Studio debugger on this trace by using `--break`. When using this flag,
 Coyote will automatically instrument a breakpoint when the bug is found. You can also insert your
@@ -191,10 +191,10 @@ Out of the box, Coyote supports finding and reproducing bugs in programs written
 Coyote will let you know with an informative error if it detects a type that it does not support, or
 if the test invokes an external concurrent API that you have not mocked or rewritten its assembly.
 For these scenarios, Coyote provides the `--no-repro` command line option, which allows you to
-ignore these errors by *disabling the ability to reproduce* bug traces (i.e., no `.schedule` file
-will be produced when a bug is found). Alternatively, if you are using the Coyote test runner from
-inside another [unit testing framework](../how-to/unit-testing.md), you can run Coyote in this mode
-by enabling the `Configuration.WithNoBugTraceRepro()` option.
+ignore these errors by *disabling the ability to reproduce* bug traces (i.e., no `.trace` file will
+be produced when a bug is found). Alternatively, if you are using the Coyote test runner from inside
+another [unit testing framework](../how-to/unit-testing.md), you can run Coyote in this mode by
+enabling the `Configuration.WithNoBugTraceRepro()` option.
 
 In the `--no-repro` mode, you can continue using Coyote to expose tricky concurrency (and other
 nondeterministic) bugs. As Coyote adds supports for more .NET APIs, you will be able to reproduce
@@ -255,6 +255,6 @@ on MacOS or Linux. So another way to debug a replay is to follow these steps:
 2. Execute the coyote binary, which you can find in ~/.dotnet/tools/coyote if you installed the
 `dotnet tool` called `Microsoft.Coyote.CLI`.
 
-3. Add the arguments ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
+3. Add the arguments ${YOUR_PROGRAM} ${TRACE}.trace
 
 4. Insert the breakpoints where needed and start debugging.

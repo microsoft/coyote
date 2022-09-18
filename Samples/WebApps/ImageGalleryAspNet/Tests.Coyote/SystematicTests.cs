@@ -60,7 +60,7 @@ namespace ImageGallery.Tests
         {
             string assemblyPath = Assembly.GetAssembly(typeof(SystematicTests)).Location;
             string directory = Path.GetDirectoryName(assemblyPath);
-            string traceFile = Path.Combine(directory, $"{testName}.schedule");
+            string traceFile = Path.Combine(directory, $"{testName}.trace");
             File.WriteAllText(traceFile, trace);
             return traceFile;
         }

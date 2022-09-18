@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         [Fact(Timeout = 5000)]
         public void TestPausedOperationAwaitablePersistsOperation()
         {
-            this.Test(() =>
+            this.RunSystematicTest(() =>
             {
                 var tcs = new TaskCompletionSource<bool>();
                 var task = CoyoteTypes.Threading.Tasks.Task.Run(async () =>
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         [Fact(Timeout = 5000)]
         public void TestPausedOperationAwaitableResumesAsynchronously()
         {
-            this.Test(() =>
+            this.RunSystematicTest(() =>
             {
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         [Fact(Timeout = 5000)]
         public void TestPausedOperationAwaitableRunsAsynchronously()
         {
-            this.Test(() =>
+            this.RunSystematicTest(() =>
             {
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();

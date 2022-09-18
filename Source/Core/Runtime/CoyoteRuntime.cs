@@ -239,6 +239,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal string BugReport { get; private set; }
 
+        internal int NumScheduleTasks;
+
+        internal int NumScheduleActions;
+
+        internal int NumScheduleDelays;
+
+        internal int NumAsyncStateMachines;
+
         /// <summary>
         /// Responsible for writing to all registered <see cref="IRuntimeLog"/> objects.
         /// </summary>
@@ -323,6 +331,11 @@ namespace Microsoft.Coyote.Runtime
             this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
                 new ActorExecutionContext.Mock(configuration, this) :
                 new ActorExecutionContext(configuration, this);
+
+            this.NumScheduleTasks = 0;
+            this.NumScheduleActions = 0;
+            this.NumScheduleDelays = 0;
+            this.NumAsyncStateMachines = 0;
         }
 
         /// <summary>
@@ -450,6 +463,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Task task)
         {
+            this.NumScheduleTasks++;
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
@@ -511,6 +525,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action callback)
         {
+            this.NumScheduleActions++;
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
@@ -572,6 +587,7 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
+            this.NumScheduleDelays++;
             if (delay.TotalMilliseconds is 0)
             {
                 // If the delay is 0, then complete synchronously.
@@ -2257,7 +2273,8 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.SyncObject))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
+                int numGroups = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numGroups, this.NumScheduleTasks, this.NumScheduleActions, this.NumScheduleDelays, this.NumAsyncStateMachines,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
                 if (isBugFound)

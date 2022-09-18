@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Testing
         /// <summary>
         /// Sets the specified scheduling statistics.
         /// </summary>
-        void SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int concurrencyDegree,
+        void SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups, int numScheduleTasks, int numScheduleActions, int numScheduleDelays, int numAsyncStateMachines, int concurrencyDegree,
             int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair);
 
         /// <summary>

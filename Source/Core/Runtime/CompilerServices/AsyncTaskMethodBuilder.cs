@@ -44,6 +44,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
+            runtime.NumAsyncStateMachines++;
         }
 
         /// <summary>

@@ -95,6 +95,30 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalOperationGroups { get; internal set; }
 
         /// <summary>
+        /// bleh.
+        /// </summary>
+        [DataMember]
+        public int TotalScheduleTasks { get; internal set; }
+
+        /// <summary>
+        /// bleh.
+        /// </summary>
+        [DataMember]
+        public int TotalScheduleActions { get; internal set; }
+
+        /// <summary>
+        /// bleh.
+        /// </summary>
+        [DataMember]
+        public int TotalScheduleDelays { get; internal set; }
+
+        /// <summary>
+        /// bleh.
+        /// </summary>
+        [DataMember]
+        public int TotalAsyncStateMachines { get; internal set; }
+
+        /// <summary>
         /// The min degree of concurrency.
         /// </summary>
         [DataMember]
@@ -216,13 +240,18 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MaxUnfairStepsHitInFairTests = 0;
             this.MaxUnfairStepsHitInUnfairTests = 0;
 
+            this.TotalScheduleTasks = 0;
+            this.TotalScheduleActions = 0;
+            this.TotalScheduleDelays = 0;
+            this.TotalAsyncStateMachines = 0;
+
             this.InternalErrors = new HashSet<string>();
 
             this.Lock = new object();
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups,
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups, int numScheduleTasks, int numScheduleActions, int numScheduleDelays, int numAsyncStateMachines,
             int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
@@ -246,6 +275,11 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.MinOperationGroups = numGroups;
             }
+
+            this.TotalScheduleTasks += numScheduleTasks;
+            this.TotalScheduleActions += numScheduleActions;
+            this.TotalScheduleDelays += numScheduleDelays;
+            this.TotalAsyncStateMachines += numAsyncStateMachines;
 
             this.TotalConcurrencyDegree += concurrencyDegree;
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, concurrencyDegree);
@@ -344,6 +378,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.MinOperationGroups = testReport.MinOperationGroups;
                 }
+
+                this.TotalScheduleTasks += testReport.TotalScheduleTasks;
+                this.TotalScheduleActions += testReport.TotalScheduleActions;
+                this.TotalScheduleDelays += testReport.TotalScheduleDelays;
+                this.TotalAsyncStateMachines += testReport.TotalAsyncStateMachines;
 
                 this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
                 this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, testReport.MaxConcurrencyDegree);
@@ -467,6 +506,34 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.TotalOperationGroups / totalExploredSchedules,
                     this.MaxOperationGroups);
             }
+
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Calls to Schedule(Task task): {1} (avg), {2} (total)",
+                prefix.Equals("...") ? "....." : prefix,
+                this.TotalScheduleTasks / totalExploredSchedules,
+                this.TotalScheduleTasks);
+
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Calls to Schedule(Action callback): {1} (avg), {2} (total)",
+                prefix.Equals("...") ? "....." : prefix,
+                this.TotalScheduleActions / totalExploredSchedules,
+                this.TotalScheduleActions);
+
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Calls to Schedule(Delay delay): {1} (avg), {2} (total)",
+                prefix.Equals("...") ? "....." : prefix,
+                this.TotalScheduleDelays / totalExploredSchedules,
+                this.TotalScheduleDelays);
+
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Async State Machines: {1} (avg), {2} (total)",
+                prefix.Equals("...") ? "....." : prefix,
+                this.TotalAsyncStateMachines / totalExploredSchedules,
+                this.TotalAsyncStateMachines);
 
             if (this.TotalConcurrencyDegree > 0)
             {

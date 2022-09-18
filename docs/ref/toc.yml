@@ -15,6 +15,12 @@ toc:
         subfolderitems:
         - name: Create
           link: ref/Microsoft.Coyote/Configuration/Create
+        - name: WithTestingIterations
+          link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
+        - name: WithTestingTimeout
+          link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
+        - name: WithReproducibleTrace
+          link: ref/Microsoft.Coyote/Configuration/WithReproducibleTrace
         - name: WithRandomStrategy
           link: ref/Microsoft.Coyote/Configuration/WithRandomStrategy
         - name: WithProbabilisticStrategy
@@ -23,12 +29,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy
         - name: WithRLStrategy
           link: ref/Microsoft.Coyote/Configuration/WithRLStrategy
-        - name: WithReplayStrategy
-          link: ref/Microsoft.Coyote/Configuration/WithReplayStrategy
-        - name: WithTestingIterations
-          link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
-        - name: WithTestingTimeout
-          link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
         - name: WithSystematicFuzzingEnabled
@@ -841,6 +841,8 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
+        - name: Snapshot
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Snapshot
       - name: TaskServices
         link: ref/Microsoft.Coyote.Runtime/TaskServices
     - name: Microsoft.Coyote.Specifications

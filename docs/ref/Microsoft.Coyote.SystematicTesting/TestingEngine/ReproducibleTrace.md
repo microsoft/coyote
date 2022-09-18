@@ -1,6 +1,6 @@
 # TestingEngine.ReproducibleTrace property
 
-The reproducable trace, if any.
+The reproducible trace, if any.
 
 ```csharp
 public string ReproducibleTrace { get; }

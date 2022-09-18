@@ -13,6 +13,7 @@ public static class SchedulingPoint
 | static [Interleave](SchedulingPoint/Interleave.md)() | Explores a possible interleaving with another controlled operation. |
 | static [Read](SchedulingPoint/Read.md)(…) | Explores a possible interleaving due to a 'READ' operation on the specified shared state. |
 | static [Resume](SchedulingPoint/Resume.md)() | Resumes interleavings that were suppressed by invoking [`Suppress`](./SchedulingPoint/Suppress.md). |
+| static [Snapshot](SchedulingPoint/Snapshot.md)() | Takes a snapshot of all controlled scheduling and nondeterministic decisions taken during the current test iteration. The testing engine will then try to replay the same decisions in subsequent iterations before performing any new exploration. |
 | static [Suppress](SchedulingPoint/Suppress.md)() | Suppresses interleavings until [`Resume`](./SchedulingPoint/Resume.md) is invoked. |
 | static [Write](SchedulingPoint/Write.md)(…) | Explores a possible interleaving due to a 'WRITE' operation on the specified shared state. |
 | static [Yield](SchedulingPoint/Yield.md)() | Attempts to yield execution to another controlled operation. |

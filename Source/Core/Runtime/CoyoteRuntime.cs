@@ -1077,7 +1077,7 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 ExecutionTrace trace = this.Scheduler.SnapshotTracePrefix();
-                IO.Debug.WriteLine("[coyote::debug] Took a snapshot of execution trace with length '{0}' in runtime '{1}'.",
+                IO.Debug.WriteLine("[coyote::debug] Took a snapshot of the current execution trace with length '{0}' in runtime '{1}'.",
                     trace.Length, this.Id);
             }
         }

@@ -1,3 +1,13 @@
+## v1.6.0
+- Exposed new `Operation` API that enables instrumenting, controlling and scheduling custom
+concurrent operations.
+- Exposed new `SchedulingPoint.Snapshot` API that allows to snapshot all non-deterministic decisions
+  in the current execution trace and try replay them in subsequence test iterations to optimize
+  coverage of a subset of the state space.
+- Added support for intercepting and controlling asynchronous locks.
+- Added support for rewriting the `SemaphoreSlim` type.
+- Various runtime improvements and bug fixes.
+
 ## v1.5.9
 - Improved the runtime to try enforce atomicity when invoking a specification `Monitor`.
 

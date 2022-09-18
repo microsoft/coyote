@@ -43,13 +43,13 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The trace explored in the current iteration.
         /// </summary>
-        internal readonly ScheduleTrace Trace;
+        internal readonly ExecutionTrace Trace;
 
         /// <summary>
         /// The prefix trace, if there is any specified. The scheduler will attempt
         /// to reproduce this trace, before performing any new exploration.
         /// </summary>
-        private ScheduleTrace PrefixTrace;
+        private ExecutionTrace PrefixTrace;
 
         /// <summary>
         /// The count of exploration steps in the current iteration.
@@ -76,12 +76,12 @@ namespace Microsoft.Coyote.Runtime
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
         private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator,
-            ScheduleTrace prefixTrace)
+            ExecutionTrace prefixTrace)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
             this.ValueGenerator = generator;
-            this.Trace = ScheduleTrace.Create();
+            this.Trace = ExecutionTrace.Create();
             this.PrefixTrace = prefixTrace;
 
             this.Reducers = new List<IScheduleReducer>();
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration, ScheduleTrace prefixTrace) =>
+        internal static OperationScheduler Setup(Configuration configuration, ExecutionTrace prefixTrace) =>
             new OperationScheduler(configuration,
                 configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Interleaving,
                 new RandomValueGenerator(configuration), prefixTrace);
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
             IRandomValueGenerator valueGenerator) =>
-            new OperationScheduler(configuration, policy, valueGenerator, ScheduleTrace.Create());
+            new OperationScheduler(configuration, policy, valueGenerator, ExecutionTrace.Create());
 
         /// <summary>
         /// Initializes the next iteration.
@@ -221,6 +221,12 @@ namespace Microsoft.Coyote.Runtime
         internal bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next) =>
             (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
+
+        /// <summary>
+        /// Takes a snapshot of all scheduling decisions until now in the current test execution,
+        /// and replays them as a schedule prefix from the next iteration and onwards.
+        /// </summary>
+        internal ExecutionTrace SnapshotTracePrefix() => this.PrefixTrace.ExtendOrReplace(this.Trace);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

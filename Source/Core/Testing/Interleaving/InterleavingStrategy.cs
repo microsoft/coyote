@@ -15,9 +15,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
     internal abstract class InterleavingStrategy : ExplorationStrategy
     {
         /// <summary>
-        /// The prefix trace to try reproduce.
+        /// The execution prefix trace to try reproduce.
         /// </summary>
-        private ScheduleTrace TracePrefix;
+        private ExecutionTrace TracePrefix;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterleavingStrategy"/> class.
@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Creates a <see cref="InterleavingStrategy"/> from the specified configuration.
         /// </summary>
-        internal static InterleavingStrategy Create(Configuration configuration, IRandomValueGenerator generator, ScheduleTrace tracePrefix)
+        internal static InterleavingStrategy Create(Configuration configuration, IRandomValueGenerator generator, ExecutionTrace tracePrefix)
         {
             InterleavingStrategy strategy = null;
             if (configuration.SchedulingStrategy is "random")
@@ -85,8 +85,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 bool result = true;
                 if (this.StepCount < this.TracePrefix.Length)
                 {
-                    ScheduleStep nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ScheduleStepType.SchedulingChoice)
+                    ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
+                    if (nextStep.Type != ExecutionTrace.DecisionType.SchedulingChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a scheduling choice");
                         throw new InvalidOperationException(this.ErrorText);
@@ -139,8 +139,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 bool result = true;
                 if (this.StepCount < this.TracePrefix.Length)
                 {
-                    ScheduleStep nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ScheduleStepType.NondeterministicChoice)
+                    ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
+                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
@@ -192,8 +192,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 bool result = true;
                 if (this.StepCount < this.TracePrefix.Length)
                 {
-                    ScheduleStep nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ScheduleStepType.NondeterministicChoice)
+                    ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
+                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);

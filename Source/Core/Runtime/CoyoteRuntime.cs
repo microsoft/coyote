@@ -1069,14 +1069,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Takes a snapshot of all scheduling decisions until now in the current test execution,
-        /// and replays them as a schedule prefix from the next iteration and onwards.
+        /// Takes a snapshot of the decisions taken during the current execution trace, which allows
+        /// the scheduler to replay them as a trace prefix in subsequent iterations.
         /// </summary>
-        internal void SnapshotSchedulePrefix()
+        internal void SnapshotTracePrefix()
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                IO.Debug.WriteLine("[coyote::debug] Snapshots all scheduling decisions until now in runtime '{0}'.", this.Id);
+                ExecutionTrace trace = this.Scheduler.SnapshotTracePrefix();
+                IO.Debug.WriteLine("[coyote::debug] Took a snapshot of execution trace with length '{0}' in runtime '{1}'.",
+                    trace.Length, this.Id);
             }
         }
 

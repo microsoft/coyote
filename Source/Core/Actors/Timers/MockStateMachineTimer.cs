@@ -90,8 +90,7 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
         }
 
         /// <summary>
-        /// Determines whether the specified System.Object is equal
-        /// to the current System.Object.
+        /// Determines whether the specified object is equal to the current object.
         /// </summary>
         public override bool Equals(object obj) => obj is MockStateMachineTimer timer && this.Id == timer.Id;
 

@@ -137,19 +137,21 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Takes a snapshot of all scheduling decisions until now in the current test execution,
-        /// and replays them as a schedule prefix from the next iteration and onwards.
+        /// Takes a snapshot of all controlled scheduling and nondeterministic decisions taken
+        /// during the current test iteration. The testing engine will then try to replay the
+        /// same decisions in subsequent iterations before performing any new exploration.
         /// </summary>
         /// <remarks>
-        /// Only a single snapshot can be stored at a time, and invoking this method will
-        /// overwrite any previous snapshot.
+        /// Only a single snapshot can be stored at a time, and invoking this method with
+        /// an existing snapshot will either extend its suffix if new decisions are taken,
+        /// or overwrite it if the new snapshot diverges or is empty.
         /// </remarks>
-        public static void SnapshotPrefix()
+        public static void Snapshot()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                runtime.ResumeScheduling();
+                runtime.SnapshotTracePrefix();
             }
         }
 

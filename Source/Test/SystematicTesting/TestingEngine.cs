@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             try
             {
-                ScheduleTrace prefixTrace = TraceReport.FromJson(configuration);
+                ExecutionTrace prefixTrace = TraceReport.FromJson(configuration);
                 TestMethodInfo testMethodInfo = TestMethodInfo.Create(configuration);
                 return new TestingEngine(configuration, testMethodInfo, prefixTrace);
             }
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// If a non-empty prefix trace is provided, then the testing engine will attempt
         /// to replay it before performing any new exploration.
         /// </remarks>
-        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo, ScheduleTrace prefixTrace)
+        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo, ExecutionTrace prefixTrace)
         {
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;

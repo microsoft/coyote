@@ -31,9 +31,9 @@ namespace Microsoft.Coyote.SystematicTesting
         public List<string> Decisions { get; set; }
 
         /// <summary>
-        /// Returns the report from the specified <see cref="ScheduleTrace"/> in JSON format.
+        /// Returns the report from the specified <see cref="ExecutionTrace"/> in JSON format.
         /// </summary>
-        internal static string GetJson(ScheduleTrace trace, Configuration configuration)
+        internal static string GetJson(ExecutionTrace trace, Configuration configuration)
         {
             var report = new TraceReport();
             report.TestName = configuration.TestMethodName;
@@ -61,8 +61,8 @@ namespace Microsoft.Coyote.SystematicTesting
             report.Decisions = new List<string>();
             for (int idx = 0; idx < trace.Length; idx++)
             {
-                ScheduleStep step = trace[idx];
-                if (step.Type == ScheduleStepType.SchedulingChoice)
+                ExecutionTrace.Step step = trace[idx];
+                if (step.Type == ExecutionTrace.DecisionType.SchedulingChoice)
                 {
                     report.Decisions.Add($"op({step.ScheduledOperationId})");
                 }
@@ -85,12 +85,12 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Returns a <see cref="ScheduleTrace"/> from the specified JSON trace and also updates
+        /// Returns a <see cref="ExecutionTrace"/> from the specified JSON trace and also updates
         /// the configuration with any values explicitly set in the trace report.
         /// </summary>
-        internal static ScheduleTrace FromJson(Configuration configuration)
+        internal static ExecutionTrace FromJson(Configuration configuration)
         {
-            var trace = ScheduleTrace.Create();
+            var trace = ExecutionTrace.Create();
             if (configuration.ReproducibleTrace.Length > 0)
             {
                 var report = JsonSerializer.Deserialize<TraceReport>(configuration.ReproducibleTrace, new JsonSerializerOptions()

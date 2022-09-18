@@ -38,11 +38,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.Run((r) => test(), configuration);
+                this.RunTest((r) => test(), configuration);
             }
             else
             {
-                this.RunCoyoteTest(test, configuration);
+                this.RunSystematicTest(test, configuration);
             }
         }
 
@@ -50,11 +50,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.Run(test, configuration);
+                this.RunTest(test, configuration);
             }
             else
             {
-                this.RunCoyoteTest(test, configuration);
+                this.RunSystematicTest(test, configuration);
             }
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunCoyoteTest(test, configuration);
+                this.RunSystematicTest(test, configuration);
             }
         }
 
@@ -78,28 +78,24 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunCoyoteTest(test, configuration);
+                this.RunSystematicTest(test, configuration);
             }
         }
 
-        protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
-        {
-            TestReport report = this.RunCoyoteTest(test, configuration);
-            using var writer = new StringWriter();
-            var activityCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);
-            activityCoverageReporter.WriteCoverageText(writer);
-            string result = writer.ToString().RemoveNamespaceReferences();
-            return result;
-        }
+        protected TestReport RunSystematicTest(Action test, Configuration configuration = null) =>
+            this.RunSystematicTest(test as Delegate, configuration);
 
-        private TestReport RunCoyoteTest(Delegate test, Configuration configuration)
+        protected TestReport RunSystematicTest(Func<Task> test, Configuration configuration = null) =>
+            this.RunSystematicTest(test as Delegate, configuration);
+
+        private TestReport RunSystematicTest(Delegate test, Configuration configuration)
         {
             configuration ??= this.GetConfiguration();
 
             var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using TestingEngine engine = RunTest(test, configuration, logger);
+                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
                 var numErrors = engine.TestReport.NumOfFoundBugs;
                 Assert.True(numErrors is 0, GetBugReport(engine));
                 return engine.TestReport;
@@ -116,6 +112,16 @@ namespace Microsoft.Coyote.Tests.Common
             return null;
         }
 
+        protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
+        {
+            TestReport report = this.RunSystematicTest(test, configuration);
+            using var writer = new StringWriter();
+            var activityCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);
+            activityCoverageReporter.WriteCoverageText(writer);
+            string result = writer.ToString().RemoveNamespaceReferences();
+            return result;
+        }
+
         protected void TestWithError(Action test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
@@ -125,7 +131,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
@@ -138,7 +144,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
@@ -151,7 +157,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
@@ -164,7 +170,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
         }
 
@@ -177,7 +183,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
@@ -190,7 +196,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
@@ -203,7 +209,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
@@ -216,7 +222,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.RunSystematicTestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
         }
 
@@ -229,7 +235,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunSystematicTestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
@@ -242,7 +248,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunSystematicTestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
@@ -255,7 +261,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunSystematicTestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
@@ -268,11 +274,11 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.TestWithErrors(test, configuration, errorChecker, replay);
+                this.RunSystematicTestWithErrors(test, configuration, errorChecker, replay);
             }
         }
 
-        private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
+        private void RunSystematicTestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
             configuration ??= this.GetConfiguration();
             if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
@@ -284,13 +290,13 @@ namespace Microsoft.Coyote.Tests.Common
             var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using var engine = RunTest(test, configuration, logger);
+                using var engine = RunTestingEngine(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using var replayEngine = RunTest(test, configuration, logger);
+                    using var replayEngine = RunTestingEngine(test, configuration, logger);
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, errorChecker);
@@ -311,11 +317,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.RunWithException<TException>(test, configuration);
+                this.RunTestWithException<TException>(test, configuration);
             }
             else
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunSystematicTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -325,11 +331,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.RunWithException<TException>(test, configuration);
+                this.RunTestWithException<TException>(test, configuration);
             }
             else
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunSystematicTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -338,11 +344,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+                this.RunTestWithExceptionAsync<TException>(test, configuration).Wait();
             }
             else
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunSystematicTestWithException<TException>(test, configuration, replay);
             }
         }
 
@@ -352,15 +358,15 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+                this.RunTestWithExceptionAsync<TException>(test, configuration).Wait();
             }
             else
             {
-                this.InternalTestWithException<TException>(test, configuration, replay);
+                this.RunSystematicTestWithException<TException>(test, configuration, replay);
             }
         }
 
-        private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
+        private void RunSystematicTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
             configuration ??= this.GetConfiguration();
@@ -377,13 +383,13 @@ namespace Microsoft.Coyote.Tests.Common
             var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using var engine = RunTest(test, configuration, logger);
+                using var engine = RunTestingEngine(test, configuration, logger);
                 CheckErrors(engine, exceptionType);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using var replayEngine = RunTest(test, configuration, logger);
+                    using var replayEngine = RunTestingEngine(test, configuration, logger);
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, exceptionType);
@@ -399,7 +405,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected void Run(Action<IActorRuntime> test, Configuration configuration = null)
+        protected void RunTest(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
 
@@ -592,7 +598,7 @@ namespace Microsoft.Coyote.Tests.Common
             errorChecker(errorMessage);
         }
 
-        protected void RunWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
+        protected void RunTestWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
 
@@ -639,7 +645,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        protected void RunWithException<TException>(Action test, Configuration configuration = null)
+        protected void RunTestWithException<TException>(Action test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
 
@@ -686,7 +692,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        protected async Task RunWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
+        protected async Task RunTestWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
 
@@ -735,7 +741,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        protected async Task RunWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
+        protected async Task RunTestWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
 
@@ -784,7 +790,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        private static TestingEngine RunTest(Delegate test, Configuration configuration, TestOutputLogger logger)
+        private static TestingEngine RunTestingEngine(Delegate test, Configuration configuration, TestOutputLogger logger)
         {
             var engine = new TestingEngine(configuration, test)
             {

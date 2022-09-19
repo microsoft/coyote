@@ -223,10 +223,10 @@ namespace Microsoft.Coyote.Runtime
             (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
 
         /// <summary>
-        /// Takes a snapshot of all scheduling decisions until now in the current test execution,
-        /// and replays them as a schedule prefix from the next iteration and onwards.
+        /// Sets a checkpoint in the currently explored execution trace, that allows replaying all
+        /// scheduling decisions until the checkpoint in subsequent iterations.
         /// </summary>
-        internal ExecutionTrace SnapshotTracePrefix() => this.PrefixTrace.ExtendOrReplace(this.Trace);
+        internal ExecutionTrace CheckpointExecutionTrace() => this.PrefixTrace.ExtendOrReplace(this.Trace);
 
         /// <summary>
         /// Returns a description of the scheduling strategy in text format.

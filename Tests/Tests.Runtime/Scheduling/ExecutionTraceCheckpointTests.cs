@@ -8,9 +8,9 @@ using CoyoteTypes = Microsoft.Coyote.Rewriting.Types;
 
 namespace Microsoft.Coyote.Runtime.Tests
 {
-    public class ExecutionTraceSnapshotTests : BaseRuntimeTest
+    public class ExecutionTraceCheckpointTests : BaseRuntimeTest
     {
-        public ExecutionTraceSnapshotTests(ITestOutputHelper output)
+        public ExecutionTraceCheckpointTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExecutionTraceSnapshot()
+        public void TestExecutionTraceCheckpoint()
         {
             uint numSequencesFound = 0;
             bool isSnapshotReset = true;
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Runtime.Tests
                         values.Add(0);
                         if (IsSequenceFound(values))
                         {
-                            Microsoft.Coyote.Runtime.SchedulingPoint.Snapshot();
+                            Microsoft.Coyote.Runtime.SchedulingPoint.SetCheckpoint();
                         }
 
                         Microsoft.Coyote.Runtime.SchedulingPoint.Interleave();
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Runtime.Tests
                         values.Add(1);
                         if (IsSequenceFound(values))
                         {
-                            Microsoft.Coyote.Runtime.SchedulingPoint.Snapshot();
+                            Microsoft.Coyote.Runtime.SchedulingPoint.SetCheckpoint();
                         }
 
                         Microsoft.Coyote.Runtime.SchedulingPoint.Interleave();

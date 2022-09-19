@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Runtime.Tests
         [Fact(Timeout = 5000)]
         public void TestThreadOperationInstrumentation()
         {
-            this.Test(() =>
+            this.RunSystematicTest(() =>
             {
                 var operationId = Operation.CreateNext();
                 Specification.Assert(operationId.HasValue, $"Unable to create next operation.");

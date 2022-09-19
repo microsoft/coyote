@@ -1,3 +1,15 @@
+## v1.6.0
+- Exposed new `Operation` API that enables instrumenting, controlling and scheduling custom
+concurrent operations.
+- Exposed new `SchedulingPoint.SetCheckpoint` API that allows to capture all non-deterministic
+  decisions in the currently explored execution path and try replay them in subsequent test
+  iterations to optimize coverage of a subset of the state space.
+- Added support for intercepting and controlling asynchronous locks.
+- Added support for rewriting the `SemaphoreSlim` type.
+- The `Configuration.WithReplayStrategy` method was renamed to `Configuration.WithReproducibleTrace`
+  to make it more explicit that setting this option allows reproducing the specified trace.
+- Various runtime improvements and bug fixes.
+
 ## v1.5.9
 - Improved the runtime to try enforce atomicity when invoking a specification `Monitor`.
 
@@ -80,9 +92,9 @@
   `no-fuzzing-fallback` command line option (or
   `Configuration.WithSystematicFuzzingFallbackEnabled`).
 - Added a new JSON test report that lists any detected invocations of uncontrolled methods.
-- The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to
-  reflect that the reports do not include only traces.
-- The `IActorRuntimeLog.OnStrategyDescription` method has been removed.
+- The `TestingEngine.TryEmitTraces` method was renamed to `TestingEngine.TryEmitReports` to reflect
+  that the reports do not include only traces.
+- The `IActorRuntimeLog.OnStrategyDescription` method was removed.
 
 ## v1.4.0
 - Redesigned the systematic testing runtime to significantly improve its performance and simplicity.

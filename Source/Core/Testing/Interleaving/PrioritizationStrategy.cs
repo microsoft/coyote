@@ -10,13 +10,13 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A probabilistic priority-based scheduling strategy.
+    /// A (fair) probabilistic priority-based scheduling strategy.
     /// </summary>
     /// <remarks>
     /// This strategy is based on the PCT algorithm described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PrioritizationStrategy : InterleavingStrategy
+    internal sealed class PrioritizationStrategy : RandomStrategy
     {
         /// <summary>
         /// List of prioritized operation groups.
@@ -46,8 +46,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+            : base(configuration, generator, isFair)
         {
             this.PrioritizedOperationGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
@@ -84,14 +84,18 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             this.NumPriorityChangePoints = 0;
-            this.StepCount = 0;
-            return true;
+            return base.InitializeNextIteration(iteration);
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
+            if (this.IsFair && this.StepCount >= this.Configuration.MaxUnfairSchedulingSteps)
+            {
+                return base.NextOperation(ops, current, isYielding, out next);
+            }
+
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);
 
@@ -115,7 +119,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
-            this.StepCount++;
             return true;
         }
 
@@ -188,43 +191,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
-        {
-            next = false;
-            if (this.RandomValueGenerator.Next(2) is 0)
-            {
-                next = true;
-            }
-
-            this.StepCount++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
-        {
-            next = this.RandomValueGenerator.Next(maxValue);
-            this.StepCount++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
-        }
-
-        /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"prioritization[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"prioritization[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
@@ -249,10 +217,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.StepCount = 0;
             this.NumPriorityChangePoints = 0;
             this.PrioritizedOperationGroups.Clear();
             this.PriorityChangePoints.Clear();
+            base.Reset();
         }
 
         /// <summary>

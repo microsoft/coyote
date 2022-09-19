@@ -49,18 +49,18 @@ strategy, you will see a bug report:
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
-..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
 ```
 
-The `*.txt` file is the text log of the iteration that found the bug. The `*.schedule` contains the
+The `*.txt` file is the text log of the iteration that found the bug. The `*.trace` contains the
 information needed to reproduce the bug.
 
 Finding a hard to find bug is one thing, but if you can't reproduce this bug while debugging there
-is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
+is no point. So the `*.trace` can be used with the `coyote replay` command as follows:
 
 ```plain
 coyote replay ./Samples/bin/net6.0/Monitors.dll 
-    .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+    .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
     
 . Reproducing trace in ./Samples/bin/net6.0/Monitors.exe
 ... Reproduced 1 bug.

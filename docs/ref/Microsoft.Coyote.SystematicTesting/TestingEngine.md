@@ -13,7 +13,7 @@ public sealed class TestingEngine : IDisposable
 | static [Create](TestingEngine/Create.md)(…) | Creates a new systematic testing engine. (7 methods) |
 | [Logger](TestingEngine/Logger.md) { get; set; } | Get or set the ILogger used to log messages during testing. |
 | [ReadableTrace](TestingEngine/ReadableTrace.md) { get; } | The readable trace, if any. |
-| [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducable trace, if any. |
+| [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducible trace, if any. |
 | [TestReport](TestingEngine/TestReport.md) { get; set; } | Data structure containing information gathered during testing. |
 | [Dispose](TestingEngine/Dispose.md)() | Releases any held resources. |
 | [GetReport](TestingEngine/GetReport.md)() | Returns a report with the testing results. |

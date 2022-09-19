@@ -187,7 +187,7 @@ namespace PetImages.Tests
             if (reproducibleScheduleFilePath != null)
             {
                 var trace = File.ReadAllText(reproducibleScheduleFilePath);
-                config = config.WithReplayStrategy(trace);
+                config = config.WithReproducibleTrace(trace);
             }
 
             var testingEngine = TestingEngine.Create(config, test);
@@ -210,7 +210,7 @@ namespace PetImages.Tests
                 if (testingEngine.TestReport.NumOfFoundBugs > 0)
                 {
                     var timeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH-mm-ssZ", CultureInfo.InvariantCulture);
-                    var reproducibleTraceFileName = $"buggy-{timeStamp}.schedule";
+                    var reproducibleTraceFileName = $"buggy-{timeStamp}.trace";
                     assertionText += Environment.NewLine + "Reproducible trace which leads to the bug can be found at " +
                         $"{Path.Combine(Directory.GetCurrentDirectory(), reproducibleTraceFileName)}";
 

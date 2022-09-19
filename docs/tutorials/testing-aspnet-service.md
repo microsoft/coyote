@@ -206,7 +206,7 @@ X TestConcurrentAccountRequests [10s 407ms]
   Error Message:
    Assert.Fail failed. Found bug: Found unexpected error code.
    Replay trace using Coyote by running:
-     TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
+     TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
 ```
 
 Which also tells you how to reliably reproduce the bug using Coyote.
@@ -222,7 +222,7 @@ and replays it in the VS debugger. To do this, just invoke the command mentioned
 (change the paths to the ones on your machine):
 ```
 cd bin/coyote
-TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
+TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
 ```
 
 You will also see that the trace output contains logs such as:

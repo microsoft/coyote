@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
@@ -216,14 +215,9 @@ namespace Microsoft.Coyote
         internal bool AttachDebugger;
 
         /// <summary>
-        /// The schedule file to be replayed.
+        /// The trace to be replayed during testing.
         /// </summary>
-        internal string ScheduleFile;
-
-        /// <summary>
-        /// The schedule trace to be replayed.
-        /// </summary>
-        internal string ScheduleTrace;
+        internal string ReproducibleTrace { get; private set; }
 
         // /// <summary>
         // /// If true, then messages are logged.
@@ -273,9 +267,9 @@ namespace Microsoft.Coyote
         protected Configuration()
         {
             this.OutputFilePath = string.Empty;
-
             this.AssemblyToBeAnalyzed = string.Empty;
             this.TestMethodName = string.Empty;
+            this.ReproducibleTrace = string.Empty;
 
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
@@ -305,9 +299,6 @@ namespace Microsoft.Coyote
             this.IsMonitoringEnabledInInProduction = false;
             this.AttachDebugger = false;
 
-            this.ScheduleFile = string.Empty;
-            this.ScheduleTrace = string.Empty;
-
             this.IsActivityCoverageReported = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
@@ -326,6 +317,39 @@ namespace Microsoft.Coyote
         public static Configuration Create()
         {
             return new Configuration();
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified number of iterations to run during systematic testing.
+        /// </summary>
+        /// <param name="iterations">The number of iterations to run.</param>
+        public Configuration WithTestingIterations(uint iterations)
+        {
+            this.TestingIterations = iterations;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified systematic testing timeout in seconds.
+        /// </summary>
+        /// <param name="timeout">The timeout value in seconds.</param>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        public Configuration WithTestingTimeout(int timeout)
+        {
+            this.TestingTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to try reproduce the specified trace during systematic testing.
+        /// </summary>
+        /// <param name="trace">The trace to be reproduced.</param>
+        public Configuration WithReproducibleTrace(string trace)
+        {
+            this.ReproducibleTrace = trace;
+            return this;
         }
 
         /// <summary>
@@ -382,41 +406,6 @@ namespace Microsoft.Coyote
         internal Configuration WithDFSStrategy()
         {
             this.SchedulingStrategy = "dfs";
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to use the replay scheduling strategy during systematic testing.
-        /// This strategy replays the specified schedule trace to reproduce the same execution.
-        /// </summary>
-        /// <param name="scheduleTrace">The schedule trace to be replayed.</param>
-        public Configuration WithReplayStrategy(string scheduleTrace)
-        {
-            this.SchedulingStrategy = "replay";
-            this.ScheduleTrace = scheduleTrace;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with the specified number of iterations to run during systematic testing.
-        /// </summary>
-        /// <param name="iterations">The number of iterations to run.</param>
-        public Configuration WithTestingIterations(uint iterations)
-        {
-            this.TestingIterations = iterations;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with the specified systematic testing timeout in seconds.
-        /// </summary>
-        /// <param name="timeout">The timeout value in seconds.</param>
-        /// <remarks>
-        /// Setting this value overrides the <see cref="TestingIterations"/> value.
-        /// </remarks>
-        public Configuration WithTestingTimeout(int timeout)
-        {
-            this.TestingTimeout = timeout;
             return this;
         }
 

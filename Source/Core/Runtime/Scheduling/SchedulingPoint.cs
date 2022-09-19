@@ -137,6 +137,26 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Sets a checkpoint in the execution path that is so far explored during the current
+        /// test iteration. This will capture all controlled scheduling and nondeterministic
+        /// decisions taken until the checkpoint and the testing engine will then try to replay
+        /// the same decisions in subsequent iterations before performing any new exploration.
+        /// </summary>
+        /// <remarks>
+        /// Only a single checkpoint can be set at a time, and invoking this method with an
+        /// existing checkpoint will either extend it with new decisions, or overwrite it if
+        /// the new checkpoint diverges or is empty.
+        /// </remarks>
+        public static void SetCheckpoint()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                runtime.CheckpointExecutionTrace();
+            }
+        }
+
+        /// <summary>
         /// Returns true if the specified scheduling point is used-defined.
         /// </summary>
         /// <remarks>

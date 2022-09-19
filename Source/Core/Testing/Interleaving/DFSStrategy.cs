@@ -66,8 +66,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             // DebugPrintSchedule();
-            this.StepCount = 0;
-
             this.SchIndex = 0;
             this.NondetIndex = 0;
 
@@ -134,11 +132,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
             }
 
-            return true;
+            return base.InitializeNextIteration(iteration);
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             SChoice nextChoice = null;
@@ -181,13 +179,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 return false;
             }
 
-            this.StepCount++;
-
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             NondetBooleanChoice nextChoice = null;
             List<NondetBooleanChoice> ncs = null;
@@ -223,14 +219,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
             next = nextChoice.Value;
             nextChoice.IsDone = true;
             this.NondetIndex++;
-
-            this.StepCount++;
-
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             NondetIntegerChoice nextChoice = null;
             List<NondetIntegerChoice> ncs = null;
@@ -266,24 +259,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             next = nextChoice.Value;
             nextChoice.IsDone = true;
             this.NondetIndex++;
-
-            this.StepCount++;
-
             return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>
@@ -344,7 +320,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.IntNondetStack.Clear();
             this.SchIndex = 0;
             this.NondetIndex = 0;
-            this.StepCount = 0;
+            base.Reset();
         }
 
         /// <summary>

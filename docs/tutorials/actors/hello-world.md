@@ -74,7 +74,7 @@ Starting TestingProcessScheduler in process 16432
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
-..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
+..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.trace
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.

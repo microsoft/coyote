@@ -1068,6 +1068,20 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        /// <summary>
+        /// Sets a checkpoint in the currently explored execution trace, that allows replaying all
+        /// scheduling decisions until the checkpoint in subsequent iterations.
+        /// </summary>
+        internal void CheckpointExecutionTrace()
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                ExecutionTrace trace = this.Scheduler.CheckpointExecutionTrace();
+                IO.Debug.WriteLine("[coyote::debug] Set checkpoint in current execution path with length '{0}' in runtime '{1}'.",
+                    trace.Length, this.Id);
+            }
+        }
+
         /// <inheritdoc/>
         public bool RandomBoolean() => this.GetNextNondeterministicBooleanChoice(null, null);
 
@@ -1100,7 +1114,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextBooleanChoice(this.ScheduledOperation, out result))
+                    if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }
@@ -1147,7 +1161,7 @@ namespace Microsoft.Coyote.Runtime
                         this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
                     }
 
-                    if (!this.Scheduler.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out result))
+                    if (!this.Scheduler.GetNextInteger(this.ScheduledOperation, maxValue, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }

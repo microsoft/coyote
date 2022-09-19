@@ -263,7 +263,7 @@ Starting TestingProcessScheduler in process 26236
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.txt
-..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.schedule
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.trace
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.

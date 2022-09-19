@@ -137,21 +137,22 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Takes a snapshot of all controlled scheduling and nondeterministic decisions taken
-        /// during the current test iteration. The testing engine will then try to replay the
-        /// same decisions in subsequent iterations before performing any new exploration.
+        /// Sets a checkpoint in the execution path that is so far explored during the current
+        /// test iteration. This will capture all controlled scheduling and nondeterministic
+        /// decisions taken until the checkpoint and the testing engine will then try to replay
+        /// the same decisions in subsequent iterations before performing any new exploration.
         /// </summary>
         /// <remarks>
-        /// Only a single snapshot can be stored at a time, and invoking this method with
-        /// an existing snapshot will either extend its suffix if new decisions are taken,
-        /// or overwrite it if the new snapshot diverges or is empty.
+        /// Only a single checkpoint can be set at a time, and invoking this method with an
+        /// existing checkpoint will either extend it with new decisions, or overwrite it if
+        /// the new checkpoint diverges or is empty.
         /// </remarks>
-        public static void Snapshot()
+        public static void SetCheckpoint()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                runtime.SnapshotTracePrefix();
+                runtime.CheckpointExecutionTrace();
             }
         }
 

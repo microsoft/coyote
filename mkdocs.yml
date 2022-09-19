@@ -551,7 +551,7 @@ nav:
         - Write: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Write.md
         - Suppress: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress.md
         - Resume: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume.md
-        - Snapshot: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Snapshot.md
+        - SetCheckpoint: ref/Microsoft.Coyote.Runtime/SchedulingPoint/SetCheckpoint.md
       - TaskServices: ref/Microsoft.Coyote.Runtime/TaskServices.md
     - Microsoft.Coyote.Specifications:
       - Namespace Overview: ref/Microsoft.Coyote.SpecificationsNamespace.md

@@ -1069,15 +1069,15 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Takes a snapshot of the decisions taken during the current execution trace, which allows
-        /// the scheduler to replay them as a trace prefix in subsequent iterations.
+        /// Sets a checkpoint in the currently explored execution trace, that allows replaying all
+        /// scheduling decisions until the checkpoint in subsequent iterations.
         /// </summary>
-        internal void SnapshotTracePrefix()
+        internal void CheckpointExecutionTrace()
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                ExecutionTrace trace = this.Scheduler.SnapshotTracePrefix();
-                IO.Debug.WriteLine("[coyote::debug] Saved snapshot of current execution trace with length '{0}' in runtime '{1}'.",
+                ExecutionTrace trace = this.Scheduler.CheckpointExecutionTrace();
+                IO.Debug.WriteLine("[coyote::debug] Set checkpoint in current execution path with length '{0}' in runtime '{1}'.",
                     trace.Length, this.Id);
             }
         }

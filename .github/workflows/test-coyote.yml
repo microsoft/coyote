@@ -42,14 +42,21 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
+      - name: Setup debugging tools
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: |
+          Invoke-WebRequest -Uri https://download.sysinternals.com/files/Procdump.zip -OutFile Procdump.zip
+          7z x .\Procdump.zip -oexternal && rm Procdump.zip
+          echo "PROCDUMP_PATH=$pwd\external" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -ci -nuget
         shell: pwsh
-      - name: Validate Coyote Rewriting
+      - name: Validate Coyote rewriting
         if: ${{ matrix.platform == 'windows-latest' }}
         run: ./Tests/compare-rewriting-diff-logs.ps1
         shell: pwsh
-      - name: Run Coyote Tests
+      - name: Run Coyote tests
         run: ./Scripts/run-tests.ps1 -ci
         shell: pwsh
       - name: Archive Coyote binaries
@@ -57,6 +64,12 @@ jobs:
         with:
           name: coyote-binaries
           path: ./bin
+      - name: Archive test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coyote-test-results
+          path: ./Tests/**/TestResults
   build-and-test-samples:
     name: Build and test Coyote samples
     needs: build-and-test

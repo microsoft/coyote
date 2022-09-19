@@ -841,8 +841,8 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
-        - name: Snapshot
-          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Snapshot
+        - name: SetCheckpoint
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/SetCheckpoint
       - name: TaskServices
         link: ref/Microsoft.Coyote.Runtime/TaskServices
     - name: Microsoft.Coyote.Specifications

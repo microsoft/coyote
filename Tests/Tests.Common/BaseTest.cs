@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Xunit;
@@ -92,7 +93,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             configuration ??= this.GetConfiguration();
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using TestingEngine engine = RunTestingEngine(test, configuration, logger);
@@ -103,10 +104,6 @@ namespace Microsoft.Coyote.Tests.Common
             catch (Exception ex)
             {
                 Assert.False(true, ex.Message + "\n" + ex.StackTrace);
-            }
-            finally
-            {
-                logger.Dispose();
             }
 
             return null;
@@ -287,7 +284,7 @@ namespace Microsoft.Coyote.Tests.Common
                 configuration = configuration.WithTestingIterations(configuration.TestingIterations * 50);
             }
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using var engine = RunTestingEngine(test, configuration, logger);
@@ -305,10 +302,6 @@ namespace Microsoft.Coyote.Tests.Common
             catch (Exception ex)
             {
                 Assert.False(true, ex.Message + "\n" + ex.StackTrace);
-            }
-            finally
-            {
-                logger.Dispose();
             }
         }
 
@@ -380,7 +373,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
                 using var engine = RunTestingEngine(test, configuration, logger);
@@ -399,20 +392,17 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 Assert.False(true, ex.Message + "\n" + ex.StackTrace);
             }
-            finally
-            {
-                logger.Dispose();
-            }
         }
 
         protected void RunTest(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
@@ -424,25 +414,25 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 Assert.False(true, ex.Message + "\n" + ex.StackTrace);
             }
-            finally
-            {
-                logger.Dispose();
-            }
         }
 
         protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null, bool handleFailures = true)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
             {
-                var logger = new TestOutputLogger(this.TestOutput);
+                using var logger = new TestOutputLogger(this.TestOutput);
                 try
                 {
-                    configuration.IsMonitoringEnabledInInProduction = true;
                     var runtime = ActorRuntimeFactory.Create(configuration);
-                    runtime.Logger = logger;
+                    if (!configuration.IsConsoleLoggingEnabled)
+                    {
+                        runtime.Logger = logger;
+                    }
 
                     var errorTask = new TaskCompletionSource<Exception>();
                     if (handleFailures)
@@ -465,10 +455,6 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     Exception e = Unwrap(ex);
                     Assert.False(true, e.Message + "\n" + e.StackTrace);
-                }
-                finally
-                {
-                    logger.Dispose();
                 }
             }
         }
@@ -513,12 +499,13 @@ namespace Microsoft.Coyote.Tests.Common
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             string errorMessage = string.Empty;
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorTask = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -541,10 +528,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 errorMessage = ExtractErrorMessage(ex);
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (string.IsNullOrEmpty(errorMessage))
             {
@@ -557,12 +540,13 @@ namespace Microsoft.Coyote.Tests.Common
         private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             string errorMessage = string.Empty;
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -585,10 +569,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 errorMessage = ExtractErrorMessage(ex);
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (string.IsNullOrEmpty(errorMessage))
             {
@@ -601,16 +581,17 @@ namespace Microsoft.Coyote.Tests.Common
         protected void RunTestWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -632,10 +613,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 actualException = ex;
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (actualException is null)
             {
@@ -648,16 +625,17 @@ namespace Microsoft.Coyote.Tests.Common
         protected void RunTestWithException<TException>(Action test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -679,10 +657,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 actualException = ex;
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (actualException is null)
             {
@@ -695,16 +669,17 @@ namespace Microsoft.Coyote.Tests.Common
         protected async Task RunTestWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -728,10 +703,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 actualException = ex;
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (actualException is null)
             {
@@ -744,16 +715,17 @@ namespace Microsoft.Coyote.Tests.Common
         protected async Task RunTestWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
         {
             configuration ??= this.GetConfiguration();
+            configuration.WithActorQuiescenceCheckingEnabledOutsideTesting();
+            configuration.WithMonitoringEnabledOutsideTesting();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            var logger = new TestOutputLogger(this.TestOutput);
+            using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = ActorRuntimeFactory.Create(configuration);
                 var errorCompletion = new TaskCompletionSource<Exception>();
                 runtime.OnFailure += (e) =>
@@ -777,10 +749,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 actualException = ex;
             }
-            finally
-            {
-                logger.Dispose();
-            }
 
             if (actualException is null)
             {
@@ -792,10 +760,12 @@ namespace Microsoft.Coyote.Tests.Common
 
         private static TestingEngine RunTestingEngine(Delegate test, Configuration configuration, TestOutputLogger logger)
         {
-            var engine = new TestingEngine(configuration, test)
+            var logWriter = new LogWriter(configuration);
+            var engine = new TestingEngine(configuration, test, logWriter);
+            if (!configuration.IsConsoleLoggingEnabled)
             {
-                Logger = logger
-            };
+                engine.SetLogger(logger);
+            }
 
             engine.Run();
             return engine;
@@ -841,7 +811,7 @@ namespace Microsoft.Coyote.Tests.Common
             throw new T();
 
         protected virtual Configuration GetConfiguration() => Configuration.Create()
-            .WithDebugLoggingEnabled()
+            .WithVerbosityEnabled(VerbosityLevel.Debug)
             .WithTelemetryEnabled(false)
             .WithPartiallyControlledConcurrencyAllowed(false)
             .WithSystematicFuzzingFallbackEnabled(false);

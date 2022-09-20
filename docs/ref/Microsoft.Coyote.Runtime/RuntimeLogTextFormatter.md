@@ -10,8 +10,7 @@ public class RuntimeLogTextFormatter : IRuntimeLog
 
 | name | description |
 | --- | --- |
-| [RuntimeLogTextFormatter](RuntimeLogTextFormatter/RuntimeLogTextFormatter.md)() | Initializes a new instance of the [`RuntimeLogTextFormatter`](./RuntimeLogTextFormatter.md) class. |
-| [Logger](RuntimeLogTextFormatter/Logger.md) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILogger.md) interface to the logger. |
+| [RuntimeLogTextFormatter](RuntimeLogTextFormatter/RuntimeLogTextFormatter.md)() | The default constructor. |
 | virtual [OnAssertionFailure](RuntimeLogTextFormatter/OnAssertionFailure.md)(…) | Invoked when the specified assertion failure has occurred. |
 | virtual [OnCompleted](RuntimeLogTextFormatter/OnCompleted.md)() | Invoked when a log is complete (and is about to be closed). |
 | virtual [OnCreateMonitor](RuntimeLogTextFormatter/OnCreateMonitor.md)(…) | Invoked when the specified monitor has been created. |
@@ -21,6 +20,12 @@ public class RuntimeLogTextFormatter : IRuntimeLog
 | virtual [OnMonitorRaiseEvent](RuntimeLogTextFormatter/OnMonitorRaiseEvent.md)(…) | Invoked when the specified monitor raised an event. |
 | virtual [OnMonitorStateTransition](RuntimeLogTextFormatter/OnMonitorStateTransition.md)(…) | Invoked when the specified monitor enters or exits a state. |
 | virtual [OnRandom](RuntimeLogTextFormatter/OnRandom.md)(…) | Invoked when the specified controlled nondeterministic boolean result has been obtained. (2 methods) |
+
+## Protected Members
+
+| name | description |
+| --- | --- |
+| [Logger](RuntimeLogTextFormatter/Logger.md) { get; } | Used for logging runtime messages. |
 
 ## Remarks
 

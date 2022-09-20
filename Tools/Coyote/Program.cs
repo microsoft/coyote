@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Cli;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.SystematicTesting;
 
@@ -17,19 +16,8 @@ namespace Microsoft.Coyote
     /// </summary>
     internal class Program
     {
-        private static TextWriter StdOut;
-        private static TextWriter StdError;
-
-        private static readonly object ConsoleLock = new object();
-
         private static int Main(string[] args)
         {
-            // Save these so we can force output to happen even if they have been re-routed.
-            StdOut = Console.Out;
-            StdError = Console.Error;
-
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-
             var parser = new CommandLineParser(args);
             if (!parser.IsSuccessful)
             {
@@ -44,51 +32,56 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode RunTest(Configuration configuration)
         {
+            using var logWriter = new LogWriter(configuration, true);
             try
             {
-                Console.WriteLine($". Testing {configuration.AssemblyToBeAnalyzed}.");
-                using TestingEngine engine = TestingEngine.Create(configuration);
+                // Load the configuration of the assembly to be tested.
+                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed, logWriter);
+
+                logWriter.LogImportant(". Testing {0}.", configuration.AssemblyToBeAnalyzed);
+                using TestingEngine engine = new TestingEngine(configuration, logWriter);
+                AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
                 string directory = OutputFileManager.CreateOutputDirectory(configuration);
                 string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
 
                 // Emit the test reports.
-                Console.WriteLine($"... Emitting trace-related reports:");
+                logWriter.LogImportant("... Emitting trace-related reports:");
                 if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
                 {
                     foreach (var path in reportPaths)
                     {
-                        Console.WriteLine($"..... Writing {path}");
+                        logWriter.LogImportant("..... Writing {0}", path);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"..... No test reports available.");
+                    logWriter.LogImportant("..... No test reports available.");
                 }
 
                 // Emit the coverage reports.
-                Console.WriteLine($"... Emitting coverage reports:");
+                logWriter.LogImportant("... Emitting coverage reports:");
                 if (engine.TryEmitCoverageReports(directory, fileName, out reportPaths))
                 {
                     foreach (var path in reportPaths)
                     {
-                        Console.WriteLine($"..... Writing {path}");
+                        logWriter.LogImportant("..... Writing {0}", path);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"..... No coverage reports available.");
+                    logWriter.LogImportant("..... No coverage reports available.");
                 }
 
-                Console.WriteLine(engine.TestReport.GetText(configuration, "..."));
-                Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+                logWriter.LogImportant(engine.TestReport.GetText(configuration, "..."));
+                logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
                 return GetExitCodeFromTestReport(engine.TestReport);
             }
             catch (Exception ex)
             {
-                IO.Debug.WriteLine(ex.Message);
-                IO.Debug.WriteLine(ex.StackTrace);
+                logWriter.LogError(ex.Message);
+                logWriter.LogDebug(ex.StackTrace);
                 return ExitCode.Error;
             }
         }
@@ -98,28 +91,30 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode ReplayTest(Configuration configuration)
         {
+            using var logWriter = new LogWriter(configuration, true);
             try
             {
                 // Load the configuration of the assembly to be replayed.
-                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
+                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed, logWriter);
 
-                Console.WriteLine($". Reproducing trace in {configuration.AssemblyToBeAnalyzed}.");
-                using TestingEngine engine = TestingEngine.Create(configuration);
+                logWriter.LogImportant(". Reproducing trace in {0}.", configuration.AssemblyToBeAnalyzed);
+                using TestingEngine engine = new TestingEngine(configuration, logWriter);
+                AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
                 // Emit the report.
                 if (engine.TestReport.NumOfFoundBugs > 0)
                 {
-                    Console.WriteLine(engine.GetReport());
+                    logWriter.LogImportant(engine.GetReport());
                 }
 
-                Console.WriteLine($"... Elapsed {engine.Profiler.Results()} sec.");
+                logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
                 return GetExitCodeFromTestReport(engine.TestReport);
             }
             catch (Exception ex)
             {
-                IO.Debug.WriteLine(ex.Message);
-                IO.Debug.WriteLine(ex.StackTrace);
+                logWriter.LogError(ex.Message);
+                logWriter.LogDebug(ex.StackTrace);
                 return ExitCode.Error;
             }
         }
@@ -129,20 +124,21 @@ namespace Microsoft.Coyote
         /// </summary>
         private static ExitCode RewriteAssemblies(Configuration configuration, RewritingOptions options)
         {
+            using var logWriter = new LogWriter(configuration, true);
             try
             {
                 if (options.AssemblyPaths.Count is 1)
                 {
-                    Console.WriteLine($". Rewriting {options.AssemblyPaths.First()}.");
+                    logWriter.LogImportant(". Rewriting {0}.", options.AssemblyPaths.First());
                 }
                 else
                 {
-                    Console.WriteLine($". Rewriting the assemblies specified in {options.AssembliesDirectory}.");
+                    logWriter.LogImportant(". Rewriting the assemblies specified in {0}.", options.AssembliesDirectory);
                 }
 
                 var profiler = new Profiler();
-                RewritingEngine.Run(options, configuration, profiler);
-                Console.WriteLine($"... Elapsed {profiler.Results()} sec.");
+                RewritingEngine.Run(options, configuration, logWriter, profiler);
+                logWriter.LogImportant("... Elapsed {0} sec.", profiler.Results());
             }
             catch (Exception ex)
             {
@@ -151,7 +147,8 @@ namespace Microsoft.Coyote
                     ex = aex.Flatten().InnerException;
                 }
 
-                Error.Report(configuration.IsDebugVerbosityEnabled ? ex.ToString() : ex.Message);
+                logWriter.LogError(ex.Message);
+                logWriter.LogDebug(ex.StackTrace);
                 return ExitCode.Error;
             }
 
@@ -161,7 +158,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Loads the configuration of the specified assembly.
         /// </summary>
-        private static void LoadAssemblyConfiguration(string assemblyFile)
+        private static void LoadAssemblyConfiguration(string assemblyFile, LogWriter logWriter)
         {
             // Load config file and absorb its settings.
             try
@@ -182,43 +179,20 @@ namespace Microsoft.Coyote
             }
             catch (System.Configuration.ConfigurationErrorsException ex)
             {
-                Error.Report(ex.Message);
+                logWriter.LogError(ex.Message);
+                logWriter.LogDebug(ex.StackTrace);
             }
         }
 
         /// <summary>
         /// Callback invoked when an unhandled exception occurs.
         /// </summary>
-        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
-            ReportUnhandledException((Exception)args.ExceptionObject);
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args) =>
             Environment.Exit((int)ExitCode.InternalError);
-        }
-
-        private static void ReportUnhandledException(Exception ex)
-        {
-            Console.SetOut(StdOut);
-            Console.SetError(StdError);
-
-            PrintException(ex);
-            for (var inner = ex.InnerException; inner != null; inner = inner.InnerException)
-            {
-                PrintException(inner);
-            }
-        }
 
         private static ExitCode GetExitCodeFromTestReport(TestReport report) =>
             report.InternalErrors.Count > 0 ? ExitCode.InternalError :
             report.NumOfFoundBugs > 0 ? ExitCode.BugFound :
             ExitCode.Success;
-
-        private static void PrintException(Exception ex)
-        {
-            lock (ConsoleLock)
-            {
-                Error.Report($"[CoyoteTester] unhandled exception: {ex}");
-                StdOut.WriteLine(ex.StackTrace);
-            }
-        }
     }
 }

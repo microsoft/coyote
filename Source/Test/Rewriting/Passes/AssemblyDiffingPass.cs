@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -26,8 +26,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyDiffingPass"/> class.
         /// </summary>
-        internal AssemblyDiffingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal AssemblyDiffingPass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
             this.ContentMap = new Dictionary<string, AssemblyContents>();
         }
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Rewriting
             if (!this.ContentMap.TryGetValue(assembly.FullName, out AssemblyContents thisContents) ||
                 !pass.ContentMap.TryGetValue(assembly.FullName, out AssemblyContents otherContents))
             {
-                this.Logger.WriteLine(LogSeverity.Error, "Unable to diff IL code that belongs to different assemblies.");
+                this.LogWriter.LogError("Unable to diff IL code that belongs to different assemblies.");
                 return string.Empty;
             }
 
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.Rewriting
             }
             catch (Exception ex)
             {
-                this.Logger.WriteLine(LogSeverity.Error, $"Unable to serialize IL to JSON. {ex.Message}");
+                this.LogWriter.LogError("Unable to serialize IL to JSON. {0}", ex.Message);
             }
 
             return string.Empty;

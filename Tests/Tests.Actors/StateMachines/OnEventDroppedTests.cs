@@ -219,7 +219,6 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         public async Task TestProcessedOrDropped()
         {
             var config = this.GetConfiguration();
-            config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();

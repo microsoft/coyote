@@ -12,7 +12,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
-* interface [ILogger](../../Microsoft.Coyote.IO/ILogger.md)
+* interface [ILogger](../../Microsoft.Coyote.Logging/ILogger.md)
 * class [Monitor](../Monitor.md)
 * namespace [Microsoft.Coyote.Specifications](../Monitor.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

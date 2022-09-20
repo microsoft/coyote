@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using System.Text;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Tests.Common
@@ -12,7 +10,7 @@ namespace Microsoft.Coyote.Tests.Common
     /// <summary>
     /// Logger that writes to the test output.
     /// </summary>
-    public sealed class TestOutputLogger : TextWriter, ILogger
+    public sealed class TestOutputLogger : ILogger
     {
         /// <summary>
         /// Underlying test output.
@@ -25,15 +23,9 @@ namespace Microsoft.Coyote.Tests.Common
         private readonly StringBuilder Log;
 
         /// <summary>
-        /// Serializes access to the string writer.
+        /// Synchronizes access to the string writer.
         /// </summary>
         private readonly object Lock;
-
-        /// <inheritdoc/>
-        public TextWriter TextWriter => this;
-
-        /// <inheritdoc/>
-        public override Encoding Encoding => Encoding.Unicode;
 
         /// <summary>
         /// True if this logger is disposed, else false.
@@ -53,14 +45,25 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <inheritdoc/>
-        public override void Write(string value) =>
-            this.Write(LogSeverity.Informational, value);
+        public void Write(string value) => this.Write(LogSeverity.Info, value);
 
         /// <inheritdoc/>
-        public override void Write(string format, params object[] args) =>
-            this.Write(LogSeverity.Informational, string.Format(format, args));
+        public void Write(string format, object arg0) =>
+            this.Write(LogSeverity.Info, format, arg0);
 
-        public void Write(VerbosityLevel level, string value)
+        /// <inheritdoc/>
+        public void Write(string format, object arg0, object arg1) =>
+            this.Write(LogSeverity.Info, format, arg0, arg1);
+
+        /// <inheritdoc/>
+        public void Write(string format, object arg0, object arg1, object arg2) =>
+            this.Write(LogSeverity.Info, format, arg0, arg1, arg2);
+
+        /// <inheritdoc/>
+        public void Write(string format, params object[] args) =>
+            this.Write(LogSeverity.Info, format, args);
+
+        public void Write(LogSeverity severity, string value)
         {
             lock (this.Lock)
             {
@@ -72,18 +75,42 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <inheritdoc/>
-        public void Write(VerbosityLevel level, string format, params object[] args) =>
+        public void Write(LogSeverity severity, string format, object arg0) =>
+            this.Write(severity, string.Format(format, arg0));
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, object arg0, object arg1) =>
+            this.Write(severity, string.Format(format, arg0, arg1));
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, object arg0, object arg1, object arg2) =>
+            this.Write(severity, string.Format(format, arg0, arg1, arg2));
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, params object[] args) =>
             this.Write(severity, string.Format(format, args));
 
         /// <inheritdoc/>
-        public override void WriteLine(string value) => this.WriteLine(LogSeverity.Informational, value);
+        public void WriteLine(string value) => this.WriteLine(LogSeverity.Info, value);
 
         /// <inheritdoc/>
-        public override void WriteLine(string format, params object[] args) =>
-            this.WriteLine(LogSeverity.Informational, string.Format(format, args));
+        public void WriteLine(string format, object arg0) =>
+            this.WriteLine(LogSeverity.Info, format, arg0);
 
         /// <inheritdoc/>
-        public void WriteLine(VerbosityLevel level, string value)
+        public void WriteLine(string format, object arg0, object arg1) =>
+            this.WriteLine(LogSeverity.Info, format, arg0, arg1);
+
+        /// <inheritdoc/>
+        public void WriteLine(string format, object arg0, object arg1, object arg2) =>
+            this.WriteLine(LogSeverity.Info, format, arg0, arg1, arg2);
+
+        /// <inheritdoc/>
+        public void WriteLine(string format, params object[] args) =>
+            this.WriteLine(LogSeverity.Info, format, args);
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string value)
         {
             lock (this.Lock)
             {
@@ -95,7 +122,19 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <inheritdoc/>
-        public void WriteLine(VerbosityLevel level, string format, params object[] args) =>
+        public void WriteLine(LogSeverity severity, string format, object arg0) =>
+            this.WriteLine(severity, string.Format(format, arg0));
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, object arg0, object arg1) =>
+            this.WriteLine(severity, string.Format(format, arg0, arg1));
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, object arg0, object arg1, object arg2) =>
+            this.WriteLine(severity, string.Format(format, arg0, arg1, arg2));
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, params object[] args) =>
             this.WriteLine(severity, string.Format(format, args));
 
         /// <summary>
@@ -110,8 +149,10 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
+        /// <summary>
+        /// Releases any resources held by the logger.
+        /// </summary>
+        public void Dispose()
         {
             lock (this.Lock)
             {
@@ -121,8 +162,6 @@ namespace Microsoft.Coyote.Tests.Common
                     this.IsDisposed = true;
                 }
             }
-
-            base.Dispose(disposing);
         }
     }
 }

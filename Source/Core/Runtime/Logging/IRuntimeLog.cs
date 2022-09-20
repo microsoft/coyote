@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Runtime
     /// is happening in the <see cref="ICoyoteRuntime"/>.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+    /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
     /// </remarks>
     public interface IRuntimeLog
     {

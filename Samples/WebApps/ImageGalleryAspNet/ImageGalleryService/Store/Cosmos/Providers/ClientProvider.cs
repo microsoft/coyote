@@ -12,7 +12,7 @@ namespace ImageGallery.Store.Cosmos
     /// </summary>
     public class ClientProvider : IClientProvider, IDisposable
     {
-        private bool IsDsposed = false;
+        private bool IsDisposed = false;
 
         protected CosmosClient CosmosClient { get; }
 
@@ -47,7 +47,7 @@ namespace ImageGallery.Store.Cosmos
 
         protected virtual void Dispose(bool disposing)
         {
-            if (this.IsDsposed)
+            if (this.IsDisposed)
             {
                 return;
             }
@@ -57,7 +57,7 @@ namespace ImageGallery.Store.Cosmos
                 this.CosmosClient.Dispose();
             }
 
-            this.IsDsposed = true;
+            this.IsDisposed = true;
         }
     }
 }

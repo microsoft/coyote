@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -125,9 +125,9 @@ namespace Microsoft.Coyote.Actors
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
         /// </remarks>
-        protected ILogger Logger => this.Context.Logger;
+        protected ILogger Logger => this.Context.LogWriter;
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the
@@ -244,6 +244,16 @@ namespace Microsoft.Coyote.Actors
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.OnReceiveInvoked();
+
+            if (eventTypes is null)
+            {
+                throw new ArgumentNullException(nameof(eventTypes));
+            }
+            else if (eventTypes.Length is 0)
+            {
+                throw new ArgumentException("The set of event types to receive cannot be empty.", nameof(eventTypes));
+            }
+
             return this.Inbox.ReceiveEventAsync(eventTypes);
         }
 
@@ -257,6 +267,16 @@ namespace Microsoft.Coyote.Actors
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.OnReceiveInvoked();
+
+            if (events is null)
+            {
+                throw new ArgumentNullException(nameof(events));
+            }
+            else if (events.Length is 0)
+            {
+                throw new ArgumentException("The set of events to receive cannot be empty.", nameof(events));
+            }
+
             return this.Inbox.ReceiveEventAsync(events);
         }
 
@@ -500,7 +520,7 @@ namespace Microsoft.Coyote.Actors
                     }
                     else if (status is DequeueStatus.Default)
                     {
-                        this.Context.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
+                        this.Context.LogManager.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
                         // If the default event was dequeued, then notify the runtime.
                         // This is only used during bug-finding, because the runtime must
@@ -699,7 +719,8 @@ namespace Microsoft.Coyote.Actors
             if (innerException.GetBaseException() is ThreadInterruptedException)
             {
                 this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"[coyote::warning] {innerException.GetType().Name} was thrown from {this.Id}.");
+                this.Context.LogWriter.LogDebug("[coyote::warning] {0} was thrown from {1}.",
+                    innerException.GetType().Name, this.Id);
             }
             else
             {
@@ -761,7 +782,7 @@ namespace Microsoft.Coyote.Actors
         {
             var info = new TimerInfo(this.Id, dueTime, period, customEvent);
             var timer = this.Context.CreateActorTimer(info, this);
-            this.Context.LogWriter.LogCreateTimer(info);
+            this.Context.LogManager.LogCreateTimer(info);
             this.Timers.Add(info, timer);
             return info;
         }
@@ -776,7 +797,7 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(info.OwnerId == this.Id, "Timer '{0}' is already disposed.", info);
             }
 
-            this.Context.LogWriter.LogStopTimer(info);
+            this.Context.LogManager.LogStopTimer(info);
             this.Timers.Remove(info);
             using (timer)
             {
@@ -965,15 +986,13 @@ namespace Microsoft.Coyote.Actors
         /// Invoked when an event has been enqueued.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogEnqueuedEvent(this, e, eventGroup, eventInfo);
+        internal void OnEnqueueEvent(Event e) => this.Context.LogEnqueuedEvent(this, e);
 
         /// <summary>
         /// Invoked when an event has been raised.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogRaisedEvent(this, e, eventGroup, eventInfo);
+        internal void OnRaiseEvent(Event e) => this.Context.LogRaisedEvent(this, e);
 
         /// <summary>
         /// Invoked when the actor is waiting for the specified task to complete.
@@ -1003,7 +1022,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when an event that the actor is waiting to receive has been enqueued.
         /// </summary>
-        internal void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEvent(Event e, EventGroup eventGroup)
         {
             if (eventGroup != null)
             {
@@ -1011,7 +1030,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentEventGroup = eventGroup;
             }
 
-            this.Context.LogReceivedEvent(this, e, eventInfo);
+            this.Context.LogReceivedEvent(this, e);
 
             if (this.Context.IsExecutionControlled)
             {
@@ -1023,7 +1042,7 @@ namespace Microsoft.Coyote.Actors
         /// Invoked when an event that the actor is waiting to receive has already been in the
         /// event queue when the actor invoked the receive statement.
         /// </summary>
-        internal void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup)
         {
             if (eventGroup != null)
             {
@@ -1031,7 +1050,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentEventGroup = eventGroup;
             }
 
-            this.Context.LogReceivedEventWithoutWaiting(this, e, eventInfo);
+            this.Context.LogReceivedEventWithoutWaiting(this, e);
         }
 
         /// <summary>
@@ -1083,7 +1102,7 @@ namespace Microsoft.Coyote.Actors
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
-                this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
+                this.Context.LogManager.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
                 return false;
             }
             else if (outcome is OnExceptionOutcome.Halt)
@@ -1091,7 +1110,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentStatus = Status.Halting;
             }
 
-            this.Context.LogWriter.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
+            this.Context.LogManager.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
             return true;
         }
 
@@ -1107,12 +1126,12 @@ namespace Microsoft.Coyote.Actors
             OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
-                this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
+                this.Context.LogManager.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
                 return false;
             }
 
             this.CurrentStatus = Status.Halting;
-            this.Context.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
+            this.Context.LogManager.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
             return true;
         }
 

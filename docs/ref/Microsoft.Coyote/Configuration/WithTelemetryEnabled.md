@@ -6,6 +6,10 @@ Updates the configuration with telemetry enabled or disabled.
 public Configuration WithTelemetryEnabled(bool isEnabled = true)
 ```
 
+| parameter | description |
+| --- | --- |
+| isEnabled | If true, then enables telemetry. |
+
 ## See Also
 
 * class [Configuration](../Configuration.md)

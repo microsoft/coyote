@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote
@@ -203,10 +203,17 @@ namespace Microsoft.Coyote
         internal bool IsProgramStateHashingEnabled;
 
         /// <summary>
-        /// If this option is enabled, (safety) monitors are used in the production runtime.
+        /// If this option is enabled, safety monitors can run outside the scope of the testing engine.
         /// </summary>
         [DataMember]
-        internal bool IsMonitoringEnabledInInProduction;
+        internal bool IsMonitoringEnabledOutsideTesting { get; private set; }
+
+        /// <summary>
+        /// If this option is enabled, the runtime can check for actor quiescence outside
+        /// the scope of the testing engine.
+        /// </summary>
+        [DataMember]
+        internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
 
         /// <summary>
         /// Attaches the debugger during trace replay.
@@ -219,23 +226,15 @@ namespace Microsoft.Coyote
         /// </summary>
         internal string ReproducibleTrace { get; private set; }
 
-        // /// <summary>
-        // /// If true, then messages are logged.
-        // /// </summary>
-        // [DataMember]
-        // public bool IsVerbose { get; internal set; }
+        /// <summary>
+        /// The level of verbosity to use during logging.
+        /// </summary>
+        public VerbosityLevel VerbosityLevel { get; private set; }
 
         /// <summary>
-        /// If true, then debug verbosity is enabled.
+        /// If true, then console logging is enabled, else false.
         /// </summary>
-        [DataMember]
-        internal bool IsDebugVerbosityEnabled;
-
-        /// <summary>
-        /// The level of verbosity during logging.
-        /// </summary>
-        [DataMember]
-        public VerbosityLevel VerbosityLevel { get; internal set; }
+        internal bool IsConsoleLoggingEnabled { get; private set; }
 
         /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
@@ -244,7 +243,7 @@ namespace Microsoft.Coyote
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
@@ -271,6 +270,9 @@ namespace Microsoft.Coyote
             this.TestMethodName = string.Empty;
             this.ReproducibleTrace = string.Empty;
 
+            this.VerbosityLevel = VerbosityLevel.None;
+            this.IsConsoleLoggingEnabled = false;
+
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
@@ -296,16 +298,13 @@ namespace Microsoft.Coyote
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
-            this.IsMonitoringEnabledInInProduction = false;
+            this.IsMonitoringEnabledOutsideTesting = false;
+            this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
 
             this.IsActivityCoverageReported = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
-
-            this.IsVerbose = false;
-            this.IsDebugVerbosityEnabled = false;
-            this.VerbosityLevel = VerbosityLevel.Info;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -317,6 +316,27 @@ namespace Microsoft.Coyote
         public static Configuration Create()
         {
             return new Configuration();
+        }
+
+        /// <summary>
+        /// Updates the configuration to use the specified verbosity level,
+        /// which by default is <see cref="VerbosityLevel.Info"/>.
+        /// </summary>
+        /// <param name="level">The level of verbosity used during logging.</param>
+        public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)
+        {
+            this.VerbosityLevel = level;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to log all runtime messages to the console, unless overridden by a custom <see cref="ILogger"/>.
+        /// </summary>
+        /// <param name="isEnabled">If true, then logs all runtime messages to the console.</param>
+        public Configuration WithConsoleLoggingEnabled(bool isEnabled = true)
+        {
+            this.IsConsoleLoggingEnabled = isEnabled;
+            return this;
         }
 
         /// <summary>
@@ -622,26 +642,6 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with verbose output enabled or disabled.
-        /// </summary>
-        /// <param name="level">The level of verbosity during logging.</param>
-        public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)
-        {
-            this.VerbosityLevel = level;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with debug logging enabled or disabled.
-        /// </summary>
-        /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
-        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
-        {
-            this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
-            return this;
-        }
-
-        /// <summary>
         /// Updates the configuration to enable or disable reporting activity coverage.
         /// </summary>
         /// <param name="isEnabled">If true, then enables activity coverage.</param>
@@ -676,6 +676,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Updates the configuration with telemetry enabled or disabled.
         /// </summary>
+        /// <param name="isEnabled">If true, then enables telemetry.</param>
         public Configuration WithTelemetryEnabled(bool isEnabled = true)
         {
             this.IsTelemetryEnabled = isEnabled;
@@ -683,11 +684,22 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Enable running of Monitor objects in production.
+        /// Updates the configuration to allow safety monitors to run outside
+        /// the scope of the testing engine.
         /// </summary>
-        internal Configuration WithProductionMonitorEnabled(bool isEnabled = true)
+        internal Configuration WithMonitoringEnabledOutsideTesting(bool isEnabled = true)
         {
-            this.IsMonitoringEnabledInInProduction = isEnabled;
+            this.IsMonitoringEnabledOutsideTesting = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to allow the runtime to check for actor quiescence
+        /// outside the scope of the testing engine.
+        /// </summary>
+        internal Configuration WithActorQuiescenceCheckingEnabledOutsideTesting(bool isEnabled = true)
+        {
+            this.IsActorQuiescenceCheckingEnabledOutsideTesting = isEnabled;
             return this;
         }
     }

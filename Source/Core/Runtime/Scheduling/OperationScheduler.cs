@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Interleaving;
@@ -75,14 +75,13 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator,
-            ExecutionTrace prefixTrace)
+        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator, ExecutionTrace prefixTrace)
         {
             this.Configuration = configuration;
             this.SchedulingPolicy = policy;
+            this.PrefixTrace = prefixTrace;
             this.ValueGenerator = generator;
             this.Trace = ExecutionTrace.Create();
-            this.PrefixTrace = prefixTrace;
 
             this.Reducers = new List<IScheduleReducer>();
             if (configuration.IsSharedStateReductionEnabled)
@@ -98,13 +97,15 @@ namespace Microsoft.Coyote.Runtime
 
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                this.Strategy = InterleavingStrategy.Create(configuration, generator, prefixTrace);
+                this.Strategy = InterleavingStrategy.Create(configuration, prefixTrace);
                 this.IsReplaying = prefixTrace.Length > 0;
             }
             else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
             {
-                this.Strategy = FuzzingStrategy.Create(configuration, generator);
+                this.Strategy = FuzzingStrategy.Create(configuration);
             }
+
+            this.Strategy.RandomValueGenerator = generator;
         }
 
         /// <summary>
@@ -123,13 +124,15 @@ namespace Microsoft.Coyote.Runtime
             new OperationScheduler(configuration, policy, valueGenerator, ExecutionTrace.Create());
 
         /// <summary>
-        /// Initializes the next iteration.
+        /// Initializes the next test iteration.
         /// </summary>
         /// <param name="iteration">The id of the next iteration.</param>
-        /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
-        internal bool InitializeNextIteration(uint iteration)
+        /// <param name="logWriter">The log writer associated with the current test iteration.</param>
+        /// <returns>True to start the specified test iteration, else false to stop exploring.</returns>
+        internal bool InitializeNextIteration(uint iteration, LogWriter logWriter)
         {
             this.Trace.Clear();
+            this.Strategy.LogWriter = logWriter;
             return this.Strategy.InitializeNextIteration(iteration);
         }
 

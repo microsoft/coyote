@@ -21,8 +21,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
         /// </summary>
-        internal ProbabilisticRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator)
+        internal ProbabilisticRandomStrategy(Configuration configuration)
+            : base(configuration)
         {
             this.Bound = configuration.StrategyBound;
         }

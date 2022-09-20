@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Logging;
+
 namespace Microsoft.Coyote.Testing
 {
     /// <summary>
@@ -12,11 +14,6 @@ namespace Microsoft.Coyote.Testing
         /// The runtime configuration.
         /// </summary>
         protected readonly Configuration Configuration;
-
-        /// <summary>
-        /// A random value generator that can be used by the strategy.
-        /// </summary>
-        protected readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
         /// The maximum number of steps to explore.
@@ -34,6 +31,16 @@ namespace Microsoft.Coyote.Testing
         internal readonly bool IsFair;
 
         /// <summary>
+        /// A random value generator that can be used by the strategy.
+        /// </summary>
+        protected internal IRandomValueGenerator RandomValueGenerator { get; internal set; }
+
+        /// <summary>
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
+        /// </summary>
+        protected internal LogWriter LogWriter { get; internal set; }
+
+        /// <summary>
         /// Text describing the last exploration error, if there was any.
         /// </summary>
         protected internal string ErrorText { get; protected set; }
@@ -41,10 +48,9 @@ namespace Microsoft.Coyote.Testing
         /// <summary>
         /// Initializes a new instance of the <see cref="ExplorationStrategy"/> class.
         /// </summary>
-        protected ExplorationStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
+        protected ExplorationStrategy(Configuration configuration, bool isFair)
         {
             this.Configuration = configuration;
-            this.RandomValueGenerator = generator;
             this.MaxSteps = isFair ? configuration.MaxFairSchedulingSteps : configuration.MaxUnfairSchedulingSteps;
             this.StepCount = 0;
             this.IsFair = isFair;

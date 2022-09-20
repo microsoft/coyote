@@ -7,7 +7,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -34,8 +33,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
-                throw new InvalidOperationException($"Unexpected JSON format.\n{ex.Message}");
+                throw new InvalidOperationException($"Unexpected JSON format: {ex.Message}");
             }
         }
 

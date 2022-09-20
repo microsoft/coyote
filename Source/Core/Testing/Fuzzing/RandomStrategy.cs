@@ -14,8 +14,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, true)
+        internal RandomStrategy(Configuration configuration)
+            : base(configuration, true)
         {
         }
 

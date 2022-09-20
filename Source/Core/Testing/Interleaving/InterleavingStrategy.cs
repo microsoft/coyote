@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Interleaving
@@ -22,40 +21,40 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="InterleavingStrategy"/> class.
         /// </summary>
-        protected InterleavingStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
-            : base(configuration, generator, isFair)
+        protected InterleavingStrategy(Configuration configuration, bool isFair)
+            : base(configuration, isFair)
         {
         }
 
         /// <summary>
         /// Creates a <see cref="InterleavingStrategy"/> from the specified configuration.
         /// </summary>
-        internal static InterleavingStrategy Create(Configuration configuration, IRandomValueGenerator generator, ExecutionTrace tracePrefix)
+        internal static InterleavingStrategy Create(Configuration configuration, ExecutionTrace tracePrefix)
         {
             InterleavingStrategy strategy = null;
             if (configuration.SchedulingStrategy is "random")
             {
-                strategy = new RandomStrategy(configuration, generator);
+                strategy = new RandomStrategy(configuration);
             }
             else if (configuration.SchedulingStrategy is "prioritization")
             {
-                strategy = new PrioritizationStrategy(configuration, generator, false);
+                strategy = new PrioritizationStrategy(configuration, false);
             }
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
-                strategy = new PrioritizationStrategy(configuration, generator, true);
+                strategy = new PrioritizationStrategy(configuration, true);
             }
             else if (configuration.SchedulingStrategy is "probabilistic")
             {
-                strategy = new ProbabilisticRandomStrategy(configuration, generator);
+                strategy = new ProbabilisticRandomStrategy(configuration);
             }
             else if (configuration.SchedulingStrategy is "rl")
             {
-                strategy = new QLearningStrategy(configuration, generator);
+                strategy = new QLearningStrategy(configuration);
             }
             else if (configuration.SchedulingStrategy is "dfs")
             {
-                strategy = new DFSStrategy(configuration, generator);
+                strategy = new DFSStrategy(configuration);
             }
 
             strategy.TracePrefix = tracePrefix;
@@ -109,7 +108,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                Error.Report(ex.Message);
+                this.LogWriter.LogError(ex.Message);
                 next = null;
                 return false;
             }
@@ -164,7 +163,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                Error.Report(ex.Message);
+                this.LogWriter.LogError(ex.Message);
                 next = false;
                 return false;
             }
@@ -217,7 +216,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
             catch (InvalidOperationException ex)
             {
-                Error.Report(ex.Message);
+                this.LogWriter.LogError(ex.Message);
                 next = 0;
                 return false;
             }

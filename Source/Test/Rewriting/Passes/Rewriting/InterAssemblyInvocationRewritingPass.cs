@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -25,8 +25,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="InterAssemblyInvocationRewritingPass"/> class.
         /// </summary>
-        internal InterAssemblyInvocationRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal InterAssemblyInvocationRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Rewriting
                         interceptionMethod, nextInstruction, interceptedReturnType, methodName);
                     if (instructions.Count > 0)
                     {
-                        Debug.WriteLine($"............. [+] uncontrolled task assertion when invoking '{methodName}'");
+                        this.LogWriter.LogDebug("............. [+] uncontrolled task assertion when invoking '{0}'", methodName);
                         instructions.ForEach(i => this.Processor.InsertBefore(nextInstruction, i));
                         this.IsMethodBodyModified = true;
                     }
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Rewriting
                         interceptionMethod, nextInstruction, interceptedReturnType, methodName);
                     if (instructions.Count > 0)
                     {
-                        Debug.WriteLine($"............. [+] uncontrolled value task assertion when invoking '{methodName}'");
+                        this.LogWriter.LogDebug("............. [+] uncontrolled value task assertion when invoking '{0}'", methodName);
                         instructions.ForEach(i => this.Processor.InsertBefore(nextInstruction, i));
                         this.IsMethodBodyModified = true;
                     }
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Rewriting
                         typeof(TaskAwaiter), methodReference,
                         nameof(TaskAwaiter.Wrap));
                     Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
-                    Debug.WriteLine($"............. [+] {newInstruction}");
+                    this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                     this.Processor.InsertAfter(instruction, newInstruction);
                     this.IsMethodBodyModified = true;
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Rewriting
                         typeof(ValueTaskAwaiter), methodReference,
                         nameof(ValueTaskAwaiter.Wrap));
                     Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
-                    Debug.WriteLine($"............. [+] {newInstruction}");
+                    this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                     this.Processor.InsertAfter(instruction, newInstruction);
                     this.IsMethodBodyModified = true;
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Rewriting
                     MethodReference interceptionMethod = this.CreateInterceptionMethod(
                         typeof(HttpClient), methodReference, nameof(HttpClient.Control));
                     Instruction newInstruction = Instruction.Create(OpCodes.Call, interceptionMethod);
-                    Debug.WriteLine($"............. [+] {newInstruction}");
+                    this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                     this.Processor.InsertAfter(instruction, newInstruction);
                     this.IsMethodBodyModified = true;

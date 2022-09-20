@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Coyote.Logging;
 using AppInsightsClient = Microsoft.ApplicationInsights.TelemetryClient;
 
 namespace Microsoft.Coyote.Telemetry
@@ -47,6 +48,11 @@ namespace Microsoft.Coyote.Telemetry
         private readonly AppInsightsClient Client;
 
         /// <summary>
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
+        /// </summary>
+        private readonly LogWriter LogWriter;
+
+        /// <summary>
         /// True if telemetry is enabled, else false.
         /// </summary>
         private readonly bool IsEnabled;
@@ -54,13 +60,14 @@ namespace Microsoft.Coyote.Telemetry
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient"/> class.
         /// </summary>
-        private TelemetryClient(bool isEnabled)
+        private TelemetryClient(LogWriter logWriter, bool isEnabled)
         {
             if (isEnabled)
             {
                 TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
                 configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
                 this.Client = new AppInsightsClient(configuration);
+                this.LogWriter = logWriter;
 
                 string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                 this.Client.Context.GlobalProperties["coyote"] = version;
@@ -86,11 +93,11 @@ namespace Microsoft.Coyote.Telemetry
         /// Returns the existing telemetry client if one has already been created for this process,
         /// or creates and returns a new one with the specified configuration.
         /// </summary>
-        internal static TelemetryClient GetOrCreate(Configuration configuration)
+        internal static TelemetryClient GetOrCreate(Configuration configuration, LogWriter logWriter)
         {
             lock (SyncObject)
             {
-                Current ??= new TelemetryClient(configuration.IsTelemetryEnabled);
+                Current ??= new TelemetryClient(logWriter, configuration.IsTelemetryEnabled);
                 return Current;
             }
         }
@@ -106,12 +113,12 @@ namespace Microsoft.Coyote.Telemetry
                 {
                     try
                     {
-                        IO.Debug.WriteLine("[coyote::telemetry] Tracking event: {0}.", name);
+                        this.LogWriter.LogDebug("[coyote::telemetry] Tracking event: {0}.", name);
                         this.Client.TrackEvent(new EventTelemetry(name));
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("[coyote::telemetry] Error sending event: {0}", ex.Message);
+                        this.LogWriter.LogDebug("[coyote::telemetry] Unable to send event: {0}", ex.Message);
                     }
                 }
             }
@@ -128,12 +135,12 @@ namespace Microsoft.Coyote.Telemetry
                 {
                     try
                     {
-                        IO.Debug.WriteLine("[coyote::telemetry] Tracking metric: {0}={1}.", name, value);
+                        this.LogWriter.LogDebug("[coyote::telemetry] Tracking metric: {0}={1}.", name, value);
                         this.Client.TrackMetric(new MetricTelemetry(name, value));
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("[coyote::telemetry] Error sending metric: {0}", ex.Message);
+                        this.LogWriter.LogDebug("[coyote::telemetry] Unable to send metric: {0}", ex.Message);
                     }
                 }
             }
@@ -154,7 +161,7 @@ namespace Microsoft.Coyote.Telemetry
                     }
                     catch (Exception ex)
                     {
-                        IO.Debug.WriteLine("[coyote::telemetry] Error flushing: {0}", ex.Message);
+                        this.LogWriter.LogDebug("[coyote::telemetry] Error flushing: {0}", ex.Message);
                     }
                 }
             }

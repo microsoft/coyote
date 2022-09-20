@@ -96,5 +96,5 @@ jobs:
           ./Samples/Scripts/build-tests.ps1 -local -nuget
         shell: pwsh
       - name: Test Coyote samples
-        run: dotnet ./Samples/Common/bin/net6.0/TestDriver.dll
+        run: ./Samples/Scripts/run-tests.ps1
         shell: pwsh

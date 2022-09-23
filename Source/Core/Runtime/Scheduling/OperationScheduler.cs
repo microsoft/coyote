@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The installed program exploration strategy.
         /// </summary>
-        private readonly ExplorationStrategy Strategy;
+        internal readonly ExplorationStrategy Strategy;
 
         /// <summary>
         /// The installed schedule reducers, if any.

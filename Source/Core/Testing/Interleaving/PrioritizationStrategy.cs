@@ -16,32 +16,32 @@ namespace Microsoft.Coyote.Testing.Interleaving
     /// This strategy is based on the PCT algorithm described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PrioritizationStrategy : RandomStrategy
+    internal class PrioritizationStrategy : RandomStrategy
     {
         /// <summary>
         /// List of prioritized operation groups.
         /// </summary>
-        private readonly List<OperationGroup> PrioritizedOperationGroups;
+        protected readonly List<OperationGroup> PrioritizedOperationGroups;
 
         /// <summary>
         /// Scheduling points in the current execution where a priority change should occur.
         /// </summary>
-        private readonly HashSet<int> PriorityChangePoints;
+        protected readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
         /// Number of potential priority change points in the current iteration.
         /// </summary>
-        private int NumPriorityChangePoints;
+        protected int NumPriorityChangePoints;
 
         /// <summary>
         /// Max number of potential priority change points across all iterations.
         /// </summary>
-        private int MaxPriorityChangePoints;
+        protected int MaxPriorityChangePoints;
 
         /// <summary>
         /// Max number of priority changes per iteration.
         /// </summary>
-        private readonly int MaxPriorityChanges;
+        protected readonly int MaxPriorityChanges;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
@@ -72,7 +72,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
                 if (this.MaxPriorityChanges > 0)
                 {
-                    var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    // var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    var priorityChanges = this.MaxPriorityChanges;
                     var range = Enumerable.Range(0, this.MaxPriorityChangePoints);
                     foreach (int point in this.Shuffle(range).Take(priorityChanges))
                     {
@@ -143,6 +144,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void SetNewOperationGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
+            this.PrioritizedOperationGroups.RemoveAll(group => group.IsCompleted());
+
             int count = this.PrioritizedOperationGroups.Count;
             if (count is 0)
             {

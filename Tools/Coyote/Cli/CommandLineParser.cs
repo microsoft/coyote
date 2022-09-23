@@ -212,6 +212,8 @@ namespace Microsoft.Coyote.Cli
                 "random",
                 "prioritization",
                 "fair-prioritization",
+                "group-prioritization",
+                "fair-group-prioritization",
                 "probabilistic",
                 "rl",
                 "portfolio"
@@ -231,6 +233,7 @@ namespace Microsoft.Coyote.Cli
                 aliases: new[] { "-sv", "--strategy-value" },
                 description: "Set exploration strategy specific value. Supported strategies (and values): " +
                     "(fair-)prioritization (maximum number of priority change points per iteration), " +
+                    "(fair-)group-prioritization (maximum number of priority change points per iteration), " +
                     "probabilistic (probability of deviating from a scheduled operation).")
             {
                 ArgumentHelpName = "VALUE"
@@ -824,6 +827,8 @@ namespace Microsoft.Coyote.Cli
                         {
                             case "prioritization":
                             case "fair-prioritization":
+                            case "group-prioritization":
+                            case "fair-group-prioritization":
                                 if (strategyBound is null)
                                 {
                                     this.Configuration.StrategyBound = 10;

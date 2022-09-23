@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTask = System.Threading.Tasks.Task;
@@ -60,6 +61,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             /// </summary>
             internal YieldAwaiter(ref SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
             {
+                if (RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime))
+                {
+                    // Upon await Task.Yield(), we want the continuation after yield to execute with the same priority as the code before await Task.Yield().
+                    runtime.ThreadLocalEndingControlledOpForLastTask.Value = runtime.GetExecutingOperation();
+                }
+
                 this.Awaiter = awaiter;
             }
 

@@ -390,6 +390,20 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the group-priority-based scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible priority changes, which by default can be up to 10.
+        /// </summary>
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        public Configuration WithGroupPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
+        {
+            this.SchedulingStrategy = isFair ? "fair-group-prioritization" : "group-prioritization";
+            this.StrategyBound = (int)priorityChangeBound;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>

@@ -265,6 +265,9 @@ namespace Microsoft.Coyote.Runtime
         /// <inheritdoc/>
         public event OnFailureHandler OnFailure;
 
+        internal ThreadLocal<ControlledOperation> ThreadLocalEndingControlledOpForLastTask =
+            new ThreadLocal<ControlledOperation>(false);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
@@ -432,7 +435,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action continuation)
         {
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(
+                this.Scheduler.Strategy is Microsoft.Coyote.Testing.Interleaving.GroupPrioritizationStrategy ?
+                this.ThreadLocalEndingControlledOpForLastTask.Value?.Group : null);
             this.ScheduleOperation(op, continuation);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }
@@ -526,7 +531,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(timeout);
+                ControlledOperation op = this.CreateControlledOperation(null, timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
@@ -593,15 +598,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new controlled operation with an optional delay.
         /// </summary>
-        internal ControlledOperation CreateControlledOperation(uint delay = 0)
+        internal ControlledOperation CreateControlledOperation(OperationGroup group = null, uint delay = 0)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                // Assign the operation group associated with the execution context of the
-                // current thread, if such a group exists, else the group of the currently
-                // executing operation, if such an operation exists.
-                OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
-
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
@@ -2276,7 +2276,8 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
+                int numGroups = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numGroups,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
                 if (isBugFound)

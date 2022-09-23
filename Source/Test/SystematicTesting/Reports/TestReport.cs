@@ -77,6 +77,24 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalControlledOperations { get; internal set; }
 
         /// <summary>
+        /// The min number of operation groups.
+        /// </summary>
+        [DataMember]
+        public int MinOperationGroups { get; internal set; }
+
+        /// <summary>
+        /// The max number of operation groups.
+        /// </summary>
+        [DataMember]
+        public int MaxOperationGroups { get; internal set; }
+
+        /// <summary>
+        /// The total number of operation groups.
+        /// </summary>
+        [DataMember]
+        public int TotalOperationGroups { get; internal set; }
+
+        /// <summary>
         /// The min degree of concurrency.
         /// </summary>
         [DataMember]
@@ -182,6 +200,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinControlledOperations = -1;
             this.MaxControlledOperations = -1;
             this.TotalControlledOperations = 0;
+            this.MinOperationGroups = -1;
+            this.MaxOperationGroups = -1;
+            this.TotalOperationGroups = 0;
             this.MinConcurrencyDegree = -1;
             this.MaxConcurrencyDegree = -1;
             this.TotalConcurrencyDegree = 0;
@@ -201,7 +222,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations,
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups,
             int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
@@ -216,6 +237,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MinControlledOperations > numOperations)
             {
                 this.MinControlledOperations = numOperations;
+            }
+
+            this.TotalOperationGroups += numGroups;
+            this.MaxOperationGroups = Math.Max(this.MaxOperationGroups, numGroups);
+            if (this.MinOperationGroups < 0 ||
+                this.MinOperationGroups > numGroups)
+            {
+                this.MinOperationGroups = numGroups;
             }
 
             this.TotalConcurrencyDegree += concurrencyDegree;
@@ -305,6 +334,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations > testReport.MinControlledOperations))
                 {
                     this.MinControlledOperations = testReport.MinControlledOperations;
+                }
+
+                this.TotalOperationGroups += testReport.TotalOperationGroups;
+                this.MaxOperationGroups = Math.Max(this.MaxOperationGroups, testReport.MaxOperationGroups);
+                if (testReport.MinOperationGroups >= 0 &&
+                    (this.MinOperationGroups < 0 ||
+                    this.MinOperationGroups > testReport.MinOperationGroups))
+                {
+                    this.MinOperationGroups = testReport.MinOperationGroups;
                 }
 
                 this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
@@ -415,6 +453,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations,
                     this.TotalControlledOperations / totalExploredSchedules,
                     this.MaxControlledOperations);
+            }
+
+            if (this.TotalOperationGroups > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Created {1} operation group{2}: {3} (min), {4} (avg), {5} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.TotalOperationGroups,
+                    this.TotalOperationGroups is 1 ? string.Empty : "s",
+                    this.MinOperationGroups,
+                    this.TotalOperationGroups / totalExploredSchedules,
+                    this.MaxOperationGroups);
             }
 
             if (this.TotalConcurrencyDegree > 0)

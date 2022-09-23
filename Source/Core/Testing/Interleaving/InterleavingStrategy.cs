@@ -45,6 +45,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new PrioritizationStrategy(configuration, generator, true);
             }
+            else if (configuration.SchedulingStrategy is "group-prioritization")
+            {
+                strategy = new GroupPrioritizationStrategy(configuration, generator, false);
+            }
+            else if (configuration.SchedulingStrategy is "fair-group-prioritization")
+            {
+                strategy = new GroupPrioritizationStrategy(configuration, generator, true);
+            }
             else if (configuration.SchedulingStrategy is "probabilistic")
             {
                 strategy = new ProbabilisticRandomStrategy(configuration, generator);

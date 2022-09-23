@@ -81,6 +81,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             IO.Debug.WriteLine("[coyote::debug] Set state machine task '{0}' from thread '{1}'.",
                 this.MethodBuilder.Task.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult();
+            if (this.Runtime != null)
+            {
+                // We store the Executing Controlled Operation in a data member of the runtime
+                // so that we can access it in the Schedule(Action callback) method which will be called immediately
+                // after this SetResult method is called because the task has now completed.
+                this.Runtime.ThreadLocalEndingControlledOpForLastTask.Value = this.Runtime.GetExecutingOperation();
+            }
         }
 
         /// <summary>
@@ -203,6 +210,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             IO.Debug.WriteLine("[coyote::debug] Set state machine task '{0}' from thread '{1}'.",
                 this.MethodBuilder.Task.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
             this.MethodBuilder.SetResult(result);
+            if (this.Runtime != null)
+            {
+                // We store the Executing Controlled Operation in a data member of the runtime
+                // so that we can access it in the Schedule(Action callback) method which will be called immediately
+                // after this SetResult method is called because the task has now completed.
+                this.Runtime.ThreadLocalEndingControlledOpForLastTask.Value = this.Runtime.GetExecutingOperation();
+            }
         }
 
         /// <summary>

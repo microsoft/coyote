@@ -77,6 +77,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly Guid Id;
 
         /// <summary>
+        /// Object that is used to synchronize access to the runtime.
+        /// </summary>
+        private readonly object RuntimeLock;
+
+        /// <summary>
         /// The configuration used by the runtime.
         /// </summary>
         private readonly Configuration Configuration;
@@ -294,6 +299,7 @@ namespace Microsoft.Coyote.Runtime
 
             this.Configuration = configuration;
             this.Scheduler = scheduler;
+            this.RuntimeLock = new object();
             this.SyncObject = new object();
             this.OperationIdCounter = 0;
             this.IsRunning = true;
@@ -2434,25 +2440,27 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 RuntimeProvider.Deregister(this.Id);
-
-                foreach (var op in this.OperationMap.Values)
+                using (SynchronizedSection.Enter(this.RuntimeLock))
                 {
-                    op.Dispose();
+                    foreach (var op in this.OperationMap.Values)
+                    {
+                        op.Dispose();
+                    }
+
+                    this.ThreadPool.Clear();
+                    this.OperationMap.Clear();
+                    this.ControlledThreads.Clear();
+                    this.ControlledTasks.Clear();
+                    this.UncontrolledTasks.Clear();
+                    this.UncontrolledInvocations.Clear();
+
+                    this.DefaultActorExecutionContext.Dispose();
+                    this.ControlledTaskScheduler.Dispose();
+                    this.SyncContext.Dispose();
+                    this.DeadlockMonitor.Dispose();
+                    this.SpecificationMonitors.Clear();
+                    this.TaskLivenessMonitors.Clear();
                 }
-
-                this.ThreadPool.Clear();
-                this.OperationMap.Clear();
-                this.ControlledThreads.Clear();
-                this.ControlledTasks.Clear();
-                this.UncontrolledTasks.Clear();
-                this.UncontrolledInvocations.Clear();
-
-                this.DefaultActorExecutionContext.Dispose();
-                this.ControlledTaskScheduler.Dispose();
-                this.SyncContext.Dispose();
-                this.DeadlockMonitor.Dispose();
-                this.SpecificationMonitors.Clear();
-                this.TaskLivenessMonitors.Clear();
 
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {

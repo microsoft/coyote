@@ -154,6 +154,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// </summary>
         private readonly CoyoteRuntime Runtime;
 
+        private readonly ControlledOperation AwaitedOp;
+
+        private readonly ControlledOperation AwaitingOp;
+
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
@@ -172,6 +176,13 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.Awaiter = awaitedTask.GetAwaiter();
             RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
             this.Runtime = runtime;
+
+            this.AwaitingOp = runtime?.GetExecutingOperation();
+            this.AwaitedOp = runtime?.GetOperationFromTask(this.AwaitedTask);
+            if (this.AwaitingOp != null && this.AwaitedOp != null)
+            {
+                this.AwaitingOp.RacingResourceSet.Add(this.AwaitedOp.OpResourceId);
+            }
         }
 
         /// <summary>
@@ -183,6 +194,13 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             this.Awaiter = awaiter;
             RuntimeProvider.TryGetFromSynchronizationContext(out CoyoteRuntime runtime);
             this.Runtime = runtime;
+
+            this.AwaitingOp = runtime?.GetExecutingOperation();
+            this.AwaitedOp = runtime?.GetOperationFromTask(this.AwaitedTask);
+            if (this.AwaitingOp != null && this.AwaitedOp != null)
+            {
+                this.AwaitingOp.RacingResourceSet.Add(this.AwaitedOp.OpResourceId);
+            }
         }
 
         /// <summary>

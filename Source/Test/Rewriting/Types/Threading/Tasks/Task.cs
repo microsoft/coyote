@@ -215,57 +215,125 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates a task that will complete when all tasks in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTask WhenAll(params SystemTask[] tasks) => SystemTask.WhenAll(tasks);
+        public static SystemTask WhenAll(params SystemTask[] tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAll(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTask WhenAll(IEnumerable<SystemTask> tasks) => SystemTask.WhenAll(tasks);
+        public static SystemTask WhenAll(IEnumerable<SystemTask> tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAll(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(params SystemTasks.Task<TResult>[] tasks) =>
-            SystemTask.WhenAll(tasks);
+        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(params SystemTasks.Task<TResult>[] tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAll(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(IEnumerable<SystemTasks.Task<TResult>> tasks) =>
-            SystemTask.WhenAll(tasks);
+        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(IEnumerable<SystemTasks.Task<TResult>> tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAll(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(params SystemTask[] tasks) =>
-            SystemTask.WhenAny(tasks);
+        public static SystemTasks.Task<SystemTask> WhenAny(params SystemTask[] tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAny(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(IEnumerable<SystemTask> tasks) =>
-            SystemTask.WhenAny(tasks);
+        public static SystemTasks.Task<SystemTask> WhenAny(IEnumerable<SystemTask> tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAny(tasks);
+        }
 
 #if NET
         /// <summary>
         /// Creates a task that will complete when either of the two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(SystemTask task1, SystemTask task2) =>
-            SystemTask.WhenAny(task1, task2);
+        public static SystemTasks.Task<SystemTask> WhenAny(SystemTask task1, SystemTask task2)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task1).OpResourceId);
+            awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task2).OpResourceId);
+            return SystemTask.WhenAny(task1, task2);
+        }
 
         /// <summary>
         /// Creates a task that will complete when either of the two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            SystemTasks.Task<TResult> task1, SystemTasks.Task<TResult> task2) =>
-            SystemTask.WhenAny(task1, task2);
+            SystemTasks.Task<TResult> task1, SystemTasks.Task<TResult> task2)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task1).OpResourceId);
+            awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task2).OpResourceId);
+            return SystemTask.WhenAny(task1, task2);
+        }
 #endif
 
         /// <summary>
@@ -273,8 +341,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            params SystemTasks.Task<TResult>[] tasks) =>
-            SystemTask.WhenAny(tasks);
+            params SystemTasks.Task<TResult>[] tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAny(tasks);
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified
@@ -282,8 +359,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            IEnumerable<SystemTasks.Task<TResult>> tasks) =>
-            SystemTask.WhenAny(tasks);
+            IEnumerable<SystemTasks.Task<TResult>> tasks)
+        {
+            var runtime = CoyoteRuntime.Current;
+            var awaitingOp = runtime.GetExecutingOperation();
+            foreach (var task in tasks)
+            {
+                awaitingOp.RacingResourceSet.Add(runtime.GetOperationFromTask(task).OpResourceId);
+            }
+
+            return SystemTask.WhenAny(tasks);
+        }
 
         /// <summary>
         /// Waits for all of the provided task objects to complete execution.

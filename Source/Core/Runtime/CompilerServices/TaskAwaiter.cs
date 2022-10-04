@@ -90,12 +90,6 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         public void GetResult()
         {
             this.Runtime?.WaitUntilTaskCompletes(this.AwaitedTask);
-
-            if (this.AwaitingOp != null && this.AwaitedOp != null)
-            {
-                this.AwaitingOp.RacingResourceSet.Remove(this.AwaitedOp.OpResourceId);
-            }
-
             this.Awaiter.GetResult();
         }
 

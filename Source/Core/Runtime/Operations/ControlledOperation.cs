@@ -160,6 +160,9 @@ namespace Microsoft.Coyote.Runtime
             this.Dependencies.Clear();
             this.IsAnyDependencyUncontrolled = false;
             this.Status = OperationStatus.Enabled;
+
+            this.RacingResourceSet.Clear();
+            this.RacingResourceSet.Add(this.OpResourceId);
         }
 
         /// <summary>

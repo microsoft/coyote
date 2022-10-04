@@ -1157,7 +1157,18 @@ namespace Microsoft.Coyote.Actors
                     "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                     e.GetType().FullName, targetId.Value);
 
+                if (sender != null)
+                {
+                    sender.Operation.RacingResourceSet.Add(target.Operation.OpResourceId);
+                }
+
                 this.Runtime.ScheduleNextOperation(SchedulingPointType.Send);
+
+                if (sender != null)
+                {
+                    sender.Operation.RacingResourceSet.Remove(target.Operation.OpResourceId);
+                }
+
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
@@ -1174,6 +1185,7 @@ namespace Microsoft.Coyote.Actors
                     this.Assert(options is null || !options.MustHandle,
                         "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
                     this.HandleDroppedEvent(e, targetId);
+
                     return EnqueueStatus.Dropped;
                 }
 

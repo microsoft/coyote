@@ -263,6 +263,12 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        internal ControlledOperation GetOperationFromTask(Task task)
+        {
+            this.ControlledTasks.TryGetValue(task, out var operation);
+            return operation;
+        }
+
         /// <inheritdoc/>
         public event OnFailureHandler OnFailure;
 

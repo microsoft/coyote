@@ -443,6 +443,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.IsLockTaken = true;
                 SystemInterlocked.Increment(ref this.UseCount);
 
+                var op = this.Resource.Runtime.GetExecutingOperation();
+                op.RacingResourceSet.Add(this.Resource.ResourceId);
+
                 if (this.Owner is null)
                 {
                     // If this operation is trying to acquire this lock while it is free, then inject a scheduling
@@ -452,7 +455,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation();
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -658,6 +660,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // Only release the lock if the invocation is not reentrant.
                     this.LockCountMap.Remove(op);
+                    op.RacingResourceSet.Remove(this.Resource.ResourceId);
                     this.UnlockNextReady();
                     this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Release);
                 }

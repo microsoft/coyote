@@ -16,6 +16,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
+        /// The resource id associated with this resource.
+        /// </summary>
+        internal readonly System.Guid ResourceId;
+
+        /// <summary>
         /// Set of asynchronous operations that are waiting on the resource to be released.
         /// </summary>
         private readonly HashSet<ControlledOperation> AwaitingOperations;
@@ -27,6 +32,7 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Runtime = CoyoteRuntime.Current;
             this.AwaitingOperations = new HashSet<ControlledOperation>();
+            this.ResourceId = System.Guid.NewGuid();
         }
 
         /// <summary>

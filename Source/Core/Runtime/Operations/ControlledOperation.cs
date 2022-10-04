@@ -17,6 +17,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal ulong Id { get; }
 
+        internal readonly System.Guid OpResourceId;
+
+        internal HashSet<System.Guid> RacingResourceSet;
+
         /// <summary>
         /// The unique name of the operation.
         /// </summary>
@@ -90,6 +94,8 @@ namespace Microsoft.Coyote.Runtime
         internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
         {
             this.Id = operationId;
+            this.OpResourceId = System.Guid.NewGuid();
+            this.RacingResourceSet = new HashSet<System.Guid> { this.OpResourceId };
             this.Name = name;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
@@ -100,6 +106,24 @@ namespace Microsoft.Coyote.Runtime
             this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
             this.IsAnyDependencyUncontrolled = false;
+        }
+
+        internal static bool IsRacing(ControlledOperation op1, ControlledOperation op2)
+        {
+            if (op1.RacingResourceSet.Count == 0)
+            {
+                return false;
+            }
+            else if (op2.RacingResourceSet.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                HashSet<System.Guid> temp = new HashSet<System.Guid>(op1.RacingResourceSet);
+                temp.IntersectWith(op2.RacingResourceSet);
+                return temp.Count > 0;
+            }
         }
 
         /// <summary>

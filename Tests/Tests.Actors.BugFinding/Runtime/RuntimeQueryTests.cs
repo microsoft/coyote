@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             protected override Task OnInitializeAsync(Event initialEvent)
             {
                 int count = this.Id.Runtime.GetCurrentActorCount();
-                this.Assert(count is 1, "Actor count is {0} instead of 1.", count);
+                this.Assert(count is 1, "Found {0} actors instead of 1.", count);
                 var status = this.Id.Runtime.GetActorExecutionStatus(this.Id);
                 this.Assert(status is ActorExecutionStatus.Active, "Actor status is {0} instead of Active.", status);
                 return base.OnInitializeAsync(initialEvent);
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             {
                 this.RaiseHaltEvent();
                 int count = this.Id.Runtime.GetCurrentActorCount();
-                this.Assert(count is 1, "Actor count is {0} instead of 1.", count);
+                this.Assert(count is 1, "Found {0} actors instead of 1.", count);
                 var status = this.Id.Runtime.GetActorExecutionStatus(this.Id);
                 this.Assert(status is ActorExecutionStatus.Halting, "Actor status is {0} instead of Halting.", status);
             }
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             protected override Task OnHaltAsync(Event e)
             {
                 int count = this.Id.Runtime.GetCurrentActorCount();
-                this.Assert(count is 1, "Actor count is {0} instead of 1.", count);
+                this.Assert(count is 1, "Found {0} actors instead of 1.", count);
                 var status = this.Id.Runtime.GetActorExecutionStatus(this.Id);
                 this.Assert(status is ActorExecutionStatus.Halted, "Actor status is {0} instead of Halted.", status);
                 return Task.CompletedTask;
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
                 {
                     called = true;
                     int count = r.GetCurrentActorCount();
-                    Assert.True(count is 0, $"Actor count is {count} instead of 0.");
+                    Assert.True(count is 0, $"Found {count} actors instead of 0.");
                     var status = r.GetActorExecutionStatus(id);
                     Assert.True(status is ActorExecutionStatus.None, $"Actor status is {status} instead of None.");
                     Assert.Equal(actorId, id);

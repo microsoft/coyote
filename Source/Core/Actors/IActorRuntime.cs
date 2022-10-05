@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
@@ -166,6 +167,24 @@ namespace Microsoft.Coyote.Actors
         /// This method is not thread-safe.
         /// </remarks>
         ActorExecutionStatus GetActorExecutionStatus(ActorId id);
+
+        /// <summary>
+        /// Returns the <see cref="ActorId"/> of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The id of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<ActorId> GetCurrentActorIds();
+
+        /// <summary>
+        /// Returns the distinct types of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The distinct types of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<Type> GetCurrentActorTypes();
 
         /// <summary>
         /// Returns the current count of active actors managed by this runtime.

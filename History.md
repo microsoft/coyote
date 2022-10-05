@@ -1,3 +1,12 @@
+## v1.6.1
+- Exposed new `IActorRuntime.GetActorExecutionStatus(id)` API that enables querying the actor
+  runtime for the current execution status of the actor with the specified id, as well as an
+  `IActorRuntime.GetCurrentActorCount()` API that returns the number of active actors managed by the
+  runtime. These APIs are not thread-safe and should only be used for gathering statistics and
+  debugging purposes.
+- Exposed new `IActorRuntime.OnActorHalted` callback which is triggered when an actor has halted and
+  the runtime has stopped managing it.
+
 ## v1.6.0
 - Exposed new `Operation` API that enables instrumenting, controlling and scheduling custom
 concurrent operations.

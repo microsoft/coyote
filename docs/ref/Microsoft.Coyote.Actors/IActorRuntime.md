@@ -10,10 +10,13 @@ public interface IActorRuntime : ICoyoteRuntime
 
 | name | description |
 | --- | --- |
+| event [OnActorHalted](IActorRuntime/OnActorHalted.md) | Callback that is fired when an actor has halted. |
 | event [OnEventDropped](IActorRuntime/OnEventDropped.md) | Callback that is fired when an event is dropped. |
 | [CreateActor](IActorRuntime/CreateActor.md)(…) | Creates a new actor of the specified Type and with the specified optional [`Event`](../Microsoft.Coyote/Event.md). This event is given to the Event) method on the new actor. (3 methods) |
 | [CreateActorId](IActorRuntime/CreateActorId.md)(…) | Creates a fresh actor id that has not yet been bound to any actor. |
 | [CreateActorIdFromName](IActorRuntime/CreateActorIdFromName.md)(…) | Creates a actor id that is uniquely tied to the specified unique name. The returned actor id can either be a fresh id (not yet bound to any actor), or it can be bound to a previously created actor. In the second case, this actor id can be directly used to communicate with the corresponding actor. |
+| [GetActorExecutionStatus](IActorRuntime/GetActorExecutionStatus.md)(…) | Returns the status of the actor with the specified [`ActorId`](./ActorId.md). |
+| [GetCurrentActorCount](IActorRuntime/GetCurrentActorCount.md)() | Returns the current count of active actors managed by this runtime. |
 | [GetCurrentEventGroup](IActorRuntime/GetCurrentEventGroup.md)(…) | Returns the current [`EventGroup`](./EventGroup.md) of the actor with the specified id. Returns null if the id is not set, or if the [`ActorId`](./ActorId.md) is not associated with this runtime. During testing, the runtime asserts that the specified actor is currently executing. |
 | [SendEvent](IActorRuntime/SendEvent.md)(…) | Sends an asynchronous [`Event`](../Microsoft.Coyote/Event.md) to an actor. |
 

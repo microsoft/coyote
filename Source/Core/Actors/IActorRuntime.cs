@@ -167,9 +167,9 @@ namespace Microsoft.Coyote.Actors
         ActorExecutionStatus GetActorExecutionStatus(ActorId id);
 
         /// <summary>
-        /// Returns the current count of non-halted actors managed by this runtime.
+        /// Returns the current count of active actors managed by this runtime.
         /// </summary>
-        /// <returns>The current count of non-halted actors.</returns>
+        /// <returns>The current count of active actors.</returns>
         /// <remarks>
         /// This method is not thread-safe.
         /// </remarks>

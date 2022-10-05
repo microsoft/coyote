@@ -153,6 +153,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/Actor/Logger
         - name: HashedState
           link: ref/Microsoft.Coyote.Actors/Actor/HashedState
+      - name: ActorExecutionStatus
+        link: ref/Microsoft.Coyote.Actors/ActorExecutionStatus
       - name: ActorId
         link: ref/Microsoft.Coyote.Actors/ActorId
         subfolderitems:
@@ -231,8 +233,6 @@ toc:
         subfolderitems:
         - name: WildCardEvent
           link: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
-      - name: OnEventDroppedHandler
-        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
       - name: OnExceptionOutcome
         link: ref/Microsoft.Coyote.Actors/OnExceptionOutcome
       - name: UnhandledEventException
@@ -242,6 +242,10 @@ toc:
           link: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
         - name: CurrentStateName
           link: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
+      - name: OnActorHaltedHandler
+        link: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler
+      - name: OnEventDroppedHandler
+        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
       - name: IActorRuntime
         link: ref/Microsoft.Coyote.Actors/IActorRuntime
         subfolderitems:
@@ -255,6 +259,12 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
         - name: GetCurrentEventGroup
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
+        - name: GetActorExecutionStatus
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus
+        - name: GetCurrentActorCount
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount
+        - name: OnActorHalted
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted
         - name: OnEventDropped
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
       - name: ActorRuntimeLogTextFormatter

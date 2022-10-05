@@ -12,6 +12,7 @@
 | public type | description |
 | --- | --- |
 | abstract class [Actor](./Microsoft.Coyote.Actors/Actor.md) | Type that implements an actor. Inherit from this class to declare a custom actor. |
+| enum [ActorExecutionStatus](./Microsoft.Coyote.Actors/ActorExecutionStatus.md) | The execution status of an actor. |
 | class [ActorId](./Microsoft.Coyote.Actors/ActorId.md) | Unique actor id. |
 | class [ActorRuntimeLogTextFormatter](./Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md) | This class implements [`IActorRuntimeLog`](./Microsoft.Coyote.Actors/IActorRuntimeLog.md) and generates output in a a human readable text format. |
 | class [AwaitableEventGroup&lt;T&gt;](./Microsoft.Coyote.Actors/AwaitableEventGroup-1.md) | An object representing an awaitable long running context involving one or more actors. An `AwaitableEventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `AwaitableEventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](./Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md)). In this way an `AwaitableEventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `AwaitableEventGroup` using their [`CurrentEventGroup`](./Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md) property. |
@@ -21,6 +22,7 @@
 | class [HaltEvent](./Microsoft.Coyote.Actors/HaltEvent.md) | The halt event. |
 | interface [IActorRuntime](./Microsoft.Coyote.Actors/IActorRuntime.md) | Interface that exposes runtime methods for creating and executing actors. |
 | interface [IActorRuntimeLog](./Microsoft.Coyote.Actors/IActorRuntimeLog.md) | Interface that allows an external module to track what is happening in the [`IActorRuntime`](./Microsoft.Coyote.Actors/IActorRuntime.md). |
+| delegate [OnActorHaltedHandler](./Microsoft.Coyote.Actors/OnActorHaltedHandler.md) | Handles the [`OnActorHalted`](./Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md) event. |
 | delegate [OnEventDroppedHandler](./Microsoft.Coyote.Actors/OnEventDroppedHandler.md) | Handles the [`OnEventDropped`](./Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md) event. |
 | enum [OnExceptionOutcome](./Microsoft.Coyote.Actors/OnExceptionOutcome.md) | The outcome when an [`Actor`](./Microsoft.Coyote.Actors/Actor.md) throws an exception. |
 | static class [RuntimeFactory](./Microsoft.Coyote.Actors/RuntimeFactory.md) | Provides methods for creating a [`IActorRuntime`](./Microsoft.Coyote.Actors/IActorRuntime.md) runtime. |

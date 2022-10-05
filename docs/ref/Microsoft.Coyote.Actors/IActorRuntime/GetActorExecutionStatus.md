@@ -1,6 +1,6 @@
 # IActorRuntime.GetActorExecutionStatus method
 
-Returns the status of the actor with the specified [`ActorId`](../ActorId.md).
+Returns the execution status of the actor with the specified [`ActorId`](../ActorId.md).
 
 ```csharp
 public ActorExecutionStatus GetActorExecutionStatus(ActorId id)
@@ -9,6 +9,10 @@ public ActorExecutionStatus GetActorExecutionStatus(ActorId id)
 | parameter | description |
 | --- | --- |
 | id | The id of the actor. |
+
+## Return Value
+
+The execution status.
 
 ## Remarks
 

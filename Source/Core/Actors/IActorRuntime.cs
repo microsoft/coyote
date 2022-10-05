@@ -158,9 +158,10 @@ namespace Microsoft.Coyote.Actors
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
 
         /// <summary>
-        /// Returns the status of the actor with the specified <see cref="ActorId"/>.
+        /// Returns the execution status of the actor with the specified <see cref="ActorId"/>.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
+        /// <returns>The execution status.</returns>
         /// <remarks>
         /// This method is not thread-safe.
         /// </remarks>

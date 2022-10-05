@@ -67,6 +67,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             await this.RunAsync(async r =>
             {
+                Assert.Fail("Test not implemented.");
                 var called = false;
                 var tcs = new TaskCompletionSource<bool>();
 
@@ -88,22 +89,24 @@ namespace Microsoft.Coyote.Actors.Tests
                 await this.WaitAsync(tcs.Task);
                 Assert.True(called);
 
-                var actorId1 = r.CreateActor(typeof(A));
+                var actorId1 = r.CreateActor(typeof(C));
                 var actorId2 = r.CreateActor(typeof(B));
-                var actorId3 = r.CreateActor(typeof(C));
+                var actorId3 = r.CreateActor(typeof(D));
 
                 int count = r.GetCurrentActorCount();
                 Assert.True(count is 3, $"Found {count} actors instead of 3.");
                 var types = r.GetCurrentActorTypes().ToList();
                 Assert.True(types.Count is 3, $"Found {types.Count} actor types instead of 3.");
+                Assert.False(types.Contains(typeof(A)), $"Actor types contain {typeof(A)}.");
                 Assert.True(types.Contains(typeof(B)), $"Actor types does not contain {typeof(B)}.");
                 Assert.True(types.Contains(typeof(C)), $"Actor types does not contain {typeof(C)}.");
                 Assert.True(types.Contains(typeof(D)), $"Actor types does not contain {typeof(D)}.");
                 var ids = r.GetCurrentActorIds().ToList();
                 Assert.True(ids.Count is 3, $"Found {ids.Count} actor ids instead of 3.");
+                Assert.False(ids.Contains(actorId), $"Actor ids contain {actorId}.");
                 Assert.True(ids.Contains(actorId1), $"Actor ids does not contain {actorId1}.");
                 Assert.True(ids.Contains(actorId2), $"Actor ids does not contain {actorId2}.");
-                Assert.True(ids.Contains(actorId3), $"Actor ids does not contain {actorId3}.");
+                Assert.True(!ids.Contains(actorId3), $"Actor ids does not contain {actorId3}.");
 
                 count = 0;
                 called = false;

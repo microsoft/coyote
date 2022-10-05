@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors
     public interface IActorRuntime : ICoyoteRuntime
     {
         /// <summary>
-        /// Callback that is fired when an actor has halted.
+        /// Callback that is fired when an actor has halted and the runtime has stopped managing it.
         /// </summary>
         event OnActorHaltedHandler OnActorHalted;
 

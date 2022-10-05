@@ -1,6 +1,6 @@
 # IActorRuntime.OnActorHalted event
 
-Callback that is fired when an actor has halted.
+Callback that is fired when an actor has halted and the runtime has stopped managing it.
 
 ```csharp
 public event OnActorHaltedHandler OnActorHalted;

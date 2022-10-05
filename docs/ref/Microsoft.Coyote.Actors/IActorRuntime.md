@@ -10,7 +10,7 @@ public interface IActorRuntime : ICoyoteRuntime
 
 | name | description |
 | --- | --- |
-| event [OnActorHalted](IActorRuntime/OnActorHalted.md) | Callback that is fired when an actor has halted. |
+| event [OnActorHalted](IActorRuntime/OnActorHalted.md) | Callback that is fired when an actor has halted and the runtime has stopped managing it. |
 | event [OnEventDropped](IActorRuntime/OnEventDropped.md) | Callback that is fired when an event is dropped. |
 | [CreateActor](IActorRuntime/CreateActor.md)(…) | Creates a new actor of the specified Type and with the specified optional [`Event`](../Microsoft.Coyote/Event.md). This event is given to the Event) method on the new actor. (3 methods) |
 | [CreateActorId](IActorRuntime/CreateActorId.md)(…) | Creates a fresh actor id that has not yet been bound to any actor. |

@@ -19,6 +19,11 @@ namespace Microsoft.Coyote.Actors
     public interface IActorRuntime : ICoyoteRuntime
     {
         /// <summary>
+        /// Callback that is fired when an actor has halted.
+        /// </summary>
+        event OnActorHaltedHandler OnActorHalted;
+
+        /// <summary>
         /// Callback that is fired when an event is dropped.
         /// </summary>
         event OnEventDroppedHandler OnEventDropped;
@@ -151,6 +156,24 @@ namespace Microsoft.Coyote.Actors
         /// <param name="currentActorId">The id of the currently executing actor.</param>
         /// <returns>The current EventGroup or null.</returns>
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
+
+        /// <summary>
+        /// Returns the status of the actor with the specified <see cref="ActorId"/>.
+        /// </summary>
+        /// <param name="id">The id of the actor.</param>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        ActorExecutionStatus GetActorExecutionStatus(ActorId id);
+
+        /// <summary>
+        /// Returns the current count of non-halted actors managed by this runtime.
+        /// </summary>
+        /// <returns>The current count of non-halted actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        int GetCurrentActorCount();
 
         /// <summary>
         /// The old way of setting the <see cref="ICoyoteRuntime.Logger"/> property.

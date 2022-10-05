@@ -6,7 +6,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Actors.Tests.StateMachines
+namespace Microsoft.Coyote.Actors.Tests
 {
     public class OnEventDroppedTests : BaseActorTest
     {

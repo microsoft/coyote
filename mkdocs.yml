@@ -179,6 +179,7 @@ nav:
         - CurrentEventGroup: ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md
         - Logger: ref/Microsoft.Coyote.Actors/Actor/Logger.md
         - HashedState: ref/Microsoft.Coyote.Actors/Actor/HashedState.md
+      - ActorExecutionStatus: ref/Microsoft.Coyote.Actors/ActorExecutionStatus.md
       - ActorId:
         - Overview: ref/Microsoft.Coyote.Actors/ActorId.md
         - Equals: ref/Microsoft.Coyote.Actors/ActorId/Equals.md
@@ -221,12 +222,13 @@ nav:
       - WildCardEvent:
         - Overview: ref/Microsoft.Coyote.Actors/WildCardEvent.md
         - WildCardEvent: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent.md
-      - OnEventDroppedHandler: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler.md
       - OnExceptionOutcome: ref/Microsoft.Coyote.Actors/OnExceptionOutcome.md
       - UnhandledEventException:
         - Overview: ref/Microsoft.Coyote.Actors/UnhandledEventException.md
         - UnhandledEvent: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent.md
         - CurrentStateName: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName.md
+      - OnActorHaltedHandler: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler.md
+      - OnEventDroppedHandler: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler.md
       - IActorRuntime:
         - Overview: ref/Microsoft.Coyote.Actors/IActorRuntime.md
         - CreateActorId: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId.md
@@ -234,6 +236,9 @@ nav:
         - CreateActor: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor.md
         - SendEvent: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent.md
         - GetCurrentEventGroup: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup.md
+        - GetActorExecutionStatus: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus.md
+        - GetCurrentActorCount: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount.md
+        - OnActorHalted: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md
         - OnEventDropped: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md
       - ActorRuntimeLogTextFormatter:
         - Overview: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md

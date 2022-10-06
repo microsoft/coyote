@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(typeof(M), setup);
 
                 setup.Tcs.Task.Wait(10000);
-                Assert.True(setup.Tcs.Task.IsCompletedSuccessfully);
+                Assert.True(setup.Tcs.Task.Status is TaskStatus.RanToCompletion);
 
                 r.Stop();
                 AssertNoLeaks(setup);
@@ -163,10 +163,10 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(typeof(M), setup);
 
                 setup.Tcs.Task.Wait(10000);
-                Assert.True(setup.Tcs.Task.IsCompletedSuccessfully);
+                Assert.True(setup.Tcs.Task.Status is TaskStatus.RanToCompletion);
 
                 tcs.Task.Wait(10000);
-                Assert.True(tcs.Task.IsCompletedSuccessfully);
+                Assert.True(tcs.Task.Status is TaskStatus.RanToCompletion);
 
                 r.Stop();
                 AssertNoLeaks(setup);

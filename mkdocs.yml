@@ -237,6 +237,8 @@ nav:
         - SendEvent: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent.md
         - GetCurrentEventGroup: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup.md
         - GetActorExecutionStatus: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus.md
+        - GetCurrentActorIds: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds.md
+        - GetCurrentActorTypes: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes.md
         - GetCurrentActorCount: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount.md
         - OnActorHalted: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md
         - OnEventDropped: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md

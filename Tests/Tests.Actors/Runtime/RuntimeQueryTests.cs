@@ -67,7 +67,6 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             await this.RunAsync(async r =>
             {
-                Assert.Fail("Test not implemented.");
                 var called = false;
                 var tcs = new TaskCompletionSource<bool>();
 
@@ -106,13 +105,13 @@ namespace Microsoft.Coyote.Actors.Tests
                 Assert.False(ids.Contains(actorId), $"Actor ids contain {actorId}.");
                 Assert.True(ids.Contains(actorId1), $"Actor ids does not contain {actorId1}.");
                 Assert.True(ids.Contains(actorId2), $"Actor ids does not contain {actorId2}.");
-                Assert.True(!ids.Contains(actorId3), $"Actor ids does not contain {actorId3}.");
+                Assert.True(ids.Contains(actorId3), $"Actor ids does not contain {actorId3}.");
 
                 count = 0;
                 called = false;
                 tcs = new TaskCompletionSource<bool>();
                 r.OnActorHalted -= onHaltedHandler;
-                onHaltedHandler = (id) =>
+                r.OnActorHalted += (id) =>
                 {
                     lock (tcs)
                     {

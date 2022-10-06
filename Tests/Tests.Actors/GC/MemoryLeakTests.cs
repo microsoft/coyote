@@ -20,7 +20,6 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             public TaskCompletionSource<bool> Tcs = new TaskCompletionSource<bool>();
             public List<WeakReference<int[]>> Buffers = new List<WeakReference<int[]>>();
-            public bool HaltTest;
 
             internal void Add(int[] buffer)
             {
@@ -60,18 +59,11 @@ namespace Microsoft.Coyote.Actors.Tests
                         await this.ReceiveEventAsync(typeof(E));
                     }
 
-                    if (setup.HaltTest)
-                    {
-                        this.SendEvent(n, HaltEvent.Instance);
-                    }
-                }
-
-                if (setup.HaltTest)
-                {
-                    this.RaiseHaltEvent();
+                    this.SendEvent(n, HaltEvent.Instance);
                 }
 
                 setup.Tcs.SetResult(true);
+                this.RaiseHaltEvent();
             }
         }
 
@@ -104,7 +96,7 @@ namespace Microsoft.Coyote.Actors.Tests
             }
         }
 
-        private static void AssertNoLeaks(SetupEvent e)
+        private static void AssertNoEventLeaks(SetupEvent e)
         {
             int retries = 10;
             int count = 0;
@@ -124,23 +116,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             // MacOs really doesn't want to let go of the last one for some reason (perhaps
             // because we are also grabbing references in the above foreach statement).
-            Assert.True(count <= 1);
-        }
-
-        [Fact(Timeout = 10000)]
-        public void TestNoMemoryLeakInEventSending()
-        {
-            this.Test(r =>
-            {
-                var setup = new SetupEvent();
-                r.CreateActor(typeof(M), setup);
-
-                setup.Tcs.Task.Wait(10000);
-                Assert.True(setup.Tcs.Task.Status is TaskStatus.RanToCompletion);
-
-                r.Stop();
-                AssertNoLeaks(setup);
-            });
+            Assert.InRange(count, 0, 1);
         }
 
         [Fact(Timeout = 10000)]
@@ -159,18 +135,18 @@ namespace Microsoft.Coyote.Actors.Tests
                     }
                 };
 
-                var setup = new SetupEvent() { HaltTest = true };
+                var setup = new SetupEvent();
                 r.CreateActor(typeof(M), setup);
 
                 setup.Tcs.Task.Wait(10000);
-                Assert.True(setup.Tcs.Task.Status is TaskStatus.RanToCompletion);
+                Assert.Equal(TaskStatus.RanToCompletion, setup.Tcs.Task.Status);
 
                 tcs.Task.Wait(10000);
-                Assert.True(tcs.Task.Status is TaskStatus.RanToCompletion);
+                Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
 
                 r.Stop();
-                AssertNoLeaks(setup);
-                Assert.True(count is 101);
+                AssertNoEventLeaks(setup);
+                Assert.Equal(101, count);
             });
         }
     }

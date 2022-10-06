@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
                 var tcs = new TaskCompletionSource<bool>();
 
                 var actorId = r.CreateActor(typeof(A));
-                OnActorHaltedHandler onHaltedHandler = (id) =>
+                OnActorHaltedHandler onHaltedHandler = id =>
                 {
                     called = true;
                     int count = r.GetCurrentActorCount();
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
                 called = false;
                 tcs = new TaskCompletionSource<bool>();
                 r.OnActorHalted -= onHaltedHandler;
-                r.OnActorHalted += (id) =>
+                r.OnActorHalted += id =>
                 {
                     lock (tcs)
                     {

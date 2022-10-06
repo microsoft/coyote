@@ -44,39 +44,34 @@ namespace Microsoft.Coyote.Actors.Tests
             }
         }
 
-        private class M : StateMachine
+        private class M : Actor
         {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
+            protected override async Task OnInitializeAsync(Event e)
             {
-            }
-
-            private async Task InitOnEntry(Event e)
-            {
-                var setup = (SetupEvent)e;
-                var tcs = setup.Tcs;
-
-                try
+                var setup = e as SetupEvent;
+                for (int i = 0; i < 100; i++)
                 {
-                    for (int i = 0; i < 100; i++)
+                    var n = this.CreateActor(typeof(N), e);
+                    for (int j = 0; j < 100; j++)
                     {
-                        var n = this.CreateActor(typeof(N), e);
-                        for (int j = 0; j < 100; j++)
-                        {
-                            var send = new E(this.Id);
-                            setup.Add(send.Buffer);
-                            this.SendEvent(n, send);
-                            await this.ReceiveEventAsync(typeof(E));
-                        }
+                        var send = new E(this.Id);
+                        setup.Add(send.Buffer);
+                        this.SendEvent(n, send);
+                        await this.ReceiveEventAsync(typeof(E));
+                    }
+
+                    if (setup.HaltTest)
+                    {
+                        this.SendEvent(n, HaltEvent.Instance);
                     }
                 }
-                finally
+
+                if (setup.HaltTest)
                 {
-                    tcs.TrySetResult(true);
+                    this.RaiseHaltEvent();
                 }
 
-                tcs.TrySetResult(true);
+                setup.Tcs.SetResult(true);
             }
         }
 
@@ -94,7 +89,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void Configure(Event e)
             {
-                this.Setup = (SetupEvent)e;
+                this.Setup = e as SetupEvent;
                 this.Buffer = new int[10000];
                 this.Buffer[this.Buffer.Length - 1] = 1;
                 this.Setup.Add(this.Buffer);
@@ -106,10 +101,6 @@ namespace Microsoft.Coyote.Actors.Tests
                 var send = new E(this.Id);
                 this.Setup.Add(send.Buffer);
                 this.SendEvent(sender, new E(this.Id));
-                if (this.Setup.HaltTest)
-                {
-                    this.RaiseHaltEvent();
-                }
             }
         }
 
@@ -139,15 +130,15 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 10000)]
         public void TestNoMemoryLeakInEventSending()
         {
-            this.Test(async r =>
+            this.Test(r =>
             {
                 var setup = new SetupEvent();
                 r.CreateActor(typeof(M), setup);
 
-                await this.WaitAsync(setup.Tcs.Task, 10000);
+                setup.Tcs.Task.Wait(10000);
+                Assert.True(setup.Tcs.Task.IsCompletedSuccessfully);
 
                 r.Stop();
-
                 AssertNoLeaks(setup);
             });
         }
@@ -155,18 +146,31 @@ namespace Microsoft.Coyote.Actors.Tests
         [Fact(Timeout = 10000)]
         public void TestNoMemoryLeakAfterHalt()
         {
-            this.Test(async r =>
+            this.Test(r =>
             {
-                // test that actors don't leak after they've been halted and that
-                // subsequent events that are dropped also don't leak.
+                var tcs = new TaskCompletionSource<bool>();
+                int count = 0;
+                r.OnActorHalted += id =>
+                {
+                    count++;
+                    if (count == 101)
+                    {
+                        tcs.SetResult(true);
+                    }
+                };
+
                 var setup = new SetupEvent() { HaltTest = true };
                 r.CreateActor(typeof(M), setup);
 
-                await this.WaitAsync(setup.Tcs.Task, 10000);
+                setup.Tcs.Task.Wait(10000);
+                Assert.True(setup.Tcs.Task.IsCompletedSuccessfully);
+
+                tcs.Task.Wait(10000);
+                Assert.True(tcs.Task.IsCompletedSuccessfully);
 
                 r.Stop();
-
                 AssertNoLeaks(setup);
+                Assert.True(count is 101);
             });
         }
     }

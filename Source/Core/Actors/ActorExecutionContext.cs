@@ -474,6 +474,12 @@ namespace Microsoft.Coyote.Actors
             actor.ExecutionStatus : ActorExecutionStatus.None;
 
         /// <inheritdoc/>
+        public IEnumerable<ActorId> GetCurrentActorIds() => this.ActorMap.Keys.ToList();
+
+        /// <inheritdoc/>
+        public IEnumerable<Type> GetCurrentActorTypes() => this.ActorMap.Values.Select(a => a.GetType()).Distinct();
+
+        /// <inheritdoc/>
         public int GetCurrentActorCount() => this.IsRunning ? this.ActorMap.Count : 0;
 
         /// <summary>

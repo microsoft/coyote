@@ -261,6 +261,10 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
         - name: GetActorExecutionStatus
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus
+        - name: GetCurrentActorIds
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds
+        - name: GetCurrentActorTypes
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes
         - name: GetCurrentActorCount
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount
         - name: OnActorHalted

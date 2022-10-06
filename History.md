@@ -1,3 +1,9 @@
+## v1.6.2
+- Exposed new `IActorRuntime.GetCurrentActorIds()` API that returns the `ActorId` for each active
+  actor managed by the runtime, as well as an `IActorRuntime.GetCurrentActorTypes()` API that
+  returns the `Type` of each active actor managed by the runtime. These APIs are not thread-safe and
+  should only be used for gathering statistics and debugging purposes.
+
 ## v1.6.1
 - Exposed new `IActorRuntime.GetActorExecutionStatus(id)` API that enables querying the actor
   runtime for the current execution status of the actor with the specified id, as well as an

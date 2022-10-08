@@ -81,6 +81,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool IsMember(ControlledOperation operation) => this.Members.Contains(operation);
 
+        internal int GetMemberCount() => this.Members.Count;
+
         /// <summary>
         /// Associates the specified operation group with the currently executing thread,
         /// allowing future retrieval in the same thread, as well as across threads that

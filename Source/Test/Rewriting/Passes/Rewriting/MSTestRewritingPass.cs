@@ -219,6 +219,12 @@ namespace Microsoft.Coyote.Rewriting
                         this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
                             false, (uint)this.Configuration.StrategyBound);
                         break;
+                    case "pos":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPOSStrategy");
+                        break;
+                    case "delay-bounding":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithDelayBoundingStrategy");
+                        break;
                     case "dfs":
                         this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy",
                             this.Configuration.ScheduleTrace);

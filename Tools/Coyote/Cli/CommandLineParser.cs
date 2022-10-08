@@ -214,7 +214,9 @@ namespace Microsoft.Coyote.Cli
                 "fair-prioritization",
                 "probabilistic",
                 "rl",
-                "portfolio"
+                "portfolio",
+                "pos",
+                "delay-bounding"
             };
 
             var strategyOption = new Option<string>(

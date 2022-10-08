@@ -64,6 +64,8 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
             {
                 this.AwaitingOp.RacingResourceSet.Add(this.AwaitedOp.OpResourceId);
             }
+
+            this.Runtime.ScheduleNextOperation(SchedulingPointType.Interleave);
         }
 
         /// <summary>

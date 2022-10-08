@@ -38,6 +38,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new PrioritizationStrategy(configuration, generator);
             }
+            else if (configuration.SchedulingStrategy is "pos")
+            {
+                strategy = new POSStrategy(configuration, generator);
+            }
+            else if (configuration.SchedulingStrategy is "delay-bounding")
+            {
+                strategy = new DelayBoundingStrategy(configuration, generator);
+            }
             else if (configuration.SchedulingStrategy is "fair-prioritization")
             {
                 var prefixStrategy = new PrioritizationStrategy(configuration, generator);

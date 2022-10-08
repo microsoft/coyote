@@ -359,6 +359,24 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the POS-based scheduling strategy during systematic testing.
+        /// </summary>
+        public Configuration WithPOSStrategy()
+        {
+            this.SchedulingStrategy = "pos";
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to use the DelayBounding-based scheduling strategy during systematic testing.
+        /// </summary>
+        public Configuration WithDelayBoundingStrategy()
+        {
+            this.SchedulingStrategy = "delay-bounding";
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>

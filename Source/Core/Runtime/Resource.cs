@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Coyote.Runtime
@@ -16,6 +17,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
+        /// The unique id of this resource.
+        /// </summary>
+        internal readonly Guid Id;
+
+        /// <summary>
         /// Set of asynchronous operations that are waiting on the resource to be released.
         /// </summary>
         private readonly HashSet<ControlledOperation> AwaitingOperations;
@@ -26,6 +32,7 @@ namespace Microsoft.Coyote.Runtime
         internal Resource()
         {
             this.Runtime = CoyoteRuntime.Current;
+            this.Id = Guid.NewGuid();
             this.AwaitingOperations = new HashSet<ControlledOperation>();
         }
 

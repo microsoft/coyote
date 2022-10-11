@@ -37,6 +37,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new RandomStrategy(configuration, generator);
             }
+            else if (configuration.SchedulingStrategy is "probabilistic")
+            {
+                strategy = new ProbabilisticRandomStrategy(configuration, generator);
+            }
             else if (configuration.SchedulingStrategy is "prioritization")
             {
                 strategy = new PrioritizationStrategy(configuration, generator, false);
@@ -53,10 +57,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new GroupPrioritizationStrategy(configuration, generator, true);
             }
-            else if (configuration.SchedulingStrategy is "probabilistic")
-            {
-                strategy = new ProbabilisticRandomStrategy(configuration, generator);
-            }
             else if (configuration.SchedulingStrategy is "delay-bounding")
             {
                 strategy = new DelayBoundingStrategy(configuration, generator, false);
@@ -64,6 +64,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
             else if (configuration.SchedulingStrategy is "fair-delay-bounding")
             {
                 strategy = new DelayBoundingStrategy(configuration, generator, true);
+            }
+            else if (configuration.SchedulingStrategy is "partial-order-sampling")
+            {
+                strategy = new PartialOrderSamplingStrategy(configuration, generator, false);
+            }
+            else if (configuration.SchedulingStrategy is "fair-partial-order-sampling")
+            {
+                strategy = new PartialOrderSamplingStrategy(configuration, generator, true);
             }
             else if (configuration.SchedulingStrategy is "rl")
             {

@@ -193,10 +193,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             return false;
         }
 
-        /// <inheritdoc/>
-        internal override string GetDescription() =>
-            $"prioritization[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
-
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
         /// </summary>
@@ -216,6 +212,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             return result;
         }
+
+        /// <inheritdoc/>
+        internal override string GetDescription() =>
+            $"prioritization[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <inheritdoc/>
         internal override void Reset()

@@ -217,6 +217,8 @@ namespace Microsoft.Coyote.Cli
                 "fair-group-prioritization",
                 "delay-bounding",
                 "fair-delay-bounding",
+                "partial-order-sampling",
+                "fair-partial-order-sampling",
                 "rl",
                 "portfolio"
             };
@@ -827,6 +829,13 @@ namespace Microsoft.Coyote.Cli
                         string strategy = result.GetValueOrDefault<string>();
                         switch (strategy)
                         {
+                            case "probabilistic":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 3;
+                                }
+
+                                break;
                             case "prioritization":
                             case "fair-prioritization":
                             case "group-prioritization":
@@ -839,19 +848,14 @@ namespace Microsoft.Coyote.Cli
                                 }
 
                                 break;
-                            case "probabilistic":
-                                if (strategyBound is null)
-                                {
-                                    this.Configuration.StrategyBound = 3;
-                                }
-
-                                break;
                             case "rl":
                                 this.Configuration.IsProgramStateHashingEnabled = true;
                                 break;
                             case "portfolio":
                                 strategy = "random";
                                 break;
+                            case "partial-order-sampling":
+                            case "fair-partial-order-sampling":
                             default:
                                 break;
                         }

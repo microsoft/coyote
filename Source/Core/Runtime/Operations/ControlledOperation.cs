@@ -44,6 +44,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly Queue<Action> Continuations;
 
+        internal readonly Guid ResourceId;
+
+        internal HashSet<Guid> RacingResourceSet;
+
         /// <summary>
         /// Dependency that must get resolved before this operation can resume executing.
         /// </summary>
@@ -105,6 +109,8 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
             this.Continuations = new Queue<Action>();
+            this.ResourceId = Guid.NewGuid();
+            this.RacingResourceSet = new HashSet<Guid> { this.ResourceId };
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
@@ -180,9 +186,23 @@ namespace Microsoft.Coyote.Runtime
                 this.Dependency = null;
                 this.IsDependencyUncontrolled = false;
                 this.Status = OperationStatus.Enabled;
+                this.RacingResourceSet.Clear();
+                this.RacingResourceSet.Add(this.ResourceId);
             }
 
             return this.Status is OperationStatus.Enabled;
+        }
+
+        internal static bool IsRacing(ControlledOperation op1, ControlledOperation op2)
+        {
+            if (op1.RacingResourceSet.Count is 0 || op2.RacingResourceSet.Count is 0)
+            {
+                return false;
+            }
+
+            var temp = new HashSet<Guid>(op1.RacingResourceSet);
+            temp.IntersectWith(op2.RacingResourceSet);
+            return temp.Count > 0;
         }
 
         /// <summary>

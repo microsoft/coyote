@@ -1458,6 +1458,12 @@ namespace Microsoft.Coyote.Runtime
             return default;
         }
 
+        internal ControlledOperation GetOperationFromTask(Task task)
+        {
+            this.ControlledTasks.TryGetValue(task, out var operation);
+            return operation;
+        }
+
         /// <summary>
         /// Returns all registered operations.
         /// </summary>

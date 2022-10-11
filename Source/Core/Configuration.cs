@@ -418,6 +418,17 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the partial-order sampling scheduling strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default.
+        /// </summary>
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        public Configuration WithPartialOrderSamplingStrategy(bool isFair = false)
+        {
+            this.SchedulingStrategy = isFair ? "fair-partial-order-sampling" : "partial-order-sampling";
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>

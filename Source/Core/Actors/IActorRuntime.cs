@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
@@ -16,6 +17,11 @@ namespace Microsoft.Coyote.Actors
     /// </remarks>
     public interface IActorRuntime : ICoyoteRuntime
     {
+        /// <summary>
+        /// Callback that is fired when an actor has halted and the runtime has stopped managing it.
+        /// </summary>
+        event OnActorHaltedHandler OnActorHalted;
+
         /// <summary>
         /// Callback that is fired when an event is dropped.
         /// </summary>
@@ -149,5 +155,42 @@ namespace Microsoft.Coyote.Actors
         /// <param name="currentActorId">The id of the currently executing actor.</param>
         /// <returns>The current EventGroup or null.</returns>
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
+
+        /// <summary>
+        /// Returns the execution status of the actor with the specified <see cref="ActorId"/>.
+        /// </summary>
+        /// <param name="id">The id of the actor.</param>
+        /// <returns>The execution status.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        ActorExecutionStatus GetActorExecutionStatus(ActorId id);
+
+        /// <summary>
+        /// Returns the <see cref="ActorId"/> of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The id of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<ActorId> GetCurrentActorIds();
+
+        /// <summary>
+        /// Returns the distinct types of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The distinct types of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<Type> GetCurrentActorTypes();
+
+        /// <summary>
+        /// Returns the current count of active actors managed by this runtime.
+        /// </summary>
+        /// <returns>The current count of active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        int GetCurrentActorCount();
     }
 }

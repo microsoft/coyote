@@ -27,9 +27,9 @@ namespace Microsoft.Coyote.Actors
     internal class ActorExecutionContext : IActorRuntime
     {
         /// <summary>
-        /// Object used to synchronize access to the <see cref="OnFailure"/> event.
+        /// Object used to synchronize access to the runtime event handlers.
         /// </summary>
-        private static readonly object OnFailureSyncObject = new object();
+        private static readonly object EventHandlerSyncObject = new object();
 
         /// <summary>
         /// The configuration used by the runtime.
@@ -99,6 +99,9 @@ namespace Microsoft.Coyote.Actors
         internal virtual bool IsExecutionControlled => false;
 
         /// <inheritdoc/>
+        public event OnActorHaltedHandler OnActorHalted;
+
+        /// <inheritdoc/>
         public event OnEventDroppedHandler OnEventDropped;
 
         /// <inheritdoc/>
@@ -106,7 +109,7 @@ namespace Microsoft.Coyote.Actors
         {
             add
             {
-                lock (OnFailureSyncObject)
+                lock (EventHandlerSyncObject)
                 {
                     this.Runtime.OnFailure += value;
                 }
@@ -114,7 +117,7 @@ namespace Microsoft.Coyote.Actors
 
             remove
             {
-                lock (OnFailureSyncObject)
+                lock (EventHandlerSyncObject)
                 {
                     this.Runtime.OnFailure -= value;
                 }
@@ -416,6 +419,7 @@ namespace Microsoft.Coyote.Actors
                 if (actor.IsHalted)
                 {
                     this.ActorMap.TryRemove(actor.Id, out Actor _);
+                    this.HandleActorHalted(actor.Id);
                 }
 
                 this.OnActorEventHandlerCompleted(actor.Id);
@@ -467,6 +471,19 @@ namespace Microsoft.Coyote.Actors
             Actor actor = this.GetActorWithId<Actor>(currentActorId);
             return actor?.CurrentEventGroup;
         }
+
+        /// <inheritdoc/>
+        public ActorExecutionStatus GetActorExecutionStatus(ActorId id) => this.ActorMap.TryGetValue(id, out Actor actor) ?
+            actor.ExecutionStatus : ActorExecutionStatus.None;
+
+        /// <inheritdoc/>
+        public IEnumerable<ActorId> GetCurrentActorIds() => this.ActorMap.Keys.ToList();
+
+        /// <inheritdoc/>
+        public IEnumerable<Type> GetCurrentActorTypes() => this.ActorMap.Values.Select(a => a.GetType()).Distinct();
+
+        /// <inheritdoc/>
+        public int GetCurrentActorCount() => this.IsRunning ? this.ActorMap.Count : 0;
 
         /// <summary>
         /// Gets the actor of type <typeparamref name="TActor"/> with the specified id,
@@ -736,6 +753,11 @@ namespace Microsoft.Coyote.Actors
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception) => this.Runtime.RaiseOnFailureEvent(exception);
+
+        /// <summary>
+        /// Handle the halted actor with the specified <see cref="ActorId"/>.
+        /// </summary>
+        internal void HandleActorHalted(ActorId id) => this.OnActorHalted?.Invoke(id);
 
         /// <summary>
         /// Handle the specified dropped <see cref="Event"/>.
@@ -1189,6 +1211,7 @@ namespace Microsoft.Coyote.Actors
                         if (actor.IsHalted)
                         {
                             this.ActorMap.TryRemove(actor.Id, out Actor _);
+                            this.HandleActorHalted(actor.Id);
                         }
 
                         this.OnActorEventHandlerCompleted(actor.Id);

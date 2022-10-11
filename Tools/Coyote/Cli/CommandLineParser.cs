@@ -210,11 +210,13 @@ namespace Microsoft.Coyote.Cli
             var allowedStrategies = new HashSet<string>
             {
                 "random",
+                "probabilistic",
                 "prioritization",
                 "fair-prioritization",
                 "group-prioritization",
                 "fair-group-prioritization",
-                "probabilistic",
+                "delay-bounding",
+                "fair-delay-bounding",
                 "rl",
                 "portfolio"
             };
@@ -829,6 +831,8 @@ namespace Microsoft.Coyote.Cli
                             case "fair-prioritization":
                             case "group-prioritization":
                             case "fair-group-prioritization":
+                            case "delay-bounding":
+                            case "fair-delay-bounding":
                                 if (strategyBound is null)
                                 {
                                     this.Configuration.StrategyBound = 10;

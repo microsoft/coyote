@@ -57,6 +57,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 strategy = new ProbabilisticRandomStrategy(configuration, generator);
             }
+            else if (configuration.SchedulingStrategy is "delay-bounding")
+            {
+                strategy = new DelayBoundingStrategy(configuration, generator, false);
+            }
+            else if (configuration.SchedulingStrategy is "fair-delay-bounding")
+            {
+                strategy = new DelayBoundingStrategy(configuration, generator, true);
+            }
             else if (configuration.SchedulingStrategy is "rl")
             {
                 strategy = new QLearningStrategy(configuration, generator);

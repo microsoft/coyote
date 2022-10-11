@@ -82,33 +82,81 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             // Check if there are at least two operation groups that can be scheduled,
             // otherwise skip the priority checking and changing logic.
-            if (ops.Select(op => op.Group).Distinct().Skip(1).Any())
+            ControlledOperation next_t;
+            if (this.FindNonRacingOperation(ops, out next_t))
             {
-                // Get the operations that belong to the highest priority group.
-                OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(ops);
-                ops = ops.Where(op => nextGroup.IsMember(op));
+                next = next_t;
+                this.StepCount++;
+                return true;
             }
-
-            int idx = this.RandomValueGenerator.Next(ops.Count());
-            next = ops.ElementAt(idx);
-
-            foreach (var op in enabled_ops)
+            else
             {
-                if (op != next && ControlledOperation.IsRacing(next, op))
+                if (ops.Select(op => op.Group).Distinct().Skip(1).Any())
                 {
-                    if (Debug.IsEnabled)
-                    {
-                        Debug.WriteLine($"<ScheduleLog> {next} and {op} are racing");
-                        Debug.WriteLine($"<ScheduleLog> Resetting priority of {op.Group}");
-                        System.Diagnostics.Debug.Assert(op.Group.GetMemberCount() == 1, "Error: POS requires an OperationGroup to have only one member ControlledOperation");
-                    }
+                    // Get the operations that belong to the highest priority group.
+                    OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(ops);
+                    ops = ops.Where(op => nextGroup.IsMember(op));
+                }
 
-                    this.PrioritizedOperationGroups.Remove(op.Group);
+                int idx = this.RandomValueGenerator.Next(ops.Count());
+                next = ops.ElementAt(idx);
+
+                foreach (var op in enabled_ops)
+                {
+                    if (op != next && ControlledOperation.IsRacing(next, op))
+                    {
+                        if (Debug.IsEnabled)
+                        {
+                            Debug.WriteLine($"<ScheduleLog> {next} and {op} are racing");
+                            Debug.WriteLine($"<ScheduleLog> Resetting priority of {op.Group}");
+                            System.Diagnostics.Debug.Assert(op.Group.GetMemberCount() == 1, "Error: POS requires an OperationGroup to have only one member ControlledOperation");
+                        }
+
+                        this.PrioritizedOperationGroups.Remove(op.Group);
+                    }
+                }
+
+                this.StepCount++;
+                return true;
+            }
+        }
+
+        internal bool FindNonRacingOperation(IEnumerable<ControlledOperation> ops, out ControlledOperation next)
+        {
+            HashSet<ControlledOperation> racingOps = new HashSet<ControlledOperation>();
+            for (int i = 0; i < ops.Count(); i++)
+            {
+                for (int j = i + 1; j < ops.Count(); j++)
+                {
+                    if (ControlledOperation.IsRacing(ops.ElementAt(i), ops.ElementAt(j)))
+                    {
+                        racingOps.Add(ops.ElementAt(i));
+                        racingOps.Add(ops.ElementAt(j));
+                    }
                 }
             }
 
-            this.StepCount++;
-            return true;
+            var nonRacingOps = ops.Where(op => !racingOps.Contains(op));
+
+            var filteredNonRacingOps = nonRacingOps.Where(op => op.LastSchedulingPoint != SchedulingPointType.Acquire); // no ops that are waiting on a lock
+            if (filteredNonRacingOps.Count() == 0)
+            {
+                next = null;
+                return false;
+            }
+            else if (filteredNonRacingOps.Count() == 1)
+            {
+                next = filteredNonRacingOps.First();
+                return true;
+            }
+            else
+            {
+                OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(filteredNonRacingOps);
+                var opsFromGroup = filteredNonRacingOps.Where(op => nextGroup.IsMember(op));
+                int idx = this.RandomValueGenerator.Next(opsFromGroup.Count());
+                next = opsFromGroup.ElementAt(idx);
+                return true;
+            }
         }
 
         /// <summary>

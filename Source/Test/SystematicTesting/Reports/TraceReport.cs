@@ -62,6 +62,11 @@ namespace Microsoft.Coyote.SystematicTesting
             for (int idx = 0; idx < trace.Length; idx++)
             {
                 ExecutionTrace.Step step = trace[idx];
+                if (step is null)
+                {
+                    continue;
+                }
+
                 if (step.Type == ExecutionTrace.DecisionType.SchedulingChoice)
                 {
                     report.Decisions.Add($"op({step.ScheduledOperationId})");

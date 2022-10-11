@@ -311,8 +311,8 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 aex.Handle((ex) =>
                 {
-                    IO.Debug.WriteLine(ex.Message);
-                    IO.Debug.WriteLine(ex.StackTrace);
+                    Error.Report(ex.Message);
+                    Error.Report(ex.StackTrace);
                     return true;
                 });
 
@@ -322,7 +322,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     throw;
                 }
 
-                Error.Report("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
+                Error.Report("Unhandled or internal exception was thrown.");
                 throw;
             }
             catch (Exception ex)
@@ -524,11 +524,6 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.Scheduler.ValueGenerator);
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"enables systematic fuzzing due to uncontrolled concurrency");
-                }
-                else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
-                {
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"hit bound of '{this.Scheduler.StepCount}' scheduling steps");
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {

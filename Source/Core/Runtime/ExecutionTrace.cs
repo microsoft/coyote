@@ -131,6 +131,11 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Length > 0)
             {
+                if (this.Steps[this.Length - 1] is null)
+                {
+                    return;
+                }
+
                 this.Steps[this.Length - 1].Next = step;
                 step.Previous = this.Steps[this.Length - 1];
             }

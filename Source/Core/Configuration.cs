@@ -359,6 +359,17 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the delay-bounding scheduling strategy during systematic testing.
+        /// </summary>
+        /// <param name="delayBound">Number of possible delay points per test iteration.</param>
+        public Configuration WithDelayBoundingStrategy(uint delayBound = 10)
+        {
+            this.SchedulingStrategy = "delay-bounding";
+            this.StrategyBound = (int)delayBound;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>

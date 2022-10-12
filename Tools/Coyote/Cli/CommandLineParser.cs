@@ -214,7 +214,8 @@ namespace Microsoft.Coyote.Cli
                 "fair-prioritization",
                 "probabilistic",
                 "rl",
-                "portfolio"
+                "portfolio",
+                "delay-bounding"
             };
 
             var strategyOption = new Option<string>(
@@ -803,6 +804,13 @@ namespace Microsoft.Coyote.Cli
                         {
                             case "prioritization":
                             case "fair-prioritization":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 10;
+                                }
+
+                                break;
+                            case "delay-bounding":
                                 if (strategyBound is null)
                                 {
                                     this.Configuration.StrategyBound = 10;

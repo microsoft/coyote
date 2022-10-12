@@ -170,6 +170,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly List<TaskLivenessMonitor> TaskLivenessMonitors;
 
         /// <summary>
+        /// List of state hashing functions for enriching the hashed program state.
+        /// </summary>
+        private readonly List<Func<int>> StateHashers;
+
+        /// <summary>
         /// The runtime completion source.
         /// </summary>
         private readonly TaskCompletionSource<bool> CompletionSource;
@@ -324,6 +329,7 @@ namespace Microsoft.Coyote.Runtime
             this.ValueGenerator = valueGenerator;
             this.SpecificationMonitors = new List<Specifications.Monitor>();
             this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
+            this.StateHashers = new List<Func<int>>();
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
             this.SyncContext = new ControlledSynchronizationContext(this);
@@ -1508,7 +1514,11 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else
                     {
-                        hash *= 31 + operation.LastSchedulingPoint.GetHashCode();
+                        int operationHash = 19;
+                        operationHash = (operationHash * 31) + operation.Status.GetHashCode();
+                        operationHash = (operationHash * 31) + operation.LastSchedulingPoint.GetHashCode();
+                        operationHash = (operationHash * 31) + operation.RacingResourceSet.Count.GetHashCode();
+                        hash *= operationHash;
                     }
                 }
 
@@ -1517,9 +1527,22 @@ namespace Microsoft.Coyote.Runtime
                     hash *= 31 + monitor.GetHashedState();
                 }
 
+                if (this.Configuration.IsCustomProgramStateHashingEnabled)
+                {
+                    foreach (var hasher in this.StateHashers)
+                    {
+                        hash *= 31 + hasher();
+                    }
+                }
+
                 return hash;
             }
         }
+
+        /// <summary>
+        /// Registers the specified state hashing function for enriching the hashed program state.
+        /// </summary>
+        internal void RegisterStateHasher(Func<int> hasher) => this.StateHashers.Add(hasher);
 
         /// <inheritdoc/>
         public void RegisterMonitor<T>()
@@ -2043,6 +2066,7 @@ namespace Microsoft.Coyote.Runtime
                         Debugger.Break();
                     }
 
+                    this.Scheduler.Cleanup();
                     this.Detach(ExecutionStatus.BugFound);
                 }
             }
@@ -2283,7 +2307,8 @@ namespace Microsoft.Coyote.Runtime
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
                 int numGroups = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numGroups,
+                int numStates = this.Scheduler.GetNumVisitedStates();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numGroups, numStates,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
                     this.Scheduler.IsScheduleFair);
                 if (isBugFound)
@@ -2437,6 +2462,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UncontrolledInvocations.Clear();
                     this.SpecificationMonitors.Clear();
                     this.TaskLivenessMonitors.Clear();
+                    this.StateHashers.Clear();
 
                     this.DefaultActorExecutionContext.Dispose();
                     this.ControlledTaskScheduler.Dispose();

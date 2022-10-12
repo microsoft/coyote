@@ -80,6 +80,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private int Epochs;
 
+        private readonly HashSet<int> VisitedStates;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
@@ -99,6 +101,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.BasicActionReward = -1;
             this.FailureInjectionReward = -1000;
             this.Epochs = 0;
+            this.VisitedStates = new HashSet<int>();
         }
 
         /// <inheritdoc/>
@@ -116,6 +119,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             bool isYielding, out ControlledOperation next)
         {
             int state = this.CaptureExecutionStep(current);
+            this.VisitedStates.Add(state);
             this.InitializeOperationQValues(state, ops);
 
             next = this.GetNextOperationByPolicy(state, ops);
@@ -127,6 +131,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             int state = this.CaptureExecutionStep(current);
+            this.VisitedStates.Add(state);
             this.InitializeBooleanChoiceQValues(state);
             next = this.GetNextBooleanChoiceByPolicy(state);
             this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
@@ -137,6 +142,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             int state = this.CaptureExecutionStep(current);
+            this.VisitedStates.Add(state);
             this.InitializeIntegerChoiceQValues(state, maxValue);
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
             this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
@@ -392,5 +398,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
         /// <inheritdoc/>
         internal override string GetDescription() => $"rl[seed:{this.RandomValueGenerator.Seed}]";
+
+        internal int GetNumVisitedStates() => this.VisitedStates.Count;
+
+        internal void Cleanup()
+        {
+            this.OperationQTable.Clear();
+            this.TransitionFrequencies.Clear();
+            this.ExecutionPath.Clear();
+        }
     }
 }

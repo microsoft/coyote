@@ -237,5 +237,9 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the last scheduling error, or the empty string if there is none.
         /// </summary>
         internal string GetLastError() => this.Strategy.ErrorText;
+
+        internal int GetNumVisitedStates() => (this.Strategy as QLearningStrategy)?.GetNumVisitedStates() ?? 0;
+
+        internal void Cleanup() => (this.Strategy as QLearningStrategy)?.Cleanup();
     }
 }

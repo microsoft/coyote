@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Coyote.Runtime
@@ -153,6 +154,19 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.CheckpointExecutionTrace();
+            }
+        }
+
+        /// <summary>
+        /// Registers the specified state hashing function. The testing engine may use this function
+        /// to enrich the hashed program state used by specific exploration strategies.
+        /// </summary>
+        public static void RegisterStateHasher(Func<int> hasher)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                runtime.RegisterStateHasher(hasher);
             }
         }
 

@@ -95,6 +95,12 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalOperationGroups { get; internal set; }
 
         /// <summary>
+        /// The total number of visited program states.
+        /// </summary>
+        [DataMember]
+        public int TotalVisitedStates { get; internal set; }
+
+        /// <summary>
         /// The min degree of concurrency.
         /// </summary>
         [DataMember]
@@ -203,6 +209,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinOperationGroups = -1;
             this.MaxOperationGroups = -1;
             this.TotalOperationGroups = 0;
+            this.TotalVisitedStates = 0;
             this.MinConcurrencyDegree = -1;
             this.MaxConcurrencyDegree = -1;
             this.TotalConcurrencyDegree = 0;
@@ -222,7 +229,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups,
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numGroups, int numStates,
             int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
@@ -246,6 +253,8 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.MinOperationGroups = numGroups;
             }
+
+            this.TotalVisitedStates = numStates;
 
             this.TotalConcurrencyDegree += concurrencyDegree;
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, concurrencyDegree);
@@ -344,6 +353,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.MinOperationGroups = testReport.MinOperationGroups;
                 }
+
+                // TODO: this is not accurate when merging to a non-empty report.
+                this.TotalVisitedStates = testReport.TotalVisitedStates;
 
                 this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
                 this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, testReport.MaxConcurrencyDegree);

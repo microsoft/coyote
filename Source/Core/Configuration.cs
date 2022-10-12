@@ -203,6 +203,12 @@ namespace Microsoft.Coyote
         internal bool IsProgramStateHashingEnabled;
 
         /// <summary>
+        /// If this option is enabled, the tester is hashing the custom program state.
+        /// </summary>
+        [DataMember]
+        internal bool IsCustomProgramStateHashingEnabled;
+
+        /// <summary>
         /// If this option is enabled, (safety) monitors are used in the production runtime.
         /// </summary>
         [DataMember]
@@ -296,6 +302,7 @@ namespace Microsoft.Coyote
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
+            this.IsCustomProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledInInProduction = false;
             this.AttachDebugger = false;
 
@@ -511,6 +518,16 @@ namespace Microsoft.Coyote
         public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
         {
             this.IsSharedStateReductionEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with custom program state hashing enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then custom program state hashing is enabled.</param>
+        public Configuration WithCustomProgramStateHashingEnabled(bool isEnabled = true)
+        {
+            this.IsCustomProgramStateHashingEnabled = isEnabled;
             return this;
         }
 

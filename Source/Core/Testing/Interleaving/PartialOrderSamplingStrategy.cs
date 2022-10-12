@@ -62,12 +62,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (Debug.IsEnabled)
                     {
                         Debug.WriteLine($"<ScheduleLog> {prioritized} and {op} are racing.");
-                        Debug.WriteLine($"<ScheduleLog> Resetting priority of {op.Group}.");
+                        Debug.WriteLine($"<ScheduleLog> Resetting priority of {op}.");
                     }
 
                     this.PrioritizedOperations.Remove(op);
                 }
             }
+
+            this.PrioritizedOperations.Remove(prioritized);
+            Debug.WriteLine($"<ScheduleLog> Resetting priority of {prioritized}.");
 
             next = ops.First(op => op == prioritized);
             return true;
@@ -106,7 +109,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             foreach (var op in ops.Where(o => !this.PrioritizedOperations.Contains(o)))
             {
                 // Randomly choose a priority for this operation.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count + 1);
                 this.PrioritizedOperations.Insert(index, op);
                 Debug.WriteLine("<ScheduleLog> Assigned priority '{0}' for operation '{1}'.", index, op);
             }

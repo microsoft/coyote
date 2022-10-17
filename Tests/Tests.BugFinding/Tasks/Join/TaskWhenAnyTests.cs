@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     }
 
                     entry.Value = 3;
-                    await Task.WhenAny(tasks);
+                    await await Task.WhenAny(tasks);
                     entry.Value = 1;
                 };
 
@@ -229,7 +229,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     }
 
                     entry.Value = 3;
-                    await Task.WhenAny(tasks);
+                    await await Task.WhenAny(tasks);
                     entry.Value = 1;
                 };
 
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 // Test that `WhenAny` can complete even if one of the tasks cannot complete until later.
                 var tcs = new TaskCompletionSource<bool>();
-                await Task.WhenAny(tcs.Task, Task.Delay(1));
+                await await Task.WhenAny(tcs.Task, Task.Delay(1));
                 tcs.SetResult(true);
                 await tcs.Task;
             },
@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 // Test that `WhenAny` can complete even if one of the tasks cannot complete until later.
                 var tcs = new TaskCompletionSource<bool>();
-                await Task.WhenAny(tcs.Task, Task.FromResult(true));
+                await await Task.WhenAny(tcs.Task, Task.FromResult(true));
                 tcs.SetResult(true);
                 await tcs.Task;
             },

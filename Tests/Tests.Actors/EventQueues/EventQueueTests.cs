@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -369,7 +369,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Success, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 
@@ -420,7 +420,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.Equal(DequeueStatus.Unavailable, deqeueStatus);
             Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
+            await await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
         }
 

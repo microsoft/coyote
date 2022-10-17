@@ -17,156 +17,192 @@ namespace Microsoft.Coyote.Logging
         private readonly StringBuilder Builder;
 
         /// <summary>
+        /// True if the log writer is able to write logs, else false.
+        /// </summary>
+        private volatile bool IsWritable;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MemoryLogWriter"/> class.
         /// </summary>
         internal MemoryLogWriter(Configuration configuration, bool isConsoleLoggingEnabled = false)
             : base(configuration, isConsoleLoggingEnabled)
         {
             this.Builder = new StringBuilder();
+            this.IsWritable = true;
         }
 
         /// <inheritdoc/>
         public override void Write(LogSeverity severity, string value)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.Append(value);
+                    lock (this.Lock)
+                    {
+                        this.Builder.Append(value);
+                    }
                 }
-            }
 
-            base.Write(severity, value);
+                base.Write(severity, value);
+            }
         }
 
         /// <inheritdoc/>
         public override void Write(LogSeverity severity, string format, object arg0)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0);
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0);
+                    }
                 }
-            }
 
-            base.Write(severity, format, arg0);
+                base.Write(severity, format, arg0);
+            }
         }
 
         /// <inheritdoc/>
         public override void Write(LogSeverity severity, string format, object arg0, object arg1)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0, arg1);
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0, arg1);
+                    }
                 }
-            }
 
-            base.Write(severity, format, arg0, arg1);
+                base.Write(severity, format, arg0, arg1);
+            }
         }
 
         /// <inheritdoc/>
         public override void Write(LogSeverity severity, string format, object arg0, object arg1, object arg2)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0, arg1, arg2);
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0, arg1, arg2);
+                    }
                 }
-            }
 
-            base.Write(severity, format, arg0, arg1, arg2);
+                base.Write(severity, format, arg0, arg1, arg2);
+            }
         }
 
         /// <inheritdoc/>
         public override void Write(LogSeverity severity, string format, params object[] args)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, args);
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, args);
+                    }
                 }
-            }
 
-            base.Write(severity, format, args);
+                base.Write(severity, format, args);
+            }
         }
 
         /// <inheritdoc/>
         public override void WriteLine(LogSeverity severity, string value)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendLine(value);
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendLine(value);
+                    }
                 }
-            }
 
-            base.WriteLine(severity, value);
+                base.WriteLine(severity, value);
+            }
         }
 
         /// <inheritdoc/>
         public override void WriteLine(LogSeverity severity, string format, object arg0)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0);
-                    this.Builder.AppendLine();
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0);
+                        this.Builder.AppendLine();
+                    }
                 }
-            }
 
-            base.WriteLine(severity, format, arg0);
+                base.WriteLine(severity, format, arg0);
+            }
         }
 
         /// <inheritdoc/>
         public override void WriteLine(LogSeverity severity, string format, object arg0, object arg1)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0, arg1);
-                    this.Builder.AppendLine();
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0, arg1);
+                        this.Builder.AppendLine();
+                    }
                 }
-            }
 
-            base.WriteLine(severity, format, arg0, arg1);
+                base.WriteLine(severity, format, arg0, arg1);
+            }
         }
 
         /// <inheritdoc/>
         public override void WriteLine(LogSeverity severity, string format, object arg0, object arg1, object arg2)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, arg0, arg1, arg2);
-                    this.Builder.AppendLine();
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, arg0, arg1, arg2);
+                        this.Builder.AppendLine();
+                    }
                 }
-            }
 
-            base.WriteLine(severity, format, arg0, arg1, arg2);
+                base.WriteLine(severity, format, arg0, arg1, arg2);
+            }
         }
 
         /// <inheritdoc/>
         public override void WriteLine(LogSeverity severity, string format, params object[] args)
         {
-            if (this.IsObservable(severity))
+            if (this.IsWritable)
             {
-                lock (this.Lock)
+                if (this.IsObservable(severity))
                 {
-                    this.Builder.AppendFormat(format, args);
-                    this.Builder.AppendLine();
+                    lock (this.Lock)
+                    {
+                        this.Builder.AppendFormat(format, args);
+                        this.Builder.AppendLine();
+                    }
                 }
-            }
 
-            base.WriteLine(severity, format, args);
+                base.WriteLine(severity, format, args);
+            }
         }
 
         /// <summary>
@@ -181,20 +217,17 @@ namespace Microsoft.Coyote.Logging
         }
 
         /// <summary>
-        /// Clears any observed messages that have been written in memory.
-        /// </summary>
-        internal void ClearObservedMessages()
-        {
-            lock (this.Lock)
-            {
-                this.Builder.Clear();
-            }
-        }
-
-        /// <summary>
         /// Checks if the specified log severity can be observed.
         /// </summary>
         private bool IsObservable(LogSeverity severity) => severity >= LogSeverity.Info || this.IsVerbose(severity);
+
+        /// <summary>
+        /// Closes the log writer.
+        /// </summary>
+        internal void Close()
+        {
+            this.IsWritable = false;
+        }
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)

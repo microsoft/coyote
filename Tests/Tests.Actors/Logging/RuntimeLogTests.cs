@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
             Configuration config = this.GetConfiguration().WithVerbosityEnabled(VerbosityLevel.Info);
             this.Test(async runtime =>
             {
-                Assert.IsType<NullLogger>((runtime.Logger as LogWriter).Logger);
+                Assert.IsType<TestOutputLogger>((runtime.Logger as LogWriter).Logger);
 
                 runtime.RegisterMonitor<TestMonitor>();
                 runtime.Monitor<TestMonitor>(new SetupEvent());

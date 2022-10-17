@@ -445,7 +445,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     // TODO: but is this actually letting the test complete in the case
                     // of actors which run completely asynchronously?
-                    await Task.WhenAny(test(runtime), errorTask.Task);
+                    await await Task.WhenAny(test(runtime), errorTask.Task);
                     if (handleFailures && errorTask.Task.IsCompleted)
                     {
                         Assert.False(true, errorTask.Task.Result.Message);

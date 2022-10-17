@@ -383,6 +383,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 Task task = runtime.RunTestAsync(methodInfo.Method, methodInfo.Name);
                 task.Wait();
 
+                // Turn off runtime logging for the current iteration.
+                iterationLogWriter.Close();
+
                 // Invokes the user-specified iteration disposal method.
                 methodInfo.DisposeCurrentIteration();
 

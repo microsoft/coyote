@@ -10,14 +10,14 @@ public class ActorRuntimeLogTextFormatter : RuntimeLogTextFormatter, IActorRunti
 
 | name | description |
 | --- | --- |
-| [ActorRuntimeLogTextFormatter](ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md)() | Initializes a new instance of the [`ActorRuntimeLogTextFormatter`](./ActorRuntimeLogTextFormatter.md) class. |
+| [ActorRuntimeLogTextFormatter](ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md)() | The default constructor. |
 | virtual [OnCreateActor](ActorRuntimeLogTextFormatter/OnCreateActor.md)(…) | Invoked when the specified actor has been created. |
-| [OnCreateStateMachine](ActorRuntimeLogTextFormatter/OnCreateStateMachine.md)(…) | Invoked when the specified state machine has been created. |
+| virtual [OnCreateStateMachine](ActorRuntimeLogTextFormatter/OnCreateStateMachine.md)(…) | Invoked when the specified state machine has been created. |
 | virtual [OnCreateTimer](ActorRuntimeLogTextFormatter/OnCreateTimer.md)(…) | Invoked when the specified actor timer has been created. |
 | virtual [OnDefaultEventHandler](ActorRuntimeLogTextFormatter/OnDefaultEventHandler.md)(…) | Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed. |
 | virtual [OnDequeueEvent](ActorRuntimeLogTextFormatter/OnDequeueEvent.md)(…) | Invoked when the specified event is dequeued by an actor. |
 | virtual [OnEnqueueEvent](ActorRuntimeLogTextFormatter/OnEnqueueEvent.md)(…) | Invoked when the specified event is about to be enqueued to an actor. |
-| [OnEventHandlerTerminated](ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md)(…) | Invoked when the event handler of the specified actor terminated. |
+| virtual [OnEventHandlerTerminated](ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md)(…) | Invoked when the event handler of the specified actor terminated. |
 | virtual [OnExceptionHandled](ActorRuntimeLogTextFormatter/OnExceptionHandled.md)(…) | Invoked when the specified actor has handled a thrown exception. |
 | virtual [OnExceptionThrown](ActorRuntimeLogTextFormatter/OnExceptionThrown.md)(…) | Invoked when the specified actor throws an exception without handling it. |
 | virtual [OnExecuteAction](ActorRuntimeLogTextFormatter/OnExecuteAction.md)(…) | Invoked when the specified actor executes an action. |

@@ -13,7 +13,7 @@ using System.Runtime.Loader;
 #endif
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 #if NET || NETCOREAPP3_1
 using Microsoft.Extensions.DependencyModel;
@@ -75,19 +75,26 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
 
         /// <summary>
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
+        /// </summary>
+        private readonly LogWriter LogWriter;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
         /// </summary>
-        private TestMethodInfo(Delegate method)
+        private TestMethodInfo(Delegate method, LogWriter logWriter)
         {
             this.Assembly = method.GetMethodInfo().Module.Assembly;
             this.Method = method;
+            this.LogWriter = logWriter;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
         /// </summary>
-        private TestMethodInfo(Configuration configuration)
+        private TestMethodInfo(Configuration configuration, LogWriter logWriter)
         {
+            this.LogWriter = logWriter;
 #if NET || NETCOREAPP3_1
             this.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(configuration.AssemblyToBeAnalyzed);
             this.LoadContext = AssemblyLoadContext.GetLoadContext(this.Assembly);
@@ -104,21 +111,21 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
 #endif
 
-            (this.Method, this.Name) = GetTestMethod(this.Assembly, configuration.TestMethodName);
-            this.InitMethod = GetTestSetupMethod(this.Assembly, typeof(TestInitAttribute));
-            this.DisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestDisposeAttribute));
-            this.IterationDisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestIterationDisposeAttribute));
+            (this.Method, this.Name) = GetTestMethod(this.Assembly, configuration.TestMethodName, logWriter);
+            this.InitMethod = GetTestSetupMethod(this.Assembly, typeof(TestInitAttribute), logWriter);
+            this.DisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestDisposeAttribute), logWriter);
+            this.IterationDisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestIterationDisposeAttribute), logWriter);
         }
 
         /// <summary>
         /// Creates a <see cref="TestMethodInfo"/> instance from the specified delegate.
         /// </summary>
-        internal static TestMethodInfo Create(Delegate method) => new TestMethodInfo(method);
+        internal static TestMethodInfo Create(Delegate method, LogWriter logWriter) => new TestMethodInfo(method, logWriter);
 
         /// <summary>
         /// Creates a <see cref="TestMethodInfo"/> instance from assembly specified in the configuration.
         /// </summary>
-        internal static TestMethodInfo Create(Configuration configuration) => new TestMethodInfo(configuration);
+        internal static TestMethodInfo Create(Configuration configuration, LogWriter logWriter) => new TestMethodInfo(configuration, logWriter);
 
         /// <summary>
         /// Invokes the user-specified initialization method for all iterations executing this test.
@@ -139,10 +146,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Returns the test method with the specified name. A test method must
         /// be annotated with the <see cref="TestAttribute"/> attribute.
         /// </summary>
-        private static (Delegate testMethod, string testName) GetTestMethod(Assembly assembly, string methodName)
+        private static (Delegate testMethod, string testName) GetTestMethod(Assembly assembly, string methodName, LogWriter logWriter)
         {
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly);
+            List<MethodInfo> testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly, logWriter);
 
             if (testMethods.Count > 0)
             {
@@ -266,10 +273,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Returns the test method with the specified attribute.
         /// Returns null if no such method is found.
         /// </summary>
-        private static MethodInfo GetTestSetupMethod(Assembly assembly, Type attribute)
+        private static MethodInfo GetTestSetupMethod(Assembly assembly, Type attribute, LogWriter logWriter)
         {
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> testMethods = FindTestMethodsWithAttribute(attribute, flags, assembly);
+            List<MethodInfo> testMethods = FindTestMethodsWithAttribute(attribute, flags, assembly, logWriter);
 
             if (testMethods.Count is 0)
             {
@@ -326,7 +333,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Finds the test methods with the specified attribute in the given assembly.
         /// Returns an empty list if no such methods are found.
         /// </summary>
-        private static List<MethodInfo> FindTestMethodsWithAttribute(Type attribute, BindingFlags bindingFlags, Assembly assembly)
+        private static List<MethodInfo> FindTestMethodsWithAttribute(Type attribute, BindingFlags bindingFlags, Assembly assembly, LogWriter logWriter)
         {
             List<MethodInfo> testMethods = null;
 
@@ -339,14 +346,14 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 foreach (var le in ex.LoaderExceptions)
                 {
-                    Debug.WriteLine(le.Message);
+                    logWriter.LogDebug(le.Message);
                 }
 
                 throw;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                logWriter.LogDebug(ex.Message);
                 throw;
             }
 
@@ -359,7 +366,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName assemblyName)
         {
-            Debug.WriteLine($"[coyote::debug] Resolving assembly '{assemblyName.Name}'.");
+            this.LogWriter.LogDebug("[coyote::debug] Resolving assembly '{0}'.", assemblyName.Name);
             RuntimeLibrary runtimeLibrary = this.DependencyContext.RuntimeLibraries.FirstOrDefault(
                 runtime => string.Equals(runtime.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
             if (runtimeLibrary != null)

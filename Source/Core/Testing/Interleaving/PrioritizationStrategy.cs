@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using System.Text;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Interleaving
@@ -46,8 +46,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
-            : base(configuration, generator, isFair)
+        internal PrioritizationStrategy(Configuration configuration, bool isFair)
+            : base(configuration, isFair)
         {
             this.PrioritizedOperationGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 // Randomly choose a priority for this group.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
                 this.PrioritizedOperationGroups.Insert(index, group);
-                Debug.WriteLine("[coyote::strategy] Assigned priority '{0}' for operation group '{1}'.", index, group);
+                this.LogWriter.LogDebug("[coyote::strategy] Assigned priority '{0}' for operation group '{1}'.", index, group);
             }
 
             if (this.PrioritizedOperationGroups.Count > count)
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 // This scheduling step was chosen as a priority change point.
                 group = this.GetOperationGroupWithHighestPriority(ops);
-                Debug.WriteLine("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
+                this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
             }
 
             this.NumPriorityChangePoints++;
@@ -228,22 +228,25 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void DebugPrintOperationPriorityList()
         {
-            if (Debug.IsEnabled)
+            this.LogWriter.LogDebug(() =>
             {
-                Debug.WriteLine("[coyote::strategy] Updated operation group priority list: ");
+                var sb = new StringBuilder();
+                sb.AppendLine("[coyote::strategy] Updated operation group priority list: ");
                 for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
                 {
                     var group = this.PrioritizedOperationGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled]", idx, group);
+                        sb.AppendLine($"  |_ [{idx}] operation group with id '{group}' [enabled]");
                     }
                     else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}'", idx, group);
+                        sb.AppendLine($"  |_ [{idx}] operation group with id '{group}'");
                     }
                 }
-            }
+
+                return sb.ToString();
+            });
         }
 
         /// <summary>
@@ -251,21 +254,24 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void DebugPrintPriorityChangePoints()
         {
-            if (Debug.IsEnabled && this.PriorityChangePoints.Count > 0)
+            this.LogWriter.LogDebug(() =>
             {
+                var sb = new StringBuilder();
                 if (this.PriorityChangePoints.Count > 0)
                 {
                     // Sort them before printing for readability.
                     var sortedChangePoints = this.PriorityChangePoints.ToArray();
                     Array.Sort(sortedChangePoints);
-                    Debug.WriteLine("[coyote::strategy] Assigned {0} priority change points: {1}.",
-                        sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
+                    var points = string.Join(", ", sortedChangePoints);
+                    sb.AppendLine($"[coyote::strategy] Assigned '{sortedChangePoints.Length}' priority change points: {points}.");
                 }
                 else
                 {
-                    Debug.WriteLine("[coyote::strategy] Assigned 0 priority change points.");
+                    sb.AppendLine("[coyote::strategy] Assigned '0' priority change points.");
                 }
-            }
+
+                return sb.ToString();
+            });
         }
     }
 }

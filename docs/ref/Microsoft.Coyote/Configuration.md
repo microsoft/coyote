@@ -12,8 +12,6 @@ public class Configuration
 | --- | --- |
 | static [Create](Configuration/Create.md)() | Creates a new configuration with default values. |
 | [DeadlockTimeout](Configuration/DeadlockTimeout.md) { get; } | Value that controls how much time the deadlock monitor should wait during concurrency testing before reporting a potential deadlock. This value is in milliseconds. |
-| [IsVerbose](Configuration/IsVerbose.md) { get; } | If true, then messages are logged. |
-| [LogLevel](Configuration/LogLevel.md) { get; } | The level of detail to provide in verbose logging. |
 | [MaxFairSchedulingSteps](Configuration/MaxFairSchedulingSteps.md) { get; } | The maximum scheduling steps to explore for fair schedulers. By default this is set to 100,000 steps. |
 | [MaxFuzzingDelay](Configuration/MaxFuzzingDelay.md) { get; } | Value that controls the maximum time an operation might get delayed during systematic fuzzing. |
 | [MaxUnfairSchedulingSteps](Configuration/MaxUnfairSchedulingSteps.md) { get; } | The maximum scheduling steps to explore for unfair schedulers. By default this is set to 10,000 steps. |
@@ -21,9 +19,10 @@ public class Configuration
 | [SchedulingStrategy](Configuration/SchedulingStrategy.md) { get; } | The systematic testing strategy to use. |
 | [TestingIterations](Configuration/TestingIterations.md) { get; } | Number of testing iterations. |
 | [TimeoutDelay](Configuration/TimeoutDelay.md) { get; } | Value that controls the probability of triggering a timeout during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). |
+| [VerbosityLevel](Configuration/VerbosityLevel.md) { get; } | The level of verbosity to use during logging. |
 | [WithActivityCoverageReported](Configuration/WithActivityCoverageReported.md)(…) | Updates the configuration to enable or disable reporting activity coverage. |
+| [WithConsoleLoggingEnabled](Configuration/WithConsoleLoggingEnabled.md)(…) | Updates the configuration to log all runtime messages to the console, unless overridden by a custom [`ILogger`](../Microsoft.Coyote.Logging/ILogger.md). |
 | [WithDeadlockTimeout](Configuration/WithDeadlockTimeout.md)(…) | Updates the value that controls how much time the background deadlock monitor should wait during concurrency testing before reporting a potential deadlock. |
-| [WithDebugLoggingEnabled](Configuration/WithDebugLoggingEnabled.md)(…) | Updates the configuration with debug logging enabled or disabled. |
 | [WithLivenessTemperatureThreshold](Configuration/WithLivenessTemperatureThreshold.md)(…) | Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking. It is not recommended to explicitly set this value, instead use the default value which is assigned to [`MaxFairSchedulingSteps`](./Configuration/MaxFairSchedulingSteps.md) / 2. |
 | [WithLockAccessRaceCheckingEnabled](Configuration/WithLockAccessRaceCheckingEnabled.md)(…) | Updates the configuration with race checking for lock accesses enabled or disabled. If this race checking strategy is enabled, then the runtime will explore interleavings when concurrent operations try to access lock-based synchronization primitives. |
 | [WithMaxFuzzingDelay](Configuration/WithMaxFuzzingDelay.md)(…) | Updates the value that controls the maximum time an operation might get delayed during systematic fuzzing. |
@@ -46,7 +45,7 @@ public class Configuration
 | [WithTimeoutDelay](Configuration/WithTimeoutDelay.md)(…) | Updates the value that controls the probability of triggering a timeout during systematic testing. |
 | [WithTraceVisualizationEnabled](Configuration/WithTraceVisualizationEnabled.md)(…) | Updates the configuration with trace visualization enabled or disabled. If enabled, the testing engine can produce a DGML graph representing an execution leading up to a bug. |
 | [WithUncontrolledConcurrencyResolutionTimeout](Configuration/WithUncontrolledConcurrencyResolutionTimeout.md)(…) | Updates the values that control how much time the runtime should wait for each instance of uncontrolled concurrency to resolve before continuing exploration. The *attempts* parameter controls how many times to check if uncontrolled concurrency has resolved, whereas the *delay* parameter controls how long the runtime waits between each retry. |
-| [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration with verbose output enabled or disabled. |
+| [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration to use the specified verbosity level, which by default is Info. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled.md)(…) | Updates the configuration with XML log generation enabled or disabled. |
 
 ## Protected Members

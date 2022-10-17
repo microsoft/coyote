@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(m2, typeof(M));
                 await setup.Completed.Task;
             },
-            Configuration.Create().WithProductionMonitorEnabled());
+            Configuration.Create());
         }
 
         [Fact(Timeout = 5000)]
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(m2, typeof(M));
                 await setup.Completed.Task;
             },
-            Configuration.Create().WithProductionMonitorEnabled());
+            Configuration.Create());
         }
 
         private class M2 : StateMachine
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.Monitor<TestMonitor>(setup);
                 r.CreateActor(typeof(M7));
                 await setup.Completed.Task;
-            }, Configuration.Create().WithProductionMonitorEnabled());
+            }, Configuration.Create());
         }
     }
 }

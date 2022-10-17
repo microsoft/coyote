@@ -15,8 +15,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
         /// </summary>
-        internal RandomStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair = true)
-            : base(configuration, generator, isFair)
+        internal RandomStrategy(Configuration configuration, bool isFair = true)
+            : base(configuration, isFair)
         {
         }
 

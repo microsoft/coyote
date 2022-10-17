@@ -1,20 +1,4 @@
-# TestingEngine.Create method (1 of 7)
-
-Creates a new systematic testing engine.
-
-```csharp
-public static TestingEngine Create(Configuration configuration)
-```
-
-## See Also
-
-* class [TestingEngine](../TestingEngine.md)
-* namespace [Microsoft.Coyote.SystematicTesting](../TestingEngine.md)
-* assembly [Microsoft.Coyote.Test](../../Microsoft.Coyote.Test.md)
-
----
-
-# TestingEngine.Create method (2 of 7)
+# TestingEngine.Create method (1 of 6)
 
 Creates a new systematic testing engine.
 
@@ -30,7 +14,7 @@ public static TestingEngine Create(Configuration configuration, Action test)
 
 ---
 
-# TestingEngine.Create method (3 of 7)
+# TestingEngine.Create method (2 of 6)
 
 Creates a new systematic testing engine.
 
@@ -46,7 +30,7 @@ public static TestingEngine Create(Configuration configuration, Action<IActorRun
 
 ---
 
-# TestingEngine.Create method (4 of 7)
+# TestingEngine.Create method (3 of 6)
 
 Creates a new systematic testing engine.
 
@@ -62,7 +46,7 @@ public static TestingEngine Create(Configuration configuration, Action<ICoyoteRu
 
 ---
 
-# TestingEngine.Create method (5 of 7)
+# TestingEngine.Create method (4 of 6)
 
 Creates a new systematic testing engine.
 
@@ -78,7 +62,7 @@ public static TestingEngine Create(Configuration configuration, Func<IActorRunti
 
 ---
 
-# TestingEngine.Create method (6 of 7)
+# TestingEngine.Create method (5 of 6)
 
 Creates a new systematic testing engine.
 
@@ -94,7 +78,7 @@ public static TestingEngine Create(Configuration configuration, Func<ICoyoteRunt
 
 ---
 
-# TestingEngine.Create method (7 of 7)
+# TestingEngine.Create method (6 of 6)
 
 Creates a new systematic testing engine.
 

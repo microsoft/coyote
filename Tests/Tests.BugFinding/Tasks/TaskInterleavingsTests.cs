@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
@@ -181,30 +181,30 @@ namespace Microsoft.Coyote.BugFinding.Tests
         public void TestExploreAllInterleavings()
         {
             SortedSet<string> results = new SortedSet<string>();
-
             string success = "Explored interleavings.";
+
+            var config = this.GetConfiguration().WithTestingIterations(100);
             this.TestWithError(async (runtime) =>
             {
-                InMemoryLogger log = new InMemoryLogger();
-
+                var logger = new MemoryLogger(VerbosityLevel.Info);
                 Task task1 = Task.Run(async () =>
                 {
-                    log.WriteLine("1");
+                    logger.WriteLine("1");
                     await Task.Delay(runtime.RandomInteger(10));
-                    log.WriteLine("2");
+                    logger.WriteLine("2");
                 });
 
                 Task task2 = Task.Run(() =>
                 {
-                    log.WriteLine("3");
+                    logger.WriteLine("3");
                 });
 
                 await Task.WhenAll(task1, task2);
 
-                results.Add(log.ToString());
+                results.Add(logger.ToString());
                 Specification.Assert(results.Count < 3, success);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100),
+            configuration: config,
             expectedError: success);
 
             string expected = @"1

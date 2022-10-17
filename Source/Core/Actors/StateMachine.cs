@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Actors
                         await this.ExecuteCurrentStateOnExitAsync(null, e);
                         if (this.CurrentStatus is ActorExecutionStatus.Active)
                         {
-                            this.Context.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
+                            this.Context.LogManager.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
                             this.DoStatePop();
                             continue;
                         }
@@ -513,7 +513,7 @@ namespace Microsoft.Coyote.Actors
                 if (this.CurrentStatus is ActorExecutionStatus.Active)
                 {
                     this.DoStatePop();
-                    this.Context.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                    this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
                     this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
                 }
             }
@@ -565,7 +565,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task GotoStateAsync(Type s, string onExitActionName, Event e)
         {
-            this.Context.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
+            this.Context.LogManager.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
@@ -588,7 +588,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task PushStateAsync(Type s, Event e)
         {
-            this.Context.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
+            this.Context.LogManager.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);

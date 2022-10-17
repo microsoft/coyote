@@ -21,8 +21,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundedRandomStrategy"/> class.
         /// </summary>
-        internal BoundedRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal BoundedRandomStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.TotalTaskDelayMap = new ConcurrentDictionary<Guid, int>();
         }

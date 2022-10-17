@@ -270,7 +270,6 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestMachineHaltsOnSendExec()
         {
             var config = this.GetConfiguration();
-            config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
                 var failed = false;

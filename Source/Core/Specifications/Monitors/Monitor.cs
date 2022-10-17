@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Specifications
@@ -97,17 +97,12 @@ namespace Microsoft.Coyote.Specifications
         internal string Name => this.GetType().FullName;
 
         /// <summary>
-        /// Responsible for logging.
-        /// </summary>
-        private LogWriter LogWriter;
-
-        /// <summary>
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
         /// </remarks>
-        protected ILogger Logger => this.LogWriter.Logger;
+        protected ILogger Logger => this.Runtime.LogWriter;
 
         /// <summary>
         /// Gets the current state.
@@ -163,11 +158,10 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Initializes this monitor.
         /// </summary>
-        internal void Initialize(Configuration configuration, CoyoteRuntime runtime, LogWriter logWriter)
+        internal void Initialize(Configuration configuration, CoyoteRuntime runtime)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
-            this.LogWriter = logWriter;
         }
 
         /// <summary>
@@ -304,7 +298,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void MonitorEvent(Event e, string senderName, string senderType, string senderState)
         {
-            this.LogWriter.LogMonitorProcessEvent(this.Name, this.CurrentStateName, senderName, senderType, senderState, e);
+            this.Runtime.LogManager.LogMonitorProcessEvent(this.Name, this.CurrentStateName, senderName, senderType, senderState, e);
             this.HandleEvent(e);
         }
 
@@ -692,7 +686,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void GotoStartState()
         {
-            this.LogWriter.LogCreateMonitor(this.Name);
+            this.Runtime.LogManager.LogCreateMonitor(this.Name);
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving
                 && this.Configuration.IsActivityCoverageReported)
             {
@@ -935,61 +929,34 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Logs that the monitor entered a state.
         /// </summary>
-        private void LogEnteredState(Monitor monitor)
-        {
-            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
-            {
-                string monitorState = monitor.CurrentStateName;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, true, monitor.GetHotState());
-            }
-        }
+        private void LogEnteredState(Monitor monitor) =>
+            this.Runtime.LogManager.LogMonitorStateTransition(monitor.GetType().FullName,
+            monitor.CurrentStateName, true, monitor.GetHotState());
 
         /// <summary>
         /// Logs that the monitor exited a state.
         /// </summary>
-        private void LogExitedState(Monitor monitor)
-        {
-            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
-            {
-                string monitorState = monitor.CurrentStateName;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, false, monitor.GetHotState());
-            }
-        }
+        private void LogExitedState(Monitor monitor) =>
+            this.Runtime.LogManager.LogMonitorStateTransition(monitor.GetType().FullName,
+            monitor.CurrentStateName, false, monitor.GetHotState());
 
         /// <summary>
         /// Logs that the monitor invoked an action.
         /// </summary>
-        private void LogInvokedAction(Monitor monitor, MethodInfo action, string stateName)
-        {
-            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
-            {
-                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
-            }
-        }
+        private void LogInvokedAction(Monitor monitor, MethodInfo action, string stateName) =>
+            this.Runtime.LogManager.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
 
         /// <summary>
         /// Logs that the monitor raised an <see cref="Event"/>.
         /// </summary>
-        private void LogRaisedEvent(Monitor monitor, Event e)
-        {
-            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
-            {
-                string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitorState, e);
-            }
-        }
+        private void LogRaisedEvent(Monitor monitor, Event e) =>
+            this.Runtime.LogManager.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.CurrentStateNameWithTemperature, e);
 
         /// <summary>
         /// Logs that the monitor found an error.
         /// </summary>
-        private void LogMonitorError(Monitor monitor)
-        {
-            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
-            {
-                string monitorState = monitor.CurrentStateName;
-                this.LogWriter.LogMonitorError(monitor.GetType().FullName, monitorState, monitor.GetHotState());
-            }
-        }
+        private void LogMonitorError(Monitor monitor) =>
+            this.Runtime.LogManager.LogMonitorError(monitor.GetType().FullName, monitor.CurrentStateName, monitor.GetHotState());
 
         /// <summary>
         /// Reports the activity coverage of this monitor.

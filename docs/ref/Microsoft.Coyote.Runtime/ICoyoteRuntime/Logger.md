@@ -1,6 +1,6 @@
 # ICoyoteRuntime.Logger property
 
-Get or set the [`ILogger`](../../Microsoft.Coyote.IO/ILogger.md) used to log messages.
+Gets or sets an [`ILogger`](../../Microsoft.Coyote.Logging/ILogger.md) for logging runtime messages.
 
 ```csharp
 public ILogger Logger { get; set; }
@@ -12,7 +12,7 @@ See [Logging](/coyote/concepts/actors/logging) for more information.
 
 ## See Also
 
-* interface [ILogger](../../Microsoft.Coyote.IO/ILogger.md)
+* interface [ILogger](../../Microsoft.Coyote.Logging/ILogger.md)
 * interface [ICoyoteRuntime](../ICoyoteRuntime.md)
 * namespace [Microsoft.Coyote.Runtime](../ICoyoteRuntime.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

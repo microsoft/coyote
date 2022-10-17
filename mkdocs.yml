@@ -109,6 +109,8 @@ nav:
       - Configuration:
         - Overview: ref/Microsoft.Coyote/Configuration.md
         - Create: ref/Microsoft.Coyote/Configuration/Create.md
+        - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
+        - WithConsoleLoggingEnabled: ref/Microsoft.Coyote/Configuration/WithConsoleLoggingEnabled.md
         - WithTestingIterations: ref/Microsoft.Coyote/Configuration/WithTestingIterations.md
         - WithTestingTimeout: ref/Microsoft.Coyote/Configuration/WithTestingTimeout.md
         - WithReproducibleTrace: ref/Microsoft.Coyote/Configuration/WithReproducibleTrace.md
@@ -130,8 +132,6 @@ nav:
         - WithPotentialDeadlocksReportedAsBugs: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs.md
         - WithUncontrolledConcurrencyResolutionTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
-        - WithVerbosityEnabled: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled.md
-        - WithDebugLoggingEnabled: ref/Microsoft.Coyote/Configuration/WithDebugLoggingEnabled.md
         - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
         - WithTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
@@ -145,8 +145,7 @@ nav:
         - MaxFairSchedulingSteps: ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps.md
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
         - DeadlockTimeout: ref/Microsoft.Coyote/Configuration/DeadlockTimeout.md
-        - IsVerbose: ref/Microsoft.Coyote/Configuration/IsVerbose.md
-        - LogLevel: ref/Microsoft.Coyote/Configuration/LogLevel.md
+        - VerbosityLevel: ref/Microsoft.Coyote/Configuration/VerbosityLevel.md
     - Microsoft.Coyote.Actors:
       - Namespace Overview: ref/Microsoft.Coyote.ActorsNamespace.md
       - Actor:
@@ -446,38 +445,27 @@ nav:
         - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
         - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
         - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
-    - Microsoft.Coyote.IO:
-      - Namespace Overview: ref/Microsoft.Coyote.IONamespace.md
-      - ConsoleLogger:
-        - Overview: ref/Microsoft.Coyote.IO/ConsoleLogger.md
-        - Write: ref/Microsoft.Coyote.IO/ConsoleLogger/Write.md
-        - WriteLine: ref/Microsoft.Coyote.IO/ConsoleLogger/WriteLine.md
-        - ConsoleLogger: ref/Microsoft.Coyote.IO/ConsoleLogger/ConsoleLogger.md
-        - TextWriter: ref/Microsoft.Coyote.IO/ConsoleLogger/TextWriter.md
-        - Encoding: ref/Microsoft.Coyote.IO/ConsoleLogger/Encoding.md
-        - LogLevel: ref/Microsoft.Coyote.IO/ConsoleLogger/LogLevel.md
+    - Microsoft.Coyote.Logging:
+      - Namespace Overview: ref/Microsoft.Coyote.LoggingNamespace.md
       - ILogger:
-        - Overview: ref/Microsoft.Coyote.IO/ILogger.md
-        - Write: ref/Microsoft.Coyote.IO/ILogger/Write.md
-        - WriteLine: ref/Microsoft.Coyote.IO/ILogger/WriteLine.md
-        - TextWriter: ref/Microsoft.Coyote.IO/ILogger/TextWriter.md
-      - InMemoryLogger:
-        - Overview: ref/Microsoft.Coyote.IO/InMemoryLogger.md
-        - Write: ref/Microsoft.Coyote.IO/InMemoryLogger/Write.md
-        - WriteLine: ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine.md
-        - ToString: ref/Microsoft.Coyote.IO/InMemoryLogger/ToString.md
-        - Dispose: ref/Microsoft.Coyote.IO/InMemoryLogger/Dispose.md
-        - InMemoryLogger: ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger.md
-        - TextWriter: ref/Microsoft.Coyote.IO/InMemoryLogger/TextWriter.md
-        - Encoding: ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding.md
-      - LogSeverity: ref/Microsoft.Coyote.IO/LogSeverity.md
+        - Overview: ref/Microsoft.Coyote.Logging/ILogger.md
+        - Write: ref/Microsoft.Coyote.Logging/ILogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.Logging/ILogger/WriteLine.md
+      - LogSeverity: ref/Microsoft.Coyote.Logging/LogSeverity.md
+      - MemoryLogger:
+        - Overview: ref/Microsoft.Coyote.Logging/MemoryLogger.md
+        - Write: ref/Microsoft.Coyote.Logging/MemoryLogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.Logging/MemoryLogger/WriteLine.md
+        - ToString: ref/Microsoft.Coyote.Logging/MemoryLogger/ToString.md
+        - Dispose: ref/Microsoft.Coyote.Logging/MemoryLogger/Dispose.md
+        - MemoryLogger: ref/Microsoft.Coyote.Logging/MemoryLogger/MemoryLogger.md
       - TextWriterLogger:
-        - Overview: ref/Microsoft.Coyote.IO/TextWriterLogger.md
-        - Write: ref/Microsoft.Coyote.IO/TextWriterLogger/Write.md
-        - WriteLine: ref/Microsoft.Coyote.IO/TextWriterLogger/WriteLine.md
-        - TextWriterLogger: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriterLogger.md
-        - TextWriter: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriter.md
-        - Encoding: ref/Microsoft.Coyote.IO/TextWriterLogger/Encoding.md
+        - Overview: ref/Microsoft.Coyote.Logging/TextWriterLogger.md
+        - Write: ref/Microsoft.Coyote.Logging/TextWriterLogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.Logging/TextWriterLogger/WriteLine.md
+        - Dispose: ref/Microsoft.Coyote.Logging/TextWriterLogger/Dispose.md
+        - TextWriterLogger: ref/Microsoft.Coyote.Logging/TextWriterLogger/TextWriterLogger.md
+      - VerbosityLevel: ref/Microsoft.Coyote.Logging/VerbosityLevel.md
     - Microsoft.Coyote.Random:
       - Namespace Overview: ref/Microsoft.Coyote.RandomNamespace.md
       - Generator:
@@ -677,9 +665,9 @@ nav:
         - InvokeStartIterationCallBacks: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeStartIterationCallBacks.md
         - InvokeEndIterationCallBacks: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeEndIterationCallBacks.md
         - IsTestRewritten: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten.md
+        - SetLogger: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger.md
         - Dispose: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Dispose.md
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport.md
-        - Logger: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger.md
         - ReadableTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace.md
         - ReproducibleTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace.md
     - Microsoft.Coyote.Web:

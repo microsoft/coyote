@@ -3,7 +3,7 @@
 Invoked when the specified state machine has been created.
 
 ```csharp
-public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+public virtual void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
 ```
 
 | parameter | description |

@@ -10,8 +10,7 @@ public sealed class TestingEngine : IDisposable
 
 | name | description |
 | --- | --- |
-| static [Create](TestingEngine/Create.md)(…) | Creates a new systematic testing engine. (7 methods) |
-| [Logger](TestingEngine/Logger.md) { get; set; } | Get or set the ILogger used to log messages during testing. |
+| static [Create](TestingEngine/Create.md)(…) | Creates a new systematic testing engine. (6 methods) |
 | [ReadableTrace](TestingEngine/ReadableTrace.md) { get; } | The readable trace, if any. |
 | [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducible trace, if any. |
 | [TestReport](TestingEngine/TestReport.md) { get; set; } | Data structure containing information gathered during testing. |
@@ -23,6 +22,7 @@ public sealed class TestingEngine : IDisposable
 | [RegisterEndIterationCallBack](TestingEngine/RegisterEndIterationCallBack.md)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
 | [RegisterStartIterationCallBack](TestingEngine/RegisterStartIterationCallBack.md)(…) | Registers a callback to invoke at the start of each iteration. The callback takes as a parameter an integer representing the current iteration. |
 | [Run](TestingEngine/Run.md)() | Runs the testing engine. |
+| [SetLogger](TestingEngine/SetLogger.md)(…) | Installs the specified ILogger to log messages during testing. |
 | [Stop](TestingEngine/Stop.md)() | Stops the testing engine. |
 | [ThrowIfBugFound](TestingEngine/ThrowIfBugFound.md)() | Throws either an AssertionFailureException, if a bug was found, or an unhandled Exception, if one was thrown. |
 | [TryEmitCoverageReports](TestingEngine/TryEmitCoverageReports.md)(…) | Tries to emit the available coverage reports to the specified directory with the given file name, and returns the paths of all emitted coverage reports. |

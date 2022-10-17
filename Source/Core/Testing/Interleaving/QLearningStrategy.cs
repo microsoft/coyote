@@ -84,8 +84,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
         /// </summary>
-        public QLearningStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        public QLearningStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
             this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();

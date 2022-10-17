@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -194,18 +192,5 @@ namespace Microsoft.Coyote.Actors
         /// This method is not thread-safe.
         /// </remarks>
         int GetCurrentActorCount();
-
-        /// <summary>
-        /// The old way of setting the <see cref="ICoyoteRuntime.Logger"/> property.
-        /// </summary>
-        /// <remarks>
-        /// The new way is to just set the Logger property to an <see cref="ILogger"/> object.
-        /// This method is only here for compatibility and has a minor perf impact as it has to
-        /// wrap the writer in an object that implements the <see cref="ILogger"/> interface.
-        /// </remarks>
-        /// <param name="writer">The writer to use for logging.</param>
-        /// <returns>The previously installed logger.</returns>
-        [Obsolete("Please set the Logger property directly instead of calling this method.")]
-        TextWriter SetLogger(TextWriter writer);
     }
 }

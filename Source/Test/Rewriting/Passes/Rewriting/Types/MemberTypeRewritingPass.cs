@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 
 namespace Microsoft.Coyote.Rewriting
@@ -15,8 +15,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MemberTypeRewritingPass"/> class.
         /// </summary>
-        internal MemberTypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(options, visitedAssemblies, logger)
+        internal MemberTypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(options, visitedAssemblies, logWriter)
         {
         }
 
@@ -26,9 +26,9 @@ namespace Microsoft.Coyote.Rewriting
             if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&
                 this.TryResolve(newFieldType, out TypeDefinition _))
             {
-                Debug.WriteLine($"............. [-] field '{field}'");
+                this.LogWriter.LogDebug("............. [-] field '{0}'", field);
                 field.FieldType = newFieldType;
-                Debug.WriteLine($"............. [+] field '{field}'");
+                this.LogWriter.LogDebug("............. [+] field '{0}'", field);
             }
         }
 
@@ -40,9 +40,9 @@ namespace Microsoft.Coyote.Rewriting
             if (this.TryRewriteType(method.ReturnType, out TypeReference newReturnType) &&
                 this.TryResolve(newReturnType, out TypeDefinition _))
             {
-                Debug.WriteLine($"............. [-] return type '{method.ReturnType}'");
+                this.LogWriter.LogDebug("............. [-] return type '{0}'", method.ReturnType);
                 method.ReturnType = newReturnType;
-                Debug.WriteLine($"............. [+] return type '{method.ReturnType}'");
+                this.LogWriter.LogDebug("............. [+] return type '{0}'", method.ReturnType);
             }
 
             if (method.HasParameters)
@@ -53,9 +53,9 @@ namespace Microsoft.Coyote.Rewriting
                     if (this.TryRewriteType(parameter.ParameterType, out TypeReference newParameterType) &&
                         this.TryResolve(newParameterType, out TypeDefinition _))
                     {
-                        Debug.WriteLine($"............. [-] parameter '{parameter.ParameterType} {parameter.Name}'");
+                        this.LogWriter.LogDebug("............. [-] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
                         parameter.ParameterType = newParameterType;
-                        Debug.WriteLine($"............. [+] parameter '{parameter.ParameterType} {parameter.Name}'");
+                        this.LogWriter.LogDebug("............. [+] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
                     }
                 }
             }

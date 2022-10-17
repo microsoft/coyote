@@ -3,7 +3,8 @@
 Invoked when the event handler of the specified actor terminated.
 
 ```csharp
-public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+public virtual void OnEventHandlerTerminated(ActorId id, string stateName, 
+    DequeueStatus dequeueStatus)
 ```
 
 | parameter | description |

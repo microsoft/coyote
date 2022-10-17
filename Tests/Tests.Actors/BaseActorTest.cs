@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                await Task.WhenAny(task, Task.Delay(GetErrorWaitingTimeout(millisecondsDelay)));
+                await await Task.WhenAny(task, Task.Delay(GetErrorWaitingTimeout(millisecondsDelay)));
             }
             else
             {
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             if (this.SchedulingPolicy is SchedulingPolicy.None)
             {
-                await Task.WhenAny(task, Task.Delay(GetErrorWaitingTimeout(millisecondsDelay)));
+                await await Task.WhenAny(task, Task.Delay(GetErrorWaitingTimeout(millisecondsDelay)));
             }
             else
             {

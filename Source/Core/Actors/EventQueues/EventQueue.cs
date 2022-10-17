@@ -292,14 +292,14 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Owner.OnEnqueueEvent(e, eventGroup, eventInfo);
+            this.Owner.OnEnqueueEvent(e);
 
         /// <summary>
         /// Notifies the actor that an event has been raised.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Owner.OnRaiseEvent(e, eventGroup, eventInfo);
+            this.Owner.OnRaiseEvent(e);
 
         /// <summary>
         /// Notifies the actor that it is waiting to receive an event of one of the specified types.
@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Owner.OnReceiveEvent(e, eventGroup, eventInfo);
+            this.Owner.OnReceiveEvent(e, eventGroup);
 
         /// <summary>
         /// Notifies the actor that an event it was waiting to receive was already in the
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Owner.OnReceiveEventWithoutWaiting(e, eventGroup, eventInfo);
+            this.Owner.OnReceiveEventWithoutWaiting(e, eventGroup);
 
         /// <summary>
         /// Notifies the actor that an event has been ignored.

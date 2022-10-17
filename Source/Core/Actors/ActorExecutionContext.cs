@@ -7,7 +7,6 @@ using System.Collections.Generic;
 #if !DEBUG
 using System.Diagnostics;
 #endif
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,7 +15,7 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 
@@ -53,6 +52,28 @@ namespace Microsoft.Coyote.Actors
         internal HashSet<ActorId> EnabledActors;
 
         /// <summary>
+        /// Data structure containing information regarding testing coverage.
+        /// </summary>
+        internal readonly CoverageInfo CoverageInfo;
+
+        /// <summary>
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
+        /// </summary>
+        internal LogWriter LogWriter => this.Runtime.LogWriter;
+
+        /// <summary>
+        /// Manages all registered <see cref="IActorRuntimeLog"/> objects.
+        /// </summary>
+        internal readonly ActorLogManager LogManager;
+
+        /// <inheritdoc/>
+        public ILogger Logger
+        {
+            get => this.LogWriter;
+            set => this.LogWriter.SetLogger(value);
+        }
+
+        /// <summary>
         /// Completes when actor quiescence is reached.
         /// </summary>
         internal TaskCompletionSource<bool> QuiescenceCompletionSource;
@@ -66,27 +87,6 @@ namespace Microsoft.Coyote.Actors
         /// Synchronizes access to the logic checking for actor quiescence.
         /// </summary>
         private readonly object QuiescenceSyncObject;
-
-        /// <summary>
-        /// Data structure containing information regarding testing coverage.
-        /// </summary>
-        internal readonly CoverageInfo CoverageInfo;
-
-        /// <summary>
-        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
-        /// </summary>
-        internal ActorLogWriter LogWriter => this.Runtime.LogWriter as ActorLogWriter;
-
-        /// <inheritdoc/>
-        public ILogger Logger
-        {
-            get => this.Runtime.LogWriter.Logger;
-
-            set
-            {
-                using var v = this.Runtime.LogWriter.SetLogger(value);
-            }
-        }
 
         /// <summary>
         /// True if the actor program is running, else false.
@@ -127,15 +127,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime)
+        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
+            this.CoverageInfo = new CoverageInfo();
+            this.LogManager = logManager;
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
-            this.CoverageInfo = new CoverageInfo();
             this.QuiescenceSyncObject = new object();
         }
 
@@ -181,11 +182,11 @@ namespace Microsoft.Coyote.Actors
             Actor actor = this.CreateActor(id, type, name, creator, eventGroup);
             if (actor is StateMachine)
             {
-                this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
             else
             {
-                this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
 
             this.OnActorEventHandlerStarted(actor.Id);
@@ -204,11 +205,11 @@ namespace Microsoft.Coyote.Actors
             Actor actor = this.CreateActor(id, type, name, creator, eventGroup);
             if (actor is StateMachine)
             {
-                this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
             else
             {
-                this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             }
 
             this.OnActorEventHandlerStarted(actor.Id);
@@ -353,13 +354,13 @@ namespace Microsoft.Coyote.Actors
             Guid opId = eventGroup is null ? Guid.Empty : eventGroup.Id;
             if (target is null || target.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
+                this.LogManager.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: true);
                 this.HandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
-            this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
+            this.LogManager.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: false);
 
             EnqueueStatus enqueueStatus = target.Enqueue(e, eventGroup, null);
@@ -430,7 +431,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         protected void OnActorEventHandlerStarted(ActorId actorId)
         {
-            if (this.Runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (this.Runtime.SchedulingPolicy != SchedulingPolicy.None ||
+                this.Configuration.IsActorQuiescenceCheckingEnabledOutsideTesting)
             {
                 lock (this.QuiescenceSyncObject)
                 {
@@ -444,7 +446,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         protected void OnActorEventHandlerCompleted(ActorId actorId)
         {
-            if (this.Runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (this.Runtime.SchedulingPolicy != SchedulingPolicy.None ||
+                this.Configuration.IsActorQuiescenceCheckingEnabledOutsideTesting)
             {
                 lock (this.QuiescenceSyncObject)
                 {
@@ -518,35 +521,21 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor invoked an action.
         /// </summary>
-        internal virtual void LogInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
-            }
-        }
+        internal void LogInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName) =>
+            this.LogManager.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
 
         /// <summary>
         /// Logs that the specified actor enqueued an <see cref="Event"/>.
         /// </summary>
-        internal virtual void LogEnqueuedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogEnqueueEvent(actor.Id, e);
-            }
-        }
+        internal void LogEnqueuedEvent(Actor actor, Event e) => this.LogManager.LogEnqueueEvent(actor.Id, e);
 
         /// <summary>
         /// Logs that the specified actor dequeued an <see cref="Event"/>.
         /// </summary>
         internal virtual void LogDequeuedEvent(Actor actor, Event e, EventInfo eventInfo, bool isFreshDequeue)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogDequeueEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
@@ -560,37 +549,25 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor raised an <see cref="Event"/>.
         /// </summary>
-        internal virtual void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void LogRaisedEvent(Actor actor, Event e)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogRaiseEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="Event"/>.
         /// </summary>
-        internal virtual void LogHandleRaisedEvent(Actor actor, Event e)
+        internal void LogHandleRaisedEvent(Actor actor, Event e)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogHandleRaisedEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
         /// Logs that the specified actor is handling a raised <see cref="HaltEvent"/>.
         /// </summary>
-        internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogHalt(actor.Id, inboxSize);
-            }
-        }
+        internal virtual void LogHandleHaltEvent(Actor actor, int inboxSize) => this.LogManager.LogHalt(actor.Id, inboxSize);
 
         /// <summary>
         /// Logs that the specified actor called <see cref="Actor.ReceiveEventAsync(Type[])"/>
@@ -604,26 +581,20 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor enqueued an event that it was waiting to receive.
         /// </summary>
-        internal virtual void LogReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
+        internal void LogReceivedEvent(Actor actor, Event e)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
         }
 
         /// <summary>
         /// Logs that the specified actor received an event without waiting because the event
         /// was already in the inbox when the actor invoked the receive statement.
         /// </summary>
-        internal virtual void LogReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
+        internal virtual void LogReceivedEventWithoutWaiting(Actor actor, Event e)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
         }
 
         /// <summary>
@@ -631,54 +602,37 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal virtual void LogWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
         {
-            if (this.Configuration.IsVerbose)
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            if (eventTypes.Skip(1).Any())
             {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                var eventWaitTypesArray = eventTypes.ToArray();
-                if (eventWaitTypesArray.Length is 1)
-                {
-                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
-                }
-                else
-                {
-                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
-                }
+                this.LogManager.LogWaitEvent(actor.Id, stateName, eventTypes.ToArray());
+            }
+            else
+            {
+                this.LogManager.LogWaitEvent(actor.Id, stateName, eventTypes.First());
             }
         }
 
         /// <summary>
         /// Logs that the event handler of the specified actor terminated.
         /// </summary>
-        internal virtual void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
+        internal void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
         {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-                this.LogWriter.LogEventHandlerTerminated(actor.Id, stateName, dequeueStatus);
-            }
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogManager.LogEventHandlerTerminated(actor.Id, stateName, dequeueStatus);
         }
 
         /// <summary>
         /// Logs that the specified state machine entered a state.
         /// </summary>
-        internal virtual void LogEnteredState(StateMachine stateMachine)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
-            }
-        }
+        internal void LogEnteredState(StateMachine stateMachine) =>
+            this.LogManager.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
 
         /// <summary>
         /// Logs that the specified state machine exited a state.
         /// </summary>
-        internal virtual void LogExitedState(StateMachine stateMachine)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
-            }
-        }
+        internal void LogExitedState(StateMachine stateMachine) =>
+            this.LogManager.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
 
         /// <summary>
         /// Logs that the specified state machine invoked pop.
@@ -691,26 +645,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified state machine invoked an action.
         /// </summary>
-        internal virtual void LogInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
-                    stateMachine.CurrentStateName, action.Name);
-            }
-        }
+        internal void LogInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action) =>
+            this.LogManager.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
+                stateMachine.CurrentStateName, action.Name);
 
         /// <summary>
         /// Logs that the specified state machine invoked an action.
         /// </summary>
-        internal virtual void LogInvokedOnExitAction(StateMachine stateMachine, MethodInfo action)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
-                    stateMachine.CurrentStateName, action.Name);
-            }
-        }
+        internal void LogInvokedOnExitAction(StateMachine stateMachine, MethodInfo action) =>
+            this.LogManager.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
+                stateMachine.CurrentStateName, action.Name);
 
         /// <summary>
         /// Builds the coverage graph information, if any. This information is only available
@@ -721,14 +665,14 @@ namespace Microsoft.Coyote.Actors
             var result = this.CoverageInfo;
             if (result != null)
             {
-                var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
+                var builder = this.LogManager.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
                     .FirstOrDefault(builder => builder.CollapseInstances);
                 if (builder != null)
                 {
                     result.CoverageGraph = builder.SnapshotGraph(false);
                 }
 
-                var eventCoverage = this.LogWriter.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
+                var eventCoverage = this.LogManager.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
                 if (eventCoverage != null)
                 {
                     result.EventInfo = eventCoverage.EventCoverage;
@@ -744,7 +688,7 @@ namespace Microsoft.Coyote.Actors
         internal Graph GetExecutionGraph()
         {
             Graph result = null;
-            var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
+            var builder = this.LogManager.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
                 .FirstOrDefault(builder => !builder.CollapseInstances);
             if (builder != null)
             {
@@ -830,23 +774,10 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.WrapAndThrowException(exception, s, args);
 
         /// <inheritdoc/>
-        [Obsolete("Please set the Logger property directory instead of calling this method.")]
-        public TextWriter SetLogger(TextWriter logger)
-        {
-            var result = this.LogWriter.SetLogger(new TextWriterLogger(logger));
-            if (result != null)
-            {
-                return result.TextWriter;
-            }
-
-            return null;
-        }
+        public void RegisterLog(IRuntimeLog log) => this.LogManager.RegisterLog(log, this.LogWriter);
 
         /// <inheritdoc/>
-        public void RegisterLog(IRuntimeLog log) => this.Runtime.RegisterLog(log);
-
-        /// <inheritdoc/>
-        public void RemoveLog(IRuntimeLog log) => this.Runtime.RemoveLog(log);
+        public void RemoveLog(IRuntimeLog log) => this.LogManager.RemoveLog(log);
 
         /// <summary>
         /// Returns a task that completes once all actors reach quiescence.
@@ -918,8 +849,8 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime)
-                : base(configuration, runtime)
+            internal Mock(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
+                : base(configuration, runtime, logManager)
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
@@ -1080,11 +1011,11 @@ namespace Microsoft.Coyote.Actors
 
                 if (actor is StateMachine)
                 {
-                    this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
+                    this.LogManager.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
                 }
                 else
                 {
-                    this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+                    this.LogManager.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
                 }
 
                 return actor;
@@ -1188,7 +1119,7 @@ namespace Microsoft.Coyote.Actors
                 if (target.IsHalted)
                 {
                     Guid groupId = eventGroup is null ? Guid.Empty : eventGroup.Id;
-                    this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
+                    this.LogManager.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                         (sender as StateMachine)?.CurrentStateName ?? default, e, groupId, isTargetHalted: true);
                     this.Assert(options is null || !options.MustHandle,
                         "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
@@ -1236,7 +1167,7 @@ namespace Microsoft.Coyote.Actors
                 };
 
                 Guid opId = eventGroup is null ? Guid.Empty : eventGroup.Id;
-                this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
+                this.LogManager.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
                     e, opId, isTargetHalted: false);
                 return actor.Enqueue(e, eventGroup, eventInfo);
             }
@@ -1341,15 +1272,6 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
-            internal override void LogInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName) =>
-                this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
-
-            /// <inheritdoc/>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override void LogEnqueuedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-                this.LogWriter.LogEnqueueEvent(actor.Id, e);
-
-            /// <inheritdoc/>
             internal override void LogDequeuedEvent(Actor actor, Event e, EventInfo eventInfo, bool isFreshDequeue)
             {
                 if (!isFreshDequeue)
@@ -1360,8 +1282,7 @@ namespace Microsoft.Coyote.Actors
                     this.ResetProgramCounter(actor);
                 }
 
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
+                base.LogDequeuedEvent(actor, e, eventInfo, isFreshDequeue);
             }
 
             /// <inheritdoc/>
@@ -1372,24 +1293,10 @@ namespace Microsoft.Coyote.Actors
             }
 
             /// <inheritdoc/>
-            internal override void LogRaisedEvent(Actor actor, Event e, EventGroup eventGroup, EventInfo eventInfo)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
-            }
-
-            /// <inheritdoc/>
-            internal override void LogHandleRaisedEvent(Actor actor, Event e)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
-            }
-
-            /// <inheritdoc/>
             internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
             {
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Halt);
-                this.LogWriter.LogHalt(actor.Id, inboxSize);
+                base.LogHandleHaltEvent(actor, inboxSize);
             }
 
             /// <inheritdoc/>
@@ -1397,17 +1304,9 @@ namespace Microsoft.Coyote.Actors
             internal override void LogReceiveCalled(Actor actor) => this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
 
             /// <inheritdoc/>
-            internal override void LogReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
+            internal override void LogReceivedEventWithoutWaiting(Actor actor, Event e)
             {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
-            }
-
-            /// <inheritdoc/>
-            internal override void LogReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
+                base.LogReceivedEventWithoutWaiting(actor, e);
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Receive);
                 this.ResetProgramCounter(actor);
             }
@@ -1415,55 +1314,16 @@ namespace Microsoft.Coyote.Actors
             /// <inheritdoc/>
             internal override void LogWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
             {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                var eventWaitTypesArray = eventTypes.ToArray();
-                if (eventWaitTypesArray.Length is 1)
-                {
-                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
-                }
-                else
-                {
-                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
-                }
-
+                base.LogWaitEvent(actor, eventTypes);
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Pause);
                 this.ResetProgramCounter(actor);
             }
 
             /// <inheritdoc/>
-            internal override void LogEventHandlerTerminated(Actor actor, DequeueStatus dequeueStatus)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogEventHandlerTerminated(actor.Id, stateName, dequeueStatus);
-            }
-
-            /// <inheritdoc/>
-            internal override void LogEnteredState(StateMachine stateMachine) =>
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
-
-            /// <inheritdoc/>
-            internal override void LogExitedState(StateMachine stateMachine) =>
-                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
-
-            /// <inheritdoc/>
             internal override void LogPopState(StateMachine stateMachine)
             {
                 this.AssertExpectedCallerActor(stateMachine, "Pop");
-                this.LogWriter.LogPopState(stateMachine.Id, default, stateMachine.CurrentStateName);
-            }
-
-            /// <inheritdoc/>
-            internal override void LogInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action)
-            {
-                string stateName = stateMachine.CurrentStateName;
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
-            }
-
-            /// <inheritdoc/>
-            internal override void LogInvokedOnExitAction(StateMachine stateMachine, MethodInfo action)
-            {
-                string stateName = stateMachine.CurrentStateName;
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
+                this.LogManager.LogPopState(stateMachine.Id, default, stateMachine.CurrentStateName);
             }
 
             /// <inheritdoc/>

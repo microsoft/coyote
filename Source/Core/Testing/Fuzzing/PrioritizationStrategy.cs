@@ -38,8 +38,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal PrioritizationStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.PriorityChangePoints = configuration.StrategyBound;
             this.HighPrioritySet = new List<Guid>();

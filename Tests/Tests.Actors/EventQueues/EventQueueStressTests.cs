@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, dequeueTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, dequeueTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(dequeueTask.IsCompleted);
         }
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(receiveTask.IsCompleted);
         }
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(receiveTask.IsCompleted);
         }

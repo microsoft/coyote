@@ -59,15 +59,15 @@
 | class [TimerElapsedEvent](./Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](./Microsoft.Coyote.Actors.Timers/TimerInfo.md) | Stores information about a timer that can send timeout events to its owner actor. |
 
-## Microsoft.Coyote.IO namespace
+## Microsoft.Coyote.Logging namespace
 
 | public type | description |
 | --- | --- |
-| class [ConsoleLogger](./Microsoft.Coyote.IO/ConsoleLogger.md) | Logger that writes text to the console. |
-| interface [ILogger](./Microsoft.Coyote.IO/ILogger.md) | A logger is used to capture messages, warnings and errors. |
-| class [InMemoryLogger](./Microsoft.Coyote.IO/InMemoryLogger.md) | Thread safe logger that writes text to an in-memory buffer. The buffered text can be extracted using the ToString() method. |
-| enum [LogSeverity](./Microsoft.Coyote.IO/LogSeverity.md) | Flag indicating the type of logging information being provided to the [`ILogger`](./Microsoft.Coyote.IO/ILogger.md). |
-| class [TextWriterLogger](./Microsoft.Coyote.IO/TextWriterLogger.md) | Bridges custom user provided TextWriter logger so it can be passed into Coyote via the [`ILogger`](./Microsoft.Coyote.IO/ILogger.md) interface. |
+| interface [ILogger](./Microsoft.Coyote.Logging/ILogger.md) | A logger is used to capture messages, warnings and errors. |
+| enum [LogSeverity](./Microsoft.Coyote.Logging/LogSeverity.md) | The severity of the log message being provided to the [`ILogger`](./Microsoft.Coyote.Logging/ILogger.md). |
+| class [MemoryLogger](./Microsoft.Coyote.Logging/MemoryLogger.md) | Logger that writes all messages to memory. |
+| class [TextWriterLogger](./Microsoft.Coyote.Logging/TextWriterLogger.md) | Logger that writes to the specified TextWriter. |
+| enum [VerbosityLevel](./Microsoft.Coyote.Logging/VerbosityLevel.md) | The level of verbosity used during logging. |
 
 ## Microsoft.Coyote.Random namespace
 

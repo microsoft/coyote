@@ -11,7 +11,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 
@@ -55,9 +55,9 @@ namespace Microsoft.Coyote.Rewriting
         private readonly HashSet<string> ResolveWarnings;
 
         /// <summary>
-        /// The installed logger.
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
         /// </summary>
-        private readonly ILogger Logger;
+        private readonly LogWriter LogWriter;
 
         /// <summary>
         /// The installed profiler.
@@ -67,23 +67,22 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="RewritingEngine"/> class.
         /// </summary>
-        private RewritingEngine(RewritingOptions options, Configuration configuration, ILogger logger, Profiler profiler)
+        private RewritingEngine(RewritingOptions options, Configuration configuration, LogWriter logWriter, Profiler profiler)
         {
             this.Options = options.Sanitize();
             this.Configuration = configuration;
             this.Passes = new LinkedList<Pass>();
             this.ResolveWarnings = new HashSet<string>();
-            this.Logger = logger;
+            this.LogWriter = logWriter;
             this.Profiler = profiler;
         }
 
         /// <summary>
         /// Runs the engine using the specified rewriting options.
         /// </summary>
-        internal static void Run(RewritingOptions options, Configuration configuration, Profiler profiler)
+        internal static void Run(RewritingOptions options, Configuration configuration, LogWriter logWriter, Profiler profiler)
         {
-            var logger = new ConsoleLogger() { LogLevel = configuration.LogLevel };
-            var engine = new RewritingEngine(options, configuration, logger, profiler);
+            var engine = new RewritingEngine(options, configuration, logWriter, profiler);
             engine.Run();
         }
 
@@ -131,28 +130,28 @@ namespace Microsoft.Coyote.Rewriting
         {
             // Add the default type rewriting passes. We must first rewrite member types,
             // such as fields and method signatures, before we can rewrite the method bodies.
-            this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.Logger));
-            this.Passes.AddLast(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.Logger));
+            this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.LogWriter));
+            this.Passes.AddLast(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.LogWriter));
 
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.Passes.AddLast(new MSTestRewritingPass(this.Configuration, assemblies, this.Logger));
+                this.Passes.AddLast(new MSTestRewritingPass(this.Configuration, assemblies, this.LogWriter));
             }
 
-            this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.Logger));
-            this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.LogWriter));
+            this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.LogWriter));
 
             // Add a pass that rewrites exception handlers to make sure that any exceptions
             // used internally by the runtime are not consumed by the user code.
-            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.Logger));
+            this.Passes.AddLast(new ExceptionFilterRewritingPass(assemblies, this.LogWriter));
 
             if (this.Options.IsLoggingAssemblyContents || this.Options.IsDiffingAssemblyContents)
             {
                 // Parsing the contents of an assembly must happen before and after any other pass.
-                this.Passes.AddFirst(new AssemblyDiffingPass(assemblies, this.Logger));
-                this.Passes.AddLast(new AssemblyDiffingPass(assemblies, this.Logger));
+                this.Passes.AddFirst(new AssemblyDiffingPass(assemblies, this.LogWriter));
+                this.Passes.AddLast(new AssemblyDiffingPass(assemblies, this.LogWriter));
             }
         }
 
@@ -163,17 +162,17 @@ namespace Microsoft.Coyote.Rewriting
         {
             try
             {
-                this.Logger.WriteLine($"... Rewriting the '{assembly.Name}' assembly ({assembly.FullName})");
+                this.LogWriter.LogImportant("... Rewriting the '{0}' assembly ({1})", assembly.Name, assembly.FullName);
                 if (assembly.IsRewritten)
                 {
-                    this.Logger.WriteLine($"..... Skipping as assembly is already rewritten with matching signature");
+                    this.LogWriter.LogImportant("..... Skipping as assembly is already rewritten with matching signature");
                     return;
                 }
 
                 // Traverse the assembly to invoke each pass.
                 foreach (var pass in this.Passes)
                 {
-                    Debug.WriteLine($"..... Invoking the '{pass.GetType().Name}' pass");
+                    this.LogWriter.LogDebug("..... Invoking the '{0}' pass", pass.GetType().Name);
                     assembly.Invoke(pass);
                 }
 
@@ -182,7 +181,7 @@ namespace Microsoft.Coyote.Rewriting
 
                 // Write the binary in the output path with portable symbols enabled.
                 string resolvedOutputPath = this.Options.IsReplacingAssemblies() ? assembly.FilePath : outputPath;
-                this.Logger.WriteLine($"..... Writing the modified '{assembly.Name}' assembly to {resolvedOutputPath}");
+                this.LogWriter.LogImportant("..... Writing the modified '{0}' assembly to {1}", assembly.Name, resolvedOutputPath);
                 assembly.Write(outputPath);
 
                 if (this.Options.IsLoggingAssemblyContents)
@@ -228,8 +227,8 @@ namespace Microsoft.Coyote.Rewriting
                 if (!string.IsNullOrEmpty(json))
                 {
                     string jsonFile = Path.ChangeExtension(outputPath, $".{(isRewritten ? "rw" : "il")}.json");
-                    this.Logger.WriteLine($"..... Writing the {(isRewritten ? "rewritten" : "original")} IL " +
-                        $"of '{assembly.Name}' as JSON to {jsonFile}");
+                    this.LogWriter.LogImportant("..... Writing the {0} IL of '{1}' as JSON to {2}",
+                        isRewritten ? "rewritten" : "original", assembly.Name, jsonFile);
                     File.WriteAllText(jsonFile, json);
                 }
             }
@@ -249,7 +248,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (!string.IsNullOrEmpty(diffJson))
                 {
                     string jsonFile = Path.ChangeExtension(outputPath, ".diff.json");
-                    this.Logger.WriteLine($"..... Writing the IL diff of '{assembly.Name}' as JSON to {jsonFile}");
+                    this.LogWriter.LogImportant("..... Writing the IL diff of '{0}' as JSON to {1}", assembly.Name, jsonFile);
                     File.WriteAllText(jsonFile, diffJson);
                 }
             }
@@ -280,12 +279,12 @@ namespace Microsoft.Coyote.Rewriting
                 Path.Combine(this.Options.OutputDirectory, TempDirectory) : this.Options.OutputDirectory).FullName;
             if (!this.Options.IsReplacingAssemblies())
             {
-                this.Logger.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
+                this.LogWriter.LogImportant("... Copying all files to the '{0}' directory", outputDirectory);
 
                 // Copy all files to the output directory, skipping any nested directory files.
                 foreach (string filePath in Directory.GetFiles(sourceDirectory, "*"))
                 {
-                    Debug.WriteLine($"..... Copying the '{filePath}' file");
+                    this.LogWriter.LogDebug("..... Copying the '{0}' file", filePath);
                     CopyFile(filePath, outputDirectory);
                 }
 
@@ -295,13 +294,13 @@ namespace Microsoft.Coyote.Rewriting
                     // Avoid copying the output directory itself.
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
-                        Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
+                        this.LogWriter.LogDebug("..... Copying the '{0}' directory", directoryPath);
                         string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length)
                             .TrimStart('\\', '/'));
                         Directory.CreateDirectory(path);
                         foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
                         {
-                            Debug.WriteLine($"....... Copying the '{filePath}' file");
+                            this.LogWriter.LogDebug("....... Copying the '{0}' file", filePath);
                             CopyFile(filePath, path);
                         }
                     }
@@ -351,7 +350,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     await Task.Delay(100);
-                    this.Logger.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
+                    this.LogWriter.LogWarning("... Retrying write to {0}", targetFile);
                 }
             }
         }
@@ -363,7 +362,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (!this.ResolveWarnings.Contains(reference.FullName))
             {
-                this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: '{0}'", reference.FullName);
+                this.LogWriter.LogWarning("Unable to resolve assembly: '{0}'", reference.FullName);
                 this.ResolveWarnings.Add(reference.FullName);
             }
 

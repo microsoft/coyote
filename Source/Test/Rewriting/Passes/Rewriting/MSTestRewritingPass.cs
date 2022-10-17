@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.SystematicTesting;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -22,8 +22,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MSTestRewritingPass"/> class.
         /// </summary>
-        internal MSTestRewritingPass(Configuration configuration, IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal MSTestRewritingPass(Configuration configuration, IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
             this.Configuration = configuration;
         }
@@ -52,15 +52,15 @@ namespace Microsoft.Coyote.Rewriting
 
             if (isTestMethod)
             {
-                Debug.WriteLine($"............. [-] test method '{method.Name}'");
+                this.LogWriter.LogDebug("............. [-] test method '{0}'", method.Name);
 
                 MethodDefinition newMethod = CloneMethod(method);
                 this.RewriteTestMethod(method, newMethod);
 
                 method.DeclaringType.Methods.Add(newMethod);
 
-                Debug.WriteLine($"............. [+] systematic test method '{method.Name}'");
-                Debug.WriteLine($"............. [+] test method '{newMethod.Name}'");
+                this.LogWriter.LogDebug("............. [+] systematic test method '{0}'", method.Name);
+                this.LogWriter.LogDebug("............. [+] test method '{0}'", newMethod.Name);
             }
 
             base.VisitMethod(method);
@@ -242,12 +242,8 @@ namespace Microsoft.Coyote.Rewriting
                     this.Configuration.RandomGeneratorSeed.Value);
             }
 
-            if (this.Configuration.IsVerbose)
-            {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled",
-                    this.Configuration.IsVerbose, this.Configuration.LogLevel);
-            }
-
+            this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled",
+                this.Configuration.VerbosityLevel);
             if (!this.Configuration.IsTelemetryEnabled)
             {
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled",

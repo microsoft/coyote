@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Runtime
@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Runtime
     public interface ICoyoteRuntime : IDisposable
     {
         /// <summary>
-        /// Get or set the <see cref="ILogger"/> used to log messages.
+        /// Gets or sets an <see cref="ILogger"/> for logging runtime messages.
         /// </summary>
         /// <remarks>
         /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.

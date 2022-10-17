@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
@@ -31,22 +31,12 @@ namespace Microsoft.Coyote.SystematicTesting
     public sealed class TestingEngine : IDisposable
     {
         /// <summary>
-        /// Url with information about the rewriting process.
-        /// </summary>
-        private const string LearnAboutRewritingUrl = "https://aka.ms/coyote-rewrite";
-
-        /// <summary>
-        /// Url with information about the gathered telemetry.
-        /// </summary>
-        private const string LearnAboutTelemetryUrl = "https://aka.ms/coyote-telemetry";
-
-        /// <summary>
         /// The client used to optionally send anonymized telemetry data.
         /// </summary>
         private static TelemetryClient TelemetryClient;
 
         /// <summary>
-        /// The project configuration.
+        /// The test configuration.
         /// </summary>
         private readonly Configuration Configuration;
 
@@ -87,46 +77,9 @@ namespace Microsoft.Coyote.SystematicTesting
         public TestReport TestReport { get; set; }
 
         /// <summary>
-        /// The installed logger.
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
         /// </summary>
-        /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
-        /// </remarks>
-        private ILogger InstalledLogger;
-
-        /// <summary>
-        /// The default logger that is used during testing.
-        /// </summary>
-        private readonly ILogger DefaultLogger;
-
-        /// <summary>
-        /// Get or set the <see cref="ILogger"/> used to log messages during testing.
-        /// </summary>
-        /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
-        /// </remarks>
-        public ILogger Logger
-        {
-            get
-            {
-                return this.InstalledLogger;
-            }
-
-            set
-            {
-                var old = this.InstalledLogger;
-                if (value is null)
-                {
-                    this.InstalledLogger = new NullLogger();
-                }
-                else
-                {
-                    this.InstalledLogger = value;
-                }
-
-                using var v = old;
-            }
-        }
+        private readonly LogWriter LogWriter;
 
         /// <summary>
         /// The DGML graph of the execution path explored in the last iteration.
@@ -155,64 +108,59 @@ namespace Microsoft.Coyote.SystematicTesting
         private int PrintGuard;
 
         /// <summary>
-        /// Creates a new systematic testing engine.
+        /// Serializes access to the engine.
         /// </summary>
-        public static TestingEngine Create(Configuration configuration)
-        {
-            try
-            {
-                ExecutionTrace prefixTrace = TraceReport.FromJson(configuration);
-                TestMethodInfo testMethodInfo = TestMethodInfo.Create(configuration);
-                return new TestingEngine(configuration, testMethodInfo, prefixTrace);
-            }
-            catch (Exception ex)
-            {
-                Error.Report(ex.Message);
-                throw;
-            }
-        }
+        private readonly object EngineLock;
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Action test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Action<ICoyoteRuntime> test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Action<IActorRuntime> test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<Task> test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<ICoyoteRuntime, Task> test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, Task> test) =>
-            new TestingEngine(configuration, test);
+            new TestingEngine(configuration, test, new LogWriter(configuration, true));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestingEngine"/> class.
         /// </summary>
-        internal TestingEngine(Configuration configuration, Delegate test)
-            : this(configuration, TestMethodInfo.Create(test), TraceReport.FromJson(configuration))
+        internal TestingEngine(Configuration configuration, LogWriter logWriter)
+            : this(configuration, TestMethodInfo.Create(configuration, logWriter), TraceReport.FromJson(configuration), logWriter)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestingEngine"/> class.
+        /// </summary>
+        internal TestingEngine(Configuration configuration, Delegate test, LogWriter logWriter)
+            : this(configuration, TestMethodInfo.Create(test, logWriter), TraceReport.FromJson(configuration), logWriter)
         {
         }
 
@@ -223,48 +171,34 @@ namespace Microsoft.Coyote.SystematicTesting
         /// If a non-empty prefix trace is provided, then the testing engine will attempt
         /// to replay it before performing any new exploration.
         /// </remarks>
-        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo, ExecutionTrace prefixTrace)
+        private TestingEngine(Configuration configuration, TestMethodInfo testMethodInfo, ExecutionTrace prefixTrace, LogWriter logWriter)
         {
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;
-
-            this.DefaultLogger = new ConsoleLogger() { LogLevel = configuration.LogLevel };
-            this.Logger = this.DefaultLogger;
+            this.LogWriter = logWriter;
             this.Profiler = new Profiler();
-
             this.StartIterationCallbacks = new HashSet<Action<uint>>();
             this.EndIterationCallbacks = new HashSet<Action<uint>>();
-
             this.TestReport = new TestReport(configuration);
             this.ReadableTrace = string.Empty;
             this.ReproducibleTrace = string.Empty;
-
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
+            this.EngineLock = new object();
 
-            if (configuration.IsDebugVerbosityEnabled)
-            {
-                IO.Debug.IsEnabled = true;
-            }
+            AppDomain.CurrentDomain.UnhandledException += this.OnUnhandledException;
 
             // Do some sanity checking.
-            string error = string.Empty;
             if (configuration.IsSystematicFuzzingEnabled && prefixTrace.Length > 0)
             {
-                error = "Replaying an execution trace is not supported in systematic fuzzing.";
-            }
-
-            if (!string.IsNullOrEmpty(error))
-            {
-                Error.Report(error);
-                throw new InvalidOperationException(error);
+                throw new InvalidOperationException("Replaying an execution trace is not supported in systematic fuzzing.");
             }
 
             // Parse the trace if one is provided, and update any configuration values.
             this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
 
             // Create a client for gathering and sending optional telemetry data.
-            TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration);
+            TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
         }
 
         /// <summary>
@@ -276,14 +210,13 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.Configuration.IsTelemetryEnabled)
                 {
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Anonymized telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+                    this.LogWriter.LogImportant("..... Anonymized telemetry is enabled, see {0}.", Documentation.LearnAboutTelemetryUrl);
                 }
 
                 if (!this.IsTestRewritten())
                 {
                     // TODO: eventually will throw an exception; we allow this for now.
-                    this.Logger.WriteLine(LogSeverity.Error,
-                        $"... Assembly is not rewritten for testing, see {LearnAboutRewritingUrl}.");
+                    this.LogWriter.LogError("... Assembly is not rewritten for testing, see {0}.", Documentation.LearnAboutRewritingUrl);
                 }
 
                 Task task = this.CreateTestingTask(this.TestMethodInfo);
@@ -304,30 +237,30 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.Logger.WriteLine(LogSeverity.Warning, $"... Test timed out.");
+                    this.LogWriter.LogWarning("... Test timed out.");
                 }
             }
             catch (AggregateException aex)
             {
                 aex.Handle((ex) =>
                 {
-                    IO.Debug.WriteLine(ex.Message);
-                    IO.Debug.WriteLine(ex.StackTrace);
+                    this.LogWriter.LogDebug(ex.Message);
+                    this.LogWriter.LogDebug(ex.StackTrace);
                     return true;
                 });
 
                 if (aex.InnerException is FileNotFoundException)
                 {
-                    Error.Report($"{aex.InnerException.Message}");
+                    this.LogWriter.LogError(aex.InnerException.Message);
                     throw;
                 }
 
-                Error.Report("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
+                this.LogWriter.LogError("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
                 throw;
             }
             catch (Exception ex)
             {
-                this.Logger.WriteLine(LogSeverity.Error, $"... Test failed due to an internal error: {ex}");
+                this.LogWriter.LogError("... Test failed due to an internal error: {0}", ex);
                 this.TestReport.InternalErrors.Add(ex.ToString());
             }
             finally
@@ -348,14 +281,11 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             return new Task(() =>
             {
-                this.Logger.WriteLine(LogSeverity.Important, "... Setting up the{0} test:",
-                    string.IsNullOrEmpty(methodInfo.Name) ? string.Empty : $" '{methodInfo.Name}'");
-                this.Logger.WriteLine(LogSeverity.Important,
-                    $"..... Using the {this.Scheduler.GetDescription()} exploration strategy.");
+                this.LogWriter.LogImportant("... Setting up the{0} test:", string.IsNullOrEmpty(methodInfo.Name) ? string.Empty : $" '{methodInfo.Name}'");
+                this.LogWriter.LogImportant("..... Using the {0} exploration strategy.", this.Scheduler.GetDescription());
                 if (this.Configuration.AttachDebugger)
                 {
-                    this.Logger.WriteLine(LogSeverity.Important,
-                        $"..... Launching and attaching the debugger.");
+                    this.LogWriter.LogImportant("..... Launching and attaching the debugger.");
                     Debugger.Launch();
                 }
 
@@ -364,9 +294,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     methodInfo.InitializeAllIterations();
 
-                    this.Logger.WriteLine(LogSeverity.Important, this.Scheduler.IsReplaying ?
-                        "... Running test." : "... Running test iterations:");
-
+                    this.LogWriter.LogImportant(this.Scheduler.IsReplaying ? "... Running test." : "... Running test iterations:");
                     uint iteration = 0;
                     while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
                     {
@@ -418,7 +346,15 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private bool RunNextIteration(TestMethodInfo methodInfo, uint iteration)
         {
-            if (!this.Scheduler.InitializeNextIteration(iteration))
+            // Log writer used to observe all test iteration output and write it in memory.
+            using MemoryLogWriter iterationLogWriter = new MemoryLogWriter(this.Configuration);
+            if (!this.LogWriter.IsRuntimeLogger())
+            {
+                // Override the default logger associated with this test iteration.
+                iterationLogWriter.SetLogger(this.LogWriter.Logger);
+            }
+
+            if (!this.Scheduler.InitializeNextIteration(iteration, iterationLogWriter))
             {
                 // The next iteration cannot run, so stop exploring.
                 return false;
@@ -426,25 +362,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.Scheduler.IsReplaying && this.ShouldPrintIteration(iteration + 1))
             {
-                this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
-
-                // Flush when logging to console.
-                if (this.Logger is ConsoleLogger)
-                {
-                    Console.Out.Flush();
-                }
+                this.LogWriter.LogImportant("..... Iteration #{0}", iteration + 1);
             }
 
             // Runtime used to serialize and test the program in this iteration.
             CoyoteRuntime runtime = null;
-
-            // Logger used to intercept the program output if no custom logger
-            // is installed and if verbosity is turned off.
-            InMemoryLogger runtimeLogger = null;
-
-            // Gets a handle to the standard output and error streams.
-            var stdOut = Console.Out;
-            var stdErr = Console.Error;
 
             try
             {
@@ -452,27 +374,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.InvokeStartIterationCallBacks(iteration);
 
                 // Creates a new instance of the controlled runtime.
-                runtime = new CoyoteRuntime(this.Configuration, this.Scheduler);
-
-                // If verbosity is turned off, then intercept the program log, and also redirect
-                // the standard output and error streams to the runtime logger.
-                if (!this.Configuration.IsVerbose)
-                {
-                    runtimeLogger = new InMemoryLogger();
-                    if (this.Logger != this.DefaultLogger)
-                    {
-                        runtimeLogger.UserLogger = this.Logger;
-                    }
-
-                    runtime.Logger = runtimeLogger;
-
-                    Console.SetOut(runtimeLogger.TextWriter);
-                    Console.SetError(runtimeLogger.TextWriter);
-                }
-                else if (this.Logger != this.DefaultLogger)
-                {
-                    runtime.Logger = this.Logger;
-                }
+                runtime = CoyoteRuntime.Create(this.Configuration, this.Scheduler, iterationLogWriter,
+                    RuntimeFactory.CreateLogManager(iterationLogWriter));
 
                 this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
@@ -480,24 +383,24 @@ namespace Microsoft.Coyote.SystematicTesting
                 Task task = runtime.RunTestAsync(methodInfo.Method, methodInfo.Name);
                 task.Wait();
 
+                // Turn off runtime logging for the current iteration.
+                iterationLogWriter.Close();
+
                 // Invokes the user-specified iteration disposal method.
                 methodInfo.DisposeCurrentIteration();
 
                 // Invoke any registered callbacks at the end of this iteration.
                 this.InvokeEndIterationCallBacks(iteration);
 
-                runtime.LogWriter.LogCompletion();
+                runtime.LogManager.LogCompletion();
 
                 this.GatherTestingStatistics(runtime);
 
                 if (!this.Scheduler.IsReplaying && this.TestReport.NumOfFoundBugs > 0)
                 {
-                    if (runtimeLogger != null)
-                    {
-                        this.ReadableTrace = string.Empty;
-                        this.ReadableTrace += runtimeLogger.ToString();
-                        this.ReadableTrace += this.TestReport.GetText(this.Configuration, "[coyote::report]");
-                    }
+                    this.ReadableTrace = string.Empty;
+                    this.ReadableTrace += iterationLogWriter.GetObservedMessages();
+                    this.ReadableTrace += this.TestReport.GetText(this.Configuration, "[coyote::report]");
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
@@ -507,47 +410,36 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             finally
             {
-                if (!this.Configuration.IsVerbose)
-                {
-                    // Restores the standard output and error streams.
-                    Console.SetOut(stdOut);
-                    Console.SetError(stdErr);
-                }
-
                 if (this.Configuration.IsSystematicFuzzingFallbackEnabled &&
                     runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                     (runtime.ExecutionStatus is ExecutionStatus.ConcurrencyUncontrolled ||
                     runtime.ExecutionStatus is ExecutionStatus.Deadlocked))
                 {
                     // Detected uncontrolled concurrency or deadlock, so switch to systematic fuzzing.
-                    this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing,
-                        this.Scheduler.ValueGenerator);
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"enables systematic fuzzing due to uncontrolled concurrency");
+                    this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing, this.Scheduler.ValueGenerator);
+                    this.LogWriter.LogImportant("..... Iteration #{0} enables systematic fuzzing due to uncontrolled concurrency",
+                        iteration + 1);
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
                 {
-                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                        $"hit bound of '{this.Scheduler.StepCount}' scheduling steps");
+                    this.LogWriter.LogImportant("..... Iteration #{0} hit bound of '{1}' scheduling steps",
+                        iteration + 1, this.Scheduler.StepCount);
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {
                     if (!this.Scheduler.IsReplaying)
                     {
-                        this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
-                            $"found bug #{this.TestReport.NumOfFoundBugs}");
+                        this.LogWriter.LogImportant("..... Iteration #{0} found bug #{1}", iteration + 1, this.TestReport.NumOfFoundBugs);
                     }
 
-                    this.Logger.WriteLine(LogSeverity.Error, runtime.BugReport);
+                    this.LogWriter.LogError(runtime.BugReport);
                 }
                 else if (this.Scheduler.IsReplaying)
                 {
-                    this.Logger.WriteLine(LogSeverity.Error, "Failed to reproduce the bug.");
+                    this.LogWriter.LogError("Failed to reproduce the bug.");
                 }
 
-                // Cleans up the runtime before the next iteration starts.
-                runtimeLogger?.Close();
-                runtimeLogger?.Dispose();
+                // Clean up runtime resources before the next iteration starts.
                 runtime?.Dispose();
             }
 
@@ -806,36 +698,38 @@ namespace Microsoft.Coyote.SystematicTesting
         public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
 
         /// <summary>
-        /// Installs the specified TextWriter for logging.
+        /// Installs the specified <see cref="ILogger"/> to log messages during testing.
         /// </summary>
-        /// <remarks>
-        /// This writer will be wrapped in an object that implements the <see cref="ILogger"/> interface which
-        /// will have a minor performance overhead, so it is better to set the <see cref="Logger"/> property instead.
-        /// </remarks>
-        /// <param name="writer">The writer to use for logging.</param>
-        /// <returns>The previously installed logger.</returns>
-        [Obsolete("Use the new ILogger version of SetLogger")]
-        public TextWriter SetLogger(TextWriter writer)
+        public void SetLogger(ILogger logger) => this.LogWriter.SetLogger(logger);
+
+        /// <summary>
+        /// Callback invoked when an unhandled exception occurs during testing.
+        /// </summary>
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
-            ILogger oldLogger = this.Logger;
-            if (oldLogger == this.DefaultLogger)
+            lock (this.EngineLock)
             {
-                oldLogger = null;
+                Exception exception = args.ExceptionObject as Exception;
+                if (exception is AggregateException aggregateException)
+                {
+                    exception = aggregateException.Flatten().InnerException;
+                }
+
+                this.LogWriter.LogError("[coyote::error] Unhandled exception: {0}", exception);
             }
-
-            this.Logger = new TextWriterLogger(writer);
-
-            if (oldLogger != null)
-            {
-                return oldLogger.TextWriter;
-            }
-
-            return null;
         }
 
         /// <summary>
         /// Releases any held resources.
         /// </summary>
-        public void Dispose() => this.TestMethodInfo.Dispose();
+        public void Dispose()
+        {
+            lock (this.EngineLock)
+            {
+                AppDomain.CurrentDomain.UnhandledException -= this.OnUnhandledException;
+                this.TestMethodInfo.Dispose();
+                this.LogWriter.Dispose();
+            }
+        }
     }
 }

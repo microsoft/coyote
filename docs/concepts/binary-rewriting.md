@@ -61,13 +61,13 @@ test DLLs, as well as your production code DLLs (which means the code that you a
 and to not rewrite any external dependencies (which you assume are correct after all).
 
 The reason behind this recommendation is that there are certain trade-offs when rewriting DLLs
-because of two issues: (1) Coyote today does not support the universe of concurrency APIs in C#
-(primarily focuses on the mainstream [task-asynchronous programming
-model](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/)), and (2)
-state (schedule) space explosion.
+because of two issues: Coyote today does not support every single concurrency API in C# (instead
+mostly focuses on the popular [task-asynchronous programming
+model](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/)); and
+dealing with the infamous state (schedule) space explosion problem.
 
-Regarding (1), Coyote is focused on [asynchronous
-task-based](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/))
+Regarding the 1st issue, Coyote is focused on [asynchronous
+task-based](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/)
 concurrency (basically common things like `Task` objects and `async`/`await`). So if an external
 library (or some "low-level" dependency DLL) is written with "lower-level" threading APIs (such as
 explicitly spawning threads and waiting on synchronization primitives such as a `WaitHandle`) or
@@ -78,16 +78,16 @@ regressing exploration, or (b) be able to intercept them but the state (schedule
 will explode (more on this below). The good news is that using these "low-level" APIs is uncommon in
 _most_ user applications/services, but of course some frameworks/library dependencies do use them.
 
-Regarding (2), the more concurrent code you instrument, the more scheduling decisions Coyote has to
-explore in every test iteration. This exponentially increases how much time you need to test to
-cover the same code surface of your application. This is known as state space explosion. Since
-Coyote explores under a test "budget" (such as number of test iterations) the bigger the state space
-to explore, the less efficient Coyote will be. Ideally, you just want to focus on testing your own
-concurrent code, and not the code of 3rd party frameworks/libraries (which you assume is correct!).
-For this reason, its recommended instead of rewriting every single dependency, to just rewrite DLLs
-that you (and your team) owns. This basically means to focus rewriting the test DLL as well as your
-production code DLLs, assuming these DLLs only use tasks, `async`/`await` and these kind of
-"high-level" concurrency primitives. Think about this as "component-wise" testing.
+Regarding the 2nd issue, the more concurrent code you instrument, the more scheduling decisions
+Coyote must explore in every test iteration. This _exponentially_ increases how much time you need
+to test to cover the same code surface of your application. This is known as state space explosion.
+Since Coyote explores under a test "budget" (such as number of test iterations) the bigger the state
+space to explore, the less efficient Coyote will be. Ideally, you just want to focus on testing your
+own concurrent code, and not the code of 3rd party frameworks/libraries (which you assume is
+correct!). For this reason, its recommended instead of rewriting every single dependency, to just
+rewrite DLLs that you (and your team) owns. This basically means to focus rewriting the test DLL as
+well as your production code DLLs, assuming these DLLs only use tasks, `async`/`await` and these
+kind of "high-level" concurrency primitives. Think about this as "component-wise" testing.
 
 Under the hood, Coyote deals with both of the above problems using a feature called
 _partially-controlled exploration_. In this mode, which is enabled by default when testing a

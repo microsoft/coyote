@@ -47,8 +47,6 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             var options = RewritingOptions.ParseFromJSON(configPath);
             Assert.NotNull(options);
-            this.X();
-            this.TestOutput.WriteLine("x: " + options.AssembliesDirectory);
             options = options.Sanitize();
 
             this.TestOutput.WriteLine("expected: " + configDirectory);
@@ -64,37 +62,6 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
 
             // Ensure this option can be set to false.
             Assert.False(options.IsRewritingConcurrentCollections);
-        }
-
-        private string X()
-        {
-            var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-            var targetFramework = assembly.GetCustomAttributes(typeof(System.Runtime.Versioning.TargetFrameworkAttribute), false)
-                .SingleOrDefault() as System.Runtime.Versioning.TargetFrameworkAttribute;
-            var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, System.StringSplitOptions.None);
-
-            var resolvedFramework = "$(TargetFramework)";
-            if (tokens != null && tokens.Length is 2)
-            {
-                this.TestOutput.WriteLine("TargetFramework: " + tokens[0]);
-                if (tokens[0] == ".NETCoreApp")
-                {
-                    resolvedFramework = tokens[1] is "v6.0" ? "net6.0" :
-                        tokens[1] is "v5.0" ? "net5.0" :
-                        tokens[1] is "v3.1" ? "netcoreapp3.1" :
-                        resolvedFramework;
-                }
-                else if (tokens[0] == ".NETStandard")
-                {
-                    resolvedFramework = tokens[1] is "v2.0" ? "netstandard2.0" : resolvedFramework;
-                }
-                else if (tokens[0] == ".NETFramework")
-                {
-                    resolvedFramework = tokens[1] is "v4.6.2" ? "net462" : resolvedFramework;
-                }
-            }
-
-            return resolvedFramework;
         }
 
         private static string GetJsonConfigurationDirectory(string subDirectory = null)

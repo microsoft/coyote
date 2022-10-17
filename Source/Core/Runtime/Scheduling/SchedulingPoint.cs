@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Runtime
     /// between operations should be explored during testing.
     /// </summary>
     /// <remarks>
-    /// These methods are no-op in production.
+    /// These methods are thread-safe and no-op unless the test engine is attached.
     /// </remarks>
     public static class SchedulingPoint
     {
@@ -20,9 +20,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Interleave()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Interleave, isSuppressible: false);
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Interleave, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -36,9 +44,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Yield()
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.ScheduleNextOperation(SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isSuppressible: false, isYielding: true);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -53,12 +69,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Read(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedSharedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Read, isSuppressible: false);
-                op.LastAccessedSharedState = string.Empty;
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Read, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -72,12 +93,17 @@ namespace Microsoft.Coyote.Runtime
         public static void Write(string state, IEqualityComparer<string> comparer = default)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                ControlledOperation op = runtime.GetExecutingOperation();
-                op.LastAccessedSharedState = state;
-                runtime.ScheduleNextOperation(SchedulingPointType.Write, isSuppressible: false);
-                op.LastAccessedSharedState = string.Empty;
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Write, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
             }
         }
 
@@ -107,6 +133,26 @@ namespace Microsoft.Coyote.Runtime
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 runtime.ResumeScheduling();
+            }
+        }
+
+        /// <summary>
+        /// Sets a checkpoint in the execution path that is so far explored during the current
+        /// test iteration. This will capture all controlled scheduling and nondeterministic
+        /// decisions taken until the checkpoint and the testing engine will then try to replay
+        /// the same decisions in subsequent iterations before performing any new exploration.
+        /// </summary>
+        /// <remarks>
+        /// Only a single checkpoint can be set at a time, and invoking this method with an
+        /// existing checkpoint will either extend it with new decisions, or overwrite it if
+        /// the new checkpoint diverges or is empty.
+        /// </remarks>
+        public static void SetCheckpoint()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                runtime.CheckpointExecutionTrace();
             }
         }
 

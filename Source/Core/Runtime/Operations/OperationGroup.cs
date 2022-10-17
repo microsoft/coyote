@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
-        private OperationGroup(ControlledOperation owner)
+        private OperationGroup(Guid? id, ControlledOperation owner)
         {
-            this.Id = Guid.NewGuid();
+            this.Id = id ?? Guid.NewGuid();
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
         }
@@ -53,7 +53,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="OperationGroup"/> instance.
         /// </summary>
-        internal static OperationGroup Create(ControlledOperation owner) => new OperationGroup(owner);
+        internal static OperationGroup Create(ControlledOperation owner) => Create(null, owner);
+
+        /// <summary>
+        /// Creates a new <see cref="OperationGroup"/> instance with the specified id.
+        /// </summary>
+        internal static OperationGroup Create(Guid? id, ControlledOperation owner) => new OperationGroup(id, owner);
 
         /// <summary>
         /// Registers the specified operation as a member of this group.

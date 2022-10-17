@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -18,6 +17,11 @@ namespace Microsoft.Coyote.Actors
     /// </remarks>
     public interface IActorRuntime : ICoyoteRuntime
     {
+        /// <summary>
+        /// Callback that is fired when an actor has halted and the runtime has stopped managing it.
+        /// </summary>
+        event OnActorHaltedHandler OnActorHalted;
+
         /// <summary>
         /// Callback that is fired when an event is dropped.
         /// </summary>
@@ -153,16 +157,40 @@ namespace Microsoft.Coyote.Actors
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
 
         /// <summary>
-        /// The old way of setting the <see cref="ICoyoteRuntime.Logger"/> property.
+        /// Returns the execution status of the actor with the specified <see cref="ActorId"/>.
         /// </summary>
+        /// <param name="id">The id of the actor.</param>
+        /// <returns>The execution status.</returns>
         /// <remarks>
-        /// The new way is to just set the Logger property to an <see cref="ILogger"/> object.
-        /// This method is only here for compatibility and has a minor perf impact as it has to
-        /// wrap the writer in an object that implements the <see cref="ILogger"/> interface.
+        /// This method is not thread-safe.
         /// </remarks>
-        /// <param name="writer">The writer to use for logging.</param>
-        /// <returns>The previously installed logger.</returns>
-        [Obsolete("Please set the Logger property directly instead of calling this method.")]
-        TextWriter SetLogger(TextWriter writer);
+        ActorExecutionStatus GetActorExecutionStatus(ActorId id);
+
+        /// <summary>
+        /// Returns the <see cref="ActorId"/> of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The id of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<ActorId> GetCurrentActorIds();
+
+        /// <summary>
+        /// Returns the distinct types of all active actors currently managed by this runtime.
+        /// </summary>
+        /// <returns>The distinct types of all active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        IEnumerable<Type> GetCurrentActorTypes();
+
+        /// <summary>
+        /// Returns the current count of active actors managed by this runtime.
+        /// </summary>
+        /// <returns>The current count of active actors.</returns>
+        /// <remarks>
+        /// This method is not thread-safe.
+        /// </remarks>
+        int GetCurrentActorCount();
     }
 }

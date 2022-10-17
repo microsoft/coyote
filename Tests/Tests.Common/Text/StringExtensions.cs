@@ -13,17 +13,19 @@ namespace Microsoft.Coyote.Tests.Common
     /// </summary>
     public static class StringExtensions
     {
+        public static string FormatNewLine(this string text) => text + "\n";
+        public static string FormatLines(params string[] args) => string.Join("\n", args) + "\n";
+
         public static string SortLines(this string text)
         {
             var list = new List<string>(text.Split('\n'));
             list.Sort(StringComparer.Ordinal);
+            list.RemoveAll(string.IsNullOrEmpty);
             return string.Join("\n", list);
         }
 
-        public static string RemoveInstanceIds(this string actual) => Regex.Replace(actual, @"\([^)]*\)", "()");
-
+        public static string RemoveInstanceIds(this string text) => Regex.Replace(text, @"\([^)]*\)", "()");
         public static string RemoveExcessiveEmptySpace(this string text) => Regex.Replace(text, @"\s+", " ");
-
         public static string NormalizeNewLines(this string text) => Regex.Replace(text, "[\r\n]+", "\n");
 
         public static string RemoveNonDeterministicValues(this string text)
@@ -42,5 +44,8 @@ namespace Microsoft.Coyote.Tests.Common
             text = Regex.Replace(text, @"Microsoft.Coyote.Tests.Common\.", string.Empty);
             return Regex.Replace(text, @"Microsoft\.[^+]*\+", string.Empty);
         }
+
+        public static string RemoveDebugLines(this string text) =>
+            Regex.Replace(text, @"^\[coyote::debug\].*\n", string.Empty, RegexOptions.Multiline);
     }
 }

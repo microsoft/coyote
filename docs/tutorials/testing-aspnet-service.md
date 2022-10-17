@@ -11,7 +11,7 @@ Coyote and you can run the web front end using the Azure storage emulators.
 
 You will also need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -206,7 +206,7 @@ X TestConcurrentAccountRequests [10s 407ms]
   Error Message:
    Assert.Fail failed. Found bug: Found unexpected error code.
    Replay trace using Coyote by running:
-     TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
+     TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
 ```
 
 Which also tells you how to reliably reproduce the bug using Coyote.
@@ -222,7 +222,7 @@ and replays it in the VS debugger. To do this, just invoke the command mentioned
 (change the paths to the ones on your machine):
 ```
 cd bin/coyote
-TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
+TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
 ```
 
 You will also see that the trace output contains logs such as:

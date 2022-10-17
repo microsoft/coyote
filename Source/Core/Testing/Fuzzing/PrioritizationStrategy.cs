@@ -38,8 +38,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal PrioritizationStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.PriorityChangePoints = configuration.StrategyBound;
             this.HighPrioritySet = new List<Guid>();
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
@@ -99,20 +99,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             }
 
             return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>

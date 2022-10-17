@@ -28,8 +28,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="FuzzingStrategy"/> class.
         /// </summary>
-        internal FuzzingStrategy(Configuration configuration, IRandomValueGenerator generator, bool isFair)
-            : base(configuration, generator, isFair)
+        internal FuzzingStrategy(Configuration configuration, bool isFair)
+            : base(configuration, isFair)
         {
             this.OperationIdMap = new ConcurrentDictionary<int, Guid>();
         }
@@ -37,15 +37,15 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Creates a <see cref="FuzzingStrategy"/> from the specified configuration.
         /// </summary>
-        internal static FuzzingStrategy Create(Configuration configuration, IRandomValueGenerator generator)
+        internal static FuzzingStrategy Create(Configuration configuration)
         {
             switch (configuration.SchedulingStrategy)
             {
                 case "prioritization":
-                    return new PrioritizationStrategy(configuration, generator);
+                    return new PrioritizationStrategy(configuration);
                 default:
-                    // return new RandomStrategy(configuration, generator);
-                    return new BoundedRandomStrategy(configuration, generator);
+                    // return new RandomStrategy(configuration);
+                    return new BoundedRandomStrategy(configuration);
             }
         }
 
@@ -57,7 +57,18 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
-        internal abstract bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+            int maxValue, out int next) => this.NextDelay(ops, current, maxValue, out next);
+
+        /// <summary>
+        /// Returns the next delay.
+        /// </summary>
+        /// <param name="ops">Operations executing during the current test iteration.</param>
+        /// <param name="current">The operation requesting the delay.</param>
+        /// <param name="maxValue">The max value.</param>
+        /// <param name="next">The next delay.</param>
+        /// <returns>True if there is a next delay, else false.</returns>
+        internal abstract bool NextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next);
 
         /// <summary>

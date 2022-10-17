@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.Runtime
         internal void Wait()
         {
             var op = this.Runtime.GetExecutingOperation();
-            op.Status = OperationStatus.BlockedOnResource;
+            op.Status = OperationStatus.PausedOnResource;
             this.AwaitingOperations.Add(op);
-            this.Runtime.ScheduleNextOperation(SchedulingPointType.Wait);
+            this.Runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
         }
 
         /// <summary>

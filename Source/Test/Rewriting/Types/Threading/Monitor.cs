@@ -32,9 +32,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
                 {
-                    runtime.DelayOperation();
+                    runtime.DelayOperation(current);
                 }
 
                 SystemThreading.Monitor.Enter(obj);
@@ -53,9 +54,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
                 {
-                    runtime.DelayOperation();
+                    runtime.DelayOperation(current);
                 }
 
                 SystemThreading.Monitor.Enter(obj, ref lockTaken);
@@ -146,9 +148,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
                 {
-                    runtime.DelayOperation();
+                    runtime.DelayOperation(current);
                 }
 
                 SystemThreading.Monitor.TryEnter(obj, timeout, ref lockTaken);
@@ -167,9 +170,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 // TODO: how to implement this timeout?
                 return SynchronizedBlock.Lock(obj).IsLockTaken;
             }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.DelayOperation();
+                runtime.DelayOperation(current);
             }
 
             return SystemThreading.Monitor.TryEnter(obj, timeout);
@@ -189,9 +193,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
                 {
-                    runtime.DelayOperation();
+                    runtime.DelayOperation(current);
                 }
 
                 SystemThreading.Monitor.TryEnter(obj, millisecondsTimeout, ref lockTaken);
@@ -212,9 +217,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
                 {
-                    runtime.DelayOperation();
+                    runtime.DelayOperation(current);
                 }
 
                 SystemThreading.Monitor.TryEnter(obj, ref lockTaken);
@@ -231,9 +237,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 return SynchronizedBlock.Lock(obj).IsLockTaken;
             }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.DelayOperation();
+                runtime.DelayOperation(current);
             }
 
             return SystemThreading.Monitor.TryEnter(obj);
@@ -447,7 +454,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // If this operation is trying to acquire this lock while it is free, then inject a scheduling
                     // point to give another enabled operation the chance to race and acquire this lock.
-                    this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Acquire);
+                    this.Resource.Runtime.ScheduleNextOperation(default, SchedulingPointType.Acquire);
                 }
 
                 if (this.Owner != null)
@@ -525,7 +532,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // Pulses can happen nondeterministically while other operations execute,
                     // which models delays by the OS.
-                    this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Default);
+                    this.Resource.Runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
 
                     var pulseOperation = this.PulseQueue.Dequeue();
                     this.Pulse(pulseOperation);
@@ -550,7 +557,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<Coyote> Operation '{0}' is pulsed by task '{1}'.",
+                        this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, SystemTask.CurrentId);
                     }
                 }
@@ -559,7 +566,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        IO.Debug.WriteLine("<Coyote> Operation '{0}' is pulsed by task '{1}'.",
+                        this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
                             waitingOp.Id, SystemTask.CurrentId);
                     }
 
@@ -586,7 +593,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.UnlockNextReady();
-                IO.Debug.WriteLine("<Coyote> Operation '{0}' with task id '{1}' is waiting.",
+                this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' with task id '{1}' is waiting.",
                     op.Id, SystemTask.CurrentId);
 
                 // Block this operation and schedule the next enabled operation.
@@ -659,7 +666,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     // Only release the lock if the invocation is not reentrant.
                     this.LockCountMap.Remove(op);
                     this.UnlockNextReady();
-                    this.Resource.Runtime.ScheduleNextOperation(SchedulingPointType.Release);
+                    this.Resource.Runtime.ScheduleNextOperation(op, SchedulingPointType.Release);
                 }
 
                 int useCount = SystemInterlocked.Decrement(ref this.UseCount);

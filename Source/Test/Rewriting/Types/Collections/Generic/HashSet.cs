@@ -24,7 +24,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// default equality comparer for the set type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.HashSet<T> Create() => new Mock();
+        public static SystemGenerics.HashSet<T> Create() =>
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper() :
+            new SystemGenerics.HashSet<T>();
 
         /// <summary>
         /// Initializes a hash set instance class that uses the default equality comparer
@@ -33,7 +36,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEnumerable<T> collection) =>
-            new Mock(collection);
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper(collection) :
+            new SystemGenerics.HashSet<T>(collection);
 
         /// <summary>
         /// Initializes a hash set instance class that is empty and uses the default
@@ -41,7 +46,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEqualityComparer<T> comparer) =>
-            new Mock(comparer);
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper(comparer) :
+            new SystemGenerics.HashSet<T>(comparer);
 
         /// <summary>
         /// Initializes a hash set instance class that uses the specified equality comparer for the
@@ -51,14 +58,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEnumerable<T> collection,
             SystemGenerics.IEqualityComparer<T> comparer) =>
-            new Mock(collection, comparer);
-
-        /// <summary>
-        /// Initializes a hash set instance class with serialized data.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.HashSet<T> Create(SerializationInfo info, StreamingContext context) =>
-            new Mock(info, context);
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper(collection, comparer) :
+            new SystemGenerics.HashSet<T>(collection, comparer);
 
 #if NET || NETCOREAPP3_1
         /// <summary>
@@ -66,7 +68,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// space for 'capacity' items and and uses the default equality comparer for the set type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemGenerics.HashSet<T> Create(int capacity) => new Mock(capacity);
+        public static SystemGenerics.HashSet<T> Create(int capacity) =>
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper(capacity) :
+            new SystemGenerics.HashSet<T>(capacity);
 
         /// <summary>
         /// Initializes a hash set instance class that uses the specified
@@ -75,7 +80,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(int capacity,
             SystemGenerics.IEqualityComparer<T> comparer) =>
-            new Mock(capacity, comparer);
+            CoyoteRuntime.IsExecutionControlled ?
+            new Wrapper(capacity, comparer) :
+            new SystemGenerics.HashSet<T>(capacity, comparer);
 #endif
 
         /// <summary>
@@ -84,13 +91,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static SystemGenerics.IEqualityComparer<T> get_Comparer(SystemGenerics.HashSet<T> hashSet)
+        public static SystemGenerics.IEqualityComparer<T> get_Comparer(SystemGenerics.HashSet<T> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.Comparer;
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.Comparer;
         }
 
         /// <summary>
@@ -99,142 +106,142 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable SA1300 // Element should begin with upper-case letter
 #pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count(SystemGenerics.HashSet<T> hashSet)
+        public static int get_Count(SystemGenerics.HashSet<T> instance)
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.Count;
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.Count;
         }
 
         /// <summary>
         /// Adds the specified element to the hash set.
         /// </summary>
-        public static bool Add(SystemGenerics.HashSet<T> hashSet, T item)
+        public static bool Add(SystemGenerics.HashSet<T> instance, T item)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            return hashSet.Add(item);
+            (instance as Wrapper)?.CheckDataRace(true);
+            return instance.Add(item);
         }
 
         /// <summary>
         /// Removes all elements from a hash set object.
         /// </summary>
-        public static void Clear(SystemGenerics.HashSet<T> hashSet)
+        public static void Clear(SystemGenerics.HashSet<T> instance)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            hashSet.Clear();
+            (instance as Wrapper)?.CheckDataRace(true);
+            instance.Clear();
         }
 
         /// <summary>
         /// Determines whether a hash set object contains the specified element.
         /// </summary>
-        public static bool Contains(SystemGenerics.HashSet<T> hashSet, T item)
+        public static bool Contains(SystemGenerics.HashSet<T> instance, T item)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.Contains(item);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.Contains(item);
         }
 
         /// <summary>
         /// Copies the elements of a hash set object to an array.
         /// </summary>
-        public static void CopyTo(SystemGenerics.HashSet<T> hashSet, T[] array)
+        public static void CopyTo(SystemGenerics.HashSet<T> instance, T[] array)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.CopyTo(array);
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.CopyTo(array);
         }
 
         /// <summary>
         /// Copies the elements of a hash set object to an array, starting at the specified array index.
         /// </summary>
-        public static void CopyTo(SystemGenerics.HashSet<T> hashSet, T[] array, int arrayIndex)
+        public static void CopyTo(SystemGenerics.HashSet<T> instance, T[] array, int arrayIndex)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.CopyTo(array, arrayIndex);
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
         /// Copies the specified number of elements of a hash set object to an array, starting at the specified array index.
         /// </summary>
-        public static void CopyTo(SystemGenerics.HashSet<T> hashSet, T[] array, int arrayIndex, int count)
+        public static void CopyTo(SystemGenerics.HashSet<T> instance, T[] array, int arrayIndex, int count)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.CopyTo(array, arrayIndex, count);
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.CopyTo(array, arrayIndex, count);
         }
 
         /// <summary>
         /// Removes all elements in the specified collection from the current hash set object.
         /// </summary>
-        public static void ExceptWith(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static void ExceptWith(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            hashSet.ExceptWith(other);
+            (instance as Wrapper)?.CheckDataRace(true);
+            instance.ExceptWith(other);
         }
 
         /// <summary>
         /// Returns an enumerator that iterates through a hash set object.
         /// </summary>
-        public static SystemGenerics.HashSet<T>.Enumerator GetEnumerator(SystemGenerics.HashSet<T> hashSet)
+        public static SystemGenerics.HashSet<T>.Enumerator GetEnumerator(SystemGenerics.HashSet<T> instance)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.GetEnumerator();
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.GetEnumerator();
         }
 
         /// <summary>
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed to
         /// serialize a hash set object.
         /// </summary>
-        public static void GetObjectData(SystemGenerics.HashSet<T> hashSet, SerializationInfo info,
+        public static void GetObjectData(SystemGenerics.HashSet<T> instance, SerializationInfo info,
             StreamingContext context)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.GetObjectData(info, context);
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.GetObjectData(info, context);
         }
 
         /// <summary>
         /// Modifies the current hash set object to contain only elements that are present
         /// in that object and in the specified collection.
         /// </summary>
-        public static void IntersecWith(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static void IntersecWith(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            hashSet.IntersectWith(other);
+            (instance as Wrapper)?.CheckDataRace(true);
+            instance.IntersectWith(other);
         }
 
         /// <summary>
         /// Determines whether a hash set object is a proper subset of the specified collection.
         /// </summary>
-        public static bool IsProperSubsetOf(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool IsProperSubsetOf(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.IsProperSubsetOf(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.IsProperSubsetOf(other);
         }
 
         /// <summary>
         /// Determines whether a hash set object is a proper superset of the specified collection.
         /// </summary>
-        public static bool IsProperSupersetOf(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool IsProperSupersetOf(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.IsProperSupersetOf(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.IsProperSupersetOf(other);
         }
 
         /// <summary>
         /// Determines whether a hash set object is a subset of the specified collection.
         /// </summary>
-        public static bool IsSubsetOf(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool IsSubsetOf(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.IsSubsetOf(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.IsSubsetOf(other);
         }
 
         /// <summary>
         /// Determines whether a hash set object is a superset of the specified collection.
         /// </summary>
-        public static bool IsSupersetOf(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool IsSupersetOf(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.IsSupersetOf(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.IsSupersetOf(other);
         }
 
         // TODO: Is this requried?
@@ -243,104 +250,102 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Implements the <see cref="ISerializable"/> interface and raises the deserialization
         /// event when the deserialization is complete.
         /// </summary>
-        public static void OnDeserialization(SystemGenerics.HashSet<T> hashSet, object sender)
+        public static void OnDeserialization(SystemGenerics.HashSet<T> instance, object sender)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.OnDeserialization(sender);
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.OnDeserialization(sender);
         }
 
         /// <summary>
         /// Determines whether a hash set object and a specified collection share common elements.
         /// </summary>
-        public static bool Overlaps(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool Overlaps(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.Overlaps(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.Overlaps(other);
         }
 
         /// <summary>
         /// Removes the specified element from a hash set object.
         /// </summary>
-        public static bool Remove(SystemGenerics.HashSet<T> hashSet, T item)
+        public static bool Remove(SystemGenerics.HashSet<T> instance, T item)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            return hashSet.Remove(item);
+            (instance as Wrapper)?.CheckDataRace(true);
+            return instance.Remove(item);
         }
 
         /// <summary>
         /// Removes the specified element from a hash set object.
         /// </summary>
-        public static int RemoveWhere(SystemGenerics.HashSet<T> hashSet, Predicate<T> match)
+        public static int RemoveWhere(SystemGenerics.HashSet<T> instance, Predicate<T> match)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            return hashSet.RemoveWhere(match);
+            (instance as Wrapper)?.CheckDataRace(true);
+            return instance.RemoveWhere(match);
         }
 
         /// <summary>
         /// Determines whether a hash set object and the specified collection contain the same elements.
         /// </summary>
-        public static bool SetEquals(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static bool SetEquals(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.SetEquals(other);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.SetEquals(other);
         }
 
         /// <summary>
         /// Modifies the current hash set object to contain only elements that are present either in
         /// that object or in the specified collection, but not both.
         /// </summary>
-        public static void SymmetricExceptWith(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static void SymmetricExceptWith(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            hashSet.SymmetricExceptWith(other);
+            (instance as Wrapper)?.CheckDataRace(true);
+            instance.SymmetricExceptWith(other);
         }
 
         /// <summary>
         /// Sets the capacity of a hash set object to the actual number of elements it
         /// contains, rounded up to a nearby, implementation-specific value.
         /// </summary>
-        public static void TrimExcess(SystemGenerics.HashSet<T> hashSet)
+        public static void TrimExcess(SystemGenerics.HashSet<T> instance)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            hashSet.TrimExcess();
+            (instance as Wrapper)?.CheckDataRace(false);
+            instance.TrimExcess();
         }
 
         /// <summary>
         /// Modifies the current hash set object to contain all elements that are
         /// present in itself, the specified collection, or both.
         /// </summary>
-        public static void UnionWith(SystemGenerics.HashSet<T> hashSet, SystemGenerics.IEnumerable<T> other)
+        public static void UnionWith(SystemGenerics.HashSet<T> instance, SystemGenerics.IEnumerable<T> other)
         {
-            (hashSet as Mock)?.CheckDataRace(true);
-            hashSet.UnionWith(other);
+            (instance as Wrapper)?.CheckDataRace(true);
+            instance.UnionWith(other);
         }
 
 #if NET || NETCOREAPP3_1
         /// <summary>
         /// Ensures that this hash set object can hold the specified number of elements without growing.
         /// </summary>
-        public static int EnsureCapacity(SystemGenerics.HashSet<T> hashSet, int capacity)
+        public static int EnsureCapacity(SystemGenerics.HashSet<T> instance, int capacity)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.EnsureCapacity(capacity);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.EnsureCapacity(capacity);
         }
 
         /// <summary>
         /// Searches the set for a given value and returns the equal value it finds, if any.
         /// </summary>
-        public static bool TryGetValue(SystemGenerics.HashSet<T> hashSet, T equalValue, out T actualValue)
+        public static bool TryGetValue(SystemGenerics.HashSet<T> instance, T equalValue, out T actualValue)
         {
-            (hashSet as Mock)?.CheckDataRace(false);
-            return hashSet.TryGetValue(equalValue, out actualValue);
+            (instance as Wrapper)?.CheckDataRace(false);
+            return instance.TryGetValue(equalValue, out actualValue);
         }
 #endif
 
         /// <summary>
-        /// Implements a hash set that can be controlled during testing.
+        /// Wraps a hash set so that it can be controlled during testing.
         /// </summary>
-        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        private class Mock : SystemGenerics.HashSet<T>
+        private class Wrapper : SystemGenerics.HashSet<T>
         {
             /// <summary>
             /// Count of read accesses to the dictionary.
@@ -353,33 +358,51 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             private volatile int WriterCount;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Mock"/> class.
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
             /// </summary>
-            internal Mock()
+            internal Wrapper()
                 : base() => this.Setup();
 
-            internal Mock(SystemGenerics.IEnumerable<T> collection)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(SystemGenerics.IEnumerable<T> collection)
                 : base(collection) => this.Setup();
 
-            internal Mock(SystemGenerics.IEnumerable<T> collection, SystemGenerics.IEqualityComparer<T> comparer)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(SystemGenerics.IEnumerable<T> collection, SystemGenerics.IEqualityComparer<T> comparer)
                 : base(collection, comparer) => this.Setup();
 
-            internal Mock(SystemGenerics.IEqualityComparer<T> comparer)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(SystemGenerics.IEqualityComparer<T> comparer)
                 : base(comparer) => this.Setup();
 
-            internal Mock(SerializationInfo info, StreamingContext context)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(SerializationInfo info, StreamingContext context)
                 : base(info, context) => this.Setup();
 
 #if NET || NETCOREAPP3_1
-            internal Mock(int capacity)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(int capacity)
                 : base(capacity) => this.Setup();
 
-            internal Mock(int capacity, SystemGenerics.IEqualityComparer<T> comparer)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Wrapper"/> class.
+            /// </summary>
+            internal Wrapper(int capacity, SystemGenerics.IEqualityComparer<T> comparer)
                 : base(capacity, comparer) => this.Setup();
 #endif
 
             /// <summary>
-            /// Setups the mock.
+            /// Setups the wrapper.
             /// </summary>
             private void Setup()
             {
@@ -393,36 +416,40 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             internal void CheckDataRace(bool isWriteAccess)
             {
                 var runtime = CoyoteRuntime.Current;
-                void Interleave()
-                {
-                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-                    {
-                        runtime.ScheduleNextOperation(SchedulingPointType.Default);
-                    }
-                    else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
-                    {
-                        runtime.DelayOperation();
-                    }
-                }
-
                 if (isWriteAccess)
                 {
                     runtime.Assert(this.WriterCount is 0,
                         $"Found write/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
                     runtime.Assert(this.ReaderCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
-
                     SystemInterlocked.Increment(ref this.WriterCount);
-                    Interleave();
-                    SystemInterlocked.Decrement(ref this.WriterCount);
                 }
                 else
                 {
                     runtime.Assert(this.WriterCount is 0,
                         $"Found read/write data race on '{typeof(SystemGenerics.HashSet<T>)}'.");
-
                     SystemInterlocked.Increment(ref this.ReaderCount);
-                    Interleave();
+                }
+
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
+                {
+                    if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    {
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                    }
+                    else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                    {
+                        runtime.DelayOperation(current);
+                    }
+                }
+
+                if (isWriteAccess)
+                {
+                    SystemInterlocked.Decrement(ref this.WriterCount);
+                }
+                else
+                {
                     SystemInterlocked.Decrement(ref this.ReaderCount);
                 }
             }

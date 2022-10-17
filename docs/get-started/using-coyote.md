@@ -12,54 +12,25 @@ then you can simply run `dotnet coyote.dll` instead.
 
 ### Rewrite your binaries for testing
 
-The `coyote` command line tool can be used to automatically rewrite any .NET binary to take over
-concurrency that is built using `System.Threading.Tasks.Task`. For details on what kinds of
-rewriting is supported see [rewriting binaries](../concepts/binary-rewriting.md).
+The `coyote` command line tool can be used to automatically rewrite any C# assembly (DLL) to take
+over the task-based concurrency written using the [task-asynchronous programming
+model](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/) in C#. For
+details on what kinds of rewriting is supported by Coyote, as well as recommendations on which DLLs
+to rewrite, see [rewriting binaries](../concepts/binary-rewriting.md).
 
 To invoke the rewriter use the following command:
 
 ```plain
-coyote rewrite ${YOUR_PROGRAM}
+coyote rewrite ${PATH}
 ```
 
-`${YOUR_PROGRAM}` is the path to your application or library to be rewritten or a folder containing
-all the libraries you want rewritten.
+`${PATH}` is the path to the assembly (`*.dll`, `*.exe`) to rewrite or to a [JSON rewriting
+configuration file](../concepts/binary-rewriting.md#configuration) that lists all assemblies to
+rewrite.
 
-Type `coyote rewrite -?` to see the full command line options.
-
-### Example usage
-
-Read this [introductory tutorial](../tutorials/first-concurrency-unit-test.md) to see how Coyote can
-be used to rewrite the binary of a simple application for for testing.
-
-### Configuration
-
-You can provide more rewriting options in a JSON file like this:
-
-```json
-{
-  "AssembliesPath": "bin/net6.0",
-  "OutputPath": "bin/net6.0/rewritten",
-  "Assemblies": [
-    "BoundedBuffer.dll",
-    "MyOtherLibrary.dll",
-    "FooBar123.dll"
-  ]
-}
-```
-
-- `AssembliesPath` is the folder containing the original binaries.  This property is required.
-
-- `OutputPath` allows you to specify a different location for the rewritten assemblies. The
-`OutputPath` can be omitted in which case it is assumed to be the same as `AssembliesPath` and in
-that case the original assemblies will be replaced.
-
-- `Assemblies` is an optional list of specific assemblies in `AssembliesPath` to be rewritten. You
-can also pull in another assembly by providing a full path to something outside the
-`AssembliesPath`. If this list is not provided then the tool will rewrite all assemblies found in
-the specified `AssembliesPath`.
-
-Then pass this config file on the command line: `coyote rewrite config.json`.
+Type `coyote rewrite -?` to see the full command line options. You can also read this [introductory
+tutorial](../tutorials/first-concurrency-unit-test.md) to see how Coyote can be used to rewrite the
+binary of a simple application for for testing.
 
 ### Test your binaries
 
@@ -165,10 +136,10 @@ The `coyote` replayer can be used to deterministically reproduce and debug buggy
 by `coyote test`). To run the replayer use the following command:
 
 ```plain
-coyote replay ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
+coyote replay ${YOUR_PROGRAM} ${TRACE}.trace
 ```
 
-Where `${SCHEDULE_TRACE}}.schedule` is the trace file dumped by `coyote test`.
+Where `${TRACE}}.trace` is the JSON trace file dumped by `coyote test`.
 
 You can attach the Visual Studio debugger on this trace by using `--break`. When using this flag,
 Coyote will automatically instrument a breakpoint when the bug is found. You can also insert your
@@ -191,10 +162,10 @@ Out of the box, Coyote supports finding and reproducing bugs in programs written
 Coyote will let you know with an informative error if it detects a type that it does not support, or
 if the test invokes an external concurrent API that you have not mocked or rewritten its assembly.
 For these scenarios, Coyote provides the `--no-repro` command line option, which allows you to
-ignore these errors by *disabling the ability to reproduce* bug traces (i.e., no `.schedule` file
-will be produced when a bug is found). Alternatively, if you are using the Coyote test runner from
-inside another [unit testing framework](../how-to/unit-testing.md), you can run Coyote in this mode
-by enabling the `Configuration.WithNoBugTraceRepro()` option.
+ignore these errors by *disabling the ability to reproduce* bug traces (i.e., no `.trace` file will
+be produced when a bug is found). Alternatively, if you are using the Coyote test runner from inside
+another [unit testing framework](../how-to/unit-testing.md), you can run Coyote in this mode by
+enabling the `Configuration.WithNoBugTraceRepro()` option.
 
 In the `--no-repro` mode, you can continue using Coyote to expose tricky concurrency (and other
 nondeterministic) bugs. As Coyote adds supports for more .NET APIs, you will be able to reproduce
@@ -255,6 +226,6 @@ on MacOS or Linux. So another way to debug a replay is to follow these steps:
 2. Execute the coyote binary, which you can find in ~/.dotnet/tools/coyote if you installed the
 `dotnet tool` called `Microsoft.Coyote.CLI`.
 
-3. Add the arguments ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
+3. Add the arguments ${YOUR_PROGRAM} ${TRACE}.trace
 
 4. Insert the breakpoints where needed and start debugging.

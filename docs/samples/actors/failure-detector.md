@@ -10,7 +10,7 @@ late at night scratching your head. Read further to learn how to find this bug u
 
 You will also need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -49,18 +49,18 @@ strategy, you will see a bug report:
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
-..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
 ```
 
-The `*.txt` file is the text log of the iteration that found the bug. The `*.schedule` contains the
+The `*.txt` file is the text log of the iteration that found the bug. The `*.trace` contains the
 information needed to reproduce the bug.
 
 Finding a hard to find bug is one thing, but if you can't reproduce this bug while debugging there
-is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
+is no point. So the `*.trace` can be used with the `coyote replay` command as follows:
 
 ```plain
 coyote replay ./Samples/bin/net6.0/Monitors.dll 
-    .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+    .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
     
 . Reproducing trace in ./Samples/bin/net6.0/Monitors.exe
 ... Reproduced 1 bug.
@@ -84,7 +84,7 @@ You will see the following output:
 ..... Writing .\Samples\bin\net6.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
 ```
 
-Open the DGML diagram using Visual Studio 2019 and you will see the following:
+Open the DGML diagram using Visual Studio 2022 and you will see the following:
 
 ![monitors](../../assets/images/Monitors.svg)
 

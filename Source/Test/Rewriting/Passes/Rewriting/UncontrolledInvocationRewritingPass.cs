@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -18,8 +18,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="UncontrolledInvocationRewritingPass"/> class.
         /// </summary>
-        internal UncontrolledInvocationRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal UncontrolledInvocationRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
         }
 
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Rewriting
 
                 if (isUncontrolledType)
                 {
-                    Debug.WriteLine($"............. [+] injected uncontrolled '{invocationName}' invocation exception");
+                    this.LogWriter.LogDebug("............. [+] injected uncontrolled '{0}' invocation exception", invocationName);
 
                     var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                     MethodReference providerMethod = providerType.Methods.FirstOrDefault(
@@ -155,7 +155,6 @@ namespace Microsoft.Coyote.Rewriting
                     type.Name is nameof(System.Threading.ReaderWriterLockSlim) ||
                     type.Name is nameof(System.Threading.RegisteredWaitHandle) ||
                     type.Name is nameof(System.Threading.Semaphore) ||
-                    type.Name is nameof(System.Threading.SemaphoreSlim) ||
                     type.Name is nameof(System.Threading.SpinLock) ||
                     type.Name is nameof(System.Threading.SpinWait) ||
                     type.Name is nameof(System.Threading.SynchronizationContext) ||

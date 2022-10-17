@@ -1,6 +1,6 @@
 # ActorRuntimeLogTextFormatter constructor
 
-Initializes a new instance of the [`ActorRuntimeLogTextFormatter`](../ActorRuntimeLogTextFormatter.md) class.
+The default constructor.
 
 ```csharp
 public ActorRuntimeLogTextFormatter()

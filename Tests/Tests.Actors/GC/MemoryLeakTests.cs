@@ -20,7 +20,6 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             public TaskCompletionSource<bool> Tcs = new TaskCompletionSource<bool>();
             public List<WeakReference<int[]>> Buffers = new List<WeakReference<int[]>>();
-            public bool HaltTest;
 
             internal void Add(int[] buffer)
             {
@@ -44,39 +43,27 @@ namespace Microsoft.Coyote.Actors.Tests
             }
         }
 
-        private class M : StateMachine
+        private class M : Actor
         {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
+            protected override async Task OnInitializeAsync(Event e)
             {
-            }
-
-            private async Task InitOnEntry(Event e)
-            {
-                var setup = (SetupEvent)e;
-                var tcs = setup.Tcs;
-
-                try
+                var setup = e as SetupEvent;
+                for (int i = 0; i < 100; i++)
                 {
-                    for (int i = 0; i < 100; i++)
+                    var n = this.CreateActor(typeof(N), e);
+                    for (int j = 0; j < 100; j++)
                     {
-                        var n = this.CreateActor(typeof(N), e);
-                        for (int j = 0; j < 100; j++)
-                        {
-                            var send = new E(this.Id);
-                            setup.Add(send.Buffer);
-                            this.SendEvent(n, send);
-                            await this.ReceiveEventAsync(typeof(E));
-                        }
+                        var send = new E(this.Id);
+                        setup.Add(send.Buffer);
+                        this.SendEvent(n, send);
+                        await this.ReceiveEventAsync(typeof(E));
                     }
-                }
-                finally
-                {
-                    tcs.TrySetResult(true);
+
+                    this.SendEvent(n, HaltEvent.Instance);
                 }
 
-                tcs.TrySetResult(true);
+                setup.Tcs.SetResult(true);
+                this.RaiseHaltEvent();
             }
         }
 
@@ -94,7 +81,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void Configure(Event e)
             {
-                this.Setup = (SetupEvent)e;
+                this.Setup = e as SetupEvent;
                 this.Buffer = new int[10000];
                 this.Buffer[this.Buffer.Length - 1] = 1;
                 this.Setup.Add(this.Buffer);
@@ -106,14 +93,10 @@ namespace Microsoft.Coyote.Actors.Tests
                 var send = new E(this.Id);
                 this.Setup.Add(send.Buffer);
                 this.SendEvent(sender, new E(this.Id));
-                if (this.Setup.HaltTest)
-                {
-                    this.RaiseHaltEvent();
-                }
             }
         }
 
-        private static void AssertNoLeaks(SetupEvent e)
+        private static void AssertNoEventLeaks(SetupEvent e)
         {
             int retries = 10;
             int count = 0;
@@ -133,40 +116,37 @@ namespace Microsoft.Coyote.Actors.Tests
 
             // MacOs really doesn't want to let go of the last one for some reason (perhaps
             // because we are also grabbing references in the above foreach statement).
-            Assert.True(count <= 1);
-        }
-
-        [Fact(Timeout = 10000)]
-        public void TestNoMemoryLeakInEventSending()
-        {
-            this.Test(async r =>
-            {
-                var setup = new SetupEvent();
-                r.CreateActor(typeof(M), setup);
-
-                await this.WaitAsync(setup.Tcs.Task, 10000);
-
-                r.Stop();
-
-                AssertNoLeaks(setup);
-            });
+            Assert.InRange(count, 0, 1);
         }
 
         [Fact(Timeout = 10000)]
         public void TestNoMemoryLeakAfterHalt()
         {
-            this.Test(async r =>
+            this.Test(r =>
             {
-                // test that actors don't leak after they've been halted and that
-                // subsequent events that are dropped also don't leak.
-                var setup = new SetupEvent() { HaltTest = true };
+                var tcs = new TaskCompletionSource<bool>();
+                int count = 0;
+                r.OnActorHalted += id =>
+                {
+                    count++;
+                    if (count == 101)
+                    {
+                        tcs.SetResult(true);
+                    }
+                };
+
+                var setup = new SetupEvent();
                 r.CreateActor(typeof(M), setup);
 
-                await this.WaitAsync(setup.Tcs.Task, 10000);
+                setup.Tcs.Task.Wait(10000);
+                Assert.Equal(TaskStatus.RanToCompletion, setup.Tcs.Task.Status);
+
+                tcs.Task.Wait(10000);
+                Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
 
                 r.Stop();
-
-                AssertNoLeaks(setup);
+                AssertNoEventLeaks(setup);
+                Assert.Equal(101, count);
             });
         }
     }

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// Get or set the underlying logging object.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
         /// </remarks>
         internal TextWriter Logger { get; set; }
 

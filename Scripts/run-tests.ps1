@@ -4,12 +4,13 @@
 param(
     [ValidateSet("net6.0", "netcoreapp3.1", "net462")]
     [string]$framework = "net6.0",
-    [ValidateSet("all", "rewriting", "testing", "actors", "actors-testing", "standalone")]
+    [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
     [ValidateSet("quiet", "minimal", "normal", "detailed", "diagnostic")]
     [string]$v = "normal",
+    [switch]$cli,
     [switch]$ci
 )
 
@@ -17,6 +18,7 @@ Import-Module $PSScriptRoot/common.psm1 -Force
 
 $all_frameworks = (Get-Variable "framework").Attributes.ValidValues
 $targets = [ordered]@{
+    "runtime" = "Tests.Runtime"
     "rewriting" = "Tests.Rewriting"
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
@@ -35,9 +37,8 @@ $ilverify = "dotnet ilverify"
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 
-Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"
-
 # Run all enabled tests.
+Write-Comment -text "Running the Coyote tests." -color "blue"
 foreach ($kvp in $targets.GetEnumerator()) {
     if (($test -ne "all") -and ($test -ne $($kvp.Name))) {
         continue
@@ -67,4 +68,28 @@ foreach ($kvp in $targets.GetEnumerator()) {
     }
 }
 
-Write-Comment -prefix "." -text "Done" -color "green"
+if ($cli.IsPresent -and $IsWindows) {
+    Write-Comment -text "Running the Coyote CLI NuGet tool installation test." -color "blue"
+
+    $ErrorActionPreference = 'Stop'
+    $temp_path = "bin/temp"
+    $cli_tool_path = "$PSScriptRoot/../$temp_path"
+    New-Item -Path $cli_tool_path -ItemType Directory -Force | out-null
+    if (Test-Path $cli_tool_path/coyote.exe) {
+        Write-Comment -text "Uninstalling the Microsoft.Coyote.CLI package."
+        dotnet tool uninstall Microsoft.Coyote.CLI --tool-path $temp_path
+    }
+
+    Write-Comment -text "Installing the Microsoft.Coyote.CLI package."
+    dotnet tool install --add-source $PSScriptRoot/../bin/nuget Microsoft.Coyote.CLI --no-cache --tool-path $temp_path
+
+    $help = (& "$cli_tool_path/coyote" -?) -join '\n'
+    Remove-Item $cli_tool_path -Recurse
+    if (!$help.Contains("coyote [command] [options]")) {
+        Write-Error "### Unexpected output from coyote command"
+        Write-Error $help
+        Exit 1
+    }
+}
+
+Write-Comment -text "Done." -color "green"

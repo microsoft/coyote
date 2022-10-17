@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 
 namespace Microsoft.Coyote.Samples.Common
 {

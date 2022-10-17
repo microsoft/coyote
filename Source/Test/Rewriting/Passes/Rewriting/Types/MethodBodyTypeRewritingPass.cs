@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -14,9 +14,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodBodyTypeRewritingPass"/> class.
         /// </summary>
-        internal MethodBodyTypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies,
-            ILogger logger)
-            : base(options, visitedAssemblies, logger)
+        internal MethodBodyTypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(options, visitedAssemblies, logWriter)
         {
         }
 
@@ -31,9 +30,9 @@ namespace Microsoft.Coyote.Rewriting
             if (this.TryRewriteType(variable.VariableType, out TypeReference newVariableType) &&
                 this.TryResolve(newVariableType, out TypeDefinition _))
             {
-                Debug.WriteLine($"............. [-] variable '{variable.VariableType}'");
+                this.LogWriter.LogDebug("............. [-] variable '{0}'", variable.VariableType);
                 variable.VariableType = newVariableType;
-                Debug.WriteLine($"............. [+] variable '{variable.VariableType}'");
+                this.LogWriter.LogDebug("............. [+] variable '{0}'", variable.VariableType);
             }
         }
 
@@ -54,19 +53,19 @@ namespace Microsoft.Coyote.Rewriting
                     this.TryRewriteType(fd.FieldType, out TypeReference newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {
-                    Debug.WriteLine($"............. [-] {instruction}");
+                    this.LogWriter.LogDebug("............. [-] {0}", instruction);
                     fd.FieldType = newFieldType;
                     this.IsMethodBodyModified = true;
-                    Debug.WriteLine($"............. [+] {instruction}");
+                    this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
                 else if (instruction.Operand is FieldReference fr &&
                     this.TryRewriteType(fr.FieldType, out newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {
-                    Debug.WriteLine($"............. [-] {instruction}");
+                    this.LogWriter.LogDebug("............. [-] {0}", instruction);
                     fr.FieldType = newFieldType;
                     this.IsMethodBodyModified = true;
-                    Debug.WriteLine($"............. [+] {instruction}");
+                    this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
             }
             else if (instruction.OpCode == OpCodes.Initobj)
@@ -99,9 +98,9 @@ namespace Microsoft.Coyote.Rewriting
                 var newInstruction = Instruction.Create(instruction.OpCode, newType);
                 newInstruction.Offset = instruction.Offset;
 
-                Debug.WriteLine($"............. [-] {instruction}");
+                this.LogWriter.LogDebug("............. [-] {0}", instruction);
                 this.Replace(instruction, newInstruction);
-                Debug.WriteLine($"............. [+] {newInstruction}");
+                this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;
             }
@@ -123,9 +122,9 @@ namespace Microsoft.Coyote.Rewriting
                 Instruction newInstruction = Instruction.Create(OpCodes.Call, newMethod);
                 newInstruction.Offset = instruction.Offset;
 
-                Debug.WriteLine($"............. [-] {instruction}");
+                this.LogWriter.LogDebug("............. [-] {0}", instruction);
                 this.Replace(instruction, newInstruction);
-                Debug.WriteLine($"............. [+] {newInstruction}");
+                this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;
             }
@@ -147,9 +146,9 @@ namespace Microsoft.Coyote.Rewriting
                     OpCodes.Callvirt : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
-                Debug.WriteLine($"............. [-] {instruction}");
+                this.LogWriter.LogDebug("............. [-] {0}", instruction);
                 this.Replace(instruction, newInstruction);
-                Debug.WriteLine($"............. [+] {newInstruction}");
+                this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;
             }

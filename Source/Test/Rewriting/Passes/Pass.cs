@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -50,17 +50,17 @@ namespace Microsoft.Coyote.Rewriting
         private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();
 
         /// <summary>
-        /// The installed logger.
+        /// Responsible for writing to the installed <see cref="ILogger"/>.
         /// </summary>
-        protected readonly ILogger Logger;
+        protected internal readonly LogWriter LogWriter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Pass"/> class.
         /// </summary>
-        protected Pass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
+        protected Pass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
         {
             this.VisitedAssemblies = visitedAssemblies;
-            this.Logger = logger;
+            this.LogWriter = logWriter;
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (logError && resolved is null && method != null)
             {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{method.FullName}' method. " +
+                this.LogWriter.LogWarning($"Unable to resolve the '{method.FullName}' method. " +
                     "The method is either unsupported by Coyote, an external method not being rewritten, or the " +
                     ".NET platform of Coyote and the target assembly do not match.");
             }
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (logError && resolved is null && type != null)
             {
-                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve the '{type.FullName}' type. " +
+                this.LogWriter.LogWarning($"Unable to resolve the '{type.FullName}' type. " +
                     "The type is either unsupported by Coyote, an external type not being rewritten, or the " +
                     ".NET platform of Coyote and the target assembly do not match.");
             }

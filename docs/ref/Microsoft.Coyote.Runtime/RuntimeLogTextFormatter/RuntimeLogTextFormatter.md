@@ -1,6 +1,6 @@
 # RuntimeLogTextFormatter constructor
 
-Initializes a new instance of the [`RuntimeLogTextFormatter`](../RuntimeLogTextFormatter.md) class.
+The default constructor.
 
 ```csharp
 public RuntimeLogTextFormatter()

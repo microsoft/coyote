@@ -21,8 +21,8 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundedRandomStrategy"/> class.
         /// </summary>
-        internal BoundedRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal BoundedRandomStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.TotalTaskDelayMap = new ConcurrentDictionary<Guid, int>();
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         /// The delay has an injection probability of 0.05 and is in the range of [10, maxValue * 10]
         /// with an increment of 10 and an upper bound of 5000ms per operation.
         /// </remarks>
-        internal override bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             int maxValue, out int next)
         {
             Guid id = this.GetOperationId();
@@ -66,20 +66,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
 
             this.StepCount++;
             return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>

@@ -21,18 +21,16 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
         /// </summary>
-        internal ProbabilisticRandomStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator)
+        internal ProbabilisticRandomStrategy(Configuration configuration)
+            : base(configuration)
         {
             this.Bound = configuration.StrategyBound;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
-            this.StepCount++;
-
             int count = ops.Count();
             if (count > 1)
             {

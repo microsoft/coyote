@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote
@@ -70,12 +69,6 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// If true, the seed will increment in each testing iteration.
-        /// </summary>
-        [DataMember]
-        internal bool IsSchedulingSeedIncremental;
-
-        /// <summary>
         /// If this option is enabled and uncontrolled concurrency is detected, then the
         /// runtime will attempt to partially control the concurrency of the application,
         /// instead of immediately failing with an error.
@@ -97,10 +90,22 @@ namespace Microsoft.Coyote
         internal bool IsSystematicFuzzingFallbackEnabled;
 
         /// <summary>
+        /// Value that controls the maximum time an operation might get delayed during systematic fuzzing.
+        /// </summary>
+        [DataMember]
+        public uint MaxFuzzingDelay { get; internal set; }
+
+        /// <summary>
         /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, checking races during lock accesses is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsLockAccessRaceCheckingEnabled;
 
         /// <summary>
         /// If this option is enabled, shared state reduction is enabled during systematic testing.
@@ -142,10 +147,10 @@ namespace Microsoft.Coyote
         internal bool ConsiderDepthBoundHitAsBug;
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time an operation gets delayed
-        /// or a built-in timer gets scheduled during systematic testing. Decrease the value to increase the
-        /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
-        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability).
+        /// Value that controls the probability of triggering a timeout during systematic testing.
+        /// Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds
+        /// to a 50% probability), or increase the value to decrease the frequency (e.g. a value of
+        /// 10 corresponds to a 10% probability).
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
@@ -198,10 +203,17 @@ namespace Microsoft.Coyote
         internal bool IsProgramStateHashingEnabled;
 
         /// <summary>
-        /// If this option is enabled, (safety) monitors are used in the production runtime.
+        /// If this option is enabled, safety monitors can run outside the scope of the testing engine.
         /// </summary>
         [DataMember]
-        internal bool IsMonitoringEnabledInInProduction;
+        internal bool IsMonitoringEnabledOutsideTesting { get; private set; }
+
+        /// <summary>
+        /// If this option is enabled, the runtime can check for actor quiescence outside
+        /// the scope of the testing engine.
+        /// </summary>
+        [DataMember]
+        internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
 
         /// <summary>
         /// Attaches the debugger during trace replay.
@@ -210,32 +222,19 @@ namespace Microsoft.Coyote
         internal bool AttachDebugger;
 
         /// <summary>
-        /// The schedule file to be replayed.
+        /// The trace to be replayed during testing.
         /// </summary>
-        internal string ScheduleFile;
+        internal string ReproducibleTrace { get; private set; }
 
         /// <summary>
-        /// The schedule trace to be replayed.
+        /// The level of verbosity to use during logging.
         /// </summary>
-        internal string ScheduleTrace;
+        public VerbosityLevel VerbosityLevel { get; private set; }
 
         /// <summary>
-        /// If true, then messages are logged.
+        /// If true, then console logging is enabled, else false.
         /// </summary>
-        [DataMember]
-        public bool IsVerbose { get; internal set; }
-
-        /// <summary>
-        /// If true, then debug verbosity is enabled.
-        /// </summary>
-        [DataMember]
-        internal bool IsDebugVerbosityEnabled;
-
-        /// <summary>
-        /// The level of detail to provide in verbose logging.
-        /// </summary>
-        [DataMember]
-        public LogSeverity LogLevel { get; internal set; }
+        internal bool IsConsoleLoggingEnabled { get; private set; }
 
         /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
@@ -244,7 +243,7 @@ namespace Microsoft.Coyote
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
@@ -267,19 +266,23 @@ namespace Microsoft.Coyote
         protected Configuration()
         {
             this.OutputFilePath = string.Empty;
-
             this.AssemblyToBeAnalyzed = string.Empty;
             this.TestMethodName = string.Empty;
+            this.ReproducibleTrace = string.Empty;
+
+            this.VerbosityLevel = VerbosityLevel.None;
+            this.IsConsoleLoggingEnabled = false;
 
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
-            this.IsSchedulingSeedIncremental = false;
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
+            this.MaxFuzzingDelay = 1000;
             this.IsLivenessCheckingEnabled = true;
+            this.IsLockAccessRaceCheckingEnabled = false;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -288,26 +291,20 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
-            this.DeadlockTimeout = 5000;
+            this.DeadlockTimeout = 1000;
             this.ReportPotentialDeadlocksAsBugs = true;
             this.UncontrolledConcurrencyResolutionAttempts = 10;
             this.UncontrolledConcurrencyResolutionDelay = 1000;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
-            this.IsMonitoringEnabledInInProduction = false;
+            this.IsMonitoringEnabledOutsideTesting = false;
+            this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
-
-            this.ScheduleFile = string.Empty;
-            this.ScheduleTrace = string.Empty;
 
             this.IsActivityCoverageReported = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
-
-            this.IsVerbose = false;
-            this.IsDebugVerbosityEnabled = false;
-            this.LogLevel = LogSeverity.Informational;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -319,6 +316,60 @@ namespace Microsoft.Coyote
         public static Configuration Create()
         {
             return new Configuration();
+        }
+
+        /// <summary>
+        /// Updates the configuration to use the specified verbosity level,
+        /// which by default is <see cref="VerbosityLevel.Info"/>.
+        /// </summary>
+        /// <param name="level">The level of verbosity used during logging.</param>
+        public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)
+        {
+            this.VerbosityLevel = level;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to log all runtime messages to the console, unless overridden by a custom <see cref="ILogger"/>.
+        /// </summary>
+        /// <param name="isEnabled">If true, then logs all runtime messages to the console.</param>
+        public Configuration WithConsoleLoggingEnabled(bool isEnabled = true)
+        {
+            this.IsConsoleLoggingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified number of iterations to run during systematic testing.
+        /// </summary>
+        /// <param name="iterations">The number of iterations to run.</param>
+        public Configuration WithTestingIterations(uint iterations)
+        {
+            this.TestingIterations = iterations;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified systematic testing timeout in seconds.
+        /// </summary>
+        /// <param name="timeout">The timeout value in seconds.</param>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        public Configuration WithTestingTimeout(int timeout)
+        {
+            this.TestingTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to try reproduce the specified trace during systematic testing.
+        /// </summary>
+        /// <param name="trace">The trace to be reproduced.</param>
+        public Configuration WithReproducibleTrace(string trace)
+        {
+            this.ReproducibleTrace = trace;
+            return this;
         }
 
         /// <summary>
@@ -379,41 +430,6 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the replay scheduling strategy during systematic testing.
-        /// This strategy replays the specified schedule trace to reproduce the same execution.
-        /// </summary>
-        /// <param name="scheduleTrace">The schedule trace to be replayed.</param>
-        public Configuration WithReplayStrategy(string scheduleTrace)
-        {
-            this.SchedulingStrategy = "replay";
-            this.ScheduleTrace = scheduleTrace;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with the specified number of iterations to run during systematic testing.
-        /// </summary>
-        /// <param name="iterations">The number of iterations to run.</param>
-        public Configuration WithTestingIterations(uint iterations)
-        {
-            this.TestingIterations = iterations;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with the specified systematic testing timeout in seconds.
-        /// </summary>
-        /// <param name="timeout">The timeout value in seconds.</param>
-        /// <remarks>
-        /// Setting this value overrides the <see cref="TestingIterations"/> value.
-        /// </remarks>
-        public Configuration WithTestingTimeout(int timeout)
-        {
-            this.TestingTimeout = timeout;
-            return this;
-        }
-
-        /// <summary>
         /// Updates the configuration with partially controlled concurrency allowed or disallowed.
         /// </summary>
         /// <param name="isAllowed">If true, then partially controlled concurrency is allowed.</param>
@@ -440,6 +456,29 @@ namespace Microsoft.Coyote
         public Configuration WithSystematicFuzzingFallbackEnabled(bool isEnabled = true)
         {
             this.IsSystematicFuzzingFallbackEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the value that controls the maximum time an operation might get delayed
+        /// during systematic fuzzing.
+        /// </summary>
+        /// <param name="delay">The maximum delay during systematic fuzzing, which by default is 1000.</param>
+        public Configuration WithMaxFuzzingDelay(uint delay)
+        {
+            this.MaxFuzzingDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking for lock accesses enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when concurrent operations try to access lock-based synchronization primitives.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races during lock accesses is enabled.</param>
+        public Configuration WithLockAccessRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsLockAccessRaceCheckingEnabled = isEnabled;
             return this;
         }
 
@@ -518,8 +557,7 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls the probability of triggering a timeout each time an
-        /// operation gets delayed or a built-in timer gets scheduled during systematic testing.
+        /// Updates the value that controls the probability of triggering a timeout during systematic testing.
         /// </summary>
         /// <param name="delay">The timeout delay during testing, which by default is 10.</param>
         /// <remarks>
@@ -532,10 +570,10 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the value that controls how much time the deadlock monitor should
+        /// Updates the value that controls how much time the background deadlock monitor should
         /// wait during concurrency testing before reporting a potential deadlock.
         /// </summary>
-        /// <param name="timeout">The timeout value in milliseconds, which by default is 5000.</param>
+        /// <param name="timeout">The timeout value in milliseconds, which by default is 1000.</param>
         /// <remarks>
         /// Increase the value to give more time to the test to resolve a potential deadlock.
         /// </remarks>
@@ -590,16 +628,6 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with incremental seed generation enabled or disabled.
-        /// </summary>
-        /// <param name="isIncremental">If true, then incremental seed generation is used.</param>
-        public Configuration WithIncrementalSeedGenerationEnabled(bool isIncremental = true)
-        {
-            this.IsSchedulingSeedIncremental = isIncremental;
-            return this;
-        }
-
-        /// <summary>
         /// Updates the configuration so that the tester continues running test iterations
         /// up to a bound, even if a bug is already found.
         /// </summary>
@@ -610,29 +638,6 @@ namespace Microsoft.Coyote
         public Configuration WithTestIterationsRunToCompletion(bool runToCompletion = true)
         {
             this.RunTestIterationsToCompletion = runToCompletion;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with verbose output enabled or disabled.
-        /// </summary>
-        /// <param name="isVerbose">If true, then messages are logged.</param>
-        /// <param name="logLevel">The level of detail to provide in verbose logging.</param>
-        public Configuration WithVerbosityEnabled(bool isVerbose = true, LogSeverity logLevel = LogSeverity.Informational)
-        {
-            this.IsVerbose = isVerbose;
-            this.LogLevel = logLevel;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration with debug logging enabled or disabled.
-        /// </summary>
-        /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
-        {
-            this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
             return this;
         }
 
@@ -671,6 +676,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Updates the configuration with telemetry enabled or disabled.
         /// </summary>
+        /// <param name="isEnabled">If true, then enables telemetry.</param>
         public Configuration WithTelemetryEnabled(bool isEnabled = true)
         {
             this.IsTelemetryEnabled = isEnabled;
@@ -678,11 +684,22 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Enable running of Monitor objects in production.
+        /// Updates the configuration to allow safety monitors to run outside
+        /// the scope of the testing engine.
         /// </summary>
-        internal Configuration WithProductionMonitorEnabled(bool isEnabled = true)
+        internal Configuration WithMonitoringEnabledOutsideTesting(bool isEnabled = true)
         {
-            this.IsMonitoringEnabledInInProduction = isEnabled;
+            this.IsMonitoringEnabledOutsideTesting = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to allow the runtime to check for actor quiescence
+        /// outside the scope of the testing engine.
+        /// </summary>
+        internal Configuration WithActorQuiescenceCheckingEnabledOutsideTesting(bool isEnabled = true)
+        {
+            this.IsActorQuiescenceCheckingEnabledOutsideTesting = isEnabled;
             return this;
         }
     }

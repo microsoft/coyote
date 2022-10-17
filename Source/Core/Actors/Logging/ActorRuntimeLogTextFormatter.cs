@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -17,80 +17,76 @@ namespace Microsoft.Coyote.Actors
     /// </remarks>
     public class ActorRuntimeLogTextFormatter : RuntimeLogTextFormatter, IActorRuntimeLog
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActorRuntimeLogTextFormatter"/> class.
-        /// </summary>
-        public ActorRuntimeLogTextFormatter()
-            : base()
-        {
-        }
-
         /// <inheritdoc/>
         public virtual void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
-            var text = $"<CreateLog> {id} was created by {source}.";
-            this.Logger.WriteLine(text);
+            if (creatorName is null)
+            {
+                this.Logger.WriteLine("<CreateLog> {0} was created by thread '{1}'.", id, Thread.CurrentThread.ManagedThreadId);
+            }
+            else
+            {
+                this.Logger.WriteLine("<CreateLog> {0} was created by {1}.", id, creatorName);
+            }
         }
 
         /// <inheritdoc/>
-        public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        public virtual void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorName ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
-            var text = $"<CreateLog> {id} was created by {source}.";
-            this.Logger.WriteLine(text);
+            if (creatorName is null)
+            {
+                this.Logger.WriteLine("<CreateLog> {0} was created by thread '{1}'.", id, Thread.CurrentThread.ManagedThreadId);
+            }
+            else
+            {
+                this.Logger.WriteLine("<CreateLog> {0} was created by {1}.", id, creatorName);
+            }
         }
 
         /// <inheritdoc/>
         public virtual void OnCreateTimer(TimerInfo info)
         {
-            string text;
             var source = info.OwnerId?.Name ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
             if (info.Period.TotalMilliseconds >= 0)
             {
-                text = $"<TimerLog> Timer '{info}' (due-time:{info.DueTime.TotalMilliseconds}ms; " +
-                    $"period :{info.Period.TotalMilliseconds}ms) was created by {source}.";
+                this.Logger.WriteLine("<TimerLog> Timer '{0}' (due-time:{1}ms; period:{2}ms) was created by {3}.",
+                    info, info.DueTime.TotalMilliseconds, info.Period.TotalMilliseconds, source);
             }
             else
             {
-                text = $"<TimerLog> Timer '{info}' (due-time:{info.DueTime.TotalMilliseconds}ms) was created by {source}.";
+                this.Logger.WriteLine("<TimerLog> Timer '{0}' (due-time:{1}ms) was created by {2}.",
+                    info, info.DueTime.TotalMilliseconds, source);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
         public virtual void OnDefaultEventHandler(ActorId id, string stateName)
         {
-            string text;
             if (stateName is null)
             {
-                text = $"<ActorLog> {id} is executing the default handler.";
+                this.Logger.WriteLine("<ActorLog> {0} is executing the default handler.", id);
             }
             else
             {
-                text = $"<ActorLog> {id} is executing the default handler in state '{stateName}'.";
+                this.Logger.WriteLine("<ActorLog> {0} is executing the default handler in state '{1}'.", id, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
+        public virtual void OnEventHandlerTerminated(ActorId id, string stateName, DequeueStatus dequeueStatus)
         {
             if (dequeueStatus != DequeueStatus.Unavailable)
             {
-                string text;
                 if (stateName is null)
                 {
-                    text = $"<ActorLog> The event handler of {id} terminated with '{dequeueStatus}' dequeue status.";
+                    this.Logger.WriteLine("<ActorLog> The event handler of {0} terminated with '{1}' dequeue status.",
+                        id, dequeueStatus);
                 }
                 else
                 {
-                    text = $"<ActorLog> The event handler of {id} terminated in state '{stateName}' with '{dequeueStatus}' dequeue status.";
+                    this.Logger.WriteLine("<ActorLog> The event handler of {0} terminated in state '{1}' with '{2}' dequeue status.",
+                        id, stateName, dequeueStatus);
                 }
-
-                this.Logger.WriteLine(text);
             }
         }
 
@@ -98,167 +94,147 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            string text;
             if (string.IsNullOrEmpty(stateName))
             {
-                text = $"<DequeueLog> {id} dequeued event '{eventName}'.";
+                this.Logger.WriteLine("<DequeueLog> {0} dequeued event '{1}'.", id, eventName);
             }
             else
             {
-                text = $"<DequeueLog> {id} dequeued event '{eventName}' in state '{stateName}'.";
+                this.Logger.WriteLine("<DequeueLog> {0} dequeued event '{1}' in state '{2}'.", id, eventName, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnEnqueueEvent(ActorId id, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            string text = $"<EnqueueLog> {id} enqueued event '{eventName}'.";
-            this.Logger.WriteLine(text);
-        }
+        public virtual void OnEnqueueEvent(ActorId id, Event e) =>
+            this.Logger.WriteLine("<EnqueueLog> {0} enqueued event '{1}'.", id, e.GetType().FullName);
 
         /// <inheritdoc/>
         public virtual void OnExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
         {
-            string text;
             if (stateName is null)
             {
-                text = $"<ExceptionLog> {id} running action '{actionName}' chose to handle exception '{ex.GetType().Name}'.";
+                this.Logger.WriteLine(LogSeverity.Warning, "<ExceptionLog> {0} running action '{1}' chose to handle exception '{2}'.",
+                    id, actionName, ex.GetType().Name);
             }
             else
             {
-                text = $"<ExceptionLog> {id} running action '{actionName}' in state '{stateName}' chose to handle exception '{ex.GetType().Name}'.";
+                this.Logger.WriteLine(LogSeverity.Warning, "<ExceptionLog> {0} running action '{1}' in state '{2}' chose to handle exception '{3}'.",
+                    id, actionName, stateName, ex.GetType().Name);
             }
-
-            this.Logger.WriteLine(LogSeverity.Warning, text);
         }
 
         /// <inheritdoc/>
         public virtual void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
         {
-            string text;
             if (stateName is null)
             {
-                text = $"<ExceptionLog> {id} running action '{actionName}' threw exception '{ex.GetType().Name}'.";
+                this.Logger.WriteLine(LogSeverity.Warning, "<ExceptionLog> {0} running action '{1}' threw exception '{2}'.",
+                    id, actionName, ex.GetType().Name);
             }
             else
             {
-                text = $"<ExceptionLog> {id} running action '{actionName}' in state '{stateName}' threw exception '{ex.GetType().Name}'.";
+                this.Logger.WriteLine(LogSeverity.Warning, "<ExceptionLog> {0} running action '{1}' in state '{2}' threw exception '{3}'.",
+                    id, actionName, stateName, ex.GetType().Name);
             }
-
-            this.Logger.WriteLine(LogSeverity.Warning, text);
         }
 
         /// <inheritdoc/>
         public virtual void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
-            string text;
             if (currentStateName is null)
             {
-                text = $"<ActionLog> {id} invoked action '{actionName}'.";
+                this.Logger.WriteLine("<ActionLog> {0} invoked action '{1}'.", id, actionName);
             }
             else if (handlingStateName != currentStateName)
             {
-                text = $"<ActionLog> {id} invoked action '{actionName}' in state '{currentStateName}' where action was declared by state '{handlingStateName}'.";
+                this.Logger.WriteLine("<ActionLog> {0} invoked action '{1}' in state '{2}' where action was declared by state '{3}'.",
+                    id, actionName, currentStateName, handlingStateName);
             }
             else
             {
-                text = $"<ActionLog> {id} invoked action '{actionName}' in state '{currentStateName}'.";
+                this.Logger.WriteLine("<ActionLog> {0} invoked action '{1}' in state '{2}'.",
+                    id, actionName, currentStateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnGotoState(ActorId id, string currentStateName, string newStateName)
-        {
-            string text = $"<GotoLog> {id} is transitioning from state '{currentStateName}' to state '{newStateName}'.";
-            this.Logger.WriteLine(text);
-        }
+        public virtual void OnGotoState(ActorId id, string currentStateName, string newStateName) =>
+            this.Logger.WriteLine("<GotoLog> {0} is transitioning from state '{1}' to state '{2}'.",
+                id, currentStateName, newStateName);
 
         /// <inheritdoc/>
         public virtual void OnHalt(ActorId id, int inboxSize)
         {
-            string text = $"<HaltLog> {id} halted with {inboxSize} events in its inbox.";
-            this.Logger.WriteLine(text);
+            if (inboxSize is 1)
+            {
+                this.Logger.WriteLine("<HaltLog> {0} halted with '{1}' event in its inbox.", id, inboxSize);
+            }
+            else
+            {
+                this.Logger.WriteLine("<HaltLog> {0} halted with '{1}' events in its inbox.", id, inboxSize);
+            }
         }
 
         /// <inheritdoc/>
         public virtual void OnPopState(ActorId id, string currentStateName, string restoredStateName)
         {
             currentStateName = string.IsNullOrEmpty(currentStateName) ? "[not recorded]" : currentStateName;
-            var reenteredStateName = restoredStateName ?? string.Empty;
-            var text = $"<PopLog> {id} popped state '{currentStateName}' and reentered state '{reenteredStateName}'.";
-            this.Logger.WriteLine(text);
+            this.Logger.WriteLine("<PopLog> {0} popped state '{1}' and reentered state '{2}'.",
+                id, currentStateName, restoredStateName ?? string.Empty);
         }
 
         /// <inheritdoc/>
-        public virtual void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            var text = $"<PopLog> {id} popped state {stateName} due to unhandled event '{eventName}'.";
-            this.Logger.WriteLine(text);
-        }
+        public virtual void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e) =>
+            this.Logger.WriteLine("<PopLog> {0} popped state '{1}' due to unhandled event '{2}'.",
+                id, stateName, e.GetType().FullName);
 
         /// <inheritdoc/>
-        public virtual void OnPushState(ActorId id, string currentStateName, string newStateName)
-        {
-            string text = $"<PushLog> {id} pushed from state '{currentStateName}' to state '{newStateName}'.";
-            this.Logger.WriteLine(text);
-        }
+        public virtual void OnPushState(ActorId id, string currentStateName, string newStateName) =>
+            this.Logger.WriteLine("<PushLog> {0} pushed from state '{1}' to state '{2}'.",
+                id, currentStateName, newStateName);
 
         /// <inheritdoc/>
         public virtual void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
-            string eventName = e.GetType().FullName;
-            string text;
             if (stateName is null)
             {
-                text = $"<RaiseLog> {id} raised event '{eventName}'.";
+                this.Logger.WriteLine("<RaiseLog> {0} raised event '{1}'.", id, e.GetType().FullName);
             }
             else
             {
-                text = $"<RaiseLog> {id} raised event '{eventName}' in state '{stateName}'.";
+                this.Logger.WriteLine("<RaiseLog> {0} raised event '{1}' in state '{2}'.",
+                    id, e.GetType().FullName, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
         public virtual void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
-            string eventName = e.GetType().FullName;
-            string text;
             if (stateName is null)
             {
-                text = $"<RaiseLog> {id} is handling the raised event '{eventName}'.";
+                this.Logger.WriteLine("<RaiseLog> {0} is handling the raised event '{1}'.", id, e.GetType().FullName);
             }
             else
             {
-                text = $"<RaiseLog> {id} is handling the raised event '{eventName}' in state '{stateName}'.";
+                this.Logger.WriteLine("<RaiseLog> {0} is handling the raised event '{1}' in state '{2}'.",
+                    id, e.GetType().FullName, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
         public virtual void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
-            string eventName = e.GetType().FullName;
-            string text;
             var unblocked = wasBlocked ? " and unblocked" : string.Empty;
             if (stateName is null)
             {
-                text = $"<ReceiveLog> {id} dequeued event '{eventName}'{unblocked}.";
+                this.Logger.WriteLine("<ReceiveLog> {0} dequeued event '{1}'{2}.", id,
+                    e.GetType().FullName, unblocked);
             }
             else
             {
-                text = $"<ReceiveLog> {id} dequeued event '{eventName}'{unblocked} in state '{stateName}'.";
+                this.Logger.WriteLine("<ReceiveLog> {0} dequeued event '{1}'{2} in state '{3}'.",
+                    id, e.GetType().FullName, unblocked, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
@@ -271,46 +247,46 @@ namespace Microsoft.Coyote.Actors
                 senderStateName != null ? $"{senderName} in state '{senderStateName}'" : $"{senderName}" :
                 $"Thread '{Thread.CurrentThread.ManagedThreadId}'";
             var eventName = e.GetType().FullName;
-            var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{eventGroupIdMsg}.";
-            this.Logger.WriteLine(text);
+            this.Logger.WriteLine("<SendLog> {0} sent event '{1}' to {2}{3}{4}.",
+                sender, eventName, targetActorId, isHalted, eventGroupIdMsg);
         }
 
         /// <inheritdoc/>
-        public virtual void OnStateTransition(ActorId id, string stateName, bool isEntry)
-        {
-            var direction = isEntry ? "enters" : "exits";
-            var text = $"<StateLog> {id} {direction} state '{stateName}'.";
-            this.Logger.WriteLine(text);
-        }
+        public virtual void OnStateTransition(ActorId id, string stateName, bool isEntry) =>
+            this.Logger.WriteLine("<StateLog> {0} {1} state '{2}'.", id, isEntry ? "enters" : "exits", stateName);
 
         /// <inheritdoc/>
         public virtual void OnStopTimer(TimerInfo info)
         {
-            var source = info.OwnerId?.Name ?? $"thread '{Thread.CurrentThread.ManagedThreadId}'";
-            var text = $"<TimerLog> Timer '{info}' was stopped and disposed by {source}.";
-            this.Logger.WriteLine(text);
+            if (info.OwnerId is null)
+            {
+                this.Logger.WriteLine("<TimerLog> Timer '{0}' was stopped and disposed by thread '{1}'.",
+                    info, Thread.CurrentThread.ManagedThreadId);
+            }
+            else
+            {
+                this.Logger.WriteLine("<TimerLog> Timer '{0}' was stopped and disposed by {1}.", info, info.OwnerId.Name);
+            }
         }
 
         /// <inheritdoc/>
         public virtual void OnWaitEvent(ActorId id, string stateName, Type eventType)
         {
-            string text;
             if (stateName is null)
             {
-                text = $"<ReceiveLog> {id} is waiting to dequeue an event of type '{eventType.FullName}'.";
+                this.Logger.WriteLine("<ReceiveLog> {0} is waiting to dequeue an event of type '{1}'.",
+                    id, eventType.FullName);
             }
             else
             {
-                text = $"<ReceiveLog> {id} is waiting to dequeue an event of type '{eventType.FullName}' in state '{stateName}'.";
+                this.Logger.WriteLine("<ReceiveLog> {0} is waiting to dequeue an event of type '{1}' in state '{2}'.",
+                    id, eventType.FullName, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
         public virtual void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
         {
-            string text;
             string eventNames;
             if (eventTypes.Length is 0)
             {
@@ -341,14 +317,14 @@ namespace Microsoft.Coyote.Actors
 
             if (stateName is null)
             {
-                text = $"<ReceiveLog> {id} is waiting to dequeue an event of type {eventNames}.";
+                this.Logger.WriteLine("<ReceiveLog> {0} is waiting to dequeue an event of type {1}.",
+                    id, eventNames);
             }
             else
             {
-                text = $"<ReceiveLog> {id} is waiting to dequeue an event of type {eventNames} in state '{stateName}'.";
+                this.Logger.WriteLine("<ReceiveLog> {0} is waiting to dequeue an event of type {1} in state '{2}'.",
+                    id, eventNames, stateName);
             }
-
-            this.Logger.WriteLine(text);
         }
     }
 }

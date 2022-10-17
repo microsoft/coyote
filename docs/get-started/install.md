@@ -8,12 +8,12 @@ macOS.
 
 **Optional:**
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
+- [Visual Studio 2022](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
 if you are on Windows.
 
 - [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 
-- Add the [DGML editor](../how-to/generate-dgml.md) feature of Visual Studio 2019.
+- Add the [DGML editor](../how-to/generate-dgml.md) feature of Visual Studio 2022.
 
 ### Installing the NuGet package
 

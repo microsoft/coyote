@@ -49,9 +49,9 @@ namespace Microsoft.Coyote.Runtime
         Write,
 
         /// <summary>
-        /// A controlled operation is blocked until one or more dependencies are satisfied.
+        /// A controlled operation is paused until its dependency is resolved.
         /// </summary>
-        Wait,
+        Pause,
 
         /// <summary>
         /// A controlled operation acquired a synchronized resource.

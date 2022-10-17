@@ -15,6 +15,16 @@ toc:
         subfolderitems:
         - name: Create
           link: ref/Microsoft.Coyote/Configuration/Create
+        - name: WithVerbosityEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
+        - name: WithConsoleLoggingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithConsoleLoggingEnabled
+        - name: WithTestingIterations
+          link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
+        - name: WithTestingTimeout
+          link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
+        - name: WithReproducibleTrace
+          link: ref/Microsoft.Coyote/Configuration/WithReproducibleTrace
         - name: WithRandomStrategy
           link: ref/Microsoft.Coyote/Configuration/WithRandomStrategy
         - name: WithProbabilisticStrategy
@@ -23,18 +33,16 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy
         - name: WithRLStrategy
           link: ref/Microsoft.Coyote/Configuration/WithRLStrategy
-        - name: WithReplayStrategy
-          link: ref/Microsoft.Coyote/Configuration/WithReplayStrategy
-        - name: WithTestingIterations
-          link: ref/Microsoft.Coyote/Configuration/WithTestingIterations
-        - name: WithTestingTimeout
-          link: ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
         - name: WithSystematicFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
         - name: WithSystematicFuzzingFallbackEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
+        - name: WithMaxFuzzingDelay
+          link: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay
+        - name: WithLockAccessRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -53,10 +61,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
-        - name: WithIncrementalSeedGenerationEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithIncrementalSeedGenerationEnabled
-        - name: WithVerbosityEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
         - name: WithActivityCoverageReported
           link: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported
         - name: WithTraceVisualizationEnabled
@@ -73,6 +77,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/TestingIterations
         - name: RandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed
+        - name: MaxFuzzingDelay
+          link: ref/Microsoft.Coyote/Configuration/MaxFuzzingDelay
         - name: MaxUnfairSchedulingSteps
           link: ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
         - name: MaxFairSchedulingSteps
@@ -81,10 +87,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/TimeoutDelay
         - name: DeadlockTimeout
           link: ref/Microsoft.Coyote/Configuration/DeadlockTimeout
-        - name: IsVerbose
-          link: ref/Microsoft.Coyote/Configuration/IsVerbose
-        - name: LogLevel
-          link: ref/Microsoft.Coyote/Configuration/LogLevel
+        - name: VerbosityLevel
+          link: ref/Microsoft.Coyote/Configuration/VerbosityLevel
     - name: Microsoft.Coyote.Actors
       link: ref/Microsoft.Coyote.ActorsNamespace
       subfolderitems:
@@ -147,6 +151,8 @@ toc:
           link: ref/Microsoft.Coyote.Actors/Actor/Logger
         - name: HashedState
           link: ref/Microsoft.Coyote.Actors/Actor/HashedState
+      - name: ActorExecutionStatus
+        link: ref/Microsoft.Coyote.Actors/ActorExecutionStatus
       - name: ActorId
         link: ref/Microsoft.Coyote.Actors/ActorId
         subfolderitems:
@@ -225,8 +231,6 @@ toc:
         subfolderitems:
         - name: WildCardEvent
           link: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
-      - name: OnEventDroppedHandler
-        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
       - name: OnExceptionOutcome
         link: ref/Microsoft.Coyote.Actors/OnExceptionOutcome
       - name: UnhandledEventException
@@ -236,6 +240,10 @@ toc:
           link: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
         - name: CurrentStateName
           link: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
+      - name: OnActorHaltedHandler
+        link: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler
+      - name: OnEventDroppedHandler
+        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
       - name: IActorRuntime
         link: ref/Microsoft.Coyote.Actors/IActorRuntime
         subfolderitems:
@@ -249,6 +257,16 @@ toc:
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
         - name: GetCurrentEventGroup
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
+        - name: GetActorExecutionStatus
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus
+        - name: GetCurrentActorIds
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds
+        - name: GetCurrentActorTypes
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes
+        - name: GetCurrentActorCount
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount
+        - name: OnActorHalted
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted
         - name: OnEventDropped
           link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
       - name: ActorRuntimeLogTextFormatter
@@ -627,65 +645,44 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
-    - name: Microsoft.Coyote.IO
-      link: ref/Microsoft.Coyote.IONamespace
+    - name: Microsoft.Coyote.Logging
+      link: ref/Microsoft.Coyote.LoggingNamespace
       subfolderitems:
-      - name: ConsoleLogger
-        link: ref/Microsoft.Coyote.IO/ConsoleLogger
-        subfolderitems:
-        - name: Write
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/Write
-        - name: WriteLine
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/WriteLine
-        - name: ConsoleLogger
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/ConsoleLogger
-        - name: TextWriter
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/TextWriter
-        - name: Encoding
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/Encoding
-        - name: LogLevel
-          link: ref/Microsoft.Coyote.IO/ConsoleLogger/LogLevel
       - name: ILogger
-        link: ref/Microsoft.Coyote.IO/ILogger
+        link: ref/Microsoft.Coyote.Logging/ILogger
         subfolderitems:
         - name: Write
-          link: ref/Microsoft.Coyote.IO/ILogger/Write
+          link: ref/Microsoft.Coyote.Logging/ILogger/Write
         - name: WriteLine
-          link: ref/Microsoft.Coyote.IO/ILogger/WriteLine
-        - name: TextWriter
-          link: ref/Microsoft.Coyote.IO/ILogger/TextWriter
-      - name: InMemoryLogger
-        link: ref/Microsoft.Coyote.IO/InMemoryLogger
-        subfolderitems:
-        - name: Write
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/Write
-        - name: WriteLine
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine
-        - name: ToString
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/ToString
-        - name: Dispose
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/Dispose
-        - name: InMemoryLogger
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger
-        - name: TextWriter
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/TextWriter
-        - name: Encoding
-          link: ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding
+          link: ref/Microsoft.Coyote.Logging/ILogger/WriteLine
       - name: LogSeverity
-        link: ref/Microsoft.Coyote.IO/LogSeverity
-      - name: TextWriterLogger
-        link: ref/Microsoft.Coyote.IO/TextWriterLogger
+        link: ref/Microsoft.Coyote.Logging/LogSeverity
+      - name: MemoryLogger
+        link: ref/Microsoft.Coyote.Logging/MemoryLogger
         subfolderitems:
         - name: Write
-          link: ref/Microsoft.Coyote.IO/TextWriterLogger/Write
+          link: ref/Microsoft.Coyote.Logging/MemoryLogger/Write
         - name: WriteLine
-          link: ref/Microsoft.Coyote.IO/TextWriterLogger/WriteLine
+          link: ref/Microsoft.Coyote.Logging/MemoryLogger/WriteLine
+        - name: ToString
+          link: ref/Microsoft.Coyote.Logging/MemoryLogger/ToString
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Logging/MemoryLogger/Dispose
+        - name: MemoryLogger
+          link: ref/Microsoft.Coyote.Logging/MemoryLogger/MemoryLogger
+      - name: TextWriterLogger
+        link: ref/Microsoft.Coyote.Logging/TextWriterLogger
+        subfolderitems:
+        - name: Write
+          link: ref/Microsoft.Coyote.Logging/TextWriterLogger/Write
+        - name: WriteLine
+          link: ref/Microsoft.Coyote.Logging/TextWriterLogger/WriteLine
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Logging/TextWriterLogger/Dispose
         - name: TextWriterLogger
-          link: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriterLogger
-        - name: TextWriter
-          link: ref/Microsoft.Coyote.IO/TextWriterLogger/TextWriter
-        - name: Encoding
-          link: ref/Microsoft.Coyote.IO/TextWriterLogger/Encoding
+          link: ref/Microsoft.Coyote.Logging/TextWriterLogger/TextWriterLogger
+      - name: VerbosityLevel
+        link: ref/Microsoft.Coyote.Logging/VerbosityLevel
     - name: Microsoft.Coyote.Random
       link: ref/Microsoft.Coyote.RandomNamespace
       subfolderitems:
@@ -779,11 +776,47 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/Logger
       - name: OnFailureHandler
         link: ref/Microsoft.Coyote.Runtime/OnFailureHandler
+      - name: IOperationBuilder
+        link: ref/Microsoft.Coyote.Runtime/IOperationBuilder
+        subfolderitems:
+        - name: Name
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/Name
+        - name: GroupId
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/GroupId
+        - name: HashedStateCallback
+          link: ref/Microsoft.Coyote.Runtime/IOperationBuilder/HashedStateCallback
+      - name: Operation
+        link: ref/Microsoft.Coyote.Runtime/Operation
+        subfolderitems:
+        - name: GetNextId
+          link: ref/Microsoft.Coyote.Runtime/Operation/GetNextId
+        - name: CreateNext
+          link: ref/Microsoft.Coyote.Runtime/Operation/CreateNext
+        - name: CreateFrom
+          link: ref/Microsoft.Coyote.Runtime/Operation/CreateFrom
+        - name: Start
+          link: ref/Microsoft.Coyote.Runtime/Operation/Start
+        - name: PauseUntil
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntil
+        - name: PauseUntilCompleted
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompleted
+        - name: PauseUntilAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilAsync
+        - name: PauseUntilCompletedAsync
+          link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync
+        - name: ScheduleNext
+          link: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext
+        - name: Complete
+          link: ref/Microsoft.Coyote.Runtime/Operation/Complete
+        - name: TryReset
+          link: ref/Microsoft.Coyote.Runtime/Operation/TryReset
       - name: RuntimeProvider
         link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:
         - name: Create
           link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create
+        - name: Current
+          link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current
       - name: SchedulingPoint
         link: ref/Microsoft.Coyote.Runtime/SchedulingPoint
         subfolderitems:
@@ -799,6 +832,10 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Suppress
         - name: Resume
           link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/Resume
+        - name: SetCheckpoint
+          link: ref/Microsoft.Coyote.Runtime/SchedulingPoint/SetCheckpoint
+      - name: TaskServices
+        link: ref/Microsoft.Coyote.Runtime/TaskServices
     - name: Microsoft.Coyote.Specifications
       link: ref/Microsoft.Coyote.SpecificationsNamespace
       subfolderitems:
@@ -999,16 +1036,22 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports
         - name: TryEmitCoverageReports
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitCoverageReports
-        - name: RegisterPerIterationCallBack
-          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
+        - name: RegisterStartIterationCallBack
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterStartIterationCallBack
+        - name: RegisterEndIterationCallBack
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterEndIterationCallBack
+        - name: InvokeStartIterationCallBacks
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeStartIterationCallBacks
+        - name: InvokeEndIterationCallBacks
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/InvokeEndIterationCallBacks
         - name: IsTestRewritten
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
+        - name: SetLogger
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
         - name: Dispose
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Dispose
         - name: TestReport
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
-        - name: Logger
-          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger
         - name: ReadableTrace
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
         - name: ReproducibleTrace

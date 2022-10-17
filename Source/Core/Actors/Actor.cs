@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -79,10 +79,17 @@ namespace Microsoft.Coyote.Actors
         private protected readonly Dictionary<TimerInfo, IActorTimer> Timers;
 
         /// <summary>
-        /// The current status of the actor. It is marked volatile as
-        /// the runtime can read it concurrently.
+        /// The current execution status of the actor.
         /// </summary>
-        private protected volatile Status CurrentStatus;
+        /// <remarks>
+        /// It is marked volatile so that the runtime can read it concurrently.
+        /// </remarks>
+        private protected volatile ActorExecutionStatus CurrentStatus;
+
+        /// <summary>
+        /// The current execution status of the actor.
+        /// </summary>
+        internal ActorExecutionStatus ExecutionStatus => this.CurrentStatus;
 
         /// <summary>
         /// Gets the name of the current state, if there is one.
@@ -97,7 +104,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Checks if the actor is halted.
         /// </summary>
-        internal bool IsHalted => this.CurrentStatus is Status.Halted;
+        internal bool IsHalted => this.CurrentStatus is ActorExecutionStatus.Halted;
 
         /// <summary>
         /// The <see cref="EventGroup"/> currently associated with the actor, if any.
@@ -125,9 +132,9 @@ namespace Microsoft.Coyote.Actors
         /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/concepts/actors/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
         /// </remarks>
-        protected ILogger Logger => this.Context.Logger;
+        protected ILogger Logger => this.Context.LogWriter;
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the
@@ -142,7 +149,7 @@ namespace Microsoft.Coyote.Actors
         {
             this.ActionMap = new Dictionary<Type, CachedDelegate>();
             this.Timers = new Dictionary<TimerInfo, IActorTimer>();
-            this.CurrentStatus = Status.Active;
+            this.CurrentStatus = ActorExecutionStatus.Active;
             this.CurrentStateName = default;
             this.IsEventHandlerRunning = true;
         }
@@ -167,7 +174,7 @@ namespace Microsoft.Coyote.Actors
         {
             // Invoke the custom initializer, if there is one.
             await this.InvokeUserCallbackAsync(UserCallbackType.OnInitialize, initialEvent);
-            if (this.CurrentStatus is Status.Halting)
+            if (this.CurrentStatus is ActorExecutionStatus.Halting)
             {
                 await this.HaltAsync(initialEvent);
             }
@@ -230,7 +237,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.OnReceiveInvoked();
             return this.Inbox.ReceiveEventAsync(eventType, predicate);
         }
@@ -242,8 +249,18 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.OnReceiveInvoked();
+
+            if (eventTypes is null)
+            {
+                throw new ArgumentNullException(nameof(eventTypes));
+            }
+            else if (eventTypes.Length is 0)
+            {
+                throw new ArgumentException("The set of event types to receive cannot be empty.", nameof(eventTypes));
+            }
+
             return this.Inbox.ReceiveEventAsync(eventTypes);
         }
 
@@ -255,8 +272,18 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.OnReceiveInvoked();
+
+            if (events is null)
+            {
+                throw new ArgumentNullException(nameof(events));
+            }
+            else if (events.Length is 0)
+            {
+                throw new ArgumentException("The set of events to receive cannot be empty.", nameof(events));
+            }
+
             return this.Inbox.ReceiveEventAsync(events);
         }
 
@@ -382,8 +409,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         protected void RaiseHaltEvent()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
-            this.CurrentStatus = Status.Halting;
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked Halt while halting.", this.Id);
+            this.CurrentStatus = ActorExecutionStatus.Halting;
         }
 
         /// <summary>
@@ -453,7 +480,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
-            if (this.CurrentStatus is Status.Halted)
+            if (this.CurrentStatus is ActorExecutionStatus.Halted)
             {
                 return EnqueueStatus.Dropped;
             }
@@ -473,7 +500,7 @@ namespace Microsoft.Coyote.Actors
 
             try
             {
-                while (this.CurrentStatus != Status.Halted && this.Context.IsRunning)
+                while (this.CurrentStatus != ActorExecutionStatus.Halted && this.Context.IsRunning)
                 {
                     (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) = this.Inbox.Dequeue();
                     lastDequeueStatus = status;
@@ -500,7 +527,7 @@ namespace Microsoft.Coyote.Actors
                     }
                     else if (status is DequeueStatus.Default)
                     {
-                        this.Context.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
+                        this.Context.LogManager.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
                         // If the default event was dequeued, then notify the runtime.
                         // This is only used during bug-finding, because the runtime must
@@ -520,20 +547,20 @@ namespace Microsoft.Coyote.Actors
                         this.UnregisterTimer(timeoutEvent.Info);
                     }
 
-                    if (this.CurrentStatus is Status.Active)
+                    if (this.CurrentStatus is ActorExecutionStatus.Active)
                     {
                         // Handles the next event, if the actor is not halted.
                         await this.HandleEventAsync(e);
                     }
 
-                    if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && this.CurrentStatus != Status.Halted)
+                    if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && this.CurrentStatus != ActorExecutionStatus.Halted)
                     {
                         // Inform the user that the actor handled the dequeued event.
                         await this.InvokeUserCallbackAsync(UserCallbackType.OnEventHandled, lastDequeuedEvent);
                         lastDequeuedEvent = null;
                     }
 
-                    if (this.CurrentStatus is Status.Halting)
+                    if (this.CurrentStatus is ActorExecutionStatus.Halting)
                     {
                         // If the current status is halting, then halt the actor.
                         await this.HaltAsync(e);
@@ -562,12 +589,12 @@ namespace Microsoft.Coyote.Actors
             else if (e is HaltEvent)
             {
                 // If it is the halt event, then change the actor status to halting.
-                this.CurrentStatus = Status.Halting;
+                this.CurrentStatus = ActorExecutionStatus.Halting;
             }
             else
             {
                 await this.InvokeUserCallbackAsync(UserCallbackType.OnEventUnhandled, e);
-                if (this.CurrentStatus is Status.Active)
+                if (this.CurrentStatus is ActorExecutionStatus.Active)
                 {
                     // If the event cannot be handled then report an error, else halt gracefully.
                     var ex = new UnhandledEventException(e, default, "Unhandled Event");
@@ -698,8 +725,9 @@ namespace Microsoft.Coyote.Actors
 
             if (innerException.GetBaseException() is ThreadInterruptedException)
             {
-                this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
+                this.CurrentStatus = ActorExecutionStatus.Halted;
+                this.Context.LogWriter.LogDebug("[coyote::warning] {0} was thrown from {1}.",
+                    innerException.GetType().Name, this.Id);
             }
             else
             {
@@ -761,7 +789,7 @@ namespace Microsoft.Coyote.Actors
         {
             var info = new TimerInfo(this.Id, dueTime, period, customEvent);
             var timer = this.Context.CreateActorTimer(info, this);
-            this.Context.LogWriter.LogCreateTimer(info);
+            this.Context.LogManager.LogCreateTimer(info);
             this.Timers.Add(info, timer);
             return info;
         }
@@ -776,7 +804,7 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(info.OwnerId == this.Id, "Timer '{0}' is already disposed.", info);
             }
 
-            this.Context.LogWriter.LogStopTimer(info);
+            this.Context.LogManager.LogStopTimer(info);
             this.Timers.Remove(info);
             using (timer)
             {
@@ -965,15 +993,13 @@ namespace Microsoft.Coyote.Actors
         /// Invoked when an event has been enqueued.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogEnqueuedEvent(this, e, eventGroup, eventInfo);
+        internal void OnEnqueueEvent(Event e) => this.Context.LogEnqueuedEvent(this, e);
 
         /// <summary>
         /// Invoked when an event has been raised.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogRaisedEvent(this, e, eventGroup, eventInfo);
+        internal void OnRaiseEvent(Event e) => this.Context.LogRaisedEvent(this, e);
 
         /// <summary>
         /// Invoked when the actor is waiting for the specified task to complete.
@@ -983,7 +1009,7 @@ namespace Microsoft.Coyote.Actors
             if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
                 this.Context.Runtime.RegisterKnownControlledTask(task);
-                this.Context.Runtime.WaitUntilTaskCompletes(this.Operation, task);
+                TaskServices.WaitUntilTaskCompletes(this.Context.Runtime, this.Operation, task);
             }
         }
 
@@ -994,7 +1020,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.Status = OperationStatus.BlockedOnReceive;
+                this.Operation.Status = OperationStatus.PausedOnReceive;
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -1003,7 +1029,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when an event that the actor is waiting to receive has been enqueued.
         /// </summary>
-        internal void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEvent(Event e, EventGroup eventGroup)
         {
             if (eventGroup != null)
             {
@@ -1011,7 +1037,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentEventGroup = eventGroup;
             }
 
-            this.Context.LogReceivedEvent(this, e, eventInfo);
+            this.Context.LogReceivedEvent(this, e);
 
             if (this.Context.IsExecutionControlled)
             {
@@ -1023,7 +1049,7 @@ namespace Microsoft.Coyote.Actors
         /// Invoked when an event that the actor is waiting to receive has already been in the
         /// event queue when the actor invoked the receive statement.
         /// </summary>
-        internal void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup)
         {
             if (eventGroup != null)
             {
@@ -1031,7 +1057,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentEventGroup = eventGroup;
             }
 
-            this.Context.LogReceivedEventWithoutWaiting(this, e, eventInfo);
+            this.Context.LogReceivedEventWithoutWaiting(this, e);
         }
 
         /// <summary>
@@ -1083,15 +1109,15 @@ namespace Microsoft.Coyote.Actors
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
-                this.Context.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
+                this.Context.LogManager.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
                 return false;
             }
             else if (outcome is OnExceptionOutcome.Halt)
             {
-                this.CurrentStatus = Status.Halting;
+                this.CurrentStatus = ActorExecutionStatus.Halting;
             }
 
-            this.Context.LogWriter.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
+            this.Context.LogManager.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
             return true;
         }
 
@@ -1107,12 +1133,12 @@ namespace Microsoft.Coyote.Actors
             OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
             if (outcome is OnExceptionOutcome.ThrowException)
             {
-                this.Context.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
+                this.Context.LogManager.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
                 return false;
             }
 
-            this.CurrentStatus = Status.Halting;
-            this.Context.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
+            this.CurrentStatus = ActorExecutionStatus.Halting;
+            this.Context.LogManager.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
             return true;
         }
 
@@ -1133,7 +1159,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event being handled when the actor halts.</param>
         private protected Task HaltAsync(Event e)
         {
-            this.CurrentStatus = Status.Halted;
+            this.CurrentStatus = ActorExecutionStatus.Halted;
 
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
@@ -1178,27 +1204,6 @@ namespace Microsoft.Coyote.Actors
         public override string ToString()
         {
             return this.Id.Name;
-        }
-
-        /// <summary>
-        /// The status of the actor.
-        /// </summary>
-        private protected enum Status
-        {
-            /// <summary>
-            /// The actor is active.
-            /// </summary>
-            Active = 0,
-
-            /// <summary>
-            /// The actor is halting.
-            /// </summary>
-            Halting,
-
-            /// <summary>
-            /// The actor is halted.
-            /// </summary>
-            Halted
         }
 
         /// <summary>

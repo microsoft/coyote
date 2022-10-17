@@ -26,7 +26,7 @@ namespace ImageGallery.Tests
             if (args.Length != 2)
             {
                 Console.WriteLine($"Error: expecting arguments. Run as follows:");
-                Console.WriteLine($"TraceReplayer.exe [NAME_OF_TEST] [PATH_TO_SCHEDULE_FILE]");
+                Console.WriteLine($"TraceReplayer.exe [NAME_OF_TEST] [PATH_TO_TRACE_FILE]");
                 Environment.Exit(1);
             }
 
@@ -37,7 +37,7 @@ namespace ImageGallery.Tests
 
             Console.WriteLine($"Starting test...");
             var configuration = Configuration.Create().
-                WithReplayStrategy(trace).
+                WithReproducibleTrace(trace).
                 WithVerbosityEnabled();
             var testingEngine = TestingEngine.Create(configuration, test);
             testingEngine.Run();

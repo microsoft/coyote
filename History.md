@@ -1,3 +1,30 @@
+## v1.6.2
+- Exposed new `IActorRuntime.GetCurrentActorIds()` API that returns the `ActorId` for each active
+  actor managed by the runtime, as well as an `IActorRuntime.GetCurrentActorTypes()` API that
+  returns the `Type` of each active actor managed by the runtime. These APIs are not thread-safe and
+  should only be used for gathering statistics and debugging purposes.
+
+## v1.6.1
+- Exposed new `IActorRuntime.GetActorExecutionStatus(id)` API that enables querying the actor
+  runtime for the current execution status of the actor with the specified id, as well as an
+  `IActorRuntime.GetCurrentActorCount()` API that returns the number of active actors managed by the
+  runtime. These APIs are not thread-safe and should only be used for gathering statistics and
+  debugging purposes.
+- Exposed new `IActorRuntime.OnActorHalted` callback which is triggered when an actor has halted and
+  the runtime has stopped managing it.
+
+## v1.6.0
+- Exposed new `Operation` API that enables instrumenting, controlling and scheduling custom
+concurrent operations.
+- Exposed new `SchedulingPoint.SetCheckpoint` API that allows to capture all non-deterministic
+  decisions in the currently explored execution path and try replay them in subsequent test
+  iterations to optimize coverage of a subset of the state space.
+- Added support for intercepting and controlling asynchronous locks.
+- Added support for rewriting the `SemaphoreSlim` type.
+- The `Configuration.WithReplayStrategy` method was renamed to `Configuration.WithReproducibleTrace`
+  to make it more explicit that setting this option allows reproducing the specified trace.
+- Various runtime improvements and bug fixes.
+
 ## v1.5.9
 - Improved the runtime to try enforce atomicity when invoking a specification `Monitor`.
 
@@ -80,9 +107,9 @@
   `no-fuzzing-fallback` command line option (or
   `Configuration.WithSystematicFuzzingFallbackEnabled`).
 - Added a new JSON test report that lists any detected invocations of uncontrolled methods.
-- The `TestingEngine.TryEmitTraces` method has been renamed to `TestingEngine.TryEmitReports` to
-  reflect that the reports do not include only traces.
-- The `IActorRuntimeLog.OnStrategyDescription` method has been removed.
+- The `TestingEngine.TryEmitTraces` method was renamed to `TestingEngine.TryEmitReports` to reflect
+  that the reports do not include only traces.
+- The `IActorRuntimeLog.OnStrategyDescription` method was removed.
 
 ## v1.4.0
 - Redesigned the systematic testing runtime to significantly improve its performance and simplicity.

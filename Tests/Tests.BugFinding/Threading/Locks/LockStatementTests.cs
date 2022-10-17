@@ -11,36 +11,52 @@ namespace Microsoft.Coyote.BugFinding.Tests
 {
     public class LockStatementTests : BaseBugFindingTest
     {
-        private readonly object SyncObject1 = new object();
-        private string Value;
-
         public LockStatementTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSimpleLock()
+        public void TestLockUnlock()
         {
             this.Test(() =>
             {
-                lock (this.SyncObject1)
+                int value = 0;
+                object sync = new object();
+                lock (sync)
                 {
-                    this.Value = "1";
-                    this.TestReentrancy();
+                    value++;
                 }
 
-                var expected = "2";
-                Specification.Assert(this.Value == expected, "Value is {0} instead of {1}.", this.Value, expected);
+                lock (sync)
+                {
+                    value++;
+                }
+
+                int expected = 2;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             });
         }
 
-        private void TestReentrancy()
+        [Fact(Timeout = 5000)]
+        public void TestReentrantLock()
         {
-            lock (this.SyncObject1)
+            this.Test(() =>
             {
-                this.Value = "2";
-            }
+                int value = 0;
+                object sync = new object();
+                lock (sync)
+                {
+                    value++;
+                    lock (sync)
+                    {
+                        value++;
+                    }
+                }
+
+                int expected = 2;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            });
         }
 
         [Fact(Timeout = 5000)]
@@ -48,36 +64,35 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var t1 = Task.Run(this.TakeTask);
-                var t2 = Task.Run(this.PutTask);
+                string value = string.Empty;
+                object sync = new object();
+                var t1 = Task.Run(() =>
+                {
+                    lock (sync)
+                    {
+                        if (value != "put")
+                        {
+                            Monitor.Wait(sync);
+                        }
+
+                        value = "taken";
+                    }
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    lock (sync)
+                    {
+                        value = "put";
+                        Monitor.Pulse(sync);
+                    }
+                });
 
                 await Task.WhenAll(t1, t2);
 
                 var expected = "taken";
-                Specification.Assert(this.Value == expected, "Value is {0} instead of {1}.", this.Value, expected);
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             });
-        }
-
-        private void TakeTask()
-        {
-            lock (this.SyncObject1)
-            {
-                if (this.Value != "put")
-                {
-                    Monitor.Wait(this.SyncObject1);
-                }
-
-                this.Value = "taken";
-            }
-        }
-
-        private void PutTask()
-        {
-            lock (this.SyncObject1)
-            {
-                this.Value = "put";
-                Monitor.Pulse(this.SyncObject1);
-            }
         }
 
         [Fact(Timeout = 5000)]
@@ -85,12 +100,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                object obj = new object();
+                object sync = new object();
                 bool lockTaken = false;
-                Monitor.TryEnter(obj, ref lockTaken);
+                Monitor.TryEnter(sync, ref lockTaken);
                 if (lockTaken)
                 {
-                    Monitor.Exit(obj);
+                    Monitor.Exit(sync);
                 }
 
                 Specification.Assert(lockTaken, "lockTaken is false");

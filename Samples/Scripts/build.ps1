@@ -30,23 +30,23 @@ if ($null -eq $sdk_version) {
 # Build the task-based samples.
 Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../AccountManager/AccountManager.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../BoundedBuffer/BoundedBuffer.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../BoundedBuffer/BoundedBuffer.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineTasks/CoffeeMachineTasks.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineTasks/CoffeeMachineTasks.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 # Build the actor samples.
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../HelloWorldActors/HelloWorldActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../HelloWorldActors/HelloWorldActors.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineActors/CoffeeMachineActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CoffeeMachineActors/CoffeeMachineActors.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../DrinksServingRobotActors/DrinksServingRobotActors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../DrinksServingRobotActors/DrinksServingRobotActors.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../CloudMessaging/CloudMessaging.sln" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Timers/Timers.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Timers/Timers.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
-Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Monitors/Monitors.sln" `
+Invoke-DotnetBuild -dotnet $dotnet -solution "$PSScriptRoot/../Monitors/Monitors.csproj" `
     -config $configuration -local $local.IsPresent -nuget $nuget.IsPresent
 
 # Build the web app samples.

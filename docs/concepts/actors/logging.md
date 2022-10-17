@@ -1,100 +1,200 @@
 ## Logging
 
-The Coyote runtime provides a `Microsoft.Coyote.IO.ILogger` interface for logging so that your program output can be
-captured and included in `coyote` test tool output logs.  A default `Logger` is provided and can be
-accessed like this:
+The Coyote runtime provides a `Microsoft.Coyote.Logging.ILogger` interface for logging so that your
+program output can be captured and included in `coyote` test tool output logs. The installed
+`ILogger` can be accessed by the `Logger` property on the `IActorRuntime` interface or the `Actor`,
+`StateMachine` and `Monitor` types.
 
-| Programming Model        | Accessing the Logger                                                                                                    |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `Task` based program     | `Microsoft.Coyote.Actors.RuntimeFactory.Create().Logger`                                                                |
-| `Actor` based program    | `Microsoft.Coyote.Runtime.RuntimeFactory.Create().Logger` <br/> `Actor.Logger`, `StateMachine.Logger`, `Monitor.Logger` |
+The default implementation of the `ILogger` writes to the console when setting the `--console`
+option in the `coyote` tool (or the `Configuration.WithConsoleLoggingEnabled()` configuration when
+using the `TestingEngine` API).
 
-The default `Logger` is a `ConsoleLogger` which is used to write output to the `System.Console`.
-You can provide your own implementation of `Microsoft.Coyote.IO.ILogger` by setting the `Logger` property on the
-`ICoyoteRuntime` or `IActorRuntime`.
+The Coyote logging infrastructure decides when to log messages using the specified `VerbosityLevel`
+and the individual `LogSeverity` of messages getting logged with the `ILogger.Write` and
+`ILogger.WriteLine` methods (by default the `LogSeverity` of messages is set to `LogSeverity.Info`).
+As long as the `LogSeverity` is equal or higher than the `VerbosityLevel` then the message will be
+logged. By default, the `VerbosityLevel` is set to `None`, which means that no messages are logged,
+but this can be easily customized using the `--verbosity` (or `-v`) option in the `coyote` tool (or
+the `Configuration.WithVerbosityEnabled()` configuration when using the `TestingEngine` API)
 
-The `IActorRuntime` also provides a higher level logging interface called [`IActorRuntimeLog`](#iactorruntimelog) for
-logging `Actor` and `StateMachine` activity.
+Setting `--verbosity` in the command line will set the `VerbosityLevel` to `VerbosityLevel.Info`
+which logs all messages with `LogSeverity.Info` and higher. Other allowed verbosity values are
+`error`, `warning`, `info`, `debug` and `exhaustive`. For example, choosing `--verbosity debug` will
+log all messages with `LogSeverity.Debug` and higher.
 
-## Example of custom ILogger
+## Installing up a custom logger
 
-It is possible to replace the default logger with a custom one. The following example captures all log output in a `StringBuilder`:
+You can easily install your own logger by implementing the `ILogger` interface and replacing the
+default logger by setting the `Logger` property on the `IActorRuntime`.
+
+The following is an example of a custom `ILogger` implementation that captures all log output in a
+`StringBuilder`:
 
 ```csharp
-public class CustomLogger : ILogger
+using System.Text;
+using Microsoft.Coyote.Logging;
+
+class CustomLogger : ILogger
 {
-    private StringBuilder StringBuilder;
+    private readonly StringBuilder Builder;
+    private readonly VerbosityLevel VerbosityLevel;
+    private readonly object Lock;
 
-    public TextWriter TextWriter => throw new NotImplementedException();
-
-    public CustomLogger()
+    public MemoryLogger(VerbosityLevel level)
     {
-        this.StringBuilder = new StringBuilder();
+        this.Builder = new StringBuilder();
+        this.VerbosityLevel = level;
+        this.Lock = new object();
     }
 
-    public void Write(string value)
-    {
-        this.Write(LogSeverity.Informational, value);
-    }
-
-    public void WriteLine(string value)
-    {
-        this.WriteLine(LogSeverity.Informational, value);
-    }
-
-    public void Write(string format, params object[] args)
-    {
-        this.Write(LogSeverity.Informational, format, args);
-    }
-
-    public void WriteLine(string format, params object[] args)
-    {
-        this.WriteLine(LogSeverity.Informational, format, args);
-    }
-
-    public void Write(LogSeverity severity, string format, object[] args)
-    {
-        this.Write(severity, string.Format(format, args));
-    }
-
-    public void WriteLine(LogSeverity severity, string format, object[] args)
-    {
-        this.WriteLine(severity, string.Format(format, args));
-    }
+    public void Write(string value) => this.Write(LogSeverity.Info, value);
+    public void Write(string format, object arg0) =>
+        this.Write(LogSeverity.Info, format, arg0);
+    public void Write(string format, object arg0, object arg1) =>
+        this.Write(LogSeverity.Info, format, arg0, arg1);
+    public void Write(string format, object arg0, object arg1, object arg2) =>
+        this.Write(LogSeverity.Info, format, arg0, arg1, arg2);
+    public void Write(string format, params object[] args) =>
+        this.Write(LogSeverity.Info, string.Format(format, args));
 
     public void Write(LogSeverity severity, string value)
     {
-        switch (severity)
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
         {
-            case LogSeverity.Informational:
-                this.StringBuilder.Append("<info>" + value);
-                break;
-            case LogSeverity.Warning:
-                this.StringBuilder.Append("<warning>" + value);
-                break;
-            case LogSeverity.Error:
-                this.StringBuilder.Append("<error>" + value);
-                break;
-            case LogSeverity.Important:
-                this.StringBuilder.Append("<important>" + value);
-                break;
+            lock (this.Lock)
+            {
+                this.Builder.Append(value);
+            }
         }
     }
 
+    public void Write(LogSeverity severity, string format, object arg0)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0);
+            }
+        }
+    }
+
+    public void Write(LogSeverity severity, string format, object arg0, object arg1)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0, arg1);
+            }
+        }
+    }
+
+    public void Write(LogSeverity severity, string format, object arg0, object arg1, object arg2)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0, arg1, arg2);
+            }
+        }
+    }
+
+    public void Write(LogSeverity severity, string format, params object[] args)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, args);
+            }
+        }
+    }
+
+    public void WriteLine(string value) => this.WriteLine(LogSeverity.Info, value);
+    public void WriteLine(string format, object arg0) =>
+        this.WriteLine(LogSeverity.Info, format, arg0);
+    public void WriteLine(string format, object arg0, object arg1) =>
+        this.WriteLine(LogSeverity.Info, format, arg0, arg1);
+    public void WriteLine(string format, object arg0, object arg1, object arg2) =>
+        this.WriteLine(LogSeverity.Info, format, arg0, arg1, arg2);
+    public void WriteLine(string format, params object[] args) =>
+        this.WriteLine(LogSeverity.Info, string.Format(format, args));
+
     public void WriteLine(LogSeverity severity, string value)
     {
-        this.Write(severity, value);
-        this.StringBuilder.AppendLine();
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendLine(value);
+            }
+        }
+    }
+
+    public void WriteLine(LogSeverity severity, string format, object arg0)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0);
+                this.Builder.AppendLine();
+            }
+        }
+    }
+
+    public void WriteLine(LogSeverity severity, string format, object arg0, object arg1)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0, arg1);
+                this.Builder.AppendLine();
+            }
+        }
+    }
+
+    public void WriteLine(LogSeverity severity, string format, object arg0, object arg1, object arg2)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, arg0, arg1, arg2);
+                this.Builder.AppendLine();
+            }
+        }
+    }
+
+    public void WriteLine(LogSeverity severity, string format, params object[] args)
+    {
+        if (LogWriter.IsVerbose(severity, this.VerbosityLevel))
+        {
+            lock (this.Lock)
+            {
+                this.Builder.AppendFormat(format, args);
+                this.Builder.AppendLine();
+            }
+        }
     }
 
     public override string ToString()
     {
-        return this.StringBuilder.ToString();
+        lock (this.Lock)
+        {
+            return this.Builder.ToString();
+        }
     }
 
     public void Dispose()
     {
-        // todo
+        lock (this.Lock)
+        {
+            this.Builder.Clear();
+        }
     }
 }
 ```
@@ -108,7 +208,7 @@ runtime.Logger = new CustomLogger();
 The above method replaces the previously installed logger with the specified one and returns the
 previously installed logger.
 
-Note that the old `Logger` might be disposable, so if you care about disposing the old logger at
+Note that the old `ILogger` might be disposable, so if you care about disposing the old logger at
 the same time you may need to write this instead:
 
 ```csharp
@@ -118,74 +218,75 @@ using (var oldLogger = runtime.Logger)
 }
 ```
 
-You could write a custom `ILogger` to intercept all logging messages and send them to an Azure Log
-table, or over a TCP socket.
+You could write a custom `ILogger` to intercept all logging messages and send them to your favorite
+logging service in Azure or even over a TCP socket.
 
-## IActorRuntimeLog
+You can also use one of the built-in loggers available in the `Microsoft.Coyote.Logging` namespace,
+such as the `MemoryLogger` which is a thread-safe logger that writes the log in memory (you can
+access it as a `string` by invoking `MemoryLogger.ToString()`) or the `TextWriterLogger` which
+allows you to run an existing `System.IO.TextWriter` into an `ILogger` implementation.
 
-The default `IActorRuntimeLog` implementation is the `ActorRuntimeLogTextFormatter` base class which
-is responsible for formatting all `Actor` and `StateMachine` activity as text and writing that out
-using the installed `Logger`.
+## Adding custom actor logging consumers
 
-You can add your own implementation of `IActorRuntimeLog` or `ActorRuntimeLogTextFormatter` using
-the `RegisterLog` method on `IActorRuntime`.  This is additive so you can have the default
-`ActorRuntimeLogTextFormatter` and another logger running at the same time.  For example, see the
-`ActorRuntimeLogGraphBuilder` class which implements `IActorRuntimeLog` and generates a directed
-graph representing all activities that happened during the execution of your actors. See [activity
-coverage](../../how-to/coverage.md) for an example graph output. The `coyote` test tool
-sets this up for you when you specify `--graph` or `--coverage activity` command line options.
+The `IActorRuntime` also provides a logging interface called `IActorRuntimeLog` that allows
+consuming `Actor` and `StateMachine` activity and processing it in some custom way. When executing
+actors, the runtime will call the `IActorRuntimeLog` interface to log various actions such as a new
+`Actor` or `StateMachine` getting created or sending an `Event` to some actor.
 
-The `--verbosity` command line option can also affect the default logging behavior. When
-`--verbosity` is specified all log output is written to the `System.Console` by default, but you
-can specify different levels of output using `--verbosity quiet` to get no output, `--verbosity
-minimal` to see only error messages and `--verbosity normal` to get errors and warnings. This can
-produce a lot of output especially if you run many testing iterations. It is usually more useful to
-only capture the output of the one failing iteration in a log file and this is done automatically
-by the testing runtime when `--verbosity` is not specified.
-
-See [IActorRuntimeLog API documentation](../../ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md).
-
-## Example of a custom IActorRuntimeLog
-
-You can also implement your own `IActorRuntimeLog`. The following is an example of how to do this:
+You can implement your own `IActorRuntimeLog` consumer like this:
 
 ```csharp
-internal class CustomLogWriter : IActorRuntimeLog
+internal class CustomRuntimeLog : IActorRuntimeLog
 {
-  // Callbacks on runtime events
-
   public void OnCreateActor(ActorId id, ActorId creator)
   {
-    // Override to change the behavior.
+    // Add some custom logic.
   }
 
   public void OnEnqueueEvent(ActorId id, Event e)
   {
-    // Override to change the behavior.
+    // Add some custom logic.
   }
 
-  // More methods to implement.
+  // You can optionally override more actor logging methods.
 }
 ```
 
-You can then register your new implementation using the following `IActorRuntime` method:
+You can then register the `CustomRuntimeLog` using the following `IActorRuntime` method:
 ```csharp
-runtime.RegisterLog(new CustomLogWriter());
+runtime.RegisterLog(new CustomRuntimeLog());
 ```
-You can register multiple `IActorRuntimeLog` objects in case you have loggers that are doing very
+
+You can register multiple `IActorRuntimeLog` objects in case you have consumers that are doing very
 different things. The runtime will invoke each callback for every registered `IActorRuntimeLog`.
 
-## Customizing the ActorRuntimeLogTextFormatter
+For example, see the `ActorRuntimeLogGraphBuilder` class which implements `IActorRuntimeLog` and
+generates a directed graph representing all activities that happened during the execution of your
+actors. See [activity coverage](../../how-to/coverage.md) for an example graph output. The `coyote`
+test tool sets this up for you when you specify `--graph` or `--coverage activity` command line
+options.
 
-You can modify the format of text log messages by providing your own `ActorRuntimeLogTextFormatter`.
-You can subclass the default `ActorRuntimeLogTextFormatter` implementation to override its default behavior.
+See [IActorRuntimeLog API documentation](../../ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md).
+
+## Customizing the text formatting when logging actor activities
+
+You can also use the same `IActorRuntimeLog` feature to customize the text formatting when the
+installed `ILogger` logs actor activity.
+
+The default actor text formatting implementation is provided by the `ActorRuntimeLogTextFormatter`
+base class which implements the `IActorRuntimeLog` interface and is responsible for formatting all
+`Actor` and `StateMachine` activity as text and logging it using the installed `Logger`.
+
+You can add your own subclass of `ActorRuntimeLogTextFormatter` using the `RegisterLog` method on
+`IActorRuntime`. However, unlike other `IActorRuntimeLog` consumers, only a single
+`ActorRuntimeLogTextFormatter` can exist and adding a new one will replace the previous text
+formatter.
+
 The following is an example of how to do this:
 
 ```csharp
-internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
+internal class CustomActorRuntimeLogTextFormatter : ActorRuntimeLogTextFormatter
 {
-  // Methods for formatting log messages
-
   public override void OnCreateActor(ActorId id, ActorId creator)
   {
     // Override to change the text to be logged.
@@ -201,7 +302,7 @@ internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
     }
   }
 
-  // More methods that can be overridden.
+  // You can optionally override more text formatting methods.
 }
 ```
 
@@ -209,7 +310,7 @@ You can then replace the default `ActorRuntimeLogTextFormatter` with your new im
 the following `IActorRuntime` method:
 
 ```csharp
-runtime.RegisterLog(new CustomLogFormatter());
+runtime.RegisterLog(new CustomActorRuntimeLogTextFormatter());
 ```
 
 The above method replaces the previously installed `ActorRuntimeLogTextFormatter` with the specified

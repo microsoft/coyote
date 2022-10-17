@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod);
         }
 
         private static void TestFilterMethod2()
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod2);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod2);
         }
 
         private static void TestFilterMethod3()
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod3);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod3);
         }
 
         private static void TestFilterMethod4()
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod4);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod4);
         }
 
         private static void TestFilterMethod5()
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod5);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod5);
         }
 
         private static void TestFilterMethod6()
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should allow the ThreadInterruptedException through
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ThreadInterruptedException>(TestFilterMethod6);
+            this.RunTestWithException<ThreadInterruptedException>(TestFilterMethod6);
         }
 
         private static void TestComplexFilterMethod()
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod);
+            this.RunTestWithException<ThreadInterruptedException>(TestComplexFilterMethod);
         }
 
         private static void TestComplexFilterMethod2()
@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod2);
+            this.RunTestWithException<ThreadInterruptedException>(TestComplexFilterMethod2);
         }
 
         private static void TestComplexFilterMethod3()
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod3);
+            this.RunTestWithException<ThreadInterruptedException>(TestComplexFilterMethod3);
         }
 
         private static void TestComplexFilterMethod4()
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The rewritten code should add a !(e is ThreadInterruptedException) filter
             // which should allow this exception to escape the catch block.
-            this.RunWithException<ThreadInterruptedException>(TestComplexFilterMethod4);
+            this.RunTestWithException<ThreadInterruptedException>(TestComplexFilterMethod4);
         }
 
         private static void TestRethrowMethod()
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should rethrow the exception
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ThreadInterruptedException>(TestRethrowMethod);
+            this.RunTestWithException<ThreadInterruptedException>(TestRethrowMethod);
         }
 
         private static void TestRethrowMethod2()
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         {
             // The non-rewritten code should rethrow the exception
             // and the rewritten code should be the same because the code should not be rewritten.
-            this.RunWithException<ThreadInterruptedException>(TestRethrowMethod2);
+            this.RunTestWithException<ThreadInterruptedException>(TestRethrowMethod2);
         }
 
         private static void TestConditionalTryCatchMethod()
@@ -317,96 +317,122 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestConditionalTryCatch()
         {
-            this.RunWithException<InvalidOperationException>(TestConditionalTryCatchMethod);
+            this.RunTestWithException<InvalidOperationException>(TestConditionalTryCatchMethod);
         }
 
         private static void TestMultiCatchBlockMethod()
         {
             // Test we can handle multiple catch blocks.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
+            catch (NotSupportedException)
+            {
+                throw;
+            }
             catch (InvalidOperationException)
             {
+                exceptionHandled = true;
                 throw;
             }
             catch (Exception)
             {
-                Console.WriteLine("exception handled");
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
         [Fact(Timeout = 5000)]
         public void TestMultiCatchBlock()
         {
-            this.RunWithException<InvalidOperationException>(TestMultiCatchBlockMethod);
+            this.RunTestWithException<InvalidOperationException>(TestMultiCatchBlockMethod);
         }
 
         private static void TestMultiCatchFilterMethod()
         {
             // Test we can handle multiple catch blocks with a filter.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
-            catch (InvalidOperationException)
+            catch (NotSupportedException)
             {
                 throw;
             }
-            catch (Exception e) when (!(e is NullReferenceException))
+            catch (Exception e) when (!(e is NotSupportedException))
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
         [Fact(Timeout = 5000)]
         public void TestMultiCatchFilter()
         {
-            this.RunWithException<InvalidOperationException>(TestMultiCatchFilterMethod);
+            this.RunTestWithException<InvalidOperationException>(TestMultiCatchFilterMethod);
         }
 
         private static void TestMultiCatchBlockWithFilterMethod()
         {
             // Test we can handle multiple catch blocks with a filter.
+            bool exceptionHandled = false;
             try
             {
                 throw new InvalidOperationException();
             }
-            catch (InvalidOperationException)
+            catch (NullReferenceException)
             {
                 throw;
             }
             catch (Exception e) when (!(e is NullReferenceException))
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+                throw;
             }
-            catch (NullReferenceException)
+            catch (InvalidOperationException)
             {
-                Console.WriteLine("Don't care!");
+                throw;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 
         [Fact(Timeout = 5000)]
         public void TestMultiCatchBlockWithFilter()
         {
-            this.RunWithException<InvalidOperationException>(TestMultiCatchBlockWithFilterMethod);
+            this.RunTestWithException<InvalidOperationException>(TestMultiCatchBlockWithFilterMethod);
         }
 
         private static void TestExceptionHandlerInsideLockMethod()
         {
             object l = new object();
-
             lock (l)
             {
+                bool exceptionHandled = false;
                 try
                 {
                     throw new InvalidOperationException();
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("exception handled");
+                    exceptionHandled = true;
                     throw;
+                }
+                finally
+                {
+                    Assert.True(exceptionHandled, "Exception was not handled.");
                 }
             }
         }
@@ -414,11 +440,12 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestExceptionHandlerInsideLock()
         {
-            this.RunWithException<InvalidOperationException>(TestExceptionHandlerInsideLockMethod);
+            this.RunTestWithException<InvalidOperationException>(TestExceptionHandlerInsideLockMethod);
         }
 
         private static void TestTryUsingTryMethod()
         {
+            bool exceptionHandled = false;
             try
             {
                 using var s = new StringWriter();
@@ -434,7 +461,11 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             }
             catch (Exception)
             {
-                Console.WriteLine("exception handled");
+                exceptionHandled = true;
+            }
+            finally
+            {
+                Assert.True(exceptionHandled, "Exception was not handled.");
             }
         }
 

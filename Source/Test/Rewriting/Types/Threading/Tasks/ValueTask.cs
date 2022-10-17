@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCancellationToken = System.Threading.CancellationToken;
@@ -119,7 +120,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 ValueTaskAwaiter.TryGetTask<TResult>(ref task, out SystemTasks.Task<TResult> innerTask))
             {
-                runtime.WaitUntilTaskCompletes(innerTask);
+                TaskServices.WaitUntilTaskCompletes(runtime, innerTask);
             }
 
             return task.Result;

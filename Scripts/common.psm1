@@ -37,15 +37,16 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
 function Invoke-DotnetBuild([String]$dotnet, [String]$solution, [String]$config, [bool]$local, [bool]$nuget) {
     Write-Comment -prefix "..." -text "Building $solution"
 
-    $nuget_config_file = "$PSScriptRoot/../NuGet.config"
     $platform = "/p:Platform=`"Any CPU`""
     $restore_command = "restore $solution"
     $build_command = "build -c $config $solution --no-restore"
     if ($local -and $nuget) {
-        $restore_command = "$restore_command --configfile $nuget_config_file $platform"
+        $nuget_config_file = "$PSScriptRoot/../NuGet.config"
+        $restore_command = "$restore_command --configfile $nuget_config_file /p:UseLocalNugetPackages=true $platform"
         $build_command = "$build_command /p:UseLocalNugetPackages=true $platform"
     } elseif ($local) {
-        $restore_command = "$restore_command --configfile $nuget_config_file $platform"
+        $nuget_config_file = "$PSScriptRoot/../Samples/NuGet.config"
+        $restore_command = "$restore_command --configfile $nuget_config_file /p:UseLocalCoyote=true $platform"
         $build_command = "$build_command /p:UseLocalCoyote=true $platform"
     }
 
@@ -61,10 +62,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
         exit
     }
 
-    # TODO: workaround until .NET fixes normal logging.
-    # See https://github.com/dotnet/sdk/issues/16122
-    # $command = "test $target -f $framework --no-build -v $verbosity --blame"
-    $command = "test $target -f $framework --no-build -v $verbosity --logger 'console;verbosity=normal' --blame"
+    $command = "test $target -f $framework --no-build -v $verbosity --logger 'trx' --blame --blame-crash"
     if (!($filter -eq "")) {
         $command = "$command --filter $filter"
     }
@@ -211,7 +209,11 @@ function FindMatchingVersion([String]$path, [version]$version) {
 }
 
 function Write-Comment([String]$prefix, [String]$text, [String]$color = "white") {
-    Write-Host "$prefix " -b "black" -nonewline; Write-Host $text -b "black" -f $color
+    if ($prefix.Length -gt 0) {
+        $prefix = "$prefix "
+    }
+
+    Write-Host $prefix -b "black" -nonewline; Write-Host $text -b "black" -f $color
 }
 
 function Write-Error([String]$text) {

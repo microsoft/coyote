@@ -16,7 +16,7 @@ you in writing correct concurrent code.
 
 To run the code in this tutorial, you will need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -356,7 +356,7 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.0743756 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -368,12 +368,12 @@ Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:
 ```
 
 Cool, the flakey test is no longer flakey! Coyote can also help you reproduce and debug it. You can
-simply run `coyote replay` giving the `.schedule` file that Coyote outputs upon finding a bug:
+simply run `coyote replay` giving the `.trace` file that Coyote outputs upon finding a bug:
 
 ```plain
-coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace 
     -m TestConcurrentAccountCreation
-. Replaying .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.schedule
+. Reproducing trace in .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.trace
 ... Task 0 is using 'replay' strategy.
 ... Reproduced 1 bug (use --break to attach the debugger).
 ... Elapsed 0.0671654 sec.
@@ -432,7 +432,7 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 
 If you find a bug you can replay with the following command:
 ```plain
-coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace 
     -m TestConcurrentAccountCreation
 ```
 

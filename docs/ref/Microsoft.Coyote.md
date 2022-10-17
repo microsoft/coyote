@@ -12,6 +12,7 @@
 | public type | description |
 | --- | --- |
 | abstract class [Actor](./Microsoft.Coyote.Actors/Actor.md) | Type that implements an actor. Inherit from this class to declare a custom actor. |
+| enum [ActorExecutionStatus](./Microsoft.Coyote.Actors/ActorExecutionStatus.md) | The execution status of an actor. |
 | class [ActorId](./Microsoft.Coyote.Actors/ActorId.md) | Unique actor id. |
 | class [ActorRuntimeLogTextFormatter](./Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md) | This class implements [`IActorRuntimeLog`](./Microsoft.Coyote.Actors/IActorRuntimeLog.md) and generates output in a a human readable text format. |
 | class [AwaitableEventGroup&lt;T&gt;](./Microsoft.Coyote.Actors/AwaitableEventGroup-1.md) | An object representing an awaitable long running context involving one or more actors. An `AwaitableEventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `AwaitableEventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](./Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md)). In this way an `AwaitableEventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `AwaitableEventGroup` using their [`CurrentEventGroup`](./Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md) property. |
@@ -21,6 +22,7 @@
 | class [HaltEvent](./Microsoft.Coyote.Actors/HaltEvent.md) | The halt event. |
 | interface [IActorRuntime](./Microsoft.Coyote.Actors/IActorRuntime.md) | Interface that exposes runtime methods for creating and executing actors. |
 | interface [IActorRuntimeLog](./Microsoft.Coyote.Actors/IActorRuntimeLog.md) | Interface that allows an external module to track what is happening in the [`IActorRuntime`](./Microsoft.Coyote.Actors/IActorRuntime.md). |
+| delegate [OnActorHaltedHandler](./Microsoft.Coyote.Actors/OnActorHaltedHandler.md) | Handles the [`OnActorHalted`](./Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md) event. |
 | delegate [OnEventDroppedHandler](./Microsoft.Coyote.Actors/OnEventDroppedHandler.md) | Handles the [`OnEventDropped`](./Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md) event. |
 | enum [OnExceptionOutcome](./Microsoft.Coyote.Actors/OnExceptionOutcome.md) | The outcome when an [`Actor`](./Microsoft.Coyote.Actors/Actor.md) throws an exception. |
 | static class [RuntimeFactory](./Microsoft.Coyote.Actors/RuntimeFactory.md) | Provides methods for creating a [`IActorRuntime`](./Microsoft.Coyote.Actors/IActorRuntime.md) runtime. |
@@ -57,15 +59,15 @@
 | class [TimerElapsedEvent](./Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](./Microsoft.Coyote.Actors.Timers/TimerInfo.md) | Stores information about a timer that can send timeout events to its owner actor. |
 
-## Microsoft.Coyote.IO namespace
+## Microsoft.Coyote.Logging namespace
 
 | public type | description |
 | --- | --- |
-| class [ConsoleLogger](./Microsoft.Coyote.IO/ConsoleLogger.md) | Logger that writes text to the console. |
-| interface [ILogger](./Microsoft.Coyote.IO/ILogger.md) | A logger is used to capture messages, warnings and errors. |
-| class [InMemoryLogger](./Microsoft.Coyote.IO/InMemoryLogger.md) | Thread safe logger that writes text to an in-memory buffer. The buffered text can be extracted using the ToString() method. |
-| enum [LogSeverity](./Microsoft.Coyote.IO/LogSeverity.md) | Flag indicating the type of logging information being provided to the [`ILogger`](./Microsoft.Coyote.IO/ILogger.md). |
-| class [TextWriterLogger](./Microsoft.Coyote.IO/TextWriterLogger.md) | Bridges custom user provided TextWriter logger so it can be passed into Coyote via the [`ILogger`](./Microsoft.Coyote.IO/ILogger.md) interface. |
+| interface [ILogger](./Microsoft.Coyote.Logging/ILogger.md) | A logger is used to capture messages, warnings and errors. |
+| enum [LogSeverity](./Microsoft.Coyote.Logging/LogSeverity.md) | The severity of the log message being provided to the [`ILogger`](./Microsoft.Coyote.Logging/ILogger.md). |
+| class [MemoryLogger](./Microsoft.Coyote.Logging/MemoryLogger.md) | Logger that writes all messages to memory. |
+| class [TextWriterLogger](./Microsoft.Coyote.Logging/TextWriterLogger.md) | Logger that writes to the specified TextWriter. |
+| enum [VerbosityLevel](./Microsoft.Coyote.Logging/VerbosityLevel.md) | The level of verbosity used during logging. |
 
 ## Microsoft.Coyote.Random namespace
 
@@ -79,12 +81,15 @@
 | --- | --- |
 | class [AssertionFailureException](./Microsoft.Coyote.Runtime/AssertionFailureException.md) | The exception that is thrown by the Coyote runtime upon assertion failure. |
 | interface [ICoyoteRuntime](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md) | Interface that exposes base runtime methods for Coyote. |
+| interface [IOperationBuilder](./Microsoft.Coyote.Runtime/IOperationBuilder.md) | Interface of a controlled operation builder. |
 | interface [IRuntimeLog](./Microsoft.Coyote.Runtime/IRuntimeLog.md) | Interface that allows an external module to track what is happening in the [`ICoyoteRuntime`](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md). |
 | delegate [OnFailureHandler](./Microsoft.Coyote.Runtime/OnFailureHandler.md) | Handles the [`OnFailure`](./Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md) event. |
+| static class [Operation](./Microsoft.Coyote.Runtime/Operation.md) | Provides a set of static methods for instrumenting concurrency primitives that can then be controlled during testing. |
 | class [RuntimeException](./Microsoft.Coyote.Runtime/RuntimeException.md) | An exception that is thrown by the Coyote runtime. |
 | class [RuntimeLogTextFormatter](./Microsoft.Coyote.Runtime/RuntimeLogTextFormatter.md) | This class implements [`IRuntimeLog`](./Microsoft.Coyote.Runtime/IRuntimeLog.md) and generates output in a a human readable text format. |
 | static class [RuntimeProvider](./Microsoft.Coyote.Runtime/RuntimeProvider.md) | Provides methods for creating or accessing a [`ICoyoteRuntime`](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md) runtime. |
 | static class [SchedulingPoint](./Microsoft.Coyote.Runtime/SchedulingPoint.md) | Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing. |
+| static class [TaskServices](./Microsoft.Coyote.Runtime/TaskServices.md) | Provides methods for interacting with tasks using the runtime. |
 
 ## Microsoft.Coyote.Specifications namespace
 

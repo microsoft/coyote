@@ -9,38 +9,13 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 
 namespace Microsoft.Coyote.Cli
 {
     internal sealed class CommandLineParser
     {
-        /// <summary>
-        /// Url with information on learning about coyote.
-        /// </summary>
-        private const string LearnAboutCoyoteUrl = "https://aka.ms/learn-coyote";
-
-        /// <summary>
-        /// Url with information about what is new with coyote.
-        /// </summary>
-        private const string LearnWhatIsNewUrl = "https://aka.ms/coyote-what-is-new";
-
-        /// <summary>
-        /// Url with information about the testing process.
-        /// </summary>
-        private const string LearnAboutTestUrl = "https://aka.ms/coyote-test";
-
-        /// <summary>
-        /// Url with information about the replaying process.
-        /// </summary>
-        private const string LearnAboutReplayUrl = "https://aka.ms/coyote-replay";
-
-        /// <summary>
-        /// Url with information about the rewriting process.
-        /// </summary>
-        private const string LearnAboutRewritingUrl = "https://aka.ms/coyote-rewrite";
-
         /// <summary>
         /// The Coyote runtime and testing configuration.
         /// </summary>
@@ -98,24 +73,27 @@ namespace Microsoft.Coyote.Cli
 
             var allowedVerbosityLevels = new HashSet<string>
             {
-                "quiet",
-                "minimal",
-                "normal",
-                "detailed"
+                "error",
+                "warning",
+                "info",
+                "debug",
+                "exhaustive"
             };
 
             var verbosityOption = new Option<string>(
                 aliases: new[] { "-v", "--verbosity" },
-                getDefaultValue: () => "quiet",
+                getDefaultValue: () => "none",
                 description: "Enable verbosity with an optional verbosity level. " +
                     $"Allowed values are {string.Join(", ", allowedVerbosityLevels)}. " +
-                    "Skipping the argument sets the verbosity level to 'detailed'.")
+                    "Skipping the argument sets the verbosity level to 'info'.")
             {
                 ArgumentHelpName = "LEVEL",
                 Arity = ArgumentArity.ZeroOrOne
             };
 
-            var debugOption = new Option<bool>(aliases: new[] { "-d", "--debug" })
+            var consoleLoggingOption = new Option<bool>(
+                name: "--console",
+                description: "Log all runtime messages to the console unless overridden by a custom ILogger.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -130,9 +108,10 @@ namespace Microsoft.Coyote.Cli
 
             // Create the root command.
             var rootCommand = new RootCommand("The Coyote systematic testing tool.\n\n" +
-                $"Learn how to use Coyote at {LearnAboutCoyoteUrl}.\nLearn what is new at {LearnWhatIsNewUrl}.");
+                $"Learn how to use Coyote at {Documentation.LearnAboutCoyoteUrl}.\nLearn what is new at {Documentation.LearnWhatIsNewUrl}.");
             this.AddGlobalOption(rootCommand, verbosityOption);
-            this.AddGlobalOption(rootCommand, debugOption);
+            this.TestCommand.AddGlobalOption(consoleLoggingOption);
+            this.ReplayCommand.AddGlobalOption(consoleLoggingOption);
             rootCommand.AddCommand(this.TestCommand);
             rootCommand.AddCommand(this.ReplayCommand);
             rootCommand.AddCommand(this.RewriteCommand);
@@ -188,7 +167,8 @@ namespace Microsoft.Coyote.Cli
                 aliases: new[] { "-m", "--method" },
                 description: "Suffix of the test method to execute.")
             {
-                ArgumentHelpName = "METHOD"
+                ArgumentHelpName = "METHOD",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var iterationsOption = new Option<int>(
@@ -196,7 +176,8 @@ namespace Microsoft.Coyote.Cli
                 getDefaultValue: () => (int)configuration.TestingIterations,
                 description: "Number of testing iterations to run.")
             {
-                ArgumentHelpName = "ITERATIONS"
+                ArgumentHelpName = "ITERATIONS",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var timeoutOption = new Option<int>(
@@ -204,7 +185,8 @@ namespace Microsoft.Coyote.Cli
                 getDefaultValue: () => configuration.TestingTimeout,
                 description: "Timeout in seconds after which no more testing iterations will run (disabled by default).")
             {
-                ArgumentHelpName = "TIMEOUT"
+                ArgumentHelpName = "TIMEOUT",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var allowedStrategies = new HashSet<string>
@@ -224,7 +206,8 @@ namespace Microsoft.Coyote.Cli
                     "controls all scheduling decisions and nondeterministic choices. " +
                     $"Allowed values are {string.Join(", ", allowedStrategies)}.")
             {
-                ArgumentHelpName = "STRATEGY"
+                ArgumentHelpName = "STRATEGY",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var strategyValueOption = new Option<int>(
@@ -233,7 +216,8 @@ namespace Microsoft.Coyote.Cli
                     "(fair-)prioritization (maximum number of priority change points per iteration), " +
                     "probabilistic (probability of deviating from a scheduled operation).")
             {
-                ArgumentHelpName = "VALUE"
+                ArgumentHelpName = "VALUE",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var maxStepsOption = new Option<int>(
@@ -241,7 +225,8 @@ namespace Microsoft.Coyote.Cli
                 description: "Max scheduling steps (i.e. decisions) to be explored during testing. " +
                     "Choosing value 'STEPS' sets 'STEPS' unfair max-steps and 'STEPS*10' fair steps.")
             {
-                ArgumentHelpName = "STEPS"
+                ArgumentHelpName = "STEPS",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var maxFairStepsOption = new Option<int>(
@@ -250,7 +235,8 @@ namespace Microsoft.Coyote.Cli
                 description: "Max fair scheduling steps (i.e. decisions) to be explored during testing. " +
                     "Used by exploration strategies that perform fair scheduling.")
             {
-                ArgumentHelpName = "STEPS"
+                ArgumentHelpName = "STEPS",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var maxUnfairStepsOption = new Option<int>(
@@ -259,7 +245,8 @@ namespace Microsoft.Coyote.Cli
                 description: "Max unfair scheduling steps (i.e. decisions) to be explored during testing. " +
                     "Used by exploration strategies that perform unfair scheduling.")
             {
-                ArgumentHelpName = "STEPS"
+                ArgumentHelpName = "STEPS",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var fuzzOption = new Option<bool>(
@@ -290,6 +277,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var checkLockRacesOption = new Option<bool>(
+                name: "--check-lock-races",
+                description: "Enables exploration of race conditions when accessing lock-based synchronization primitives.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var reduceSharedStateOption = new Option<bool>(
                 name: "--reduce-shared-state",
                 description: "Enables shared state reduction based on 'READ' and 'WRITE' scheduling points.")
@@ -301,7 +295,8 @@ namespace Microsoft.Coyote.Cli
                 name: "--seed",
                 description: "Specify the random value generator seed.")
             {
-                ArgumentHelpName = "VALUE"
+                ArgumentHelpName = "VALUE",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var livenessTemperatureThresholdOption = new Option<int>(
@@ -309,15 +304,17 @@ namespace Microsoft.Coyote.Cli
                 getDefaultValue: () => configuration.LivenessTemperatureThreshold,
                 description: "Specify the threshold (in number of steps) that triggers a liveness bug.")
             {
-                ArgumentHelpName = "THRESHOLD"
+                ArgumentHelpName = "THRESHOLD",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var timeoutDelayOption = new Option<int>(
                 name: "--timeout-delay",
                 getDefaultValue: () => (int)configuration.TimeoutDelay,
-                description: "Controls the frequency of timeouts by built-in timers (not a unit of time).")
+                description: "Controls the frequency of timeouts (not a unit of time).")
             {
-                ArgumentHelpName = "DELAY"
+                ArgumentHelpName = "DELAY",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var deadlockTimeoutOption = new Option<int>(
@@ -325,7 +322,18 @@ namespace Microsoft.Coyote.Cli
                 getDefaultValue: () => (int)configuration.DeadlockTimeout,
                 description: "Controls how much time (in ms) to wait before reporting a potential deadlock.")
             {
-                ArgumentHelpName = "TIMEOUT"
+                ArgumentHelpName = "TIMEOUT",
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var maxFuzzDelayOption = new Option<int>(
+                name: "--max-fuzz-delay",
+                getDefaultValue: () => (int)configuration.MaxFuzzingDelay,
+                description: "Controls the maximum time (in number of busy loops) an operation might " +
+                    "get delayed during systematic fuzzing.")
+            {
+                ArgumentHelpName = "DELAY",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var uncontrolledConcurrencyResolutionAttemptsOption = new Option<int>(
@@ -333,7 +341,8 @@ namespace Microsoft.Coyote.Cli
                 getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionAttempts,
                 description: "Controls how many times to try resolve each instance of uncontrolled concurrency.")
             {
-                ArgumentHelpName = "ATTEMPTS"
+                ArgumentHelpName = "ATTEMPTS",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var uncontrolledConcurrencyResolutionDelayOption = new Option<int>(
@@ -342,7 +351,8 @@ namespace Microsoft.Coyote.Cli
                 description: "Controls how much time (in number of busy loops) to wait between each attempt to " +
                     "resolve each instance of uncontrolled concurrency.")
             {
-                ArgumentHelpName = "DELAY"
+                ArgumentHelpName = "DELAY",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var skipPotentialDeadlocksOption = new Option<bool>(
@@ -400,7 +410,8 @@ namespace Microsoft.Coyote.Cli
                 aliases: new[] { "-o", "--outdir" },
                 description: "Output directory for emitting reports. This can be an absolute path or relative to current directory.")
             {
-                ArgumentHelpName = "PATH"
+                ArgumentHelpName = "PATH",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             // Add validators.
@@ -420,12 +431,13 @@ namespace Microsoft.Coyote.Cli
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             deadlockTimeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            maxFuzzDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
-                $"Learn more at {LearnAboutTestUrl}.");
+                $"Learn more at {Documentation.LearnAboutTestUrl}.");
             this.AddArgument(command, pathArg);
             this.AddOption(command, methodOption);
             this.AddOption(command, iterationsOption);
@@ -439,11 +451,13 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, coverageOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
+            this.AddOption(command, checkLockRacesOption);
             this.AddOption(command, reduceSharedStateOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
             this.AddOption(command, deadlockTimeoutOption);
+            this.AddOption(command, maxFuzzDelayOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
@@ -468,16 +482,17 @@ namespace Microsoft.Coyote.Cli
                 HelpName = "PATH"
             };
 
-            var scheduleFileArg = new Argument("schedule", $"*.schedule file containing the execution to replay.")
+            var traceFileArg = new Argument("trace", $"*.trace file containing the execution path to replay.")
             {
-                HelpName = "SCHEDULE_FILE"
+                HelpName = "TRACE_FILE"
             };
 
             var methodOption = new Option<string>(
                 aliases: new[] { "-m", "--method" },
                 description: "Suffix of the test method to execute.")
             {
-                ArgumentHelpName = "METHOD"
+                ArgumentHelpName = "METHOD",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var breakOption = new Option<bool>(
@@ -491,18 +506,19 @@ namespace Microsoft.Coyote.Cli
                 aliases: new[] { "-o", "--outdir" },
                 description: "Output directory for emitting reports. This can be an absolute path or relative to current directory.")
             {
-                ArgumentHelpName = "PATH"
+                ArgumentHelpName = "PATH",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             // Add validators.
             pathArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".dll", ".exe"));
-            scheduleFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".schedule"));
+            traceFileArg.AddValidator(result => ValidateArgumentValueIsExpectedFile(result, ".trace"));
 
             // Build command.
             var command = new Command("replay", "Replay bugs that Coyote discovered during systematic testing.\n" +
-                $"Learn more at {LearnAboutReplayUrl}.");
+                $"Learn more at {Documentation.LearnAboutReplayUrl}.");
             this.AddArgument(command, pathArg);
-            this.AddArgument(command, scheduleFileArg);
+            this.AddArgument(command, traceFileArg);
             this.AddOption(command, methodOption);
             this.AddOption(command, breakOption);
             this.AddOption(command, outputDirectoryOption);
@@ -577,8 +593,8 @@ namespace Microsoft.Coyote.Cli
 
             // Build command.
             var command = new Command("rewrite", "Rewrite your assemblies to inject logic that allows " +
-                "Coyote to take control of the schedule during systematic testing.\n" +
-                $"Learn more at {LearnAboutRewritingUrl}.");
+                "Coyote to take control of the execution during systematic testing.\n" +
+                $"Learn more at {Documentation.LearnAboutRewritingUrl}.");
             this.AddArgument(command, pathArg);
             this.AddOption(command, assertDataRacesOption);
             this.AddOption(command, rewriteDependenciesOption);
@@ -766,10 +782,12 @@ namespace Microsoft.Coyote.Cli
                     }
 
                     break;
-                case "schedule":
+                case "trace":
                     if (command.Name is "replay")
                     {
-                        this.Configuration.ScheduleFile = result.GetValueOrDefault<string>();
+                        string traceFile = result.GetValueOrDefault<string>();
+                        string traceFileContents = File.ReadAllText(traceFile);
+                        this.Configuration.WithReproducibleTrace(traceFileContents);
                     }
 
                     break;
@@ -859,6 +877,9 @@ namespace Microsoft.Coyote.Cli
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
                         break;
+                    case "check-lock-races":
+                        this.Configuration.IsLockAccessRaceCheckingEnabled = true;
+                        break;
                     case "reduce-shared-state":
                         this.Configuration.IsSharedStateReductionEnabled = true;
                         break;
@@ -874,6 +895,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "deadlock-timeout":
                         this.Configuration.DeadlockTimeout = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "max-fuzz-delay":
+                        this.Configuration.MaxFuzzingDelay = (uint)result.GetValueOrDefault<int>();
                         break;
                     case "resolve-uncontrolled-concurrency-attempts":
                         this.Configuration.UncontrolledConcurrencyResolutionAttempts = (uint)result.GetValueOrDefault<int>();
@@ -902,10 +926,6 @@ namespace Microsoft.Coyote.Cli
                     case "outdir":
                         this.Configuration.OutputFilePath = result.GetValueOrDefault<string>();
                         break;
-                    case "debug":
-                        this.Configuration.IsDebugVerbosityEnabled = true;
-                        Debug.IsEnabled = true;
-                        break;
                     case "assert-data-races":
                         this.RewritingOptions.IsDataRaceCheckingEnabled = true;
                         break;
@@ -927,24 +947,27 @@ namespace Microsoft.Coyote.Cli
                     case "verbosity":
                         switch (result.GetValueOrDefault<string>())
                         {
-                            case "quiet":
-                                this.Configuration.IsVerbose = false;
+                            case "error":
+                                this.Configuration.WithVerbosityEnabled(VerbosityLevel.Error);
                                 break;
-                            case "minimal":
-                                this.Configuration.LogLevel = LogSeverity.Error;
-                                this.Configuration.IsVerbose = true;
+                            case "warning":
+                                this.Configuration.WithVerbosityEnabled(VerbosityLevel.Warning);
                                 break;
-                            case "normal":
-                                this.Configuration.LogLevel = LogSeverity.Warning;
-                                this.Configuration.IsVerbose = true;
+                            case "debug":
+                                this.Configuration.WithVerbosityEnabled(VerbosityLevel.Debug);
                                 break;
-                            case "detailed":
+                            case "exhaustive":
+                                this.Configuration.WithVerbosityEnabled(VerbosityLevel.Exhaustive);
+                                break;
+                            case "info":
                             default:
-                                this.Configuration.LogLevel = LogSeverity.Informational;
-                                this.Configuration.IsVerbose = true;
+                                this.Configuration.WithVerbosityEnabled(VerbosityLevel.Info);
                                 break;
                         }
 
+                        break;
+                    case "console":
+                        this.Configuration.WithConsoleLoggingEnabled(true);
                         break;
                     case "help":
                         break;

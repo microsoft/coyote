@@ -20,17 +20,19 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                SemaphoreSlim semaphore = new SemaphoreSlim(1);
+                var handle = new ManualResetEvent(true);
                 Task task = Task.Run(async () =>
                 {
-                    semaphore.Wait(100);
+                    handle.WaitOne();
                     await Task.Delay(1);
-                    semaphore.Release();
+                    handle.Set();
+                    handle.Reset();
                 });
 
-                semaphore.Wait(100);
+                handle.WaitOne();
                 await Task.Delay(1);
-                semaphore.Release();
+                handle.Set();
+                handle.Reset();
                 await task;
             },
             configuration: this.GetConfiguration()
@@ -39,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 .WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith($"Potential deadlock detected. Because a deadlock detection timeout", e);
+                Assert.StartsWith("Potential deadlock detected. The periodic deadlock detection monitor", e);
             });
         }
 
@@ -48,17 +50,19 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                SemaphoreSlim semaphore = new SemaphoreSlim(1);
+                var handle = new ManualResetEvent(true);
                 Task task = Task.Run(async () =>
                 {
-                    semaphore.Wait(100);
+                    handle.WaitOne();
                     await Task.Delay(1);
-                    semaphore.Release();
+                    handle.Set();
+                    handle.Reset();
                 });
 
-                semaphore.Wait(100);
+                handle.WaitOne();
                 await Task.Delay(1);
-                semaphore.Release();
+                handle.Set();
+                handle.Reset();
                 await task;
             },
             configuration: this.GetConfiguration()

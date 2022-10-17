@@ -16,8 +16,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="DelayOperation"/> class.
         /// </summary>
-        internal DelayOperation(ulong operationId, string name, uint delay)
-            : base(operationId, name)
+        internal DelayOperation(ulong operationId, string name, uint delay, CoyoteRuntime runtime)
+            : base(operationId, name, null, runtime)
         {
             this.Delay = delay > int.MaxValue ? int.MaxValue : (int)delay;
         }

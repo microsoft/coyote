@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Tests for the runtime.</Description>
+    <AssemblyName>Microsoft.Coyote.Tests.Runtime</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Runtime.Tests</RootNamespace>
+    <OutputPath>.\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <NetCore31Supported>false</NetCore31Supported>
+    <Net5Supported>false</Net5Supported>
+    <NoWarn>$(NoWarn),1591</NoWarn>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+    <ProjectReference Include="..\..\Tools\Coyote\Coyote.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

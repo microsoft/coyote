@@ -1,20 +1,18 @@
 # Configuration.WithVerbosityEnabled method
 
-Updates the configuration with verbose output enabled or disabled.
+Updates the configuration to use the specified verbosity level, which by default is Info.
 
 ```csharp
-public Configuration WithVerbosityEnabled(bool isVerbose = true, 
-    LogSeverity logLevel = LogSeverity.Informational)
+public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)
 ```
 
 | parameter | description |
 | --- | --- |
-| isVerbose | If true, then messages are logged. |
-| logLevel | The level of detail to provide in verbose logging. |
+| level | The level of verbosity used during logging. |
 
 ## See Also
 
-* enum [LogSeverity](../../Microsoft.Coyote.IO/LogSeverity.md)
+* enum [VerbosityLevel](../../Microsoft.Coyote.Logging/VerbosityLevel.md)
 * class [Configuration](../Configuration.md)
 * namespace [Microsoft.Coyote](../Configuration.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

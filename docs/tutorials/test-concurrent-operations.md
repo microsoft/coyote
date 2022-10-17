@@ -13,7 +13,7 @@ In this follow-up tutorial, you will write a few more tests that exercise the co
 
 To run the code in this tutorial, you will need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -86,7 +86,7 @@ a bug very fast. This bug is caused due to a very similar race condition that ma
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.1939681 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -290,10 +290,10 @@ coyote rewrite .\AccountManager.dll
 coyote test .\AccountManager.dll -m TestConcurrentAccountDeletion -i 100
 ```
 
-If you find a bug you can replay with the following command (providing the correct .schedule file
+If you find a bug you can replay with the following command (providing the correct .trace file
 reported from the previous coyote test that failed):
 ```plain
-coyote replay .\AccountManager.dll -schedule AccountManager_0_0.schedule 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace 
     -m TestConcurrentAccountDeletion
 ```
 

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueDequeueEvents()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, dequeueTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, dequeueTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(dequeueTask.IsCompleted);
         }
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueReceiveEvents()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(receiveTask.IsCompleted);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Actors.Tests
         public async Task TestEnqueueReceiveEventsAlternateType()
         {
             int numMessages = 10000;
-            var logger = new TestOutputLogger(this.TestOutput, false);
+            var logger = new TestOutputLogger(this.TestOutput);
 
             using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 }
             });
 
-            await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
+            await await Task.WhenAny(Task.WhenAll(enqueueTask, receiveTask), Task.Delay(3000));
             Assert.True(enqueueTask.IsCompleted);
             Assert.True(receiveTask.IsCompleted);
         }

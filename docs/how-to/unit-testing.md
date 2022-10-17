@@ -21,8 +21,8 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
   <ItemGroup>
     <PackageReference Include="Microsoft.Coyote" Version="1.4.1" />
     <PackageReference Include="Microsoft.Coyote.Test" Version="1.4.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; 
                      buildtransitive</IncludeAssets>
@@ -101,7 +101,7 @@ produce the log files.  You will see the following output:
 ```plain
 Coyote found 1 bugs
 See log file: d:\temp\test\mytest_0.txt
-See log file: d:\temp\test\mytest_0.schedule
+See log file: d:\temp\test\mytest_0.trace
 ```
 
 And the log file contains the familiar output of `coyote test` as follows:
@@ -160,16 +160,16 @@ You can also easily replay and debug a trace, similar to using `coyote replay` f
 tool. To do this you need to configure the `TestingEngine` to run in replay mode:
 ```csharp
 var trace = ...
-var config = Configuration.Create().WithReplayStrategy(trace);
+var config = Configuration.Create().WithReproducibleTrace(trace);
 ```
-The input to the `WithReplayStrategy` method should either be the contents of a `.schedule` file or
+The input to the `WithReproducibleTrace` method should either be the contents of a `.trace` file or
 the `string` value of `TestingEngine.ReproducibleTrace` (from a previous run).
 
 Then you add breakpoints to debug and replay as follows:
 
 ```csharp
 var trace = ...
-var config = Configuration.Create().WithReplayStrategy(trace);
+var config = Configuration.Create().WithReproducibleTrace(trace);
 TestingEngine engine = TestingEngine.Create(config, CoyoteTestMethod);
 engine.Run();
 ```

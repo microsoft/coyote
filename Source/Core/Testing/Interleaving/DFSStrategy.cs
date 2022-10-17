@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using System.Text;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Interleaving
@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="DFSStrategy"/> class.
         /// </summary>
-        internal DFSStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal DFSStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.SchIndex = 0;
             this.NondetIndex = 0;
@@ -66,8 +66,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             // DebugPrintSchedule();
-            this.StepCount = 0;
-
             this.SchIndex = 0;
             this.NondetIndex = 0;
 
@@ -134,11 +132,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
             }
 
-            return true;
+            return base.InitializeNextIteration(iteration);
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             SChoice nextChoice = null;
@@ -181,13 +179,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 return false;
             }
 
-            this.StepCount++;
-
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             NondetBooleanChoice nextChoice = null;
             List<NondetBooleanChoice> ncs = null;
@@ -223,14 +219,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
             next = nextChoice.Value;
             nextChoice.IsDone = true;
             this.NondetIndex++;
-
-            this.StepCount++;
-
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             NondetIntegerChoice nextChoice = null;
             List<NondetIntegerChoice> ncs = null;
@@ -266,24 +259,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             next = nextChoice.Value;
             nextChoice.IsDone = true;
             this.NondetIndex++;
-
-            this.StepCount++;
-
             return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
         }
 
         /// <inheritdoc/>
@@ -294,46 +270,51 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void DebugPrintSchedule()
         {
-            Debug.WriteLine("*******************");
-            Debug.WriteLine("Schedule stack size: " + this.ScheduleStack.Count);
-            for (int idx = 0; idx < this.ScheduleStack.Count; idx++)
+            this.LogWriter.LogDebug(() =>
             {
-                Debug.WriteLine("Index: " + idx);
-                foreach (var sc in this.ScheduleStack[idx])
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("*******************");
+                sb.AppendLine($"Schedule stack size: {this.ScheduleStack.Count}");
+                for (int idx = 0; idx < this.ScheduleStack.Count; idx++)
                 {
-                    Debug.Write(sc.Id + " [" + sc.IsDone + "], ");
+                    sb.AppendLine($"Index: {idx}");
+                    foreach (var sc in this.ScheduleStack[idx])
+                    {
+                        sb.Append($"{sc.Id} [{sc.IsDone}], ");
+                    }
+
+                    sb.AppendLine();
                 }
 
-                Debug.WriteLine(string.Empty);
-            }
-
-            Debug.WriteLine("*******************");
-            Debug.WriteLine("Random bool stack size: " + this.BoolNondetStack.Count);
-            for (int idx = 0; idx < this.BoolNondetStack.Count; idx++)
-            {
-                Debug.WriteLine("Index: " + idx);
-                foreach (var nc in this.BoolNondetStack[idx])
+                sb.AppendLine("*******************");
+                sb.AppendLine($"Random bool stack size: {this.BoolNondetStack.Count}");
+                for (int idx = 0; idx < this.BoolNondetStack.Count; idx++)
                 {
-                    Debug.Write(nc.Value + " [" + nc.IsDone + "], ");
+                    sb.AppendLine($"Index: {idx}");
+                    foreach (var nc in this.BoolNondetStack[idx])
+                    {
+                        sb.Append($"{nc.Value} [{nc.IsDone}], ");
+                    }
+
+                    sb.AppendLine();
                 }
 
-                Debug.WriteLine(string.Empty);
-            }
-
-            Debug.WriteLine("*******************");
-            Debug.WriteLine("Random int stack size: " + this.IntNondetStack.Count);
-            for (int idx = 0; idx < this.IntNondetStack.Count; idx++)
-            {
-                Debug.WriteLine("Index: " + idx);
-                foreach (var nc in this.IntNondetStack[idx])
+                sb.AppendLine("*******************");
+                sb.AppendLine($"Random int stack size: {this.IntNondetStack.Count}");
+                for (int idx = 0; idx < this.IntNondetStack.Count; idx++)
                 {
-                    Debug.Write(nc.Value + " [" + nc.IsDone + "], ");
+                    sb.AppendLine($"Index: {idx}");
+                    foreach (var nc in this.IntNondetStack[idx])
+                    {
+                        sb.Append($"{nc.Value} [{nc.IsDone}], ");
+                    }
+
+                    sb.AppendLine();
                 }
 
-                Debug.WriteLine(string.Empty);
-            }
-
-            Debug.WriteLine("*******************");
+                sb.AppendLine("*******************");
+                return sb.ToString();
+            });
         }
 
         /// <inheritdoc/>
@@ -344,7 +325,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             this.IntNondetStack.Clear();
             this.SchIndex = 0;
             this.NondetIndex = 0;
-            this.StepCount = 0;
+            base.Reset();
         }
 
         /// <summary>

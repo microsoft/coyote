@@ -4,19 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.IO;
+using System.Text;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A probabilistic priority-based scheduling strategy.
+    /// A (fair) probabilistic priority-based scheduling strategy.
     /// </summary>
     /// <remarks>
     /// This strategy is based on the PCT algorithm described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf.
     /// </remarks>
-    internal sealed class PrioritizationStrategy : InterleavingStrategy
+    internal sealed class PrioritizationStrategy : RandomStrategy
     {
         /// <summary>
         /// List of prioritized operation groups.
@@ -46,8 +46,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        internal PrioritizationStrategy(Configuration configuration, bool isFair)
+            : base(configuration, isFair)
         {
             this.PrioritizedOperationGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
@@ -84,14 +84,18 @@ namespace Microsoft.Coyote.Testing.Interleaving
             }
 
             this.NumPriorityChangePoints = 0;
-            this.StepCount = 0;
-            return true;
+            return base.InitializeNextIteration(iteration);
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
+            if (this.IsFair && this.StepCount >= this.Configuration.MaxUnfairSchedulingSteps)
+            {
+                return base.NextOperation(ops, current, isYielding, out next);
+            }
+
             // Set the priority of any new operation groups.
             this.SetNewOperationGroupPriorities(ops, current);
 
@@ -115,7 +119,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
-            this.StepCount++;
             return true;
         }
 
@@ -152,7 +155,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 // Randomly choose a priority for this group.
                 int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
                 this.PrioritizedOperationGroups.Insert(index, group);
-                Debug.WriteLine("<ScheduleLog> Assigned priority '{0}' for operation group '{1}'.", index, group);
+                this.LogWriter.LogDebug("[coyote::strategy] Assigned priority '{0}' for operation group '{1}'.", index, group);
             }
 
             if (this.PrioritizedOperationGroups.Count > count)
@@ -172,7 +175,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 // This scheduling step was chosen as a priority change point.
                 group = this.GetOperationGroupWithHighestPriority(ops);
-                Debug.WriteLine("<ScheduleLog> Reduced the priority of operation group '{0}'.", group);
+                this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
             }
 
             this.NumPriorityChangePoints++;
@@ -188,43 +191,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
-        {
-            next = false;
-            if (this.RandomValueGenerator.Next(2) is 0)
-            {
-                next = true;
-            }
-
-            this.StepCount++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
-        {
-            next = this.RandomValueGenerator.Next(maxValue);
-            this.StepCount++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        internal override int GetStepCount() => this.StepCount;
-
-        /// <inheritdoc/>
-        internal override bool IsMaxStepsReached()
-        {
-            if (this.MaxSteps is 0)
-            {
-                return false;
-            }
-
-            return this.StepCount >= this.MaxSteps;
-        }
-
-        /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"prioritization[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"prioritization[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
@@ -249,10 +217,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <inheritdoc/>
         internal override void Reset()
         {
-            this.StepCount = 0;
             this.NumPriorityChangePoints = 0;
             this.PrioritizedOperationGroups.Clear();
             this.PriorityChangePoints.Clear();
+            base.Reset();
         }
 
         /// <summary>
@@ -260,22 +228,25 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void DebugPrintOperationPriorityList()
         {
-            if (Debug.IsEnabled)
+            this.LogWriter.LogDebug(() =>
             {
-                Debug.WriteLine("<ScheduleLog> Updated operation group priority list: ");
+                var sb = new StringBuilder();
+                sb.AppendLine("[coyote::strategy] Updated operation group priority list: ");
                 for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
                 {
                     var group = this.PrioritizedOperationGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}' [enabled]", idx, group);
+                        sb.AppendLine($"  |_ [{idx}] operation group with id '{group}' [enabled]");
                     }
                     else if (group.Any(m => m.Status != OperationStatus.Completed))
                     {
-                        Debug.WriteLine("  |_ [{0}] operation group with id '{1}'", idx, group);
+                        sb.AppendLine($"  |_ [{idx}] operation group with id '{group}'");
                     }
                 }
-            }
+
+                return sb.ToString();
+            });
         }
 
         /// <summary>
@@ -283,21 +254,24 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void DebugPrintPriorityChangePoints()
         {
-            if (Debug.IsEnabled && this.PriorityChangePoints.Count > 0)
+            this.LogWriter.LogDebug(() =>
             {
+                var sb = new StringBuilder();
                 if (this.PriorityChangePoints.Count > 0)
                 {
                     // Sort them before printing for readability.
                     var sortedChangePoints = this.PriorityChangePoints.ToArray();
                     Array.Sort(sortedChangePoints);
-                    Debug.WriteLine("<ScheduleLog> Assigned {0} priority change points: {1}.",
-                        sortedChangePoints.Length, string.Join(", ", sortedChangePoints));
+                    var points = string.Join(", ", sortedChangePoints);
+                    sb.AppendLine($"[coyote::strategy] Assigned '{sortedChangePoints.Length}' priority change points: {points}.");
                 }
                 else
                 {
-                    Debug.WriteLine("<ScheduleLog> Assigned 0 priority change points.");
+                    sb.AppendLine("[coyote::strategy] Assigned '0' priority change points.");
                 }
-            }
+
+                return sb.ToString();
+            });
         }
     }
 }

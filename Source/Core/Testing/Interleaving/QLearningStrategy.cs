@@ -84,8 +84,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Initializes a new instance of the <see cref="QLearningStrategy"/> class.
         /// It uses the specified random number generator.
         /// </summary>
-        public QLearningStrategy(Configuration configuration, IRandomValueGenerator generator)
-            : base(configuration, generator, false)
+        public QLearningStrategy(Configuration configuration)
+            : base(configuration, false)
         {
             this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
             this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();
@@ -102,7 +102,17 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool InitializeNextIteration(uint iteration)
+        {
+            this.LearnQValues();
+            this.ExecutionPath.Clear();
+            this.LastOperation = 0;
+            this.Epochs++;
+            return base.InitializeNextIteration(iteration);
+        }
+
+        /// <inheritdoc/>
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
             bool isYielding, out ControlledOperation next)
         {
             int state = this.CaptureExecutionStep(current);
@@ -110,34 +120,26 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             next = this.GetNextOperationByPolicy(state, ops);
             this.LastOperation = next.Id;
-
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextBooleanChoice(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, out bool next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeBooleanChoiceQValues(state);
-
             next = this.GetNextBooleanChoiceByPolicy(state);
-
             this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
-            this.StepCount++;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool GetNextIntegerChoice(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
         {
             int state = this.CaptureExecutionStep(current);
             this.InitializeIntegerChoiceQValues(state, maxValue);
-
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
-
             this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
-            this.StepCount++;
             return true;
         }
 
@@ -337,17 +339,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     qValues.Add(opValue, 0);
                 }
             }
-        }
-
-        /// <inheritdoc/>
-        internal override bool InitializeNextIteration(uint iteration)
-        {
-            this.LearnQValues();
-            this.ExecutionPath.Clear();
-            this.LastOperation = 0;
-            this.Epochs++;
-
-            return base.InitializeNextIteration(iteration);
         }
 
         /// <summary>

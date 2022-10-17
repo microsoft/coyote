@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -162,7 +164,9 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             Configuration config = this.GetConfiguration();
             config.AssemblyToBeAnalyzed = Assembly.GetExecutingAssembly().Location;
             config.TestMethodName = name;
-            using var testMethodInfo = TestMethodInfo.Create(config);
+            var logWriter = new LogWriter(config);
+            logWriter.SetLogger(new TestOutputLogger(this.TestOutput));
+            using var testMethodInfo = TestMethodInfo.Create(config, logWriter);
             Assert.Equal(Assembly.GetExecutingAssembly(), testMethodInfo.Assembly);
             Assert.Equal($"{typeof(EntryPointTests).FullName}.{name}", testMethodInfo.Name);
         }

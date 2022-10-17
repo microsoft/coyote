@@ -27,17 +27,11 @@ steps:
   inputs:
     targetType: filePath
     filePath: '.\Scripts\build.ps1'
-    arguments: "-ci"
+    arguments: >
+      -ci
+      -nuget
     failOnStderr: true
     pwsh: true
-
-# - task: PowerShell@2
-#   displayName: 'Update the XML documentation'
-#   inputs:
-#     targetType: filePath
-#     filePath: '.\Scripts\gen-docs.ps1'
-#     failOnStderr: true
-#     pwsh: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET 6.0'
@@ -158,14 +152,6 @@ steps:
              "ToolVersion": "1.0"
          }
      ]
-
-- task: PowerShell@2
-  displayName: 'Create NuGet package'
-  inputs:
-    targetType: filePath
-    filePath: '.\Scripts\create-nuget-packages.ps1'
-    failOnStderr: true
-    pwsh: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning NuGet package'

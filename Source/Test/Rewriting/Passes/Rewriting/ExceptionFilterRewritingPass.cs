@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting.Types;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
@@ -26,8 +26,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionFilterRewritingPass"/> class.
         /// </summary>
-        internal ExceptionFilterRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal ExceptionFilterRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
         }
 
@@ -103,7 +103,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.IsMethodBodyModified = true;
             }
 
-            Debug.WriteLine($"............. [+] rewriting catch block to rethrow a {nameof(ThreadInterruptedException)}");
+            this.LogWriter.LogDebug("............. [+] rewriting catch block to rethrow a {0}",
+                nameof(ThreadInterruptedException));
 
             var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
             MethodReference providerMethod = providerType.Methods.FirstOrDefault(
@@ -187,7 +188,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is MethodReference method)
                 {
                     TypeReference type = method.DeclaringType;
-                    if ((type.Namespace == NameCache.RuntimeCompilerNamespace ||
+                    if ((type.Namespace == typeof(Types.Runtime.CompilerServices.AsyncTaskMethodBuilder).Namespace ||
                         type.Namespace == NameCache.SystemCompilerNamespace) &&
                         ((type.Name == NameCache.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) ||

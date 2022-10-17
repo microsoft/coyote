@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting.Types;
 using Mono.Cecil;
 
@@ -22,44 +22,44 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeRewritingPass"/> class.
         /// </summary>
-        internal TypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies, ILogger logger)
-            : base(visitedAssemblies, logger)
+        internal TypeRewritingPass(RewritingOptions options, IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
+            : base(visitedAssemblies, logWriter)
         {
             this.KnownTypes = new Dictionary<string, Type>();
 
             // Populate the map with the known compiler types.
             this.KnownTypes[NameCache.AsyncTaskMethodBuilder] =
-                typeof(Runtime.CompilerServices.AsyncTaskMethodBuilder);
+                typeof(Types.Runtime.CompilerServices.AsyncTaskMethodBuilder);
             this.KnownTypes[NameCache.GenericAsyncTaskMethodBuilder] =
-                typeof(Runtime.CompilerServices.AsyncTaskMethodBuilder<>);
+                typeof(Types.Runtime.CompilerServices.AsyncTaskMethodBuilder<>);
             this.KnownTypes[NameCache.AsyncValueTaskMethodBuilder] =
-                typeof(Runtime.CompilerServices.AsyncValueTaskMethodBuilder);
+                typeof(Types.Runtime.CompilerServices.AsyncValueTaskMethodBuilder);
             this.KnownTypes[NameCache.GenericAsyncValueTaskMethodBuilder] =
-                typeof(Runtime.CompilerServices.AsyncValueTaskMethodBuilder<>);
+                typeof(Types.Runtime.CompilerServices.AsyncValueTaskMethodBuilder<>);
             this.KnownTypes[NameCache.TaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter);
             this.KnownTypes[NameCache.GenericTaskAwaiter] = typeof(Runtime.CompilerServices.TaskAwaiter<>);
             this.KnownTypes[NameCache.ValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter);
             this.KnownTypes[NameCache.GenericValueTaskAwaiter] = typeof(Runtime.CompilerServices.ValueTaskAwaiter<>);
             this.KnownTypes[NameCache.ConfiguredTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable);
+                typeof(Types.Runtime.CompilerServices.ConfiguredTaskAwaitable);
             this.KnownTypes[NameCache.ConfiguredTaskAwaiter] =
-                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter);
+                typeof(Types.Runtime.CompilerServices.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter);
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
+                typeof(Types.Runtime.CompilerServices.ConfiguredTaskAwaitable<>);
             this.KnownTypes[NameCache.GenericConfiguredTaskAwaiter] =
-                typeof(Runtime.CompilerServices.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter);
+                typeof(Types.Runtime.CompilerServices.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter);
             this.KnownTypes[NameCache.ConfiguredValueTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable);
+                typeof(Types.Runtime.CompilerServices.ConfiguredValueTaskAwaitable);
             this.KnownTypes[NameCache.ConfiguredValueTaskAwaiter] =
-                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter);
+                typeof(Types.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter);
             this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaitable] =
-                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>);
+                typeof(Types.Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>);
             this.KnownTypes[NameCache.GenericConfiguredValueTaskAwaiter] =
-                typeof(Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>.ConfiguredValueTaskAwaiter);
+                typeof(Types.Runtime.CompilerServices.ConfiguredValueTaskAwaitable<>.ConfiguredValueTaskAwaiter);
             this.KnownTypes[NameCache.YieldAwaitable] =
-                typeof(Runtime.CompilerServices.YieldAwaitable);
+                typeof(Types.Runtime.CompilerServices.YieldAwaitable);
             this.KnownTypes[NameCache.YieldAwaiter] =
-                typeof(Runtime.CompilerServices.YieldAwaitable.YieldAwaiter);
+                typeof(Types.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter);
 
             // Populate the map with the default task-based types.
             this.KnownTypes[NameCache.Task] = typeof(Types.Threading.Tasks.Task);
@@ -77,6 +77,7 @@ namespace Microsoft.Coyote.Rewriting
 
             // Populate the map with the known synchronization types.
             this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
+            this.KnownTypes[NameCache.SemaphoreSlim] = typeof(Types.Threading.SemaphoreSlim);
 
 #if NET || NETCOREAPP3_1
             // Populate the map with the known HTTP and web-related types.

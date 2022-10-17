@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Logging;
+using Microsoft.Coyote.Runtime;
+
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
@@ -27,7 +30,22 @@ namespace Microsoft.Coyote.Actors
         /// Only one actor runtime can be used per process. If you create a new actor runtime
         /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
-        public static IActorRuntime Create(Configuration configuration) =>
-            Runtime.RuntimeProvider.CreateAndInstall(configuration).DefaultActorExecutionContext;
+        public static IActorRuntime Create(Configuration configuration)
+        {
+            configuration ??= Configuration.Create();
+            var logWriter = new LogWriter(configuration);
+            var logManager = CreateLogManager(logWriter);
+            return Runtime.RuntimeProvider.CreateAndInstall(configuration, logWriter, logManager).DefaultActorExecutionContext;
+        }
+
+        /// <summary>
+        /// Creates a new runtime log manager that writes to the specified log writer.
+        /// </summary>
+        internal static LogManager CreateLogManager(LogWriter logWriter)
+        {
+            var logManager = new ActorLogManager();
+            logManager.RegisterLog(new ActorRuntimeLogTextFormatter(), logWriter);
+            return logManager;
+        }
     }
 }

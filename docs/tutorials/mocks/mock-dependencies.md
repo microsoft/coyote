@@ -23,7 +23,7 @@ means that using locks in your code will not help you in writing correct concurr
 
 To run the code in this tutorial, you will need to:
 
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
@@ -175,7 +175,7 @@ This time the test immediately (and always) fails!
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.0798435 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -315,7 +315,7 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
 ..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
-..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.schedule
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
 ... Elapsed 0.0902799 sec.
 ... Testing statistics:
 ..... Found 1 bug.

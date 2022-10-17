@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
             WebFramework.HttpRequest request = context.Request;
             if (request != null && TryExtractRuntime(request, out CoyoteRuntime runtime))
             {
-                IO.Debug.WriteLine("<Coyote> Runtime '{0}' takes control of the '{1} {2}' handler on thread '{3}'.",
+                runtime.LogWriter.LogDebug("[coyote::debug] Runtime '{0}' takes control of the '{1} {2}' handler on thread '{3}'.",
                     runtime.Id, request.Method, request.Path, SystemThread.CurrentThread.ManagedThreadId);
                 TryExtractSourceOperation(request, runtime, out ControlledOperation source);
                 var op = HttpOperation.Create(ToHttpMethod(request.Method), request.Path, runtime, source);
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
                 await runtime.TaskFactory.StartNew(state =>
                     {
                         SystemTask task = this.Next(context);
-                        runtime.WaitUntilTaskCompletes(task);
+                        TaskServices.WaitUntilTaskCompletes(runtime, op, task);
                         task.GetAwaiter().GetResult();
                     },
                     op,
@@ -60,8 +60,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Web
             }
             else
             {
-                IO.Debug.WriteLine($"<Coyote> Unable to control the '{0} {1}' request on thread '{2}'.",
-                    request?.Method, request?.Path, SystemThread.CurrentThread.ManagedThreadId);
                 await this.Next(context);
             }
         }

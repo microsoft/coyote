@@ -1,18 +1,14 @@
 # RuntimeLogTextFormatter.Logger property
 
-Get or set the [`ILogger`](../../Microsoft.Coyote.IO/ILogger.md) interface to the logger.
+Used for logging runtime messages.
 
 ```csharp
-public ILogger Logger { get; set; }
+protected ILogger Logger { get; }
 ```
-
-## Remarks
-
-If you want Coyote to log to an existing TextWriter, then use the [`TextWriterLogger`](../../Microsoft.Coyote.IO/TextWriterLogger.md) object but that will have a minor performance overhead, so it is better to use [`ILogger`](../../Microsoft.Coyote.IO/ILogger.md) directly.
 
 ## See Also
 
-* interface [ILogger](../../Microsoft.Coyote.IO/ILogger.md)
+* interface [ILogger](../../Microsoft.Coyote.Logging/ILogger.md)
 * class [RuntimeLogTextFormatter](../RuntimeLogTextFormatter.md)
 * namespace [Microsoft.Coyote.Runtime](../RuntimeLogTextFormatter.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

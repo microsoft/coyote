@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -148,15 +147,15 @@ namespace Microsoft.Coyote.Rewriting
             pass.VisitAssembly(this);
             foreach (var module in this.Definition.Modules)
             {
-                Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");
+                pass.LogWriter.LogDebug("....... Module: {0} ({1})", module.Name, module.FileName);
                 pass.VisitModule(module);
                 foreach (var type in module.GetTypes())
                 {
-                    Debug.WriteLine($"......... Type: {type.FullName}");
+                    pass.LogWriter.LogDebug("......... Type: {0}", type.FullName);
                     pass.VisitType(type);
                     foreach (var field in type.Fields.ToArray())
                     {
-                        Debug.WriteLine($"........... Field: {field.FullName}");
+                        pass.LogWriter.LogDebug("........... Field: {0}", field.FullName);
                         pass.VisitField(field);
                     }
 
@@ -167,7 +166,7 @@ namespace Microsoft.Coyote.Rewriting
                             continue;
                         }
 
-                        Debug.WriteLine($"........... Method {method.FullName}");
+                        pass.LogWriter.LogDebug("........... Method {0}", method.FullName);
                         pass.VisitMethod(method);
                         if (pass is RewritingPass rewritingPass && rewritingPass.IsMethodBodyModified)
                         {

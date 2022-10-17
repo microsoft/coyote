@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Actors
 
             // Execute the entry action of the start state, if there is one.
             await this.ExecuteCurrentStateOnEntryAsync(initialEvent);
-            if (this.CurrentStatus is Status.Halting)
+            if (this.CurrentStatus is ActorExecutionStatus.Halting)
             {
                 await this.HaltAsync(initialEvent);
             }
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event to raise.</param>
         protected void RaiseEvent(Event e)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked RaiseEvent while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked RaiseEvent while halting.", this.Id);
             this.Assert(e != null, "{0} is raising a null event.", this.Id);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="state">Type of the state.</param>
         protected void RaiseGotoStateEvent(Type state)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked GotoState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked GotoState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             this.CheckDanglingTransition();
@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="state">Type of the state.</param>
         protected void RaisePushStateEvent(Type state)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PushState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked PushState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             this.CheckDanglingTransition();
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Actors
         /// </remarks>
         protected void RaisePopStateEvent()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PopState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked PopState while halting.", this.Id);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.PopState, null, default);
         }
@@ -313,13 +313,13 @@ namespace Microsoft.Coyote.Actors
                     if (e is HaltEvent)
                     {
                         // If it is the halt event, then change the actor status to halting.
-                        this.CurrentStatus = Status.Halting;
+                        this.CurrentStatus = ActorExecutionStatus.Halting;
                         break;
                     }
 
                     string currentStateName = NameResolver.GetQualifiedStateName(currentState);
                     await this.InvokeUserCallbackAsync(UserCallbackType.OnEventUnhandled, e, currentStateName);
-                    if (this.CurrentStatus is Status.Active)
+                    if (this.CurrentStatus is ActorExecutionStatus.Active)
                     {
                         // If the event cannot be handled then report an error, else halt gracefully.
                         var ex = new UnhandledEventException(e, currentStateName, "Unhandled Event");
@@ -379,9 +379,9 @@ namespace Microsoft.Coyote.Actors
                     {
                         // If the current state cannot handle the event.
                         await this.ExecuteCurrentStateOnExitAsync(null, e);
-                        if (this.CurrentStatus is Status.Active)
+                        if (this.CurrentStatus is ActorExecutionStatus.Active)
                         {
-                            this.Context.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
+                            this.Context.LogManager.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
                             this.DoStatePop();
                             continue;
                         }
@@ -464,7 +464,7 @@ namespace Microsoft.Coyote.Actors
 
             // Invokes the exit action of the event handler,
             // if there is one available.
-            if (eventHandlerExitActionName != null && this.CurrentStatus is Status.Active)
+            if (eventHandlerExitActionName != null && this.CurrentStatus is ActorExecutionStatus.Active)
             {
                 CachedDelegate eventHandlerExitAction = this.StateMachineActionMap[eventHandlerExitActionName];
                 this.Context.LogInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo);
@@ -510,10 +510,10 @@ namespace Microsoft.Coyote.Actors
 
                 // The state machine performs the on exit action of the current state.
                 await this.ExecuteCurrentStateOnExitAsync(null, e);
-                if (this.CurrentStatus is Status.Active)
+                if (this.CurrentStatus is ActorExecutionStatus.Active)
                 {
                     this.DoStatePop();
-                    this.Context.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                    this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
                     this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
                 }
             }
@@ -521,7 +521,7 @@ namespace Microsoft.Coyote.Actors
             {
                 // If it is the halt transition, then change the actor status to halting.
                 this.PendingTransition = default;
-                this.CurrentStatus = Status.Halting;
+                this.CurrentStatus = ActorExecutionStatus.Halting;
             }
             else
             {
@@ -565,12 +565,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task GotoStateAsync(Type s, string onExitActionName, Event e)
         {
-            this.Context.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
+            this.Context.LogManager.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
             await this.ExecuteCurrentStateOnExitAsync(onExitActionName, e);
-            if (this.CurrentStatus is Status.Active)
+            if (this.CurrentStatus is ActorExecutionStatus.Active)
             {
                 this.DoStatePop();
 
@@ -588,7 +588,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task PushStateAsync(Type s, Event e)
         {
-            this.Context.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
+            this.Context.LogManager.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);

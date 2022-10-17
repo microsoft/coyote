@@ -4,6 +4,7 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",
+    [switch]$nuget,
     [switch]$ci
 )
 
@@ -13,7 +14,7 @@ Import-Module $ScriptDir/common.psm1 -Force
 
 CheckPSVersion
 
-Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
+Write-Comment -text "Building Coyote." -color "blue"
 
 if ($host.Version.Major -lt 7)
 {
@@ -35,7 +36,7 @@ if ($null -eq $sdk_version) {
     exit 1
 }
 
-Write-Comment -prefix "..." -text "Using configuration '$configuration'"
+Write-Comment -text "Using configuration '$configuration'." -color "magenta"
 $solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
 $command = "build -c $configuration $solution /p:Platform=""Any CPU"""
 
@@ -55,4 +56,49 @@ if ($ci.IsPresent) {
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
-Write-Comment -prefix "." -text "Successfully built Coyote" -color "green"
+if ($nuget.IsPresent -and $ci.IsPresent) {
+    if ($IsWindows) {
+        # Check that NuGet.exe is installed.
+        $nuget_cli = "nuget"
+        if (-not (Get-Command $nuget_cli -errorAction SilentlyContinue)) {
+            Write-Comment -text "Please install the latest NuGet.exe from https://www.nuget.org/downloads and add it to the PATH environment variable." -color "yellow"
+            exit 1
+        }
+
+        Write-Comment -text "Building the Coyote NuGet packages." -color "blue"
+
+        # Extract the package version.
+        $version_file = "$PSScriptRoot/../Common/version.props"
+        $version_node = Select-Xml -Path $version_file -XPath "/" | Select-Object -ExpandProperty Node
+        $version = $version_node.Project.PropertyGroup.VersionPrefix
+        $version_suffix = $version_node.Project.PropertyGroup.VersionSuffix
+
+        # Setup the command line options for nuget pack.
+        $cmd_options = "-OutputDirectory $PSScriptRoot/../bin/nuget -Version $version"
+        $cmd_options = "$cmd_options -Symbols -SymbolPackageFormat snupkg"
+        if ($version_suffix) {
+            $cmd_options = "$cmd_options -Suffix $version_suffix"
+        }
+
+        Write-Comment -text "Creating the 'Microsoft.Coyote' package." -color "magenta"
+        $command = "pack $PSScriptRoot/NuGet/Coyote.nuspec $cmd_options"
+        $error_msg = "Failed to build the Coyote NuGet package"
+        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Creating the 'Microsoft.Coyote.Test' package." -color "magenta"
+        $command = "pack $PSScriptRoot/NuGet/Coyote.Test.nuspec $cmd_options"
+        $error_msg = "Failed to build the Coyote Test NuGet package"
+        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Creating the 'Microsoft.Coyote.CLI' package." -color "magenta"
+        $command = "pack $PSScriptRoot/NuGet/Coyote.CLI.nuspec $cmd_options -Tool"
+        $error_msg = "Failed to build the Coyote CLI NuGet package"
+        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+    } else {
+        Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"
+    }
+} elseif ($IsWindows) {
+    Write-Comment -text "Skipped building the Coyote NuGet packages (enable with -nuget -ci)." -color "yellow"
+}
+
+Write-Comment -text "Done." -color "green"

@@ -270,7 +270,7 @@ namespace Microsoft.Coyote
             this.TestMethodName = string.Empty;
             this.ReproducibleTrace = string.Empty;
 
-            this.VerbosityLevel = VerbosityLevel.None;
+            this.VerbosityLevel = VerbosityLevel.Error;
             this.IsConsoleLoggingEnabled = false;
 
             this.SchedulingStrategy = "random";
@@ -319,8 +319,8 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the specified verbosity level,
-        /// which by default is <see cref="VerbosityLevel.Info"/>.
+        /// Updates the configuration to use the specified verbosity level, or <see cref="VerbosityLevel.Info"/>,
+        /// if no level is specified. The default verbosity level is <see cref="VerbosityLevel.Error"/>.
         /// </summary>
         /// <param name="level">The level of verbosity used during logging.</param>
         public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)

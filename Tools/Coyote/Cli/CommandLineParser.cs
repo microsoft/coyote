@@ -73,6 +73,7 @@ namespace Microsoft.Coyote.Cli
 
             var allowedVerbosityLevels = new HashSet<string>
             {
+                "none",
                 "error",
                 "warning",
                 "info",
@@ -82,7 +83,7 @@ namespace Microsoft.Coyote.Cli
 
             var verbosityOption = new Option<string>(
                 aliases: new[] { "-v", "--verbosity" },
-                getDefaultValue: () => "none",
+                getDefaultValue: () => "error",
                 description: "Enable verbosity with an optional verbosity level. " +
                     $"Allowed values are {string.Join(", ", allowedVerbosityLevels)}. " +
                     "Skipping the argument sets the verbosity level to 'info'.")

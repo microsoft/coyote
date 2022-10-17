@@ -52,10 +52,10 @@ if ($ci.IsPresent) {
         $command = $command + " /p:BUILD_NETCORE31=yes"
     }
 
-    if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version) {
-        # Build .NET 5.0 as well as the latest version.
-        $command = $command + " /p:BUILD_NET5=yes"
-    }
+    # if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version) {
+    #     # Build .NET 5.0 as well as the latest version.
+    #     $command = $command + " /p:BUILD_NET5=yes"
+    # }
 }
 
 $error_msg = "Failed to build Coyote"

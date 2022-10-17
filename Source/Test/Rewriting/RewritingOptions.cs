@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Sanitizes the rewriting options.
         /// </summary>
-        internal RewritingOptions Sanitize()
+        internal RewritingOptions Sanitize(Assembly callingAssembly = null)
         {
             if (string.IsNullOrEmpty(this.AssembliesDirectory))
             {
@@ -247,7 +247,16 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException("Please provide RewritingOptions.AssemblyPaths");
             }
 
-            string targetFramework = GetTargetFramework();
+            // We try resolve assemblies in the following order: (a) the calling assembly only for our unit tests,
+            // (b) the entry assembly which is typically the coyote CLI tool, and (c) the current assembly. If the
+            // resolution fails,then we throw an error so that the user can be explicit.
+            if (!TryResolveTargetFramework(callingAssembly, out string targetFramework) &&
+                !TryResolveTargetFramework(Assembly.GetEntryAssembly(), out targetFramework) &&
+                !TryResolveTargetFramework(Assembly.GetExecutingAssembly(), out targetFramework))
+            {
+                throw new InvalidOperationException("Unable to resolve '$(TargetFramework)', please set it explicitly.");
+            }
+
             this.AssembliesDirectory = ResolvePath(this.AssembliesDirectory, targetFramework);
             this.OutputDirectory = ResolvePath(this.OutputDirectory, targetFramework);
             foreach (string path in this.AssemblyPaths.ToArray())
@@ -282,32 +291,30 @@ namespace Microsoft.Coyote.Rewriting
             path.Replace("$(TargetFramework)", targetFramework);
 
         /// <summary>
-        /// Returns the target framework of the executing assembly.
+        /// Returns the resolved target framework of the specified or executing assembly.
         /// </summary>
-        private static string GetTargetFramework()
+        private static bool TryResolveTargetFramework(Assembly assembly, out string resolvedTargetFramework)
         {
-            var targetFramework = Assembly.GetExecutingAssembly()
-                .GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
+            var targetFramework = assembly?.GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
                 .SingleOrDefault() as TargetFrameworkAttribute;
             var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, StringSplitOptions.None);
 
-            var resolvedFramework = "$(TargetFramework)";
+            resolvedTargetFramework = string.Empty;
             if (tokens != null && tokens.Length is 2)
             {
                 if (tokens[0] == ".NETCoreApp")
                 {
-                    resolvedFramework = tokens[1] is "v6.0" ? "net6.0" :
-                        tokens[1] is "v5.0" ? "net5.0" :
+                    resolvedTargetFramework = tokens[1] is "v6.0" ? "net6.0" :
                         tokens[1] is "v3.1" ? "netcoreapp3.1" :
-                        resolvedFramework;
+                        resolvedTargetFramework;
                 }
                 else if (tokens[0] == ".NETFramework")
                 {
-                    resolvedFramework = tokens[1] is "v4.6.2" ? "net462" : resolvedFramework;
+                    resolvedTargetFramework = tokens[1] is "v4.6.2" ? "net462" : resolvedTargetFramework;
                 }
             }
 
-            return resolvedFramework;
+            return !string.IsNullOrEmpty(resolvedTargetFramework);
         }
 
         /// <summary>

@@ -1884,7 +1884,7 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="e75db9c9-7842-4ae4-a29d-624f6b49f607.OutputPath" Value="C:\git\coyote\bin\net5.0\Microsoft.Coyote.dll" />
-    <Path Id="e75db9c9-7842-4ae4-a29d-624f6b49f607.OutputPathUri" Value="file:///C:/git/coyote/bin/net5.0/Microsoft.Coyote.dll" />
+    <Path Id="e75db9c9-7842-4ae4-a29d-624f6b49f607.OutputPath" Value="C:\git\coyote\bin\net6.0\Microsoft.Coyote.dll" />
+    <Path Id="e75db9c9-7842-4ae4-a29d-624f6b49f607.OutputPathUri" Value="file:///C:/git/coyote/bin/net6.0/Microsoft.Coyote.dll" />
   </Paths>
 </DirectedGraph>

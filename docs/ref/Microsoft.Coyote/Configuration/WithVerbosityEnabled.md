@@ -1,6 +1,6 @@
 # Configuration.WithVerbosityEnabled method
 
-Updates the configuration to use the specified verbosity level, which by default is Info.
+Updates the configuration to use the specified verbosity level, or Info, if no level is specified. The default verbosity level is Error.
 
 ```csharp
 public Configuration WithVerbosityEnabled(VerbosityLevel level = VerbosityLevel.Info)

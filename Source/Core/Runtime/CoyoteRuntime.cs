@@ -14,6 +14,7 @@ using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
+using SpecMonitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -178,7 +179,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// List of all registered safety and liveness specification monitors.
         /// </summary>
-        private readonly List<Specifications.Monitor> SpecificationMonitors;
+        private readonly List<SpecMonitor> SpecificationMonitors;
 
         /// <summary>
         /// List of all registered task liveness monitors.
@@ -318,7 +319,7 @@ namespace Microsoft.Coyote.Runtime
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
             this.LogManager = logManager;
-            this.SpecificationMonitors = new List<Specifications.Monitor>();
+            this.SpecificationMonitors = new List<SpecMonitor>();
             this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
@@ -1518,11 +1519,11 @@ namespace Microsoft.Coyote.Runtime
 
         /// <inheritdoc/>
         public void RegisterMonitor<T>()
-            where T : Specifications.Monitor =>
+            where T : SpecMonitor =>
             this.TryCreateMonitor(typeof(T));
 
         /// <summary>
-        /// Tries to create a new <see cref="Specifications.Monitor"/> of the specified <see cref="Type"/>.
+        /// Tries to create a new <see cref="SpecMonitor"/> of the specified <see cref="Type"/>.
         /// </summary>
         private bool TryCreateMonitor(Type type)
         {
@@ -1534,7 +1535,7 @@ namespace Microsoft.Coyote.Runtime
                     // Only one monitor per type is allowed.
                     if (!this.SpecificationMonitors.Any(m => m.GetType() == type))
                     {
-                        var monitor = (Specifications.Monitor)Activator.CreateInstance(type);
+                        var monitor = (SpecMonitor)Activator.CreateInstance(type);
                         monitor.Initialize(this.Configuration, this);
                         monitor.InitializeStateInformation();
                         this.SpecificationMonitors.Add(monitor);
@@ -1560,21 +1561,21 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public void Monitor<T>(Event e)
-            where T : Specifications.Monitor =>
+        public void Monitor<T>(SpecMonitor.Event e)
+            where T : SpecMonitor =>
             this.InvokeMonitor(typeof(T), e, null, null, null);
 
         /// <summary>
-        /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
+        /// Invokes the specified <see cref="SpecMonitor"/> with the specified <see cref="SpecMonitor.Event"/>.
         /// </summary>
-        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName)
+        internal void InvokeMonitor(Type type, SpecMonitor.Event e, string senderName, string senderType, string senderStateName)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None ||
                 this.Configuration.IsMonitoringEnabledOutsideTesting)
             {
                 using (SynchronizedSection.Enter(this.RuntimeLock))
                 {
-                    Specifications.Monitor monitor = null;
+                    SpecMonitor monitor = null;
                     foreach (var m in this.SpecificationMonitors)
                     {
                         if (m.GetType() == type)

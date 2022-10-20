@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Specifications
         /// <typeparam name="T">Type of the monitor.</typeparam>
         /// <param name="e">Event to send to the monitor.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Monitor<T>(Event e)
+        public static void Monitor<T>(Monitor.Event e)
             where T : Monitor =>
             CoyoteRuntime.Current.Monitor<T>(e);
     }

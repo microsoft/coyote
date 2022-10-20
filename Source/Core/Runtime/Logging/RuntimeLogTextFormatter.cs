@@ -3,6 +3,7 @@
 
 using System.Threading;
 using Microsoft.Coyote.Logging;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -36,12 +37,12 @@ namespace Microsoft.Coyote.Runtime
 
         /// <inheritdoc/>
         public virtual void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e) =>
+            string senderType, string senderStateName, MonitorEvent e) =>
             this.Logger.WriteLine("<MonitorLog> {0} is processing event '{1}' in state '{2}'.",
                 monitorType, e.GetType().FullName, stateName);
 
         /// <inheritdoc/>
-        public virtual void OnMonitorRaiseEvent(string monitorType, string stateName, Event e) =>
+        public virtual void OnMonitorRaiseEvent(string monitorType, string stateName, MonitorEvent e) =>
             this.Logger.WriteLine("<MonitorLog> {0} raised event '{1}' in state '{2}'.",
                 monitorType, e.GetType().FullName, stateName);
 

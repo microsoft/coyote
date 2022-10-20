@@ -710,14 +710,14 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.RegisterMonitor<T>();
 
         /// <inheritdoc/>
-        public void Monitor<T>(Event e)
+        public void Monitor<T>(Monitor.Event e)
             where T : Monitor =>
             this.Runtime.Monitor<T>(e);
 
         /// <summary>
         /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
-        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName) =>
+        internal void InvokeMonitor(Type type, Monitor.Event e, string senderName, string senderType, string senderStateName) =>
             this.Runtime.InvokeMonitor(type, e, senderName, senderType, senderStateName);
 
         /// <inheritdoc/>

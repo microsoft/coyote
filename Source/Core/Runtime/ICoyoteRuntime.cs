@@ -33,11 +33,11 @@ namespace Microsoft.Coyote.Runtime
             where T : Monitor;
 
         /// <summary>
-        /// Invokes the specified monitor with the specified <see cref="Event"/>.
+        /// Invokes the specified monitor with the specified <see cref="Monitor.Event"/>.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
         /// <param name="e">Event to send to the monitor.</param>
-        void Monitor<T>(Event e)
+        void Monitor<T>(Monitor.Event e)
             where T : Monitor;
 
         /// <summary>

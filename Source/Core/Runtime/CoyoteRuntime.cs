@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using Microsoft.Coyote.Specifications;

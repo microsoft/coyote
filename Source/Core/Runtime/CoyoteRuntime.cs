@@ -2200,19 +2200,9 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                string message;
-                string trace = FormatExceptionStackTrace(exception);
-                if (op is ActorOperation actorOp)
-                {
-                    message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception in actor '{actorOp.Name}'. {trace}");
-                }
-                else
-                {
-                    message = $"Unhandled exception. {trace}";
-                }
-
                 // Report the unhandled exception.
+                string trace = FormatExceptionStackTrace(exception);
+                string message = $"Unhandled exception. {trace}";
                 this.NotifyUnhandledException(exception, message);
             }
         }

@@ -1494,18 +1494,9 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
+                foreach (var operation in this.GetRegisteredOperations())
                 {
-                    if (operation is ActorOperation actorOperation)
-                    {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
-                        operationHash = (operationHash * 31) + actorOperation.LastSchedulingPoint.GetHashCode();
-                        hash *= operationHash;
-                    }
-                    else
-                    {
-                        hash *= 31 + operation.LastSchedulingPoint.GetHashCode();
-                    }
+                    hash *= 31 + operation.GetHashedState(this.SchedulingPolicy);
                 }
 
                 foreach (var monitor in this.SpecificationMonitors)

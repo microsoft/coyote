@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Coverage
         /// The coverage graph.
         /// </summary>
         [DataMember]
-        public Graph CoverageGraph { get; set; }
+        public CoverageGraph CoverageGraph { get; set; }
 
         /// <summary>
         /// Set of known specification monitors.
@@ -40,6 +40,12 @@ namespace Microsoft.Coyote.Coverage
         /// </remarks>
         [DataMember]
         public Dictionary<string, HashSet<string>> RegisteredMonitorEvents { get; private set; }
+
+        /// <summary>
+        /// Information about events received by each specification monitor.
+        /// </summary>
+        [DataMember]
+        public MonitorEventCoverage MonitorEventInfo { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
@@ -167,6 +173,15 @@ namespace Microsoft.Coyote.Coverage
             else if (coverageInfo.CoverageGraph != null && this.CoverageGraph != coverageInfo.CoverageGraph)
             {
                 this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
+            }
+
+            if (this.MonitorEventInfo is null)
+            {
+                this.MonitorEventInfo = coverageInfo.MonitorEventInfo;
+            }
+            else if (coverageInfo.MonitorEventInfo != null && this.MonitorEventInfo != coverageInfo.MonitorEventInfo)
+            {
+                this.MonitorEventInfo.Merge(coverageInfo.MonitorEventInfo);
             }
         }
     }

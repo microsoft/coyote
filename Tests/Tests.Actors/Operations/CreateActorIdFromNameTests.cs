@@ -18,23 +18,23 @@ namespace Microsoft.Coyote.Actors.Tests
         {
         }
 
-        private class SetupEvent : Event
-        {
-            internal TaskCompletionSource<bool> Completed = new TaskCompletionSource<bool>();
-            internal int Count;
-
-            public SetupEvent(int count = 1)
-            {
-                this.Count = count;
-            }
-        }
-
-        private class CompletedEvent : Event
-        {
-        }
-
         private class TestMonitor : Monitor
         {
+            internal class SetupEvent : Event
+            {
+                internal TaskCompletionSource<bool> Completed = new TaskCompletionSource<bool>();
+                internal int Count;
+
+                public SetupEvent(int count = 1)
+                {
+                    this.Count = count;
+                }
+            }
+
+            internal class CompletedEvent : Event
+            {
+            }
+
             private SetupEvent Setup;
 
             [Start]
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void InitOnEntry()
             {
-                this.Monitor<TestMonitor>(new CompletedEvent());
+                this.Monitor<TestMonitor>(new TestMonitor.CompletedEvent());
             }
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async r =>
             {
-                var setup = new SetupEvent(2);
+                var setup = new TestMonitor.SetupEvent(2);
                 r.RegisterMonitor<TestMonitor>();
                 r.Monitor<TestMonitor>(setup);
                 var m1 = r.CreateActor(typeof(M));
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async r =>
             {
-                var setup = new SetupEvent(2);
+                var setup = new TestMonitor.SetupEvent(2);
                 r.RegisterMonitor<TestMonitor>();
                 r.Monitor<TestMonitor>(setup);
                 var m1 = r.CreateActorIdFromName(typeof(M), "M1");
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             protected override SystemTask OnHaltAsync(Event e)
             {
-                this.Monitor<TestMonitor>(new CompletedEvent());
+                this.Monitor<TestMonitor>(new TestMonitor.CompletedEvent());
                 return base.OnHaltAsync(e);
             }
         }
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void Process()
             {
-                this.Monitor<TestMonitor>(new CompletedEvent());
+                this.Monitor<TestMonitor>(new TestMonitor.CompletedEvent());
             }
         }
 
@@ -268,7 +268,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Test(async r =>
             {
-                var setup = new SetupEvent();
+                var setup = new TestMonitor.SetupEvent();
                 r.RegisterMonitor<TestMonitor>();
                 r.Monitor<TestMonitor>(setup);
                 r.CreateActor(typeof(M7));

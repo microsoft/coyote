@@ -11,10 +11,10 @@ using System.Xml.Linq;
 namespace Microsoft.Coyote.Coverage
 {
     /// <summary>
-    /// A directed graph made up of <see cref="Graph.Node"/> and <see cref="Graph.Link"/> objects.
+    /// A directed graph made up of <see cref="CoverageGraph.Node"/> and <see cref="CoverageGraph.Link"/> objects.
     /// </summary>
     [DataContract]
-    public class Graph
+    public class CoverageGraph
     {
         internal const string DgmlNamespace = "http://schemas.microsoft.com/vs/2009/dgml";
 
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Serializes the <see cref="Graph"/> to DGML format.
+        /// Serializes the <see cref="CoverageGraph"/> to DGML format.
         /// </summary>
         public void WriteDgml(TextWriter writer, bool includeDefaultStyles)
         {
@@ -264,14 +264,14 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Loads a DGML formatted file into a new <see cref="Graph"/> object.
+        /// Loads a DGML formatted file into a new <see cref="CoverageGraph"/> object.
         /// </summary>
         /// <param name="graphFilePath">Full path to the DGML file.</param>
-        /// <returns>The loaded <see cref="Graph"/> object.</returns>
-        public static Graph LoadDgml(string graphFilePath)
+        /// <returns>The loaded <see cref="CoverageGraph"/> object.</returns>
+        public static CoverageGraph LoadDgml(string graphFilePath)
         {
             XDocument doc = XDocument.Load(graphFilePath);
-            Graph result = new Graph();
+            CoverageGraph result = new CoverageGraph();
             var ns = doc.Root.Name.Namespace;
             if (ns != DgmlNamespace)
             {
@@ -313,10 +313,10 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Merges the given <see cref="Graph"/> so that this <see cref="Graph"/> becomes a superset of both graphs.
+        /// Merges the given <see cref="CoverageGraph"/> so that this <see cref="CoverageGraph"/> becomes a superset of both graphs.
         /// </summary>
-        /// <param name="other">The new <see cref="Graph"/> to merge into this <see cref="Graph"/>.</param>
-        public void Merge(Graph other)
+        /// <param name="other">The new <see cref="CoverageGraph"/> to merge into this <see cref="CoverageGraph"/>.</param>
+        public void Merge(CoverageGraph other)
         {
             foreach (var node in other.InternalNodes.Values)
             {
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.Coverage
                 int? index = null;
                 if (link.Index.HasValue)
                 {
-                    // ouch, link indexes cannot be compared across Graph instances, we need to assign a new index here.
+                    // ouch, link indexes cannot be compared across graph instances, we need to assign a new index here.
                     string key = string.Format("{0}->{1}({2})", source.Id, target.Id, link.Index.Value);
                     string linkId = other.InternalAllocatedLinkIds[key];
                     index = this.GetUniqueLinkIndex(source, target, linkId);
@@ -343,7 +343,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Serialize the <see cref="Graph"/> to a DGML formatted string.
+        /// Serialize the <see cref="CoverageGraph"/> to a DGML formatted string.
         /// </summary>
         public override string ToString()
         {
@@ -353,7 +353,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// A <see cref="Graph"/> object.
+        /// A <see cref="CoverageGraph"/> object.
         /// </summary>
         [DataContract]
         public class Object
@@ -456,13 +456,13 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// A node of a <see cref="Graph"/>.
+        /// A node of a <see cref="CoverageGraph"/>.
         /// </summary>
         [DataContract]
         public class Node : Object
         {
             /// <summary>
-            /// The unique id of the node within the <see cref="Graph"/>.
+            /// The unique id of the node within the <see cref="CoverageGraph"/>.
             /// </summary>
             [DataMember]
             public string Id { get; internal set; }
@@ -512,7 +512,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// A link represents a directed <see cref="Graph"/> connection between two <see cref="Node"/> objects.
+        /// A link represents a directed <see cref="CoverageGraph"/> connection between two <see cref="Node"/> objects.
         /// </summary>
         [DataContract]
         public class Link : Object

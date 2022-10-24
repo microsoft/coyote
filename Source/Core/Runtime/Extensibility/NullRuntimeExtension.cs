@@ -25,7 +25,20 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
+        bool IRuntimeExtension.RunTest(Delegate test, out Task task)
+        {
+            task = Task.CompletedTask;
+            return false;
+        }
+
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.BuildCoverageInfo() => null;
+
+        /// <inheritdoc/>
         CoverageInfo IRuntimeExtension.GetCoverageInfo() => null;
+
+        /// <inheritdoc/>
+        CoverageGraph IRuntimeExtension.GetCoverageGraph() => null;
 
         /// <inheritdoc/>
         Task IRuntimeExtension.WaitUntilQuiescenceAsync() => Task.CompletedTask;

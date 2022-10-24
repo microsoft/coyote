@@ -12,11 +12,10 @@ namespace Microsoft.Coyote.Actors.Coverage
     /// <summary>
     /// Reports actor activity coverage.
     /// </summary>
-    internal class ActivityCoverageReporter
+    internal class ActorActivityCoverageReporter : ActivityCoverageReporter
     {
         /// <summary>
-        /// Data structure containing information
-        /// regarding testing coverage.
+        /// Data structure containing information regarding testing coverage.
         /// </summary>
         private readonly ActorCoverageInfo CoverageInfo;
 
@@ -26,9 +25,10 @@ namespace Microsoft.Coyote.Actors.Coverage
         private readonly HashSet<string> BuiltInEvents = new HashSet<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityCoverageReporter"/> class.
+        /// Initializes a new instance of the <see cref="ActorActivityCoverageReporter"/> class.
         /// </summary>
-        public ActivityCoverageReporter(ActorCoverageInfo coverageInfo)
+        public ActorActivityCoverageReporter(ActorCoverageInfo coverageInfo)
+            : base(coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
             this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
@@ -37,52 +37,9 @@ namespace Microsoft.Coyote.Actors.Coverage
         }
 
         /// <summary>
-        /// Emits the visualization graph.
-        /// </summary>
-        public void EmitVisualizationGraph(string graphFile)
-        {
-            if (this.CoverageInfo.CoverageGraph != null)
-            {
-                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile, true);
-            }
-        }
-
-        /// <summary>
-        /// Emits the code coverage report.
-        /// </summary>
-        public void EmitCoverageReport(string coverageFile)
-        {
-            using var writer = new StreamWriter(coverageFile);
-            this.WriteCoverageText(writer);
-        }
-
-        /// <summary>
-        /// Return all events represented by this link.
-        /// </summary>
-        private static IEnumerable<string> GetEventIds(Graph.Link link)
-        {
-            if (link.AttributeLists != null)
-            {
-                // a collapsed edge graph
-                if (link.AttributeLists.TryGetValue("EventIds", out HashSet<string> idList))
-                {
-                    return idList;
-                }
-            }
-
-            // a fully expanded edge graph has individual links for each event.
-            if (link.Attributes.TryGetValue("EventId", out string eventId))
-            {
-                return new string[] { eventId };
-            }
-
-            return Array.Empty<string>();
-        }
-
-        /// <summary>
         /// Writes the visualization text.
         /// </summary>
-        internal void WriteCoverageText(TextWriter writer)
+        internal override void WriteCoverageText(TextWriter writer)
         {
             var machines = new List<string>(this.CoverageInfo.Machines);
             machines.Sort(StringComparer.Ordinal);
@@ -112,9 +69,9 @@ namespace Microsoft.Coyote.Actors.Coverage
                 }
             }
 
-            // (machines + "." + states => registered events
+            // machines + "." + states => registered events
             var uncoveredEvents = new Dictionary<string, HashSet<string>>();
-            foreach (var item in this.CoverageInfo.RegisteredEvents)
+            foreach (var item in this.CoverageInfo.RegisteredActorEvents)
             {
                 uncoveredEvents[item.Key] = new HashSet<string>(item.Value);
             }
@@ -140,7 +97,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 var uncoveredMachineEvents = new Dictionary<string, HashSet<string>>();
                 var allMachineEvents = new Dictionary<string, HashSet<string>>();
 
-                foreach (var item in this.CoverageInfo.RegisteredEvents)
+                foreach (var item in this.CoverageInfo.RegisteredActorEvents)
                 {
                     var id = GetMachineId(item.Key);
                     if (id == machine)
@@ -215,7 +172,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                         }
                     }
 
-                    HashSet<string> received = new HashSet<string>(this.CoverageInfo.EventInfo.GetEventsReceived(key));
+                    HashSet<string> received = new HashSet<string>(this.CoverageInfo.ActorEventInfo.GetEventsReceived(key));
                     this.RemoveBuiltInEvents(received);
 
                     if (received.Count > 0)
@@ -223,7 +180,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                         writer.WriteLine("\t\tEvents received: {0}", string.Join(", ", SortHashSet(received)));
                     }
 
-                    HashSet<string> sent = new HashSet<string>(this.CoverageInfo.EventInfo.GetEventsSent(key));
+                    HashSet<string> sent = new HashSet<string>(this.CoverageInfo.ActorEventInfo.GetEventsSent(key));
                     this.RemoveBuiltInEvents(sent);
 
                     if (sent.Count > 0)
@@ -250,6 +207,8 @@ namespace Microsoft.Coyote.Actors.Coverage
 
                 writer.WriteLine();
             }
+
+            base.WriteCoverageText(writer);
         }
 
         private void RemoveBuiltInEvents(HashSet<string> eventList)
@@ -274,35 +233,11 @@ namespace Microsoft.Coyote.Actors.Coverage
                 string stateId = pair.Key;
                 var eventSet = pair.Value;
 
-                foreach (var e in this.CoverageInfo.EventInfo.GetEventsReceived(stateId))
+                foreach (var e in this.CoverageInfo.ActorEventInfo.GetEventsReceived(stateId))
                 {
                     eventSet.Remove(e);
                 }
             }
-        }
-
-        private static List<string> SortHashSet(HashSet<string> items)
-        {
-            List<string> sorted = new List<string>(items);
-            sorted.Sort(StringComparer.Ordinal);
-            return sorted;
-        }
-
-        private static string GetStateName(string nodeId)
-        {
-            int i = nodeId.LastIndexOf(".");
-            if (i > 0)
-            {
-                return nodeId.Substring(i + 1);
-            }
-
-            return nodeId;
-        }
-
-        private static void WriteHeader(TextWriter writer, string header)
-        {
-            writer.WriteLine(header);
-            writer.WriteLine(new string('=', header.Length));
         }
 
         private static string GetMachineId(string nodeId)

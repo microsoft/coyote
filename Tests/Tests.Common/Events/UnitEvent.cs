@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Actors;
+
 namespace Microsoft.Coyote.Tests.Common.Events
 {
     /// <summary>

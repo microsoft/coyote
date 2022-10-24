@@ -30,13 +30,13 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// get us into each state.
         /// </summary>
         [DataMember]
-        public Dictionary<string, HashSet<string>> RegisteredEvents { get; private set; }
+        public Dictionary<string, HashSet<string>> RegisteredActorEvents { get; private set; }
 
         /// <summary>
         /// Information about events sent and received.
         /// </summary>
         [DataMember]
-        public EventCoverage EventInfo { get; set; }
+        public ActorEventCoverage ActorEventInfo { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorCoverageInfo"/> class.
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             this.Machines = new HashSet<string>();
             this.MachinesToStates = new Dictionary<string, HashSet<string>>();
-            this.RegisteredEvents = new Dictionary<string, HashSet<string>>();
+            this.RegisteredActorEvents = new Dictionary<string, HashSet<string>>();
         }
 
         /// <summary>
@@ -90,12 +90,12 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         private void AddActorEvent(string key, string eventName)
         {
-            if (!this.RegisteredEvents.ContainsKey(key))
+            if (!this.RegisteredActorEvents.ContainsKey(key))
             {
-                this.RegisteredEvents.Add(key, new HashSet<string>());
+                this.RegisteredActorEvents.Add(key, new HashSet<string>());
             }
 
-            this.RegisteredEvents[key].Add(eventName);
+            this.RegisteredActorEvents[key].Add(eventName);
         }
 
         /// <inheritdoc/>
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                     }
                 }
 
-                foreach (var tup in actorCoverageInfo.RegisteredEvents)
+                foreach (var tup in actorCoverageInfo.RegisteredActorEvents)
                 {
                     foreach (var e in tup.Value)
                     {
@@ -124,13 +124,13 @@ namespace Microsoft.Coyote.Actors.Coverage
                     }
                 }
 
-                if (this.EventInfo is null)
+                if (this.ActorEventInfo is null)
                 {
-                    this.EventInfo = actorCoverageInfo.EventInfo;
+                    this.ActorEventInfo = actorCoverageInfo.ActorEventInfo;
                 }
-                else if (actorCoverageInfo.EventInfo != null && this.EventInfo != actorCoverageInfo.EventInfo)
+                else if (actorCoverageInfo.ActorEventInfo != null && this.ActorEventInfo != actorCoverageInfo.ActorEventInfo)
                 {
-                    this.EventInfo.Merge(actorCoverageInfo.EventInfo);
+                    this.ActorEventInfo.Merge(actorCoverageInfo.ActorEventInfo);
                 }
             }
 

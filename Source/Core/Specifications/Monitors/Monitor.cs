@@ -1564,7 +1564,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// A default event that is generated when no user-defined event is dequeued or received.
         /// </summary>
-        private sealed class DefaultEvent : Event
+        internal sealed class DefaultEvent : Event
         {
             /// <summary>
             /// Gets a <see cref="DefaultEvent"/> instance.

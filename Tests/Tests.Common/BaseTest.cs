@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             TestReport report = this.RunSystematicTest(test, configuration);
             using var writer = new StringWriter();
-            var activityCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);
+            var activityCoverageReporter = new ActorActivityCoverageReporter(report.CoverageInfo);
             activityCoverageReporter.WriteCoverageText(writer);
             string result = writer.ToString().RemoveNamespaceReferences();
             return result;

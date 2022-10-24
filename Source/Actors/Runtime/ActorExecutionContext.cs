@@ -156,6 +156,25 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
+        bool IRuntimeExtension.RunTest(Delegate test, out Task task)
+        {
+            if (test is Action<IActorRuntime> actionWithRuntime)
+            {
+                actionWithRuntime(this);
+                task = Task.CompletedTask;
+                return true;
+            }
+            else if (test is Func<IActorRuntime, Task> functionWithRuntime)
+            {
+                task = functionWithRuntime(this);
+                return true;
+            }
+
+            task = Task.CompletedTask;
+            return false;
+        }
+
+        /// <inheritdoc/>
         public ActorId CreateActorId(Type type, string name = null) => new ActorId(type, this.GetNextOperationId(), name, this);
 
         /// <inheritdoc/>
@@ -671,11 +690,8 @@ namespace Microsoft.Coyote.Actors
             this.LogManager.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
                 stateMachine.CurrentStateName, action.Name);
 
-        /// <summary>
-        /// Builds the coverage graph information, if any. This information is only available
-        /// when <see cref="Configuration.IsActivityCoverageReported"/> is enabled.
-        /// </summary>
-        internal CoverageInfo BuildCoverageInfo()
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.BuildCoverageInfo()
         {
             var result = this.CoverageInfo;
             if (result != null)
@@ -690,19 +706,21 @@ namespace Microsoft.Coyote.Actors
                 var eventCoverage = this.LogManager.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
                 if (eventCoverage != null)
                 {
-                    result.EventInfo = eventCoverage.EventCoverage;
+                    result.ActorEventInfo = eventCoverage.ActorEventCoverage;
+                    result.MonitorEventInfo = eventCoverage.MonitorEventCoverage;
                 }
             }
 
             return result;
         }
 
-        /// <summary>
-        /// Returns the DGML graph of the current execution, if there is any.
-        /// </summary>
-        internal Graph GetExecutionGraph()
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.GetCoverageInfo() => this.CoverageInfo;
+
+        /// <inheritdoc/>
+        CoverageGraph IRuntimeExtension.GetCoverageGraph()
         {
-            Graph result = null;
+            CoverageGraph result = null;
             var builder = this.LogManager.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
                 .FirstOrDefault(builder => !builder.CollapseInstances);
             if (builder != null)
@@ -712,9 +730,6 @@ namespace Microsoft.Coyote.Actors
 
             return result;
         }
-
-        /// <inheritdoc/>
-        CoverageInfo IRuntimeExtension.GetCoverageInfo() => this.CoverageInfo;
 
         /// <summary>
         /// Returns the program counter of the specified actor.

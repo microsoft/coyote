@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Information regarding code coverage.
         /// </summary>
         [DataMember]
-        public CoverageInfo CoverageInfo { get; private set; }
+        public ActorCoverageInfo CoverageInfo { get; private set; }
 
         /// <summary>
         /// Number of explored fair schedules.
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             this.Configuration = configuration;
 
-            this.CoverageInfo = new CoverageInfo();
+            this.CoverageInfo = new ActorCoverageInfo();
 
             this.NumOfExploredFairSchedules = 0;
             this.NumOfExploredUnfairSchedules = 0;

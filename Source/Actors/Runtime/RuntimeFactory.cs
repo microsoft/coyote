@@ -42,6 +42,14 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Creates a new actor runtime with the specified <see cref="Configuration"/> for the specified <see cref="SchedulingPolicy"/>.
+        /// </summary>
+        internal static ActorExecutionContext Create(Configuration configuration, ActorLogManager logManager, SchedulingPolicy schedulingPolicy) =>
+            schedulingPolicy is SchedulingPolicy.Interleaving ?
+                new ActorExecutionContext.Mock(configuration, logManager) :
+                new ActorExecutionContext(configuration, logManager);
+
+        /// <summary>
         /// Creates a new runtime log manager that writes to the specified log writer.
         /// </summary>
         internal static ActorLogManager CreateLogManager(LogWriter logWriter)

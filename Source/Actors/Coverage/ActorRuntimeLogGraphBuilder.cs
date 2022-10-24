@@ -24,9 +24,9 @@ namespace Microsoft.Coyote.Actors.Coverage
         private const string MonitorCategory = "Monitor";
 
         /// <summary>
-        /// The currently manipulated graph.
+        /// The currently manipulated coverage graph.
         /// </summary>
-        private Graph CurrentGraph;
+        private CoverageGraph CurrentGraph;
 
         /// <summary>
         /// Current dequeued event.
@@ -71,20 +71,9 @@ namespace Microsoft.Coyote.Actors.Coverage
         internal TextWriter Logger { get; set; }
 
         /// <summary>
-        /// Get the Graph object built by this logger.
+        /// Get the <see cref="CoverageGraph"/> object built by this logger.
         /// </summary>
-        internal Graph Graph
-        {
-            get
-            {
-                if (this.CurrentGraph is null)
-                {
-                    this.CurrentGraph = new Graph();
-                }
-
-                return this.CurrentGraph;
-            }
-        }
+        internal CoverageGraph Graph => this.CurrentGraph ?? new CoverageGraph();
 
         private class DoActionEvent : Event
         {
@@ -115,7 +104,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             this.MergeEventLinks = mergeEventLinks;
             this.CollapseInstances = collapseInstances;
-            this.CurrentGraph = new Graph();
+            this.CurrentGraph = new CoverageGraph();
         }
 
         /// <inheritdoc/>
@@ -124,13 +113,13 @@ namespace Microsoft.Coyote.Actors.Coverage
             lock (this.Inbox)
             {
                 var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
-                Graph.Node node = this.Graph.GetOrCreateNode(resolvedId);
+                CoverageGraph.Node node = this.Graph.GetOrCreateNode(resolvedId);
                 node.Category = ActorCategory;
 
                 if (!string.IsNullOrEmpty(creatorName))
                 {
                     var creatorId = this.GetResolveActorId(creatorName, creatorType);
-                    Graph.Node creator = this.Graph.GetOrCreateNode(creatorId);
+                    CoverageGraph.Node creator = this.Graph.GetOrCreateNode(creatorId);
                     this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
                 }
             }
@@ -142,13 +131,13 @@ namespace Microsoft.Coyote.Actors.Coverage
             lock (this.Inbox)
             {
                 var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
-                Graph.Node node = this.Graph.GetOrCreateNode(resolvedId);
+                CoverageGraph.Node node = this.Graph.GetOrCreateNode(resolvedId);
                 node.Category = StateMachineCategory;
 
                 if (!string.IsNullOrEmpty(creatorName))
                 {
                     var creatorId = this.GetResolveActorId(creatorName, creatorType);
-                    Graph.Node creator = this.Graph.GetOrCreateNode(creatorId);
+                    CoverageGraph.Node creator = this.Graph.GetOrCreateNode(creatorId);
                     this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
                 }
             }
@@ -330,7 +319,7 @@ namespace Microsoft.Coyote.Actors.Coverage
             }
         }
 
-        private int? GetLinkIndex(Graph.Node source, Graph.Node target, string id)
+        private int? GetLinkIndex(CoverageGraph.Node source, CoverageGraph.Node target, string id)
         {
             if (this.MergeEventLinks)
             {
@@ -395,7 +384,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             lock (this.Inbox)
             {
-                Graph.Node node = this.Graph.GetOrCreateNode(monitorType, monitorType);
+                CoverageGraph.Node node = this.Graph.GetOrCreateNode(monitorType, monitorType);
                 node.Category = MonitorCategory;
             }
         }
@@ -514,9 +503,9 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         /// <param name="reset">Set to true will reset the graph for the next iteration.</param>
         /// <returns>The graph.</returns>
-        internal Graph SnapshotGraph(bool reset)
+        internal CoverageGraph SnapshotGraph(bool reset)
         {
-            Graph result = this.CurrentGraph;
+            CoverageGraph result = this.CurrentGraph;
             if (reset)
             {
                 // Reset the graph to start fresh.
@@ -605,9 +594,9 @@ namespace Microsoft.Coyote.Actors.Coverage
             }
         }
 
-        private Graph.Node GetOrCreateChild(string name, string type, string stateName, string label = null)
+        private CoverageGraph.Node GetOrCreateChild(string name, string type, string stateName, string label = null)
         {
-            Graph.Node child = null;
+            CoverageGraph.Node child = null;
             lock (this.Inbox)
             {
                 this.AddNamespace(type);
@@ -618,7 +607,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 stateName = this.GetLabel(name, type, stateName);
 
                 string id = this.GetResolveActorId(name, type);
-                Graph.Node parent = this.Graph.GetOrCreateNode(id);
+                CoverageGraph.Node parent = this.Graph.GetOrCreateNode(id);
                 parent.AddAttribute("Group", "Expanded");
 
                 if (string.IsNullOrEmpty(label))
@@ -638,9 +627,9 @@ namespace Microsoft.Coyote.Actors.Coverage
             return child;
         }
 
-        private Graph.Link GetOrCreateEventLink(Graph.Node source, Graph.Node target, EventInfo e)
+        private CoverageGraph.Link GetOrCreateEventLink(CoverageGraph.Node source, CoverageGraph.Node target, EventInfo e)
         {
-            Graph.Link link = null;
+            CoverageGraph.Link link = null;
             lock (this.Inbox)
             {
                 string label = this.GetEventLabel(e.Event);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote
 {

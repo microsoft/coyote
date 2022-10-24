@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Actors.Coverage
     /// This class maintains information about events received and sent from each state of each actor.
     /// </summary>
     [DataContract]
-    public class EventCoverage
+    public class ActorEventCoverage
     {
         /// <summary>
         /// Map from states to the list of events received by that state.  The state id is fully qualified by
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Actors.Coverage
             return Array.Empty<string>();
         }
 
-        internal void Merge(EventCoverage other)
+        internal void Merge(ActorEventCoverage other)
         {
             MergeHashSets(this.EventsReceived, other.EventsReceived);
             MergeHashSets(this.EventsSent, other.EventsSent);

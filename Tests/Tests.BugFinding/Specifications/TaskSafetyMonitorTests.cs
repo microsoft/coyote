@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Specifications
         {
         }
 
-        private class Notify : Event
+        private class Notify : Monitor.Event
         {
         }
 

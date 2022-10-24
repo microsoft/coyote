@@ -4,6 +4,7 @@
 using System;
 using System.Text;
 using Microsoft.Coyote.Actors.Timers;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.Tests.Logging
 {
@@ -121,11 +122,11 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
         }
 
         public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e)
+            string senderType, string senderStateName, MonitorEvent e)
         {
         }
 
-        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, MonitorEvent e)
         {
         }
 

@@ -70,6 +70,16 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
 
         internal class S : Monitor
         {
+            internal class E : Event
+            {
+                public ActorId Id;
+
+                public E(ActorId id)
+                {
+                    this.Id = id;
+                }
+            }
+
             [Start]
             [Hot]
             [OnEventDoAction(typeof(E), nameof(OnE))]
@@ -107,8 +117,8 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
 
             private void ActOnEntry(Event e)
             {
-                this.Monitor<S>(e);
                 ActorId m = (e as E).Id;
+                this.Monitor<S>(new S.E(m));
                 this.SendEvent(m, new E(this.Id));
             }
         }

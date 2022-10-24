@@ -334,10 +334,6 @@ namespace Microsoft.Coyote.Runtime
             this.SyncContext = new ControlledSynchronizationContext(this);
             this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
-
-            // this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
-            //     new ActorExecutionContext.Mock(configuration, this, this.LogManager as ActorLogManager) :
-            //     new ActorExecutionContext(configuration, this, this.LogManager as ActorLogManager);
         }
 
         /// <summary>
@@ -354,16 +350,11 @@ namespace Microsoft.Coyote.Runtime
             this.ScheduleOperation(op, () =>
             {
                 Task task = Task.CompletedTask;
-                // if (testMethod is Action<IActorRuntime> actionWithRuntime)
-                // {
-                //     actionWithRuntime(this.DefaultActorExecutionContext);
-                // }
-                // else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
-                // {
-                //     task = functionWithRuntime(this.DefaultActorExecutionContext);
-                // }
-                // else
-                if (testMethod is Action action)
+                if (this.Extension.RunTest(testMethod, out Task extensionTask))
+                {
+                    task = extensionTask;
+                }
+                else if (testMethod is Action action)
                 {
                     action();
                 }
@@ -2265,6 +2256,16 @@ namespace Microsoft.Coyote.Runtime
                 report.SetUncontrolledInvocations(this.UncontrolledInvocations);
             }
         }
+
+        /// <summary>
+        /// Builds the <see cref="CoverageInfo"/>.
+        /// </summary>
+        internal CoverageInfo BuildCoverageInfo() => this.Extension.BuildCoverageInfo() ?? this.CoverageInfo;
+
+        /// <summary>
+        /// Returns the <see cref="CoverageGraph"/> of the current execution.
+        /// </summary>
+        internal CoverageGraph GetCoverageGraph() => this.Extension.GetCoverageGraph();
 
         /// <summary>
         /// Sets up the context of the executing controlled thread, allowing future retrieval

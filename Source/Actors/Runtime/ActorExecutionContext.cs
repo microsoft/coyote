@@ -15,6 +15,7 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Data structure containing information regarding testing coverage.
         /// </summary>
-        internal readonly CoverageInfo CoverageInfo;
+        internal readonly ActorCoverageInfo CoverageInfo;
 
         /// <summary>
         /// Responsible for writing to the installed <see cref="ILogger"/>.
@@ -132,7 +133,7 @@ namespace Microsoft.Coyote.Actors
             this.Configuration = configuration;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
-            this.CoverageInfo = new CoverageInfo();
+            this.CoverageInfo = new ActorCoverageInfo();
             this.LogManager = logManager;
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
@@ -711,6 +712,9 @@ namespace Microsoft.Coyote.Actors
 
             return result;
         }
+
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.GetCoverageInfo() => this.CoverageInfo;
 
         /// <summary>
         /// Returns the program counter of the specified actor.

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Actors.Coverage
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// Data structure containing information
         /// regarding testing coverage.
         /// </summary>
-        private readonly CoverageInfo CoverageInfo;
+        private readonly ActorCoverageInfo CoverageInfo;
 
         /// <summary>
         /// Set of built in events which we hide in the coverage report.
@@ -27,7 +28,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityCoverageReporter"/> class.
         /// </summary>
-        public ActivityCoverageReporter(CoverageInfo coverageInfo)
+        public ActivityCoverageReporter(ActorCoverageInfo coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
             this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
@@ -58,7 +59,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// <summary>
         /// Return all events represented by this link.
         /// </summary>
-        private static IEnumerable<string> GetEventIds(GraphLink link)
+        private static IEnumerable<string> GetEventIds(Graph.Link link)
         {
             if (link.AttributeLists != null)
             {

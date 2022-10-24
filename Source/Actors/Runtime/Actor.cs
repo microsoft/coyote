@@ -929,7 +929,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Reports the activity coverage of this actor.
         /// </summary>
-        internal virtual void ReportActivityCoverage(CoverageInfo coverageInfo)
+        internal virtual void ReportActivityCoverage(ActorCoverageInfo coverageInfo)
         {
             var name = this.GetType().FullName;
             if (coverageInfo.IsMachineDeclared(name))
@@ -943,7 +943,7 @@ namespace Microsoft.Coyote.Actors
             var registeredEvents = new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
             foreach (var eventId in registeredEvents)
             {
-                coverageInfo.DeclareStateEvent(name, fakeStateName, eventId);
+                coverageInfo.DeclareMachineStateEventPair(name, fakeStateName, eventId);
             }
         }
 

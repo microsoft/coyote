@@ -990,7 +990,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        internal override void ReportActivityCoverage(CoverageInfo coverageInfo)
+        internal override void ReportActivityCoverage(ActorCoverageInfo coverageInfo)
         {
             var name = this.GetType().FullName;
             if (coverageInfo.IsMachineDeclared(name))
@@ -1000,7 +1000,7 @@ namespace Microsoft.Coyote.Actors
 
             this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Id);
 
-            // Fetch states.
+            // Fetch the machine states.
             var states = new HashSet<string>();
             foreach (var state in StateInstanceCache[this.GetType()])
             {
@@ -1012,7 +1012,7 @@ namespace Microsoft.Coyote.Actors
                 coverageInfo.DeclareMachineState(name, state);
             }
 
-            // Fetch registered events.
+            // Fetch the registered events.
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateInstanceCache[this.GetType()])
             {
@@ -1026,7 +1026,7 @@ namespace Microsoft.Coyote.Actors
 
             foreach (var tup in pairs)
             {
-                coverageInfo.DeclareStateEvent(name, tup.Item1, tup.Item2);
+                coverageInfo.DeclareMachineStateEventPair(name, tup.Item1, tup.Item2);
             }
         }
 

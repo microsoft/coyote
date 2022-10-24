@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// The execution context of an actor program.
     /// </summary>
-    internal class ActorExecutionContext : IActorRuntime
+    internal class ActorExecutionContext : IActorRuntime, IRuntimeExtension
     {
         /// <summary>
         /// Object used to synchronize access to the runtime event handlers.
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The runtime associated with this context.
         /// </summary>
-        internal readonly CoyoteRuntime Runtime;
+        internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Map from unique actor ids to actors.
@@ -127,10 +127,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
+        internal ActorExecutionContext(Configuration configuration, ActorLogManager logManager)
         {
             this.Configuration = configuration;
-            this.Runtime = runtime;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
             this.CoverageInfo = new CoverageInfo();
@@ -138,6 +137,21 @@ namespace Microsoft.Coyote.Actors
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
             this.QuiescenceSyncObject = new object();
+        }
+
+        /// <summary>
+        /// Installs the specified <see cref="CoyoteRuntime"/>. Only one runtime can be installed
+        /// at a time, and this method can only be called once.
+        /// </summary>
+        internal ActorExecutionContext WithRuntime(CoyoteRuntime runtime)
+        {
+            if (this.Runtime != null)
+            {
+                throw new InvalidOperationException("A runtime is already installed.");
+            }
+
+            this.Runtime = runtime;
+            return this;
         }
 
         /// <inheritdoc/>
@@ -779,10 +793,8 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void RemoveLog(IRuntimeLog log) => this.LogManager.RemoveLog(log);
 
-        /// <summary>
-        /// Returns a task that completes once all actors reach quiescence.
-        /// </summary>
-        internal Task WaitUntilQuiescenceAsync()
+        /// <inheritdoc/>
+        Task IRuntimeExtension.WaitUntilQuiescenceAsync()
         {
             lock (this.QuiescenceSyncObject)
             {
@@ -849,8 +861,8 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
-                : base(configuration, runtime, logManager)
+            internal Mock(Configuration configuration, ActorLogManager logManager)
+                : base(configuration, logManager)
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();

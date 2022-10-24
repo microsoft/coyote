@@ -41,8 +41,7 @@ namespace Microsoft.Coyote.Runtime
             where T : Monitor;
 
         /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled
-        /// during analysis or testing.
+        /// Returns a nondeterministic boolean choice, that can be controlled during testing.
         /// </summary>
         /// <returns>The nondeterministic boolean choice.</returns>
         /// <remarks>
@@ -52,9 +51,8 @@ namespace Microsoft.Coyote.Runtime
         bool RandomBoolean();
 
         /// <summary>
-        /// Returns a nondeterministic integer choice, that can be
-        /// controlled during analysis or testing. The value is used
-        /// to generate an integer in the range [0..maxValue).
+        /// Returns a nondeterministic integer choice, that can be controlled during testing.
+        /// The value is used to generate an integer in the range [0..maxValue).
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The nondeterministic integer choice.</returns>

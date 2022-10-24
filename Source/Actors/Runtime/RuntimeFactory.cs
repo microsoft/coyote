@@ -35,13 +35,16 @@ namespace Microsoft.Coyote.Actors
             configuration ??= Configuration.Create();
             var logWriter = new LogWriter(configuration);
             var logManager = CreateLogManager(logWriter);
-            return Runtime.RuntimeProvider.CreateAndInstall(configuration, logWriter, logManager).DefaultActorExecutionContext;
+
+            var actorRuntime = new ActorExecutionContext(configuration, logManager);
+            var runtime = Runtime.RuntimeProvider.CreateAndInstall(configuration, logWriter, logManager, actorRuntime);
+            return actorRuntime.WithRuntime(runtime);
         }
 
         /// <summary>
         /// Creates a new runtime log manager that writes to the specified log writer.
         /// </summary>
-        internal static LogManager CreateLogManager(LogWriter logWriter)
+        internal static ActorLogManager CreateLogManager(LogWriter logWriter)
         {
             var logManager = new ActorLogManager();
             logManager.RegisterLog(new ActorRuntimeLogTextFormatter(), logWriter);

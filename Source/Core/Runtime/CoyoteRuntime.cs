@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using Microsoft.Coyote.Specifications;
@@ -109,11 +110,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly TaskFactory TaskFactory;
 
         /// <summary>
-        /// The default actor execution context.
-        /// </summary>
-        internal readonly ActorExecutionContext DefaultActorExecutionContext;
-
-        /// <summary>
         /// Pool of threads that execute controlled operations.
         /// </summary>
         private readonly ConcurrentDictionary<ulong, Thread> ThreadPool;
@@ -153,6 +149,16 @@ namespace Microsoft.Coyote.Runtime
         /// The currently scheduled operation during systematic testing.
         /// </summary>
         private ControlledOperation ScheduledOperation;
+
+        /// <summary>
+        /// The installed runtime extension, which by default is the <see cref="NullRuntimeExtension"/>.
+        /// </summary>
+        internal readonly IRuntimeExtension Extension;
+
+        /// <summary>
+        /// Data structure containing information regarding testing coverage.
+        /// </summary>
+        internal readonly CoverageInfo CoverageInfo;
 
         /// <summary>
         /// Responsible for generating random values.
@@ -270,21 +276,21 @@ namespace Microsoft.Coyote.Runtime
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal static CoyoteRuntime Create(Configuration configuration, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter, LogManager logManager) =>
-            new CoyoteRuntime(configuration, null, valueGenerator, logWriter, logManager);
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
+            new CoyoteRuntime(configuration, null, valueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal static CoyoteRuntime Create(Configuration configuration, OperationScheduler scheduler,
-            LogWriter logWriter, LogManager logManager) =>
-            new CoyoteRuntime(configuration, scheduler, scheduler.ValueGenerator, logWriter, logManager);
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
+            new CoyoteRuntime(configuration, scheduler, scheduler.ValueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter, LogManager logManager)
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension)
         {
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
@@ -316,6 +322,8 @@ namespace Microsoft.Coyote.Runtime
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
+            this.Extension = extension ?? NullRuntimeExtension.Instance;
+            this.CoverageInfo = extension.GetCoverageInfo() ?? new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
             this.LogManager = logManager;
@@ -327,17 +335,14 @@ namespace Microsoft.Coyote.Runtime
             this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
 
-            this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
-                new ActorExecutionContext.Mock(configuration, this, this.LogManager as ActorLogManager) :
-                new ActorExecutionContext(configuration, this, this.LogManager as ActorLogManager);
+            // this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
+            //     new ActorExecutionContext.Mock(configuration, this, this.LogManager as ActorLogManager) :
+            //     new ActorExecutionContext(configuration, this, this.LogManager as ActorLogManager);
         }
 
         /// <summary>
         /// Runs the specified test method.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal Task RunTestAsync(Delegate testMethod, string testName)
         {
             this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started test{1} on thread '{2}'.",
@@ -349,20 +354,18 @@ namespace Microsoft.Coyote.Runtime
             this.ScheduleOperation(op, () =>
             {
                 Task task = Task.CompletedTask;
-                Task actorQuiescenceTask = Task.CompletedTask;
-                if (testMethod is Action<IActorRuntime> actionWithRuntime)
-                {
-                    actionWithRuntime(this.DefaultActorExecutionContext);
-                    actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
-                }
-                else if (testMethod is Action action)
+                // if (testMethod is Action<IActorRuntime> actionWithRuntime)
+                // {
+                //     actionWithRuntime(this.DefaultActorExecutionContext);
+                // }
+                // else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
+                // {
+                //     task = functionWithRuntime(this.DefaultActorExecutionContext);
+                // }
+                // else
+                if (testMethod is Action action)
                 {
                     action();
-                }
-                else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
-                {
-                    task = functionWithRuntime(this.DefaultActorExecutionContext);
-                    actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
                 }
                 else if (testMethod is Func<Task> function)
                 {
@@ -378,12 +381,13 @@ namespace Microsoft.Coyote.Runtime
                 TaskServices.WaitUntilTaskCompletes(this, op, task);
                 task.GetAwaiter().GetResult();
 
-                // Wait for any actors to reach quiescence and propagate any exceptions. This is required in
-                // tests that include actors so that the test does not terminate early, because the main thread
-                // can complete without waiting for the actors to become idle or complete.
-                this.RegisterKnownControlledTask(actorQuiescenceTask);
-                TaskServices.WaitUntilTaskCompletes(this, op, actorQuiescenceTask);
-                actorQuiescenceTask.GetAwaiter().GetResult();
+                // Wait for any operations managed by the runtime extension to reach quiescence and propagate any exceptions.
+                // This is required in tests that use a runtime extension so that the test does not terminate early, because
+                // the main thread can complete without waiting for the extended operations to reach quiescence.
+                Task extensionQuiescenceTask = this.Extension.WaitUntilQuiescenceAsync();
+                this.RegisterKnownControlledTask(extensionQuiescenceTask);
+                TaskServices.WaitUntilTaskCompletes(this, op, extensionQuiescenceTask);
+                extensionQuiescenceTask.GetAwaiter().GetResult();
             },
             postCondition: () =>
             {
@@ -504,9 +508,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the specified delay to be executed asynchronously.
         /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             if (delay.TotalMilliseconds is 0)
@@ -1913,9 +1914,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Checks for liveness errors.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void CheckLivenessErrors()
         {
             foreach (var monitor in this.TaskLivenessMonitors)
@@ -2013,9 +2011,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an assertion has failed.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void NotifyAssertionFailure(string text)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
@@ -2414,7 +2409,11 @@ namespace Microsoft.Coyote.Runtime
                     this.SpecificationMonitors.Clear();
                     this.TaskLivenessMonitors.Clear();
 
-                    this.DefaultActorExecutionContext.Dispose();
+                    if (!(this.Extension is NullRuntimeExtension))
+                    {
+                        this.Extension.Dispose();
+                    }
+
                     this.ControlledTaskScheduler.Dispose();
                     this.SyncContext.Dispose();
                     this.CancellationSource.Dispose();

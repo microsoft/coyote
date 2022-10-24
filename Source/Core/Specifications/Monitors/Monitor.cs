@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
@@ -689,7 +690,7 @@ namespace Microsoft.Coyote.Specifications
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving
                 && this.Configuration.IsActivityCoverageReported)
             {
-                this.ReportActivityCoverage(this.Runtime.DefaultActorExecutionContext.CoverageInfo);
+                this.ReportActivityCoverage(this.Runtime.CoverageInfo);
             }
 
             this.ExecuteCurrentStateOnEntry(DefaultEvent.Instance);
@@ -963,14 +964,14 @@ namespace Microsoft.Coyote.Specifications
         internal void ReportActivityCoverage(CoverageInfo coverageInfo)
         {
             var monitorName = this.Name;
-            if (coverageInfo.IsMachineDeclared(monitorName))
+            if (coverageInfo.IsMonitorDeclared(monitorName))
             {
                 return;
             }
 
             this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Name);
 
-            // Fetch states.
+            // Fetch the monitor states.
             var states = new HashSet<string>();
             foreach (var state in StateMap[this.GetType()])
             {
@@ -979,10 +980,10 @@ namespace Microsoft.Coyote.Specifications
 
             foreach (var state in states)
             {
-                coverageInfo.DeclareMachineState(monitorName, state);
+                coverageInfo.DeclareMonitorState(monitorName, state);
             }
 
-            // Fetch registered events.
+            // Fetch the registered events.
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])
             {
@@ -994,7 +995,7 @@ namespace Microsoft.Coyote.Specifications
 
             foreach (var tup in pairs)
             {
-                coverageInfo.DeclareStateEvent(monitorName, tup.Item1, tup.Item2);
+                coverageInfo.DeclareMonitorStateEventPair(monitorName, tup.Item1, tup.Item2);
             }
         }
 

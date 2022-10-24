@@ -18,7 +18,6 @@ namespace Microsoft.Coyote.Actors.Tests
         private class E : Event
         {
             public ActorId Id;
-            public TaskCompletionSource<bool> Tcs;
 
             public E()
             {
@@ -27,11 +26,6 @@ namespace Microsoft.Coyote.Actors.Tests
             public E(ActorId id)
             {
                 this.Id = id;
-            }
-
-            public E(TaskCompletionSource<bool> tcs)
-            {
-                this.Tcs = tcs;
             }
         }
 
@@ -132,27 +126,37 @@ namespace Microsoft.Coyote.Actors.Tests
             });
         }
 
-        private class EventProcessed : Event
-        {
-        }
-
-        private class EventDropped : Event
-        {
-        }
-
         private class Monitor3 : Monitor
         {
+            internal class SetupEvent : Event
+            {
+                public TaskCompletionSource<bool> Tcs;
+
+                public SetupEvent(TaskCompletionSource<bool> tcs)
+                {
+                    this.Tcs = tcs;
+                }
+            }
+
+            internal class EventProcessed : Event
+            {
+            }
+
+            internal class EventDropped : Event
+            {
+            }
+
             private TaskCompletionSource<bool> Tcs;
 
             [Start]
-            [OnEventDoAction(typeof(E), nameof(InitOnEntry))]
+            [OnEventDoAction(typeof(SetupEvent), nameof(InitOnEntry))]
             private class S0 : State
             {
             }
 
             private void InitOnEntry(Event e)
             {
-                this.Tcs = (e as E).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.RaiseGotoStateEvent<S1>();
             }
 
@@ -211,7 +215,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void Processed()
             {
-                this.Monitor<Monitor3>(new EventProcessed());
+                this.Monitor<Monitor3>(new Monitor3.EventProcessed());
             }
         }
 
@@ -224,7 +228,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var tcs = new TaskCompletionSource<bool>();
 
                 r.RegisterMonitor<Monitor3>();
-                r.Monitor<Monitor3>(new E(tcs));
+                r.Monitor<Monitor3>(new Monitor3.SetupEvent(tcs));
 
                 r.OnFailure += (ex) =>
                 {
@@ -234,7 +238,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.Monitor<Monitor3>(new EventDropped());
+                    r.Monitor<Monitor3>(new Monitor3.EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(M3c));

@@ -336,7 +336,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M1>();
-                r.Monitor<M1>(UnitEvent.Instance);
+                r.Monitor<M1>(MonitorUnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -376,7 +376,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M5>();
-                r.Monitor<M5>(UnitEvent.Instance);
+                r.Monitor<M5>(MonitorUnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M6>();
-                r.Monitor<M6>(UnitEvent.Instance);
+                r.Monitor<M6>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M7>();
-                r.Monitor<M7>(UnitEvent.Instance);
+                r.Monitor<M7>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -407,7 +407,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M8>();
-                r.Monitor<M8>(UnitEvent.Instance);
+                r.Monitor<M8>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -417,7 +417,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M9>();
-                r.Monitor<M9>(UnitEvent.Instance);
+                r.Monitor<M9>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M10>();
-                r.Monitor<M10>(UnitEvent.Instance);
+                r.Monitor<M10>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M11>();
-                r.Monitor<M11>(UnitEvent.Instance);
+                r.Monitor<M11>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -450,7 +450,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M12>();
-                r.Monitor<M12>(UnitEvent.Instance);
+                r.Monitor<M12>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }

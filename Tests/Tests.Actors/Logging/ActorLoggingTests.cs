@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO;
 using System.Text;
 using Microsoft.Coyote.Logging;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -31,9 +31,9 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 using (var interceptor = new ConsoleOutputInterceptor(stream))
                 {
                     runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent());
+                    runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
                     runtime.CreateActor(typeof(M));
-                    await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                    await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
                 }
 
                 string result = Encoding.UTF8.GetString(stream.ToArray()).NormalizeNewLines()
@@ -56,9 +56,9 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 using (var interceptor = new ConsoleOutputInterceptor(stream))
                 {
                     runtime.RegisterMonitor<TestMonitor>();
-                    runtime.Monitor<TestMonitor>(new SetupEvent());
+                    runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
                     runtime.CreateActor(typeof(M));
-                    await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                    await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
                 }
 
                 string result = Encoding.UTF8.GetString(stream.ToArray()).NormalizeNewLines()
@@ -106,9 +106,9 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 Assert.IsType<MemoryLogger>((runtime.Logger as LogWriter).Logger);
 
                 runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent());
+                runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
                 runtime.CreateActor(typeof(M));
-                await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
 
                 string result = logger.ToString().RemoveNonDeterministicValues().SortLines();
                 string expected = StringExtensions.FormatLines(

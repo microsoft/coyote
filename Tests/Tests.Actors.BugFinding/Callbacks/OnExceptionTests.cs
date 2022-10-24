@@ -446,12 +446,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             replay: true);
         }
 
-        private class Done : Event
-        {
-        }
-
         private class GetsDone : Monitor
         {
+            internal class Done : Event
+            {
+            }
+
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Done), typeof(Ok))]
@@ -479,7 +479,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<GetsDone>(new Done());
+                this.Monitor<GetsDone>(new GetsDone.Done());
                 return Task.CompletedTask;
             }
         }
@@ -514,7 +514,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<GetsDone>(new Done());
+                this.Monitor<GetsDone>(new GetsDone.Done());
                 return Task.CompletedTask;
             }
         }
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<GetsDone>(new Done());
+                this.Monitor<GetsDone>(new GetsDone.Done());
                 return Task.CompletedTask;
             }
         }
@@ -585,7 +585,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<GetsDone>(new Done());
+                this.Monitor<GetsDone>(new GetsDone.Done());
                 return Task.CompletedTask;
             }
         }

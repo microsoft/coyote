@@ -14,16 +14,16 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
         }
 
-        private class E1 : Event
-        {
-        }
-
-        private class E2 : Event
-        {
-        }
-
         private class P : Monitor
         {
+            internal class E1 : Event
+            {
+            }
+
+            internal class E2 : Event
+            {
+            }
+
             [Cold]
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Fail))]
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void InitOnEntry()
             {
-                this.Monitor<P>(new E1());
+                this.Monitor<P>(new P.E1());
             }
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void InitOnEntry()
             {
-                this.Monitor<P>(new E2());
+                this.Monitor<P>(new P.E2());
             }
         }
 

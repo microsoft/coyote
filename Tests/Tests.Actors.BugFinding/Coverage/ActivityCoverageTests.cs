@@ -464,6 +464,14 @@ Event coverage: 100.0%
 
         internal class Monitor1 : Monitor
         {
+            internal class E1 : Event
+            {
+            }
+
+            internal class E2 : Event
+            {
+            }
+
             [Cold]
             [Start]
             [OnEventGotoState(typeof(E1), typeof(Busy))]
@@ -494,9 +502,9 @@ Event coverage: 100.0%
             {
             }
 
-            private void HandleE1(Event e)
+            private void HandleE1()
             {
-                this.Monitor<Monitor1>(e);
+                this.Monitor<Monitor1>(new Monitor1.E1());
                 this.RaiseGotoStateEvent<Ready>();
             }
 
@@ -505,9 +513,9 @@ Event coverage: 100.0%
             {
             }
 
-            private void HandleE2(Event e)
+            private void HandleE2()
             {
-                this.Monitor<Monitor1>(e);
+                this.Monitor<Monitor1>(new Monitor1.E2());
             }
         }
 

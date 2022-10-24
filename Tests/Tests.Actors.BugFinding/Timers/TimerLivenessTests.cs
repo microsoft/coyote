@@ -16,10 +16,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
         }
 
-        private class TimeoutReceivedEvent : Event
-        {
-        }
-
         private class Client : StateMachine
         {
             [Start]
@@ -36,12 +32,16 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             private void HandleTimeout()
             {
-                this.Monitor<LivenessMonitor>(new TimeoutReceivedEvent());
+                this.Monitor<LivenessMonitor>(new LivenessMonitor.TimeoutReceivedEvent());
             }
         }
 
         private class LivenessMonitor : Monitor
         {
+            internal class TimeoutReceivedEvent : Event
+            {
+            }
+
             [Start]
             [Hot]
             [OnEventGotoState(typeof(TimeoutReceivedEvent), typeof(TimeoutReceived))]

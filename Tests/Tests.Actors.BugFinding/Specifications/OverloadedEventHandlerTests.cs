@@ -19,12 +19,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [OnEventDoAction(typeof(UnitEvent), nameof(HandleUnitEvent))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(HandleUnitEvent))]
             public class Init : State
             {
             }
 
-            private void InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void InitOnEntry() => this.RaiseEvent(MonitorUnitEvent.Instance);
 
 #pragma warning disable CA1822 // Mark members as static
             private void HandleUnitEvent()

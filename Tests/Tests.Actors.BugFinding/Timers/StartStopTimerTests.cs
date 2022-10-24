@@ -17,12 +17,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
         }
 
-        private class TimeoutReceivedEvent : Event
-        {
-        }
-
         private class LivenessMonitor : Monitor
         {
+            internal class TimeoutReceivedEvent : Event
+            {
+            }
+
             [Start]
             [Hot]
             [OnEventGotoState(typeof(TimeoutReceivedEvent), typeof(TimeoutReceived))]
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             private void HandleTimeout()
             {
                 // Timeout in the interval between starting and disposing the timer.
-                this.Monitor<LivenessMonitor>(new TimeoutReceivedEvent());
+                this.Monitor<LivenessMonitor>(new LivenessMonitor.TimeoutReceivedEvent());
             }
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             private void HandleTimeout()
             {
                 // Timeout in the interval between starting and disposing the timer.
-                this.Monitor<LivenessMonitor>(new TimeoutReceivedEvent());
+                this.Monitor<LivenessMonitor>(new LivenessMonitor.TimeoutReceivedEvent());
             }
         }
 

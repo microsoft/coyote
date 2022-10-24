@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Logging;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,14 +25,14 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 Assert.IsType<TestOutputLogger>((runtime.Logger as LogWriter).Logger);
 
                 runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent());
+                runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
                 runtime.RegisterMonitor<S>();
 
                 var log = new CustomActorRuntimeLog();
                 runtime.RegisterLog(log);
 
                 runtime.CreateActor(typeof(M));
-                await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
 
                 string result = log.ToString().RemoveNonDeterministicValues().FormatNewLine();
                 string expected = StringExtensions.FormatLines(

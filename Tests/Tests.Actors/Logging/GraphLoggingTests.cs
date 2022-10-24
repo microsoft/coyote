@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Logging;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,13 +25,13 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
             this.Test(async runtime =>
             {
                 runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent());
+                runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
 
                 var graphBuilder = new ActorRuntimeLogGraphBuilder(false, false);
                 runtime.RegisterLog(graphBuilder);
 
                 runtime.CreateActor(typeof(M));
-                await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
 
                 string result = graphBuilder.Graph.ToString().RemoveNonDeterministicValues();
                 string expected = StringExtensions.FormatLines(
@@ -48,13 +49,13 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                     $"    <Link Source='{typeof(M).FullName}(0)' Target='{typeof(M).FullName}(0).M(0)' Category='Contains'/>",
                     $"    <Link Source='{typeof(M).FullName}(0)' Target='{typeof(N).FullName}(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>",
                     $"    <Link Source='{typeof(M).FullName}(0).M(0)' Target='{typeof(N).FullName}(1).Init' Label='E' Index='0' EventId='{typeof(E).FullName}' HandledBy='Init'/>",
-                    $"    <Link Source='{typeof(M).FullName}(0).M(0)' Target='{typeof(TestMonitor).FullName}.Init' Label='CompletedEvent' Index='0' EventId='{typeof(CompletedEvent).FullName}'/>",
+                    $"    <Link Source='{typeof(M).FullName}(0).M(0)' Target='{typeof(TestMonitor).FullName}.Init' Label='CompletedEvent' Index='0' EventId='{typeof(TestMonitor.CompletedEvent).FullName}'/>",
                     $"    <Link Source='{typeof(N).FullName}(1)' Target='{typeof(N).FullName}(1).Act' Category='Contains'/>",
                     $"    <Link Source='{typeof(N).FullName}(1)' Target='{typeof(N).FullName}(1).Init' Category='Contains'/>",
                     $"    <Link Source='{typeof(N).FullName}(1).Act' Target='{typeof(M).FullName}(0).M(0)' Label='E' Index='0' EventId='{typeof(E).FullName}'/>",
                     $"    <Link Source='{typeof(N).FullName}(1).Init' Target='{typeof(N).FullName}(1).Act' Label='E' Index='0' EventId='{typeof(E).FullName}' HandledBy='Init'/>",
                     $"    <Link Source='{typeof(TestMonitor).FullName}' Target='{typeof(TestMonitor).FullName}.Init' Category='Contains'/>",
-                    $"    <Link Source='{typeof(TestMonitor).FullName}.Init' Target='{typeof(TestMonitor).FullName}.Init' Label='CompletedEvent' Index='0' EventId='{typeof(CompletedEvent).FullName}'/>",
+                    $"    <Link Source='{typeof(TestMonitor).FullName}.Init' Target='{typeof(TestMonitor).FullName}.Init' Label='CompletedEvent' Index='0' EventId='{typeof(TestMonitor.CompletedEvent).FullName}'/>",
                     "  </Links>",
                     "</DirectedGraph>");
                 expected = expected.RemoveNonDeterministicValues();
@@ -146,7 +147,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
             private void HandleComplete()
             {
                 this.Logger.WriteLine("Test Complete");
-                this.Monitor<TestMonitor>(new CompletedEvent());
+                this.Monitor<TestMonitor>(new TestMonitor.CompletedEvent());
             }
         }
 
@@ -157,7 +158,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
             this.Test(async runtime =>
             {
                 runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent());
+                runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
 
                 var graphBuilder = new ActorRuntimeLogGraphBuilder(false, false);
                 runtime.RegisterLog(graphBuilder);
@@ -167,7 +168,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
                 runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
 
                 string result = graphBuilder.Graph.ToString().RemoveInstanceIds();
                 this.TestOutput.WriteLine(result);
@@ -185,7 +186,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
             this.Test(async runtime =>
             {
                 runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent());
+                runtime.Monitor<TestMonitor>(new TestMonitor.SetupEvent());
 
                 var graphBuilder = new ActorRuntimeLogGraphBuilder(false, true);
                 runtime.RegisterLog(graphBuilder);
@@ -195,7 +196,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
                 runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                await (runtime as ActorExecutionContext).WaitUntilQuiescenceAsync();
+                await (runtime as IRuntimeExtension).WaitUntilQuiescenceAsync();
 
                 string result = graphBuilder.Graph.ToString().RemoveInstanceIds();
                 this.TestOutput.WriteLine(result);

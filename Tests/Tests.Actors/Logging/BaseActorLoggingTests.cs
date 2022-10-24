@@ -14,16 +14,16 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
         {
         }
 
-        internal class SetupEvent : Event
-        {
-        }
-
-        internal class CompletedEvent : Event
-        {
-        }
-
         internal class TestMonitor : Monitor
         {
+            internal class SetupEvent : Event
+            {
+            }
+
+            internal class CompletedEvent : Event
+            {
+            }
+
             [Start]
             [OnEventDoAction(typeof(SetupEvent), nameof(OnSetup))]
             [OnEventDoAction(typeof(CompletedEvent), nameof(OnCompleted))]
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
 
             private void Act()
             {
-                this.Monitor<TestMonitor>(new CompletedEvent());
+                this.Monitor<TestMonitor>(new TestMonitor.CompletedEvent());
             }
         }
 

@@ -7,6 +7,7 @@ using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.BugFinding.Tests
 {
@@ -25,7 +26,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
         }
 
-        private class Begin : Event
+        private class Begin : MonitorEvent
         {
             public Event Event;
 
@@ -35,7 +36,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             }
         }
 
-        private class End : Event
+        private class End : MonitorEvent
         {
             public Event Event;
 
@@ -43,10 +44,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             {
                 this.Event = e;
             }
-        }
-
-        private class Done : Event
-        {
         }
 
         private class Spec1 : Monitor
@@ -257,6 +254,10 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
         private class Spec3 : Monitor
         {
+            internal class Done : Event
+            {
+            }
+
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Done), typeof(S2))]
@@ -287,7 +288,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }
@@ -326,7 +327,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }
@@ -360,7 +361,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }
@@ -401,7 +402,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }
@@ -437,7 +438,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }
@@ -477,7 +478,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec3>(new Done());
+                this.Monitor<Spec3>(new Spec3.Done());
                 return Task.CompletedTask;
             }
         }

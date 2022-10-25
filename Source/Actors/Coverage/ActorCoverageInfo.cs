@@ -76,7 +76,6 @@ namespace Microsoft.Coyote.Actors.Coverage
         private void AddMachineState(string machineName, string stateName)
         {
             this.Machines.Add(machineName);
-
             if (!this.MachinesToStates.ContainsKey(machineName))
             {
                 this.MachinesToStates.Add(machineName, new HashSet<string>());

@@ -48,22 +48,29 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Coverage
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M0));
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
 
-            var expected = @"Total event coverage: 100.0%
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M0
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State has no expected events, so coverage is 100%
+    State: Init
+        State has no expected events, so coverage is 100%
+
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -91,27 +98,34 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M1));
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
 
-            var expected = @"Total event coverage: 100.0%
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M1
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State has no expected events, so coverage is 100%
-		Next states: Done
+    State: Init
+        State has no expected events, so coverage is 100%
+        Next states: Done
 
-	State: Done
-		State has no expected events, so coverage is 100%
-		Previous states: Init
+    State: Done
+        State has no expected events, so coverage is 100%
+        Previous states: Init
+
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -140,28 +154,36 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M2));
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
-            var expected = @"Total event coverage: 100.0%
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
+
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M2
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State event coverage: 100.0%
-		Events received: Events.UnitEvent
-		Events sent: Events.UnitEvent
-		Next states: Done
+    State: Init
+        State event coverage: 100.0%
+        Events received: Events.UnitEvent
+        Events sent: Events.UnitEvent
+        Next states: Done
 
-	State: Done
-		State has no expected events, so coverage is 100%
-		Previous states: Init
+    State: Done
+        State has no expected events, so coverage is 100%
+        Previous states: Init
+
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -220,36 +242,44 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M3A));
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
 
-            var expected = @"Total event coverage: 100.0%
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+=========================================================================================
 StateMachine: M3A
 =========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State event coverage: 100.0%
-		Events received: HelloEvent, Events.UnitEvent
-		Next states: Done
+    State: Init
+        State event coverage: 100.0%
+        Events received: HelloEvent, Events.UnitEvent
+        Next states: Done
 
-	State: Done
-		State has no expected events, so coverage is 100%
-		Previous states: Init
+    State: Done
+        State has no expected events, so coverage is 100%
+        Previous states: Init
 
+=========================================================================================
 StateMachine: M3B
 =========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State has no expected events, so coverage is 100%
-		Events sent: HelloEvent, Events.UnitEvent
+    State: Init
+        State has no expected events, so coverage is 100%
+        Events sent: HelloEvent, Events.UnitEvent
+
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -275,50 +305,56 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report1 = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration);
 
-            var expected = @"Total event coverage: 100.0%
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
+
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M4
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State event coverage: 100.0%
-		Events received: Events.UnitEvent
-		Next states: Done
+    State: Init
+        State event coverage: 100.0%
+        Events received: Events.UnitEvent
+        Next states: Done
 
-	State: Done
-		State has no expected events, so coverage is 100%
-		Previous states: Init
+    State: Done
+        State has no expected events, so coverage is 100%
+        Previous states: Init
 
-StateMachine: ExternalCode
-==========================
-Event coverage: 100.0%
+============
+ExternalCode
+============
+Events sent: Events.UnitEvent
 
-	State: ExternalState
-		State has no expected events, so coverage is 100%
-		Events sent: Events.UnitEvent
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
-            string result = report1.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
 
-            // Make sure second run is not confused by the first.
-            string report2 = this.TestCoverage(r =>
+            // Assert that the second run is not confused by the first.
+            string report = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration);
 
-            Assert.Equal(report1, report2);
+            report = report.RemoveExcessiveEmptySpace();
+            Assert.Equal(result, report);
         }
 
         private class E1 : Event
@@ -349,37 +385,42 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M5));
                 r.SendEvent(m, new E1());
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
-            var expected = @"Total event coverage: 50.0%
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
+
+            var expected = @"===========================
+Total actor coverage: 50.0%
 ===========================
+========================================================================================
 StateMachine: M5
 ========================================================================================
 Event coverage: 50.0%
 
-	State: Init
-		State event coverage: 50.0%
-		Events received: E1
-		Events not covered: E2
-		Next states: Done
+    State: Init
+        State event coverage: 50.0%
+        Events received: E1
+        Events not covered: E2
+        Next states: Done
 
-	State: Done
-		State has no expected events, so coverage is 100%
-		Previous states: Init
+    State: Done
+        State has no expected events, so coverage is 100%
+        Previous states: Init
 
-StateMachine: ExternalCode
-==========================
-Event coverage: 100.0%
+============
+ExternalCode
+============
+Events sent: E1
 
-	State: ExternalState
-		State has no expected events, so coverage is 100%
-		Events sent: E1
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -423,7 +464,7 @@ Event coverage: 100.0%
             var configuration = this.GetConfiguration();
             configuration.IsActivityCoverageReported = true;
 
-            string report = this.TestCoverage(r =>
+            string result = this.TestCoverage(r =>
             {
                 var actor = r.CreateActor(typeof(M6));
                 r.SendEvent(actor, new E1());  // even though Ready state is pushed E1 can still be handled by Init state because Init state is still active.
@@ -431,31 +472,35 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = report.RemoveExcessiveEmptySpace();
+            this.TestOutput.WriteLine(result);
+            result = result.RemoveExcessiveEmptySpace();
 
-            var expected = @"Total event coverage: 100.0%
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M6
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State event coverage: 100.0%
-		Events received: E1
-		Next states: Ready
+    State: Init
+        State event coverage: 100.0%
+        Events received: E1
+        Next states: Ready
 
-	State: Ready
-		State event coverage: 100.0%
-		Events received: E2
-		Previous states: Init
+    State: Ready
+        State event coverage: 100.0%
+        Events received: E2
+        Previous states: Init
 
-StateMachine: ExternalCode
-==========================
-Event coverage: 100.0%
+============
+ExternalCode
+============
+Events sent: E1, E2
 
-	State: ExternalState
-		State has no expected events, so coverage is 100%
-		Events sent: E1, E2
+=========================================
+Total specification monitor coverage: N/A
+=========================================
 ";
 
             expected = expected.RemoveExcessiveEmptySpace();
@@ -535,45 +580,49 @@ Event coverage: 100.0%
             },
             configuration);
 
+            this.TestOutput.WriteLine(result);
             result = result.RemoveExcessiveEmptySpace();
 
-            var expected = @"Total event coverage: 100.0%
+            var expected = @"============================
+Total actor coverage: 100.0%
 ============================
+========================================================================================
 StateMachine: M7
 ========================================================================================
 Event coverage: 100.0%
 
-	State: Init
-		State event coverage: 100.0%
-		Events received: E1
-		Next states: Ready
+    State: Init
+        State event coverage: 100.0%
+        Events received: E1
+        Next states: Ready
 
-	State: Ready
-		State event coverage: 100.0%
-		Events received: E2
-		Previous states: Init
+    State: Ready
+        State event coverage: 100.0%
+        Events received: E2
+        Previous states: Init
 
+============
+ExternalCode
+============
+Events sent: E1, E2
+
+============================================
+Total specification monitor coverage: 100.0%
+============================================
+=========================================================================================
 Monitor: Monitor1
 =========================================================================================
 Event coverage: 100.0%
 
-	State: Idle
-		State event coverage: 100.0%
-		Events received: E1
-		Next states: Busy[hot]
+    State: Idle
+        State event coverage: 100.0%
+        Events processed: Monitor1+E1
+        Next states: Busy[hot]
 
-	State: Busy
-		State event coverage: 100.0%
-		Events received: E2
-		Next states: Idle[cold]
-
-StateMachine: ExternalCode
-==========================
-Event coverage: 100.0%
-
-	State: ExternalState
-		State has no expected events, so coverage is 100%
-		Events sent: E1, E2
+    State: Busy
+        State event coverage: 100.0%
+        Events processed: Monitor1+E2
+        Next states: Idle[cold]
 ";
 
             result = result.RemoveExcessiveEmptySpace();

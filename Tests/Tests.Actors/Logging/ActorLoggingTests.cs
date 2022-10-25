@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 string expected = StringExtensions.FormatLines(
                     "<CreateLog> TestMonitor was created.",
                     "<MonitorLog> TestMonitor enters state 'Init'.",
-                    "<MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.",
+                    "<MonitorLog> TestMonitor is processing event 'TestMonitor+SetupEvent' in state 'Init'.",
                     "<MonitorLog> TestMonitor executed action 'OnSetup' in state 'Init'.",
                     "<CreateLog> M() was created by thread ''.",
                     "<CreateLog> N() was created by M().",
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                     "<EnqueueLog> M() enqueued event 'E'.",
                     "<DequeueLog> M() dequeued event 'E'.",
                     "<ActionLog> M() invoked action 'Act'.",
-                    "<MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.",
+                    "<MonitorLog> TestMonitor is processing event 'TestMonitor+CompletedEvent' in state 'Init'.",
                     "<MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.");
                 expected = expected.NormalizeNewLines().SortLines();
 
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                 string expected = StringExtensions.FormatLines(
                     "<CreateLog> TestMonitor was created.",
                     "<MonitorLog> TestMonitor enters state 'Init'.",
-                    "<MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.",
+                    "<MonitorLog> TestMonitor is processing event 'TestMonitor+SetupEvent' in state 'Init'.",
                     "<MonitorLog> TestMonitor executed action 'OnSetup' in state 'Init'.",
                     "<CreateLog> M() was created by thread ''.",
                     "<CreateLog> N() was created by M().",
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
                     "<EnqueueLog> M() enqueued event 'E'.",
                     "<DequeueLog> M() dequeued event 'E'.",
                     "<ActionLog> M() invoked action 'Act'.",
-                    "<MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.",
+                    "<MonitorLog> TestMonitor is processing event 'TestMonitor+CompletedEvent' in state 'Init'.",
                     "<MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.");
                 expected = expected.NormalizeNewLines().SortLines();
 

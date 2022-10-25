@@ -84,7 +84,6 @@ namespace Microsoft.Coyote.Coverage
         private void AddMonitorState(string monitorName, string stateName)
         {
             this.Monitors.Add(monitorName);
-
             if (!this.MonitorsToStates.ContainsKey(monitorName))
             {
                 this.MonitorsToStates.Add(monitorName, new HashSet<string>());

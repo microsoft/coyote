@@ -17,11 +17,11 @@ namespace Microsoft.Coyote.Actors.Coverage
     /// </summary>
     internal class ActorRuntimeLogGraphBuilder : IActorRuntimeLog
     {
-        private const string ExternalCodeName = "ExternalCode";
-        private const string ExternalStateName = "ExternalState";
-        private const string StateMachineCategory = "StateMachine";
         private const string ActorCategory = "Actor";
+        internal const string StateMachineCategory = "StateMachine";
         private const string MonitorCategory = "Monitor";
+        internal const string ExternalCodeName = "ExternalCode";
+        internal const string ExternalStateName = "ExternalState";
 
         /// <summary>
         /// The currently manipulated coverage graph.

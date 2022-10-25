@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             this.Extension = extension ?? NullRuntimeExtension.Instance;
-            this.CoverageInfo = extension.GetCoverageInfo() ?? new CoverageInfo();
+            this.CoverageInfo = this.Extension.GetCoverageInfo() ?? new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
             this.LogManager = logManager;

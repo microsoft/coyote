@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Coverage
             this.CoverageInfo.CoverageGraph?.SaveDgml(graphFile, true);
 
         /// <summary>
-        /// Emits the code coverage report.
+        /// Emits the activity coverage report.
         /// </summary>
         public void EmitCoverageReport(string coverageFile)
         {
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Writes the visualization text.
+        /// Emits the activity coverage report.
         /// </summary>
         internal virtual void WriteCoverageText(TextWriter writer)
         {
@@ -58,27 +58,12 @@ namespace Microsoft.Coyote.Coverage
             monitors.Sort(StringComparer.Ordinal);
 
             var monitorTypes = new Dictionary<string, string>();
-
-            bool hasExternalSource = false;
-            string externalSrcId = "ExternalCode";
-
-            // look for any external source links.
-            foreach (var link in this.CoverageInfo.CoverageGraph.Links)
-            {
-                string srcId = link.Source.Id;
-                if (srcId == externalSrcId && !hasExternalSource)
-                {
-                    monitors.Add(srcId);
-                    hasExternalSource = true;
-                }
-            }
-
             foreach (var node in this.CoverageInfo.CoverageGraph.Nodes)
             {
                 string id = node.Id;
                 if (monitors.Contains(id))
                 {
-                    monitorTypes[id] = node.Category ?? "SpecificationMonitor";
+                    monitorTypes[id] = node.Category ?? "Monitor";
                 }
             }
 
@@ -95,131 +80,126 @@ namespace Microsoft.Coyote.Coverage
             this.RemoveCoveredEvents(uncoveredEvents);
 
             int totalUncoveredEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
-
             string eventCoverage = totalEvents is 0 ? "100.0" : ((totalEvents - totalUncoveredEvents) * 100.0 / totalEvents).ToString("F1");
 
-            WriteHeader(writer, string.Format("Total monitor event coverage: {0}%", eventCoverage));
-
-            // Per-monitor data.
-            foreach (var monitor in monitors)
+            if (monitors.Count > 0)
             {
-                monitorTypes.TryGetValue(monitor, out string monitorType);
-                WriteHeader(writer, string.Format("{0}: {1}", monitorType, monitor));
-
-                // Find all possible events for this specification monitor.
-                var uncoveredMonitorEvents = new Dictionary<string, HashSet<string>>();
-                var allMonitorEvents = new Dictionary<string, HashSet<string>>();
-
-                foreach (var item in this.CoverageInfo.RegisteredMonitorEvents)
+                WriteHeader(writer, string.Format("Total specification monitor coverage: {0}%", eventCoverage));
+                foreach (var monitor in monitors)
                 {
-                    var id = GetMonitorId(item.Key);
-                    if (id == monitor)
+                    monitorTypes.TryGetValue(monitor, out string monitorType);
+                    WriteHeader(writer, string.Format("{0}: {1}", monitorType, monitor));
+
+                    // Find all possible events for this specification monitor.
+                    var uncoveredMonitorEvents = new Dictionary<string, HashSet<string>>();
+                    var allMonitorEvents = new Dictionary<string, HashSet<string>>();
+                    foreach (var item in this.CoverageInfo.RegisteredMonitorEvents)
                     {
-                        uncoveredMonitorEvents[item.Key] = new HashSet<string>(item.Value);
-                        allMonitorEvents[item.Key] = new HashSet<string>(item.Value);
-                    }
-                }
-
-                // Now use the graph to find incoming links to each state in this specification monitor
-                // and remove those from the list of uncovered events.
-                this.RemoveCoveredEvents(uncoveredMonitorEvents);
-
-                int totalMonitorEvents = (from h in allMonitorEvents select h.Value.Count).Sum();
-                var totalUncoveredMonitorEvents = (from h in uncoveredMonitorEvents select h.Value.Count).Sum();
-
-                eventCoverage = totalMonitorEvents is 0 ? "100.0" : ((totalMonitorEvents - totalUncoveredMonitorEvents) * 100.0 / totalMonitorEvents).ToString("F1");
-                writer.WriteLine("Monitor event coverage: {0}%", eventCoverage);
-
-                if (!this.CoverageInfo.MonitorsToStates.ContainsKey(monitor))
-                {
-                    this.CoverageInfo.MonitorsToStates[monitor] = new HashSet<string>(new string[] { "ExternalMonitorState" });
-                }
-
-                // Per-state data.
-                foreach (var state in this.CoverageInfo.MonitorsToStates[monitor])
-                {
-                    var key = monitor + "." + state;
-                    int totalStateEvents = (from h in allMonitorEvents where h.Key == key select h.Value.Count).Sum();
-                    int uncoveredStateEvents = (from h in uncoveredMonitorEvents where h.Key == key select h.Value.Count).Sum();
-
-                    writer.WriteLine();
-                    writer.WriteLine("\tMonitor state: {0}{1}", state, totalStateEvents > 0 && totalStateEvents == uncoveredStateEvents ? " is uncovered" : string.Empty);
-                    if (totalStateEvents is 0)
-                    {
-                        writer.WriteLine("\t\tMonitor state has no expected events, so coverage is 100%");
-                    }
-                    else if (totalStateEvents != uncoveredStateEvents)
-                    {
-                        eventCoverage = totalStateEvents is 0 ? "100.0" : ((totalStateEvents - uncoveredStateEvents) * 100.0 / totalStateEvents).ToString("F1");
-                        writer.WriteLine("\t\tMonitor state event coverage: {0}%", eventCoverage);
-                    }
-
-                    // Now use the graph to find incoming links to each state in this monitor.
-                    HashSet<string> stateIncomingStates = new HashSet<string>();
-                    HashSet<string> stateOutgoingStates = new HashSet<string>();
-                    foreach (var link in this.CoverageInfo.CoverageGraph.Links)
-                    {
-                        if (link.Category != "Contains")
+                        var id = GetMonitorId(item.Key);
+                        if (id == monitor)
                         {
-                            string srcId = link.Source.Id;
-                            string srcMonitor = GetMonitorId(srcId);
-                            string targetId = link.Target.Id;
-                            string targetMonitor = GetMonitorId(targetId);
-                            bool intraMonitorTransition = targetMonitor == monitor && srcMonitor == monitor;
-                            if (intraMonitorTransition)
-                            {
-                                foreach (string id in GetEventIds(link))
-                                {
-                                    if (targetId == key)
-                                    {
-                                        // We want to show incoming/outgoing states within the current monitor only.
-                                        stateIncomingStates.Add(GetStateName(srcId));
-                                    }
+                            uncoveredMonitorEvents[item.Key] = new HashSet<string>(item.Value);
+                            allMonitorEvents[item.Key] = new HashSet<string>(item.Value);
+                        }
+                    }
 
-                                    if (srcId == key)
+                    // Now use the graph to find incoming links to each state in this specification monitor
+                    // and remove those from the list of uncovered events.
+                    this.RemoveCoveredEvents(uncoveredMonitorEvents);
+
+                    int totalMonitorEvents = (from h in allMonitorEvents select h.Value.Count).Sum();
+                    var totalUncoveredMonitorEvents = (from h in uncoveredMonitorEvents select h.Value.Count).Sum();
+
+                    eventCoverage = totalMonitorEvents is 0 ? "100.0" : ((totalMonitorEvents - totalUncoveredMonitorEvents) * 100.0 / totalMonitorEvents).ToString("F1");
+                    writer.WriteLine("Event coverage: {0}%", eventCoverage);
+
+                    foreach (var state in this.CoverageInfo.MonitorsToStates[monitor])
+                    {
+                        var key = monitor + "." + state;
+                        int totalStateEvents = (from h in allMonitorEvents where h.Key == key select h.Value.Count).Sum();
+                        int uncoveredStateEvents = (from h in uncoveredMonitorEvents where h.Key == key select h.Value.Count).Sum();
+
+                        writer.WriteLine();
+                        writer.WriteLine("\tState: {0}{1}", state, totalStateEvents > 0 && totalStateEvents == uncoveredStateEvents ? " is uncovered" : string.Empty);
+                        if (totalStateEvents is 0)
+                        {
+                            writer.WriteLine("\t\tState has no expected events, so coverage is 100%");
+                        }
+                        else if (totalStateEvents != uncoveredStateEvents)
+                        {
+                            eventCoverage = totalStateEvents is 0 ? "100.0" : ((totalStateEvents - uncoveredStateEvents) * 100.0 / totalStateEvents).ToString("F1");
+                            writer.WriteLine("\t\tState event coverage: {0}%", eventCoverage);
+                        }
+
+                        // Now use the graph to find incoming links to each state in this monitor.
+                        HashSet<string> stateIncomingStates = new HashSet<string>();
+                        HashSet<string> stateOutgoingStates = new HashSet<string>();
+                        foreach (var link in this.CoverageInfo.CoverageGraph.Links)
+                        {
+                            if (link.Category != "Contains")
+                            {
+                                string srcId = link.Source.Id;
+                                string srcMonitor = GetMonitorId(srcId);
+                                string targetId = link.Target.Id;
+                                string targetMonitor = GetMonitorId(targetId);
+                                bool intraMonitorTransition = targetMonitor == monitor && srcMonitor == monitor;
+                                if (intraMonitorTransition)
+                                {
+                                    foreach (string id in GetEventIds(link))
                                     {
-                                        // We want to show incoming/outgoing states within the current monitor only.
-                                        stateOutgoingStates.Add(GetStateName(targetId));
+                                        if (targetId == key)
+                                        {
+                                            // We want to show incoming/outgoing states within the current monitor only.
+                                            stateIncomingStates.Add(GetStateName(srcId));
+                                        }
+
+                                        if (srcId == key)
+                                        {
+                                            // We want to show incoming/outgoing states within the current monitor only.
+                                            stateOutgoingStates.Add(GetStateName(targetId));
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        HashSet<string> processed = new HashSet<string>(this.CoverageInfo.MonitorEventInfo.GetEventsProcessed(key));
+                        this.RemoveBuiltInEvents(processed);
+                        if (processed.Count > 0)
+                        {
+                            writer.WriteLine("\t\tEvents processed: {0}", string.Join(", ", SortHashSet(processed)));
+                        }
+
+                        HashSet<string> raised = new HashSet<string>(this.CoverageInfo.MonitorEventInfo.GetEventsRaised(key));
+                        this.RemoveBuiltInEvents(raised);
+                        if (raised.Count > 0)
+                        {
+                            writer.WriteLine("\t\tEvents raised: {0}", string.Join(", ", SortHashSet(raised)));
+                        }
+
+                        var stateUncoveredEvents = (from h in uncoveredMonitorEvents where h.Key == key select h.Value).FirstOrDefault();
+                        if (stateUncoveredEvents != null && stateUncoveredEvents.Count > 0)
+                        {
+                            writer.WriteLine("\t\tEvents not covered: {0}", string.Join(", ", SortHashSet(stateUncoveredEvents)));
+                        }
+
+                        if (stateIncomingStates.Count > 0)
+                        {
+                            writer.WriteLine("\t\tPrevious states: {0}", string.Join(", ", SortHashSet(stateIncomingStates)));
+                        }
+
+                        if (stateOutgoingStates.Count > 0)
+                        {
+                            writer.WriteLine("\t\tNext states: {0}", string.Join(", ", SortHashSet(stateOutgoingStates)));
+                        }
                     }
 
-                    HashSet<string> processed = new HashSet<string>(this.CoverageInfo.MonitorEventInfo.GetEventsProcessed(key));
-                    this.RemoveBuiltInEvents(processed);
-
-                    if (processed.Count > 0)
-                    {
-                        writer.WriteLine("\t\tMonitor events processed: {0}", string.Join(", ", SortHashSet(processed)));
-                    }
-
-                    HashSet<string> raised = new HashSet<string>(this.CoverageInfo.MonitorEventInfo.GetEventsRaised(key));
-                    this.RemoveBuiltInEvents(raised);
-
-                    if (raised.Count > 0)
-                    {
-                        writer.WriteLine("\t\tMonitor events raised: {0}", string.Join(", ", SortHashSet(raised)));
-                    }
-
-                    var stateUncoveredEvents = (from h in uncoveredMonitorEvents where h.Key == key select h.Value).FirstOrDefault();
-                    if (stateUncoveredEvents != null && stateUncoveredEvents.Count > 0)
-                    {
-                        writer.WriteLine("\t\tMonitor events not covered: {0}", string.Join(", ", SortHashSet(stateUncoveredEvents)));
-                    }
-
-                    if (stateIncomingStates.Count > 0)
-                    {
-                        writer.WriteLine("\t\tPrevious monitor states: {0}", string.Join(", ", SortHashSet(stateIncomingStates)));
-                    }
-
-                    if (stateOutgoingStates.Count > 0)
-                    {
-                        writer.WriteLine("\t\tNext monitor states: {0}", string.Join(", ", SortHashSet(stateOutgoingStates)));
-                    }
+                    writer.WriteLine();
                 }
-
-                writer.WriteLine();
+            }
+            else
+            {
+                WriteHeader(writer, "Total specification monitor coverage: N/A");
             }
         }
 
@@ -295,6 +275,7 @@ namespace Microsoft.Coyote.Coverage
 
         protected static void WriteHeader(TextWriter writer, string header)
         {
+            writer.WriteLine(new string('=', header.Length));
             writer.WriteLine(header);
             writer.WriteLine(new string('=', header.Length));
         }

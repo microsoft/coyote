@@ -247,22 +247,38 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.LogWriter.LogDebug(ex.Message);
                     this.LogWriter.LogDebug(ex.StackTrace);
-                    return true;
+                    return false;
                 });
 
                 if (aex.InnerException is FileNotFoundException)
                 {
                     this.LogWriter.LogError(aex.InnerException.Message);
-                    throw;
+                }
+                else
+                {
+                    this.LogWriter.LogError("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
                 }
 
-                this.LogWriter.LogError("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
-                throw;
+                ExceptionDispatchInfo.Capture(aex).Throw();
             }
             catch (Exception ex)
             {
-                this.LogWriter.LogError("... Test failed due to an internal error: {0}", ex);
-                this.TestReport.InternalErrors.Add(ex.ToString());
+                if (ex is AggregateException aex)
+                {
+                    ex = aex.Flatten().InnerException;
+                }
+
+                if (ex is FileNotFoundException)
+                {
+                    this.LogWriter.LogError(ex.Message);
+                }
+                else
+                {
+                    this.LogWriter.LogError("... Test failed due to an internal error: {0}", ex);
+                    this.TestReport.InternalErrors.Add(ex.ToString());
+                }
+
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
             finally
             {
@@ -411,9 +427,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler.Trace, this.Configuration);
                     }
                 }
-            }
-            finally
-            {
+
                 if (this.Configuration.IsSystematicFuzzingFallbackEnabled &&
                     runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                     (runtime.ExecutionStatus is ExecutionStatus.ConcurrencyUncontrolled ||
@@ -442,7 +456,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.LogWriter.LogError("Failed to reproduce the bug.");
                 }
-
+            }
+            finally
+            {
                 // Clean up runtime resources before the next iteration starts.
                 runtime?.Dispose();
             }

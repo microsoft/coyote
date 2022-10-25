@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private abstract class BaseState : State
             {
             }
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class BaseState : State
             {
             }
@@ -110,12 +110,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M6 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : State
             {
             }
@@ -135,17 +135,17 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M7 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -174,12 +174,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class BaseState : State
             {
             }
@@ -222,12 +222,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M10 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseState : State
             {
             }
@@ -256,17 +256,17 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M11 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }
@@ -299,12 +299,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }

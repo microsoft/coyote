@@ -14,7 +14,7 @@ public static void Monitor<T>(Event e)
 
 ## See Also
 
-* class [Event](../../Microsoft.Coyote/Event.md)
+* class [Event](../Monitor.Event.md)
 * class [Monitor](../Monitor.md)
 * class [Specification](../Specification.md)
 * namespace [Microsoft.Coyote.Specifications](../Specification.md)

@@ -13,9 +13,9 @@ public interface ICoyoteRuntime : IDisposable
 | [Logger](ICoyoteRuntime/Logger.md) { get; set; } | Gets or sets an [`ILogger`](../Microsoft.Coyote.Logging/ILogger.md) for logging runtime messages. |
 | event [OnFailure](ICoyoteRuntime/OnFailure.md) | Callback that is fired when an exception is thrown that includes failed assertions. |
 | [Assert](ICoyoteRuntime/Assert.md)(…) | Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](./AssertionFailureException.md) exception. (5 methods) |
-| [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor.md)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/Event.md). |
-| [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
-| [RandomInteger](ICoyoteRuntime/RandomInteger.md)(…) | Returns a nondeterministic integer choice, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |
+| [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor.md)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote.Specifications/Monitor.Event.md). |
+| [RandomBoolean](ICoyoteRuntime/RandomBoolean.md)() | Returns a nondeterministic boolean choice, that can be controlled during testing. |
+| [RandomInteger](ICoyoteRuntime/RandomInteger.md)(…) | Returns a nondeterministic integer choice, that can be controlled during testing. The value is used to generate an integer in the range [0..maxValue). |
 | [RegisterLog](ICoyoteRuntime/RegisterLog.md)(…) | Use this method to register an [`IRuntimeLog`](./IRuntimeLog.md). |
 | [RegisterMonitor&lt;T&gt;](ICoyoteRuntime/RegisterMonitor.md)() | Registers a new specification monitor of the specified Type. |
 | [RemoveLog](ICoyoteRuntime/RemoveLog.md)(…) | Use this method to unregister a previously registered [`IRuntimeLog`](./IRuntimeLog.md). |

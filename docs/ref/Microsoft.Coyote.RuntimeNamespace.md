@@ -5,6 +5,7 @@
 | class [AssertionFailureException](./Microsoft.Coyote.Runtime/AssertionFailureException.md) | The exception that is thrown by the Coyote runtime upon assertion failure. |
 | interface [ICoyoteRuntime](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md) | Interface that exposes base runtime methods for Coyote. |
 | interface [IOperationBuilder](./Microsoft.Coyote.Runtime/IOperationBuilder.md) | Interface of a controlled operation builder. |
+| interface [IRuntimeExtension](./Microsoft.Coyote.Runtime/IRuntimeExtension.md) | Interface for a Coyote runtime extension. |
 | interface [IRuntimeLog](./Microsoft.Coyote.Runtime/IRuntimeLog.md) | Interface that allows an external module to track what is happening in the [`ICoyoteRuntime`](./Microsoft.Coyote.Runtime/ICoyoteRuntime.md). |
 | delegate [OnFailureHandler](./Microsoft.Coyote.Runtime/OnFailureHandler.md) | Handles the [`OnFailure`](./Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure.md) event. |
 | static class [Operation](./Microsoft.Coyote.Runtime/Operation.md) | Provides a set of static methods for instrumenting concurrency primitives that can then be controlled during testing. |

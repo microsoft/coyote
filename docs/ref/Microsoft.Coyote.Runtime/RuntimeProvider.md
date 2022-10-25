@@ -11,8 +11,6 @@ public static class RuntimeProvider
 | name | description |
 | --- | --- |
 | static [Current](RuntimeProvider/Current.md) { get; } | The runtime installed in the current execution context. |
-| static [Create](RuntimeProvider/Create.md)() | Creates a new Coyote runtime. |
-| static [Create](RuntimeProvider/Create.md)(…) | Creates a new Coyote runtime with the specified [`Configuration`](../Microsoft.Coyote/Configuration.md). |
 
 ## See Also
 

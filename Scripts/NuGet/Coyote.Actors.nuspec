@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Microsoft.Coyote</id>
+    <id>Microsoft.Coyote.Actors</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
     <description>The Coyote actor runtime and library.</description>

@@ -1,6 +1,6 @@
 # ICoyoteRuntime.RandomBoolean method
 
-Returns a nondeterministic boolean choice, that can be controlled during analysis or testing.
+Returns a nondeterministic boolean choice, that can be controlled during testing.
 
 ```csharp
 public bool RandomBoolean()

@@ -18,7 +18,7 @@ public virtual void OnMonitorProcessEvent(string monitorType, string stateName, 
 
 ## See Also
 
-* class [Event](../../Microsoft.Coyote/Event.md)
+* class [Event](../../Microsoft.Coyote.Specifications/Monitor.Event.md)
 * class [RuntimeLogTextFormatter](../RuntimeLogTextFormatter.md)
 * namespace [Microsoft.Coyote.Runtime](../RuntimeLogTextFormatter.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

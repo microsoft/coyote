@@ -1,6 +1,6 @@
 # ICoyoteRuntime.Monitor&lt;T&gt; method
 
-Invokes the specified monitor with the specified [`Event`](../../Microsoft.Coyote/Event.md).
+Invokes the specified monitor with the specified [`Event`](../../Microsoft.Coyote.Specifications/Monitor.Event.md).
 
 ```csharp
 public void Monitor<T>(Event e)
@@ -14,7 +14,7 @@ public void Monitor<T>(Event e)
 
 ## See Also
 
-* class [Event](../../Microsoft.Coyote/Event.md)
+* class [Event](../../Microsoft.Coyote.Specifications/Monitor.Event.md)
 * class [Monitor](../../Microsoft.Coyote.Specifications/Monitor.md)
 * interface [ICoyoteRuntime](../ICoyoteRuntime.md)
 * namespace [Microsoft.Coyote.Runtime](../ICoyoteRuntime.md)

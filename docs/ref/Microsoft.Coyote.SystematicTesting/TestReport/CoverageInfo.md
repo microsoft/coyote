@@ -3,7 +3,7 @@
 Information regarding code coverage.
 
 ```csharp
-public CoverageInfo CoverageInfo { get; }
+public ActorCoverageInfo CoverageInfo { get; }
 ```
 
 ## See Also

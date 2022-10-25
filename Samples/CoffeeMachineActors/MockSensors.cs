@@ -11,13 +11,20 @@ using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Samples.CoffeeMachineActors
 {
-    public class BusyEvent : Event { }
-
     /// <summary>
     /// This safety monitor ensure nothing bad happens while a door is open on the coffee machine.
     /// </summary>
     internal class DoorSafetyMonitor : Monitor
     {
+        internal class DoorOpenEvent : Event
+        {
+            internal bool Open;
+
+            internal DoorOpenEvent(bool value) { this.Open = value; }
+        }
+
+        internal class BusyEvent : Event { }
+
         [Start]
         [OnEventGotoState(typeof(DoorOpenEvent), typeof(Error))]
         [IgnoreEvents(typeof(BusyEvent))]
@@ -51,7 +58,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
             this.DoorOpen = this.RandomInteger(5) is 0;
             if (this.DoorOpen)
             {
-                this.Monitor<DoorSafetyMonitor>(new DoorOpenEvent(this.DoorOpen));
+                this.Monitor<DoorSafetyMonitor>(new DoorSafetyMonitor.DoorOpenEvent(this.DoorOpen));
             }
 
             return base.OnInitializeAsync(initialEvent);
@@ -161,7 +168,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
 
             if (this.WaterHeaterButton)
             {
-                this.Monitor<DoorSafetyMonitor>(new BusyEvent());
+                this.Monitor<DoorSafetyMonitor>(new DoorSafetyMonitor.BusyEvent());
                 this.WaterHeaterTimer = this.StartPeriodicTimer(TimeSpan.FromSeconds(0.1), TimeSpan.FromSeconds(0.1), new HeaterTimerEvent());
             }
             else if (this.WaterHeaterTimer != null)
@@ -221,7 +228,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
 
             if (this.WaterPump)
             {
-                this.Monitor<DoorSafetyMonitor>(new BusyEvent());
+                this.Monitor<DoorSafetyMonitor>(new DoorSafetyMonitor.BusyEvent());
                 // Should never turn on the make shots button when there is no water.
                 if (this.WaterLevel <= 0)
                 {
@@ -340,7 +347,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
         {
             if (this.GrinderButton)
             {
-                this.Monitor<DoorSafetyMonitor>(new BusyEvent());
+                this.Monitor<DoorSafetyMonitor>(new DoorSafetyMonitor.BusyEvent());
                 // Should never turn on the grinder when there is no coffee to grind.
                 if (this.HopperLevel <= 0)
                 {
@@ -426,7 +433,7 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
             var evt = e as DumpGrindsButtonEvent;
             if (evt.PowerOn)
             {
-                this.Monitor<DoorSafetyMonitor>(new BusyEvent());
+                this.Monitor<DoorSafetyMonitor>(new DoorSafetyMonitor.BusyEvent());
                 // This is a toggle button, in no time grinds are dumped (just for simplicity).
                 this.PortaFilterCoffeeLevel = 0;
             }

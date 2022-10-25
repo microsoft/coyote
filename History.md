@@ -1,3 +1,12 @@
+## v1.6.3
+- Refactored the NuGet packages and moved `Microsoft.Coyote.Actors` to its own dedicated package.
+- Moved the actor `Event` type under the `Microsoft.Coyote.Actors` namespace.
+- Introduced a `Monitor.Event` type (nested in the `Microsoft.Coyote.Specifications.Monitor` class),
+  which must now be used for declaring specification monitor events.
+- Enhanced and streamlined the logging API, which is now available in the `Microsoft.Coyote.Logging`
+  namespace, instead of `Microsoft.Coyote.IO`.
+- Removed support for the end-of-life `net5.0` target framework.
+
 ## v1.6.2
 - Exposed new `IActorRuntime.GetCurrentActorIds()` API that returns the `ActorId` for each active
   actor managed by the runtime, as well as an `IActorRuntime.GetCurrentActorTypes()` API that
@@ -87,7 +96,7 @@ concurrent operations.
 - Various other runtime improvements and fixes.
 
 ## v1.4.3
-- Added support for the `netstandard2.0` target.
+- Added support for the `netstandard2.0` target framework.
 - Added support for rewriting the non-generic `TaskCompletionSource` type.
 - Added support for rewriting the `ValueTask` type (but `IValueTaskSource` is not supported).
 - Improvements to systematic fuzzing, especially for actor-based programs.
@@ -95,7 +104,7 @@ concurrent operations.
 - Tests now report the degree of concurrency and number of controlled operations.
 
 ## v1.4.2
-- Added support for the `net6.0` target.
+- Added support for the `net6.0` target framework.
 - The `TestingEngine` is now giving a warning if the DLL being tested has not been rewritten.
 - The number of controlled operations are now reported as part of test statistics.
 - Improvements, optimizations and bug-fixes in binary rewriting.
@@ -128,8 +137,8 @@ concurrent operations.
 - Improved the binary rewriting engine and fixed various rewriting bugs.
 - Removed the deprecated `Microsoft.Coyote.Tasks` namespace. Testing task-based code should now only
   be done via binary rewriting, instead of using a custom task type.
-- Removed the `net48` target, can instead just use the `net462` target for legacy .NET Framework
-  projects.
+- Removed the `net48` target framework, can instead just use the `net462` target framework for
+  legacy .NET Framework projects.
 
 ## v1.2.8
 - Improved the strategies used for systematic fuzzing.
@@ -147,7 +156,7 @@ concurrent operations.
 - Added an experimental rewriting pass that adds assertion checks to find data races in uses of the
   `System.Collections.Generic.List<T>` and `System.Collections.Generic.Dictionary<TKey, TValue>`
   collections.
-- Added support for the `net462` target.
+- Added support for the `net462` target framework.
 
 ## v1.2.5
 - Added the `SchedulingPoint` static class that exposes methods for adding manual scheduling points
@@ -177,8 +186,8 @@ concurrent operations.
 - Added the `Configuration.WithTestingTimeout` API for specifying a systematic testing timeout
   instead of iterations.
 - Optimized state space exploration in programs using `Task.Delay`.
-- Added support for the `net5.0` target.
-- Removed the `net47` target.
+- Added support for the `net5.0` target framework.
+- Removed the `net47` target framework.
 
 ## v1.2.1
 - Added the `OnEventIgnored` and `OnEventDeferred` callbacks in the `Actor` type.

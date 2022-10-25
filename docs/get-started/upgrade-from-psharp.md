@@ -2,6 +2,8 @@
 This document contains a list of changes from P# to Coyote. Please follow this guide in order to
 upgrade your applications and services. Contact us if you have any questions or face any issues.
 
+**Note:** This page is not actively maintained, and changes from P# might have evolved further.
+
 ## General changes
 - Consume the `Microsoft.Coyote` NuGet package, instead of the `Microsoft.PSharp` NuGet package.
 

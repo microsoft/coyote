@@ -32,10 +32,12 @@
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCoyote)'=='false'">
     <PackageReference Include="Microsoft.Coyote" Version="$(Version)" />
+    <PackageReference Include="Microsoft.Coyote.Actors" Version="$(Version)" />
     <PackageReference Include="Microsoft.Coyote.Test" Version="$(Version)" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCoyote)'=='true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Actors\Actors.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Test\Test.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Tools\Coyote\Coyote.csproj" />
   </ItemGroup>

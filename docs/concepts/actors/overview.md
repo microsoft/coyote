@@ -26,9 +26,10 @@ See also: [how are Coyote Actors different from existing Microsoft Actor framewo
 
 ### Declaring and creating actors
 
-An actor based program in Coyote is a normal .NET program that also uses the `Actor` or
-`StateMachine` base classes from the `Microsoft.Coyote.Actors` namespace, as well as the `Event`
-base class from the `Microsoft.Coyote` namespace. Actors can be declared in the following way:
+An actor based program in Coyote is a normal .NET program that also uses the `Actor`, `StateMachine`
+and `Event` base classes from the `Microsoft.Coyote.Actors` namespace, which is available in the
+[Microsoft.Coyote.Actors NuGet package](https://www.nuget.org/packages/Microsoft.Coyote.Actors/).
+Actors can be declared in the following way:
 
 ```csharp
 using Microsoft.Coyote.Actors;
@@ -72,10 +73,10 @@ To create the first instance of an `Actor` you need to initialize the Coyote act
 your C# process (typically in the `Main` method). An example of this is the following:
 
 ```csharp
+using System;
 using Microsoft.Coyote;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.SystematicTesting;
-using System;
 
 class Program
 {
@@ -94,9 +95,9 @@ class Program
 }
 ```
 
-You must first import the Coyote runtime library (`Microsoft.Coyote.dll`), which you can get from
-[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/), then create a `runtime` instance (of type
-`IActorRuntime`) which you pass to a `[Test]` method.
+You must first import the Coyote actor runtime library (`Microsoft.Coyote.Actors.dll`), which you
+can get from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote.Actors/), then create a
+`runtime` instance (of type `IActorRuntime`) which you pass to a `[Test]` method.
 
 The test method named `Execute` will be the entry point that is used during testing of your Coyote
 program. In this case it simply invokes the `CreateActor` method of the `runtime` to instantiate the
@@ -115,7 +116,7 @@ The `IActorRuntime` interface also provides the `SendEvent` method for sending e
 actor. This method accepts as parameters an object of type `ActorId` and an event object. It also
 has a couple more advanced parameters which you don't need to worry about right now.
 
-An event can be created by sub-classing from `Microsoft.Coyote.Event`:
+An event can be created by sub-classing from `Microsoft.Coyote.Actors.Event`:
 
 ```csharp
 class PingEvent : Event

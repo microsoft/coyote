@@ -15,9 +15,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     /// </summary>
     internal class ConfigEvent : Event
     {
-        public bool RunSlowly;
+        internal bool RunSlowly;
 
-        public ConfigEvent(bool runSlowly)
+        internal ConfigEvent(bool runSlowly)
         {
             this.RunSlowly = runSlowly;
         }
@@ -28,9 +28,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     /// </summary>
     internal class RegisterClientEvent : Event
     {
-        public ActorId Caller;
+        internal ActorId Caller;
 
-        public RegisterClientEvent(ActorId caller) { this.Caller = caller; }
+        internal RegisterClientEvent(ActorId caller) { this.Caller = caller; }
     }
 
     /// <summary>
@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class WaterLevelEvent : Event
     {
         // Starts at 100% full and drops when shot button is on.
-        public double WaterLevel;
+        internal double WaterLevel;
 
-        public WaterLevelEvent(double value) { this.WaterLevel = value; }
+        internal WaterLevelEvent(double value) { this.WaterLevel = value; }
     }
 
     /// <summary>
@@ -55,9 +55,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class HopperLevelEvent : Event
     {
         // Starts at 100% full of beans, and drops when grinder is on.
-        public double HopperLevel;
+        internal double HopperLevel;
 
-        public HopperLevelEvent(double value) { this.HopperLevel = value; }
+        internal HopperLevelEvent(double value) { this.HopperLevel = value; }
     }
 
     /// <summary>
@@ -71,9 +71,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class WaterTemperatureEvent : Event
     {
         // Starts at room temp, heats up to 100 when water heater is on.
-        public double WaterTemperature;
+        internal double WaterTemperature;
 
-        public WaterTemperatureEvent(double value) { this.WaterTemperature = value; }
+        internal WaterTemperatureEvent(double value) { this.WaterTemperature = value; }
     }
 
     /// <summary>
@@ -87,9 +87,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class PortaFilterCoffeeLevelEvent : Event
     {
         // Starts out empty=0, it gets filled to 100% with ground coffee while grinder is on.
-        public double CoffeeLevel;
+        internal double CoffeeLevel;
 
-        public PortaFilterCoffeeLevelEvent(double value) { this.CoffeeLevel = value; }
+        internal PortaFilterCoffeeLevelEvent(double value) { this.CoffeeLevel = value; }
     }
 
     /// <summary>
@@ -103,9 +103,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class DoorOpenEvent : Event
     {
         // True if open, a safety check to make sure machine is buttoned up properly before use.
-        public bool Open;
+        internal bool Open;
 
-        public DoorOpenEvent(bool value) { this.Open = value; }
+        internal DoorOpenEvent(bool value) { this.Open = value; }
     }
 
     internal class ReadDoorOpenEvent : Event { }
@@ -116,9 +116,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class WaterHeaterButtonEvent : Event
     {
         // True means the power is on.
-        public bool PowerOn;
+        internal bool PowerOn;
 
-        public WaterHeaterButtonEvent(bool value) { this.PowerOn = value; }
+        internal WaterHeaterButtonEvent(bool value) { this.PowerOn = value; }
     }
 
     /// <summary>
@@ -127,9 +127,9 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     internal class GrinderButtonEvent : Event
     {
         // True means the power is on.
-        public bool PowerOn;
+        internal bool PowerOn;
 
-        public GrinderButtonEvent(bool value) { this.PowerOn = value; }
+        internal GrinderButtonEvent(bool value) { this.PowerOn = value; }
     }
 
     internal class HopperEmptyEvent : Event
@@ -148,16 +148,16 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineActors
     {
         // True means the power is on, shot button produces 1 shot of espresso and turns off automatically,
         // raising a ShowCompleteEvent press it multiple times to get multiple shots.
-        public bool PowerOn;
+        internal bool PowerOn;
 
-        public PumpWaterEvent(bool value) { this.PowerOn = value; }
+        internal PumpWaterEvent(bool value) { this.PowerOn = value; }
     }
 
     internal class DumpGrindsButtonEvent : Event
     {
         // True means the power is on, empties the PortaFilter and turns off automatically.
-        public bool PowerOn;
+        internal bool PowerOn;
 
-        public DumpGrindsButtonEvent(bool value) { this.PowerOn = value; }
+        internal DumpGrindsButtonEvent(bool value) { this.PowerOn = value; }
     }
 }

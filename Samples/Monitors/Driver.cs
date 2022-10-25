@@ -97,7 +97,8 @@ namespace Microsoft.Coyote.Samples.Monitors
         /// </summary>
         private void NodeFailedAction(Event e)
         {
-            this.Monitor<Liveness>(e);
+            var node = (e as FailureDetector.NodeFailed).Node;
+            this.Monitor<Liveness>(new Liveness.NodeFailed(node));
         }
     }
 }

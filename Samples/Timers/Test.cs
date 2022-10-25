@@ -12,9 +12,9 @@ namespace Coyote.Examples.Timers
     {
         public static void Main()
         {
-            // Optional: increases verbosity level to see the Coyote runtime log.
+            // Optional: increases verbosity level to see the Coyote runtime log and sets it to output to the console.
             // var configuration = Configuration.Create();
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create().WithVerbosityEnabled().WithConsoleLoggingEnabled();
 
             // Creates a new Coyote runtime instance, and passes an optional configuration.
             var runtime = RuntimeFactory.Create(configuration);
@@ -30,7 +30,7 @@ namespace Coyote.Examples.Timers
         [Microsoft.Coyote.SystematicTesting.Test]
         public static void Execute(IActorRuntime runtime)
         {
-            LogWriter.Initialize(runtime.Logger, false);
+            LogWriter.Initialize(runtime.Logger);
             runtime.CreateActor(typeof(TimerSample));
         }
     }

@@ -19,17 +19,22 @@ $originalFrameworkVersion = $json.runtimeOptions.framework.version
 # during IL rewriting.
 $newJson = @"
 {
-    "runtimeOptions": {
-        "tfm": "$tfm",
-        "frameworks": [{
-            "name": "Microsoft.NETCore.App",
-            "version": "$originalFrameworkVersion"
-        },
-        {
-            "name": "$originalFrameworkName",
-            "version": "$originalFrameworkVersion"
-        }]
+  "runtimeOptions": {
+    "tfm": "$tfm",
+    "frameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "$originalFrameworkVersion"
+      },
+      {
+        "name": "$originalFrameworkName",
+        "version": "$originalFrameworkVersion"
+      }
+    ],
+    "configProperties": {
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
     }
+  }
 }
 "@
 

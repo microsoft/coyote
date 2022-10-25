@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote systematic testing library and engine.</Description>
+    <Description>The Coyote systematic testing engine.</Description>
     <AssemblyName>Microsoft.Coyote.Test</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
     <PackageId>Microsoft.Coyote.Test</PackageId>

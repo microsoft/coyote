@@ -3,8 +3,9 @@
     <Description>The Coyote systematic testing command line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <PackageId>Microsoft.Coyote</PackageId>
+    <ToolCommandName>coyote</ToolCommandName>
     <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
@@ -30,9 +31,13 @@
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Coyote.CLI.csproj" />
-    <None Remove="DotnetToolSettings.xml" />
+    <None Remove="Coyote.csproj" />
     <None Remove="update-runtime-config.ps1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)'=='Windows_NT'">
+    <None Update="DotnetToolSettings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />

@@ -25,6 +25,15 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        internal override int GetHashedState(SchedulingPolicy policy) => this.Actor.GetHashedState(policy);
+        internal override int GetHashedState(SchedulingPolicy policy)
+        {
+            unchecked
+            {
+                var hash = 19;
+                hash = (hash * 31) + this.Actor.GetHashedState(policy);
+                hash = (hash * 31) + base.GetHashedState(policy);
+                return hash;
+            }
+        }
     }
 }

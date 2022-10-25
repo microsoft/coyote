@@ -5,11 +5,6 @@ toc:
     - name: Microsoft.Coyote
       link: ref/Microsoft.CoyoteNamespace
       subfolderitems:
-      - name: Event
-        link: ref/Microsoft.Coyote/Event
-        subfolderitems:
-        - name: Event
-          link: ref/Microsoft.Coyote/Event/Event
       - name: Configuration
         link: ref/Microsoft.Coyote/Configuration
         subfolderitems:
@@ -89,562 +84,111 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/DeadlockTimeout
         - name: VerbosityLevel
           link: ref/Microsoft.Coyote/Configuration/VerbosityLevel
-    - name: Microsoft.Coyote.Actors
-      link: ref/Microsoft.Coyote.ActorsNamespace
+    - name: Microsoft.Coyote.Coverage
+      link: ref/Microsoft.Coyote.CoverageNamespace
       subfolderitems:
-      - name: Actor
-        link: ref/Microsoft.Coyote.Actors/Actor
-        subfolderitems:
-        - name: CreateActor
-          link: ref/Microsoft.Coyote.Actors/Actor/CreateActor
-        - name: SendEvent
-          link: ref/Microsoft.Coyote.Actors/Actor/SendEvent
-        - name: ReceiveEventAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync
-        - name: StartTimer
-          link: ref/Microsoft.Coyote.Actors/Actor/StartTimer
-        - name: StartPeriodicTimer
-          link: ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer
-        - name: StopTimer
-          link: ref/Microsoft.Coyote.Actors/Actor/StopTimer
-        - name: RandomBoolean
-          link: ref/Microsoft.Coyote.Actors/Actor/RandomBoolean
-        - name: RandomInteger
-          link: ref/Microsoft.Coyote.Actors/Actor/RandomInteger
-        - name: Monitor
-          link: ref/Microsoft.Coyote.Actors/Actor/Monitor
-        - name: Assert
-          link: ref/Microsoft.Coyote.Actors/Actor/Assert
-        - name: RaiseHaltEvent
-          link: ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent
-        - name: OnInitializeAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync
-        - name: OnEventDequeuedAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync
-        - name: OnEventIgnored
-          link: ref/Microsoft.Coyote.Actors/Actor/OnEventIgnored
-        - name: OnEventDeferred
-          link: ref/Microsoft.Coyote.Actors/Actor/OnEventDeferred
-        - name: OnEventHandledAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync
-        - name: OnEventUnhandledAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync
-        - name: OnExceptionHandledAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnExceptionHandledAsync
-        - name: OnHaltAsync
-          link: ref/Microsoft.Coyote.Actors/Actor/OnHaltAsync
-        - name: OnException
-          link: ref/Microsoft.Coyote.Actors/Actor/OnException
-        - name: Equals
-          link: ref/Microsoft.Coyote.Actors/Actor/Equals
-        - name: GetHashCode
-          link: ref/Microsoft.Coyote.Actors/Actor/GetHashCode
-        - name: ToString
-          link: ref/Microsoft.Coyote.Actors/Actor/ToString
-        - name: Actor
-          link: ref/Microsoft.Coyote.Actors/Actor/Actor
-        - name: Id
-          link: ref/Microsoft.Coyote.Actors/Actor/Id
-        - name: CurrentEventGroup
-          link: ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup
-        - name: Logger
-          link: ref/Microsoft.Coyote.Actors/Actor/Logger
-        - name: HashedState
-          link: ref/Microsoft.Coyote.Actors/Actor/HashedState
-      - name: ActorExecutionStatus
-        link: ref/Microsoft.Coyote.Actors/ActorExecutionStatus
-      - name: ActorId
-        link: ref/Microsoft.Coyote.Actors/ActorId
-        subfolderitems:
-        - name: Equals
-          link: ref/Microsoft.Coyote.Actors/ActorId/Equals
-        - name: GetHashCode
-          link: ref/Microsoft.Coyote.Actors/ActorId/GetHashCode
-        - name: ToString
-          link: ref/Microsoft.Coyote.Actors/ActorId/ToString
-        - name: CompareTo
-          link: ref/Microsoft.Coyote.Actors/ActorId/CompareTo
-        - name: Runtime
-          link: ref/Microsoft.Coyote.Actors/ActorId/Runtime
-        - name: IsNameUsedForHashing
-          link: ref/Microsoft.Coyote.Actors/ActorId/IsNameUsedForHashing
-        - name: Value
-          link: ref/Microsoft.Coyote.Actors/ActorId/Value
-        - name: NameValue
-          link: ref/Microsoft.Coyote.Actors/ActorId/NameValue
-        - name: Type
-          link: ref/Microsoft.Coyote.Actors/ActorId/Type
-        - name: Name
-          link: ref/Microsoft.Coyote.Actors/ActorId/Name
-      - name: DequeueStatus
-        link: ref/Microsoft.Coyote.Actors/DequeueStatus
-      - name: AwaitableEventGroup<T>
-        link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1
-        subfolderitems:
-        - name: SetResult
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult
-        - name: TrySetResult
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult
-        - name: SetCancelled
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled
-        - name: TrySetCanceled
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled
-        - name: SetException
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException
-        - name: TrySetException
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException
-        - name: GetAwaiter
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter
-        - name: AwaitableEventGroup
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup
-        - name: Task
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task
-        - name: IsCompleted
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted
-        - name: IsCanceled
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled
-        - name: IsFaulted
-          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted
-      - name: DefaultEvent
-        link: ref/Microsoft.Coyote.Actors/DefaultEvent
-        subfolderitems:
-        - name: Instance
-          link: ref/Microsoft.Coyote.Actors/DefaultEvent/Instance
-      - name: EventGroup
-        link: ref/Microsoft.Coyote.Actors/EventGroup
-        subfolderitems:
-        - name: EventGroup
-          link: ref/Microsoft.Coyote.Actors/EventGroup/EventGroup
-        - name: Id
-          link: ref/Microsoft.Coyote.Actors/EventGroup/Id
-        - name: Name
-          link: ref/Microsoft.Coyote.Actors/EventGroup/Name
-        - name: Null
-          link: ref/Microsoft.Coyote.Actors/EventGroup/Null
-      - name: HaltEvent
-        link: ref/Microsoft.Coyote.Actors/HaltEvent
-        subfolderitems:
-        - name: Instance
-          link: ref/Microsoft.Coyote.Actors/HaltEvent/Instance
-      - name: WildCardEvent
-        link: ref/Microsoft.Coyote.Actors/WildCardEvent
-        subfolderitems:
-        - name: WildCardEvent
-          link: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
-      - name: OnExceptionOutcome
-        link: ref/Microsoft.Coyote.Actors/OnExceptionOutcome
-      - name: UnhandledEventException
-        link: ref/Microsoft.Coyote.Actors/UnhandledEventException
-        subfolderitems:
-        - name: UnhandledEvent
-          link: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
-        - name: CurrentStateName
-          link: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
-      - name: OnActorHaltedHandler
-        link: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler
-      - name: OnEventDroppedHandler
-        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
-      - name: IActorRuntime
-        link: ref/Microsoft.Coyote.Actors/IActorRuntime
-        subfolderitems:
-        - name: CreateActorId
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId
-        - name: CreateActorIdFromName
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName
-        - name: CreateActor
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
-        - name: SendEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
-        - name: GetCurrentEventGroup
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
-        - name: GetActorExecutionStatus
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus
-        - name: GetCurrentActorIds
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds
-        - name: GetCurrentActorTypes
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes
-        - name: GetCurrentActorCount
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount
-        - name: OnActorHalted
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted
-        - name: OnEventDropped
-          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
-      - name: ActorRuntimeLogTextFormatter
-        link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter
-        subfolderitems:
-        - name: OnCreateActor
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor
-        - name: OnCreateStateMachine
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine
-        - name: OnCreateTimer
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer
-        - name: OnDefaultEventHandler
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
-        - name: OnEventHandlerTerminated
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated
-        - name: OnDequeueEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent
-        - name: OnEnqueueEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent
-        - name: OnExceptionHandled
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled
-        - name: OnExceptionThrown
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionThrown
-        - name: OnExecuteAction
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction
-        - name: OnGotoState
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState
-        - name: OnHalt
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt
-        - name: OnPopState
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
-        - name: OnPopStateUnhandledEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent
-        - name: OnPushState
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState
-        - name: OnRaiseEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent
-        - name: OnHandleRaisedEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
-        - name: OnReceiveEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent
-        - name: OnSendEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent
-        - name: OnStateTransition
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition
-        - name: OnStopTimer
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer
-        - name: OnWaitEvent
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
-        - name: ActorRuntimeLogTextFormatter
-          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
-      - name: IActorRuntimeLog
-        link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog
-        subfolderitems:
-        - name: OnCreateActor
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor
-        - name: OnCreateStateMachine
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateStateMachine
-        - name: OnExecuteAction
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction
-        - name: OnSendEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent
-        - name: OnRaiseEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent
-        - name: OnHandleRaisedEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent
-        - name: OnEnqueueEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent
-        - name: OnDequeueEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent
-        - name: OnReceiveEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent
-        - name: OnWaitEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent
-        - name: OnStateTransition
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition
-        - name: OnGotoState
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnGotoState
-        - name: OnPushState
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState
-        - name: OnPopState
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState
-        - name: OnDefaultEventHandler
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler
-        - name: OnEventHandlerTerminated
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated
-        - name: OnHalt
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt
-        - name: OnPopStateUnhandledEvent
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent
-        - name: OnExceptionThrown
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown
-        - name: OnExceptionHandled
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled
-        - name: OnCreateTimer
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer
-        - name: OnStopTimer
-          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer
-      - name: RuntimeFactory
-        link: ref/Microsoft.Coyote.Actors/RuntimeFactory
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Actors/RuntimeFactory/Create
-      - name: SendOptions
-        link: ref/Microsoft.Coyote.Actors/SendOptions
-        subfolderitems:
-        - name: ToString
-          link: ref/Microsoft.Coyote.Actors/SendOptions/ToString
-        - name: SendOptions
-          link: ref/Microsoft.Coyote.Actors/SendOptions/SendOptions
-        - name: Default
-          link: ref/Microsoft.Coyote.Actors/SendOptions/Default
-        - name: MustHandle
-          link: ref/Microsoft.Coyote.Actors/SendOptions/MustHandle
-        - name: Assert
-          link: ref/Microsoft.Coyote.Actors/SendOptions/Assert
-        - name: HashedState
-          link: ref/Microsoft.Coyote.Actors/SendOptions/HashedState
-      - name: StateMachine
-        link: ref/Microsoft.Coyote.Actors/StateMachine
-        subfolderitems:
-        - name: RaiseEvent
-          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent
-        - name: RaiseGotoStateEvent
-          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent
-        - name: RaisePushStateEvent
-          link: ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent
-        - name: RaisePopStateEvent
-          link: ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
-        - name: RaiseHaltEvent
-          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
-        - name: OnEventHandledAsync
-          link: ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
-        - name: StateMachine
-          link: ref/Microsoft.Coyote.Actors/StateMachine/StateMachine
-        - name: CurrentState
-          link: ref/Microsoft.Coyote.Actors/StateMachine/CurrentState
-      - name: Actor.OnEventDoActionAttribute
-        link: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute
-        subfolderitems:
-        - name: OnEventDoActionAttribute
-          link: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute
-      - name: StateMachine.State
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State
-        subfolderitems:
-        - name: State
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State/State
-      - name: StateMachine.StateGroup
-        link: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup
-        subfolderitems:
-        - name: StateGroup
-          link: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup
-      - name: StateMachine.State.StartAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute
-        subfolderitems:
-        - name: StartAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute/StartAttribute
-      - name: StateMachine.State.OnEntryAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute
-        subfolderitems:
-        - name: OnEntryAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute/OnEntryAttribute
-      - name: StateMachine.State.OnExitAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute
-        subfolderitems:
-        - name: OnExitAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute/OnExitAttribute
-      - name: StateMachine.State.OnEventGotoStateAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute
-        subfolderitems:
-        - name: OnEventGotoStateAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute
-      - name: StateMachine.State.OnEventPushStateAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute
-        subfolderitems:
-        - name: OnEventPushStateAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute
-      - name: StateMachine.State.OnEventDoActionAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute
-        subfolderitems:
-        - name: OnEventDoActionAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute
-      - name: StateMachine.State.DeferEventsAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute
-        subfolderitems:
-        - name: DeferEventsAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute/DeferEventsAttribute
-      - name: StateMachine.State.IgnoreEventsAttribute
-        link: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute
-        subfolderitems:
-        - name: IgnoreEventsAttribute
-          link: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute
-    - name: Microsoft.Coyote.Actors.Coverage
-      link: ref/Microsoft.Coyote.Actors.CoverageNamespace
-      subfolderitems:
-      - name: EventCoverage
-        link: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage
-        subfolderitems:
-        - name: GetEventsReceived
-          link: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/GetEventsReceived
-        - name: GetEventsSent
-          link: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/GetEventsSent
-        - name: EventCoverage
-          link: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/EventCoverage
-      - name: Graph
-        link: ref/Microsoft.Coyote.Actors.Coverage/Graph
+      - name: CoverageGraph
+        link: ref/Microsoft.Coyote.Coverage/CoverageGraph
         subfolderitems:
         - name: GetNode
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetNode
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetNode
         - name: GetOrCreateNode
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetOrCreateNode
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetOrCreateNode
         - name: GetOrCreateLink
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetOrCreateLink
-        - name: ToString
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/ToString
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetOrCreateLink
         - name: WriteDgml
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/WriteDgml
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/WriteDgml
         - name: LoadDgml
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/LoadDgml
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/LoadDgml
         - name: Merge
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/Merge
-        - name: Graph
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/Graph
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/Merge
+        - name: ToString
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/ToString
+        - name: CoverageGraph
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/CoverageGraph
         - name: Nodes
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/Nodes
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/Nodes
         - name: Links
-          link: ref/Microsoft.Coyote.Actors.Coverage/Graph/Links
-      - name: GraphObject
-        link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/Links
+      - name: CoverageInfo
+        link: ref/Microsoft.Coyote.Coverage/CoverageInfo
+        subfolderitems:
+        - name: IsMonitorDeclared
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/IsMonitorDeclared
+        - name: DeclareMonitorState
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorState
+        - name: DeclareMonitorStateEventPair
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorStateEventPair
+        - name: Load
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Load
+        - name: Save
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Save
+        - name: Merge
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Merge
+        - name: CoverageInfo
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageInfo
+        - name: CoverageGraph
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageGraph
+        - name: Monitors
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Monitors
+        - name: MonitorsToStates
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorsToStates
+        - name: RegisteredMonitorEvents
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredMonitorEvents
+        - name: MonitorEventInfo
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo
+      - name: MonitorEventCoverage
+        link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage
+        subfolderitems:
+        - name: GetEventsProcessed
+          link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed
+        - name: GetEventsRaised
+          link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsRaised
+        - name: MonitorEventCoverage
+          link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/MonitorEventCoverage
+      - name: CoverageGraph.Object
+        link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object
         subfolderitems:
         - name: AddAttribute
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AddAttribute
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AddAttribute
         - name: AddListAttribute
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AddListAttribute
-        - name: GraphObject
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/GraphObject
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AddListAttribute
+        - name: Object
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/Object
         - name: Attributes
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/Attributes
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/Attributes
         - name: AttributeLists
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AttributeLists
-      - name: GraphNode
-        link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AttributeLists
+      - name: CoverageGraph.Node
+        link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node
         subfolderitems:
         - name: AddDgmlProperties
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/AddDgmlProperties
-        - name: GraphNode
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/GraphNode
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/AddDgmlProperties
+        - name: Node
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Node
         - name: Id
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Id
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Id
         - name: Label
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Label
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Label
         - name: Category
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Category
-      - name: GraphLink
-        link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Category
+      - name: CoverageGraph.Link
+        link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link
         subfolderitems:
         - name: AddDgmlProperties
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/AddDgmlProperties
-        - name: GraphLink
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/GraphLink
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/AddDgmlProperties
+        - name: Link
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Link
         - name: Label
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Label
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Label
         - name: Category
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Category
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Category
         - name: Source
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Source
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Source
         - name: Target
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Target
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Target
         - name: Index
-          link: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Index
-      - name: CoverageInfo
-        link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo
-        subfolderitems:
-        - name: IsMachineDeclared
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/IsMachineDeclared
-        - name: DeclareMachineState
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/DeclareMachineState
-        - name: DeclareStateEvent
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/DeclareStateEvent
-        - name: Merge
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Merge
-        - name: Load
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Load
-        - name: Save
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Save
-        - name: CoverageInfo
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/CoverageInfo
-        - name: Machines
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Machines
-        - name: MachinesToStates
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/MachinesToStates
-        - name: RegisteredEvents
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/RegisteredEvents
-        - name: CoverageGraph
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/CoverageGraph
-        - name: EventInfo
-          link: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/EventInfo
-    - name: Microsoft.Coyote.Actors.SharedObjects
-      link: ref/Microsoft.Coyote.Actors.SharedObjectsNamespace
-      subfolderitems:
-      - name: SharedCounter
-        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Create
-        - name: Increment
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Increment
-        - name: Decrement
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Decrement
-        - name: GetValue
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/GetValue
-        - name: Add
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Add
-        - name: Exchange
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Exchange
-        - name: CompareExchange
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/CompareExchange
-      - name: SharedDictionary
-        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary/Create
-      - name: SharedDictionary<TKey,TValue>
-        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2
-        subfolderitems:
-        - name: TryAdd
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryAdd
-        - name: TryUpdate
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryUpdate
-        - name: TryGetValue
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryGetValue
-        - name: TryRemove
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryRemove
-        - name: Item
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Item
-        - name: Count
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Count
-      - name: SharedRegister
-        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister
-        subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister/Create
-      - name: SharedRegister<T>
-        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1
-        subfolderitems:
-        - name: Update
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/Update
-        - name: GetValue
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/GetValue
-        - name: SetValue
-          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/SetValue
-    - name: Microsoft.Coyote.Actors.Timers
-      link: ref/Microsoft.Coyote.Actors.TimersNamespace
-      subfolderitems:
-      - name: TimerElapsedEvent
-        link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent
-        subfolderitems:
-        - name: TimerElapsedEvent
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent
-        - name: Info
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info
-      - name: TimerInfo
-        link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo
-        subfolderitems:
-        - name: Equals
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Equals
-        - name: GetHashCode
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/GetHashCode
-        - name: ToString
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/ToString
-        - name: OwnerId
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/OwnerId
-        - name: DueTime
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime
-        - name: Period
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
-        - name: CustomEvent
-          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Index
     - name: Microsoft.Coyote.Logging
       link: ref/Microsoft.Coyote.LoggingNamespace
       subfolderitems:
@@ -705,6 +249,19 @@ toc:
         subfolderitems:
         - name: RuntimeException
           link: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException
+      - name: IRuntimeExtension
+        link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension
+        subfolderitems:
+        - name: RunTest
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/RunTest
+        - name: BuildCoverageInfo
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/BuildCoverageInfo
+        - name: GetCoverageInfo
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/GetCoverageInfo
+        - name: GetCoverageGraph
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/GetCoverageGraph
+        - name: WaitUntilQuiescenceAsync
+          link: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/WaitUntilQuiescenceAsync
       - name: ICoyoteRuntime
         link: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime
         subfolderitems:
@@ -813,8 +370,6 @@ toc:
       - name: RuntimeProvider
         link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:
-        - name: Create
-          link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create
         - name: Current
           link: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current
       - name: SchedulingPoint
@@ -879,6 +434,16 @@ toc:
         subfolderitems:
         - name: StateGroup
           link: ref/Microsoft.Coyote.Specifications/Monitor.StateGroup/StateGroup
+      - name: Monitor.Event
+        link: ref/Microsoft.Coyote.Specifications/Monitor.Event
+        subfolderitems:
+        - name: Event
+          link: ref/Microsoft.Coyote.Specifications/Monitor.Event/Event
+      - name: Monitor.WildCardEvent
+        link: ref/Microsoft.Coyote.Specifications/Monitor.WildCardEvent
+        subfolderitems:
+        - name: WildCardEvent
+          link: ref/Microsoft.Coyote.Specifications/Monitor.WildCardEvent/WildCardEvent
       - name: Monitor.State.StartAttribute
         link: ref/Microsoft.Coyote.Specifications/Monitor.State.StartAttribute
         subfolderitems:
@@ -919,6 +484,498 @@ toc:
         subfolderitems:
         - name: HotAttribute
           link: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
+  - name: Microsoft.Coyote.Actors
+    link: ref/Microsoft.Coyote.Actors
+    subfolderitems:
+    - name: Microsoft.Coyote.Actors
+      link: ref/Microsoft.Coyote.ActorsNamespace
+      subfolderitems:
+      - name: DequeueStatus
+        link: ref/Microsoft.Coyote.Actors/DequeueStatus
+      - name: AwaitableEventGroup<T>
+        link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1
+        subfolderitems:
+        - name: SetResult
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult
+        - name: TrySetResult
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult
+        - name: SetCancelled
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled
+        - name: TrySetCanceled
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled
+        - name: SetException
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException
+        - name: TrySetException
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException
+        - name: GetAwaiter
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter
+        - name: AwaitableEventGroup
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup
+        - name: Task
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task
+        - name: IsCompleted
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted
+        - name: IsCanceled
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled
+        - name: IsFaulted
+          link: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted
+      - name: DefaultEvent
+        link: ref/Microsoft.Coyote.Actors/DefaultEvent
+        subfolderitems:
+        - name: Instance
+          link: ref/Microsoft.Coyote.Actors/DefaultEvent/Instance
+      - name: Event
+        link: ref/Microsoft.Coyote.Actors/Event
+        subfolderitems:
+        - name: Event
+          link: ref/Microsoft.Coyote.Actors/Event/Event
+      - name: EventGroup
+        link: ref/Microsoft.Coyote.Actors/EventGroup
+        subfolderitems:
+        - name: EventGroup
+          link: ref/Microsoft.Coyote.Actors/EventGroup/EventGroup
+        - name: Id
+          link: ref/Microsoft.Coyote.Actors/EventGroup/Id
+        - name: Name
+          link: ref/Microsoft.Coyote.Actors/EventGroup/Name
+        - name: Null
+          link: ref/Microsoft.Coyote.Actors/EventGroup/Null
+      - name: HaltEvent
+        link: ref/Microsoft.Coyote.Actors/HaltEvent
+        subfolderitems:
+        - name: Instance
+          link: ref/Microsoft.Coyote.Actors/HaltEvent/Instance
+      - name: WildCardEvent
+        link: ref/Microsoft.Coyote.Actors/WildCardEvent
+        subfolderitems:
+        - name: WildCardEvent
+          link: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
+      - name: OnExceptionOutcome
+        link: ref/Microsoft.Coyote.Actors/OnExceptionOutcome
+      - name: UnhandledEventException
+        link: ref/Microsoft.Coyote.Actors/UnhandledEventException
+        subfolderitems:
+        - name: UnhandledEvent
+          link: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
+        - name: CurrentStateName
+          link: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
+      - name: OnActorHaltedHandler
+        link: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler
+      - name: OnEventDroppedHandler
+        link: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler
+      - name: ActorRuntimeLogTextFormatter
+        link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter
+        subfolderitems:
+        - name: OnCreateActor
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor
+        - name: OnCreateStateMachine
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine
+        - name: OnCreateTimer
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer
+        - name: OnDefaultEventHandler
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
+        - name: OnEventHandlerTerminated
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated
+        - name: OnDequeueEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent
+        - name: OnEnqueueEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent
+        - name: OnExceptionHandled
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled
+        - name: OnExceptionThrown
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionThrown
+        - name: OnExecuteAction
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction
+        - name: OnGotoState
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState
+        - name: OnHalt
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt
+        - name: OnPopState
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
+        - name: OnPopStateUnhandledEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent
+        - name: OnPushState
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState
+        - name: OnRaiseEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent
+        - name: OnHandleRaisedEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
+        - name: OnReceiveEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent
+        - name: OnSendEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent
+        - name: OnStateTransition
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition
+        - name: OnStopTimer
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer
+        - name: OnWaitEvent
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
+        - name: ActorRuntimeLogTextFormatter
+          link: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
+      - name: IActorRuntimeLog
+        link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog
+        subfolderitems:
+        - name: OnCreateActor
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor
+        - name: OnCreateStateMachine
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateStateMachine
+        - name: OnExecuteAction
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction
+        - name: OnSendEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent
+        - name: OnRaiseEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent
+        - name: OnHandleRaisedEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent
+        - name: OnEnqueueEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent
+        - name: OnDequeueEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent
+        - name: OnReceiveEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent
+        - name: OnWaitEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent
+        - name: OnStateTransition
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition
+        - name: OnGotoState
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnGotoState
+        - name: OnPushState
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState
+        - name: OnPopState
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState
+        - name: OnDefaultEventHandler
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler
+        - name: OnEventHandlerTerminated
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated
+        - name: OnHalt
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt
+        - name: OnPopStateUnhandledEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent
+        - name: OnExceptionThrown
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown
+        - name: OnExceptionHandled
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled
+        - name: OnCreateTimer
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer
+        - name: OnStopTimer
+          link: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer
+      - name: Actor
+        link: ref/Microsoft.Coyote.Actors/Actor
+        subfolderitems:
+        - name: CreateActor
+          link: ref/Microsoft.Coyote.Actors/Actor/CreateActor
+        - name: SendEvent
+          link: ref/Microsoft.Coyote.Actors/Actor/SendEvent
+        - name: ReceiveEventAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync
+        - name: StartTimer
+          link: ref/Microsoft.Coyote.Actors/Actor/StartTimer
+        - name: StartPeriodicTimer
+          link: ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer
+        - name: StopTimer
+          link: ref/Microsoft.Coyote.Actors/Actor/StopTimer
+        - name: RandomBoolean
+          link: ref/Microsoft.Coyote.Actors/Actor/RandomBoolean
+        - name: RandomInteger
+          link: ref/Microsoft.Coyote.Actors/Actor/RandomInteger
+        - name: Monitor
+          link: ref/Microsoft.Coyote.Actors/Actor/Monitor
+        - name: Assert
+          link: ref/Microsoft.Coyote.Actors/Actor/Assert
+        - name: RaiseHaltEvent
+          link: ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent
+        - name: OnInitializeAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync
+        - name: OnEventDequeuedAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync
+        - name: OnEventIgnored
+          link: ref/Microsoft.Coyote.Actors/Actor/OnEventIgnored
+        - name: OnEventDeferred
+          link: ref/Microsoft.Coyote.Actors/Actor/OnEventDeferred
+        - name: OnEventHandledAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync
+        - name: OnEventUnhandledAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync
+        - name: OnExceptionHandledAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnExceptionHandledAsync
+        - name: OnHaltAsync
+          link: ref/Microsoft.Coyote.Actors/Actor/OnHaltAsync
+        - name: OnException
+          link: ref/Microsoft.Coyote.Actors/Actor/OnException
+        - name: Equals
+          link: ref/Microsoft.Coyote.Actors/Actor/Equals
+        - name: GetHashCode
+          link: ref/Microsoft.Coyote.Actors/Actor/GetHashCode
+        - name: ToString
+          link: ref/Microsoft.Coyote.Actors/Actor/ToString
+        - name: Actor
+          link: ref/Microsoft.Coyote.Actors/Actor/Actor
+        - name: Id
+          link: ref/Microsoft.Coyote.Actors/Actor/Id
+        - name: CurrentEventGroup
+          link: ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup
+        - name: Logger
+          link: ref/Microsoft.Coyote.Actors/Actor/Logger
+        - name: HashedState
+          link: ref/Microsoft.Coyote.Actors/Actor/HashedState
+      - name: ActorExecutionStatus
+        link: ref/Microsoft.Coyote.Actors/ActorExecutionStatus
+      - name: ActorId
+        link: ref/Microsoft.Coyote.Actors/ActorId
+        subfolderitems:
+        - name: Equals
+          link: ref/Microsoft.Coyote.Actors/ActorId/Equals
+        - name: GetHashCode
+          link: ref/Microsoft.Coyote.Actors/ActorId/GetHashCode
+        - name: ToString
+          link: ref/Microsoft.Coyote.Actors/ActorId/ToString
+        - name: CompareTo
+          link: ref/Microsoft.Coyote.Actors/ActorId/CompareTo
+        - name: Runtime
+          link: ref/Microsoft.Coyote.Actors/ActorId/Runtime
+        - name: IsNameUsedForHashing
+          link: ref/Microsoft.Coyote.Actors/ActorId/IsNameUsedForHashing
+        - name: Value
+          link: ref/Microsoft.Coyote.Actors/ActorId/Value
+        - name: NameValue
+          link: ref/Microsoft.Coyote.Actors/ActorId/NameValue
+        - name: Type
+          link: ref/Microsoft.Coyote.Actors/ActorId/Type
+        - name: Name
+          link: ref/Microsoft.Coyote.Actors/ActorId/Name
+      - name: IActorRuntime
+        link: ref/Microsoft.Coyote.Actors/IActorRuntime
+        subfolderitems:
+        - name: CreateActorId
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId
+        - name: CreateActorIdFromName
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName
+        - name: CreateActor
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
+        - name: SendEvent
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
+        - name: GetCurrentEventGroup
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
+        - name: GetActorExecutionStatus
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus
+        - name: GetCurrentActorIds
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds
+        - name: GetCurrentActorTypes
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes
+        - name: GetCurrentActorCount
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount
+        - name: OnActorHalted
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted
+        - name: OnEventDropped
+          link: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
+      - name: RuntimeFactory
+        link: ref/Microsoft.Coyote.Actors/RuntimeFactory
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Actors/RuntimeFactory/Create
+      - name: SendOptions
+        link: ref/Microsoft.Coyote.Actors/SendOptions
+        subfolderitems:
+        - name: ToString
+          link: ref/Microsoft.Coyote.Actors/SendOptions/ToString
+        - name: SendOptions
+          link: ref/Microsoft.Coyote.Actors/SendOptions/SendOptions
+        - name: Default
+          link: ref/Microsoft.Coyote.Actors/SendOptions/Default
+        - name: MustHandle
+          link: ref/Microsoft.Coyote.Actors/SendOptions/MustHandle
+        - name: Assert
+          link: ref/Microsoft.Coyote.Actors/SendOptions/Assert
+        - name: HashedState
+          link: ref/Microsoft.Coyote.Actors/SendOptions/HashedState
+      - name: StateMachine
+        link: ref/Microsoft.Coyote.Actors/StateMachine
+        subfolderitems:
+        - name: RaiseEvent
+          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent
+        - name: RaiseGotoStateEvent
+          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent
+        - name: RaisePushStateEvent
+          link: ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent
+        - name: RaisePopStateEvent
+          link: ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
+        - name: RaiseHaltEvent
+          link: ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
+        - name: OnEventHandledAsync
+          link: ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
+        - name: StateMachine
+          link: ref/Microsoft.Coyote.Actors/StateMachine/StateMachine
+        - name: CurrentState
+          link: ref/Microsoft.Coyote.Actors/StateMachine/CurrentState
+      - name: Actor.OnEventDoActionAttribute
+        link: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute
+        subfolderitems:
+        - name: OnEventDoActionAttribute
+          link: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute
+      - name: StateMachine.State
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State
+        subfolderitems:
+        - name: State
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State/State
+      - name: StateMachine.StateGroup
+        link: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup
+        subfolderitems:
+        - name: StateGroup
+          link: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup
+      - name: StateMachine.State.StartAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute
+        subfolderitems:
+        - name: StartAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute/StartAttribute
+      - name: StateMachine.State.OnEntryAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute
+        subfolderitems:
+        - name: OnEntryAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute/OnEntryAttribute
+      - name: StateMachine.State.OnExitAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute
+        subfolderitems:
+        - name: OnExitAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute/OnExitAttribute
+      - name: StateMachine.State.OnEventGotoStateAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute
+        subfolderitems:
+        - name: OnEventGotoStateAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute
+      - name: StateMachine.State.OnEventPushStateAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute
+        subfolderitems:
+        - name: OnEventPushStateAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute
+      - name: StateMachine.State.OnEventDoActionAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute
+        subfolderitems:
+        - name: OnEventDoActionAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute
+      - name: StateMachine.State.DeferEventsAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute
+        subfolderitems:
+        - name: DeferEventsAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute/DeferEventsAttribute
+      - name: StateMachine.State.IgnoreEventsAttribute
+        link: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute
+        subfolderitems:
+        - name: IgnoreEventsAttribute
+          link: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute
+    - name: Microsoft.Coyote.Actors.Coverage
+      link: ref/Microsoft.Coyote.Actors.CoverageNamespace
+      subfolderitems:
+      - name: ActorCoverageInfo
+        link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo
+        subfolderitems:
+        - name: IsMachineDeclared
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/IsMachineDeclared
+        - name: DeclareMachineState
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/DeclareMachineState
+        - name: DeclareMachineStateEventPair
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/DeclareMachineStateEventPair
+        - name: Merge
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/Merge
+        - name: ActorCoverageInfo
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/ActorCoverageInfo
+        - name: Machines
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/Machines
+        - name: MachinesToStates
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/MachinesToStates
+        - name: RegisteredActorEvents
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/RegisteredActorEvents
+        - name: ActorEventInfo
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/ActorEventInfo
+      - name: ActorEventCoverage
+        link: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage
+        subfolderitems:
+        - name: GetEventsReceived
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/GetEventsReceived
+        - name: GetEventsSent
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/GetEventsSent
+        - name: ActorEventCoverage
+          link: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/ActorEventCoverage
+    - name: Microsoft.Coyote.Actors.SharedObjects
+      link: ref/Microsoft.Coyote.Actors.SharedObjectsNamespace
+      subfolderitems:
+      - name: SharedCounter
+        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Create
+        - name: Increment
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Increment
+        - name: Decrement
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Decrement
+        - name: GetValue
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/GetValue
+        - name: Add
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Add
+        - name: Exchange
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Exchange
+        - name: CompareExchange
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/CompareExchange
+      - name: SharedDictionary
+        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary/Create
+      - name: SharedDictionary<TKey,TValue>
+        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2
+        subfolderitems:
+        - name: TryAdd
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryAdd
+        - name: TryUpdate
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryUpdate
+        - name: TryGetValue
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryGetValue
+        - name: TryRemove
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryRemove
+        - name: Item
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Item
+        - name: Count
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Count
+      - name: SharedRegister
+        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister
+        subfolderitems:
+        - name: Create
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister/Create
+      - name: SharedRegister<T>
+        link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1
+        subfolderitems:
+        - name: Update
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/Update
+        - name: GetValue
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/GetValue
+        - name: SetValue
+          link: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/SetValue
+    - name: Microsoft.Coyote.Actors.Timers
+      link: ref/Microsoft.Coyote.Actors.TimersNamespace
+      subfolderitems:
+      - name: TimerElapsedEvent
+        link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent
+        subfolderitems:
+        - name: TimerElapsedEvent
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent
+        - name: Info
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info
+      - name: TimerInfo
+        link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo
+        subfolderitems:
+        - name: Equals
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Equals
+        - name: GetHashCode
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/GetHashCode
+        - name: ToString
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/ToString
+        - name: OwnerId
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/OwnerId
+        - name: DueTime
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime
+        - name: Period
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
+        - name: CustomEvent
+          link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
   - name: Microsoft.Coyote.Test
     link: ref/Microsoft.Coyote.Test
     subfolderitems:

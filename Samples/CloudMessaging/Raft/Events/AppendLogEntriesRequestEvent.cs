@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Samples.CloudMessaging
 {

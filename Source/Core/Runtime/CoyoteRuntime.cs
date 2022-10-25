@@ -10,11 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Testing;
+using SpecMonitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -109,11 +110,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly TaskFactory TaskFactory;
 
         /// <summary>
-        /// The default actor execution context.
-        /// </summary>
-        internal readonly ActorExecutionContext DefaultActorExecutionContext;
-
-        /// <summary>
         /// Pool of threads that execute controlled operations.
         /// </summary>
         private readonly ConcurrentDictionary<ulong, Thread> ThreadPool;
@@ -155,6 +151,16 @@ namespace Microsoft.Coyote.Runtime
         private ControlledOperation ScheduledOperation;
 
         /// <summary>
+        /// The installed runtime extension, which by default is the <see cref="NullRuntimeExtension"/>.
+        /// </summary>
+        internal readonly IRuntimeExtension Extension;
+
+        /// <summary>
+        /// Data structure containing information regarding testing coverage.
+        /// </summary>
+        internal readonly CoverageInfo CoverageInfo;
+
+        /// <summary>
         /// Responsible for generating random values.
         /// </summary>
         internal readonly IRandomValueGenerator ValueGenerator;
@@ -179,7 +185,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// List of all registered safety and liveness specification monitors.
         /// </summary>
-        private readonly List<Specifications.Monitor> SpecificationMonitors;
+        private readonly List<SpecMonitor> SpecificationMonitors;
 
         /// <summary>
         /// List of all registered task liveness monitors.
@@ -270,21 +276,21 @@ namespace Microsoft.Coyote.Runtime
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal static CoyoteRuntime Create(Configuration configuration, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter, LogManager logManager) =>
-            new CoyoteRuntime(configuration, null, valueGenerator, logWriter, logManager);
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
+            new CoyoteRuntime(configuration, null, valueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         internal static CoyoteRuntime Create(Configuration configuration, OperationScheduler scheduler,
-            LogWriter logWriter, LogManager logManager) =>
-            new CoyoteRuntime(configuration, scheduler, scheduler.ValueGenerator, logWriter, logManager);
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
+            new CoyoteRuntime(configuration, scheduler, scheduler.ValueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
         private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter, LogManager logManager)
+            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension)
         {
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
@@ -316,28 +322,23 @@ namespace Microsoft.Coyote.Runtime
                 Interlocked.Increment(ref ExecutionControlledUseCount);
             }
 
+            this.Extension = extension ?? NullRuntimeExtension.Instance;
+            this.CoverageInfo = this.Extension.GetCoverageInfo() ?? new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
             this.LogManager = logManager;
-            this.SpecificationMonitors = new List<Specifications.Monitor>();
+            this.SpecificationMonitors = new List<SpecMonitor>();
             this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
             this.SyncContext = new ControlledSynchronizationContext(this);
             this.TaskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler,
                 TaskContinuationOptions.HideScheduler, this.ControlledTaskScheduler);
-
-            this.DefaultActorExecutionContext = this.SchedulingPolicy is SchedulingPolicy.Interleaving ?
-                new ActorExecutionContext.Mock(configuration, this, this.LogManager as ActorLogManager) :
-                new ActorExecutionContext(configuration, this, this.LogManager as ActorLogManager);
         }
 
         /// <summary>
         /// Runs the specified test method.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal Task RunTestAsync(Delegate testMethod, string testName)
         {
             this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started test{1} on thread '{2}'.",
@@ -349,20 +350,13 @@ namespace Microsoft.Coyote.Runtime
             this.ScheduleOperation(op, () =>
             {
                 Task task = Task.CompletedTask;
-                Task actorQuiescenceTask = Task.CompletedTask;
-                if (testMethod is Action<IActorRuntime> actionWithRuntime)
+                if (this.Extension.RunTest(testMethod, out Task extensionTask))
                 {
-                    actionWithRuntime(this.DefaultActorExecutionContext);
-                    actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
+                    task = extensionTask;
                 }
                 else if (testMethod is Action action)
                 {
                     action();
-                }
-                else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
-                {
-                    task = functionWithRuntime(this.DefaultActorExecutionContext);
-                    actorQuiescenceTask = this.DefaultActorExecutionContext.WaitUntilQuiescenceAsync();
                 }
                 else if (testMethod is Func<Task> function)
                 {
@@ -378,12 +372,13 @@ namespace Microsoft.Coyote.Runtime
                 TaskServices.WaitUntilTaskCompletes(this, op, task);
                 task.GetAwaiter().GetResult();
 
-                // Wait for any actors to reach quiescence and propagate any exceptions. This is required in
-                // tests that include actors so that the test does not terminate early, because the main thread
-                // can complete without waiting for the actors to become idle or complete.
-                this.RegisterKnownControlledTask(actorQuiescenceTask);
-                TaskServices.WaitUntilTaskCompletes(this, op, actorQuiescenceTask);
-                actorQuiescenceTask.GetAwaiter().GetResult();
+                // Wait for any operations managed by the runtime extension to reach quiescence and propagate any exceptions.
+                // This is required in tests that use a runtime extension so that the test does not terminate early, because
+                // the main thread can complete without waiting for the extended operations to reach quiescence.
+                Task extensionQuiescenceTask = this.Extension.WaitUntilQuiescenceAsync();
+                this.RegisterKnownControlledTask(extensionQuiescenceTask);
+                TaskServices.WaitUntilTaskCompletes(this, op, extensionQuiescenceTask);
+                extensionQuiescenceTask.GetAwaiter().GetResult();
             },
             postCondition: () =>
             {
@@ -504,9 +499,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the specified delay to be executed asynchronously.
         /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             if (delay.TotalMilliseconds is 0)
@@ -1494,18 +1486,9 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                foreach (var operation in this.GetRegisteredOperations().OrderBy(op => op.Id))
+                foreach (var operation in this.GetRegisteredOperations())
                 {
-                    if (operation is ActorOperation actorOperation)
-                    {
-                        int operationHash = 31 + actorOperation.Actor.GetHashedState(this.SchedulingPolicy);
-                        operationHash = (operationHash * 31) + actorOperation.LastSchedulingPoint.GetHashCode();
-                        hash *= operationHash;
-                    }
-                    else
-                    {
-                        hash *= 31 + operation.LastSchedulingPoint.GetHashCode();
-                    }
+                    hash *= 31 + operation.GetHashedState(this.SchedulingPolicy);
                 }
 
                 foreach (var monitor in this.SpecificationMonitors)
@@ -1519,11 +1502,11 @@ namespace Microsoft.Coyote.Runtime
 
         /// <inheritdoc/>
         public void RegisterMonitor<T>()
-            where T : Specifications.Monitor =>
+            where T : SpecMonitor =>
             this.TryCreateMonitor(typeof(T));
 
         /// <summary>
-        /// Tries to create a new <see cref="Specifications.Monitor"/> of the specified <see cref="Type"/>.
+        /// Tries to create a new <see cref="SpecMonitor"/> of the specified <see cref="Type"/>.
         /// </summary>
         private bool TryCreateMonitor(Type type)
         {
@@ -1535,7 +1518,7 @@ namespace Microsoft.Coyote.Runtime
                     // Only one monitor per type is allowed.
                     if (!this.SpecificationMonitors.Any(m => m.GetType() == type))
                     {
-                        var monitor = (Specifications.Monitor)Activator.CreateInstance(type);
+                        var monitor = (SpecMonitor)Activator.CreateInstance(type);
                         monitor.Initialize(this.Configuration, this);
                         monitor.InitializeStateInformation();
                         this.SpecificationMonitors.Add(monitor);
@@ -1561,21 +1544,21 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public void Monitor<T>(Event e)
-            where T : Specifications.Monitor =>
+        public void Monitor<T>(SpecMonitor.Event e)
+            where T : SpecMonitor =>
             this.InvokeMonitor(typeof(T), e, null, null, null);
 
         /// <summary>
-        /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
+        /// Invokes the specified <see cref="SpecMonitor"/> with the specified <see cref="SpecMonitor.Event"/>.
         /// </summary>
-        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName)
+        internal void InvokeMonitor(Type type, SpecMonitor.Event e, string senderName, string senderType, string senderStateName)
         {
             if (this.SchedulingPolicy != SchedulingPolicy.None ||
                 this.Configuration.IsMonitoringEnabledOutsideTesting)
             {
                 using (SynchronizedSection.Enter(this.RuntimeLock))
                 {
-                    Specifications.Monitor monitor = null;
+                    SpecMonitor monitor = null;
                     foreach (var m in this.SpecificationMonitors)
                     {
                         if (m.GetType() == type)
@@ -1922,9 +1905,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Checks for liveness errors.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void CheckLivenessErrors()
         {
             foreach (var monitor in this.TaskLivenessMonitors)
@@ -2022,9 +2002,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an assertion has failed.
         /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
         internal void NotifyAssertionFailure(string text)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
@@ -2200,19 +2177,9 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                string message;
-                string trace = FormatExceptionStackTrace(exception);
-                if (op is ActorOperation actorOp)
-                {
-                    message = string.Format(CultureInfo.InvariantCulture,
-                        $"Unhandled exception in actor '{actorOp.Name}'. {trace}");
-                }
-                else
-                {
-                    message = $"Unhandled exception. {trace}";
-                }
-
                 // Report the unhandled exception.
+                string trace = FormatExceptionStackTrace(exception);
+                string message = $"Unhandled exception. {trace}";
                 this.NotifyUnhandledException(exception, message);
             }
         }
@@ -2289,6 +2256,16 @@ namespace Microsoft.Coyote.Runtime
                 report.SetUncontrolledInvocations(this.UncontrolledInvocations);
             }
         }
+
+        /// <summary>
+        /// Builds the <see cref="CoverageInfo"/>.
+        /// </summary>
+        internal CoverageInfo BuildCoverageInfo() => this.Extension.BuildCoverageInfo() ?? this.CoverageInfo;
+
+        /// <summary>
+        /// Returns the <see cref="CoverageGraph"/> of the current execution.
+        /// </summary>
+        internal CoverageGraph GetCoverageGraph() => this.Extension.GetCoverageGraph();
 
         /// <summary>
         /// Sets up the context of the executing controlled thread, allowing future retrieval
@@ -2433,7 +2410,11 @@ namespace Microsoft.Coyote.Runtime
                     this.SpecificationMonitors.Clear();
                     this.TaskLivenessMonitors.Clear();
 
-                    this.DefaultActorExecutionContext.Dispose();
+                    if (!(this.Extension is NullRuntimeExtension))
+                    {
+                        this.Extension.Dispose();
+                    }
+
                     this.ControlledTaskScheduler.Dispose();
                     this.SyncContext.Dispose();
                     this.CancellationSource.Dispose();

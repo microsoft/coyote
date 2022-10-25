@@ -41,12 +41,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             }
         }
 
-        private class Done : Event
-        {
-        }
-
         private class Spec : Monitor
         {
+            internal class Done : Event
+            {
+            }
+
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Done), typeof(S2))]
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<Spec>(new Done());
+                this.Monitor<Spec>(new Spec.Done());
                 return Task.CompletedTask;
             }
         }

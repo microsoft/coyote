@@ -47,7 +47,7 @@ Received greeting: Good Morning
 When the error is caught, an extra line of output is written saying:
 
 ```plain
-Exception 'Microsoft.Coyote.AssertionFailureException' was thrown in 0 (action '1'):
+Exception 'Microsoft.Coyote.Runtime.AssertionFailureException' was thrown in 0 (action '1'):
 Too many greetings returned!
 ```
 

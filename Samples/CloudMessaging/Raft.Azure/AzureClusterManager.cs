@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Coyote.Actors;
 using Newtonsoft.Json;
 
 namespace Microsoft.Coyote.Samples.CloudMessaging

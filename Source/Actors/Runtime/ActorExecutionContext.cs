@@ -15,6 +15,7 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
@@ -24,7 +25,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// The execution context of an actor program.
     /// </summary>
-    internal class ActorExecutionContext : IActorRuntime
+    internal class ActorExecutionContext : IActorRuntime, IRuntimeExtension
     {
         /// <summary>
         /// Object used to synchronize access to the runtime event handlers.
@@ -39,7 +40,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The runtime associated with this context.
         /// </summary>
-        internal readonly CoyoteRuntime Runtime;
+        internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Map from unique actor ids to actors.
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Data structure containing information regarding testing coverage.
         /// </summary>
-        internal readonly CoverageInfo CoverageInfo;
+        internal readonly ActorCoverageInfo CoverageInfo;
 
         /// <summary>
         /// Responsible for writing to the installed <see cref="ILogger"/>.
@@ -127,17 +128,50 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
-        internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
+        internal ActorExecutionContext(Configuration configuration, ActorLogManager logManager)
         {
             this.Configuration = configuration;
-            this.Runtime = runtime;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.EnabledActors = new HashSet<ActorId>();
-            this.CoverageInfo = new CoverageInfo();
+            this.CoverageInfo = new ActorCoverageInfo();
             this.LogManager = logManager;
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
             this.IsActorQuiescenceAwaited = false;
             this.QuiescenceSyncObject = new object();
+        }
+
+        /// <summary>
+        /// Installs the specified <see cref="CoyoteRuntime"/>. Only one runtime can be installed
+        /// at a time, and this method can only be called once.
+        /// </summary>
+        internal ActorExecutionContext WithRuntime(CoyoteRuntime runtime)
+        {
+            if (this.Runtime != null)
+            {
+                throw new InvalidOperationException("A runtime is already installed.");
+            }
+
+            this.Runtime = runtime;
+            return this;
+        }
+
+        /// <inheritdoc/>
+        bool IRuntimeExtension.RunTest(Delegate test, out Task task)
+        {
+            if (test is Action<IActorRuntime> actionWithRuntime)
+            {
+                actionWithRuntime(this);
+                task = Task.CompletedTask;
+                return true;
+            }
+            else if (test is Func<IActorRuntime, Task> functionWithRuntime)
+            {
+                task = functionWithRuntime(this);
+                return true;
+            }
+
+            task = Task.CompletedTask;
+            return false;
         }
 
         /// <inheritdoc/>
@@ -656,11 +690,8 @@ namespace Microsoft.Coyote.Actors
             this.LogManager.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
                 stateMachine.CurrentStateName, action.Name);
 
-        /// <summary>
-        /// Builds the coverage graph information, if any. This information is only available
-        /// when <see cref="Configuration.IsActivityCoverageReported"/> is enabled.
-        /// </summary>
-        internal CoverageInfo BuildCoverageInfo()
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.BuildCoverageInfo()
         {
             var result = this.CoverageInfo;
             if (result != null)
@@ -675,19 +706,21 @@ namespace Microsoft.Coyote.Actors
                 var eventCoverage = this.LogManager.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
                 if (eventCoverage != null)
                 {
-                    result.EventInfo = eventCoverage.EventCoverage;
+                    result.ActorEventInfo = eventCoverage.ActorEventCoverage;
+                    result.MonitorEventInfo = eventCoverage.MonitorEventCoverage;
                 }
             }
 
             return result;
         }
 
-        /// <summary>
-        /// Returns the DGML graph of the current execution, if there is any.
-        /// </summary>
-        internal Graph GetExecutionGraph()
+        /// <inheritdoc/>
+        CoverageInfo IRuntimeExtension.GetCoverageInfo() => this.CoverageInfo;
+
+        /// <inheritdoc/>
+        CoverageGraph IRuntimeExtension.GetCoverageGraph()
         {
-            Graph result = null;
+            CoverageGraph result = null;
             var builder = this.LogManager.GetLogsOfType<ActorRuntimeLogGraphBuilder>()
                 .FirstOrDefault(builder => !builder.CollapseInstances);
             if (builder != null)
@@ -710,14 +743,14 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.RegisterMonitor<T>();
 
         /// <inheritdoc/>
-        public void Monitor<T>(Event e)
+        public void Monitor<T>(Monitor.Event e)
             where T : Monitor =>
             this.Runtime.Monitor<T>(e);
 
         /// <summary>
         /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
-        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName) =>
+        internal void InvokeMonitor(Type type, Monitor.Event e, string senderName, string senderType, string senderStateName) =>
             this.Runtime.InvokeMonitor(type, e, senderName, senderType, senderStateName);
 
         /// <inheritdoc/>
@@ -779,10 +812,8 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void RemoveLog(IRuntimeLog log) => this.LogManager.RemoveLog(log);
 
-        /// <summary>
-        /// Returns a task that completes once all actors reach quiescence.
-        /// </summary>
-        internal Task WaitUntilQuiescenceAsync()
+        /// <inheritdoc/>
+        Task IRuntimeExtension.WaitUntilQuiescenceAsync()
         {
             lock (this.QuiescenceSyncObject)
             {
@@ -849,8 +880,8 @@ namespace Microsoft.Coyote.Actors
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(Configuration configuration, CoyoteRuntime runtime, ActorLogManager logManager)
-                : base(configuration, runtime, logManager)
+            internal Mock(Configuration configuration, ActorLogManager logManager)
+                : base(configuration, logManager)
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();

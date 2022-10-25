@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using System.Xml;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e)
+            string senderType, string senderStateName, MonitorEvent e)
         {
             if (this.IsClosed)
             {
@@ -83,7 +84,7 @@ namespace Microsoft.Coyote.Runtime
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, MonitorEvent e)
         {
             if (this.IsClosed)
             {

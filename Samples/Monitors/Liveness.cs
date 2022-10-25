@@ -33,11 +33,21 @@ namespace Microsoft.Coyote.Samples.Monitors
     {
         internal class RegisterNodes : Event
         {
-            public HashSet<ActorId> Nodes;
+            internal HashSet<ActorId> Nodes;
 
-            public RegisterNodes(HashSet<ActorId> nodes)
+            internal RegisterNodes(HashSet<ActorId> nodes)
             {
                 this.Nodes = nodes;
+            }
+        }
+
+        internal class NodeFailed : Event
+        {
+            internal ActorId Node;
+
+            internal NodeFailed(ActorId node)
+            {
+                this.Node = node;
             }
         }
 
@@ -59,12 +69,12 @@ namespace Microsoft.Coyote.Samples.Monitors
         /// currently satisfied.
         /// </summary>
         [Hot]
-        [OnEventDoAction(typeof(FailureDetector.NodeFailed), nameof(NodeDownAction))]
+        [OnEventDoAction(typeof(NodeFailed), nameof(NodeDownAction))]
         private class Wait : State { }
 
         private void NodeDownAction(Event e)
         {
-            var node = (e as FailureDetector.NodeFailed).Node;
+            var node = (e as NodeFailed).Node;
             this.Nodes.Remove(node);
             if (this.Nodes.Count == 0)
             {

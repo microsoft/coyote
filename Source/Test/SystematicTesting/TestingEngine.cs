@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
@@ -82,9 +83,9 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly LogWriter LogWriter;
 
         /// <summary>
-        /// The DGML graph of the execution path explored in the last iteration.
+        /// The DGML coverage graph of the execution path explored in the last iteration.
         /// </summary>
-        private Graph LastExecutionGraph;
+        private CoverageGraph LastCoverageGraph;
 
         /// <summary>
         /// Contains a single iteration of XML log output in the case where the IsXmlLogEnabled
@@ -240,28 +241,24 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.LogWriter.LogWarning("... Test timed out.");
                 }
             }
-            catch (AggregateException aex)
-            {
-                aex.Handle((ex) =>
-                {
-                    this.LogWriter.LogDebug(ex.Message);
-                    this.LogWriter.LogDebug(ex.StackTrace);
-                    return true;
-                });
-
-                if (aex.InnerException is FileNotFoundException)
-                {
-                    this.LogWriter.LogError(aex.InnerException.Message);
-                    throw;
-                }
-
-                this.LogWriter.LogError("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
-                throw;
-            }
             catch (Exception ex)
             {
-                this.LogWriter.LogError("... Test failed due to an internal error: {0}", ex);
-                this.TestReport.InternalErrors.Add(ex.ToString());
+                if (ex is AggregateException aex)
+                {
+                    ex = aex.Flatten().InnerException;
+                }
+
+                if (ex is FileNotFoundException)
+                {
+                    this.LogWriter.LogError(ex.Message);
+                }
+                else
+                {
+                    this.LogWriter.LogError("... Test failed due to an internal '{0}' exception.", ex.GetType().FullName);
+                    this.TestReport.InternalErrors.Add(ex.ToString());
+                }
+
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
             finally
             {
@@ -373,11 +370,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Invoke any registered callbacks at the start of this iteration.
                 this.InvokeStartIterationCallBacks(iteration);
 
-                // Creates a new instance of the controlled runtime.
-                runtime = CoyoteRuntime.Create(this.Configuration, this.Scheduler, iterationLogWriter,
-                    RuntimeFactory.CreateLogManager(iterationLogWriter));
+                // TODO: optimize so that the actor runtime extension is only added if the test supports actors.
+                // Creates a new instance of the controlled runtime and adds the actor runtime extension.
+                var logManager = RuntimeFactory.CreateLogManager(iterationLogWriter);
+                var actorRuntimeExtension = Actors.RuntimeFactory.Create(this.Configuration, logManager, this.Scheduler.SchedulingPolicy);
+                runtime = CoyoteRuntime.Create(this.Configuration, this.Scheduler, iterationLogWriter, logManager, actorRuntimeExtension);
+                actorRuntimeExtension.WithRuntime(runtime);
 
-                this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
+                this.InitializeCustomActorLogging(actorRuntimeExtension);
 
                 // Runs the test and waits for it to terminate.
                 Task task = runtime.RunTestAsync(methodInfo.Method, methodInfo.Name);
@@ -407,9 +407,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler.Trace, this.Configuration);
                     }
                 }
-            }
-            finally
-            {
+
                 if (this.Configuration.IsSystematicFuzzingFallbackEnabled &&
                     runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                     (runtime.ExecutionStatus is ExecutionStatus.ConcurrencyUncontrolled ||
@@ -438,7 +436,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.LogWriter.LogError("Failed to reproduce the bug.");
                 }
-
+            }
+            finally
+            {
                 // Clean up runtime resources before the next iteration starts.
                 runtime?.Dispose();
             }
@@ -516,10 +516,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(xmlPath);
                 }
 
-                if (this.LastExecutionGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                if (this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
                 {
                     string graphPath = Path.Combine(directory, fileName + ".trace.dgml");
-                    this.LastExecutionGraph.SaveDgml(graphPath, true);
+                    this.LastCoverageGraph.SaveDgml(graphPath, true);
                     paths.Add(graphPath);
                 }
 
@@ -580,12 +580,12 @@ namespace Microsoft.Coyote.SystematicTesting
             TestReport report = new TestReport(this.Configuration);
             runtime.PopulateTestReport(report);
 
-            var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
+            var coverageInfo = runtime.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
-            // Save the DGML graph of the execution path explored in the last iteration.
-            this.LastExecutionGraph = runtime.DefaultActorExecutionContext.GetExecutionGraph();
+            // Save the DGML coverage graph of the execution path explored in the last iteration.
+            this.LastCoverageGraph = runtime.GetCoverageGraph();
         }
 
         /// <summary>

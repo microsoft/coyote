@@ -14,6 +14,7 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -342,16 +343,14 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
+        /// Returns a nondeterministic boolean choice, that can be controlled during testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
         protected bool RandomBoolean() => this.Context.GetNondeterministicBooleanChoice(this.Id.Name, this.Id.Type);
 
         /// <summary>
-        /// Returns a nondeterministic integer, that can be controlled during
-        /// analysis or testing. The value is used to generate an integer in
-        /// the range [0..maxValue).
+        /// Returns a nondeterministic integer, that can be controlled during testing. The value
+        /// is used to generate an integer in the range [0..maxValue).
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic integer.</returns>
@@ -359,18 +358,18 @@ namespace Microsoft.Coyote.Actors
             this.Context.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
 
         /// <summary>
-        /// Invokes the specified monitor with the specified <see cref="Event"/>.
+        /// Invokes the specified monitor with the specified <see cref="MonitorEvent"/>.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
-        /// <param name="e">Event to send to the monitor.</param>
-        protected void Monitor<T>(Event e) => this.Monitor(typeof(T), e);
+        /// <param name="e">The <see cref="MonitorEvent"/> to send to the monitor.</param>
+        protected void Monitor<T>(MonitorEvent e) => this.Monitor(typeof(T), e);
 
         /// <summary>
-        /// Invokes the specified monitor with the specified event.
+        /// Invokes the specified monitor with the specified <see cref="MonitorEvent"/>.
         /// </summary>
         /// <param name="type">Type of the monitor.</param>
-        /// <param name="e">The event to send.</param>
-        protected void Monitor(Type type, Event e)
+        /// <param name="e">The <see cref="MonitorEvent"/> to send to the monitor.</param>
+        protected void Monitor(Type type, MonitorEvent e)
         {
             this.Assert(e != null, "{0} is sending a null event.", this.Id);
             this.Context.InvokeMonitor(type, e, this.Id.Name, this.Id.Type, this.CurrentStateName);
@@ -930,7 +929,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Reports the activity coverage of this actor.
         /// </summary>
-        internal virtual void ReportActivityCoverage(CoverageInfo coverageInfo)
+        internal virtual void ReportActivityCoverage(ActorCoverageInfo coverageInfo)
         {
             var name = this.GetType().FullName;
             if (coverageInfo.IsMachineDeclared(name))
@@ -944,7 +943,7 @@ namespace Microsoft.Coyote.Actors
             var registeredEvents = new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
             foreach (var eventId in registeredEvents)
             {
-                coverageInfo.DeclareStateEvent(name, fakeStateName, eventId);
+                coverageInfo.DeclareMachineStateEventPair(name, fakeStateName, eventId);
             }
         }
 

@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.Coverage;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Dictionary containing all the current action bindings.
         /// </summary>
-        internal Dictionary<Type, EventHandlerDeclaration> EventHandlers;
+        private Dictionary<Type, EventHandlerDeclaration> EventHandlers;
 
         /// <summary>
         /// Map from action names to cached action delegates.
@@ -690,7 +690,7 @@ namespace Microsoft.Coyote.Specifications
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.Interleaving
                 && this.Configuration.IsActivityCoverageReported)
             {
-                this.ReportActivityCoverage(this.Runtime.DefaultActorExecutionContext.CoverageInfo);
+                this.ReportActivityCoverage(this.Runtime.CoverageInfo);
             }
 
             this.ExecuteCurrentStateOnEntry(DefaultEvent.Instance);
@@ -964,14 +964,14 @@ namespace Microsoft.Coyote.Specifications
         internal void ReportActivityCoverage(CoverageInfo coverageInfo)
         {
             var monitorName = this.Name;
-            if (coverageInfo.IsMachineDeclared(monitorName))
+            if (coverageInfo.IsMonitorDeclared(monitorName))
             {
                 return;
             }
 
             this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Name);
 
-            // Fetch states.
+            // Fetch the monitor states.
             var states = new HashSet<string>();
             foreach (var state in StateMap[this.GetType()])
             {
@@ -980,10 +980,10 @@ namespace Microsoft.Coyote.Specifications
 
             foreach (var state in states)
             {
-                coverageInfo.DeclareMachineState(monitorName, state);
+                coverageInfo.DeclareMonitorState(monitorName, state);
             }
 
-            // Fetch registered events.
+            // Fetch the registered events.
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])
             {
@@ -995,7 +995,7 @@ namespace Microsoft.Coyote.Specifications
 
             foreach (var tup in pairs)
             {
-                coverageInfo.DeclareStateEvent(monitorName, tup.Item1, tup.Item2);
+                coverageInfo.DeclareMonitorStateEventPair(monitorName, tup.Item1, tup.Item2);
             }
         }
 
@@ -1552,6 +1552,222 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         public abstract class StateGroup
         {
+        }
+
+        /// <summary>
+        /// Abstract class representing an event that can be send to a <see cref="Monitor"/>.
+        /// </summary>
+        public abstract class Event
+        {
+        }
+
+        /// <summary>
+        /// A default event that is generated when no user-defined event is dequeued or received.
+        /// </summary>
+        internal sealed class DefaultEvent : Event
+        {
+            /// <summary>
+            /// Gets a <see cref="DefaultEvent"/> instance.
+            /// </summary>
+            internal static DefaultEvent Instance { get; } = new DefaultEvent();
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="DefaultEvent"/> class.
+            /// </summary>
+            private DefaultEvent()
+                : base()
+            {
+            }
+        }
+
+        /// <summary>
+        /// The goto state event.
+        /// </summary>
+        internal sealed class GotoStateEvent : Event
+        {
+            /// <summary>
+            /// Type of the state to transition to.
+            /// </summary>
+            internal readonly Type State;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="GotoStateEvent"/> class.
+            /// </summary>
+            /// <param name="s">Type of the state.</param>
+            internal GotoStateEvent(Type s)
+                : base()
+            {
+                this.State = s;
+            }
+        }
+
+        /// <summary>
+        /// The wild card event.
+        /// </summary>
+        public sealed class WildCardEvent : Event
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="WildCardEvent"/> class.
+            /// </summary>
+            public WildCardEvent()
+                : base()
+            {
+            }
+        }
+
+        /// <summary>
+        /// An abstract event handler declaration.
+        /// </summary>
+        internal abstract class EventHandlerDeclaration
+        {
+            internal abstract bool Inheritable { get; }
+        }
+
+        /// <summary>
+        /// Defines an action event handler declaration.
+        /// </summary>
+        private sealed class ActionEventHandlerDeclaration : EventHandlerDeclaration
+        {
+            /// <summary>
+            /// Name of the action.
+            /// </summary>
+            internal string Name;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ActionEventHandlerDeclaration"/> class.
+            /// </summary>
+            internal ActionEventHandlerDeclaration(string actionName)
+            {
+                this.Name = actionName;
+            }
+
+            internal override bool Inheritable => true;
+        }
+
+        /// <summary>
+        /// Defines a goto state transition.
+        /// </summary>
+        private sealed class GotoStateTransition : EventHandlerDeclaration
+        {
+            /// <summary>
+            /// The target state.
+            /// </summary>
+            internal Type TargetState;
+
+            /// <summary>
+            /// An optional lambda function that executes after the
+            /// on-exit handler of the exiting state.
+            /// </summary>
+            internal string Lambda;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="GotoStateTransition"/> class.
+            /// </summary>
+            /// <param name="targetState">The target state.</param>
+            /// <param name="lambda">Lambda function that executes after the on-exit handler of the exiting state.</param>
+            internal GotoStateTransition(Type targetState, string lambda)
+            {
+                this.TargetState = targetState;
+                this.Lambda = lambda;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="GotoStateTransition"/> class.
+            /// </summary>
+            /// <param name="targetState">The target state.</param>
+            internal GotoStateTransition(Type targetState)
+            {
+                this.TargetState = targetState;
+                this.Lambda = null;
+            }
+
+            internal override bool Inheritable => false;
+        }
+
+        /// <summary>
+        /// A monitor delegate that has been cached to optimize performance of invocations.
+        /// </summary>
+        private class CachedDelegate
+        {
+            internal readonly MethodInfo MethodInfo;
+            internal readonly Delegate Handler;
+
+            internal CachedDelegate(MethodInfo method, object caller)
+            {
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length is 1 && method.ReturnType == typeof(void))
+                {
+                    this.Handler = Delegate.CreateDelegate(typeof(Action<Event>), caller, method);
+                }
+                else if (method.ReturnType == typeof(void))
+                {
+                    this.Handler = Delegate.CreateDelegate(typeof(Action), caller, method);
+                }
+                else if (parameters.Length is 1 && method.ReturnType == typeof(Monitor.Transition))
+                {
+                    this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Monitor.Transition>), caller, method);
+                }
+                else if (method.ReturnType == typeof(Monitor.Transition))
+                {
+                    this.Handler = Delegate.CreateDelegate(typeof(Func<Monitor.Transition>), caller, method);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Trying to cache invalid action delegate '{method.Name}'.");
+                }
+
+                this.MethodInfo = method;
+            }
+        }
+
+        /// <summary>
+        /// Utility class for resolving names.
+        /// </summary>
+        private static class NameResolver
+        {
+            /// <summary>
+            /// Cache of state names.
+            /// </summary>
+            private static readonly ConcurrentDictionary<Type, string> StateNamesCache =
+                new ConcurrentDictionary<Type, string>();
+
+            /// <summary>
+            /// Returns the qualified (i.e. <see cref="Monitor.StateGroup"/>) name of the specified
+            /// state machine or monitor state, or the empty string if there is no such name.
+            /// </summary>
+            internal static string GetQualifiedStateName(Type state)
+            {
+                if (state is null)
+                {
+                    return string.Empty;
+                }
+
+                if (!StateNamesCache.TryGetValue(state, out string name))
+                {
+                    name = state.Name;
+
+                    var nextState = state;
+                    while (nextState.DeclaringType != null)
+                    {
+                        if (!nextState.DeclaringType.IsSubclassOf(typeof(Monitor.StateGroup)))
+                        {
+                            break;
+                        }
+
+                        name = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", nextState.DeclaringType.Name, name);
+                        nextState = nextState.DeclaringType;
+                    }
+
+                    StateNamesCache.GetOrAdd(state, name);
+                }
+
+                return name;
+            }
+
+            /// <summary>
+            /// Returns the state name to be used for logging purposes.
+            /// </summary>
+            internal static string GetStateNameForLogging(Type state) => state is null ? "None" : GetQualifiedStateName(state);
         }
     }
 }

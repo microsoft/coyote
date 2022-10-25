@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             TestReport report = this.RunSystematicTest(test, configuration);
             using var writer = new StringWriter();
-            var activityCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);
+            var activityCoverageReporter = new ActorActivityCoverageReporter(report.CoverageInfo);
             activityCoverageReporter.WriteCoverageText(writer);
             string result = writer.ToString().RemoveNamespaceReferences();
             return result;
@@ -287,13 +287,13 @@ namespace Microsoft.Coyote.Tests.Common
             using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using var engine = RunTestingEngine(test, configuration, logger);
+                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
                 CheckErrors(engine, errorChecker);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using var replayEngine = RunTestingEngine(test, configuration, logger);
+                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, errorChecker);
@@ -376,13 +376,13 @@ namespace Microsoft.Coyote.Tests.Common
             using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using var engine = RunTestingEngine(test, configuration, logger);
+                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
                 CheckErrors(engine, exceptionType);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using var replayEngine = RunTestingEngine(test, configuration, logger);
+                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, exceptionType);

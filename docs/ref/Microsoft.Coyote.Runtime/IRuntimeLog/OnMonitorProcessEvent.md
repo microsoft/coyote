@@ -18,7 +18,7 @@ public void OnMonitorProcessEvent(string monitorType, string stateName, string s
 
 ## See Also
 
-* class [Event](../../Microsoft.Coyote/Event.md)
+* class [Event](../../Microsoft.Coyote.Specifications/Monitor.Event.md)
 * interface [IRuntimeLog](../IRuntimeLog.md)
 * namespace [Microsoft.Coyote.Runtime](../IRuntimeLog.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

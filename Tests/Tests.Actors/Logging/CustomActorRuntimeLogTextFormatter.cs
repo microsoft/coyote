@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.Tests.Logging
 {
@@ -50,11 +51,11 @@ namespace Microsoft.Coyote.Actors.Tests.Logging
 
         /// <inheritdoc/>
         public override void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e) =>
+            string senderType, string senderStateName, MonitorEvent e) =>
             this.Logger.WriteLine("<MonitorProcessLog>");
 
         /// <inheritdoc/>
-        public override void OnMonitorRaiseEvent(string monitorType, string stateName, Event e) =>
+        public override void OnMonitorRaiseEvent(string monitorType, string stateName, MonitorEvent e) =>
             this.Logger.WriteLine("<MonitorRaiseLog>");
 
         /// <inheritdoc/>

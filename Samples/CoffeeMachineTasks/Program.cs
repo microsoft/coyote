@@ -16,23 +16,24 @@ namespace Microsoft.Coyote.Samples.CoffeeMachineTasks
         public static void Main()
         {
             RunForever = true;
-            ICoyoteRuntime runtime = RuntimeProvider.Create();
-            _ = Execute(runtime);
+
+            LogWriter.Initialize();
+            _ = RunTest();
+
             Console.ReadLine();
             Console.WriteLine("User cancelled the test by pressing ENTER");
-        }
-
-        private static void OnRuntimeFailure(Exception ex)
-        {
-            Console.WriteLine("### Failure: " + ex.Message);
         }
 
         [Microsoft.Coyote.SystematicTesting.Test]
         public static async Task Execute(ICoyoteRuntime runtime)
         {
-            LogWriter.Initialize(runtime.Logger, RunForever);
-            runtime.OnFailure += OnRuntimeFailure;
+            LogWriter.Initialize(runtime.Logger);
             Specification.RegisterMonitor<LivenessMonitor>();
+            await RunTest();
+        }
+
+        private static async Task RunTest()
+        {
             IFailoverDriver driver = new FailoverDriver(RunForever);
             await driver.RunTest();
         }

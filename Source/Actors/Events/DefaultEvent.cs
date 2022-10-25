@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Actors
     public sealed class DefaultEvent : Event
     {
         /// <summary>
-        /// Gets a <see cref="DefaultEvent"/> instance.
+        /// Gets a cached <see cref="DefaultEvent"/> instance.
         /// </summary>
         public static DefaultEvent Instance { get; } = new DefaultEvent();
 

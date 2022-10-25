@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
+
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -36,7 +38,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="e">The event being processed.</param>
         void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
-            string senderType, string senderStateName, Event e);
+            string senderType, string senderStateName, MonitorEvent e);
 
         /// <summary>
         /// Invoked when the specified monitor raised an event.
@@ -44,7 +46,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorType">Name of type of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
         /// <param name="e">The event being raised.</param>
-        void OnMonitorRaiseEvent(string monitorType, string stateName, Event e);
+        void OnMonitorRaiseEvent(string monitorType, string stateName, MonitorEvent e);
 
         /// <summary>
         /// Invoked when the specified monitor enters or exits a state.

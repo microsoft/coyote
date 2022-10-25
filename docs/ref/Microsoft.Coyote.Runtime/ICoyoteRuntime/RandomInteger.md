@@ -1,6 +1,6 @@
 # ICoyoteRuntime.RandomInteger method
 
-Returns a nondeterministic integer choice, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue).
+Returns a nondeterministic integer choice, that can be controlled during testing. The value is used to generate an integer in the range [0..maxValue).
 
 ```csharp
 public int RandomInteger(int maxValue)

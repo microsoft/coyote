@@ -19,14 +19,19 @@ namespace Microsoft.Coyote.Samples.Common
 
         public static LogWriter Instance;
 
-        public static void Initialize(ILogger log, bool echo)
+        public static void Initialize()
         {
-            Instance = new LogWriter(log, echo);
+            Instance = new LogWriter(null, true);
+        }
+
+        public static void Initialize(ILogger log)
+        {
+            Instance = new LogWriter(log, false);
         }
 
         public void WriteLine(string format, params object[] args)
         {
-            this.Log.WriteLine(format, args);
+            this.Log?.WriteLine(format, args);
             if (this.Echo)
             {
                 Console.WriteLine(format, args);
@@ -36,7 +41,7 @@ namespace Microsoft.Coyote.Samples.Common
         public void WriteWarning(string format, params object[] args)
         {
             var msg = string.Format(format, args);
-            this.Log.WriteLine(LogSeverity.Warning, msg);
+            this.Log?.WriteLine(LogSeverity.Warning, msg);
             if (this.Echo)
             {
                 try
@@ -54,7 +59,7 @@ namespace Microsoft.Coyote.Samples.Common
         internal void WriteError(string format, params object[] args)
         {
             var msg = string.Format(format, args);
-            this.Log.WriteLine(LogSeverity.Error, msg);
+            this.Log?.WriteLine(LogSeverity.Error, msg);
             if (this.Echo)
             {
                 try

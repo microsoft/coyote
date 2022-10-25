@@ -11,8 +11,10 @@ public abstract class Monitor
 | name | description |
 | --- | --- |
 | override [ToString](Monitor/ToString.md)() | Returns a string that represents the current monitor. |
+| abstract class [Event](Monitor.Event.md) | Abstract class representing an event that can be send to a [`Monitor`](./Monitor.md). |
 | abstract class [State](Monitor.State.md) | Abstract class representing a state. |
 | abstract class [StateGroup](Monitor.StateGroup.md) | Abstract class used for representing a group of related states. |
+| class [WildCardEvent](Monitor.WildCardEvent.md) | The wild card event. |
 
 ## Protected Members
 
@@ -23,7 +25,7 @@ public abstract class Monitor
 | virtual [HashedState](Monitor/HashedState.md) { get; } | User-defined hashed state of the monitor. Override to improve the accuracy of stateful techniques during testing. |
 | [Logger](Monitor/Logger.md) { get; } | The logger installed to the runtime. |
 | [Assert](Monitor/Assert.md)(…) | Checks if the assertion holds, and if not, throws an [`AssertionFailureException`](../Microsoft.Coyote.Runtime/AssertionFailureException.md) exception. (5 methods) |
-| [RaiseEvent](Monitor/RaiseEvent.md)(…) | Raises the specified [`Event`](../Microsoft.Coyote/Event.md) at the end of the current action. |
+| [RaiseEvent](Monitor/RaiseEvent.md)(…) | Raises the specified [`Event`](./Monitor.Event.md) at the end of the current action. |
 | [RaiseGotoStateEvent](Monitor/RaiseGotoStateEvent.md)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
 | [RaiseGotoStateEvent&lt;TState&gt;](Monitor/RaiseGotoStateEvent.md)() | Raise a special event that performs a goto state operation at the end of the current action. |
 

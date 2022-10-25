@@ -177,16 +177,16 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             });
         }
 
-        private class EventProcessed : Event
-        {
-        }
-
-        private class EventDropped : Event
-        {
-        }
-
         private class Monitor3 : Monitor
         {
+            internal class EventProcessed : Event
+            {
+            }
+
+            internal class EventDropped : Event
+            {
+            }
+
             [Hot]
             [Start]
             [OnEventGotoState(typeof(EventProcessed), typeof(S2))]
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
             private void Processed()
             {
-                this.Monitor<Monitor3>(new EventProcessed());
+                this.Monitor<Monitor3>(new Monitor3.EventProcessed());
             }
         }
 
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<Monitor3>();
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.Monitor<Monitor3>(new EventDropped());
+                    r.Monitor<Monitor3>(new Monitor3.EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(A3c));
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             private void Processed()
             {
-                this.Monitor<Monitor3>(new EventProcessed());
+                this.Monitor<Monitor3>(new Monitor3.EventProcessed());
             }
         }
 
@@ -296,7 +296,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.RegisterMonitor<Monitor3>();
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.Monitor<Monitor3>(new EventDropped());
+                    r.Monitor<Monitor3>(new Monitor3.EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(M3c));

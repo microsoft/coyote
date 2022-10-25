@@ -1,6 +1,6 @@
 # Monitor.RaiseEvent method
 
-Raises the specified [`Event`](../../Microsoft.Coyote/Event.md) at the end of the current action.
+Raises the specified [`Event`](../Monitor.Event.md) at the end of the current action.
 
 ```csharp
 protected void RaiseEvent(Event e)
@@ -16,7 +16,7 @@ This event is not handled until the action that calls this method returns contro
 
 ## See Also
 
-* class [Event](../../Microsoft.Coyote/Event.md)
+* class [Event](../Monitor.Event.md)
 * class [Monitor](../Monitor.md)
 * namespace [Microsoft.Coyote.Specifications](../Monitor.md)
 * assembly [Microsoft.Coyote](../../Microsoft.Coyote.md)

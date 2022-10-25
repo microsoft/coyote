@@ -20,13 +20,13 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             private class States1 : StateGroup
             {
                 [Start]
-                [OnEventGotoState(typeof(UnitEvent), typeof(S2))]
+                [OnEventGotoState(typeof(MonitorUnitEvent), typeof(S2))]
                 public class S1 : State
                 {
                 }
 
                 [OnEntry(nameof(States1S2OnEntry))]
-                [OnEventGotoState(typeof(UnitEvent), typeof(States2.S1))]
+                [OnEventGotoState(typeof(MonitorUnitEvent), typeof(States2.S1))]
                 public class S2 : State
                 {
                 }
@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             private class States2 : StateGroup
             {
                 [OnEntry(nameof(States2S1OnEntry))]
-                [OnEventGotoState(typeof(UnitEvent), typeof(S2))]
+                [OnEventGotoState(typeof(MonitorUnitEvent), typeof(S2))]
                 public class S1 : State
                 {
                 }
@@ -46,9 +46,9 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                 }
             }
 
-            private void States1S2OnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void States1S2OnEntry() => this.RaiseEvent(MonitorUnitEvent.Instance);
 
-            private void States2S1OnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void States2S1OnEntry() => this.RaiseEvent(MonitorUnitEvent.Instance);
 
             private void States2S2OnEntry()
             {
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<Safety>();
-                r.Monitor<Safety>(UnitEvent.Instance);
+                r.Monitor<Safety>(MonitorUnitEvent.Instance);
             },
             expectedError: "Reached test assertion.",
             replay: true);

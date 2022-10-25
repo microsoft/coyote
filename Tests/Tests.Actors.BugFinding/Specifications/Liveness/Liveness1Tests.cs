@@ -23,14 +23,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
         }
 
-        private class Waiting : Event
-        {
-        }
-
-        private class Computing : Event
-        {
-        }
-
         private class EventHandler : StateMachine
         {
             [Start]
@@ -50,7 +42,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void WaitForUserOnEntry()
             {
-                this.Monitor<WatchDog>(new Waiting());
+                this.Monitor<WatchDog>(new WatchDog.Waiting());
                 this.SendEvent(this.Id, new UserEvent());
             }
 
@@ -62,13 +54,21 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void HandleEventOnEntry()
             {
-                this.Monitor<WatchDog>(new Computing());
+                this.Monitor<WatchDog>(new WatchDog.Computing());
                 this.SendEvent(this.Id, new Done());
             }
         }
 
         private class WatchDog : Monitor
         {
+            internal class Waiting : Event
+            {
+            }
+
+            internal class Computing : Event
+            {
+            }
+
             [Start]
             [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]

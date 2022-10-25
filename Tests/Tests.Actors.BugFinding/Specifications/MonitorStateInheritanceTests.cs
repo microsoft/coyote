@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private abstract class BaseState : State
             {
             }
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class BaseState : State
             {
             }
@@ -110,12 +110,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M6 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : State
             {
             }
@@ -135,17 +135,17 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M7 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -174,12 +174,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(MonitorUnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class BaseState : State
             {
             }
@@ -222,12 +222,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M10 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseState : State
             {
             }
@@ -256,17 +256,17 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         private class M11 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }
@@ -299,12 +299,12 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }
@@ -336,7 +336,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M1>();
-                r.Monitor<M1>(UnitEvent.Instance);
+                r.Monitor<M1>(MonitorUnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -376,7 +376,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M5>();
-                r.Monitor<M5>(UnitEvent.Instance);
+                r.Monitor<M5>(MonitorUnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M6>();
-                r.Monitor<M6>(UnitEvent.Instance);
+                r.Monitor<M6>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M7>();
-                r.Monitor<M7>(UnitEvent.Instance);
+                r.Monitor<M7>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -407,7 +407,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.Test(r =>
             {
                 r.RegisterMonitor<M8>();
-                r.Monitor<M8>(UnitEvent.Instance);
+                r.Monitor<M8>(MonitorUnitEvent.Instance);
             });
         }
 
@@ -417,7 +417,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M9>();
-                r.Monitor<M9>(UnitEvent.Instance);
+                r.Monitor<M9>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M10>();
-                r.Monitor<M10>(UnitEvent.Instance);
+                r.Monitor<M10>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M11>();
-                r.Monitor<M11>(UnitEvent.Instance);
+                r.Monitor<M11>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -450,7 +450,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M12>();
-                r.Monitor<M12>(UnitEvent.Instance);
+                r.Monitor<M12>(MonitorUnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }

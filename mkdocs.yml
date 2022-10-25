@@ -103,9 +103,6 @@ nav:
     - Overview: ref/Microsoft.Coyote.md
     - Microsoft.Coyote:
       - Namespace Overview: ref/Microsoft.CoyoteNamespace.md
-      - Event:
-        - Overview: ref/Microsoft.Coyote/Event.md
-        - Event: ref/Microsoft.Coyote/Event/Event.md
       - Configuration:
         - Overview: ref/Microsoft.Coyote/Configuration.md
         - Create: ref/Microsoft.Coyote/Configuration/Create.md
@@ -146,305 +143,62 @@ nav:
         - TimeoutDelay: ref/Microsoft.Coyote/Configuration/TimeoutDelay.md
         - DeadlockTimeout: ref/Microsoft.Coyote/Configuration/DeadlockTimeout.md
         - VerbosityLevel: ref/Microsoft.Coyote/Configuration/VerbosityLevel.md
-    - Microsoft.Coyote.Actors:
-      - Namespace Overview: ref/Microsoft.Coyote.ActorsNamespace.md
-      - Actor:
-        - Overview: ref/Microsoft.Coyote.Actors/Actor.md
-        - CreateActor: ref/Microsoft.Coyote.Actors/Actor/CreateActor.md
-        - SendEvent: ref/Microsoft.Coyote.Actors/Actor/SendEvent.md
-        - ReceiveEventAsync: ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync.md
-        - StartTimer: ref/Microsoft.Coyote.Actors/Actor/StartTimer.md
-        - StartPeriodicTimer: ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer.md
-        - StopTimer: ref/Microsoft.Coyote.Actors/Actor/StopTimer.md
-        - RandomBoolean: ref/Microsoft.Coyote.Actors/Actor/RandomBoolean.md
-        - RandomInteger: ref/Microsoft.Coyote.Actors/Actor/RandomInteger.md
-        - Monitor: ref/Microsoft.Coyote.Actors/Actor/Monitor.md
-        - Assert: ref/Microsoft.Coyote.Actors/Actor/Assert.md
-        - RaiseHaltEvent: ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent.md
-        - OnInitializeAsync: ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync.md
-        - OnEventDequeuedAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync.md
-        - OnEventIgnored: ref/Microsoft.Coyote.Actors/Actor/OnEventIgnored.md
-        - OnEventDeferred: ref/Microsoft.Coyote.Actors/Actor/OnEventDeferred.md
-        - OnEventHandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync.md
-        - OnEventUnhandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync.md
-        - OnExceptionHandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnExceptionHandledAsync.md
-        - OnHaltAsync: ref/Microsoft.Coyote.Actors/Actor/OnHaltAsync.md
-        - OnException: ref/Microsoft.Coyote.Actors/Actor/OnException.md
-        - Equals: ref/Microsoft.Coyote.Actors/Actor/Equals.md
-        - GetHashCode: ref/Microsoft.Coyote.Actors/Actor/GetHashCode.md
-        - ToString: ref/Microsoft.Coyote.Actors/Actor/ToString.md
-        - Actor: ref/Microsoft.Coyote.Actors/Actor/Actor.md
-        - Id: ref/Microsoft.Coyote.Actors/Actor/Id.md
-        - CurrentEventGroup: ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md
-        - Logger: ref/Microsoft.Coyote.Actors/Actor/Logger.md
-        - HashedState: ref/Microsoft.Coyote.Actors/Actor/HashedState.md
-      - ActorExecutionStatus: ref/Microsoft.Coyote.Actors/ActorExecutionStatus.md
-      - ActorId:
-        - Overview: ref/Microsoft.Coyote.Actors/ActorId.md
-        - Equals: ref/Microsoft.Coyote.Actors/ActorId/Equals.md
-        - GetHashCode: ref/Microsoft.Coyote.Actors/ActorId/GetHashCode.md
-        - ToString: ref/Microsoft.Coyote.Actors/ActorId/ToString.md
-        - CompareTo: ref/Microsoft.Coyote.Actors/ActorId/CompareTo.md
-        - Runtime: ref/Microsoft.Coyote.Actors/ActorId/Runtime.md
-        - IsNameUsedForHashing: ref/Microsoft.Coyote.Actors/ActorId/IsNameUsedForHashing.md
-        - Value: ref/Microsoft.Coyote.Actors/ActorId/Value.md
-        - NameValue: ref/Microsoft.Coyote.Actors/ActorId/NameValue.md
-        - Type: ref/Microsoft.Coyote.Actors/ActorId/Type.md
-        - Name: ref/Microsoft.Coyote.Actors/ActorId/Name.md
-      - DequeueStatus: ref/Microsoft.Coyote.Actors/DequeueStatus.md
-      - AwaitableEventGroup<T>:
-        - Overview: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1.md
-        - SetResult: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult.md
-        - TrySetResult: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult.md
-        - SetCancelled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled.md
-        - TrySetCanceled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled.md
-        - SetException: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException.md
-        - TrySetException: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException.md
-        - GetAwaiter: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter.md
-        - AwaitableEventGroup: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup.md
-        - Task: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task.md
-        - IsCompleted: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted.md
-        - IsCanceled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled.md
-        - IsFaulted: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted.md
-      - DefaultEvent:
-        - Overview: ref/Microsoft.Coyote.Actors/DefaultEvent.md
-        - Instance: ref/Microsoft.Coyote.Actors/DefaultEvent/Instance.md
-      - EventGroup:
-        - Overview: ref/Microsoft.Coyote.Actors/EventGroup.md
-        - EventGroup: ref/Microsoft.Coyote.Actors/EventGroup/EventGroup.md
-        - Id: ref/Microsoft.Coyote.Actors/EventGroup/Id.md
-        - Name: ref/Microsoft.Coyote.Actors/EventGroup/Name.md
-        - '': ref/Microsoft.Coyote.Actors/EventGroup/Null.md
-      - HaltEvent:
-        - Overview: ref/Microsoft.Coyote.Actors/HaltEvent.md
-        - Instance: ref/Microsoft.Coyote.Actors/HaltEvent/Instance.md
-      - WildCardEvent:
-        - Overview: ref/Microsoft.Coyote.Actors/WildCardEvent.md
-        - WildCardEvent: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent.md
-      - OnExceptionOutcome: ref/Microsoft.Coyote.Actors/OnExceptionOutcome.md
-      - UnhandledEventException:
-        - Overview: ref/Microsoft.Coyote.Actors/UnhandledEventException.md
-        - UnhandledEvent: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent.md
-        - CurrentStateName: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName.md
-      - OnActorHaltedHandler: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler.md
-      - OnEventDroppedHandler: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler.md
-      - IActorRuntime:
-        - Overview: ref/Microsoft.Coyote.Actors/IActorRuntime.md
-        - CreateActorId: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId.md
-        - CreateActorIdFromName: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName.md
-        - CreateActor: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor.md
-        - SendEvent: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent.md
-        - GetCurrentEventGroup: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup.md
-        - GetActorExecutionStatus: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus.md
-        - GetCurrentActorIds: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds.md
-        - GetCurrentActorTypes: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes.md
-        - GetCurrentActorCount: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount.md
-        - OnActorHalted: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md
-        - OnEventDropped: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md
-      - ActorRuntimeLogTextFormatter:
-        - Overview: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md
-        - OnCreateActor: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor.md
-        - OnCreateStateMachine: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine.md
-        - OnCreateTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer.md
-        - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler.md
-        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md
-        - OnDequeueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent.md
-        - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent.md
-        - OnExceptionHandled: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled.md
-        - OnExceptionThrown: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionThrown.md
-        - OnExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction.md
-        - OnGotoState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState.md
-        - OnHalt: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt.md
-        - OnPopState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState.md
-        - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent.md
-        - OnPushState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState.md
-        - OnRaiseEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent.md
-        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent.md
-        - OnReceiveEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent.md
-        - OnSendEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent.md
-        - OnStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition.md
-        - OnStopTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer.md
-        - OnWaitEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent.md
-        - ActorRuntimeLogTextFormatter: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md
-      - IActorRuntimeLog:
-        - Overview: ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md
-        - OnCreateActor: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor.md
-        - OnCreateStateMachine: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateStateMachine.md
-        - OnExecuteAction: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction.md
-        - OnSendEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent.md
-        - OnRaiseEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent.md
-        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent.md
-        - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent.md
-        - OnDequeueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent.md
-        - OnReceiveEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent.md
-        - OnWaitEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent.md
-        - OnStateTransition: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition.md
-        - OnGotoState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnGotoState.md
-        - OnPushState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState.md
-        - OnPopState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState.md
-        - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler.md
-        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated.md
-        - OnHalt: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt.md
-        - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent.md
-        - OnExceptionThrown: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown.md
-        - OnExceptionHandled: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled.md
-        - OnCreateTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer.md
-        - OnStopTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer.md
-      - RuntimeFactory:
-        - Overview: ref/Microsoft.Coyote.Actors/RuntimeFactory.md
-        - Create: ref/Microsoft.Coyote.Actors/RuntimeFactory/Create.md
-      - SendOptions:
-        - Overview: ref/Microsoft.Coyote.Actors/SendOptions.md
-        - ToString: ref/Microsoft.Coyote.Actors/SendOptions/ToString.md
-        - SendOptions: ref/Microsoft.Coyote.Actors/SendOptions/SendOptions.md
-        - Default: ref/Microsoft.Coyote.Actors/SendOptions/Default.md
-        - MustHandle: ref/Microsoft.Coyote.Actors/SendOptions/MustHandle.md
-        - Assert: ref/Microsoft.Coyote.Actors/SendOptions/Assert.md
-        - HashedState: ref/Microsoft.Coyote.Actors/SendOptions/HashedState.md
-      - StateMachine:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.md
-        - RaiseEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent.md
-        - RaiseGotoStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent.md
-        - RaisePushStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent.md
-        - RaisePopStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent.md
-        - RaiseHaltEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent.md
-        - OnEventHandledAsync: ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync.md
-        - StateMachine: ref/Microsoft.Coyote.Actors/StateMachine/StateMachine.md
-        - CurrentState: ref/Microsoft.Coyote.Actors/StateMachine/CurrentState.md
-      - Actor.OnEventDoActionAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute.md
-        - OnEventDoActionAttribute: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute.md
-      - StateMachine.State:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.md
-        - State: ref/Microsoft.Coyote.Actors/StateMachine.State/State.md
-      - StateMachine.StateGroup:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup.md
-        - StateGroup: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup.md
-      - StateMachine.State.StartAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute.md
-        - StartAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute/StartAttribute.md
-      - StateMachine.State.OnEntryAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute.md
-        - OnEntryAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute/OnEntryAttribute.md
-      - StateMachine.State.OnExitAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute.md
-        - OnExitAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute/OnExitAttribute.md
-      - StateMachine.State.OnEventGotoStateAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute.md
-        - OnEventGotoStateAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute.md
-      - StateMachine.State.OnEventPushStateAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute.md
-        - OnEventPushStateAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute.md
-      - StateMachine.State.OnEventDoActionAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute.md
-        - OnEventDoActionAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute.md
-      - StateMachine.State.DeferEventsAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute.md
-        - DeferEventsAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute/DeferEventsAttribute.md
-      - StateMachine.State.IgnoreEventsAttribute:
-        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute.md
-        - IgnoreEventsAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute.md
-    - Microsoft.Coyote.Actors.Coverage:
-      - Namespace Overview: ref/Microsoft.Coyote.Actors.CoverageNamespace.md
-      - EventCoverage:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage.md
-        - GetEventsReceived: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/GetEventsReceived.md
-        - GetEventsSent: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/GetEventsSent.md
-        - EventCoverage: ref/Microsoft.Coyote.Actors.Coverage/EventCoverage/EventCoverage.md
-      - Graph:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/Graph.md
-        - GetNode: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetNode.md
-        - GetOrCreateNode: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetOrCreateNode.md
-        - GetOrCreateLink: ref/Microsoft.Coyote.Actors.Coverage/Graph/GetOrCreateLink.md
-        - ToString: ref/Microsoft.Coyote.Actors.Coverage/Graph/ToString.md
-        - WriteDgml: ref/Microsoft.Coyote.Actors.Coverage/Graph/WriteDgml.md
-        - LoadDgml: ref/Microsoft.Coyote.Actors.Coverage/Graph/LoadDgml.md
-        - Merge: ref/Microsoft.Coyote.Actors.Coverage/Graph/Merge.md
-        - Graph: ref/Microsoft.Coyote.Actors.Coverage/Graph/Graph.md
-        - Nodes: ref/Microsoft.Coyote.Actors.Coverage/Graph/Nodes.md
-        - Links: ref/Microsoft.Coyote.Actors.Coverage/Graph/Links.md
-      - GraphObject:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/GraphObject.md
-        - AddAttribute: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AddAttribute.md
-        - AddListAttribute: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AddListAttribute.md
-        - GraphObject: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/GraphObject.md
-        - Attributes: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/Attributes.md
-        - AttributeLists: ref/Microsoft.Coyote.Actors.Coverage/GraphObject/AttributeLists.md
-      - GraphNode:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/GraphNode.md
-        - AddDgmlProperties: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/AddDgmlProperties.md
-        - GraphNode: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/GraphNode.md
-        - Id: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Id.md
-        - Label: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Label.md
-        - Category: ref/Microsoft.Coyote.Actors.Coverage/GraphNode/Category.md
-      - GraphLink:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/GraphLink.md
-        - AddDgmlProperties: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/AddDgmlProperties.md
-        - GraphLink: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/GraphLink.md
-        - Label: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Label.md
-        - Category: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Category.md
-        - Source: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Source.md
-        - Target: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Target.md
-        - Index: ref/Microsoft.Coyote.Actors.Coverage/GraphLink/Index.md
+    - Microsoft.Coyote.Coverage:
+      - Namespace Overview: ref/Microsoft.Coyote.CoverageNamespace.md
+      - CoverageGraph:
+        - Overview: ref/Microsoft.Coyote.Coverage/CoverageGraph.md
+        - GetNode: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetNode.md
+        - GetOrCreateNode: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetOrCreateNode.md
+        - GetOrCreateLink: ref/Microsoft.Coyote.Coverage/CoverageGraph/GetOrCreateLink.md
+        - WriteDgml: ref/Microsoft.Coyote.Coverage/CoverageGraph/WriteDgml.md
+        - LoadDgml: ref/Microsoft.Coyote.Coverage/CoverageGraph/LoadDgml.md
+        - Merge: ref/Microsoft.Coyote.Coverage/CoverageGraph/Merge.md
+        - ToString: ref/Microsoft.Coyote.Coverage/CoverageGraph/ToString.md
+        - CoverageGraph: ref/Microsoft.Coyote.Coverage/CoverageGraph/CoverageGraph.md
+        - Nodes: ref/Microsoft.Coyote.Coverage/CoverageGraph/Nodes.md
+        - Links: ref/Microsoft.Coyote.Coverage/CoverageGraph/Links.md
       - CoverageInfo:
-        - Overview: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo.md
-        - IsMachineDeclared: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/IsMachineDeclared.md
-        - DeclareMachineState: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/DeclareMachineState.md
-        - DeclareStateEvent: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/DeclareStateEvent.md
-        - Merge: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Merge.md
-        - Load: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Load.md
-        - Save: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Save.md
-        - CoverageInfo: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/CoverageInfo.md
-        - Machines: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/Machines.md
-        - MachinesToStates: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/MachinesToStates.md
-        - RegisteredEvents: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/RegisteredEvents.md
-        - CoverageGraph: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/CoverageGraph.md
-        - EventInfo: ref/Microsoft.Coyote.Actors.Coverage/CoverageInfo/EventInfo.md
-    - Microsoft.Coyote.Actors.SharedObjects:
-      - Namespace Overview: ref/Microsoft.Coyote.Actors.SharedObjectsNamespace.md
-      - SharedCounter:
-        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter.md
-        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Create.md
-        - Increment: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Increment.md
-        - Decrement: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Decrement.md
-        - GetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/GetValue.md
-        - Add: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Add.md
-        - Exchange: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Exchange.md
-        - CompareExchange: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/CompareExchange.md
-      - SharedDictionary:
-        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary.md
-        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary/Create.md
-      - SharedDictionary<TKey,TValue>:
-        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2.md
-        - TryAdd: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryAdd.md
-        - TryUpdate: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryUpdate.md
-        - TryGetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryGetValue.md
-        - TryRemove: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryRemove.md
-        - Item: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Item.md
-        - Count: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Count.md
-      - SharedRegister:
-        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister.md
-        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister/Create.md
-      - SharedRegister<T>:
-        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1.md
-        - Update: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/Update.md
-        - GetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/GetValue.md
-        - SetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/SetValue.md
-    - Microsoft.Coyote.Actors.Timers:
-      - Namespace Overview: ref/Microsoft.Coyote.Actors.TimersNamespace.md
-      - TimerElapsedEvent:
-        - Overview: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md
-        - TimerElapsedEvent: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent.md
-        - Info: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info.md
-      - TimerInfo:
-        - Overview: ref/Microsoft.Coyote.Actors.Timers/TimerInfo.md
-        - Equals: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Equals.md
-        - GetHashCode: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/GetHashCode.md
-        - ToString: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/ToString.md
-        - OwnerId: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/OwnerId.md
-        - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
-        - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
-        - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
+        - Overview: ref/Microsoft.Coyote.Coverage/CoverageInfo.md
+        - IsMonitorDeclared: ref/Microsoft.Coyote.Coverage/CoverageInfo/IsMonitorDeclared.md
+        - DeclareMonitorState: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorState.md
+        - DeclareMonitorStateEventPair: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorStateEventPair.md
+        - Load: ref/Microsoft.Coyote.Coverage/CoverageInfo/Load.md
+        - Save: ref/Microsoft.Coyote.Coverage/CoverageInfo/Save.md
+        - Merge: ref/Microsoft.Coyote.Coverage/CoverageInfo/Merge.md
+        - CoverageInfo: ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageInfo.md
+        - CoverageGraph: ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageGraph.md
+        - Monitors: ref/Microsoft.Coyote.Coverage/CoverageInfo/Monitors.md
+        - MonitorsToStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorsToStates.md
+        - RegisteredMonitorEvents: ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredMonitorEvents.md
+        - MonitorEventInfo: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo.md
+      - MonitorEventCoverage:
+        - Overview: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage.md
+        - GetEventsProcessed: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed.md
+        - GetEventsRaised: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsRaised.md
+        - MonitorEventCoverage: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/MonitorEventCoverage.md
+      - CoverageGraph.Object:
+        - Overview: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object.md
+        - AddAttribute: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AddAttribute.md
+        - AddListAttribute: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AddListAttribute.md
+        - Object: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/Object.md
+        - Attributes: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/Attributes.md
+        - AttributeLists: ref/Microsoft.Coyote.Coverage/CoverageGraph.Object/AttributeLists.md
+      - CoverageGraph.Node:
+        - Overview: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node.md
+        - AddDgmlProperties: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/AddDgmlProperties.md
+        - Node: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Node.md
+        - Id: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Id.md
+        - Label: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Label.md
+        - Category: ref/Microsoft.Coyote.Coverage/CoverageGraph.Node/Category.md
+      - CoverageGraph.Link:
+        - Overview: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link.md
+        - AddDgmlProperties: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/AddDgmlProperties.md
+        - Link: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Link.md
+        - Label: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Label.md
+        - Category: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Category.md
+        - Source: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Source.md
+        - Target: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Target.md
+        - Index: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Index.md
     - Microsoft.Coyote.Logging:
       - Namespace Overview: ref/Microsoft.Coyote.LoggingNamespace.md
       - ILogger:
@@ -479,6 +233,13 @@ nav:
       - RuntimeException:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeException.md
         - RuntimeException: ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException.md
+      - IRuntimeExtension:
+        - Overview: ref/Microsoft.Coyote.Runtime/IRuntimeExtension.md
+        - RunTest: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/RunTest.md
+        - BuildCoverageInfo: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/BuildCoverageInfo.md
+        - GetCoverageInfo: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/GetCoverageInfo.md
+        - GetCoverageGraph: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/GetCoverageGraph.md
+        - WaitUntilQuiescenceAsync: ref/Microsoft.Coyote.Runtime/IRuntimeExtension/WaitUntilQuiescenceAsync.md
       - ICoyoteRuntime:
         - Overview: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime.md
         - RegisterMonitor: ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RegisterMonitor.md
@@ -536,7 +297,6 @@ nav:
         - TryReset: ref/Microsoft.Coyote.Runtime/Operation/TryReset.md
       - RuntimeProvider:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md
-        - Create: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Create.md
         - Current: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current.md
       - SchedulingPoint:
         - Overview: ref/Microsoft.Coyote.Runtime/SchedulingPoint.md
@@ -572,6 +332,12 @@ nav:
       - Monitor.StateGroup:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.StateGroup.md
         - StateGroup: ref/Microsoft.Coyote.Specifications/Monitor.StateGroup/StateGroup.md
+      - Monitor.Event:
+        - Overview: ref/Microsoft.Coyote.Specifications/Monitor.Event.md
+        - Event: ref/Microsoft.Coyote.Specifications/Monitor.Event/Event.md
+      - Monitor.WildCardEvent:
+        - Overview: ref/Microsoft.Coyote.Specifications/Monitor.WildCardEvent.md
+        - WildCardEvent: ref/Microsoft.Coyote.Specifications/Monitor.WildCardEvent/WildCardEvent.md
       - Monitor.State.StartAttribute:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.State.StartAttribute.md
         - StartAttribute: ref/Microsoft.Coyote.Specifications/Monitor.State.StartAttribute/StartAttribute.md
@@ -596,6 +362,272 @@ nav:
       - Monitor.State.HotAttribute:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute.md
         - HotAttribute: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute.md
+  - Microsoft.Coyote.Actors:
+    - Overview: ref/Microsoft.Coyote.Actors.md
+    - Microsoft.Coyote.Actors:
+      - Namespace Overview: ref/Microsoft.Coyote.ActorsNamespace.md
+      - DequeueStatus: ref/Microsoft.Coyote.Actors/DequeueStatus.md
+      - AwaitableEventGroup<T>:
+        - Overview: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1.md
+        - SetResult: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult.md
+        - TrySetResult: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult.md
+        - SetCancelled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled.md
+        - TrySetCanceled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled.md
+        - SetException: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException.md
+        - TrySetException: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException.md
+        - GetAwaiter: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter.md
+        - AwaitableEventGroup: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup.md
+        - Task: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task.md
+        - IsCompleted: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted.md
+        - IsCanceled: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled.md
+        - IsFaulted: ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted.md
+      - DefaultEvent:
+        - Overview: ref/Microsoft.Coyote.Actors/DefaultEvent.md
+        - Instance: ref/Microsoft.Coyote.Actors/DefaultEvent/Instance.md
+      - Event:
+        - Overview: ref/Microsoft.Coyote.Actors/Event.md
+        - Event: ref/Microsoft.Coyote.Actors/Event/Event.md
+      - EventGroup:
+        - Overview: ref/Microsoft.Coyote.Actors/EventGroup.md
+        - EventGroup: ref/Microsoft.Coyote.Actors/EventGroup/EventGroup.md
+        - Id: ref/Microsoft.Coyote.Actors/EventGroup/Id.md
+        - Name: ref/Microsoft.Coyote.Actors/EventGroup/Name.md
+        - '': ref/Microsoft.Coyote.Actors/EventGroup/Null.md
+      - HaltEvent:
+        - Overview: ref/Microsoft.Coyote.Actors/HaltEvent.md
+        - Instance: ref/Microsoft.Coyote.Actors/HaltEvent/Instance.md
+      - WildCardEvent:
+        - Overview: ref/Microsoft.Coyote.Actors/WildCardEvent.md
+        - WildCardEvent: ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent.md
+      - OnExceptionOutcome: ref/Microsoft.Coyote.Actors/OnExceptionOutcome.md
+      - UnhandledEventException:
+        - Overview: ref/Microsoft.Coyote.Actors/UnhandledEventException.md
+        - UnhandledEvent: ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent.md
+        - CurrentStateName: ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName.md
+      - OnActorHaltedHandler: ref/Microsoft.Coyote.Actors/OnActorHaltedHandler.md
+      - OnEventDroppedHandler: ref/Microsoft.Coyote.Actors/OnEventDroppedHandler.md
+      - ActorRuntimeLogTextFormatter:
+        - Overview: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter.md
+        - OnCreateActor: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor.md
+        - OnCreateStateMachine: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine.md
+        - OnCreateTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer.md
+        - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler.md
+        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEventHandlerTerminated.md
+        - OnDequeueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent.md
+        - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent.md
+        - OnExceptionHandled: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled.md
+        - OnExceptionThrown: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionThrown.md
+        - OnExecuteAction: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction.md
+        - OnGotoState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState.md
+        - OnHalt: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt.md
+        - OnPopState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState.md
+        - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent.md
+        - OnPushState: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState.md
+        - OnRaiseEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent.md
+        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent.md
+        - OnReceiveEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent.md
+        - OnSendEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent.md
+        - OnStateTransition: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition.md
+        - OnStopTimer: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer.md
+        - OnWaitEvent: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent.md
+        - ActorRuntimeLogTextFormatter: ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter.md
+      - IActorRuntimeLog:
+        - Overview: ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md
+        - OnCreateActor: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor.md
+        - OnCreateStateMachine: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateStateMachine.md
+        - OnExecuteAction: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction.md
+        - OnSendEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent.md
+        - OnRaiseEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent.md
+        - OnHandleRaisedEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent.md
+        - OnEnqueueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent.md
+        - OnDequeueEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent.md
+        - OnReceiveEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent.md
+        - OnWaitEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent.md
+        - OnStateTransition: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition.md
+        - OnGotoState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnGotoState.md
+        - OnPushState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState.md
+        - OnPopState: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState.md
+        - OnDefaultEventHandler: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler.md
+        - OnEventHandlerTerminated: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEventHandlerTerminated.md
+        - OnHalt: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt.md
+        - OnPopStateUnhandledEvent: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent.md
+        - OnExceptionThrown: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown.md
+        - OnExceptionHandled: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled.md
+        - OnCreateTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer.md
+        - OnStopTimer: ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer.md
+      - Actor:
+        - Overview: ref/Microsoft.Coyote.Actors/Actor.md
+        - CreateActor: ref/Microsoft.Coyote.Actors/Actor/CreateActor.md
+        - SendEvent: ref/Microsoft.Coyote.Actors/Actor/SendEvent.md
+        - ReceiveEventAsync: ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync.md
+        - StartTimer: ref/Microsoft.Coyote.Actors/Actor/StartTimer.md
+        - StartPeriodicTimer: ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer.md
+        - StopTimer: ref/Microsoft.Coyote.Actors/Actor/StopTimer.md
+        - RandomBoolean: ref/Microsoft.Coyote.Actors/Actor/RandomBoolean.md
+        - RandomInteger: ref/Microsoft.Coyote.Actors/Actor/RandomInteger.md
+        - Monitor: ref/Microsoft.Coyote.Actors/Actor/Monitor.md
+        - Assert: ref/Microsoft.Coyote.Actors/Actor/Assert.md
+        - RaiseHaltEvent: ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent.md
+        - OnInitializeAsync: ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync.md
+        - OnEventDequeuedAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync.md
+        - OnEventIgnored: ref/Microsoft.Coyote.Actors/Actor/OnEventIgnored.md
+        - OnEventDeferred: ref/Microsoft.Coyote.Actors/Actor/OnEventDeferred.md
+        - OnEventHandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync.md
+        - OnEventUnhandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync.md
+        - OnExceptionHandledAsync: ref/Microsoft.Coyote.Actors/Actor/OnExceptionHandledAsync.md
+        - OnHaltAsync: ref/Microsoft.Coyote.Actors/Actor/OnHaltAsync.md
+        - OnException: ref/Microsoft.Coyote.Actors/Actor/OnException.md
+        - Equals: ref/Microsoft.Coyote.Actors/Actor/Equals.md
+        - GetHashCode: ref/Microsoft.Coyote.Actors/Actor/GetHashCode.md
+        - ToString: ref/Microsoft.Coyote.Actors/Actor/ToString.md
+        - Actor: ref/Microsoft.Coyote.Actors/Actor/Actor.md
+        - Id: ref/Microsoft.Coyote.Actors/Actor/Id.md
+        - CurrentEventGroup: ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup.md
+        - Logger: ref/Microsoft.Coyote.Actors/Actor/Logger.md
+        - HashedState: ref/Microsoft.Coyote.Actors/Actor/HashedState.md
+      - ActorExecutionStatus: ref/Microsoft.Coyote.Actors/ActorExecutionStatus.md
+      - ActorId:
+        - Overview: ref/Microsoft.Coyote.Actors/ActorId.md
+        - Equals: ref/Microsoft.Coyote.Actors/ActorId/Equals.md
+        - GetHashCode: ref/Microsoft.Coyote.Actors/ActorId/GetHashCode.md
+        - ToString: ref/Microsoft.Coyote.Actors/ActorId/ToString.md
+        - CompareTo: ref/Microsoft.Coyote.Actors/ActorId/CompareTo.md
+        - Runtime: ref/Microsoft.Coyote.Actors/ActorId/Runtime.md
+        - IsNameUsedForHashing: ref/Microsoft.Coyote.Actors/ActorId/IsNameUsedForHashing.md
+        - Value: ref/Microsoft.Coyote.Actors/ActorId/Value.md
+        - NameValue: ref/Microsoft.Coyote.Actors/ActorId/NameValue.md
+        - Type: ref/Microsoft.Coyote.Actors/ActorId/Type.md
+        - Name: ref/Microsoft.Coyote.Actors/ActorId/Name.md
+      - IActorRuntime:
+        - Overview: ref/Microsoft.Coyote.Actors/IActorRuntime.md
+        - CreateActorId: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId.md
+        - CreateActorIdFromName: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName.md
+        - CreateActor: ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor.md
+        - SendEvent: ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent.md
+        - GetCurrentEventGroup: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup.md
+        - GetActorExecutionStatus: ref/Microsoft.Coyote.Actors/IActorRuntime/GetActorExecutionStatus.md
+        - GetCurrentActorIds: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorIds.md
+        - GetCurrentActorTypes: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorTypes.md
+        - GetCurrentActorCount: ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentActorCount.md
+        - OnActorHalted: ref/Microsoft.Coyote.Actors/IActorRuntime/OnActorHalted.md
+        - OnEventDropped: ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped.md
+      - RuntimeFactory:
+        - Overview: ref/Microsoft.Coyote.Actors/RuntimeFactory.md
+        - Create: ref/Microsoft.Coyote.Actors/RuntimeFactory/Create.md
+      - SendOptions:
+        - Overview: ref/Microsoft.Coyote.Actors/SendOptions.md
+        - ToString: ref/Microsoft.Coyote.Actors/SendOptions/ToString.md
+        - SendOptions: ref/Microsoft.Coyote.Actors/SendOptions/SendOptions.md
+        - Default: ref/Microsoft.Coyote.Actors/SendOptions/Default.md
+        - MustHandle: ref/Microsoft.Coyote.Actors/SendOptions/MustHandle.md
+        - Assert: ref/Microsoft.Coyote.Actors/SendOptions/Assert.md
+        - HashedState: ref/Microsoft.Coyote.Actors/SendOptions/HashedState.md
+      - StateMachine:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.md
+        - RaiseEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent.md
+        - RaiseGotoStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent.md
+        - RaisePushStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent.md
+        - RaisePopStateEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent.md
+        - RaiseHaltEvent: ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent.md
+        - OnEventHandledAsync: ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync.md
+        - StateMachine: ref/Microsoft.Coyote.Actors/StateMachine/StateMachine.md
+        - CurrentState: ref/Microsoft.Coyote.Actors/StateMachine/CurrentState.md
+      - Actor.OnEventDoActionAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute.md
+        - OnEventDoActionAttribute: ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute.md
+      - StateMachine.State:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.md
+        - State: ref/Microsoft.Coyote.Actors/StateMachine.State/State.md
+      - StateMachine.StateGroup:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup.md
+        - StateGroup: ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup.md
+      - StateMachine.State.StartAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute.md
+        - StartAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute/StartAttribute.md
+      - StateMachine.State.OnEntryAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute.md
+        - OnEntryAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute/OnEntryAttribute.md
+      - StateMachine.State.OnExitAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute.md
+        - OnExitAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute/OnExitAttribute.md
+      - StateMachine.State.OnEventGotoStateAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute.md
+        - OnEventGotoStateAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute.md
+      - StateMachine.State.OnEventPushStateAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute.md
+        - OnEventPushStateAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute.md
+      - StateMachine.State.OnEventDoActionAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute.md
+        - OnEventDoActionAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute.md
+      - StateMachine.State.DeferEventsAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute.md
+        - DeferEventsAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute/DeferEventsAttribute.md
+      - StateMachine.State.IgnoreEventsAttribute:
+        - Overview: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute.md
+        - IgnoreEventsAttribute: ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute.md
+    - Microsoft.Coyote.Actors.Coverage:
+      - Namespace Overview: ref/Microsoft.Coyote.Actors.CoverageNamespace.md
+      - ActorCoverageInfo:
+        - Overview: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo.md
+        - IsMachineDeclared: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/IsMachineDeclared.md
+        - DeclareMachineState: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/DeclareMachineState.md
+        - DeclareMachineStateEventPair: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/DeclareMachineStateEventPair.md
+        - Merge: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/Merge.md
+        - ActorCoverageInfo: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/ActorCoverageInfo.md
+        - Machines: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/Machines.md
+        - MachinesToStates: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/MachinesToStates.md
+        - RegisteredActorEvents: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/RegisteredActorEvents.md
+        - ActorEventInfo: ref/Microsoft.Coyote.Actors.Coverage/ActorCoverageInfo/ActorEventInfo.md
+      - ActorEventCoverage:
+        - Overview: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage.md
+        - GetEventsReceived: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/GetEventsReceived.md
+        - GetEventsSent: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/GetEventsSent.md
+        - ActorEventCoverage: ref/Microsoft.Coyote.Actors.Coverage/ActorEventCoverage/ActorEventCoverage.md
+    - Microsoft.Coyote.Actors.SharedObjects:
+      - Namespace Overview: ref/Microsoft.Coyote.Actors.SharedObjectsNamespace.md
+      - SharedCounter:
+        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter.md
+        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Create.md
+        - Increment: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Increment.md
+        - Decrement: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Decrement.md
+        - GetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/GetValue.md
+        - Add: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Add.md
+        - Exchange: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Exchange.md
+        - CompareExchange: ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/CompareExchange.md
+      - SharedDictionary:
+        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary.md
+        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary/Create.md
+      - SharedDictionary<TKey,TValue>:
+        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2.md
+        - TryAdd: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryAdd.md
+        - TryUpdate: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryUpdate.md
+        - TryGetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryGetValue.md
+        - TryRemove: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryRemove.md
+        - Item: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Item.md
+        - Count: ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Count.md
+      - SharedRegister:
+        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister.md
+        - Create: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister/Create.md
+      - SharedRegister<T>:
+        - Overview: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1.md
+        - Update: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/Update.md
+        - GetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/GetValue.md
+        - SetValue: ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/SetValue.md
+    - Microsoft.Coyote.Actors.Timers:
+      - Namespace Overview: ref/Microsoft.Coyote.Actors.TimersNamespace.md
+      - TimerElapsedEvent:
+        - Overview: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent.md
+        - TimerElapsedEvent: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent.md
+        - Info: ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info.md
+      - TimerInfo:
+        - Overview: ref/Microsoft.Coyote.Actors.Timers/TimerInfo.md
+        - Equals: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Equals.md
+        - GetHashCode: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/GetHashCode.md
+        - ToString: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/ToString.md
+        - OwnerId: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/OwnerId.md
+        - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
+        - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
+        - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
   - Microsoft.Coyote.Test:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:

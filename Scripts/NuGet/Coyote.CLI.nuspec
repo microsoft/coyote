@@ -4,7 +4,7 @@
     <id>Microsoft.Coyote.CLI</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
-    <description>The Coyote command line tool.</description>
+    <description>The Coyote systematic testing command line tool.</description>
     <projectUrl>https://microsoft.github.io/coyote/</projectUrl>
     <repository type="git" url="https://github.com/microsoft/coyote"/>
     <license type="expression">MIT</license>
@@ -12,7 +12,7 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
     <readme>docs\readme.md</readme>
-    <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
+    <tags>systematic-testing specifications concurrency dotnet csharp</tags>
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>

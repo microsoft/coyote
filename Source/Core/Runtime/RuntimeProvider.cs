@@ -16,13 +16,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Map from runtime identifiers to runtime instances.
         /// </summary>
-        private static ConcurrentDictionary<Guid, CoyoteRuntime> Runtimes =
-            new ConcurrentDictionary<Guid, CoyoteRuntime>();
+        private static ConcurrentDictionary<Guid, CoyoteRuntime> RuntimeMap = new ConcurrentDictionary<Guid, CoyoteRuntime>();
 
         /// <summary>
         /// The default installed runtime instance.
         /// </summary>
-        internal static CoyoteRuntime Default { get; private set; } = CreateWithConfiguration(default, default, default);
+        internal static CoyoteRuntime Default { get; private set; } = CreateWithConfiguration(default, default, default, default);
 
         /// <summary>
         /// The runtime installed in the current execution context.
@@ -35,47 +34,28 @@ namespace Microsoft.Coyote.Runtime
         private static readonly object SyncObject = new object();
 
         /// <summary>
-        /// Creates a new Coyote runtime.
-        /// </summary>
-        /// <returns>The created Coyote runtime.</returns>
-        /// <remarks>
-        /// Only one Coyote runtime can be used per process. If you create a new Coyote runtime
-        /// it replaces the previously installed one. This is a thread-safe operation.
-        /// </remarks>
-        public static ICoyoteRuntime Create() => CreateAndInstall(default, default, default).DefaultActorExecutionContext;
-
-        /// <summary>
-        /// Creates a new Coyote runtime with the specified <see cref="Configuration"/>.
-        /// </summary>
-        /// <param name="configuration">The runtime configuration to use.</param>
-        /// <returns>The created Coyote runtime.</returns>
-        /// <remarks>
-        /// Only one Coyote runtime can be used per process. If you create a new Coyote runtime
-        /// it replaces the previously installed one. This is a thread-safe operation.
-        /// </remarks>
-        public static ICoyoteRuntime Create(Configuration configuration) =>
-            CreateAndInstall(configuration, default, default).DefaultActorExecutionContext;
-
-        /// <summary>
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/> and sets it
         /// as the default installed runtime, or returns the runtime if it already exists.
         /// </summary>
         /// <remarks>
-        /// This is a thread-safe operation.
+        /// Only one Coyote runtime can be used per process. If you create a new Coyote runtime
+        /// it replaces the previously installed one. This is a thread-safe operation.
         /// </remarks>
-        internal static CoyoteRuntime CreateAndInstall(Configuration configuration, LogWriter logWriter, LogManager logManager)
+        internal static CoyoteRuntime CreateAndInstall(Configuration configuration, LogWriter logWriter,
+            LogManager logManager, IRuntimeExtension extension)
         {
             lock (SyncObject)
             {
                 // Assign the newly created runtime as the default installed runtime.
-                return Default = CreateWithConfiguration(configuration, logWriter, logManager);
+                return Default = CreateWithConfiguration(configuration, logWriter, logManager, extension);
             }
         }
 
         /// <summary>
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/>.
         /// </summary>
-        private static CoyoteRuntime CreateWithConfiguration(Configuration configuration, LogWriter logWriter, LogManager logManager)
+        private static CoyoteRuntime CreateWithConfiguration(Configuration configuration, LogWriter logWriter,
+            LogManager logManager, IRuntimeExtension extension)
         {
             configuration ??= Configuration.Create();
             var valueGenerator = new RandomValueGenerator(configuration);
@@ -86,7 +66,7 @@ namespace Microsoft.Coyote.Runtime
                 logManager.RegisterLog(new RuntimeLogTextFormatter(), logWriter);
             }
 
-            return CoyoteRuntime.Create(configuration, valueGenerator, logWriter, logManager);
+            return CoyoteRuntime.Create(configuration, valueGenerator, logWriter, logManager, extension);
         }
 
         /// <summary>
@@ -96,7 +76,7 @@ namespace Microsoft.Coyote.Runtime
         internal static Guid Register(CoyoteRuntime runtime)
         {
             var id = Guid.NewGuid();
-            Runtimes.TryAdd(id, runtime);
+            RuntimeMap.TryAdd(id, runtime);
             return id;
         }
 
@@ -105,7 +85,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void Deregister(Guid id)
         {
-            Runtimes.TryRemove(id, out CoyoteRuntime _);
+            RuntimeMap.TryRemove(id, out CoyoteRuntime _);
         }
 
         /// <summary>
@@ -130,6 +110,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <returns>True if the runtime was found, else false.</returns>
         internal static bool TryGetFromId(Guid runtimeId, out CoyoteRuntime runtime) =>
-            Runtimes.TryGetValue(runtimeId, out runtime) ? true : false;
+            RuntimeMap.TryGetValue(runtimeId, out runtime) ? true : false;
     }
 }

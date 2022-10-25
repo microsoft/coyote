@@ -294,7 +294,9 @@ namespace Microsoft.Coyote.Rewriting
             {
                 // Any type from the Coyote assemblies is not a foreign type.
                 string module = type.Module.Name;
-                if (module is "Microsoft.Coyote.dll" || module is "Microsoft.Coyote.Test.dll")
+                if (module is "Microsoft.Coyote.dll" ||
+                    module is "Microsoft.Coyote.Actors.dll" ||
+                    module is "Microsoft.Coyote.Test.dll")
                 {
                     return true;
                 }

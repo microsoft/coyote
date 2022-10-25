@@ -4,6 +4,7 @@
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 {
@@ -14,7 +15,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
         }
 
-        private class CheckE : Event
+        private class CheckE : MonitorEvent
         {
             public bool Value;
 

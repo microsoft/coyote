@@ -23,6 +23,7 @@ a program but not influence it: a desirable property when writing specifications
 `Monitor` is declared as follows:
 
 ```csharp
+using Microsoft.Coyote.Specifications;
 class GlobalSpec : Monitor { ... }
 ```
 
@@ -51,7 +52,9 @@ is local to `A` or `B` because both `x` and `y` live in different places. So we 
 are within the required bound.
 
 ```csharp
-public class UpdatedXEvent : Event
+using Microsoft.Coyote.Specifications;
+
+public class UpdatedXEvent : Monitor.Event
 {
    public int value { get; private set; }
    public UpdatedXEvent(int value)
@@ -60,7 +63,7 @@ public class UpdatedXEvent : Event
    }
 }
 
-public class UpdatedYEvent : Event
+public class UpdatedYEvent : Monitor.Event
 {
    public int value { get; private set; }
 
@@ -144,9 +147,10 @@ execution is erroneous if the liveness monitor stays in the hot state for an inf
 of time. Consider the following example.
 
 ```csharp
+using Microsoft.Coyote.Specifications;
 
-class UpEvent : Event { }
-class DownEvent : Event { }
+class UpEvent : Monitor.Event { }
+class DownEvent : Monitor.Event { }
 
 class LivenessMonitor : Monitor
 {

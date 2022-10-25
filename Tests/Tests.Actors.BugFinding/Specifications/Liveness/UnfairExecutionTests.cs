@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void S3OnEntry()
             {
-                this.Monitor<LivenessMonitor>(new E(this.Id));
+                this.Monitor<LivenessMonitor>(MonitorUnitEvent.Instance);
                 this.RaiseHaltEvent();
             }
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
             [Start]
             [Hot]
-            [OnEventGotoState(typeof(E), typeof(S2))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(S2))]
             private class S : State
             {
             }

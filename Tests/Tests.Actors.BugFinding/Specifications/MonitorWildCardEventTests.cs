@@ -4,6 +4,7 @@
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 {
@@ -11,6 +12,18 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
     {
         public MonitorWildCardEventTests(ITestOutputHelper output)
             : base(output)
+        {
+        }
+
+        private class E1 : MonitorEvent
+        {
+        }
+
+        private class E2 : MonitorEvent
+        {
+        }
+
+        private class E3 : MonitorEvent
         {
         }
 
@@ -54,18 +67,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             {
                 this.Assert(false, "Check reached.");
             }
-        }
-
-        private class E1 : Event
-        {
-        }
-
-        private class E2 : Event
-        {
-        }
-
-        private class E3 : Event
-        {
         }
 
         [Fact(Timeout = 5000)]

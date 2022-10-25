@@ -24,18 +24,18 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             }
         }
 
-        private class E : Event
-        {
-            public Counter Counter;
-
-            public E(Counter counter)
-            {
-                this.Counter = counter;
-            }
-        }
-
         private class M : Monitor
         {
+            internal class E : Event
+            {
+                public Counter Counter;
+
+                public E(Counter counter)
+                {
+                    this.Counter = counter;
+                }
+            }
+
             [Start]
             [OnEventDoAction(typeof(E), nameof(Check))]
             private class Init : State
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             private void InitOnEntry()
             {
                 Counter counter = new Counter();
-                this.Monitor(typeof(M), new E(counter));
+                this.Monitor(typeof(M), new M.E(counter));
                 this.Assert(counter.Value is 1, "Monitor created more than once.");
             }
         }

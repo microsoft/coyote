@@ -4,7 +4,7 @@
     <id>Microsoft.Coyote.Test</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
-    <description>The Coyote systematic testing library and tools.</description>
+    <description>The Coyote systematic testing library and tool.</description>
     <projectUrl>https://microsoft.github.io/coyote/</projectUrl>
     <repository type="git" url="https://github.com/microsoft/coyote"/>
     <license type="expression">MIT</license>
@@ -12,10 +12,11 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
     <readme>docs\readme.md</readme>
-    <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
+    <tags>systematic-testing specifications concurrency dotnet csharp</tags>
     <dependencies>
       <group targetFramework=".NET6.0">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
@@ -23,6 +24,7 @@
       </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
@@ -31,6 +33,7 @@
       </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Mono.Cecil" version="0.11.4"/>
@@ -38,6 +41,7 @@
       </group>
       <group targetFramework=".NETFramework4.6.2">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Mono.Cecil" version="0.11.4"/>

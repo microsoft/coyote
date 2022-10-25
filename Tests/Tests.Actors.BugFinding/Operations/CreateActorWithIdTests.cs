@@ -19,13 +19,13 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         {
             [Start]
             [Hot]
-            [OnEventGotoState(typeof(UnitEvent), typeof(S2))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(S2))]
             private class S1 : State
             {
             }
 
             [Hot]
-            [OnEventGotoState(typeof(UnitEvent), typeof(S3))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(S3))]
             private class S2 : State
             {
             }
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             private void InitOnEntry()
             {
-                this.Monitor(typeof(LivenessMonitor), UnitEvent.Instance);
+                this.Monitor(typeof(LivenessMonitor), MonitorUnitEvent.Instance);
             }
         }
 
@@ -124,8 +124,8 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 }
                 else
                 {
-                    this.Monitor(typeof(LivenessMonitor), UnitEvent.Instance);
-                    this.Monitor(typeof(LivenessMonitor), UnitEvent.Instance);
+                    this.Monitor(typeof(LivenessMonitor), MonitorUnitEvent.Instance);
+                    this.Monitor(typeof(LivenessMonitor), MonitorUnitEvent.Instance);
                 }
             }
 

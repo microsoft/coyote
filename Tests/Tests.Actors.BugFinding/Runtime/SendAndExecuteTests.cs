@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
+using MonitorEvent = Microsoft.Coyote.Specifications.Monitor.Event;
 
 namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
 {
@@ -340,11 +341,11 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Runtime
             }
         }
 
-        private class MHalts : Event
+        private class MHalts : MonitorEvent
         {
         }
 
-        private class SEReturns : Event
+        private class SEReturns : MonitorEvent
         {
         }
 

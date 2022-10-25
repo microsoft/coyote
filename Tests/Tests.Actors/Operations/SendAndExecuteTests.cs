@@ -62,14 +62,6 @@ namespace Microsoft.Coyote.Actors.Tests
         {
         }
 
-        private class MHalts : Event
-        {
-        }
-
-        private class SEReturns : Event
-        {
-        }
-
         private class M1 : StateMachine
         {
             [Start]
@@ -211,7 +203,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N3));
                 var handled = await this.Context.SendEventAndExecuteAsync(m, new E3());
-                this.Monitor<SafetyMonitor>(new SEReturns());
+                this.Monitor<SafetyMonitor>(new SafetyMonitor.SEReturns());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
             }
@@ -229,13 +221,21 @@ namespace Microsoft.Coyote.Actors.Tests
 
             protected override Task OnHaltAsync(Event e)
             {
-                this.Monitor<SafetyMonitor>(new MHalts());
+                this.Monitor<SafetyMonitor>(new SafetyMonitor.MHalts());
                 return Task.CompletedTask;
             }
         }
 
         private class SafetyMonitor : Monitor
         {
+            internal class SEReturns : Event
+            {
+            }
+
+            internal class MHalts : Event
+            {
+            }
+
             private bool MHalted = false;
             private bool SEReturned = false;
 

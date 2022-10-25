@@ -13,11 +13,12 @@ namespace Microsoft.Coyote.Samples.DrinksServingRobot
 
         public static void Main()
         {
-            var conf = null as Configuration;
-            // var conf = Configuration.Create().WithVerbosityEnabled();
-
+            // Optional: increases verbosity level to see the Coyote runtime log and sets it to output to the console.
+            // var configuration = Configuration.Create();
+            var configuration = Configuration.Create().WithVerbosityEnabled().WithConsoleLoggingEnabled();
             RunForever = true;
-            IActorRuntime runtime = Actors.RuntimeFactory.Create(conf);
+
+            IActorRuntime runtime = Actors.RuntimeFactory.Create(configuration);
             runtime.OnFailure += OnRuntimeFailure;
             Execute(runtime);
             Console.ReadLine();
@@ -26,9 +27,9 @@ namespace Microsoft.Coyote.Samples.DrinksServingRobot
         [Microsoft.Coyote.SystematicTesting.Test]
         public static void Execute(IActorRuntime runtime)
         {
-            LogWriter.Initialize(runtime.Logger, RunForever);
+            LogWriter.Initialize(runtime.Logger);
             runtime.RegisterMonitor<LivenessMonitor>();
-            ActorId driver = runtime.CreateActor(typeof(FailoverDriver), new FailoverDriver.ConfigEvent(RunForever));
+            runtime.CreateActor(typeof(FailoverDriver), new FailoverDriver.ConfigEvent(RunForever));
         }
 
         private static void OnRuntimeFailure(Exception ex)

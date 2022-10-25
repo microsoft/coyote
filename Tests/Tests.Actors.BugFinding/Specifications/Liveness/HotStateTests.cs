@@ -26,25 +26,11 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
             }
         }
 
-        private class MConfig : Event
-        {
-            public List<ActorId> Ids;
-
-            public MConfig(List<ActorId> ids)
-            {
-                this.Ids = ids;
-            }
-        }
-
         private class DoProcessing : Event
         {
         }
 
         private class FinishedProcessing : Event
-        {
-        }
-
-        private class NotifyWorkerIsDone : Event
         {
         }
 
@@ -70,7 +56,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
                     this.Workers.Add(worker);
                 }
 
-                this.Monitor<M>(new MConfig(this.Workers));
+                this.Monitor<M>(new M.SetupEvent(this.Workers));
                 this.RaiseEvent(UnitEvent.Instance);
             }
 
@@ -90,7 +76,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void ProcessWorkerIsDone()
             {
-                this.Monitor<M>(new NotifyWorkerIsDone());
+                this.Monitor<M>(new M.NotifyWorkerIsDone());
             }
         }
 
@@ -134,20 +120,34 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
         private class M : Monitor
         {
+            internal class SetupEvent : Event
+            {
+                public List<ActorId> Ids;
+
+                public SetupEvent(List<ActorId> ids)
+                {
+                    this.Ids = ids;
+                }
+            }
+
+            internal class NotifyWorkerIsDone : Event
+            {
+            }
+
             private List<ActorId> Workers;
 
             [Start]
             [Hot]
-            [OnEventDoAction(typeof(MConfig), nameof(SetupEvent))]
-            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
+            [OnEventDoAction(typeof(SetupEvent), nameof(Setup))]
+            [OnEventGotoState(typeof(MonitorUnitEvent), typeof(Done))]
             [OnEventDoAction(typeof(NotifyWorkerIsDone), nameof(ProcessNotification))]
             private class Init : State
             {
             }
 
-            private void SetupEvent(Event e)
+            private void Setup(Event e)
             {
-                this.Workers = (e as MConfig).Ids;
+                this.Workers = (e as SetupEvent).Ids;
             }
 
             private void ProcessNotification()
@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
                 if (this.Workers.Count is 0)
                 {
-                    this.RaiseEvent(UnitEvent.Instance);
+                    this.RaiseEvent(MonitorUnitEvent.Instance);
                 }
             }
 

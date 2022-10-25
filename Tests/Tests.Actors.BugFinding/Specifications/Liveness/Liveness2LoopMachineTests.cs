@@ -23,14 +23,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         {
         }
 
-        private class Waiting : Event
-        {
-        }
-
-        private class Computing : Event
-        {
-        }
-
         private class EventHandler : StateMachine
         {
             [Start]
@@ -54,7 +46,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void WaitForUserOnEntry()
             {
-                this.Monitor<LivenessMonitor>(new Waiting());
+                this.Monitor<LivenessMonitor>(new LivenessMonitor.Waiting());
                 this.SendEvent(this.Id, new UserEvent());
             }
 
@@ -65,7 +57,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
             private void HandleEventOnEntry()
             {
-                this.Monitor<LivenessMonitor>(new Computing());
+                this.Monitor<LivenessMonitor>(new LivenessMonitor.Computing());
             }
         }
 
@@ -86,6 +78,14 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
 
         private class LivenessMonitor : Monitor
         {
+            internal class Waiting : Event
+            {
+            }
+
+            internal class Computing : Event
+            {
+            }
+
             [Start]
             [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]

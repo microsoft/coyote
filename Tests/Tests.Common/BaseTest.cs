@@ -103,11 +103,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                if (ex is AggregateException aex)
-                {
-                    ex = aex.Flatten().InnerException;
-                }
-
                 Assert.False(true, ex.Message + "\n" + ex.StackTrace);
             }
 

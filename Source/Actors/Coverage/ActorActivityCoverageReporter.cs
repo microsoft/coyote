@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                     var allMachineEvents = new Dictionary<string, HashSet<string>>();
                     foreach (var item in this.CoverageInfo.RegisteredActorEvents)
                     {
-                        var id = GetMachineId(item.Key);
+                        var id = GetActorId(item.Key);
                         if (id == machine)
                         {
                             uncoveredMachineEvents[item.Key] = new HashSet<string>(item.Value);
@@ -121,9 +121,9 @@ namespace Microsoft.Coyote.Actors.Coverage
                             if (link.Category != "Contains")
                             {
                                 string srcId = link.Source.Id;
-                                string srcMachine = GetMachineId(srcId);
+                                string srcMachine = GetActorId(srcId);
                                 string targetId = link.Target.Id;
-                                string targetMachine = GetMachineId(targetId);
+                                string targetMachine = GetActorId(targetId);
                                 bool intraMachineTransition = targetMachine == machine && srcMachine == machine;
                                 if (intraMachineTransition)
                                 {
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Actors.Coverage
             }
         }
 
-        private static string GetMachineId(string nodeId)
+        private static string GetActorId(string nodeId)
         {
             int i = nodeId.LastIndexOf(".");
             if (i > 0)

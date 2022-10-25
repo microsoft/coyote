@@ -241,26 +241,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.LogWriter.LogWarning("... Test timed out.");
                 }
             }
-            catch (AggregateException aex)
-            {
-                aex.Handle((ex) =>
-                {
-                    this.LogWriter.LogDebug(ex.Message);
-                    this.LogWriter.LogDebug(ex.StackTrace);
-                    return false;
-                });
-
-                if (aex.InnerException is FileNotFoundException)
-                {
-                    this.LogWriter.LogError(aex.InnerException.Message);
-                }
-                else
-                {
-                    this.LogWriter.LogError("Unhandled or internal exception was thrown. Please enable debug verbosity to print more information.");
-                }
-
-                ExceptionDispatchInfo.Capture(aex).Throw();
-            }
             catch (Exception ex)
             {
                 if (ex is AggregateException aex)
@@ -274,7 +254,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
                 else
                 {
-                    this.LogWriter.LogError("... Test failed due to an internal error: {0}", ex);
+                    this.LogWriter.LogError("... Test failed due to an internal '{0}' exception.", ex.GetType().FullName);
                     this.TestReport.InternalErrors.Add(ex.ToString());
                 }
 

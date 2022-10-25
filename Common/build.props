@@ -11,10 +11,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://microsoft.github.io/coyote/</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageLicenseFile>./LICENSE</PackageLicenseFile>
-    <PackageIcon>../docs/assets/images/icon.png</PackageIcon>
-    <PackageReadmeFile>../README.md</PackageReadmeFile>
+    <PackageIcon>images\icon.png</PackageIcon>
+    <PackageReadmeFile>docs\readme.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -65,6 +64,9 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\..\docs\assets\images\icon.png" Pack="true" PackagePath="images"/>
+    <None Include="$(MSBuildThisFileDirectory)\..\README.md" Pack="true" PackagePath="docs\readme.md"/>
+    <None Include="$(MSBuildThisFileDirectory)\..\LICENSE" Pack="true" PackagePath="" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" />
   </ItemGroup>
 </Project>

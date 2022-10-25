@@ -51,14 +51,20 @@ Write-Host "Generating new markdown under $target"
 & $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.dll" -o $target --namespace Microsoft.Coyote
 $coyotetoc = Get-Content -Path "$target\toc.yml"
 
-& $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.Test.dll" -o $target --namespace Microsoft.Coyote.Test
-$newtoc = Get-Content -Path "$target\toc.yml"
-$newtoc = [System.Collections.ArrayList]$newtoc
-$newtoc.RemoveRange(0, 1); # remove -toc and assembly header
-$newtoc.InsertRange(0, $coyotetoc)
+& $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.Actors.dll" -o $target --namespace Microsoft.Coyote.Actors
+$actorstoc = Get-Content -Path "$target\toc.yml"
+$actorstoc = [System.Collections.ArrayList]$actorstoc
+$actorstoc.RemoveRange(0, 1); # remove -toc and assembly header
+$actorstoc.InsertRange(0, $coyotetoc)
 
-# Save the merged toc containing both the contents of Microsoft.Coyote.dll and Microsoft.Coyote.Test.dll.
-Set-Content -Path "$target\toc.yml" -Value $newtoc
+& $gendoc gen "$root_dir\bin\$framework\Microsoft.Coyote.Test.dll" -o $target --namespace Microsoft.Coyote.Test
+$mergedtoc = Get-Content -Path "$target\toc.yml"
+$mergedtoc = [System.Collections.ArrayList]$mergedtoc
+$mergedtoc.RemoveRange(0, 1); # remove -toc and assembly header
+$mergedtoc.InsertRange(0, $actorstoc)
+
+# Save the merged toc containing the contents of all assemblies.
+Set-Content -Path "$target\toc.yml" -Value $mergedtoc
 
 Write-Host "Merging $toc..."
 # Now merge the new toc.

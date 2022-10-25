@@ -3,7 +3,8 @@
     <Description>The Coyote core libraries and runtime.</Description>
     <AssemblyName>Microsoft.Coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <PackageTags>systematic-testing;concurrency;tasks;dotnet;csharp</PackageTags>
+    <PackageId>Microsoft.Coyote.Core</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
     <Framework462Supported>false</Framework462Supported>
   </PropertyGroup>

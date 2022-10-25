@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote command line tool.</Description>
+    <Description>The Coyote systematic testing command line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Coyote</RootNamespace>
     <ToolCommandName>coyote</ToolCommandName>
-    <PackageTags>systematic;tester;coyote</PackageTags>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>

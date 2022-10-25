@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote systematic testing library.</Description>
+    <Description>The Coyote systematic testing library and engine.</Description>
     <AssemblyName>Microsoft.Coyote.Test</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
-    <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
+    <PackageId>Microsoft.Coyote.Test</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
     <Framework462Supported>false</Framework462Supported>
   </PropertyGroup>

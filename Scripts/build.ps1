@@ -85,19 +85,24 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
             $cmd_options = "$cmd_options -Suffix $version_suffix"
         }
 
-        Write-Comment -text "Creating the 'Microsoft.Coyote' package." -color "magenta"
+        Write-Comment -text "Building the 'Microsoft.Coyote' package." -color "magenta"
         $command = "pack $PSScriptRoot/NuGet/Coyote.nuspec $cmd_options"
-        $error_msg = "Failed to build the Coyote NuGet package"
+        $error_msg = "Failed to build the 'Microsoft.Coyote' package"
         Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
 
-        Write-Comment -text "Creating the 'Microsoft.Coyote.Test' package." -color "magenta"
+        Write-Comment -text "Building the 'Microsoft.Coyote.Actors' package." -color "magenta"
+        $command = "pack $PSScriptRoot/NuGet/Coyote.Actors.nuspec $cmd_options"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.Actors' package"
+        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Building the 'Microsoft.Coyote.Test' package." -color "magenta"
         $command = "pack $PSScriptRoot/NuGet/Coyote.Test.nuspec $cmd_options"
-        $error_msg = "Failed to build the Coyote Test NuGet package"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.Test' package"
         Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
 
-        Write-Comment -text "Creating the 'Microsoft.Coyote.CLI' package." -color "magenta"
+        Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
         $command = "pack $PSScriptRoot/NuGet/Coyote.CLI.nuspec $cmd_options -Tool"
-        $error_msg = "Failed to build the Coyote CLI NuGet package"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
         Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
     } else {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"

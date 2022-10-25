@@ -16,6 +16,7 @@
     <dependencies>
       <group targetFramework=".NET6.0">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
@@ -23,6 +24,7 @@
       </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Microsoft.Extensions.DependencyModel" version="6.0.0"/>
@@ -31,6 +33,7 @@
       </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Mono.Cecil" version="0.11.4"/>
@@ -38,6 +41,7 @@
       </group>
       <group targetFramework=".NETFramework4.6.2">
         <dependency id="Microsoft.Coyote" version="$version$"/>
+        <dependency id="Microsoft.Coyote.Actors" version="$version$"/>
         <dependency id="Microsoft.ApplicationInsights" version="2.20.0"/>
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
         <dependency id="Mono.Cecil" version="0.11.4"/>

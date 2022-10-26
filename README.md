@@ -1,6 +1,7 @@
 # `Coyote`
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
+[![Nuget](https://img.shields.io/nuget/dt/Microsoft.Coyote)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/coyote_dev?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=coyote_dev)
 
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)

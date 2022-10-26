@@ -35,8 +35,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
-    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" >
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" >
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Remove="Coyote.CLI.csproj" />

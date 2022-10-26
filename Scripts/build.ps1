@@ -65,35 +65,35 @@ Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 if ($nuget.IsPresent -and $ci.IsPresent) {
     if ($IsWindows) {
         Write-Comment -text "Building the Coyote NuGet packages." -color "blue"
-        $cmd_options = "-c $configuration --no-build $extra_frameworks"
+        $cmd = "pack -c $configuration $extra_frameworks"
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Core' package." -color "magenta"
-        $command = "pack $cmd_options $PSScriptRoot/../Source/Core/Core.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Core/Core.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Core' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Actors' package." -color "magenta"
-        $command = "pack $cmd_options $PSScriptRoot/../Source/Actors/Actors.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Actors/Actors.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Actors' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Test' package." -color "magenta"
-        $command = "pack $cmd_options $PSScriptRoot/../Source/Test/Test.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Test/Test.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Test' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Tool' package." -color "magenta"
-        $command = "pack $cmd_options $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Tool' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        $command = "pack $cmd_options /p:BUILD_COYOTE_DOTNET_TOOL=yes $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Tools/Coyote/Coyote.CLI.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
-        $command = "pack $cmd_options $PSScriptRoot/NuGet/Coyote.csproj"
+        $command = "$cmd $PSScriptRoot/NuGet/Coyote.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {

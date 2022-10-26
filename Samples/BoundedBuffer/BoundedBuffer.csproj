@@ -3,5 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <OutputPath>..\bin\</OutputPath>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>

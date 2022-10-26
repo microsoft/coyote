@@ -57,7 +57,7 @@ if ($ci.IsPresent) {
 
 Write-Comment -text "Using configuration '$configuration'." -color "magenta"
 $solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
-$command = "build -c $configuration $solution /p:Platform=""Any CPU"" $extra_frameworks"
+$command = "build -c $configuration /p:Platform=""Any CPU"" $extra_frameworks $solution"
 
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
@@ -82,14 +82,19 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
         $error_msg = "Failed to build the 'Microsoft.Coyote.Test' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
-        Write-Comment -text "Building the 'Microsoft.Coyote' package." -color "magenta"
+        Write-Comment -text "Building the 'Microsoft.Coyote.Tool' package." -color "magenta"
         $command = "pack $cmd_options $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
-        $error_msg = "Failed to build the 'Microsoft.Coyote' package"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.Tool' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        $command = "pack $cmd_options /p:BUILD_COYOTE_CLI_AS_TOOL=yes $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
+        $command = "pack $cmd_options /p:BUILD_COYOTE_DOTNET_TOOL=yes $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
+        $command = "pack $cmd_options $PSScriptRoot/NuGet/Coyote.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"

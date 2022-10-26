@@ -5,6 +5,7 @@
     <RootNamespace>ImageGallery.Tests</RootNamespace>
     <OutputType>Exe</OutputType>
     <OutputPath>..\bin\</OutputPath>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tests\Tests.csproj" />

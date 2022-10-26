@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.</Description>
-    <!-- <AssemblyName>coyote</AssemblyName> -->
     <PackageId>Microsoft.Coyote</PackageId>
     <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <OutputPath>..\..\bin\</OutputPath>
+    <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup>
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <Framework462Supported>false</Framework462Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

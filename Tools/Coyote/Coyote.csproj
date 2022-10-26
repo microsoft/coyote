@@ -3,44 +3,69 @@
     <Description>The Coyote systematic testing command line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
+    <PackageId>Microsoft.Coyote.Tool</PackageId>
     <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <BuildOutputTargetFolder>tools</BuildOutputTargetFolder>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(BUILD_COYOTE_CLI_AS_TOOL)'=='yes'">
-    <PackageId>Microsoft.Coyote.CLI</PackageId>
-    <ToolCommandName>coyote</ToolCommandName>
-    <PackAsTool>true</PackAsTool>
-    <Framework462Supported>false</Framework462Supported>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(BUILD_COYOTE_CLI_AS_TOOL)'==''">
-    <PackageId>Microsoft.Coyote</PackageId>
-  </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" >
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" >
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <FrameworkReference Include="Microsoft.NETCore.App" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <FrameworkReference Include="Microsoft.NETCore.App" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net462'">
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Coyote.CLI.csproj" />
     <None Remove="update-runtime-config.ps1" />
   </ItemGroup>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
+  </Target>
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);ToolDependenciesTarget</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);LibDependenciesTarget</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="ToolDependenciesTarget">
+    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
+    <ItemGroup>
+      <BuildOutputInPackage
+          Include="$(OutputPath)\*.dll;$(OutputPath)\*.json;$(OutputPath)\*.xml"
+          Exclude="$(OutputPath)\$(AssemblyName).*;$(OutputPath)\runtimes"
+        >
+        <TargetPath></TargetPath>
+      </BuildOutputInPackage>
+    </ItemGroup>
+  </Target>
+  <Target Name="LibDependenciesTarget">
+    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/../../Scripts/NuGet/_._">
+        <PackagePath>lib/$(TargetFramework)</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
   </Target>
 </Project>

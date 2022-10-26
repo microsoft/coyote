@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>The Coyote .NET command-line tool.</Description>
+    <AssemblyName>coyote</AssemblyName>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+    <RootNamespace>Microsoft.Coyote</RootNamespace>
+    <PackageId>Microsoft.Coyote.CLI</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp;cli;tool</PackageTags>
+    <PackAsTool>true</PackAsTool>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\..\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Coyote.csproj" />
+    <None Remove="update-runtime-config.ps1" />
+  </ItemGroup>
+  <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
+  </Target>
+</Project>

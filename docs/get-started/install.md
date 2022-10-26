@@ -1,6 +1,7 @@
 ## Installing Coyote
 
-Coyote is an open-source cross-platform .NET library and tool, which means it can be used on Windows, Linux and macOS.
+Coyote is an open-source cross-platform .NET library and tool, which means it can be used on
+Windows, Linux and macOS.
 
 ### Prerequisites
 
@@ -14,7 +15,11 @@ frameworks supported by Coyote:
 | .NET Standard 2.0     | Linux, macOS, Windows |
 | .NET Framework 4.6.2  | Windows               |
 
-Learn more about the .NET target frameworks [here](https://learn.microsoft.com/en-us/dotnet/standard/frameworks) and .NET Standard [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard). Coyote supports new .NET target frameworks once they are released, and until they reach [end-of-life](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
+Learn more about the .NET target frameworks
+[here](https://learn.microsoft.com/en-us/dotnet/standard/frameworks) and .NET Standard
+[here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard). Coyote supports new .NET
+target frameworks once they are released, and until they reach
+[end-of-life](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
 
 Additionally, you can **optionally** install:
 - [Visual Studio Code](https://code.visualstudio.com/Download), which is cross-platform.
@@ -22,26 +27,32 @@ Additionally, you can **optionally** install:
 if you are on Windows.
 - The [DGML editor](../how-to/generate-dgml.md) feature of Visual Studio 2022.
 
-### Installing the NuGet package
+### Installing the Coyote NuGet packages
 
 The Coyote libraries can be easily installed by adding the
-[`Microsoft.Coyote`](https://www.nuget.org/packages/Microsoft.Coyote/) NuGet package and the
-[`Microsoft.Coyote.Test`](https://www.nuget.org/packages/Microsoft.Coyote.Test/) NuGet package to
-your C# project. You can then immediately start programming the Coyote API as shown in the
+[`Microsoft.Coyote.Core`](https://www.nuget.org/packages/Microsoft.Coyote.Core/) NuGet package and
+the [`Microsoft.Coyote.Test`](https://www.nuget.org/packages/Microsoft.Coyote.Test/) NuGet package
+to your C# project. You can then immediately start programming the Coyote API as shown in the
 [samples](https://github.com/microsoft/coyote/tree/main/Samples).
 
 You can manually add Coyote to your C# project by using:
+```plain
+dotnet add <yourproject>.csproj package Microsoft.Coyote.Core
+dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
+```
 
+Alternatively, Coyote provides the
+[`Microsoft.Coyote`](https://www.nuget.org/packages/Microsoft.Coyote/) NuGet meta-package, which
+includes all the other Coyote packages. You can install this by using:
 ```plain
 dotnet add <yourproject>.csproj package Microsoft.Coyote
-dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
 ```
 
 ### Installing the Coyote tool
 
-You can install and use the `coyote` tool without having to build Coyote from source. To use the
-cross-platform `coyote` command-line tool, you must first install it as a `dotnet tool` using the
-following command:
+You can install and use the cross-platform `coyote` command-line tool without having to build Coyote
+from source. To use `coyote` from the command-line, you must first install it as a `dotnet tool`
+using the following command:
 ```plain
 dotnet tool install --global Microsoft.Coyote.CLI
 ```
@@ -95,13 +106,22 @@ Each time you clone your repo and want to restore the `coyote` tool, you can run
 dotnet tool restore
 ```
 
-You can also edit the `<path>/.config/dotnet-tools.json` file to upgrade the version of `coyote` and run the same `dotnet tool restore` command to upgrade the tool.
+You can also edit the `<path>/.config/dotnet-tools.json` file to upgrade the version of `coyote` and
+run the same `dotnet tool restore` command to upgrade the tool.
 
-Learn more about .NET tools and how to manage them [here](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).
+Learn more about .NET tools and how to manage them
+[here](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).
 
-**Note:** this command line tool is only for the cross-platform .NET target frameworks. If you need
-a version of `coyote.exe` that runs on .NET Framework for Windows, this is installed from the
-`Microsoft.Coyote.Test` package, and you can run it from the bin folder of your Coyote application.
+**Note:** the above command line tool is only for the cross-platform .NET target frameworks. If you
+prefer to not install and manage `coyote` as a .NET tool (via the `dotnet tool` command), or you
+need a version of `coyote.exe` that runs on .NET Framework for Windows, then you can instead download
+the [`Microsoft.Coyote.Tool`](https://www.nuget.org/packages/Microsoft.Coyote.Tool/) NuGet package, which
+includes the self-contained tool for all supported target frameworks. To install this package run:
+```plain
+dotnet add package Microsoft.Coyote.Tool
+```
+You will find the `coyote` executable in the `tools\<dotnet_target_framework>` directory of the
+package, and you can run it from inside that directory.
 
 ### Using the Coyote tool
 

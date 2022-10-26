@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.</Description>
+    <!-- <AssemblyName>coyote</AssemblyName> -->
+    <PackageId>Microsoft.Coyote</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <Framework462Supported>false</Framework462Supported>
+    <NoBuild>true</NoBuild>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Actors\Actors.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="_._" />
+  </ItemGroup>
+
+  <!-- <PropertyGroup Condition="'$(BUILD_COYOTE_DOTNET_TOOL)'==''">
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);ToolDependenciesTarget</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="ToolDependenciesTarget" Condition="'$(BUILD_COYOTE_DOTNET_TOOL)'==''">
+    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
+    <ItemGroup>
+      <BuildOutputInPackage
+          Include="$(OutputPath)\*.dll;$(OutputPath)\*.json;$(OutputPath)\*.xml"
+          Exclude="$(OutputPath)\$(AssemblyName).*;$(OutputPath)\runtimes"
+        >
+        <TargetPath></TargetPath>
+      </BuildOutputInPackage>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup Condition="'$(BUILD_COYOTE_DOTNET_TOOL)'==''">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);LibDependenciesTarget</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="LibDependenciesTarget" Condition="'$(BUILD_COYOTE_DOTNET_TOOL)'==''">
+    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="_._">
+        <PackagePath>lib/$(TargetFramework)</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target> -->
+</Project>

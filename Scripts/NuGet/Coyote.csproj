@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.</Description>
+    <!-- <AssemblyName>coyote</AssemblyName> -->
+    <PackageId>Microsoft.Coyote</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <NoBuild>true</NoBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Actors\Actors.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);LibDependenciesTarget</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="LibDependenciesTarget">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="_._">
+        <PackagePath>lib/$(TargetFramework)</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+</Project>

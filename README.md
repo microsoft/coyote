@@ -79,7 +79,9 @@ fixing the issue significantly easier.
 
 ## Get started
 
-Getting started with Coyote is easy! Check out
+Getting started with Coyote is easy! First, follow this
+[guide](https://microsoft.github.io/coyote/#get-started/install/) to install `coyote` from
+[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). Then, check out
 [https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
 documentation, how-tos, samples and more information about the project. Enjoy!
 

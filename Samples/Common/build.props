@@ -13,6 +13,7 @@
     <UseNugetPackages Condition="'$(UseLocalNugetPackages)'=='yes'">False</UseNugetPackages>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -32,8 +33,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCoyote)'=='false'">
     <PackageReference Include="Microsoft.Coyote" Version="$(Version)" />
-    <PackageReference Include="Microsoft.Coyote.Actors" Version="$(Version)" />
-    <PackageReference Include="Microsoft.Coyote.Test" Version="$(Version)" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCoyote)'=='true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)\..\..\Source\Core\Core.csproj" />

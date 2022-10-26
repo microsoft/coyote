@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Rewriting.Tests.Helpers</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
+    <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

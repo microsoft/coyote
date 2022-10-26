@@ -1,6 +1,7 @@
 # `Coyote`
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
+[![Nuget](https://img.shields.io/nuget/dt/Microsoft.Coyote)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/coyote_dev?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=coyote_dev)
 
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
@@ -79,7 +80,9 @@ fixing the issue significantly easier.
 
 ## Get started
 
-Getting started with Coyote is easy! Check out
+Getting started with Coyote is easy! First, follow this
+[guide](https://microsoft.github.io/coyote/#get-started/install/) to install `coyote` from
+[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). Then, check out
 [https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
 documentation, how-tos, samples and more information about the project. Enjoy!
 

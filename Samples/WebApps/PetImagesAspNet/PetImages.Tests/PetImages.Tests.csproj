@@ -4,6 +4,7 @@
     <AssemblyName>PetImages.Tests</AssemblyName>
     <OutputPath>.\bin\</OutputPath>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\PetImages\PetImages.csproj" />

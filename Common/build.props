@@ -3,12 +3,25 @@
   <Import Project="version.props"/>
   <PropertyGroup>
     <Product>Coyote</Product>
+    <Authors>Microsoft Corporation</Authors>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
     <RepositoryUrl>https://github.com/microsoft/coyote</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <PropertyGroup>
+    <PackageProjectUrl>https://microsoft.github.io/coyote/</PackageProjectUrl>
+    <PackageIcon>images\icon.png</PackageIcon>
+    <PackageReadmeFile>docs\readme.md</PackageReadmeFile>
+    <PackageReleaseNotes>https://github.com/microsoft/coyote/blob/main/History.md</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PublishRelease>true</PublishRelease>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
@@ -53,6 +66,9 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\..\docs\assets\images\icon.png" Pack="true" PackagePath="images"/>
+    <None Include="$(MSBuildThisFileDirectory)\..\README.md" Pack="true" PackagePath="docs\readme.md"/>
+    <None Include="$(MSBuildThisFileDirectory)\..\LICENSE" Pack="true" PackagePath="" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" />
   </ItemGroup>
 </Project>

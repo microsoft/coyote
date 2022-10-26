@@ -36,74 +36,66 @@ if ($null -eq $sdk_version) {
     exit 1
 }
 
-Write-Comment -text "Using configuration '$configuration'." -color "magenta"
-$solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
-$command = "build -c $configuration $solution /p:Platform=""Any CPU"""
-
+$extra_frameworks = ""
 if ($ci.IsPresent) {
     # Build any supported .NET versions that are installed on this machine.
     if ($version_net4) {
         # Build .NET Framework 4.x as well as the latest version.
-        $command = $command + " /p:BUILD_NET462=yes"
+        $extra_frameworks = $extra_frameworks + " /p:BUILD_NET462=yes"
     }
 
     if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {
         # Build .NET Core 3.1 as well as the latest version.
-        $command = $command + " /p:BUILD_NETCORE31=yes"
+        $extra_frameworks = $extra_frameworks + " /p:BUILD_NETCORE31=yes"
     }
 
     # if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version) {
     #     # Build .NET 5.0 as well as the latest version.
-    #     $command = $command + " /p:BUILD_NET5=yes"
+    #     $extra_frameworks = $extra_frameworks + " /p:BUILD_NET5=yes"
     # }
 }
+
+Write-Comment -text "Using configuration '$configuration'." -color "magenta"
+$solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
+$command = "build -c $configuration /p:Platform=""Any CPU"" $extra_frameworks $solution"
 
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
 if ($nuget.IsPresent -and $ci.IsPresent) {
     if ($IsWindows) {
-        # Check that NuGet.exe is installed.
-        $nuget_cli = "nuget"
-        if (-not (Get-Command $nuget_cli -errorAction SilentlyContinue)) {
-            Write-Comment -text "Please install the latest NuGet.exe from https://www.nuget.org/downloads and add it to the PATH environment variable." -color "yellow"
-            exit 1
-        }
-
         Write-Comment -text "Building the Coyote NuGet packages." -color "blue"
+        $cmd = "pack -c $configuration $extra_frameworks"
 
-        # Extract the package version.
-        $version_file = "$PSScriptRoot/../Common/version.props"
-        $version_node = Select-Xml -Path $version_file -XPath "/" | Select-Object -ExpandProperty Node
-        $version = $version_node.Project.PropertyGroup.VersionPrefix
-        $version_suffix = $version_node.Project.PropertyGroup.VersionSuffix
-
-        # Setup the command line options for nuget pack.
-        $cmd_options = "-OutputDirectory $PSScriptRoot/../bin/nuget -Version $version"
-        $cmd_options = "$cmd_options -Symbols -SymbolPackageFormat snupkg"
-        if ($version_suffix) {
-            $cmd_options = "$cmd_options -Suffix $version_suffix"
-        }
-
-        Write-Comment -text "Building the 'Microsoft.Coyote' package." -color "magenta"
-        $command = "pack $PSScriptRoot/NuGet/Coyote.nuspec $cmd_options"
-        $error_msg = "Failed to build the 'Microsoft.Coyote' package"
-        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+        Write-Comment -text "Building the 'Microsoft.Coyote.Core' package." -color "magenta"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Core/Core.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.Core' package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Actors' package." -color "magenta"
-        $command = "pack $PSScriptRoot/NuGet/Coyote.Actors.nuspec $cmd_options"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Actors/Actors.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Actors' package"
-        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Test' package." -color "magenta"
-        $command = "pack $PSScriptRoot/NuGet/Coyote.Test.nuspec $cmd_options"
+        $command = "$cmd --no-build $PSScriptRoot/../Source/Test/Test.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.Test' package"
-        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Building the 'Microsoft.Coyote.Tool' package." -color "magenta"
+        $command = "$cmd --no-build $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.Tool' package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        $command = "pack $PSScriptRoot/NuGet/Coyote.CLI.nuspec $cmd_options -Tool"
+        $command = "$cmd $PSScriptRoot/../Tools/CLI/Coyote.CLI.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
-        Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
+
+        Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
+        $command = "$cmd $PSScriptRoot/NuGet/Coyote.Meta.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"
     }

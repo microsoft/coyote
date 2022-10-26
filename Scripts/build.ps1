@@ -88,7 +88,7 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        $command = "$cmd --no-build $PSScriptRoot/../Tools/CLI/Coyote.CLI.csproj"
+        $command = "$cmd $PSScriptRoot/../Tools/CLI/Coyote.CLI.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 

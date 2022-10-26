@@ -29,8 +29,8 @@
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\**\*.cs"/>
-    <Compile Exclude="$(MSBuildProjectDirectory)\..\Coyote\obj\"/>
+    <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\*.cs"/>
+    <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\Cli\*.cs"/>
   </ItemGroup>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Exec Command="pwsh -c $(MSBuildProjectDirectory)/../Coyote/update-runtime-config.ps1 -outputPath $(OutputPath)" />

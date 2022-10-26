@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote systematic testing command line tool.</Description>
+    <Description>The self-contained Coyote command-line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
     <PackageId>Microsoft.Coyote.Tool</PackageId>

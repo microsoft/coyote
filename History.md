@@ -1,5 +1,10 @@
-## v1.6.3
-- Refactored the NuGet packages and moved `Microsoft.Coyote.Actors` to its own dedicated package.
+## v1.7.0
+- Refactored the NuGet packages, by moving `Microsoft.Coyote.Actors` to its own dedicated package,
+  introducing a new `Microsoft.Coyote.Tool` package that contains the self-contained `coyote`
+  command-line tool (for users that do not want to manage `coyote` via the `Microsoft.Coyote.CLI`
+  .NET tool), introducing a new `Microsoft.Coyote.Core` package that only contains the core runtime
+  library of Coyote, and converting the `Microsoft.Coyote` NuGet package into a meta-package that
+  pulls all non-tool packages.
 - Moved the actor `Event` type under the `Microsoft.Coyote.Actors` namespace.
 - Introduced a `Monitor.Event` type (nested in the `Microsoft.Coyote.Specifications.Monitor` class),
   which must now be used for declaring specification monitor events.

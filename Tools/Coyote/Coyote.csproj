@@ -43,7 +43,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Coyote.CLI.csproj" />
     <None Remove="update-runtime-config.ps1" />
   </ItemGroup>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

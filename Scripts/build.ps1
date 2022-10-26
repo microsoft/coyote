@@ -88,12 +88,12 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        $command = "$cmd --no-build $PSScriptRoot/../Tools/Coyote/Coyote.CLI.csproj"
+        $command = "$cmd --no-build $PSScriptRoot/../Tools/CLI/Coyote.CLI.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
         Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
-        $command = "$cmd $PSScriptRoot/NuGet/Coyote.csproj"
+        $command = "$cmd $PSScriptRoot/NuGet/Coyote.Meta.csproj"
         $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {

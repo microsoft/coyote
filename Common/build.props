@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://microsoft.github.io/coyote/</PackageProjectUrl>
     <PackageIcon>images\icon.png</PackageIcon>
     <PackageReadmeFile>docs\readme.md</PackageReadmeFile>
-    <PackageReleaseNotes>See https://github.com/microsoft/coyote/blob/main/History.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/microsoft/coyote/blob/main/History.md</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
   </PropertyGroup>

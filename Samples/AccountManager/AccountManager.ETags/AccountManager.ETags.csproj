@@ -5,7 +5,6 @@
     <RootNamespace>Microsoft.Coyote.Samples.AccountManager.ETags</RootNamespace>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

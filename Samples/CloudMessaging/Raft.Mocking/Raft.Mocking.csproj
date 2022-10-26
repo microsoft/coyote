@@ -3,7 +3,6 @@
     <AssemblyName>Raft.Mocking</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Samples.CloudMessaging</RootNamespace>
     <OutputPath>..\..\bin\</OutputPath>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">

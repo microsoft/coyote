@@ -65,7 +65,7 @@ Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 if ($nuget.IsPresent -and $ci.IsPresent) {
     if ($IsWindows) {
         Write-Comment -text "Building the Coyote NuGet packages." -color "blue"
-        $cmd_options = "-o $PSScriptRoot/../bin/nuget -c $configuration --no-build $extra_frameworks"
+        $cmd_options = "-c $configuration --no-build $extra_frameworks"
 
         Write-Comment -text "Building the 'Microsoft.Coyote.Core' package." -color "magenta"
         $command = "pack $cmd_options $PSScriptRoot/../Source/Core/Core.csproj"
@@ -87,10 +87,10 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
         $error_msg = "Failed to build the 'Microsoft.Coyote' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
-        # Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
-        # $command = "pack $PSScriptRoot/NuGet/Coyote.CLI.nuspec $cmd_options -Tool"
-        # $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
-        # Invoke-ToolCommand -tool $nuget_cli -cmd $command -error_msg $error_msg
+        Write-Comment -text "Building the 'Microsoft.Coyote.CLI' package." -color "magenta"
+        $command = "pack $cmd_options /p:BUILD_COYOTE_CLI_AS_TOOL=yes $PSScriptRoot/../Tools/Coyote/Coyote.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"
     }

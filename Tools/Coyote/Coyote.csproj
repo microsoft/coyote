@@ -3,12 +3,20 @@
     <Description>The Coyote systematic testing command line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <PackageId>Microsoft.Coyote</PackageId>
     <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BUILD_COYOTE_CLI_AS_TOOL)'=='yes'">
+    <PackageId>Microsoft.Coyote.CLI</PackageId>
+    <ToolCommandName>coyote</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BUILD_COYOTE_CLI_AS_TOOL)'==''">
+    <PackageId>Microsoft.Coyote</PackageId>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -30,8 +38,6 @@
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Coyote.CLI.csproj" />
-    <None Remove="DotnetToolSettings.xml" />
     <None Remove="update-runtime-config.ps1" />
   </ItemGroup>
   <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

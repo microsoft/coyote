@@ -53,7 +53,6 @@
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);LibDependenciesTarget</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <Target Name="ToolDependenciesTarget">
-    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
     <ItemGroup>
       <BuildOutputInPackage
           Include="$(OutputPath)\*.dll;$(OutputPath)\*.json;$(OutputPath)\*.xml"
@@ -64,7 +63,6 @@
     </ItemGroup>
   </Target>
   <Target Name="LibDependenciesTarget">
-    <Message Text="Including dependencies from $(OutputPath) for $(AssemblyName)" Importance="high" />
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/../../Scripts/NuGet/_._">
         <PackagePath>lib/$(TargetFramework)</PackagePath>

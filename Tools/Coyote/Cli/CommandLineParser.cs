@@ -879,7 +879,7 @@ namespace Microsoft.Coyote.Cli
                         switch (result.GetValueOrDefault<string>())
                         {
                             case "unfair":
-                            this.Configuration.PortfolioMode = PortfolioMode.Unfair;
+                                this.Configuration.PortfolioMode = PortfolioMode.Unfair;
                                 break;
                             case "fair":
                             default:

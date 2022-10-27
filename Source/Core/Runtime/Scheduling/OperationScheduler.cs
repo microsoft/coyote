@@ -8,12 +8,12 @@ using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Interleaving;
 using BoundedRandomFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.BoundedRandomStrategy;
-using RandomInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.RandomStrategy;
+using DFSInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DFSStrategy;
 using PrioritizationFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.PrioritizationStrategy;
 using PrioritizationInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.PrioritizationStrategy;
 using ProbabilisticRandomInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.ProbabilisticRandomStrategy;
 using QLearningInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.QLearningStrategy;
-using DFSInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DFSStrategy;
+using RandomInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.RandomStrategy;
 
 namespace Microsoft.Coyote.Runtime
 {

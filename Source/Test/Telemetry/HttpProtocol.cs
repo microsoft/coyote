@@ -19,7 +19,27 @@ namespace Microsoft.Coyote.Telemetry
         private const string BaseUrl = "https://www.google-analytics.com/mp/collect";
         private const string DebugBaseUrl = "https://www.google-analytics.com/debug/mp/collect";
 
-        public static async Task PostMeasurements(Analytics a)
+        public static Task PostMeasurements(Analytics a)
+        {
+            return Post(BaseUrl, a);
+        }
+
+        public static async Task<ValidationResponse> ValidateMeasurements(Analytics a)
+        {
+            var response = await Post(DebugBaseUrl, a);
+            if (response.Content != null)
+            {
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    var responseSerializer = new DataContractJsonSerializer(typeof(ValidationResponse));
+                    return (ValidationResponse)responseSerializer.ReadObject(stream);
+                }
+            }
+
+            throw new Exception("No validation response");
+        }
+
+        private static async Task<HttpResponseMessage> Post(string baseUri, Analytics a)
         {
             const string guide = "\r\nSee https://developers.google.com/analytics/devguides/collection/protocol/ga4";
 
@@ -28,8 +48,13 @@ namespace Microsoft.Coyote.Telemetry
                 throw new Exception("A maximum of 25 events can be specified per request." + guide);
             }
 
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+            {
+                throw new Exception("A network intercace is not available");
+            }
+
             string query = a.ToQueryString();
-            string url = BaseUrl + "?" + query;
+            string url = baseUri + "?" + query;
 
             if (string.IsNullOrEmpty(a.UserId))
             {
@@ -57,6 +82,7 @@ namespace Microsoft.Coyote.Telemetry
             var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await client.PostAsync(new Uri(url), jsonContent);
             response.EnsureSuccessStatusCode();
+            return response;
         }
 
         private static void AddUserProperties(HttpClient client, Analytics a)
@@ -73,56 +99,6 @@ namespace Microsoft.Coyote.Telemetry
                 PlatformVersion = new UserPropertyValue(RuntimeInformation.OSDescription),
                 Language = new UserPropertyValue(CultureInfo.CurrentCulture.Name)
             };
-        }
-
-        public static async Task<ValidationResponse> ValidateMeasurements(Analytics a)
-        {
-            const string guide = "\r\nSee https://developers.google.com/analytics/devguides/collection/protocol/ga4";
-
-            if (a.Events.Count > 25)
-            {
-                throw new Exception("A maximum of 25 events can be specified per request." + guide);
-            }
-
-            string query = a.ToQueryString();
-            string url = DebugBaseUrl + "?" + query;
-
-            if (string.IsNullOrEmpty(a.UserId))
-            {
-                a.UserId = a.ClientId;
-            }
-
-            HttpClient client = new HttpClient();
-            AddUserProperties(client, a);
-            DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings();
-            settings.EmitTypeInformation = EmitTypeInformation.Never;
-            settings.UseSimpleDictionaryFormat = true;
-            settings.KnownTypes = GetKnownTypes(a);
-            var serializer = new DataContractJsonSerializer(typeof(Analytics), settings);
-            var ms = new MemoryStream();
-            serializer.WriteObject(ms, a);
-            var bytes = ms.GetBuffer();
-
-            if (bytes.Length > 130000)
-            {
-                throw new Exception("The total size of analytics payloads cannot be greater than 130kb bytes" + guide);
-            }
-
-            var json = Encoding.UTF8.GetString(bytes);
-            json = new StreamReader("d:\\temp\\json2.json").ReadToEnd();
-            var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(new Uri(url), jsonContent);
-            response.EnsureSuccessStatusCode();
-            if (response.Content != null)
-            {
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                {
-                    var responseSerializer = new DataContractJsonSerializer(typeof(ValidationResponse));
-                    return (ValidationResponse)responseSerializer.ReadObject(stream);
-                }
-            }
-
-            throw new Exception("No validation response");
         }
 
         private static Type[] GetKnownTypes(Analytics a)

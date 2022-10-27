@@ -9,9 +9,9 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// Abstract scheduling strategy used to interleave the schedule of operations.
+    /// Abstract exploration strategy used during controlled testing.
     /// </summary>
-    internal abstract class InterleavingStrategy : ExplorationStrategy
+    internal abstract class InterleavingStrategy : Strategy
     {
         /// <summary>
         /// The execution prefix trace to try reproduce.

@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Using the random[seed:0] exploration strategy.",
                 "... Running test iterations:",
                 "..... Iteration #1",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Iteration #1 found bug #1",
                 "Detected an assertion failure.",
                 "..... Iteration #2",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Using the random[seed:0] exploration strategy.",
                 "... Running test iterations:",
                 "..... Iteration #1",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Iteration #1 found bug #1",
                 "Detected an assertion failure.",
                 "..... Iteration #2",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,

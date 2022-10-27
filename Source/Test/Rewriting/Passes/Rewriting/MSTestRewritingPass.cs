@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Testing;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -181,7 +182,6 @@ namespace Microsoft.Coyote.Rewriting
             //   configuration.WithMaxSchedulingSteps(x, y);
             //   configuration.WithProbabilisticStrategy(x);
             //   configuration.WithPrioritizationStrategy(x);
-            //   configuration.SchedulingStrategy(x);
             //   configuration.WithLivenessTemperatureThreshold(x);
             //   configuration.WithTimeoutDelay(x);
             //   configuration.WithRandomGeneratorSeed(x);
@@ -207,15 +207,15 @@ namespace Microsoft.Coyote.Rewriting
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithMaxSchedulingSteps", (uint)this.Configuration.MaxUnfairSchedulingSteps, (uint)this.Configuration.MaxFairSchedulingSteps);
             }
 
-            if (this.Configuration.SchedulingStrategy != defaultConfig.SchedulingStrategy)
+            if (this.Configuration.ExplorationStrategy != defaultConfig.ExplorationStrategy)
             {
-                switch (this.Configuration.SchedulingStrategy)
+                switch (this.Configuration.ExplorationStrategy)
                 {
-                    case "fair-prioritization":
+                    case ExplorationStrategy.FairPrioritization:
                         this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
                             true, (uint)this.Configuration.StrategyBound);
                         break;
-                    case "prioritization":
+                    case ExplorationStrategy.Prioritization:
                         this.EmitMethodCall(processor, resolvedConfigurationType, "WithPrioritizationStrategy",
                             false, (uint)this.Configuration.StrategyBound);
                         break;

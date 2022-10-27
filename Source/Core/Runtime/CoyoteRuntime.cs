@@ -341,9 +341,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal Task RunTestAsync(Delegate testMethod, string testName)
         {
-            this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started test{1} on thread '{2}'.",
-                this.Id, string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'",
-                Thread.CurrentThread.ManagedThreadId);
+            this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started {1} on thread '{2}' using the '{3}' strategy.",
+                this.Id, string.IsNullOrEmpty(testName) ? "the test" : $"'{testName}'",
+                Thread.CurrentThread.ManagedThreadId, this.Scheduler.GetStrategyName());
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
             ControlledOperation op = this.CreateControlledOperation();
@@ -2344,7 +2344,7 @@ namespace Microsoft.Coyote.Runtime
                 else if (status is ExecutionStatus.BugFound)
                 {
                     this.LogWriter.LogInfo("[coyote::test] Exploration finished in runtime '{0}' [found a bug using the '{1}' strategy].",
-                        this.Id, this.Configuration.SchedulingStrategy);
+                        this.Id, this.Scheduler.GetStrategyName());
                 }
 
                 this.ExecutionStatus = status;

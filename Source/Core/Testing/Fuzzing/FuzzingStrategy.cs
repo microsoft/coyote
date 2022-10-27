@@ -11,9 +11,9 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// Abstract fuzzing strategy used during testing.
+    /// Abstract exploration strategy used during systematic fuzzing.
     /// </summary>
-    internal abstract class FuzzingStrategy : ExplorationStrategy
+    internal abstract class FuzzingStrategy : Strategy
     {
         /// <summary>
         /// Provides access to the operation id associated with each asynchronous control flow.

@@ -121,6 +121,7 @@ namespace Microsoft.Coyote.Cli
 
             var commandLineBuilder = new CommandLineBuilder(rootCommand);
             commandLineBuilder.UseDefaults();
+            commandLineBuilder.EnablePosixBundling(false);
 
             var parser = commandLineBuilder.Build();
             this.Results = parser.Parse(args);
@@ -139,20 +140,37 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
-        /// Invoke the handler of the command that was selected by the user.
+        /// Invokes the command selected by the user.
         /// </summary>
-        internal ExitCode InvokeSelectedCommand(
-            Func<Configuration, ExitCode> testHandler,
-            Func<Configuration, ExitCode> replayHandler,
-            Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        internal ExitCode InvokeCommand()
         {
             PrintDetailedCoyoteVersion();
+            return (ExitCode)this.Results.Invoke();
+        }
 
+        /// <summary>
+        /// Sets the handler to be invoked when the test command is selected by the user.
+        /// </summary>
+        internal void SetTestCommandHandler(Func<Configuration, ExitCode> testHandler)
+        {
             this.TestCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)testHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the replay command is selected by the user.
+        /// </summary>
+        internal void SetReplayCommandHandler(Func<Configuration, ExitCode> replayHandler)
+        {
             this.ReplayCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)replayHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the rewrite command is selected by the user.
+        /// </summary>
+        internal void SetRewriteCommandHandler(Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        {
             this.RewriteCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)rewriteHandler(
                 this.Configuration, this.RewritingOptions));
-            return (ExitCode)this.Results.Invoke();
         }
 
         /// <summary>
@@ -160,7 +178,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateTestCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to test.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to test.")
             {
                 HelpName = "PATH"
             };
@@ -197,13 +215,12 @@ namespace Microsoft.Coyote.Cli
                 "prioritization",
                 "fair-prioritization",
                 "probabilistic",
-                "rl",
-                "portfolio"
+                "q-learning"
             };
 
             var strategyOption = new Option<string>(
                 aliases: new[] { "-s", "--strategy" },
-                getDefaultValue: () => configuration.SchedulingStrategy,
+                getDefaultValue: () => configuration.ExplorationStrategy.GetName(),
                 description: "Set exploration strategy to use during testing. The exploration strategy controls " +
                     "all scheduling decisions and nondeterministic choices. Note that explicitly setting this " +
                     "value disables the default exploration mode that uses a tuned portfolio of strategies. " +
@@ -502,12 +519,12 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateReplayCommand()
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to replay.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to replay.")
             {
                 HelpName = "PATH"
             };
 
-            var traceFileArg = new Argument("trace", $"*.trace file containing the execution path to replay.")
+            var traceFileArg = new Argument<string>("trace", $"*.trace file containing the execution path to replay.")
             {
                 HelpName = "TRACE_FILE"
             };
@@ -556,7 +573,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateRewriteCommand()
         {
-            var pathArg = new Argument("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
+            var pathArg = new Argument<string>("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
                 HelpName = "PATH"
             };
@@ -859,17 +876,15 @@ namespace Microsoft.Coyote.Cli
                                 }
 
                                 break;
-                            case "rl":
+                            case "q-learning":
                                 this.Configuration.IsProgramStateHashingEnabled = true;
                                 break;
-                            case "portfolio":
-                                strategy = "random";
-                                break;
+                            case "random":
                             default:
                                 break;
                         }
 
-                        this.Configuration.SchedulingStrategy = strategy;
+                        this.Configuration.ExplorationStrategy = ExplorationStrategyExtensions.FromName(strategy);
                         this.Configuration.PortfolioMode = PortfolioMode.None;
                         break;
                     case "strategy-value":

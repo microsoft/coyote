@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+
 namespace Microsoft.Coyote.Testing
 {
     /// <summary>
     /// The enabled portfolio mode during testing.
     /// </summary>
-    internal enum PortfolioMode
+    public enum PortfolioMode
     {
         /// <summary>
         /// Portfolio mode is disabled.
@@ -38,5 +40,16 @@ namespace Microsoft.Coyote.Testing
         /// Returns true if the <see cref="PortfolioMode"/> is fair, else false.
         /// </summary>
         internal static bool IsFair(this PortfolioMode mode) => mode is PortfolioMode.Fair;
+
+        /// <summary>
+        /// Returns the <see cref="PortfolioMode"/> from the specified string.
+        /// </summary>
+        internal static PortfolioMode FromString(string mode) => mode switch
+            {
+                "none" => PortfolioMode.None,
+                "fair" => PortfolioMode.Fair,
+                "unfair" => PortfolioMode.Unfair,
+                _ => throw new ArgumentOutOfRangeException($"The mode '{mode}' is not expected.")
+            };
     }
 }

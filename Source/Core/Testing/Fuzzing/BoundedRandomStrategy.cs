@@ -69,6 +69,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed:{this.RandomValueGenerator.Seed}]";
+        internal override string GetName() => ExplorationStrategy.Random.GetName();
+
+        /// <inheritdoc/>
+        internal override string GetDescription() => $"{this.GetName()}[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

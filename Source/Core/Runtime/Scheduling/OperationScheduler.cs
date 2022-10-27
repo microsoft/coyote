@@ -30,12 +30,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The portfolio of exploration strategies.
         /// </summary>
-        private readonly LinkedList<ExplorationStrategy> Portfolio;
+        private readonly LinkedList<Strategy> Portfolio;
 
         /// <summary>
         /// The exploration strategy used in the current iteration.
         /// </summary>
-        private ExplorationStrategy Strategy => this.Portfolio.First.Value;
+        private Strategy Strategy => this.Portfolio.First.Value;
 
         /// <summary>
         /// The pipeline of schedule reducers.
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Runtime
             this.ValueGenerator = generator;
             this.Trace = ExecutionTrace.Create();
 
-            this.Portfolio = new LinkedList<ExplorationStrategy>();
+            this.Portfolio = new LinkedList<Strategy>();
             this.Reducers = new List<IScheduleReducer>();
             if (configuration.IsSharedStateReductionEnabled)
             {
@@ -124,24 +124,24 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    switch (configuration.SchedulingStrategy)
+                    switch (configuration.ExplorationStrategy)
                     {
-                        case "prioritization":
+                        case ExplorationStrategy.Prioritization:
                             this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, false));
                             break;
-                        case "fair-prioritization":
+                        case ExplorationStrategy.FairPrioritization:
                             this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, true));
                             break;
-                        case "probabilistic":
+                        case ExplorationStrategy.Probabilistic:
                             this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, configuration.StrategyBound));
                             break;
-                        case "rl":
+                        case ExplorationStrategy.QLearning:
                             this.Portfolio.AddLast(new QLearningInterleavingStrategy(configuration));
                             break;
-                        case "dfs":
+                        case ExplorationStrategy.DFS:
                             this.Portfolio.AddLast(new DFSInterleavingStrategy(configuration));
                             break;
-                        case "random":
+                        case ExplorationStrategy.Random:
                         default:
                             this.Portfolio.AddLast(new RandomInterleavingStrategy(configuration));
                             break;
@@ -149,11 +149,12 @@ namespace Microsoft.Coyote.Runtime
                 }
                 else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
-                    switch (configuration.SchedulingStrategy)
+                    switch (configuration.ExplorationStrategy)
                     {
-                        case "prioritization":
+                        case ExplorationStrategy.Prioritization:
                             this.Portfolio.AddLast(new PrioritizationFuzzingStrategy(configuration));
                             break;
+                        case ExplorationStrategy.Random:
                         default:
                             this.Portfolio.AddLast(new BoundedRandomFuzzingStrategy(configuration));
                             break;
@@ -302,7 +303,12 @@ namespace Microsoft.Coyote.Runtime
         internal ExecutionTrace CheckpointExecutionTrace() => this.PrefixTrace.ExtendOrReplace(this.Trace);
 
         /// <summary>
-        /// Returns a description of the scheduling strategy in text format.
+        /// Returns the name of the current exploration strategy.
+        /// </summary>
+        internal string GetStrategyName() => this.Strategy.GetName();
+
+        /// <summary>
+        /// Returns a description of the current exploration strategy in text format.
         /// </summary>
         internal string GetDescription() => this.Portfolio.Count > 1 ?
             $"portfolio[fair:{this.Configuration.PortfolioMode.IsFair()},seed:{this.Strategy.RandomValueGenerator.Seed}]" :

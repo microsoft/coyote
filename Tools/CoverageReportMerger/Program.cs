@@ -21,7 +21,7 @@ namespace Microsoft.Coyote
 
         private static void Main(string[] args)
         {
-            if (!TryParseArgs(args, out List<CoverageInfo> inputFiles))
+            if (!TryParseArgs(args, out List<ActorCoverageInfo> inputFiles))
             {
                 return;
             }
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote
                 return;
             }
 
-            var cinfo = new CoverageInfo();
+            var cinfo = new ActorCoverageInfo();
             foreach (var other in inputFiles)
             {
                 cinfo.Merge(other);
@@ -60,9 +60,9 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Parses the arguments.
         /// </summary>
-        private static bool TryParseArgs(string[] args, out List<CoverageInfo> inputFiles)
+        private static bool TryParseArgs(string[] args, out List<ActorCoverageInfo> inputFiles)
         {
-            inputFiles = new List<CoverageInfo>();
+            inputFiles = new List<ActorCoverageInfo>();
             OutputFilePrefix = "merged";
 
             if (args.Length is 0)
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote
 
                     try
                     {
-                        CoverageInfo info = CoverageInfo.Load(arg);
+                        ActorCoverageInfo info = CoverageInfo.Load<ActorCoverageInfo>(arg);
                         inputFiles.Add(info);
                     }
                     catch (Exception e)

@@ -309,7 +309,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         }
 
                         // Increments the seed in the random number generator, to capture the seed used
-                        // by the scheduling strategy in the next iteration.
+                        // by the exploration strategy in the next iteration.
                         this.Scheduler.ValueGenerator.Seed++;
                         iteration++;
                     }
@@ -404,7 +404,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler.Trace, this.Configuration);
+                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler, this.Configuration);
                     }
                 }
 

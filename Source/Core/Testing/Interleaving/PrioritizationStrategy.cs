@@ -10,7 +10,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A (fair) probabilistic priority-based scheduling strategy.
+    /// A (fair) probabilistic priority-based exploration strategy.
     /// </summary>
     /// <remarks>
     /// This strategy is based on the PCT algorithm described in the following paper:
@@ -191,8 +191,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
+        internal override string GetName() => ExplorationStrategy.Prioritization.GetName();
+
+        /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"prioritization[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"{this.GetName()}[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.

@@ -46,14 +46,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
         /// </summary>
-        internal PrioritizationStrategy(Configuration configuration, bool isFair)
+        internal PrioritizationStrategy(Configuration configuration, int maxPriorityChanges, bool isFair)
             : base(configuration, isFair)
         {
             this.PrioritizedOperationGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
             this.NumPriorityChangePoints = 0;
             this.MaxPriorityChangePoints = 0;
-            this.MaxPriorityChanges = configuration.StrategyBound;
+            this.MaxPriorityChanges = maxPriorityChanges;
         }
 
         /// <inheritdoc/>

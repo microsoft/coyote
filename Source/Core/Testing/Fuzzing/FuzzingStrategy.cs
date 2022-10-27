@@ -35,21 +35,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <summary>
-        /// Creates a <see cref="FuzzingStrategy"/> from the specified configuration.
-        /// </summary>
-        internal static FuzzingStrategy Create(Configuration configuration)
-        {
-            switch (configuration.SchedulingStrategy)
-            {
-                case "prioritization":
-                    return new PrioritizationStrategy(configuration);
-                default:
-                    // return new RandomStrategy(configuration);
-                    return new BoundedRandomStrategy(configuration);
-            }
-        }
-
-        /// <summary>
         /// Returns the next delay.
         /// </summary>
         /// <param name="ops">Operations executing during the current test iteration.</param>

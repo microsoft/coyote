@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// The execution prefix trace to try reproduce.
         /// </summary>
-        private ExecutionTrace TracePrefix;
+        internal ExecutionTrace TracePrefix;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterleavingStrategy"/> class.
@@ -24,41 +24,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
         protected InterleavingStrategy(Configuration configuration, bool isFair)
             : base(configuration, isFair)
         {
-        }
-
-        /// <summary>
-        /// Creates a <see cref="InterleavingStrategy"/> from the specified configuration.
-        /// </summary>
-        internal static InterleavingStrategy Create(Configuration configuration, ExecutionTrace tracePrefix)
-        {
-            InterleavingStrategy strategy = null;
-            if (configuration.SchedulingStrategy is "random")
-            {
-                strategy = new RandomStrategy(configuration);
-            }
-            else if (configuration.SchedulingStrategy is "prioritization")
-            {
-                strategy = new PrioritizationStrategy(configuration, false);
-            }
-            else if (configuration.SchedulingStrategy is "fair-prioritization")
-            {
-                strategy = new PrioritizationStrategy(configuration, true);
-            }
-            else if (configuration.SchedulingStrategy is "probabilistic")
-            {
-                strategy = new ProbabilisticRandomStrategy(configuration);
-            }
-            else if (configuration.SchedulingStrategy is "rl")
-            {
-                strategy = new QLearningStrategy(configuration);
-            }
-            else if (configuration.SchedulingStrategy is "dfs")
-            {
-                strategy = new DFSStrategy(configuration);
-            }
-
-            strategy.TracePrefix = tracePrefix;
-            return strategy;
         }
 
         /// <inheritdoc/>

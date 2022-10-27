@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.Cli
 {
@@ -222,6 +223,25 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.ExactlyOne
             };
 
+            var allowedPortfolioMode = new HashSet<string>
+            {
+                "fair",
+                "unfair"
+            };
+
+            var portfolioModeOption = new Option<string>(
+                name: "--portfolio-mode",
+                getDefaultValue: () => configuration.PortfolioMode.ToString().ToLower(),
+                description: "Set the portfolio mode to use during testing. Portfolio mode uses a tuned portfolio " +
+                    "of strategies, instead of the default or user-specified strategy. If fair mode is enabled, " +
+                    "then the portfolio will upgrade any unfair strategies to fair, by adding a fair execution " +
+                    "suffix after the the max fair scheduling steps bound has been reached. " +
+                    $"Allowed values are {string.Join(", ", allowedPortfolioMode)}.")
+            {
+                ArgumentHelpName = "MODE",
+                Arity = ArgumentArity.ExactlyOne
+            };
+
             var maxStepsOption = new Option<int>(
                 aliases: new[] { "-ms", "--max-steps" },
                 description: "Max scheduling steps (i.e. decisions) to be explored during testing. " +
@@ -421,7 +441,9 @@ namespace Microsoft.Coyote.Cli
             iterationsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             strategyOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedStrategies));
+            strategyOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, portfolioModeOption));
             strategyValueOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, strategyOption));
+            portfolioModeOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPortfolioMode));
             maxStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxFairStepsOption));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxUnfairStepsOption));
@@ -446,6 +468,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, timeoutOption);
             this.AddOption(command, strategyOption);
             this.AddOption(command, strategyValueOption);
+            this.AddOption(command, portfolioModeOption);
             this.AddOption(command, maxStepsOption);
             this.AddOption(command, maxFairStepsOption);
             this.AddOption(command, maxUnfairStepsOption);
@@ -847,10 +870,23 @@ namespace Microsoft.Coyote.Cli
                         }
 
                         this.Configuration.SchedulingStrategy = strategy;
-                        this.Configuration.IsPortfolioModeEnabled = false;
+                        this.Configuration.PortfolioMode = PortfolioMode.None;
                         break;
                     case "strategy-value":
                         this.Configuration.StrategyBound = result.GetValueOrDefault<int>();
+                        break;
+                    case "portfolio-mode":
+                        switch (result.GetValueOrDefault<string>())
+                        {
+                            case "unfair":
+                            this.Configuration.PortfolioMode = PortfolioMode.Unfair;
+                                break;
+                            case "fair":
+                            default:
+                                this.Configuration.PortfolioMode = PortfolioMode.Fair;
+                                break;
+                        }
+
                         break;
                     case "max-steps":
                         this.Configuration.WithMaxSchedulingSteps((uint)result.GetValueOrDefault<int>());

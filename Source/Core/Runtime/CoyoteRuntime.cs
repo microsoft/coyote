@@ -925,7 +925,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfExecutionHasDeadlocked(ops);
                 }
 
-                if (this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                if (this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                 {
                     // Check if the liveness threshold has been reached if scheduling is fair.
                     this.CheckLivenessThresholdExceeded();
@@ -1095,7 +1095,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfSchedulingStepsBoundIsReached();
 
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                     {
                         // Check if the liveness threshold has been reached if scheduling is fair.
                         this.CheckLivenessThresholdExceeded();
@@ -1142,7 +1142,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfSchedulingStepsBoundIsReached();
 
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                     {
                         // Check if the liveness threshold has been reached if scheduling is fair.
                         this.CheckLivenessThresholdExceeded();
@@ -2247,7 +2247,7 @@ namespace Microsoft.Coyote.Runtime
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
                 report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
-                    this.Scheduler.IsScheduleFair);
+                    this.Scheduler.IsIterationFair);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);

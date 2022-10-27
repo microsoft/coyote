@@ -5,6 +5,7 @@ using System;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote
 {
@@ -57,7 +58,7 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// The systematic testing strategy to use.
+        /// The systematic testing exploration strategy to use.
         /// </summary>
         [DataMember]
         public string SchedulingStrategy { get; internal set; }
@@ -69,11 +70,10 @@ namespace Microsoft.Coyote
         internal int StrategyBound;
 
         /// <summary>
-        /// If this option is enabled then the tester will use a portfolio of exploration strategies,
-        /// instead of the default or user-specified strategy.
+        /// The exploration strategy portfolio mode that is enabled during testing.
         /// </summary>
         [DataMember]
-        internal bool IsPortfolioModeEnabled;
+        internal PortfolioMode PortfolioMode;
 
         /// <summary>
         /// If this option is enabled and uncontrolled concurrency is detected, then the
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
-            this.IsPortfolioModeEnabled = true;
+            this.PortfolioMode = PortfolioMode.Fair;
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
@@ -390,7 +390,7 @@ namespace Microsoft.Coyote
         public Configuration WithRandomStrategy()
         {
             this.SchedulingStrategy = "random";
-            this.IsPortfolioModeEnabled = false;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote
         {
             this.SchedulingStrategy = "probabilistic";
             this.StrategyBound = (int)probabilityLevel;
-            this.IsPortfolioModeEnabled = false;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote
         {
             this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
             this.StrategyBound = (int)priorityChangeBound;
-            this.IsPortfolioModeEnabled = false;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
@@ -444,7 +444,7 @@ namespace Microsoft.Coyote
         {
             this.SchedulingStrategy = "rl";
             this.IsProgramStateHashingEnabled = true;
-            this.IsPortfolioModeEnabled = false;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
@@ -458,7 +458,23 @@ namespace Microsoft.Coyote
         internal Configuration WithDFSStrategy()
         {
             this.SchedulingStrategy = "dfs";
-            this.IsPortfolioModeEnabled = false;
+            this.PortfolioMode = PortfolioMode.None;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with fair or unfair portfolio mode enabled. Portfolio mode
+        /// uses a tuned portfolio of strategies, instead of the default or user-specified strategy.
+        /// If fair mode is enabled, then the portfolio will upgrade any unfair strategies to fair,
+        /// by adding a fair execution suffix after the the max fair scheduling steps bound has been
+        /// reached. By default, fair portfolio mode is enabled.
+        /// </summary>
+        /// <param name="isFair">
+        /// If true, which is the default value, then the portfolio mode is fair, else it is unfair.
+        /// </param>
+        internal Configuration WithPortfolioModeEnabled(bool isFair = true)
+        {
+            this.PortfolioMode = isFair ? PortfolioMode.Fair : PortfolioMode.Unfair;
             return this;
         }
 

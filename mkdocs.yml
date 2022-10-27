@@ -114,7 +114,7 @@ nav:
         - WithRandomStrategy: ref/Microsoft.Coyote/Configuration/WithRandomStrategy.md
         - WithProbabilisticStrategy: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy.md
         - WithPrioritizationStrategy: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy.md
-        - WithRLStrategy: ref/Microsoft.Coyote/Configuration/WithRLStrategy.md
+        - WithQLearningStrategy: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy.md
         - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
         - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
@@ -134,7 +134,6 @@ nav:
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
         - Configuration: ref/Microsoft.Coyote/Configuration/Configuration.md
-        - SchedulingStrategy: ref/Microsoft.Coyote/Configuration/SchedulingStrategy.md
         - TestingIterations: ref/Microsoft.Coyote/Configuration/TestingIterations.md
         - RandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed.md
         - MaxFuzzingDelay: ref/Microsoft.Coyote/Configuration/MaxFuzzingDelay.md
@@ -362,6 +361,10 @@ nav:
       - Monitor.State.HotAttribute:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute.md
         - HotAttribute: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute.md
+    - Microsoft.Coyote.Testing:
+      - Namespace Overview: ref/Microsoft.Coyote.TestingNamespace.md
+      - ExplorationStrategy: ref/Microsoft.Coyote.Testing/ExplorationStrategy.md
+      - PortfolioMode: ref/Microsoft.Coyote.Testing/PortfolioMode.md
   - Microsoft.Coyote.Actors:
     - Overview: ref/Microsoft.Coyote.Actors.md
     - Microsoft.Coyote.Actors:

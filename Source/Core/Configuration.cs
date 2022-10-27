@@ -35,18 +35,6 @@ namespace Microsoft.Coyote
         internal string TestMethodName;
 
         /// <summary>
-        /// The systematic testing strategy to use.
-        /// </summary>
-        [DataMember]
-        public string SchedulingStrategy { get; internal set; }
-
-        /// <summary>
-        /// A strategy-specific bound.
-        /// </summary>
-        [DataMember]
-        internal int StrategyBound;
-
-        /// <summary>
         /// Number of testing iterations.
         /// </summary>
         [DataMember]
@@ -67,6 +55,25 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public uint? RandomGeneratorSeed { get; internal set; }
+
+        /// <summary>
+        /// The systematic testing strategy to use.
+        /// </summary>
+        [DataMember]
+        public string SchedulingStrategy { get; internal set; }
+
+        /// <summary>
+        /// A strategy-specific bound.
+        /// </summary>
+        [DataMember]
+        internal int StrategyBound;
+
+        /// <summary>
+        /// If this option is enabled then the tester will use a portfolio of exploration strategies,
+        /// instead of the default or user-specified strategy.
+        /// </summary>
+        [DataMember]
+        internal bool IsPortfolioModeEnabled;
 
         /// <summary>
         /// If this option is enabled and uncontrolled concurrency is detected, then the
@@ -277,6 +284,7 @@ namespace Microsoft.Coyote
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
+            this.IsPortfolioModeEnabled = true;
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
@@ -375,9 +383,14 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Updates the configuration to use the random scheduling strategy during systematic testing.
         /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithRandomStrategy()
         {
             this.SchedulingStrategy = "random";
+            this.IsPortfolioModeEnabled = false;
             return this;
         }
 
@@ -388,10 +401,15 @@ namespace Microsoft.Coyote
         /// 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc. By default, this value is 3.
         /// </summary>
         /// <param name="probabilityLevel">The probability level.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithProbabilisticStrategy(uint probabilityLevel = 3)
         {
             this.SchedulingStrategy = "probabilistic";
             this.StrategyBound = (int)probabilityLevel;
+            this.IsPortfolioModeEnabled = false;
             return this;
         }
 
@@ -402,10 +420,15 @@ namespace Microsoft.Coyote
         /// </summary>
         /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
         /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
         {
             this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
             this.StrategyBound = (int)priorityChangeBound;
+            this.IsPortfolioModeEnabled = false;
             return this;
         }
 
@@ -413,19 +436,29 @@ namespace Microsoft.Coyote
         /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
         /// during systematic testing.
         /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithRLStrategy()
         {
             this.SchedulingStrategy = "rl";
             this.IsProgramStateHashingEnabled = true;
+            this.IsPortfolioModeEnabled = false;
             return this;
         }
 
         /// <summary>
         /// Updates the configuration to use the dfs scheduling strategy during systematic testing.
         /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         internal Configuration WithDFSStrategy()
         {
             this.SchedulingStrategy = "dfs";
+            this.IsPortfolioModeEnabled = false;
             return this;
         }
 

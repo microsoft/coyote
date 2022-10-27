@@ -203,8 +203,9 @@ namespace Microsoft.Coyote.Cli
             var strategyOption = new Option<string>(
                 aliases: new[] { "-s", "--strategy" },
                 getDefaultValue: () => configuration.SchedulingStrategy,
-                description: "Set exploration strategy to use during testing. The exploration strategy " +
-                    "controls all scheduling decisions and nondeterministic choices. " +
+                description: "Set exploration strategy to use during testing. The exploration strategy controls " +
+                    "all scheduling decisions and nondeterministic choices. Note that explicitly setting this " +
+                    "value disables the default exploration mode that uses a tuned portfolio of strategies. " +
                     $"Allowed values are {string.Join(", ", allowedStrategies)}.")
             {
                 ArgumentHelpName = "STRATEGY",
@@ -846,6 +847,7 @@ namespace Microsoft.Coyote.Cli
                         }
 
                         this.Configuration.SchedulingStrategy = strategy;
+                        this.Configuration.IsPortfolioModeEnabled = false;
                         break;
                     case "strategy-value":
                         this.Configuration.StrategyBound = result.GetValueOrDefault<int>();

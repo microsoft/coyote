@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Telemetry
                 throw new Exception("A maximum of 25 events can be specified per request." + guide);
             }
 
-            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
                 throw new Exception("A network intercace is not available");
             }

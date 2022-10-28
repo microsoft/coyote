@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Testing
     /// <summary>
     /// The enabled portfolio mode during testing.
     /// </summary>
-    public enum PortfolioMode
+    internal enum PortfolioMode
     {
         /// <summary>
         /// Portfolio mode is disabled.

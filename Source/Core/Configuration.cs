@@ -462,8 +462,8 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with fair or unfair portfolio mode enabled. Portfolio mode
-        /// uses a tuned portfolio of strategies, instead of the default or user-specified strategy.
+        /// Updates the configuration to use fair or unfair portfolio mode during testing. Portfolio
+        /// mode uses a tuned portfolio of strategies, instead of the default or user-specified strategy.
         /// If fair mode is enabled, then the portfolio will upgrade any unfair strategies to fair,
         /// by adding a fair execution suffix after the the max fair scheduling steps bound has been
         /// reached. By default, fair portfolio mode is enabled.
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote
         /// <param name="isFair">
         /// If true, which is the default value, then the portfolio mode is fair, else it is unfair.
         /// </param>
-        internal Configuration WithPortfolioModeEnabled(bool isFair = true)
+        internal Configuration WithPortfolioMode(bool isFair = true)
         {
             this.PortfolioMode = isFair ? PortfolioMode.Fair : PortfolioMode.Unfair;
             return this;

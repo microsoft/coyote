@@ -482,13 +482,6 @@ toc:
         subfolderitems:
         - name: HotAttribute
           link: ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
-    - name: Microsoft.Coyote.Testing
-      link: ref/Microsoft.Coyote.TestingNamespace
-      subfolderitems:
-      - name: ExplorationStrategy
-        link: ref/Microsoft.Coyote.Testing/ExplorationStrategy
-      - name: PortfolioMode
-        link: ref/Microsoft.Coyote.Testing/PortfolioMode
   - name: Microsoft.Coyote.Actors
     link: ref/Microsoft.Coyote.Actors
     subfolderitems:

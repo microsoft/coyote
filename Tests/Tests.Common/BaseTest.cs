@@ -294,6 +294,11 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
                     using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
+                    if (engine.TestReport.NumOfFoundBugs is 0)
+                    {
+                        this.TestOutput.WriteLine(engine.ReproducibleTrace);
+                    }
+
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, errorChecker);
@@ -383,6 +388,11 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
                     using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
+                    if (engine.TestReport.NumOfFoundBugs is 0)
+                    {
+                        this.TestOutput.WriteLine(engine.ReproducibleTrace);
+                    }
+
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, exceptionType);

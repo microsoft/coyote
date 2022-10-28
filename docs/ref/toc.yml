@@ -26,8 +26,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy
         - name: WithPrioritizationStrategy
           link: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy
-        - name: WithRLStrategy
-          link: ref/Microsoft.Coyote/Configuration/WithRLStrategy
+        - name: WithQLearningStrategy
+          link: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
         - name: WithSystematicFuzzingEnabled
@@ -66,8 +66,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled
         - name: Configuration
           link: ref/Microsoft.Coyote/Configuration/Configuration
-        - name: SchedulingStrategy
-          link: ref/Microsoft.Coyote/Configuration/SchedulingStrategy
         - name: TestingIterations
           link: ref/Microsoft.Coyote/Configuration/TestingIterations
         - name: RandomGeneratorSeed

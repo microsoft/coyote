@@ -399,8 +399,9 @@ namespace Microsoft.Coyote.Runtime.Tests
 
         private void LogTrace(ExecutionTrace trace)
         {
-            string json = TraceReport.GetJson(trace, Configuration.Create());
-            this.TestOutput.WriteLine(json);
+            var report = new TraceReport();
+            report.ReportTrace(trace);
+            this.TestOutput.WriteLine(report.ToJson());
         }
     }
 }

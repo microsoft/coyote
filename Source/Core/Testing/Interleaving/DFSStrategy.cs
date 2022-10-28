@@ -9,7 +9,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A depth-first search scheduling strategy.
+    /// A depth-first search exploration strategy.
     /// </summary>
     internal sealed class DFSStrategy : InterleavingStrategy
     {
@@ -263,7 +263,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => "dfs";
+        internal override string GetName() => ExplorationStrategy.DFS.GetName();
+
+        /// <inheritdoc/>
+        internal override string GetDescription() => this.GetName();
 
         /// <summary>
         /// Prints the schedule, if debug is enabled.

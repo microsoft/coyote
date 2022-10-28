@@ -1,6 +1,6 @@
 # Configuration.WithProbabilisticStrategy method
 
-Updates the configuration to use the probabilistic scheduling strategy during systematic testing. You can specify a value controlling the probability of each scheduling decision. This value is specified as the integer N in the equation 0.5 to the power of N. So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc. By default, this value is 3.
+Updates the configuration to use the probabilistic exploration strategy during systematic testing. You can specify a value controlling the probability of each scheduling decision. This value is specified as the integer N in the equation 0.5 to the power of N. So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc. By default, this value is 3.
 
 ```csharp
 public Configuration WithProbabilisticStrategy(uint probabilityLevel = 3)
@@ -9,6 +9,10 @@ public Configuration WithProbabilisticStrategy(uint probabilityLevel = 3)
 | parameter | description |
 | --- | --- |
 | probabilityLevel | The probability level. |
+
+## Remarks
+
+Note that explicitly setting this strategy disables the default exploration mode that uses a tuned portfolio of strategies.
 
 ## See Also
 

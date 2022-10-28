@@ -102,7 +102,9 @@ namespace Microsoft.Coyote.Testing.Fuzzing
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() =>
-            $"prioritization[seed:{this.RandomValueGenerator.Seed}]";
+        internal override string GetName() => ExplorationStrategy.Prioritization.GetName();
+
+        /// <inheritdoc/>
+        internal override string GetDescription() => $"{this.GetName()}[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

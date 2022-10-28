@@ -8,7 +8,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A simple (but effective) randomized scheduling strategy.
+    /// A simple (but effective) randomized exploration strategy.
     /// </summary>
     internal class RandomStrategy : InterleavingStrategy
     {
@@ -44,6 +44,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"random[seed:{this.RandomValueGenerator.Seed}]";
+        internal override string GetName() => ExplorationStrategy.Random.GetName();
+
+        /// <inheritdoc/>
+        internal override string GetDescription() => $"{this.GetName()}[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

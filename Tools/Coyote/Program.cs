@@ -24,7 +24,10 @@ namespace Microsoft.Coyote
                 return (int)ExitCode.Error;
             }
 
-            return (int)parser.InvokeSelectedCommand(RunTest, ReplayTest, RewriteAssemblies);
+            parser.SetTestCommandHandler(RunTest);
+            parser.SetReplayCommandHandler(ReplayTest);
+            parser.SetRewriteCommandHandler(RewriteAssemblies);
+            return (int)parser.InvokeCommand();
         }
 
         /// <summary>

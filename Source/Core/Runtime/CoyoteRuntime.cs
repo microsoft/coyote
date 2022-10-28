@@ -341,9 +341,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal Task RunTestAsync(Delegate testMethod, string testName)
         {
-            this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started test{1} on thread '{2}'.",
-                this.Id, string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'",
-                Thread.CurrentThread.ManagedThreadId);
+            this.LogWriter.LogInfo("[coyote::test] Runtime '{0}' started {1} on thread '{2}' using the '{3}' strategy.",
+                this.Id, string.IsNullOrEmpty(testName) ? "the test" : $"'{testName}'",
+                Thread.CurrentThread.ManagedThreadId, this.Scheduler.GetStrategyName());
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
             ControlledOperation op = this.CreateControlledOperation();
@@ -925,7 +925,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfExecutionHasDeadlocked(ops);
                 }
 
-                if (this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                if (this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                 {
                     // Check if the liveness threshold has been reached if scheduling is fair.
                     this.CheckLivenessThresholdExceeded();
@@ -1095,7 +1095,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfSchedulingStepsBoundIsReached();
 
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                     {
                         // Check if the liveness threshold has been reached if scheduling is fair.
                         this.CheckLivenessThresholdExceeded();
@@ -1142,7 +1142,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckIfSchedulingStepsBoundIsReached();
 
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsScheduleFair)
+                        this.Configuration.IsLivenessCheckingEnabled && this.Scheduler.IsIterationFair)
                     {
                         // Check if the liveness threshold has been reached if scheduling is fair.
                         this.CheckLivenessThresholdExceeded();
@@ -2247,7 +2247,7 @@ namespace Microsoft.Coyote.Runtime
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
                 report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
                     (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
-                    this.Scheduler.IsScheduleFair);
+                    this.Scheduler.IsIterationFair);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);
@@ -2344,7 +2344,7 @@ namespace Microsoft.Coyote.Runtime
                 else if (status is ExecutionStatus.BugFound)
                 {
                     this.LogWriter.LogInfo("[coyote::test] Exploration finished in runtime '{0}' [found a bug using the '{1}' strategy].",
-                        this.Id, this.Configuration.SchedulingStrategy);
+                        this.Id, this.Scheduler.GetStrategyName());
                 }
 
                 this.ExecutionStatus = status;

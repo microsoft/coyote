@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
@@ -88,7 +89,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         public void TestLiveness2BugFound()
         {
             var configuration = this.GetConfiguration();
-            configuration.SchedulingStrategy = "dfs";
+            configuration.ExplorationStrategy = ExplorationStrategy.DFS;
 
             this.TestWithError(r =>
             {

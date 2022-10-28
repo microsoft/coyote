@@ -9,7 +9,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A probabilistic scheduling strategy that uses Q-learning.
+    /// A probabilistic exploration strategy that uses Q-learning.
     /// </summary>
     /// <remarks>
     /// This strategy is described in the following paper:
@@ -391,6 +391,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override string GetDescription() => $"rl[seed:{this.RandomValueGenerator.Seed}]";
+        internal override string GetName() => ExplorationStrategy.QLearning.GetName();
+
+        /// <inheritdoc/>
+        internal override string GetDescription() => $"{this.GetName()}[seed:{this.RandomValueGenerator.Seed}]";
     }
 }

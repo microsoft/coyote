@@ -1,9 +1,9 @@
-# Configuration.WithRandomStrategy method
+# Configuration.WithQLearningStrategy method
 
-Updates the configuration to use the random exploration strategy during systematic testing.
+Updates the configuration to use the Q-learning exploration strategy during systematic testing.
 
 ```csharp
-public Configuration WithRandomStrategy()
+public Configuration WithQLearningStrategy()
 ```
 
 ## Remarks

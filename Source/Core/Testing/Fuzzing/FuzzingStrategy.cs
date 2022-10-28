@@ -11,9 +11,9 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Fuzzing
 {
     /// <summary>
-    /// Abstract fuzzing strategy used during testing.
+    /// Abstract exploration strategy used during systematic fuzzing.
     /// </summary>
-    internal abstract class FuzzingStrategy : ExplorationStrategy
+    internal abstract class FuzzingStrategy : Strategy
     {
         /// <summary>
         /// Provides access to the operation id associated with each asynchronous control flow.
@@ -32,21 +32,6 @@ namespace Microsoft.Coyote.Testing.Fuzzing
             : base(configuration, isFair)
         {
             this.OperationIdMap = new ConcurrentDictionary<int, Guid>();
-        }
-
-        /// <summary>
-        /// Creates a <see cref="FuzzingStrategy"/> from the specified configuration.
-        /// </summary>
-        internal static FuzzingStrategy Create(Configuration configuration)
-        {
-            switch (configuration.SchedulingStrategy)
-            {
-                case "prioritization":
-                    return new PrioritizationStrategy(configuration);
-                default:
-                    // return new RandomStrategy(configuration);
-                    return new BoundedRandomStrategy(configuration);
-            }
         }
 
         /// <summary>

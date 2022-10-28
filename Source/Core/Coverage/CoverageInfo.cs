@@ -106,11 +106,12 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Loads the given coverage info XML file.
+        /// Loads the coverage info XML file into a <see cref="CoverageInfo"/> object of the specified type.
         /// </summary>
         /// <param name="filename">Path to the file to load.</param>
         /// <returns>The deserialized coverage info.</returns>
-        public static CoverageInfo Load(string filename)
+        public static T Load<T>(string filename)
+            where T : CoverageInfo
         {
             using var fs = new FileStream(filename, FileMode.Open);
             using var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas());
@@ -119,8 +120,8 @@ namespace Microsoft.Coyote.Coverage
                 PreserveObjectReferences = true
             };
 
-            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
-            return (CoverageInfo)ser.ReadObject(reader, true);
+            var ser = new DataContractSerializer(typeof(T), settings);
+            return (T)ser.ReadObject(reader, true);
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace Microsoft.Coyote.Coverage
                 PreserveObjectReferences = true
             };
 
-            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+            var ser = new DataContractSerializer(this.GetType(), settings);
             ser.WriteObject(fs, this);
         }
 

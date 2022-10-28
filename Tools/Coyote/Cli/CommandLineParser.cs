@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.Cli
 {
@@ -120,6 +121,7 @@ namespace Microsoft.Coyote.Cli
 
             var commandLineBuilder = new CommandLineBuilder(rootCommand);
             commandLineBuilder.UseDefaults();
+            commandLineBuilder.EnablePosixBundling(false);
 
             var parser = commandLineBuilder.Build();
             this.Results = parser.Parse(args);
@@ -138,20 +140,37 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
-        /// Invoke the handler of the command that was selected by the user.
+        /// Invokes the command selected by the user.
         /// </summary>
-        internal ExitCode InvokeSelectedCommand(
-            Func<Configuration, ExitCode> testHandler,
-            Func<Configuration, ExitCode> replayHandler,
-            Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        internal ExitCode InvokeCommand()
         {
             PrintDetailedCoyoteVersion();
+            return (ExitCode)this.Results.Invoke();
+        }
 
+        /// <summary>
+        /// Sets the handler to be invoked when the test command is selected by the user.
+        /// </summary>
+        internal void SetTestCommandHandler(Func<Configuration, ExitCode> testHandler)
+        {
             this.TestCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)testHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the replay command is selected by the user.
+        /// </summary>
+        internal void SetReplayCommandHandler(Func<Configuration, ExitCode> replayHandler)
+        {
             this.ReplayCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)replayHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the rewrite command is selected by the user.
+        /// </summary>
+        internal void SetRewriteCommandHandler(Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        {
             this.RewriteCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)rewriteHandler(
                 this.Configuration, this.RewritingOptions));
-            return (ExitCode)this.Results.Invoke();
         }
 
         /// <summary>
@@ -159,7 +178,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateTestCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to test.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to test.")
             {
                 HelpName = "PATH"
             };
@@ -196,15 +215,15 @@ namespace Microsoft.Coyote.Cli
                 "prioritization",
                 "fair-prioritization",
                 "probabilistic",
-                "rl",
-                "portfolio"
+                "q-learning"
             };
 
             var strategyOption = new Option<string>(
                 aliases: new[] { "-s", "--strategy" },
-                getDefaultValue: () => configuration.SchedulingStrategy,
-                description: "Set exploration strategy to use during testing. The exploration strategy " +
-                    "controls all scheduling decisions and nondeterministic choices. " +
+                getDefaultValue: () => configuration.ExplorationStrategy.GetName(),
+                description: "Set exploration strategy to use during testing. The exploration strategy controls " +
+                    "all scheduling decisions and nondeterministic choices. Note that explicitly setting this " +
+                    "value disables the default exploration mode that uses a tuned portfolio of strategies. " +
                     $"Allowed values are {string.Join(", ", allowedStrategies)}.")
             {
                 ArgumentHelpName = "STRATEGY",
@@ -218,6 +237,25 @@ namespace Microsoft.Coyote.Cli
                     "probabilistic (probability of deviating from a scheduled operation).")
             {
                 ArgumentHelpName = "VALUE",
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var allowedPortfolioMode = new HashSet<string>
+            {
+                "fair",
+                "unfair"
+            };
+
+            var portfolioModeOption = new Option<string>(
+                name: "--portfolio-mode",
+                getDefaultValue: () => configuration.PortfolioMode.ToString().ToLower(),
+                description: "Set the portfolio mode to use during testing. Portfolio mode uses a tuned portfolio " +
+                    "of strategies, instead of the default or user-specified strategy. If fair mode is enabled, " +
+                    "then the portfolio will upgrade any unfair strategies to fair, by adding a fair execution " +
+                    "suffix after the the max fair scheduling steps bound has been reached. " +
+                    $"Allowed values are {string.Join(", ", allowedPortfolioMode)}.")
+            {
+                ArgumentHelpName = "MODE",
                 Arity = ArgumentArity.ExactlyOne
             };
 
@@ -420,7 +458,9 @@ namespace Microsoft.Coyote.Cli
             iterationsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             strategyOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedStrategies));
+            strategyOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, portfolioModeOption));
             strategyValueOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, strategyOption));
+            portfolioModeOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPortfolioMode));
             maxStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxFairStepsOption));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxUnfairStepsOption));
@@ -445,6 +485,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, timeoutOption);
             this.AddOption(command, strategyOption);
             this.AddOption(command, strategyValueOption);
+            this.AddOption(command, portfolioModeOption);
             this.AddOption(command, maxStepsOption);
             this.AddOption(command, maxFairStepsOption);
             this.AddOption(command, maxUnfairStepsOption);
@@ -478,12 +519,12 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateReplayCommand()
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to replay.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to replay.")
             {
                 HelpName = "PATH"
             };
 
-            var traceFileArg = new Argument("trace", $"*.trace file containing the execution path to replay.")
+            var traceFileArg = new Argument<string>("trace", $"*.trace file containing the execution path to replay.")
             {
                 HelpName = "TRACE_FILE"
             };
@@ -532,7 +573,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateRewriteCommand()
         {
-            var pathArg = new Argument("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
+            var pathArg = new Argument<string>("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
                 HelpName = "PATH"
             };
@@ -835,20 +876,32 @@ namespace Microsoft.Coyote.Cli
                                 }
 
                                 break;
-                            case "rl":
+                            case "q-learning":
                                 this.Configuration.IsProgramStateHashingEnabled = true;
                                 break;
-                            case "portfolio":
-                                strategy = "random";
-                                break;
+                            case "random":
                             default:
                                 break;
                         }
 
-                        this.Configuration.SchedulingStrategy = strategy;
+                        this.Configuration.ExplorationStrategy = ExplorationStrategyExtensions.FromName(strategy);
+                        this.Configuration.PortfolioMode = PortfolioMode.None;
                         break;
                     case "strategy-value":
                         this.Configuration.StrategyBound = result.GetValueOrDefault<int>();
+                        break;
+                    case "portfolio-mode":
+                        switch (result.GetValueOrDefault<string>())
+                        {
+                            case "unfair":
+                                this.Configuration.PortfolioMode = PortfolioMode.Unfair;
+                                break;
+                            case "fair":
+                            default:
+                                this.Configuration.PortfolioMode = PortfolioMode.Fair;
+                                break;
+                        }
+
                         break;
                     case "max-steps":
                         this.Configuration.WithMaxSchedulingSteps((uint)result.GetValueOrDefault<int>());

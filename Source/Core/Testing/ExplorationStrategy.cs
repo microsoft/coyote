@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Testing
     /// <summary>
     /// The type of exploration strategy.
     /// </summary>
-    public enum ExplorationStrategy
+    internal enum ExplorationStrategy
     {
         /// <summary>
         /// A simple (but effective) randomized exploration strategy.

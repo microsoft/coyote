@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             using var stream = new MemoryStream();
             using (var interceptor = new ConsoleOutputInterceptor(stream))
             {
-                var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+                var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                     .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info);
                 using TestingEngine engine = TestingEngine.Create(config, () =>
                 {
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             using var stream = new MemoryStream();
             using (var interceptor = new ConsoleOutputInterceptor(stream))
             {
-                var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+                var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                     .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info)
                     .WithConsoleLoggingEnabled();
                 using TestingEngine engine = TestingEngine.Create(config, () =>
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
         [Fact(Timeout = 5000)]
         public void TestCustomTestingEngineLogger()
         {
-            var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+            var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                 .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info);
             using TestingEngine engine = TestingEngine.Create(config, () =>
             {

@@ -166,7 +166,10 @@ namespace Microsoft.Coyote.Runtime
             foreach (var strategy in this.Portfolio)
             {
                 strategy.RandomValueGenerator = generator;
-                (strategy as InterleavingStrategy).TracePrefix = prefixTrace;
+                if (strategy is InterleavingStrategy interleavingStrategy)
+                {
+                    interleavingStrategy.TracePrefix = prefixTrace;
+                }
             }
         }
 
@@ -311,7 +314,7 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a description of the current exploration strategy in text format.
         /// </summary>
         internal string GetDescription() => this.Portfolio.Count > 1 ?
-            $"portfolio[fair:{this.Configuration.PortfolioMode.IsFair()},seed:{this.Strategy.RandomValueGenerator.Seed}]" :
+            $"portfolio[{(this.Configuration.PortfolioMode.IsFair() ? "fair," : string.Empty)}seed:{this.Strategy.RandomValueGenerator.Seed}]" :
             this.Strategy.GetDescription();
 
         /// <summary>

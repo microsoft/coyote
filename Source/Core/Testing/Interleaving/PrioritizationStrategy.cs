@@ -191,11 +191,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override string GetName() => ExplorationStrategy.Prioritization.GetName();
+        internal override string GetName() => (this.IsFair ? ExplorationStrategy.FairPrioritization : ExplorationStrategy.Prioritization).GetName();
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"{this.GetName()}[fair:{this.IsFair},bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"{this.GetName()}[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.

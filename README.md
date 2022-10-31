@@ -7,7 +7,7 @@
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
 ![CodeQL](https://github.com/microsoft/coyote/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 
-Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.
+Coyote is a cross-platform library and tool for testing concurrent C# code and deterministically reproducing bugs.
 
 Using Coyote, you can easily test the *concurrency* and other *nondeterminism* in your C# code, by
 writing what we call a *concurrency unit test*. These look like your regular unit tests, but can
@@ -27,7 +27,7 @@ Coyote is made with :heart: by Microsoft Research.
 C++](https://github.com/microsoft/cpp-systematic-testing) that is based on the same research and
 technology that powers Coyote.
 
-## How it works?
+## How it works
 
 Consider the following simple test:
 ```csharp
@@ -82,7 +82,7 @@ fixing the issue significantly easier.
 
 Getting started with Coyote is easy! First, follow this
 [guide](https://microsoft.github.io/coyote/#get-started/install/) to install `coyote` from
-[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). Then, check out
+[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready to check out
 [https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
 documentation, how-tos, samples and more information about the project. Enjoy!
 
@@ -91,6 +91,8 @@ channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c
 to be part of our community and learn from each other. Otherwise, please feel free to start a
 [discussion](https://github.com/microsoft/coyote/discussions) with us or open an
 [issue](https://github.com/microsoft/coyote/issues) on GitHub, thank you!
+
+Upgrading your `coyote` dependencies? Check the changelog [here](History.md).
 
 ## Contributing
 

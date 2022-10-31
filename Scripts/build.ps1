@@ -92,10 +92,10 @@ if ($nuget.IsPresent -and $ci.IsPresent) {
         $error_msg = "Failed to build the 'Microsoft.Coyote.CLI' package"
         Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 
-        # Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
-        # $command = "$cmd $PSScriptRoot/NuGet/Coyote.Meta.csproj"
-        # $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
-        # Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
+        Write-Comment -text "Building the 'Microsoft.Coyote' meta-package." -color "magenta"
+        $command = "$cmd $PSScriptRoot/NuGet/Coyote.Meta.csproj"
+        $error_msg = "Failed to build the 'Microsoft.Coyote' meta-package"
+        Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
     } else {
         Write-Comment -text "Building the Coyote NuGet packages supports only Windows." -color "yellow"
     }

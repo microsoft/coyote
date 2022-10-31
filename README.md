@@ -81,10 +81,10 @@ fixing the issue significantly easier.
 ## Get started
 
 Getting started with Coyote is easy! First, follow this
-[guide](https://microsoft.github.io/coyote/#get-started/install/) to install `coyote` from
-[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready to check out
-[https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
-documentation, how-tos, samples and more information about the project. Enjoy!
+[guide](https://microsoft.github.io/coyote/#get-started/install/) to install the `coyote`
+command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready
+to check out the Coyote [website](https://microsoft.github.io/coyote/) for tutorials, documentation,
+how-tos, samples and more information about the project. Enjoy!
 
 If you are a Microsoft employee, please consider joining the internal-only [Friends of Coyote Teams
 channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47),

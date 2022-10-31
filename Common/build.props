@@ -5,7 +5,7 @@
     <Product>Coyote</Product>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <RepositoryUrl>https://github.com/microsoft/coyote</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>

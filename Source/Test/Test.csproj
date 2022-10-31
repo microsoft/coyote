@@ -3,10 +3,13 @@
     <Description>The Coyote systematic testing engine.</Description>
     <AssemblyName>Microsoft.Coyote.Test</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Test</RootNamespace>
-    <PackageId>Microsoft.Coyote.Test</PackageId>
-    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
     <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Microsoft.Coyote.Test</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

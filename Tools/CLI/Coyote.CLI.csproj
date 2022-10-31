@@ -4,13 +4,16 @@
     <AssemblyName>coyote</AssemblyName>
     <ToolCommandName>$(AssemblyName)</ToolCommandName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <PackageId>Microsoft.Coyote.CLI</PackageId>
-    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp;cli;tool</PackageTags>
-    <PackAsTool>true</PackAsTool>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Microsoft.Coyote.CLI</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp;cli;tool</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackAsTool>true</PackAsTool>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

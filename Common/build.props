@@ -19,7 +19,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <PublishRelease>true</PublishRelease>
-    <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -3,14 +3,17 @@
     <Description>The self-contained Coyote command-line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <PackageId>Microsoft.Coyote.Tool</PackageId>
-    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
     <BuildOutputTargetFolder>tools</BuildOutputTargetFolder>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <NoWarn>$(NoWarn),1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Microsoft.Coyote.Tool</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

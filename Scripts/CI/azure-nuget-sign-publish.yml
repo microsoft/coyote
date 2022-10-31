@@ -13,11 +13,6 @@ steps:
     useGlobalJson: true
 
 - task: UseDotNet@2
-  displayName: 'Install .NET 5.0 SDK'
-  inputs:
-    version: 5.0.x
-
-- task: UseDotNet@2
   displayName: 'Install .NET Core 3.1 SDK'
   inputs:
     version: 3.1.x

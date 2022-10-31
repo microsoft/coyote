@@ -25,7 +25,7 @@ Coyote is made with :heart: by Microsoft Research.
 
 **New:** Check out our experimental [systematic testing library for
 C++](https://github.com/microsoft/cpp-systematic-testing) that is based on the same research and
-technology that powers Coyote.
+technology behind Coyote.
 
 ## How it works
 

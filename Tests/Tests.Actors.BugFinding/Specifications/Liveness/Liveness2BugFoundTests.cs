@@ -89,7 +89,6 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         public void TestLiveness2BugFound()
         {
             var configuration = this.GetConfiguration().WithDFSStrategy();
-
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<WatchDog>();

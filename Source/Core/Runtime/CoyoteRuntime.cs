@@ -589,11 +589,6 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                // Assign the operation group associated with the execution context of the
-                // current thread, if such a group exists, else the group of the currently
-                // executing operation, if such an operation exists.
-                // OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
-
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
@@ -2293,7 +2288,6 @@ namespace Microsoft.Coyote.Runtime
             // Assign the specified controlled operation to the executing thread, and
             // associate the operation group, if any, with the current context.
             ExecutingOperation.Value = op;
-            OperationGroup.SetCurrent(op.Group);
         }
 
         /// <summary>
@@ -2304,7 +2298,6 @@ namespace Microsoft.Coyote.Runtime
             ExecutingOperation.Value = null;
             AsyncLocalRuntime.Value = null;
             ThreadLocalRuntime.Value = null;
-            OperationGroup.RemoveFromContext();
         }
 
         /// <summary>

@@ -1512,7 +1512,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(323)]
+        [InlineData(980)]
         public void TestSequenceNotSortedInChainReplicationProtocol(uint seed)
         {
             this.TestWithError(r =>
@@ -1524,7 +1524,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
             configuration: this.GetConfiguration()
                 .WithPrioritizationStrategy(true, 1)
                 .WithMaxSchedulingSteps(100)
-                .WithTestingIterations(5)
+                .WithTestingIterations(4)
                 .WithRandomGeneratorSeed(seed),
             expectedError: "Sequence is not sorted.",
             replay: true);

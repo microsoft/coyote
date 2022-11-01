@@ -59,11 +59,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            // The first iteration has no knowledge of the execution, so only initialize from the second
-            // iteration and onwards. Note that although we could initialize the first length based on a
-            // heuristic, its not worth it, as the strategy will typically explore thousands of iterations,
-            // plus its also interesting to explore a schedule with no forced priority switch points.
-            if (iteration > 0)
+            if (this.NumDelayPoints > 0)
             {
                 this.OperationGroups.Clear();
                 this.DelayPoints.Clear();

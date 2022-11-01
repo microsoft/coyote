@@ -59,17 +59,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <inheritdoc/>
         internal override bool InitializeNextIteration(uint iteration)
         {
-            // The first iteration has no knowledge of the execution, so only initialize from the second
-            // iteration and onwards. Note that although we could initialize the first length based on a
-            // heuristic, its not worth it, as the strategy will typically explore thousands of iterations,
-            // plus its also interesting to explore a schedule with no forced priority switch points.
-            if (iteration > 0)
+            if (this.NumPriorityChangePoints > 0)
             {
                 this.PrioritizedOperationGroups.Clear();
                 this.PriorityChangePoints.Clear();
 
-                this.MaxPriorityChangePoints = Math.Max(
-                    this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
+                this.MaxPriorityChangePoints = Math.Max(this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
                 if (this.MaxPriorityChangesPerIteration > 0)
                 {
                     var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChangesPerIteration) + 1;
@@ -110,6 +105,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
                 {
                     this.PrioritizeNextOperationGroup(ops);
+                    this.NumPriorityChangePoints++;
                 }
 
                 // Get the operations that belong to the highest priority group.
@@ -156,20 +152,17 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private void PrioritizeNextOperationGroup(IEnumerable<ControlledOperation> ops)
         {
-            OperationGroup group = null;
             if (this.PriorityChangePoints.Contains(this.NumPriorityChangePoints))
             {
                 // This scheduling step was chosen as a priority change point.
-                group = this.GetOperationGroupWithHighestPriority(ops);
-                this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
-            }
-
-            this.NumPriorityChangePoints++;
-            if (group != null)
-            {
-                // Reduce the priority of the group by putting it in the end of the list.
-                this.PrioritizedOperationGroups.Remove(group);
-                this.PrioritizedOperationGroups.Add(group);
+                OperationGroup group = this.GetOperationGroupWithHighestPriority(ops);
+                if (group != null)
+                {
+                    // Reduce the priority of the group by putting it in the end of the list.
+                    this.PrioritizedOperationGroups.Remove(group);
+                    this.PrioritizedOperationGroups.Add(group);
+                    this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
+                }
             }
         }
 

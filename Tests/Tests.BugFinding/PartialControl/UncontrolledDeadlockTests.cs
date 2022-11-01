@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 .WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Potential deadlock detected. The periodic deadlock detection monitor", e);
+                Assert.StartsWith("Potential deadlock or hang detected. The periodic deadlock detection monitor", e);
             });
         }
 

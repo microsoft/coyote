@@ -818,10 +818,12 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="type">The type of the scheduling point.</param>
         /// <param name="isSuppressible">True if the interleaving can be suppressed, else false.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
+        /// <returns>True if an operation other than the current was scheduled, else false.</returns>
         /// <remarks>
         /// An enabled operation is one that is not paused nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(ControlledOperation current, SchedulingPointType type, bool isSuppressible = true, bool isYielding = false)
+        internal bool ScheduleNextOperation(ControlledOperation current, SchedulingPointType type,
+            bool isSuppressible = true, bool isYielding = false)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
@@ -832,7 +834,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Cannot schedule the next operation if the scheduler is not attached,
                     // or if the scheduling policy is not systematic.
-                    return;
+                    return false;
                 }
 
                 // Check if the currently executing thread is uncontrolled.
@@ -857,7 +859,7 @@ namespace Microsoft.Coyote.Runtime
                         this.LogWriter.LogDebug("[coyote::debug] Postponing scheduling point '{0}' in uncontrolled thread '{1}'.",
                             type, Thread.CurrentThread.ManagedThreadId);
                         this.LastPostponedSchedulingPoint = type;
-                        return;
+                        return false;
                     }
 
                     isThreadUncontrolled = true;
@@ -869,14 +871,14 @@ namespace Microsoft.Coyote.Runtime
                 if (current is null)
                 {
                     // Cannot proceed without having access to the currently executing operation.
-                    return;
+                    return false;
                 }
 
                 if (current != this.ScheduledOperation)
                 {
                     // The currently executing operation is not scheduled, so send it to sleep.
                     this.PauseOperation(current);
-                    return;
+                    return false;
                 }
 
                 if (this.IsSchedulerSuppressed && this.LastPostponedSchedulingPoint is null &&
@@ -884,7 +886,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Suppress the scheduling point.
                     this.LogWriter.LogDebug("[coyote::debug] Suppressing scheduling point in operation '{0}'.", current.Name);
-                    return;
+                    return false;
                 }
 
                 this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
@@ -918,7 +920,7 @@ namespace Microsoft.Coyote.Runtime
                             type, current);
                         this.LastPostponedSchedulingPoint = type;
                         this.PauseOperation(current);
-                        return;
+                        return false;
                     }
 
                     // Check if the execution has deadlocked.
@@ -939,7 +941,8 @@ namespace Microsoft.Coyote.Runtime
 
                 this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.",
                     next.Name, next.Group);
-                if (current != next)
+                bool isNextOperationScheduled = current != next;
+                if (isNextOperationScheduled)
                 {
                     // Pause the currently scheduled operation, and enable the next one.
                     this.ScheduledOperation = next;
@@ -952,6 +955,8 @@ namespace Microsoft.Coyote.Runtime
                     // is uncontrolled, then we need to signal the current operation to resume execution.
                     next.Signal();
                 }
+
+                return isNextOperationScheduled;
             }
         }
 

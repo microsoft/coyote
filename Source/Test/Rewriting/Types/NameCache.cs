@@ -21,29 +21,29 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string SystemCompilerNamespace { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Namespace;
         internal static string SystemTasksNamespace { get; } = typeof(SystemTasks.Task).Namespace;
 
-        internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string Task { get; } = typeof(SystemTasks.Task).FullName;
+        internal static string TaskName { get; } = typeof(SystemTasks.Task).Name;
         internal static string GenericTask { get; } = typeof(SystemTasks.Task<>).FullName;
-        internal static string ValueTaskName { get; } = typeof(SystemTasks.ValueTask).Name;
         internal static string ValueTask { get; } = typeof(SystemTasks.ValueTask).FullName;
+        internal static string ValueTaskName { get; } = typeof(SystemTasks.ValueTask).Name;
         internal static string GenericValueTask { get; } = typeof(SystemTasks.ValueTask<>).FullName;
 #if NET
         internal static string TaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource).FullName;
 #endif
         internal static string GenericTaskCompletionSource { get; } = typeof(SystemTasks.TaskCompletionSource<>).FullName;
 
-        internal static string AsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Name;
         internal static string AsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
+        internal static string AsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).Name;
         internal static string GenericAsyncTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
-        internal static string AsyncValueTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder).Name;
         internal static string AsyncValueTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder).FullName;
+        internal static string AsyncValueTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder).Name;
         internal static string GenericAsyncValueTaskMethodBuilder { get; } = typeof(SystemCompiler.AsyncValueTaskMethodBuilder<>).FullName;
 
-        internal static string TaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter).Name;
         internal static string TaskAwaiter { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
+        internal static string TaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter).Name;
         internal static string GenericTaskAwaiter { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
-        internal static string ValueTaskAwaiterName { get; } = typeof(SystemCompiler.ValueTaskAwaiter).Name;
         internal static string ValueTaskAwaiter { get; } = typeof(SystemCompiler.ValueTaskAwaiter).FullName;
+        internal static string ValueTaskAwaiterName { get; } = typeof(SystemCompiler.ValueTaskAwaiter).Name;
         internal static string GenericValueTaskAwaiter { get; } = typeof(SystemCompiler.ValueTaskAwaiter<>).FullName;
 
         internal static string ConfiguredTaskAwaitable { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;
@@ -67,6 +67,8 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string TaskFactory { get; } = typeof(SystemTasks.TaskFactory).FullName;
         internal static string GenericTaskFactory { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
         internal static string TaskParallel { get; } = typeof(SystemTasks.Parallel).FullName;
+
+        internal static string Thread { get; } = typeof(SystemThreading.Thread).FullName;
 
         internal static string Monitor { get; } = typeof(SystemThreading.Monitor).FullName;
         internal static string SemaphoreSlim { get; } = typeof(SystemThreading.SemaphoreSlim).FullName;

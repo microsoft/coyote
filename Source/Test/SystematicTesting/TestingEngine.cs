@@ -283,8 +283,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.AttachDebugger)
                 {
                     this.LogWriter.LogImportant("..... Launching and attaching the debugger.");
-                    this.Configuration.AttachDebugger = Debugger.Launch();
-                    if (!this.Configuration.AttachDebugger)
+                    Debugger.Launch();
+                    if (!Debugger.IsAttached)
                     {
                         this.LogWriter.LogError("..... Failed to launch or attach the debugger.");
                     }
@@ -468,7 +468,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
                     this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
-                    this.Configuration.AttachDebugger ? string.Empty : " (use --break to attach the debugger)");
+                    Debugger.IsAttached ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 return report.ToString();
             }

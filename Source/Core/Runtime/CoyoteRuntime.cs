@@ -1868,7 +1868,7 @@ namespace Microsoft.Coyote.Runtime
                                 "Coyote cannot accurately determine if this is a deadlock, hang or false positive. If you believe " +
                                 "that this is a false positive, you can try increase the deadlock detection timeout by setting " +
                                 "'--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
-                            if (this.Configuration.AttachDebugger)
+                            if (Debugger.IsAttached)
                             {
                                 msg += " The deadlock or hang was detected with a debugger attached, so Coyote is only inserting " +
                                     "a breakpoint, instead of failing this execution.";
@@ -2019,7 +2019,7 @@ namespace Microsoft.Coyote.Runtime
                     this.BugReport = text;
                     this.LogManager.LogAssertionFailure($"[coyote::error] {text}");
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
-                    if (this.Configuration.AttachDebugger)
+                    if (Debugger.IsAttached)
                     {
                         Debugger.Break();
                     }
@@ -2236,7 +2236,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.Configuration.AttachDebugger)
+            if (Debugger.IsAttached)
             {
                 Debugger.Break();
             }

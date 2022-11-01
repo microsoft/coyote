@@ -126,7 +126,6 @@ namespace Microsoft.Coyote.Rewriting
                     method.Name is nameof(System.Threading.Thread.Join) ||
                     method.Name is nameof(System.Threading.Thread.SpinWait) ||
                     method.Name is nameof(System.Threading.Thread.Sleep) ||
-                    method.Name is nameof(System.Threading.Thread.Yield) ||
                     method.Name is nameof(System.Threading.Thread.Interrupt) ||
                     method.Name is nameof(System.Threading.Thread.Suspend) ||
                     method.Name is nameof(System.Threading.Thread.Resume) ||

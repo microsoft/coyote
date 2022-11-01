@@ -212,9 +212,11 @@ namespace Microsoft.Coyote.Cli
             var allowedStrategies = new HashSet<string>
             {
                 "random",
+                "probabilistic",
                 "prioritization",
                 "fair-prioritization",
-                "probabilistic",
+                "delay-bounding",
+                "fair-delay-bounding",
                 "q-learning"
             };
 
@@ -233,8 +235,9 @@ namespace Microsoft.Coyote.Cli
             var strategyValueOption = new Option<int>(
                 aliases: new[] { "-sv", "--strategy-value" },
                 description: "Set exploration strategy specific value. Supported strategies (and values): " +
-                    "(fair-)prioritization (maximum number of priority change points per iteration), " +
-                    "probabilistic (probability of deviating from a scheduled operation).")
+                    "probabilistic (probability of deviating from a scheduled operation), " +
+                    "(fair-)prioritization (maximum number of priority changes per iteration), " +
+                    "(fair-)delay-bounding (maximum number of delays per iteration).")
             {
                 ArgumentHelpName = "VALUE",
                 Arity = ArgumentArity.ExactlyOne
@@ -861,18 +864,20 @@ namespace Microsoft.Coyote.Cli
                         string strategy = result.GetValueOrDefault<string>();
                         switch (strategy)
                         {
-                            case "prioritization":
-                            case "fair-prioritization":
-                                if (strategyBound is null)
-                                {
-                                    this.Configuration.StrategyBound = 10;
-                                }
-
-                                break;
                             case "probabilistic":
                                 if (strategyBound is null)
                                 {
                                     this.Configuration.StrategyBound = 3;
+                                }
+
+                                break;
+                            case "prioritization":
+                            case "fair-prioritization":
+                            case "delay-bounding":
+                            case "fair-delay-bounding":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 10;
                                 }
 
                                 break;

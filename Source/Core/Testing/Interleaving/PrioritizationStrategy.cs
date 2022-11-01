@@ -29,9 +29,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         private readonly HashSet<int> PriorityChangePoints;
 
         /// <summary>
-        /// Number of potential priority change points in the current iteration.
+        /// Max number of priority changes per iteration.
         /// </summary>
-        private int NumPriorityChangePoints;
+        private readonly int MaxPriorityChangesPerIteration;
 
         /// <summary>
         /// Max number of potential priority change points across all iterations.
@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         private int MaxPriorityChangePoints;
 
         /// <summary>
-        /// Max number of priority changes per iteration.
+        /// Number of potential priority change points in the current iteration.
         /// </summary>
-        private readonly int MaxPriorityChanges;
+        private int NumPriorityChangePoints;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrioritizationStrategy"/> class.
@@ -51,9 +51,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         {
             this.PrioritizedOperationGroups = new List<OperationGroup>();
             this.PriorityChangePoints = new HashSet<int>();
-            this.NumPriorityChangePoints = 0;
+            this.MaxPriorityChangesPerIteration = maxPriorityChanges;
             this.MaxPriorityChangePoints = 0;
-            this.MaxPriorityChanges = maxPriorityChanges;
+            this.NumPriorityChangePoints = 0;
         }
 
         /// <inheritdoc/>
@@ -70,9 +70,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
                 this.MaxPriorityChangePoints = Math.Max(
                     this.MaxPriorityChangePoints, this.NumPriorityChangePoints);
-                if (this.MaxPriorityChanges > 0)
+                if (this.MaxPriorityChangesPerIteration > 0)
                 {
-                    var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChanges) + 1;
+                    var priorityChanges = this.RandomValueGenerator.Next(this.MaxPriorityChangesPerIteration) + 1;
                     var range = Enumerable.Range(0, this.MaxPriorityChangePoints);
                     foreach (int point in this.Shuffle(range).Take(priorityChanges))
                     {
@@ -103,13 +103,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
             // otherwise skip the priority checking and changing logic.
             if (ops.Select(op => op.Group).Distinct().Skip(1).Any())
             {
-                // Try to change the priority of the highest priority operation group.
+                // Change the priority of the highest priority operation group.
                 // If the shared-state reduction is enabled, check if there is at least
                 // one 'WRITE' operation, before trying to change the priority.
                 if (!this.Configuration.IsSharedStateReductionEnabled ||
                     ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
                 {
-                    this.TryPrioritizeNextOperationGroup(ops);
+                    this.PrioritizeNextOperationGroup(ops);
                 }
 
                 // Get the operations that belong to the highest priority group.
@@ -120,6 +120,57 @@ namespace Microsoft.Coyote.Testing.Interleaving
             int idx = this.RandomValueGenerator.Next(ops.Count());
             next = ops.ElementAt(idx);
             return true;
+        }
+
+        /// <summary>
+        /// Sets a random priority to any new operation groups.
+        /// </summary>
+        private void SetNewOperationGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        {
+            this.PrioritizedOperationGroups.RemoveAll(group => group.IsCompleted());
+
+            int count = this.PrioritizedOperationGroups.Count;
+            if (count is 0)
+            {
+                this.PrioritizedOperationGroups.Add(current.Group);
+            }
+
+            // Randomize the priority of all new operation groups.
+            foreach (var group in ops.Select(op => op.Group).Where(g => !this.PrioritizedOperationGroups.Contains(g)))
+            {
+                // Randomly choose a priority for this group.
+                int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count + 1);
+                this.PrioritizedOperationGroups.Insert(index, group);
+                this.LogWriter.LogDebug("[coyote::strategy] Assigned priority '{0}' for operation group '{1}'.", index, group);
+            }
+
+            if (this.PrioritizedOperationGroups.Count > count)
+            {
+                this.DebugPrintPriorityList();
+            }
+        }
+
+        /// <summary>
+        /// Reduces the priority of highest priority operation group, if there is a priority change point
+        /// installed on the current execution step.
+        /// </summary>
+        private void PrioritizeNextOperationGroup(IEnumerable<ControlledOperation> ops)
+        {
+            OperationGroup group = null;
+            if (this.PriorityChangePoints.Contains(this.NumPriorityChangePoints))
+            {
+                // This scheduling step was chosen as a priority change point.
+                group = this.GetOperationGroupWithHighestPriority(ops);
+                this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
+            }
+
+            this.NumPriorityChangePoints++;
+            if (group != null)
+            {
+                // Reduce the priority of the group by putting it in the end of the list.
+                this.PrioritizedOperationGroups.Remove(group);
+                this.PrioritizedOperationGroups.Add(group);
+            }
         }
 
         /// <summary>
@@ -138,64 +189,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
             return null;
         }
 
-        /// <summary>
-        /// Sets a random priority to any new operation groups.
-        /// </summary>
-        private void SetNewOperationGroupPriorities(IEnumerable<ControlledOperation> ops, ControlledOperation current)
-        {
-            int count = this.PrioritizedOperationGroups.Count;
-            if (count is 0)
-            {
-                this.PrioritizedOperationGroups.Add(current.Group);
-            }
-
-            // Randomize the priority of all new operation groups.
-            foreach (var group in ops.Select(op => op.Group).Where(g => !this.PrioritizedOperationGroups.Contains(g)))
-            {
-                // Randomly choose a priority for this group.
-                int index = this.RandomValueGenerator.Next(this.PrioritizedOperationGroups.Count) + 1;
-                this.PrioritizedOperationGroups.Insert(index, group);
-                this.LogWriter.LogDebug("[coyote::strategy] Assigned priority '{0}' for operation group '{1}'.", index, group);
-            }
-
-            if (this.PrioritizedOperationGroups.Count > count)
-            {
-                this.DebugPrintOperationPriorityList();
-            }
-        }
-
-        /// <summary>
-        /// Reduces the priority of highest priority operation group, if there is a priority
-        /// change point installed on the current execution step.
-        /// </summary>
-        private bool TryPrioritizeNextOperationGroup(IEnumerable<ControlledOperation> ops)
-        {
-            OperationGroup group = null;
-            if (this.PriorityChangePoints.Contains(this.NumPriorityChangePoints))
-            {
-                // This scheduling step was chosen as a priority change point.
-                group = this.GetOperationGroupWithHighestPriority(ops);
-                this.LogWriter.LogDebug("[coyote::strategy] Reduced the priority of operation group '{0}'.", group);
-            }
-
-            this.NumPriorityChangePoints++;
-            if (group != null)
-            {
-                // Reduce the priority of the group by putting it in the end of the list.
-                this.PrioritizedOperationGroups.Remove(group);
-                this.PrioritizedOperationGroups.Add(group);
-                return true;
-            }
-
-            return false;
-        }
-
         /// <inheritdoc/>
         internal override string GetName() => (this.IsFair ? ExplorationStrategy.FairPrioritization : ExplorationStrategy.Prioritization).GetName();
 
         /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"{this.GetName()}[bound:{this.MaxPriorityChanges},seed:{this.RandomValueGenerator.Seed}]";
+            $"{this.GetName()}[bound:{this.MaxPriorityChangesPerIteration},seed:{this.RandomValueGenerator.Seed}]";
 
         /// <summary>
         /// Shuffles the specified range using the Fisher-Yates algorithm.
@@ -229,7 +228,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Print the operation group priority list, if debug is enabled.
         /// </summary>
-        private void DebugPrintOperationPriorityList()
+        private void DebugPrintPriorityList()
         {
             this.LogWriter.LogDebug(() =>
             {

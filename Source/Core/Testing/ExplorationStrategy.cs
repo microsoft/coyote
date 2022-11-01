@@ -17,6 +17,12 @@ namespace Microsoft.Coyote.Testing
         Random = 0,
 
         /// <summary>
+        /// A randomized exploration strategy with increased probability
+        /// to remain in the same scheduling choice.
+        /// </summary>
+        Probabilistic,
+
+        /// <summary>
         /// An unfair probabilistic priority-based exploration strategy.
         /// </summary>
         /// <remarks>
@@ -36,10 +42,22 @@ namespace Microsoft.Coyote.Testing
         FairPrioritization,
 
         /// <summary>
-        /// A randomized exploration strategy with increased probability
-        /// to remain in the same scheduling choice.
+        /// An exploration strategy using delay-bounding.
         /// </summary>
-        Probabilistic,
+        /// <remarks>
+        /// This strategy is based on the algorithm described in the following paper:
+        /// https://dl.acm.org/doi/10.1145/1925844.1926432.
+        /// </remarks>
+        DelayBounding,
+
+        /// <summary>
+        /// A fair exploration strategy using delay-bounding.
+        /// </summary>
+        /// <remarks>
+        /// This strategy is based on the algorithm described in the following paper:
+        /// https://dl.acm.org/doi/10.1145/1925844.1926432.
+        /// </remarks>
+        FairDelayBounding,
 
         /// <summary>
         /// A probabilistic exploration strategy that uses Q-learning.
@@ -67,9 +85,11 @@ namespace Microsoft.Coyote.Testing
         internal static string GetName(this ExplorationStrategy strategy) => strategy switch
             {
                 ExplorationStrategy.Random => "random",
+                ExplorationStrategy.Probabilistic => "probabilistic",
                 ExplorationStrategy.Prioritization => "prioritization",
                 ExplorationStrategy.FairPrioritization => "fair-prioritization",
-                ExplorationStrategy.Probabilistic => "probabilistic",
+                ExplorationStrategy.DelayBounding => "delay-bounding",
+                ExplorationStrategy.FairDelayBounding => "fair-delay-bounding",
                 ExplorationStrategy.QLearning => "q-learning",
                 ExplorationStrategy.DFS => "dfs",
                 _ => throw new NotSupportedException($"The strategy '{strategy}' is not expected.")
@@ -81,9 +101,11 @@ namespace Microsoft.Coyote.Testing
         internal static ExplorationStrategy FromName(string name) => name switch
             {
                 "random" => ExplorationStrategy.Random,
+                "probabilistic" => ExplorationStrategy.Probabilistic,
                 "prioritization" => ExplorationStrategy.Prioritization,
                 "fair-prioritization" => ExplorationStrategy.FairPrioritization,
-                "probabilistic" => ExplorationStrategy.Probabilistic,
+                "delay-bounding" => ExplorationStrategy.DelayBounding,
+                "fair-delay-bounding" => ExplorationStrategy.FairDelayBounding,
                 "q-learning" => ExplorationStrategy.QLearning,
                 "dfs" => ExplorationStrategy.DFS,
                 _ => throw new ArgumentOutOfRangeException($"The name '{name}' is not expected.")

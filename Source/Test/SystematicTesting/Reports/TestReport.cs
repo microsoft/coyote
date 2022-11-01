@@ -77,24 +77,6 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalControlledOperations { get; internal set; }
 
         /// <summary>
-        /// The minimum number of controlled operation groups.
-        /// </summary>
-        [DataMember]
-        public int MinControlledOperationGroups { get; internal set; }
-
-        /// <summary>
-        /// The maximum number of controlled operation groups.
-        /// </summary>
-        [DataMember]
-        public int MaxControlledOperationGroups { get; internal set; }
-
-        /// <summary>
-        /// The total number of controlled operation groups.
-        /// </summary>
-        [DataMember]
-        public int TotalControlledOperationGroups { get; internal set; }
-
-        /// <summary>
         /// The min degree of concurrency.
         /// </summary>
         [DataMember]
@@ -111,6 +93,24 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         [DataMember]
         public int TotalConcurrencyDegree { get; internal set; }
+
+        /// <summary>
+        /// The minimum degree of operation grouping.
+        /// </summary>
+        [DataMember]
+        public int MinOperationGroupingDegree { get; internal set; }
+
+        /// <summary>
+        /// The maximum degree of operation grouping.
+        /// </summary>
+        [DataMember]
+        public int MaxOperationGroupingDegree { get; internal set; }
+
+        /// <summary>
+        /// The total degree of operation grouping (across all testing iterations).
+        /// </summary>
+        [DataMember]
+        public int TotalOperationGroupingDegree { get; internal set; }
 
         /// <summary>
         /// The min explored scheduling steps in fair tests.
@@ -200,12 +200,12 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinControlledOperations = -1;
             this.MaxControlledOperations = -1;
             this.TotalControlledOperations = 0;
-            this.MinControlledOperationGroups = -1;
-            this.MaxControlledOperationGroups = -1;
-            this.TotalControlledOperationGroups = 0;
             this.MinConcurrencyDegree = -1;
             this.MaxConcurrencyDegree = -1;
             this.TotalConcurrencyDegree = 0;
+            this.MinOperationGroupingDegree = -1;
+            this.MaxOperationGroupingDegree = -1;
+            this.TotalOperationGroupingDegree = 0;
             this.MinExploredFairSteps = -1;
             this.MaxExploredFairSteps = -1;
             this.TotalExploredFairSteps = 0;
@@ -222,8 +222,8 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numOperationGroups,
-            int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int concurrencyDegree,
+            int groupingDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
             {
@@ -239,20 +239,20 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MinControlledOperations = numOperations;
             }
 
-            this.TotalControlledOperationGroups += numOperationGroups;
-            this.MaxControlledOperationGroups = Math.Max(this.MaxControlledOperationGroups, numOperationGroups);
-            if (this.MinControlledOperationGroups < 0 ||
-                this.MinControlledOperationGroups > numOperationGroups)
-            {
-                this.MinControlledOperationGroups = numOperationGroups;
-            }
-
             this.TotalConcurrencyDegree += concurrencyDegree;
             this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, concurrencyDegree);
             if (this.MinConcurrencyDegree < 0 ||
                 this.MinConcurrencyDegree > concurrencyDegree)
             {
                 this.MinConcurrencyDegree = concurrencyDegree;
+            }
+
+            this.TotalOperationGroupingDegree += groupingDegree;
+            this.MaxOperationGroupingDegree = Math.Max(this.MaxOperationGroupingDegree, groupingDegree);
+            if (this.MinOperationGroupingDegree < 0 ||
+                this.MinOperationGroupingDegree > groupingDegree)
+            {
+                this.MinOperationGroupingDegree = groupingDegree;
             }
 
             if (isScheduleFair)
@@ -336,15 +336,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations = testReport.MinControlledOperations;
                 }
 
-                this.TotalControlledOperationGroups += testReport.TotalControlledOperationGroups;
-                this.MaxControlledOperationGroups = Math.Max(this.MaxControlledOperationGroups, testReport.MaxControlledOperationGroups);
-                if (testReport.MinControlledOperationGroups >= 0 &&
-                    (this.MinControlledOperationGroups < 0 ||
-                    this.MinControlledOperationGroups > testReport.MinControlledOperationGroups))
-                {
-                    this.MinControlledOperationGroups = testReport.MinControlledOperationGroups;
-                }
-
                 this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
                 this.MaxConcurrencyDegree = Math.Max(this.MaxConcurrencyDegree, testReport.MaxConcurrencyDegree);
                 if (testReport.MinConcurrencyDegree >= 0 &&
@@ -352,6 +343,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinConcurrencyDegree > testReport.MinConcurrencyDegree))
                 {
                     this.MinConcurrencyDegree = testReport.MinConcurrencyDegree;
+                }
+
+                this.TotalOperationGroupingDegree += testReport.TotalOperationGroupingDegree;
+                this.MaxOperationGroupingDegree = Math.Max(this.MaxOperationGroupingDegree, testReport.MaxOperationGroupingDegree);
+                if (testReport.MinOperationGroupingDegree >= 0 &&
+                    (this.MinOperationGroupingDegree < 0 ||
+                    this.MinOperationGroupingDegree > testReport.MinOperationGroupingDegree))
+                {
+                    this.MinOperationGroupingDegree = testReport.MinOperationGroupingDegree;
                 }
 
                 this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
@@ -455,17 +455,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MaxControlledOperations);
             }
 
-            if (this.TotalControlledOperationGroups > 0)
-            {
-                report.AppendLine();
-                report.AppendFormat(
-                    "{0} Number of controlled operation groups: {1} (min), {2} (avg), {3} (max).",
-                    prefix.Equals("...") ? "....." : prefix,
-                    this.MinControlledOperationGroups,
-                    this.TotalControlledOperationGroups / totalExploredSchedules,
-                    this.MaxControlledOperationGroups);
-            }
-
             if (this.TotalConcurrencyDegree > 0)
             {
                 report.AppendLine();
@@ -475,6 +464,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinConcurrencyDegree,
                     this.TotalConcurrencyDegree / totalExploredSchedules,
                     this.MaxConcurrencyDegree);
+            }
+
+            if (this.TotalOperationGroupingDegree > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Degree of operation grouping: {1} (min), {2} (avg), {3} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.MinOperationGroupingDegree,
+                    this.TotalOperationGroupingDegree / totalExploredSchedules,
+                    this.MaxOperationGroupingDegree);
             }
 
             if (this.NumOfExploredFairSchedules > 0)

@@ -2257,10 +2257,9 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
-                int numOperationGroups = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, numOperationGroups,
-                    (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
-                    this.Scheduler.IsIterationFair);
+                int groupingDegree = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, (int)this.MaxConcurrencyDegree,
+                    groupingDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached, this.Scheduler.IsIterationFair);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);

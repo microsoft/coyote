@@ -518,7 +518,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(timeout);
+                ControlledOperation op = this.CreateControlledOperation(delay: timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
@@ -583,16 +583,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a new controlled operation with an optional delay.
+        /// Creates a new controlled operation with the specified group and an optional delay.
         /// </summary>
-        internal ControlledOperation CreateControlledOperation(uint delay = 0)
+        internal ControlledOperation CreateControlledOperation(OperationGroup group = null, uint delay = 0)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 // Assign the operation group associated with the execution context of the
                 // current thread, if such a group exists, else the group of the currently
                 // executing operation, if such an operation exists.
-                OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
+                // OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
 
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();

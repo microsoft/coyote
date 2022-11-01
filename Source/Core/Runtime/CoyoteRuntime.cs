@@ -1866,8 +1866,8 @@ namespace Microsoft.Coyote.Runtime
                         {
                             string msg = "Potential deadlock or hang detected. The periodic deadlock detection monitor was used, so " +
                                 "Coyote cannot accurately determine if this is a deadlock, hang or false positive. If you believe " +
-                                "that this is not a real deadlock or hang, you can try increase the deadlock detection timeout " +
-                                "by setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
+                                "that this is a false positive, you can try increase the deadlock detection timeout by setting " +
+                                "'--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
                             if (this.Configuration.AttachDebugger)
                             {
                                 msg += " The deadlock or hang was detected with a debugger attached, so Coyote is only inserting " +

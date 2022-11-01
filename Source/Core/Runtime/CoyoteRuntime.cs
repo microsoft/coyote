@@ -1864,20 +1864,20 @@ namespace Microsoft.Coyote.Runtime
                         if (info.OperationCount == this.OperationMap.Count &&
                             info.StepCount == this.Scheduler.StepCount)
                         {
-                            string msg = "Potential deadlock detected. The periodic deadlock detection monitor was used, " +
-                                "so Coyote cannot accurately determine if this is a real deadlock or not. If you believe " +
-                                "that this is not a real deadlock, you can try increase the deadlock detection timeout " +
+                            string msg = "Potential deadlock or hang detected. The periodic deadlock detection monitor was used, so " +
+                                "Coyote cannot accurately determine if this is a deadlock, hang or false positive. If you believe " +
+                                "that this is not a real deadlock or hang, you can try increase the deadlock detection timeout " +
                                 "by setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
                             if (this.Configuration.AttachDebugger)
                             {
-                                msg += " Because the deadlock was detected during replay with a debugger attached, Coyote is " +
-                                    "only signaling a breakpoint, instead of failing this execution.";
+                                msg += " The deadlock or hang was detected with a debugger attached, so Coyote is only inserting " +
+                                    "a breakpoint, instead of failing this execution.";
                                 this.LogWriter.LogError("[coyote::error] {0}", msg);
                                 Debugger.Break();
                             }
                             else if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                             {
-                                msg += " Alternatively, you can disable reporting potential deadlocks as bugs by setting " +
+                                msg += " Alternatively, you can disable reporting potential deadlocks or hangs as bugs by setting " +
                                     "'--skip-potential-deadlocks' or 'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.";
                                 this.NotifyAssertionFailure(msg);
                             }
@@ -1890,7 +1890,8 @@ namespace Microsoft.Coyote.Runtime
                         else
                         {
                             // Passed check, so continue with the next timeout period.
-                            this.LogWriter.LogDebug("[coyote::debug] Passed periodic check for potential deadlocks in runtime '{0}'.", this.Id);
+                            this.LogWriter.LogDebug("[coyote::debug] Passed periodic check for potential deadlocks and hangs in runtime '{0}'.",
+                                this.Id);
                             info.OperationCount = this.OperationMap.Count;
                             info.StepCount = this.Scheduler.StepCount;
                             if (this.LastPostponedSchedulingPoint is SchedulingPointType.Pause ||

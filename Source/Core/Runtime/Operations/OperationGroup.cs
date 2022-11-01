@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.Coyote.Runtime
@@ -85,6 +86,11 @@ namespace Microsoft.Coyote.Runtime
         /// Returns true if the specified operation is a member of this group, else false.
         /// </summary>
         internal bool IsMember(ControlledOperation operation) => this.Members.Contains(operation);
+
+        /// <summary>
+        /// Determines whether all members of this group are completed.
+        /// </summary>
+        internal bool IsCompleted() => this.Members.All(op => op.Status is OperationStatus.Completed);
 
         /// <summary>
         /// Associates the specified operation group with the currently executing thread,

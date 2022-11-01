@@ -8,6 +8,7 @@ using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Interleaving;
 using BoundedRandomFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.BoundedRandomStrategy;
+using DelayBoundingInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DelayBoundingStrategy;
 using DFSInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DFSStrategy;
 using PrioritizationFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.PrioritizationStrategy;
 using PrioritizationInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.PrioritizationStrategy;
@@ -115,10 +116,9 @@ namespace Microsoft.Coyote.Runtime
             {
                 bool isFair = this.Configuration.PortfolioMode.IsFair();
                 this.Portfolio.AddLast(new RandomInterleavingStrategy(configuration));
-                this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, 5, isFair));
-                this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, 10, isFair));
-                this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, 2));
                 this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, 3));
+                this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, 10, isFair));
+                this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, 10, isFair));
             }
             else
             {
@@ -126,14 +126,20 @@ namespace Microsoft.Coyote.Runtime
                 {
                     switch (configuration.ExplorationStrategy)
                     {
+                        case ExplorationStrategy.Probabilistic:
+                            this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, configuration.StrategyBound));
+                            break;
                         case ExplorationStrategy.Prioritization:
                             this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, false));
                             break;
                         case ExplorationStrategy.FairPrioritization:
                             this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, true));
                             break;
-                        case ExplorationStrategy.Probabilistic:
-                            this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, configuration.StrategyBound));
+                        case ExplorationStrategy.DelayBounding:
+                            this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, configuration.StrategyBound, false));
+                            break;
+                        case ExplorationStrategy.FairDelayBounding:
+                            this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, configuration.StrategyBound, true));
                             break;
                         case ExplorationStrategy.QLearning:
                             this.Portfolio.AddLast(new QLearningInterleavingStrategy(configuration));

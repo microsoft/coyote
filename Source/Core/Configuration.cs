@@ -433,6 +433,25 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the delay-bounding exploration strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible delays, which by default can be up to 10.
+        /// </summary>
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="delayBound">Upper bound of possible priority delays per test iteration.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
+        public Configuration WithDelayBoundingStrategy(bool isFair = false, uint delayBound = 10)
+        {
+            this.ExplorationStrategy = isFair ? ExplorationStrategy.FairDelayBounding : ExplorationStrategy.DelayBounding;
+            this.StrategyBound = (int)delayBound;
+            this.PortfolioMode = PortfolioMode.None;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to use the Q-learning exploration strategy during systematic testing.
         /// </summary>
         /// <remarks>

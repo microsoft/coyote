@@ -88,9 +88,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         [Fact(Timeout = 5000)]
         public void TestLiveness2BugFound()
         {
-            var configuration = this.GetConfiguration();
-            configuration.ExplorationStrategy = ExplorationStrategy.DFS;
-
+            var configuration = this.GetConfiguration().WithDFSStrategy();
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<WatchDog>();

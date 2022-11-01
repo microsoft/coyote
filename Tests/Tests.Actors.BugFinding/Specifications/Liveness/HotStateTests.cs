@@ -169,9 +169,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         [Fact(Timeout = 5000)]
         public void TestHotStateMonitor()
         {
-            var configuration = this.GetConfiguration();
-            configuration.ExplorationStrategy = ExplorationStrategy.DFS;
-
+            var configuration = this.GetConfiguration().WithDFSStrategy();
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M>();

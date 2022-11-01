@@ -45,11 +45,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestUncontrolledThreadYieldInvocation()
+        public void TestUncontrolledThreadSpinWaitInvocation()
         {
             this.Test(() =>
             {
-                Thread.Yield();
+                Thread.SpinWait(10);
             },
             configuration: this.GetConfiguration()
                 .WithPartiallyControlledConcurrencyAllowed()
@@ -57,15 +57,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestUncontrolledThreadYieldInvocationWithNoPartialControl()
+        public void TestUncontrolledThreadSpinWaitInvocationWithNoPartialControl()
         {
             this.TestWithError(() =>
             {
-                Thread.Yield();
+                Thread.SpinWait(10);
             },
             errorChecker: (e) =>
             {
-                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Thread), nameof(Thread.Yield));
+                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Thread), nameof(Thread.SpinWait));
                 Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
             });
         }

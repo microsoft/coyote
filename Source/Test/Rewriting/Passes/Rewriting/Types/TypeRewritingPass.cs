@@ -75,6 +75,9 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.GenericTaskFactory] = typeof(Types.Threading.Tasks.TaskFactory<>);
             this.KnownTypes[NameCache.TaskParallel] = typeof(Types.Threading.Tasks.Parallel);
 
+            // Populate the map with the default thread-based types.
+            this.KnownTypes[NameCache.Thread] = typeof(Types.Threading.Thread);
+
             // Populate the map with the known synchronization types.
             this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
             this.KnownTypes[NameCache.SemaphoreSlim] = typeof(Types.Threading.SemaphoreSlim);

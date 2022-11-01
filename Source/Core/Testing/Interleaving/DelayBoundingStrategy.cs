@@ -46,12 +46,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="DelayBoundingStrategy"/> class.
         /// </summary>
-        internal DelayBoundingStrategy(Configuration configuration, int maxPriorityChanges, bool isFair)
+        internal DelayBoundingStrategy(Configuration configuration, int maxDelays, bool isFair)
             : base(configuration, isFair)
         {
             this.OperationGroups = new List<OperationGroup>();
             this.DelayPoints = new List<int>();
-            this.MaxDelaysPerIteration = configuration.StrategyBound;
+            this.MaxDelaysPerIteration = maxDelays;
             this.MaxDelayPoints = 0;
             this.NumDelayPoints = 0;
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 return base.NextOperation(ops, current, isYielding, out next);
             }
 
-            this.RegisterNewOperationGroup(ops, current);
+            this.RegisterNewOperationGroup(ops);
 
             // Check if there are at least two operation groups that can be scheduled,
             // otherwise skip the delay checking and changing logic.
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Registers any new operation groups.
         /// </summary>
-        private void RegisterNewOperationGroup(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        private void RegisterNewOperationGroup(IEnumerable<ControlledOperation> ops)
         {
             this.OperationGroups.RemoveAll(group => group.IsCompleted());
 

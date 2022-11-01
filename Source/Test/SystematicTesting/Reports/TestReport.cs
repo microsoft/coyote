@@ -59,13 +59,13 @@ namespace Microsoft.Coyote.SystematicTesting
         public HashSet<string> UncontrolledInvocations { get; internal set; }
 
         /// <summary>
-        /// The min number of controlled operations.
+        /// The minimum number of controlled operations.
         /// </summary>
         [DataMember]
         public int MinControlledOperations { get; internal set; }
 
         /// <summary>
-        /// The max number of controlled operations.
+        /// The maximum number of controlled operations.
         /// </summary>
         [DataMember]
         public int MaxControlledOperations { get; internal set; }
@@ -75,6 +75,24 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         [DataMember]
         public int TotalControlledOperations { get; internal set; }
+
+        /// <summary>
+        /// The minimum number of controlled operation groups.
+        /// </summary>
+        [DataMember]
+        public int MinControlledOperationGroups { get; internal set; }
+
+        /// <summary>
+        /// The maximum number of controlled operation groups.
+        /// </summary>
+        [DataMember]
+        public int MaxControlledOperationGroups { get; internal set; }
+
+        /// <summary>
+        /// The total number of controlled operation groups.
+        /// </summary>
+        [DataMember]
+        public int TotalControlledOperationGroups { get; internal set; }
 
         /// <summary>
         /// The min degree of concurrency.
@@ -182,6 +200,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.MinControlledOperations = -1;
             this.MaxControlledOperations = -1;
             this.TotalControlledOperations = 0;
+            this.MinControlledOperationGroups = -1;
+            this.MaxControlledOperationGroups = -1;
+            this.TotalControlledOperationGroups = 0;
             this.MinConcurrencyDegree = -1;
             this.MaxConcurrencyDegree = -1;
             this.TotalConcurrencyDegree = 0;
@@ -201,7 +222,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations,
+        void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int numOperationGroups,
             int concurrencyDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
         {
             if (isBugFound)
@@ -216,6 +237,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MinControlledOperations > numOperations)
             {
                 this.MinControlledOperations = numOperations;
+            }
+
+            this.TotalControlledOperationGroups += numOperationGroups;
+            this.MaxControlledOperationGroups = Math.Max(this.MaxControlledOperationGroups, numOperationGroups);
+            if (this.MinControlledOperationGroups < 0 ||
+                this.MinControlledOperationGroups > numOperationGroups)
+            {
+                this.MinControlledOperationGroups = numOperationGroups;
             }
 
             this.TotalConcurrencyDegree += concurrencyDegree;
@@ -305,6 +334,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations > testReport.MinControlledOperations))
                 {
                     this.MinControlledOperations = testReport.MinControlledOperations;
+                }
+
+                this.TotalControlledOperationGroups += testReport.TotalControlledOperationGroups;
+                this.MaxControlledOperationGroups = Math.Max(this.MaxControlledOperationGroups, testReport.MaxControlledOperationGroups);
+                if (testReport.MinControlledOperationGroups >= 0 &&
+                    (this.MinControlledOperationGroups < 0 ||
+                    this.MinControlledOperationGroups > testReport.MinControlledOperationGroups))
+                {
+                    this.MinControlledOperationGroups = testReport.MinControlledOperationGroups;
                 }
 
                 this.TotalConcurrencyDegree += testReport.TotalConcurrencyDegree;
@@ -415,6 +453,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinControlledOperations,
                     this.TotalControlledOperations / totalExploredSchedules,
                     this.MaxControlledOperations);
+            }
+
+            if (this.TotalControlledOperationGroups > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Number of controlled operation groups: {1} (min), {2} (avg), {3} (max).",
+                    prefix.Equals("...") ? "....." : prefix,
+                    this.MinControlledOperationGroups,
+                    this.TotalControlledOperationGroups / totalExploredSchedules,
+                    this.MaxControlledOperationGroups);
             }
 
             if (this.TotalConcurrencyDegree > 0)

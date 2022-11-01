@@ -422,11 +422,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.LogWriter.LogImportant("..... Iteration #{0} enables systematic fuzzing due to uncontrolled concurrency",
                         iteration + 1);
                 }
-                else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
-                {
-                    this.LogWriter.LogImportant("..... Iteration #{0} hit bound of '{1}' scheduling steps",
-                        iteration + 1, this.Scheduler.StepCount);
-                }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {
                     if (!this.Scheduler.IsReplaying)

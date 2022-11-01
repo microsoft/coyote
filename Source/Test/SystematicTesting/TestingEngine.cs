@@ -283,7 +283,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.AttachDebugger)
                 {
                     this.LogWriter.LogImportant("..... Launching and attaching the debugger.");
-                    Debugger.Launch();
+                    this.Configuration.AttachDebugger = Debugger.Launch();
+                    if (!this.Configuration.AttachDebugger)
+                    {
+                        this.LogWriter.LogError("..... Failed to launch or attach the debugger.");
+                    }
                 }
 
                 try

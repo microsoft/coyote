@@ -1868,15 +1868,22 @@ namespace Microsoft.Coyote.Runtime
                                 "so Coyote cannot accurately determine if this is a real deadlock or not. If you believe " +
                                 "that this is not a real deadlock, you can try increase the deadlock detection timeout " +
                                 "by setting '--deadlock-timeout N' or 'Configuration.WithDeadlockTimeout(N)'.";
-                            if (this.Configuration.ReportPotentialDeadlocksAsBugs)
+                            if (this.Configuration.AttachDebugger)
+                            {
+                                msg += " Because the deadlock was detected during replay with a debugger attached, Coyote is " +
+                                    "only signaling a breakpoint, instead of failing this execution.";
+                                this.LogWriter.LogError("[coyote::error] {0}", msg);
+                                Debugger.Break();
+                            }
+                            else if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                             {
                                 msg += " Alternatively, you can disable reporting potential deadlocks as bugs by setting " +
-                                "'--skip-potential-deadlocks' or 'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.";
+                                    "'--skip-potential-deadlocks' or 'Configuration.WithPotentialDeadlocksReportedAsBugs(false)'.";
                                 this.NotifyAssertionFailure(msg);
                             }
                             else
                             {
-                                this.LogWriter.LogInfo("[coyote::test] {0}", msg);
+                                this.LogWriter.LogError("[coyote::error] {0}", msg);
                                 this.Detach(ExecutionStatus.Deadlocked);
                             }
                         }
@@ -2231,7 +2238,6 @@ namespace Microsoft.Coyote.Runtime
             if (this.Configuration.AttachDebugger)
             {
                 Debugger.Break();
-                this.Configuration.AttachDebugger = false;
             }
 
             this.OnFailure?.Invoke(exception);

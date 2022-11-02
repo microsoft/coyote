@@ -50,17 +50,20 @@ namespace Microsoft.Coyote.Runtime
             new AsyncLocal<CoyoteRuntime>();
 
         /// <summary>
+        /// The runtime installed in the current execution context.
+        /// </summary>
+        internal static CoyoteRuntime Current =>
+            ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
+
+        /// <summary>
         /// Provides access to the operation executing on each controlled thread
         /// during systematic testing.
         /// </summary>
         private static readonly ThreadLocal<ControlledOperation> ExecutingOperation =
             new ThreadLocal<ControlledOperation>(false);
 
-        /// <summary>
-        /// The runtime installed in the current execution context.
-        /// </summary>
-        internal static CoyoteRuntime Current =>
-            ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
+        internal static readonly ThreadLocal<ControlledOperation> ThreadLocalEndingControlledOpForLastTask =
+            new ThreadLocal<ControlledOperation>(false);
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -2283,11 +2286,9 @@ namespace Microsoft.Coyote.Runtime
         {
             ThreadLocalRuntime.Value = this;
             AsyncLocalRuntime.Value = this;
-            this.SetControlledSynchronizationContext();
-
-            // Assign the specified controlled operation to the executing thread, and
-            // associate the operation group, if any, with the current context.
             ExecutingOperation.Value = op;
+
+            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
         }
 
         /// <summary>
@@ -2299,12 +2300,6 @@ namespace Microsoft.Coyote.Runtime
             AsyncLocalRuntime.Value = null;
             ThreadLocalRuntime.Value = null;
         }
-
-        /// <summary>
-        /// Sets the synchronization context to the controlled synchronization context.
-        /// </summary>
-        private void SetControlledSynchronizationContext() =>
-            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
         /// <inheritdoc/>
         public void RegisterLog(IRuntimeLog log) => this.LogManager.RegisterLog(log, this.LogWriter);

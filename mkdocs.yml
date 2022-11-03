@@ -114,6 +114,7 @@ nav:
         - WithRandomStrategy: ref/Microsoft.Coyote/Configuration/WithRandomStrategy.md
         - WithProbabilisticStrategy: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy.md
         - WithPrioritizationStrategy: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy.md
+        - WithDelayBoundingStrategy: ref/Microsoft.Coyote/Configuration/WithDelayBoundingStrategy.md
         - WithQLearningStrategy: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy.md
         - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md

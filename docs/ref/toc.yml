@@ -26,6 +26,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy
         - name: WithPrioritizationStrategy
           link: ref/Microsoft.Coyote/Configuration/WithPrioritizationStrategy
+        - name: WithDelayBoundingStrategy
+          link: ref/Microsoft.Coyote/Configuration/WithDelayBoundingStrategy
         - name: WithQLearningStrategy
           link: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy
         - name: WithPartiallyControlledConcurrencyAllowed

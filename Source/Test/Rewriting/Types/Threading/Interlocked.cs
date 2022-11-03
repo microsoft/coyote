@@ -334,6 +334,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
+#if NET
         /// <summary>
         /// Bitwise "ands" two 32-bit signed integers and replaces the first integer with
         /// the result, as an atomic operation.
@@ -341,7 +342,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static int And(ref int location1, int value)
         {
             Operation.ScheduleNext();
-            return SystemInterlocked.Add(ref location1, value);
+            return SystemInterlocked.And(ref location1, value);
         }
 
         /// <summary>
@@ -351,10 +352,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static long And(ref long location1, long value)
         {
             Operation.ScheduleNext();
-            return SystemInterlocked.Add(ref location1, value);
+            return SystemInterlocked.And(ref location1, value);
         }
 
-#if NET
         /// <summary>
         /// Bitwise "ands" two 32-bit unsigned integers and replaces the first integer with
         /// the result, as an atomic operation.
@@ -362,7 +362,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static uint And(ref uint location1, uint value)
         {
             Operation.ScheduleNext();
-            return SystemInterlocked.Add(ref location1, value);
+            return SystemInterlocked.And(ref location1, value);
         }
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static ulong And(ref ulong location1, ulong value)
         {
             Operation.ScheduleNext();
-            return SystemInterlocked.Add(ref location1, value);
+            return SystemInterlocked.And(ref location1, value);
         }
 
         /// <summary>

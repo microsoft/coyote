@@ -377,7 +377,7 @@ namespace Microsoft.Coyote.Actors
                         // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
                         this.Context.LogInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName);
                         await this.InvokeActionAsync(handler, e);
-                        await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+                        this.ApplyEventHandlerTransition(this.PendingTransition);
                     }
                     else
                     {
@@ -404,7 +404,7 @@ namespace Microsoft.Coyote.Actors
                 CachedDelegate cachedAction = this.StateMachineActionMap[actionEventHandler.Name];
                 this.Context.LogInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName);
                 await this.InvokeActionAsync(cachedAction, e);
-                await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+                this.ApplyEventHandlerTransition(this.PendingTransition);
             }
             else if (eventHandler is GotoStateTransition gotoTransition)
             {
@@ -436,7 +436,7 @@ namespace Microsoft.Coyote.Actors
                 await this.InvokeActionAsync(entryAction, e);
             }
 
-            await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+            this.ApplyEventHandlerTransition(this.PendingTransition);
         }
 
         /// <summary>
@@ -463,7 +463,7 @@ namespace Microsoft.Coyote.Actors
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
-                await this.ApplyEventHandlerTransitionAsync(transition, e);
+                this.ApplyEventHandlerTransition(transition);
             }
 
             // Invokes the exit action of the event handler,
@@ -478,14 +478,14 @@ namespace Microsoft.Coyote.Actors
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
-                await this.ApplyEventHandlerTransitionAsync(transition, e);
+                this.ApplyEventHandlerTransition(transition);
             }
         }
 
         /// <summary>
         /// Applies the specified event handler transition.
         /// </summary>
-        private async Task ApplyEventHandlerTransitionAsync(Transition transition, Event e)
+        private void ApplyEventHandlerTransition(Transition transition)
         {
             if (transition.TypeValue != this.PendingTransition.TypeValue && this.PendingTransition.TypeValue != Transition.Type.None)
             {

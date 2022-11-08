@@ -672,7 +672,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.StateStack.Count > 0)
             {
-                // re-instate the non-inheritable handlers from previous state.
+                // Re-instate the non-inheritable handlers from previous state.
                 state = this.StateStack.Peek();
                 this.CurrentState = state.GetType();
                 this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);

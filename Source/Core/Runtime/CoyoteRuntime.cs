@@ -35,8 +35,8 @@ namespace Microsoft.Coyote.Runtime
         /// In testing mode, each testing iteration uses a unique runtime instance. To safely
         /// retrieve it from static methods, we store it in each controlled thread local state.
         /// </remarks>
-        private static readonly ThreadLocal<CoyoteRuntime> ThreadLocalRuntime =
-            new ThreadLocal<CoyoteRuntime>(false);
+        [ThreadStatic]
+        private static CoyoteRuntime ThreadLocalRuntime;
 
         /// <summary>
         /// Provides access to the runtime associated with each async local context, or null
@@ -53,14 +53,14 @@ namespace Microsoft.Coyote.Runtime
         /// Provides access to the operation executing on each controlled thread
         /// during systematic testing.
         /// </summary>
-        private static readonly ThreadLocal<ControlledOperation> ExecutingOperation =
-            new ThreadLocal<ControlledOperation>(false);
+        [ThreadStatic]
+        private static ControlledOperation ExecutingOperation;
 
         /// <summary>
         /// The runtime installed in the current execution context.
         /// </summary>
         internal static CoyoteRuntime Current =>
-            ThreadLocalRuntime.Value ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
+            ThreadLocalRuntime ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -589,11 +589,6 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                // Assign the operation group associated with the execution context of the
-                // current thread, if such a group exists, else the group of the currently
-                // executing operation, if such an operation exists.
-                // OperationGroup group = OperationGroup.Current ?? ExecutingOperation.Value?.Group;
-
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
@@ -752,7 +747,7 @@ namespace Microsoft.Coyote.Runtime
         private void PauseOperation(ControlledOperation op)
         {
             // Only pause the operation if it is not already completed and it is currently executing on this thread.
-            if (op.Status != OperationStatus.Completed && op == ExecutingOperation.Value)
+            if (op.Status != OperationStatus.Completed && op == ExecutingOperation)
             {
                 // Do not allow the operation to wake up, unless its currently scheduled and enabled or the runtime stopped running.
                 while (!(op == this.ScheduledOperation && op.Status is OperationStatus.Enabled) && this.ExecutionStatus is ExecutionStatus.Running)
@@ -937,6 +932,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);
+                    return false;
                 }
 
                 this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.",
@@ -1386,7 +1382,7 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                var op = ExecutingOperation.Value;
+                var op = ExecutingOperation;
                 if (op is null)
                 {
                     this.NotifyUncontrolledCurrentThread();
@@ -1405,7 +1401,7 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                var op = ExecutingOperation.Value;
+                var op = ExecutingOperation;
                 if (op is null)
                 {
                     this.NotifyUncontrolledCurrentThread();
@@ -1736,9 +1732,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void CheckIfExecutionHasDeadlocked(IEnumerable<ControlledOperation> ops)
         {
-            if (ops.Any(op => op.Status is OperationStatus.Enabled))
+            if (this.ExecutionStatus != ExecutionStatus.Running ||
+                ops.Any(op => op.Status is OperationStatus.Enabled))
             {
-                // There are still enabled operations, so the execution is not deadlocked.
+                // Either the runtime has stopped executing, or there are still enabled operations, so do not check for a deadlock.
                 return;
             }
 
@@ -1878,7 +1875,7 @@ namespace Microsoft.Coyote.Runtime
                                 msg += " The deadlock or hang was detected with a debugger attached, so Coyote is only inserting " +
                                     "a breakpoint, instead of failing this execution.";
                                 this.LogWriter.LogError("[coyote::error] {0}", msg);
-                                Debugger.Break();
+                                // Debugger.Break();
                             }
                             else if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                             {
@@ -2026,7 +2023,7 @@ namespace Microsoft.Coyote.Runtime
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     if (Debugger.IsAttached)
                     {
-                        Debugger.Break();
+                        // Debugger.Break();
                     }
 
                     this.Detach(ExecutionStatus.BugFound);
@@ -2179,16 +2176,15 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void ProcessUnhandledExceptionInOperation(ControlledOperation op, Exception exception)
         {
-            // Complete the failed operation. This is required so that the operation
-            // does not throw if it detaches.
+            // Complete the failed operation. This is required so that the operation does not throw if it detaches.
             op.Status = OperationStatus.Completed;
-            if (exception.GetBaseException() is ThreadInterruptedException)
+
+            if (exception is AggregateException aex)
             {
-                // Ignore this exception, its thrown by the runtime.
-                this.LogWriter.LogDebug("[coyote::debug] Controlled thread '{0}' executing operation '{1}' was interrupted.",
-                    Thread.CurrentThread.ManagedThreadId, op.Name);
+                exception = aex.Flatten().InnerExceptions.OfType<ThreadInterruptedException>().FirstOrDefault() ?? exception;
             }
-            else
+
+            if (!(exception is ThreadInterruptedException || exception.GetBaseException() is ThreadInterruptedException))
             {
                 // Report the unhandled exception.
                 string trace = FormatExceptionStackTrace(exception);
@@ -2243,7 +2239,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (Debugger.IsAttached)
             {
-                Debugger.Break();
+                // Debugger.Break();
             }
 
             this.OnFailure?.Invoke(exception);
@@ -2286,14 +2282,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void SetCurrentExecutionContext(ControlledOperation op)
         {
-            ThreadLocalRuntime.Value = this;
             AsyncLocalRuntime.Value = this;
+            ThreadLocalRuntime = this;
+            ExecutingOperation = op;
             this.SetControlledSynchronizationContext();
-
-            // Assign the specified controlled operation to the executing thread, and
-            // associate the operation group, if any, with the current context.
-            ExecutingOperation.Value = op;
-            OperationGroup.SetCurrent(op.Group);
         }
 
         /// <summary>
@@ -2301,10 +2293,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private static void CleanCurrentExecutionContext()
         {
-            ExecutingOperation.Value = null;
+            ExecutingOperation = null;
+            ThreadLocalRuntime = null;
             AsyncLocalRuntime.Value = null;
-            ThreadLocalRuntime.Value = null;
-            OperationGroup.RemoveFromContext();
         }
 
         /// <summary>
@@ -2363,22 +2354,30 @@ namespace Microsoft.Coyote.Runtime
                 this.CancellationSource.Cancel();
 
                 // Complete any remaining operations at the end of the schedule.
+                ControlledOperation current = ExecutingOperation;
                 foreach (var op in this.OperationMap.Values)
                 {
-                    if (op.Status != OperationStatus.Completed)
+                    if (op.Status != OperationStatus.Completed && op != current)
                     {
+                        // Force the operation to complete and interrupt its thread.
                         op.Status = OperationStatus.Completed;
-
-                        // Interrupt the thread executing this operation.
-                        if (op == ExecutingOperation.Value)
-                        {
-                            throw new ThreadInterruptedException();
-                        }
-                        else if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
+                        op.Signal();
+                        if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
                         {
                             thread.Interrupt();
+                            using (SynchronizedSection.Exit(this.RuntimeLock))
+                            {
+                                thread.Join(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout));
+                            }
                         }
                     }
+                }
+
+                if (current.Status != OperationStatus.Completed)
+                {
+                    // Force the current operation to complete and interrupt the current thread.
+                    current.Status = OperationStatus.Completed;
+                    Thread.CurrentThread.Interrupt();
                 }
             }
             finally

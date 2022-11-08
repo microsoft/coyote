@@ -79,22 +79,18 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
         }
 
-        private class PopStateEvent : Event
-        {
-        }
-
         static ActorRuntimeLogGraphBuilder()
         {
             EventAliases[typeof(GotoStateEvent).FullName] = "goto";
             EventAliases[typeof(HaltEvent).FullName] = "halt";
             EventAliases[typeof(DefaultEvent).FullName] = "default";
+            EventAliases[typeof(DoActionEvent).FullName] = "do";
             EventAliases[typeof(PushStateEvent).FullName] = "push";
+            EventAliases[typeof(PopStateEvent).FullName] = "pop";
             EventAliases[typeof(QuiescentEvent).FullName] = "quiescent";
             EventAliases[typeof(WildCardEvent).FullName] = "*";
             EventAliases[typeof(TimerElapsedEvent).FullName] = "timer_elapsed";
             EventAliases[typeof(TimerSetupEvent).FullName] = "timer_setup";
-            EventAliases[typeof(DoActionEvent).FullName] = "do";
-            EventAliases[typeof(PopStateEvent).FullName] = "pop";
         }
 
         /// <summary>

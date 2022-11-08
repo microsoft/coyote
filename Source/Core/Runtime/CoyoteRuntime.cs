@@ -1875,7 +1875,7 @@ namespace Microsoft.Coyote.Runtime
                                 msg += " The deadlock or hang was detected with a debugger attached, so Coyote is only inserting " +
                                     "a breakpoint, instead of failing this execution.";
                                 this.LogWriter.LogError("[coyote::error] {0}", msg);
-                                // Debugger.Break();
+                                Debugger.Break();
                             }
                             else if (this.Configuration.ReportPotentialDeadlocksAsBugs)
                             {
@@ -2023,7 +2023,7 @@ namespace Microsoft.Coyote.Runtime
                     this.RaiseOnFailureEvent(new AssertionFailureException(text));
                     if (Debugger.IsAttached)
                     {
-                        // Debugger.Break();
+                        Debugger.Break();
                     }
 
                     this.Detach(ExecutionStatus.BugFound);
@@ -2239,7 +2239,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (Debugger.IsAttached)
             {
-                // Debugger.Break();
+                Debugger.Break();
             }
 
             this.OnFailure?.Invoke(exception);

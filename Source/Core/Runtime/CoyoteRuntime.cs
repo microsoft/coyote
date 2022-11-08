@@ -2184,7 +2184,7 @@ namespace Microsoft.Coyote.Runtime
                 exception = aex.Flatten().InnerExceptions.OfType<ThreadInterruptedException>().FirstOrDefault() ?? exception;
             }
 
-            // Ignore this exception, its thrown by the runtime.
+            // Ignore this exception, its thrown by the runtime to terminate controlled threads.
             if (!(exception is ThreadInterruptedException || exception.GetBaseException() is ThreadInterruptedException))
             {
                 // Report the unhandled exception.

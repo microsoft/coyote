@@ -339,6 +339,10 @@ namespace Microsoft.Coyote.Actors
                 {
                     await this.PushStateAsync(pushStateEvent.State, e);
                 }
+                else if (e is PopStateEvent popStateEvent)
+                {
+                    await this.PopStateAsync(e);
+                }
                 else if (this.EventHandlerMap.ContainsKey(e.GetType()))
                 {
                     await this.HandleEventAsync(e, this.StateStack.Peek(), this.EventHandlerMap[e.GetType()]);
@@ -413,7 +417,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Executes the on entry action of the current state.
+        /// Executes the on-entry action of the current state.
         /// </summary>
         private async Task ExecuteCurrentStateOnEntryAsync(Event e)
         {
@@ -436,7 +440,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Executes the on exit action of the current state.
+        /// Executes the on-exit action of the current state.
         /// </summary>
         private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName, Event e)
         {
@@ -505,17 +509,7 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.PopState)
             {
                 this.PendingTransition = default;
-                var prevStateName = this.CurrentStateName;
-                this.Context.LogPopState(this);
-
-                // The state machine performs the on exit action of the current state.
-                await this.ExecuteCurrentStateOnExitAsync(null, e);
-                if (this.CurrentStatus is ActorExecutionStatus.Active)
-                {
-                    this.DoStatePop();
-                    this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
-                    this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
-                }
+                this.Inbox.RaiseEvent(PopStateEvent.Instance, this.EventGroup);
             }
             else if (transition.TypeValue is Transition.Type.Halt)
             {
@@ -568,7 +562,7 @@ namespace Microsoft.Coyote.Actors
             this.Context.LogManager.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
-            // The state machine performs the on exit action of the current state.
+            // The state machine performs the on-exit action of the current state.
             await this.ExecuteCurrentStateOnExitAsync(onExitActionName, e);
             if (this.CurrentStatus is ActorExecutionStatus.Active)
             {
@@ -578,7 +572,7 @@ namespace Microsoft.Coyote.Actors
                 var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
                 this.DoStatePush(nextState);
 
-                // The state machine performs the on entry action of the new state.
+                // The state machine performs the on-entry action of the new state.
                 await this.ExecuteCurrentStateOnEntryAsync(e);
             }
         }
@@ -593,8 +587,26 @@ namespace Microsoft.Coyote.Actors
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
 
-            // The state machine performs the on entry statements of the new state.
+            // The state machine performs the on-entry statements of the new state.
             await this.ExecuteCurrentStateOnEntryAsync(e);
+        }
+
+        /// <summary>
+        /// Performs a pop transition from the specified state.
+        /// </summary>
+        private async Task PopStateAsync(Event e)
+        {
+            var prevStateName = this.CurrentStateName;
+            this.Context.LogPopState(this);
+
+            // The state machine performs the on-exit action of the current state.
+            await this.ExecuteCurrentStateOnExitAsync(null, e);
+            if (this.CurrentStatus is ActorExecutionStatus.Active)
+            {
+                this.DoStatePop();
+                this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
+            }
         }
 
         private void PushHandler(State state, Type eventType, EventHandlerDeclaration handler)
@@ -1652,7 +1664,7 @@ namespace Microsoft.Coyote.Actors
                 /// </summary>
                 /// <param name="eventType">The type of the dequeued event.</param>
                 /// <param name="stateType">The type of the state.</param>
-                /// <param name="actionName">Name of action to perform on exit.</param>
+                /// <param name="actionName">Name of action to perform on-exit.</param>
                 public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionName)
                 {
                     this.Event = eventType;

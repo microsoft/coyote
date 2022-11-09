@@ -13,10 +13,11 @@ namespace Microsoft.Coyote.Runtime
     internal struct SynchronizedSection : IDisposable
     {
         /// <summary>
-        /// Thread local variable that specifies whether the current thread has
+        /// Per-thread variable that specifies whether the current thread has
         /// entered the critical section or not.
         /// </summary>
-        private static ThreadLocal<bool> IsEntered = new ThreadLocal<bool>();
+        [ThreadStatic]
+        private static bool IsEntered;
 
         /// <summary>
         /// Object that is used to synchronize access to the section.
@@ -36,11 +37,11 @@ namespace Microsoft.Coyote.Runtime
             this.SyncObject = syncObject;
             if (isEntering)
             {
-                this.Action = IsEntered.Value ? LockingAction.None : LockingAction.Acquire;
+                this.Action = IsEntered ? LockingAction.None : LockingAction.Acquire;
             }
             else
             {
-                this.Action = IsEntered.Value ? LockingAction.Release :
+                this.Action = IsEntered ? LockingAction.Release :
                     throw new InvalidOperationException("Cannot release a runtime lock that is not acquired.");
             }
         }
@@ -82,7 +83,7 @@ namespace Microsoft.Coyote.Runtime
         private void Enter()
         {
             SyncMonitor.Enter(this.SyncObject);
-            IsEntered.Value = true;
+            IsEntered = true;
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void Exit()
         {
-            IsEntered.Value = false;
+            IsEntered = false;
             SyncMonitor.Exit(this.SyncObject);
         }
 
@@ -101,6 +102,14 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Action is LockingAction.Acquire)
             {
+                // Only exit if the original action was "acquire" and the thread actually
+                // entered the critical section. This might not be the case if the thread
+                // was interrupted before entering the critical section.
+                if (!IsEntered)
+                {
+                    throw new ThreadInterruptedException();
+                }
+
                 this.Exit();
             }
             else if (this.Action is LockingAction.Release)

@@ -102,6 +102,14 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Action is LockingAction.Acquire)
             {
+                // Only exit if the original action was "acquire" and the thread actually
+                // entered the critical section. This might not be the case if the thread
+                // was interrupted before entering the critical section.
+                if (!IsEntered)
+                {
+                    throw new ThreadInterruptedException();
+                }
+
                 this.Exit();
             }
             else if (this.Action is LockingAction.Release)

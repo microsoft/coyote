@@ -712,7 +712,7 @@ namespace Microsoft.Coyote.Runtime
                 while (this.PendingStartOperationMap.Count > 0)
                 {
                     var pendingOp = this.PendingStartOperationMap.First();
-                    while (pendingOp.Key.Status is OperationStatus.None && this.ExecutionStatus is ExecutionStatus.Running)
+                    while (pendingOp.Key.Status is OperationStatus.None)
                     {
                         this.LogWriter.LogDebug("[coyote::debug] Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
                             Thread.CurrentThread.ManagedThreadId, pendingOp.Key.Name, pendingOp.Key.Group);
@@ -2362,14 +2362,10 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // Force the operation to complete and interrupt its thread.
                         op.Status = OperationStatus.Completed;
-                        op.Signal();
+                        // op.Signal();
                         if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
                         {
                             thread.Interrupt();
-                            using (SynchronizedSection.Exit(this.RuntimeLock))
-                            {
-                                thread.Join(TimeSpan.FromMilliseconds(this.Configuration.DeadlockTimeout));
-                            }
                         }
                     }
                 }

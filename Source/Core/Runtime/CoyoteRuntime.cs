@@ -2362,7 +2362,6 @@ namespace Microsoft.Coyote.Runtime
                     {
                         // Force the operation to complete and interrupt its thread.
                         op.Status = OperationStatus.Completed;
-                        // op.Signal();
                         if (this.ThreadPool.TryGetValue(op.Id, out Thread thread))
                         {
                             thread.Interrupt();

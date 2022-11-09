@@ -2374,7 +2374,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Force the current operation to complete and interrupt the current thread.
                     current.Status = OperationStatus.Completed;
-                    Thread.CurrentThread.Interrupt();
+                    throw new ThreadInterruptedException();
                 }
             }
             finally

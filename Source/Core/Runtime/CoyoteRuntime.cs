@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, ControlledOperation> ControlledTasks;
 
         /// <summary>
-        /// Map of known uncontrolled tasks to an optional string with debug information.
+        /// Map from known uncontrolled tasks to an optional string with debug information.
         /// </summary>
         private readonly ConcurrentDictionary<Task, string> UncontrolledTasks;
 

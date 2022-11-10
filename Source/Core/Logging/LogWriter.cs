@@ -429,8 +429,7 @@ namespace Microsoft.Coyote.Logging
         /// <summary>
         /// Checks if the specified log severity can be logged.
         /// </summary>
-        internal static bool IsVerbose(LogSeverity severity, VerbosityLevel level) =>
-            level switch
+        internal static bool IsVerbose(LogSeverity severity, VerbosityLevel level) => level switch
             {
                 VerbosityLevel.None => severity >= LogSeverity.Important,
                 VerbosityLevel.Error => severity >= LogSeverity.Error,

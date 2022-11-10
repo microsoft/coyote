@@ -243,6 +243,20 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithBlockingWait()
+        {
+            this.Test(() =>
+            {
+                SharedEntry entry = new SharedEntry();
+                Task task1 = WriteWithDelayAsync(entry, 5);
+                Task task2 = WriteWithDelayAsync(entry, 3);
+                var task = Task.WhenAny(task1, task2);
+                task.Wait();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestWhenAnyWithException()
         {
             this.TestWithError(async () =>

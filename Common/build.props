@@ -1,5 +1,4 @@
 <Project>
-  <Import Project="dependencies.props"/>
   <Import Project="version.props"/>
   <PropertyGroup>
     <Product>Coyote</Product>
@@ -16,6 +15,12 @@
     <PackageReleaseNotes>https://github.com/microsoft/coyote/blob/main/History.md</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PublishRelease>true</PublishRelease>
@@ -64,6 +69,10 @@
     <Optimize>true</Optimize>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)\..\docs\assets\images\icon.png" Pack="true" PackagePath="images"/>
     <None Include="$(MSBuildThisFileDirectory)\..\README.md" Pack="true" PackagePath="docs\readme.md"/>

@@ -216,57 +216,91 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Creates a task that will complete when all tasks in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTask WhenAll(params SystemTask[] tasks) => SystemTask.WhenAll(tasks);
+        public static SystemTask WhenAll(params SystemTask[] tasks)
+        {
+            SystemTask task = SystemTask.WhenAll(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTask WhenAll(IEnumerable<SystemTask> tasks) => SystemTask.WhenAll(tasks);
+        public static SystemTask WhenAll(IEnumerable<SystemTask> tasks)
+        {
+            SystemTask task = SystemTask.WhenAll(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(params SystemTasks.Task<TResult>[] tasks) =>
-            SystemTask.WhenAll(tasks);
+        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(params SystemTasks.Task<TResult>[] tasks)
+        {
+            SystemTasks.Task<TResult[]> task = SystemTask.WhenAll(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when all tasks in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(IEnumerable<SystemTasks.Task<TResult>> tasks) =>
-            SystemTask.WhenAll(tasks);
+        public static SystemTasks.Task<TResult[]> WhenAll<TResult>(IEnumerable<SystemTasks.Task<TResult>> tasks)
+        {
+            SystemTasks.Task<TResult[]> task = SystemTask.WhenAll(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified array have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(params SystemTask[] tasks) =>
-            SystemTask.WhenAny(tasks);
+        public static SystemTasks.Task<SystemTask> WhenAny(params SystemTask[] tasks)
+        {
+            SystemTasks.Task<SystemTask> task = SystemTask.WhenAny(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(IEnumerable<SystemTask> tasks) =>
-            SystemTask.WhenAny(tasks);
+        public static SystemTasks.Task<SystemTask> WhenAny(IEnumerable<SystemTask> tasks)
+        {
+            SystemTasks.Task<SystemTask> task = SystemTask.WhenAny(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
 #if NET
         /// <summary>
         /// Creates a task that will complete when either of the two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SystemTasks.Task<SystemTask> WhenAny(SystemTask task1, SystemTask task2) =>
-            SystemTask.WhenAny(task1, task2);
+        public static SystemTasks.Task<SystemTask> WhenAny(SystemTask task1, SystemTask task2)
+        {
+            SystemTasks.Task<SystemTask> task = SystemTask.WhenAny(task1, task2);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when either of the two tasks have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            SystemTasks.Task<TResult> task1, SystemTasks.Task<TResult> task2) =>
-            SystemTask.WhenAny(task1, task2);
+            SystemTasks.Task<TResult> task1, SystemTasks.Task<TResult> task2)
+        {
+            SystemTasks.Task<SystemTasks.Task<TResult>> task = SystemTask.WhenAny(task1, task2);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 #endif
 
         /// <summary>
@@ -274,8 +308,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            params SystemTasks.Task<TResult>[] tasks) =>
-            SystemTask.WhenAny(tasks);
+            params SystemTasks.Task<TResult>[] tasks)
+        {
+            SystemTasks.Task<SystemTasks.Task<TResult>> task = SystemTask.WhenAny(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that will complete when any task in the specified
@@ -283,8 +321,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<SystemTasks.Task<TResult>> WhenAny<TResult>(
-            IEnumerable<SystemTasks.Task<TResult>> tasks) =>
-            SystemTask.WhenAny(tasks);
+            IEnumerable<SystemTasks.Task<TResult>> tasks)
+        {
+            SystemTasks.Task<SystemTasks.Task<TResult>> task = SystemTask.WhenAny(tasks);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Waits for all of the provided task objects to complete execution.
@@ -447,31 +489,52 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Creates a task that has completed successfully with the specified result.
         /// </summary>
-        public static SystemTasks.Task<TResult> FromResult<TResult>(TResult result) =>
-            SystemTask.FromResult(result);
+        public static SystemTasks.Task<TResult> FromResult<TResult>(TResult result)
+        {
+            SystemTasks.Task<TResult> task = SystemTask.FromResult(result);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that has completed due to cancellation with the specified cancellation token.
         /// </summary>
-        public static SystemTask FromCanceled(SystemCancellationToken cancellationToken) =>
-            SystemTask.FromCanceled(cancellationToken);
+        public static SystemTask FromCanceled(SystemCancellationToken cancellationToken)
+        {
+            SystemTask task = SystemTask.FromCanceled(cancellationToken);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that has completed due to cancellation with the specified cancellation token.
         /// </summary>
-        public static SystemTasks.Task<TResult> FromCanceled<TResult>(SystemCancellationToken cancellationToken) =>
-            SystemTask.FromCanceled<TResult>(cancellationToken);
+        public static SystemTasks.Task<TResult> FromCanceled<TResult>(SystemCancellationToken cancellationToken)
+        {
+            SystemTasks.Task<TResult> task = SystemTask.FromCanceled<TResult>(cancellationToken);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that has completed with the specified exception.
         /// </summary>
-        public static SystemTask FromException(Exception exception) => SystemTask.FromException(exception);
+        public static SystemTask FromException(Exception exception)
+        {
+            SystemTask task = SystemTask.FromException(exception);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Creates a task that has completed with the specified exception.
         /// </summary>
-        public static SystemTasks.Task<TResult> FromException<TResult>(Exception exception) =>
-            SystemTask.FromException<TResult>(exception);
+        public static SystemTasks.Task<TResult> FromException<TResult>(Exception exception)
+        {
+            SystemTasks.Task<TResult> task = SystemTask.FromException<TResult>(exception);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(task);
+            return task;
+        }
 
         /// <summary>
         /// Returns a task awaiter for the specified task.

@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithSingleAccess()
+        public void TestSemaphoreSlimWithSingleAccess()
         {
             this.Test(() =>
             {
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithDoubleAccess()
+        public void TestSemaphoreSlimWithDoubleAccess()
         {
             this.Test(() =>
             {
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithInitialAccess()
+        public void TestSemaphoreSlimWithInitialAccess()
         {
             this.Test(() =>
             {
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithParallelAccess()
+        public void TestSemaphoreSlimWithParallelAccess()
         {
             this.Test(async () =>
             {
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithMultiParallelAccess()
+        public void TestSemaphoreSlimWithMultiParallelAccess()
         {
             this.Test(async () =>
             {
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithParallelAccessAndForcedOrder()
+        public void TestSemaphoreSlimWithParallelAccessAndForcedOrder()
         {
             this.Test(async () =>
             {
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithAsyncAccess()
+        public void TestSemaphoreSlimWithAsyncAccess()
         {
             this.Test(async () =>
             {
@@ -218,13 +218,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithMultiAsyncAccess()
+        public void TestSemaphoreSlimWithMultiAsyncAccess()
         {
             this.Test(async () =>
             {
@@ -263,13 +262,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithAsyncAccessAndForcedOrder()
+        public void TestSemaphoreSlimWithAsyncAccessAndForcedOrder()
         {
             this.Test(async () =>
             {
@@ -300,13 +298,47 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithAsyncContinuationAfterAwait()
+        public void TestSemaphoreSlimWithAsyncAccessAndBlockingWait()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(1, 1);
+
+                var t1 = Task.Run(() =>
+                {
+                    semaphore.WaitAsync().Wait();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    value--;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.WaitAsync().Wait();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    value--;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = 0;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSemaphoreSlimWithAsyncContinuationAfterAwait()
         {
             this.Test(async () =>
             {
@@ -322,13 +354,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 semaphore.Release();
                 await task;
             },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithDeadlock()
+        public void TestSemaphoreSlimWithDeadlock()
         {
             this.TestWithError(() =>
             {
@@ -344,7 +375,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreWithAsyncDeadlock()
+        public void TestSemaphoreSlimWithAsyncDeadlock()
         {
             this.TestWithError(async () =>
             {

@@ -146,6 +146,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     }
 
                     var task = instance.WaitAsync(millisecondsTimeout, cancellationToken);
+                    runtime.RegisterKnownUncontrolledTask(task, "SemaphoreSlim.WaitAsync");
                     return AsyncTaskAwaiterStateMachine<bool>.RunAsync(runtime, task, true);
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&

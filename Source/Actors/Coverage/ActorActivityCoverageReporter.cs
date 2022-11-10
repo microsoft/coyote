@@ -31,9 +31,10 @@ namespace Microsoft.Coyote.Actors.Coverage
             : base(coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
-            this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
-            this.BuiltInEvents.Add(typeof(PushStateEvent).FullName);
             this.BuiltInEvents.Add(typeof(DefaultEvent).FullName);
+            this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(PopStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(PushStateEvent).FullName);
         }
 
         /// <inheritdoc/>

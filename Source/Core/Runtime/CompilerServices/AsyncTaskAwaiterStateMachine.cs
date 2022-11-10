@@ -72,6 +72,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         {
             var stateMachine = new AsyncTaskAwaiterStateMachine<TResult>(runtime, awaitedTask, runContinuationAsynchronously);
             stateMachine.MoveNext();
+            runtime.RegisterKnownControlledTask(stateMachine.CompletionSource.Task);
             return stateMachine.CompletionSource.Task;
         }
 

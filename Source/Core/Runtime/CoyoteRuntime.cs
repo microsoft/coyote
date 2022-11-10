@@ -2124,7 +2124,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notify that a uncontrolled task with a known source is being waited.
+        /// Notify that an uncontrolled task with a known source is being waited.
         /// </summary>
         private void NotifyUncontrolledTaskWait(Task task, string methodName)
         {

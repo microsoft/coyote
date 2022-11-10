@@ -218,7 +218,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
@@ -261,7 +262,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
@@ -296,7 +298,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
@@ -330,7 +333,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]
@@ -350,7 +354,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 semaphore.Release();
                 await task;
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed());
         }
 
         [Fact(Timeout = 5000)]

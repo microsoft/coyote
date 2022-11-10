@@ -146,7 +146,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     }
 
                     var task = instance.WaitAsync(millisecondsTimeout, cancellationToken);
-                    runtime.RegisterKnownControlledTask(task);
                     return AsyncTaskAwaiterStateMachine<bool>.RunAsync(runtime, task, true);
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&

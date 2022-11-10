@@ -240,9 +240,9 @@ namespace Microsoft.Coyote.Runtime
         private SchedulingPointType? LastPostponedSchedulingPoint;
 
         /// <summary>
-        /// True if interleavings of enabled operations are suppressed, else false.
+        /// Value that suppresses interleavings of enabled operations when it is non-zero.
         /// </summary>
-        private bool IsSchedulerSuppressed;
+        private uint ScheduleSuppressionCount;
 
         /// <summary>
         /// True if the runtime is currently executing inside a specification, else false.
@@ -302,7 +302,7 @@ namespace Microsoft.Coyote.Runtime
             this.OperationIdCounter = 0;
             this.IsRunning = true;
             this.ExecutionStatus = ExecutionStatus.Running;
-            this.IsSchedulerSuppressed = false;
+            this.ScheduleSuppressionCount = 0;
             this.IsSpecificationInvoked = false;
             this.IsUncontrolledConcurrencyDetected = false;
             this.LastPostponedSchedulingPoint = null;
@@ -876,7 +876,7 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                if (this.IsSchedulerSuppressed && this.LastPostponedSchedulingPoint is null &&
+                if (this.ScheduleSuppressionCount > 0 && this.LastPostponedSchedulingPoint is null &&
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
@@ -1046,7 +1046,7 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 this.LogWriter.LogDebug("[coyote::debug] Suppressing scheduling of enabled operations in runtime '{0}'.", this.Id);
-                this.IsSchedulerSuppressed = true;
+                this.ScheduleSuppressionCount++;
             }
         }
 
@@ -1058,7 +1058,10 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 this.LogWriter.LogDebug("[coyote::debug] Resuming scheduling of enabled operations in runtime '{0}'.", this.Id);
-                this.IsSchedulerSuppressed = false;
+                if (this.ScheduleSuppressionCount > 0)
+                {
+                    this.ScheduleSuppressionCount--;
+                }
             }
         }
 

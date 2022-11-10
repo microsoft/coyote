@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestInterleave()
         {
-            this.TestWithError(async r =>
+            this.TestWithError(async () =>
             {
                 int x = 0;
                 int a = 0;
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestYield()
         {
-            this.TestWithError(async r =>
+            this.TestWithError(async () =>
             {
                 int x = 0;
                 int a = 0;
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestSuppressTaskInterleaving()
         {
-            this.Test(async r =>
+            this.Test(async () =>
             {
                 int value = 0;
 
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestAvoidSuppressTaskInterleaving()
         {
-            this.TestWithError(async r =>
+            this.TestWithError(async () =>
             {
                 int value = 0;
 
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestSuppressAndResumeTaskInterleaving()
         {
-            this.TestWithError(async r =>
+            this.TestWithError(async () =>
             {
                 int value = 0;
 
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestSuppressLockInterleaving()
         {
-            this.Test(async r =>
+            this.Test(async () =>
             {
                 var set = new HashSet<int>();
 
@@ -205,12 +205,40 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestSuppressNoResumeTaskInterleaving()
         {
-            this.Test(async r =>
+            this.Test(async () =>
             {
                 // Make sure the scheduler does not deadlock.
                 SchedulingPoint.Suppress();
                 // Only interleavings of enabled operations should be suppressed.
                 await Task.Run(() => { });
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestNestedSuppressInterleaving()
+        {
+            this.Test(() =>
+            {
+                int counter = 0;
+
+                Task t1 = Task.Run(() =>
+                {
+                    SchedulingPoint.Suppress();
+                    SchedulingPoint.Suppress();
+                    SchedulingPoint.Resume();
+                    counter++;
+                    Operation.ScheduleNext();
+                    counter--;
+                    SchedulingPoint.Resume();
+                });
+
+                Task t2 = Task.Run(() =>
+                {
+                    Specification.Assert(counter == 0, "Counter is not zero.");
+                });
+
+                Task.WaitAll(t1, t2);
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }

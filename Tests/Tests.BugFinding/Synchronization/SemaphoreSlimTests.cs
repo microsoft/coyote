@@ -383,9 +383,12 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await semaphore.WaitAsync();
                 await semaphore.WaitAsync();
             },
+            configuration: this.GetConfiguration()
+                .WithPartiallyControlledConcurrencyAllowed()
+                .WithDeadlockTimeout(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Deadlock detected.", e);
+                Assert.StartsWith("Potential deadlock or hang detected. The periodic deadlock detection monitor", e);
             },
             replay: true);
         }

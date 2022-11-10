@@ -2343,7 +2343,7 @@ namespace Microsoft.Coyote.Runtime
             AsyncLocalRuntime.Value = this;
             ThreadLocalRuntime = this;
             ExecutingOperation = op;
-            this.SetControlledSynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
         }
 
         /// <summary>

@@ -20,6 +20,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
     public static class SemaphoreSlim
     {
         /// <summary>
+        /// Cached name for the <see cref="SystemSemaphoreSlim.WaitAsync()"/> method.
+        /// </summary>
+        private const string WaitAsyncName = "SemaphoreSlim.WaitAsync";
+
+        /// <summary>
         /// Blocks the current task until it can enter the semaphore.
         /// </summary>
         public static void Wait(SystemSemaphoreSlim instance) =>
@@ -146,6 +151,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     }
 
                     var task = instance.WaitAsync(millisecondsTimeout, cancellationToken);
+                    runtime.RegisterKnownUncontrolledTask(task, WaitAsyncName);
                     return AsyncTaskAwaiterStateMachine<bool>.RunAsync(runtime, task, true);
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&

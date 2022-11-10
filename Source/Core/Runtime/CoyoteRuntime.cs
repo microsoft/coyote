@@ -136,9 +136,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, ControlledOperation> ControlledTasks;
 
         /// <summary>
-        /// Set of known uncontrolled tasks.
+        /// Map of known uncontrolled tasks to optional string with debug information.
         /// </summary>
-        private readonly HashSet<Task> UncontrolledTasks;
+        private readonly ConcurrentDictionary<Task, string> UncontrolledTasks;
 
         /// <summary>
         /// Set of method calls with uncontrolled concurrency or other sources of nondeterminism.
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.Runtime
             this.PendingStartOperationMap = new Dictionary<ControlledOperation, ManualResetEventSlim>();
             this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
-            this.UncontrolledTasks = new HashSet<Task>();
+            this.UncontrolledTasks = new ConcurrentDictionary<Task, string>();
             this.UncontrolledInvocations = new HashSet<string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
 
@@ -579,6 +579,17 @@ namespace Microsoft.Coyote.Runtime
             if (this.SchedulingPolicy != SchedulingPolicy.None)
             {
                 this.ControlledTasks.TryAdd(task, null);
+            }
+        }
+
+        /// <summary>
+        /// Registers the specified task as a known uncontrolled task.
+        /// </summary>
+        internal void RegisterKnownUncontrolledTask(Task task, string methodName)
+        {
+            if (this.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                this.UncontrolledTasks.TryAdd(task, methodName);
             }
         }
 
@@ -1698,17 +1709,39 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns true if the specified task is uncontrolled, else false.
         /// </summary>
-        internal bool IsTaskUncontrolled(Task task) =>
-            task != null && !task.IsCompleted && !this.ControlledTasks.ContainsKey(task);
+        internal bool IsTaskUncontrolled(Task task) => this.IsTaskUncontrolled(task, out _);
+
+        /// <summary>
+        /// Returns true if the specified task is uncontrolled, else false.
+        /// </summary>
+        internal bool IsTaskUncontrolled(Task task, out string methodName)
+        {
+            if (task is null || task.IsCompleted)
+            {
+                methodName = null;
+                return false;
+            }
+
+            return this.UncontrolledTasks.TryGetValue(task, out methodName) ||
+                !this.ControlledTasks.ContainsKey(task);
+        }
 
         /// <summary>
         /// Checks if the awaited task is uncontrolled.
         /// </summary>
         internal bool CheckIfAwaitedTaskIsUncontrolled(Task task)
         {
-            if (this.IsTaskUncontrolled(task))
+            if (this.IsTaskUncontrolled(task, out string methodName))
             {
-                this.NotifyUncontrolledTaskWait(task);
+                if (string.IsNullOrEmpty(methodName))
+                {
+                    this.NotifyUncontrolledTaskWait(task);
+                }
+                else
+                {
+                    this.NotifyUncontrolledTaskWait(task, methodName);
+                }
+
                 return true;
             }
 
@@ -2079,13 +2112,31 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    // TODO: figure out if there is a way to get more information about the creator of the
-                    // uncontrolled task to ease the user debugging experience.
                     string message = $"Waiting task '{task.Id}' that is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.TryHandleUncontrolledConcurrency(message) &&
-                        this.UncontrolledTasks.Add(task))
+                    if (this.TryHandleUncontrolledConcurrency(message))
                     {
+                        this.UncontrolledTasks.TryAdd(task, null);
+                        this.TryPauseAndResolveUncontrolledTask(task);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Notify that a uncontrolled task with a known source is being waited.
+        /// </summary>
+        private void NotifyUncontrolledTaskWait(Task task, string methodName)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Waiting task '{task.Id}' from '{methodName}' that is not intercepted and controlled " +
+                        "during testing, so it can interfere with the ability to reproduce bug traces.";
+                    if (this.TryHandleUncontrolledConcurrency(message, methodName))
+                    {
+                        this.UncontrolledTasks.TryAdd(task, methodName);
                         this.TryPauseAndResolveUncontrolledTask(task);
                     }
                 }
@@ -2108,9 +2159,9 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' returned task '{task.Id}' that is not intercepted and " +
                         "controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.TryHandleUncontrolledConcurrency(message, methodName) &&
-                        this.UncontrolledTasks.Add(task))
+                    if (this.TryHandleUncontrolledConcurrency(message, methodName))
                     {
+                        this.UncontrolledTasks.TryAdd(task, methodName);
                         this.TryPauseAndResolveUncontrolledTask(task);
                     }
                 }

@@ -83,6 +83,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
@@ -160,6 +161,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
@@ -233,6 +235,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);

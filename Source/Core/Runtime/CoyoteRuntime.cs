@@ -62,9 +62,6 @@ namespace Microsoft.Coyote.Runtime
         [ThreadStatic]
         private static ControlledOperation ExecutingOperation;
 
-        [ThreadStatic]
-        internal static ControlledOperation EndingControlledOpForLastTask;
-
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
         /// explore interleavings and sources of nondeterminism, else false.
@@ -430,7 +427,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action continuation)
         {
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
+            // ControlledOperation op = this.CreateControlledOperation();
             this.ScheduleOperation(op, continuation);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }

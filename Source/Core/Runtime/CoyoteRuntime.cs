@@ -428,7 +428,6 @@ namespace Microsoft.Coyote.Runtime
         internal void Schedule(Action continuation)
         {
             ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
-            // ControlledOperation op = this.CreateControlledOperation();
             this.ScheduleOperation(op, continuation);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }

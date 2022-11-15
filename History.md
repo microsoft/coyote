@@ -1,3 +1,15 @@
+## v1.7.1
+- Added support for operation grouping for `Task` continuations.
+- Added support for the delay-bounding exploration strategy.
+- Added support for rewriting the `Thread.Yield` and `Interlocked` APIs.
+- Updated the runtime to not fail with a potential deadlock when the debugger is attached, and
+  instead add a breakpoint, to avoid spurious failures when debugging.
+- Hardened the `SchedulingPoint.Suppress` and `SchedulingPoint.Resume` methods so that they do not
+  resume scheduling earlier than expected when they are used in a nested manner.
+- Fixed a runtime memory leak when test iterations terminated early.
+- Fixed a rare stack-overflow exception when popping states during a `StateMachine` execution.
+- Fixed a few cases of internally spawned tasks considered to be uncontrolled by the runtime.
+
 ## v1.7.0
 - Updated the default `random` exploration strategy with a `portfolio` testing mode that uses a
   tuned set of different exploration strategies to increase coverage for different bug patterns. The

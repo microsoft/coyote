@@ -50,17 +50,17 @@ namespace Microsoft.Coyote.Runtime
             new AsyncLocal<CoyoteRuntime>();
 
         /// <summary>
+        /// The runtime installed in the current execution context.
+        /// </summary>
+        internal static CoyoteRuntime Current =>
+            ThreadLocalRuntime ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
+
+        /// <summary>
         /// Provides access to the operation executing on each controlled thread
         /// during systematic testing.
         /// </summary>
         [ThreadStatic]
         private static ControlledOperation ExecutingOperation;
-
-        /// <summary>
-        /// The runtime installed in the current execution context.
-        /// </summary>
-        internal static CoyoteRuntime Current =>
-            ThreadLocalRuntime ?? AsyncLocalRuntime.Value ?? RuntimeProvider.Default;
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -427,7 +427,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action continuation)
         {
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
             this.ScheduleOperation(op, continuation);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }
@@ -518,7 +518,9 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(delay: timeout);
+                // TODO: figure out a good strategy for grouping delays, especially if they
+                // are shared in different contexts and not awaited immediately.
+                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group, delay: timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
@@ -603,7 +605,7 @@ namespace Microsoft.Coyote.Runtime
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
-                    new DelayOperation(operationId, $"Delay({operationId})", delay, this) :
+                    new DelayOperation(operationId, $"Delay({operationId})", delay, group, this) :
                     new ControlledOperation(operationId, $"Op({operationId})", group, this);
                 if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
                 {
@@ -2308,9 +2310,9 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
-                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count,
-                    (int)this.MaxConcurrencyDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached,
-                    this.Scheduler.IsIterationFair);
+                int groupingDegree = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
+                report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, (int)this.MaxConcurrencyDegree,
+                    groupingDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached, this.Scheduler.IsIterationFair);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);
@@ -2340,7 +2342,7 @@ namespace Microsoft.Coyote.Runtime
             AsyncLocalRuntime.Value = this;
             ThreadLocalRuntime = this;
             ExecutingOperation = op;
-            this.SetControlledSynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
         }
 
         /// <summary>
@@ -2352,12 +2354,6 @@ namespace Microsoft.Coyote.Runtime
             ThreadLocalRuntime = null;
             AsyncLocalRuntime.Value = null;
         }
-
-        /// <summary>
-        /// Sets the synchronization context to the controlled synchronization context.
-        /// </summary>
-        private void SetControlledSynchronizationContext() =>
-            SynchronizationContext.SetSynchronizationContext(this.SyncContext);
 
         /// <inheritdoc/>
         public void RegisterLog(IRuntimeLog log) => this.LogManager.RegisterLog(log, this.LogWriter);

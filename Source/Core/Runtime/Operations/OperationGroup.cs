@@ -15,18 +15,6 @@ namespace Microsoft.Coyote.Runtime
     internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>
     {
         /// <summary>
-        /// Provides access to the operation group associated with each async local context,
-        /// or null if the current async local context has no associated group.
-        /// </summary>
-        private protected static readonly AsyncLocal<OperationGroup> AsyncLocalGroup =
-            new AsyncLocal<OperationGroup>();
-
-        /// <summary>
-        /// The operation group associated with the current execution context, if any.
-        /// </summary>
-        internal static OperationGroup Current => AsyncLocalGroup.Value;
-
-        /// <summary>
         /// The unique id of this group.
         /// </summary>
         internal readonly Guid Id;
@@ -93,19 +81,6 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsCompleted() => this.Members.All(op => op.Status is OperationStatus.Completed);
 
         /// <summary>
-        /// Associates the specified operation group with the currently executing thread,
-        /// allowing future retrieval in the same thread, as well as across threads that
-        /// share the same asynchronous control flow.
-        /// </summary>
-        internal static void SetCurrent(OperationGroup group)
-        {
-            if (group != null)
-            {
-                AsyncLocalGroup.Value = group;
-            }
-        }
-
-        /// <summary>
         /// Determines whether the specified object is equal to the current object.
         /// </summary>
         public override bool Equals(object obj)
@@ -139,13 +114,5 @@ namespace Microsoft.Coyote.Runtime
         /// to the current <see cref="OperationGroup"/>.
         /// </summary>
         bool IEquatable<OperationGroup>.Equals(OperationGroup other) => this.Equals(other);
-
-        /// <summary>
-        /// Removes this operation group from the local context.
-        /// </summary>
-        internal static void RemoveFromContext()
-        {
-            AsyncLocalGroup.Value = null;
-        }
     }
 }

@@ -17,12 +17,40 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestTaskContinuationGroupingWithCompletedTask()
+        {
+            this.Test(async () =>
+            {
+                OperationGroup originalGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                await Task.CompletedTask;
+                OperationGroup newGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                Specification.Assert(newGroup == originalGroup,
+                    $"The new '{newGroup}' and original '{originalGroup}' groups differ.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestTaskContinuationGroupingWithYield()
         {
             this.Test(async () =>
             {
                 OperationGroup originalGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
                 await Task.Yield();
+                OperationGroup newGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                Specification.Assert(newGroup == originalGroup,
+                    $"The new '{newGroup}' and original '{originalGroup}' groups differ.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTaskContinuationGroupingWithDelay()
+        {
+            this.Test(async () =>
+            {
+                OperationGroup originalGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                await Task.Delay(10);
                 OperationGroup newGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
                 Specification.Assert(newGroup == originalGroup,
                     $"The new '{newGroup}' and original '{originalGroup}' groups differ.");
@@ -129,6 +157,40 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestTaskContinuationGroupingWithDelayedTaskRun()
+        {
+            this.Test(async () =>
+            {
+                OperationGroup originalGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                OperationGroup taskGroup = null;
+                Task task = Task.Run(async () =>
+                {
+                    OperationGroup originalTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                    await Task.Delay(10);
+                    taskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                    Specification.Assert(taskGroup == originalTaskGroup,
+                        $"The task '{taskGroup}' and original task '{originalTaskGroup}' groups differ.");
+                });
+
+                bool isAwaitCompleted = task.IsCompleted;
+                await task;
+
+                OperationGroup newGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                if (isAwaitCompleted)
+                {
+                    Specification.Assert(newGroup == originalGroup,
+                        $"The new '{newGroup}' and original '{originalGroup}' groups differ.");
+                }
+                else
+                {
+                    Specification.Assert(newGroup == taskGroup,
+                        $"The new '{newGroup}' and task '{taskGroup}' groups differ.");
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestTaskContinuationGroupingWithNestedAsyncTaskRun()
         {
             this.Test(async () =>
@@ -197,6 +259,60 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     {
                         OperationGroup originalInnerTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
                         await Task.Yield();
+                        innerTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                        Specification.Assert(innerTaskGroup == originalInnerTaskGroup,
+                            $"The inner task '{innerTaskGroup}' and original inner task '{originalInnerTaskGroup}' groups differ.");
+                    });
+
+                    bool isInnerAwaitCompleted = innerTask.IsCompleted;
+                    await innerTask;
+
+                    taskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                    if (isInnerAwaitCompleted)
+                    {
+                        Specification.Assert(taskGroup == originalTaskGroup,
+                            $"The task '{taskGroup}' and original task '{originalTaskGroup}' groups differ.");
+                    }
+                    else
+                    {
+                        Specification.Assert(taskGroup == innerTaskGroup,
+                            $"The task '{taskGroup}' and inner task '{innerTaskGroup}' groups differ.");
+                    }
+                });
+
+                bool isAwaitCompleted = task.IsCompleted;
+                await task;
+
+                OperationGroup newGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                if (isAwaitCompleted)
+                {
+                    Specification.Assert(newGroup == originalGroup,
+                        $"The new '{newGroup}' and original '{originalGroup}' groups differ.");
+                }
+                else
+                {
+                    Specification.Assert(newGroup == taskGroup,
+                        $"The new '{newGroup}' and task '{taskGroup}' groups differ.");
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTaskContinuationGroupingWithNestedDelayedTaskRun()
+        {
+            this.Test(async () =>
+            {
+                OperationGroup originalGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                OperationGroup taskGroup = null;
+                Task task = Task.Run(async () =>
+                {
+                    OperationGroup originalTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                    OperationGroup innerTaskGroup = null;
+                    Task innerTask = Task.Run(async () =>
+                    {
+                        OperationGroup originalInnerTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
+                        await Task.Delay(10);
                         innerTaskGroup = CoyoteRuntime.Current.GetExecutingOperation().Group;
                         Specification.Assert(innerTaskGroup == originalInnerTaskGroup,
                             $"The inner task '{innerTaskGroup}' and original inner task '{originalInnerTaskGroup}' groups differ.");

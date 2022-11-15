@@ -518,7 +518,9 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(delay: timeout);
+                // TODO: figure out a good strategy for grouping delays, especially if they
+                // are shared in different contexts and not awaited immediately.
+                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group, delay: timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
@@ -603,7 +605,7 @@ namespace Microsoft.Coyote.Runtime
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
-                    new DelayOperation(operationId, $"Delay({operationId})", delay, this) :
+                    new DelayOperation(operationId, $"Delay({operationId})", delay, group, this) :
                     new ControlledOperation(operationId, $"Op({operationId})", group, this);
                 if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
                 {

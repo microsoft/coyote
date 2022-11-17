@@ -297,7 +297,11 @@ namespace Microsoft.Coyote.Rewriting
         {
             var targetFramework = assembly?.GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
                 .SingleOrDefault() as TargetFrameworkAttribute;
-            var tokens = targetFramework?.FrameworkName.Split(new string[] { ",Version=" }, StringSplitOptions.None);
+#if NET || NETCOREAPP3_1
+            var tokens = targetFramework?.FrameworkName.Split(",Version=", StringSplitOptions.None);
+#else
+            var tokens = targetFramework?.FrameworkName.Split(new[] { ",Version=" }, StringSplitOptions.None);
+#endif
 
             resolvedTargetFramework = string.Empty;
             if (tokens != null && tokens.Length is 2)

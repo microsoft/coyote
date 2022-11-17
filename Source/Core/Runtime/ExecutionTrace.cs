@@ -51,29 +51,27 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Adds a scheduling choice.
         /// </summary>
-        internal void AddSchedulingChoice(ulong scheduledOperationId)
+        internal void AddSchedulingChoice(ulong scheduledOperationId, SchedulingPointType sp)
         {
-            var scheduleStep = Step.CreateSchedulingChoice(this.Length, scheduledOperationId);
+            var scheduleStep = Step.CreateSchedulingChoice(this.Length, scheduledOperationId, sp);
             this.Push(scheduleStep);
         }
 
         /// <summary>
         /// Adds a nondeterministic boolean choice.
         /// </summary>
-        internal void AddNondeterministicBooleanChoice(bool choice)
+        internal void AddNondeterministicBooleanChoice(bool choice, SchedulingPointType sp)
         {
-            var scheduleStep = Step.CreateNondeterministicBooleanChoice(
-                this.Length, choice);
+            var scheduleStep = Step.CreateNondeterministicBooleanChoice(this.Length, choice, sp);
             this.Push(scheduleStep);
         }
 
         /// <summary>
         /// Adds a nondeterministic integer choice.
         /// </summary>
-        internal void AddNondeterministicIntegerChoice(int choice)
+        internal void AddNondeterministicIntegerChoice(int choice, SchedulingPointType sp)
         {
-            var scheduleStep = Step.CreateNondeterministicIntegerChoice(
-                this.Length, choice);
+            var scheduleStep = Step.CreateNondeterministicIntegerChoice(this.Length, choice, sp);
             this.Push(scheduleStep);
         }
 
@@ -145,17 +143,17 @@ namespace Microsoft.Coyote.Runtime
         {
             foreach (var step in trace.Steps)
             {
-                if (step.Type is DecisionType.SchedulingChoice)
+                if (step.Kind is DecisionKind.SchedulingChoice)
                 {
-                    this.AddSchedulingChoice(step.ScheduledOperationId);
+                    this.AddSchedulingChoice(step.ScheduledOperationId, step.SchedulingPoint);
                 }
-                else if (step.Type is DecisionType.NondeterministicChoice && step.BooleanChoice.HasValue)
+                else if (step.Kind is DecisionKind.NondeterministicChoice && step.BooleanChoice.HasValue)
                 {
-                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value);
+                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value, step.SchedulingPoint);
                 }
-                else if (step.Type is DecisionType.NondeterministicChoice && step.IntegerChoice.HasValue)
+                else if (step.Kind is DecisionKind.NondeterministicChoice && step.IntegerChoice.HasValue)
                 {
-                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value);
+                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value, step.SchedulingPoint);
                 }
             }
 
@@ -187,17 +185,17 @@ namespace Microsoft.Coyote.Runtime
             while (appendIndex < trace.Length)
             {
                 Step step = trace[appendIndex];
-                if (step.Type is DecisionType.SchedulingChoice)
+                if (step.Kind is DecisionKind.SchedulingChoice)
                 {
-                    this.AddSchedulingChoice(step.ScheduledOperationId);
+                    this.AddSchedulingChoice(step.ScheduledOperationId, step.SchedulingPoint);
                 }
-                else if (step.Type is DecisionType.NondeterministicChoice && step.BooleanChoice.HasValue)
+                else if (step.Kind is DecisionKind.NondeterministicChoice && step.BooleanChoice.HasValue)
                 {
-                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value);
+                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value, step.SchedulingPoint);
                 }
-                else if (step.Type is DecisionType.NondeterministicChoice && step.IntegerChoice.HasValue)
+                else if (step.Kind is DecisionKind.NondeterministicChoice && step.IntegerChoice.HasValue)
                 {
-                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value);
+                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value, step.SchedulingPoint);
                 }
 
                 appendIndex++;
@@ -212,9 +210,9 @@ namespace Microsoft.Coyote.Runtime
         internal void Clear() => this.Steps.Clear();
 
         /// <summary>
-        /// The type of decision taken during an execution step.
+        /// The kind of decision taken during an execution step.
         /// </summary>
-        internal enum DecisionType
+        internal enum DecisionKind
         {
             SchedulingChoice = 0,
             NondeterministicChoice
@@ -231,9 +229,14 @@ namespace Microsoft.Coyote.Runtime
             internal int Index;
 
             /// <summary>
-            /// The type of the decision taken in this execution step.
+            /// The kind of controlled decision taken in this execution step.
             /// </summary>
-            internal DecisionType Type { get; private set; }
+            internal DecisionKind Kind { get; private set; }
+
+            /// <summary>
+            /// The type of scheduling point encountered in this execution step.
+            /// </summary>
+            internal SchedulingPointType SchedulingPoint { get; private set; }
 
             /// <summary>
             /// The id of the scheduled operation. Only relevant if this is
@@ -266,59 +269,49 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Creates an execution step.
             /// </summary>
-            internal static Step CreateSchedulingChoice(int index, ulong scheduledOperationId)
+            internal static Step CreateSchedulingChoice(int index, ulong scheduledOperationId, SchedulingPointType sp)
             {
                 var scheduleStep = new Step();
-
                 scheduleStep.Index = index;
-                scheduleStep.Type = DecisionType.SchedulingChoice;
-
+                scheduleStep.Kind = DecisionKind.SchedulingChoice;
+                scheduleStep.SchedulingPoint = sp;
                 scheduleStep.ScheduledOperationId = scheduledOperationId;
-
                 scheduleStep.BooleanChoice = null;
                 scheduleStep.IntegerChoice = null;
-
                 scheduleStep.Previous = null;
                 scheduleStep.Next = null;
-
                 return scheduleStep;
             }
 
             /// <summary>
             /// Creates a nondeterministic boolean choice execution step.
             /// </summary>
-            internal static Step CreateNondeterministicBooleanChoice(int index, bool choice)
+            internal static Step CreateNondeterministicBooleanChoice(int index, bool choice, SchedulingPointType sp)
             {
                 var scheduleStep = new Step();
-
                 scheduleStep.Index = index;
-                scheduleStep.Type = DecisionType.NondeterministicChoice;
-
+                scheduleStep.Kind = DecisionKind.NondeterministicChoice;
+                scheduleStep.SchedulingPoint = sp;
                 scheduleStep.BooleanChoice = choice;
                 scheduleStep.IntegerChoice = null;
-
                 scheduleStep.Previous = null;
                 scheduleStep.Next = null;
-
                 return scheduleStep;
             }
 
             /// <summary>
             /// Creates a nondeterministic integer choice execution step.
             /// </summary>
-            internal static Step CreateNondeterministicIntegerChoice(int index, int choice)
+            internal static Step CreateNondeterministicIntegerChoice(int index, int choice, SchedulingPointType sp)
             {
                 var scheduleStep = new Step();
-
                 scheduleStep.Index = index;
-                scheduleStep.Type = DecisionType.NondeterministicChoice;
-
+                scheduleStep.Kind = DecisionKind.NondeterministicChoice;
+                scheduleStep.SchedulingPoint = sp;
                 scheduleStep.BooleanChoice = null;
                 scheduleStep.IntegerChoice = choice;
-
                 scheduleStep.Previous = null;
                 scheduleStep.Next = null;
-
                 return scheduleStep;
             }
 
@@ -332,7 +325,8 @@ namespace Microsoft.Coyote.Runtime
             /// to the current <see cref="Step"/>.
             /// </summary>
             internal bool Equals(Step other) => other != null ?
-                this.Index == other.Index && this.Type == other.Type &&
+                this.Index == other.Index && this.Kind == other.Kind &&
+                this.SchedulingPoint == other.SchedulingPoint &&
                 this.ScheduledOperationId == other.ScheduledOperationId &&
                 this.BooleanChoice == other.BooleanChoice &&
                 this.IntegerChoice == other.IntegerChoice :

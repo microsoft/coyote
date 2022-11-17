@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
 
@@ -50,16 +51,21 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.SchedulingChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.SchedulingChoice)
                     {
-                        this.ErrorText = this.FormatError("next step is not a scheduling choice");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a scheduling choice");
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
                     next = ops.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
                     if (next is null)
                     {
-                        this.ErrorText = this.FormatError($"cannot detect id '{nextStep.ScheduledOperationId}'");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, $"cannot detect id '{nextStep.ScheduledOperationId}'");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
                 }
@@ -104,15 +110,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
                     {
-                        this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
                     if (nextStep.BooleanChoice is null)
                     {
-                        this.ErrorText = this.FormatError("next step is not a nondeterministic boolean choice");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic boolean choice");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
@@ -157,15 +168,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
                     {
-                        this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
                     if (nextStep.IntegerChoice is null)
                     {
-                        this.ErrorText = this.FormatError("next step is not a nondeterministic integer choice");
+                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic integer choice");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
@@ -202,16 +218,28 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <remarks>
         /// This is typically invoked by parent strategies to reset child strategies.
         /// </remarks>
-        internal virtual void Reset()
-        {
-            this.StepCount = 0;
-        }
+        internal virtual void Reset() => this.StepCount = 0;
+
+        /// <summary>
+        /// Formats the error message regarding an unexpected scheduling point.
+        /// </summary>
+        private string FormatSchedulingPointReplayError(int step, SchedulingPointType expected, SchedulingPointType actual) =>
+            this.FormatReplayError(step, $"expected scheduling point '{expected}' instead of '{actual}'");
 
         /// <summary>
         /// Formats the error message.
         /// </summary>
-        private string FormatError(string reason) => this.Configuration.RandomGeneratorSeed.HasValue ?
-            $"Trace from execution with random seed '{this.Configuration.RandomGeneratorSeed}' is not reproducible: {reason}." :
-            $"Trace is not reproducible: {reason}.";
+        private string FormatReplayError(int step, string reason)
+        {
+#if NET || NETCOREAPP3_1
+            string[] traceTokens = new StackTrace().ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+#else
+            string[] traceTokens = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+#endif
+            string trace = string.Join(Environment.NewLine, traceTokens.Where(line => !line.Contains("at Microsoft.Coyote")));
+            string info = this.Configuration.RandomGeneratorSeed.HasValue ?
+                $" from execution with random seed '{this.Configuration.RandomGeneratorSeed}'" : string.Empty;
+            return $"The trace{info} is not reproducible at execution step '{step}': {reason}." + Environment.NewLine + trace;
+        }
     }
 }

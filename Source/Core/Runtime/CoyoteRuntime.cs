@@ -897,6 +897,7 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
+                this.LogWriter.LogDebug("[coyote::debug] Invoking scheduling point '{0}' at execution step '{1}'.", type, this.Scheduler.StepCount);
                 this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
 
                 // Checks if the scheduling steps bound has been reached.
@@ -948,8 +949,7 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.",
-                    next.Name, next.Group);
+                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {
@@ -2255,7 +2255,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private static string FormatExceptionStackTrace(Exception exception)
         {
+#if NET || NETCOREAPP3_1
+            string[] lines = exception.ToString().Split(Environment.NewLine, StringSplitOptions.None);
+#else
             string[] lines = exception.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+#endif
             for (int i = 0; i < lines.Length; i++)
             {
                 if (lines[i].StartsWith("   at Microsoft.Coyote.Rewriting", StringComparison.Ordinal))
@@ -2273,7 +2277,11 @@ namespace Microsoft.Coyote.Runtime
         private static string FormatSpecificationMonitorStackTrace(StackTrace trace)
         {
             StringBuilder sb = new StringBuilder();
+#if NET || NETCOREAPP3_1
+            string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
+#else
             string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+#endif
             foreach (var line in lines)
             {
                 if ((line.Contains("at Microsoft.Coyote.Specifications") ||

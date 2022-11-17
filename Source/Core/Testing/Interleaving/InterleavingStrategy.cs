@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.SchedulingChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.SchedulingChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a scheduling choice");
                         throw new InvalidOperationException(this.ErrorText);
@@ -60,6 +60,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (next is null)
                     {
                         this.ErrorText = this.FormatError($"cannot detect id '{nextStep.ScheduledOperationId}'");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointError(nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
                 }
@@ -104,7 +109,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
@@ -113,6 +118,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (nextStep.BooleanChoice is null)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic boolean choice");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointError(nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
@@ -157,7 +167,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Type != ExecutionTrace.DecisionType.NondeterministicChoice)
+                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
@@ -166,6 +176,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
                     if (nextStep.IntegerChoice is null)
                     {
                         this.ErrorText = this.FormatError("next step is not a nondeterministic integer choice");
+                        throw new InvalidOperationException(this.ErrorText);
+                    }
+                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
+                    {
+                        this.ErrorText = this.FormatSchedulingPointError(nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
@@ -206,6 +221,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
         {
             this.StepCount = 0;
         }
+
+        /// <summary>
+        /// Formats the error message regarding an unexpected scheduling point.
+        /// </summary>
+        private string FormatSchedulingPointError(SchedulingPointType expected, SchedulingPointType actual) =>
+            this.FormatError($"expected scheduling point '{expected}' instead of '{actual}'");
 
         /// <summary>
         /// Formats the error message.

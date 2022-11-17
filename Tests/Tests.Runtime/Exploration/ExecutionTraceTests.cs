@@ -20,40 +20,40 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(2);
-            trace.AddSchedulingChoice(3);
-            trace.AddSchedulingChoice(1);
-            trace.AddSchedulingChoice(2);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(3, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(1, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 5);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[1].ScheduledOperationId is 2);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[2].ScheduledOperationId is 3);
             Assert.True(!trace[2].BooleanChoice.HasValue);
             Assert.True(!trace[2].IntegerChoice.HasValue);
 
             Assert.True(trace[3].Index is 3);
-            Assert.True(trace[3].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[3].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[3].ScheduledOperationId is 1);
             Assert.True(!trace[3].BooleanChoice.HasValue);
             Assert.True(!trace[3].IntegerChoice.HasValue);
 
             Assert.True(trace[4].Index is 4);
-            Assert.True(trace[4].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[4].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[4].ScheduledOperationId is 2);
             Assert.True(!trace[4].BooleanChoice.HasValue);
             Assert.True(!trace[4].IntegerChoice.HasValue);
@@ -65,28 +65,28 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddNondeterministicBooleanChoice(true);
-            trace.AddNondeterministicBooleanChoice(false);
-            trace.AddNondeterministicBooleanChoice(true);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(false, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(trace[0].BooleanChoice.HasValue);
             Assert.True(trace[0].BooleanChoice.Value is true);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[1].ScheduledOperationId is 0);
             Assert.True(trace[1].BooleanChoice.HasValue);
             Assert.True(trace[1].BooleanChoice.Value is false);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].BooleanChoice.Value is true);
@@ -99,28 +99,28 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddNondeterministicIntegerChoice(3);
-            trace.AddNondeterministicIntegerChoice(7);
-            trace.AddNondeterministicIntegerChoice(4);
+            trace.AddNondeterministicIntegerChoice(3, SchedulingPointType.Default);
+            trace.AddNondeterministicIntegerChoice(7, SchedulingPointType.Default);
+            trace.AddNondeterministicIntegerChoice(4, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(trace[0].IntegerChoice.HasValue);
             Assert.True(trace[0].IntegerChoice.Value is 3);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[1].ScheduledOperationId is 0);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(trace[1].IntegerChoice.HasValue);
             Assert.True(trace[1].IntegerChoice.Value is 7);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(!trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].IntegerChoice.HasValue);
@@ -133,41 +133,41 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(2);
-            trace.AddNondeterministicBooleanChoice(true);
-            trace.AddSchedulingChoice(1);
-            trace.AddNondeterministicIntegerChoice(5);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(1, SchedulingPointType.Default);
+            trace.AddNondeterministicIntegerChoice(5, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 5);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[1].ScheduledOperationId is 2);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].BooleanChoice.Value is true);
             Assert.True(!trace[2].IntegerChoice.HasValue);
 
             Assert.True(trace[3].Index is 3);
-            Assert.True(trace[3].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[3].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[3].ScheduledOperationId is 1);
             Assert.True(!trace[3].BooleanChoice.HasValue);
             Assert.True(!trace[3].IntegerChoice.HasValue);
 
             Assert.True(trace[4].Index is 4);
-            Assert.True(trace[4].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[4].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[4].ScheduledOperationId is 0);
             Assert.True(!trace[4].BooleanChoice.HasValue);
             Assert.True(trace[4].IntegerChoice.HasValue);
@@ -180,17 +180,17 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(2);
-            trace.AddNondeterministicBooleanChoice(true);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             ExecutionTrace other = ExecutionTrace.Create();
             Assert.True(other.Length is 0);
 
-            other.AddSchedulingChoice(0);
-            other.AddSchedulingChoice(2);
+            other.AddSchedulingChoice(0, SchedulingPointType.Default);
+            other.AddSchedulingChoice(2, SchedulingPointType.Default);
             this.LogTrace(other);
             Assert.True(other.Length is 2);
 
@@ -199,19 +199,19 @@ namespace Microsoft.Coyote.Runtime.Tests
             Assert.True(trace.Length is 3);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[1].ScheduledOperationId is 2);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].BooleanChoice.Value is true);
@@ -224,20 +224,20 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(2);
-            trace.AddNondeterministicBooleanChoice(true);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             ExecutionTrace other = ExecutionTrace.Create();
             Assert.True(other.Length is 0);
 
-            other.AddSchedulingChoice(0);
-            other.AddSchedulingChoice(2);
-            other.AddNondeterministicBooleanChoice(true);
-            other.AddSchedulingChoice(1);
-            other.AddNondeterministicIntegerChoice(5);
+            other.AddSchedulingChoice(0, SchedulingPointType.Default);
+            other.AddSchedulingChoice(2, SchedulingPointType.Default);
+            other.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
+            other.AddSchedulingChoice(1, SchedulingPointType.Default);
+            other.AddNondeterministicIntegerChoice(5, SchedulingPointType.Default);
             this.LogTrace(other);
             Assert.True(other.Length is 5);
 
@@ -246,32 +246,32 @@ namespace Microsoft.Coyote.Runtime.Tests
             Assert.True(trace.Length is 5);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[1].ScheduledOperationId is 2);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].BooleanChoice.Value is true);
             Assert.True(!trace[2].IntegerChoice.HasValue);
 
             Assert.True(trace[3].Index is 3);
-            Assert.True(trace[3].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[3].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[3].ScheduledOperationId is 1);
             Assert.True(!trace[3].BooleanChoice.HasValue);
             Assert.True(!trace[3].IntegerChoice.HasValue);
 
             Assert.True(trace[4].Index is 4);
-            Assert.True(trace[4].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[4].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[4].ScheduledOperationId is 0);
             Assert.True(!trace[4].BooleanChoice.HasValue);
             Assert.True(trace[4].IntegerChoice.HasValue);
@@ -284,9 +284,9 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(3);
-            trace.AddNondeterministicBooleanChoice(false);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(3, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(false, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
@@ -305,17 +305,17 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(3);
-            trace.AddNondeterministicBooleanChoice(true);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(3, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             ExecutionTrace other = ExecutionTrace.Create();
             Assert.True(other.Length is 0);
 
-            other.AddSchedulingChoice(0);
-            other.AddNondeterministicIntegerChoice(5);
+            other.AddSchedulingChoice(0, SchedulingPointType.Default);
+            other.AddNondeterministicIntegerChoice(5, SchedulingPointType.Default);
             this.LogTrace(other);
             Assert.True(other.Length is 2);
 
@@ -324,13 +324,13 @@ namespace Microsoft.Coyote.Runtime.Tests
             Assert.True(trace.Length is 2);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[1].ScheduledOperationId is 0);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(trace[1].IntegerChoice.HasValue);
@@ -343,20 +343,20 @@ namespace Microsoft.Coyote.Runtime.Tests
             ExecutionTrace trace = ExecutionTrace.Create();
             Assert.True(trace.Length is 0);
 
-            trace.AddSchedulingChoice(0);
-            trace.AddSchedulingChoice(2);
-            trace.AddNondeterministicBooleanChoice(true);
+            trace.AddSchedulingChoice(0, SchedulingPointType.Default);
+            trace.AddSchedulingChoice(2, SchedulingPointType.Default);
+            trace.AddNondeterministicBooleanChoice(true, SchedulingPointType.Default);
             this.LogTrace(trace);
             Assert.True(trace.Length is 3);
 
             ExecutionTrace other = ExecutionTrace.Create();
             Assert.True(other.Length is 0);
 
-            other.AddSchedulingChoice(0);
-            other.AddSchedulingChoice(3);
-            other.AddNondeterministicBooleanChoice(false);
-            other.AddSchedulingChoice(1);
-            other.AddNondeterministicIntegerChoice(5);
+            other.AddSchedulingChoice(0, SchedulingPointType.Default);
+            other.AddSchedulingChoice(3, SchedulingPointType.Default);
+            other.AddNondeterministicBooleanChoice(false, SchedulingPointType.Default);
+            other.AddSchedulingChoice(1, SchedulingPointType.Default);
+            other.AddNondeterministicIntegerChoice(5, SchedulingPointType.Default);
             this.LogTrace(other);
             Assert.True(other.Length is 5);
 
@@ -365,32 +365,32 @@ namespace Microsoft.Coyote.Runtime.Tests
             Assert.True(trace.Length is 5);
 
             Assert.True(trace[0].Index is 0);
-            Assert.True(trace[0].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[0].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[0].ScheduledOperationId is 0);
             Assert.True(!trace[0].BooleanChoice.HasValue);
             Assert.True(!trace[0].IntegerChoice.HasValue);
 
             Assert.True(trace[1].Index is 1);
-            Assert.True(trace[1].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[1].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[1].ScheduledOperationId is 3);
             Assert.True(!trace[1].BooleanChoice.HasValue);
             Assert.True(!trace[1].IntegerChoice.HasValue);
 
             Assert.True(trace[2].Index is 2);
-            Assert.True(trace[2].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[2].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[2].ScheduledOperationId is 0);
             Assert.True(trace[2].BooleanChoice.HasValue);
             Assert.True(trace[2].BooleanChoice.Value is false);
             Assert.True(!trace[2].IntegerChoice.HasValue);
 
             Assert.True(trace[3].Index is 3);
-            Assert.True(trace[3].Type is ExecutionTrace.DecisionType.SchedulingChoice);
+            Assert.True(trace[3].Kind is ExecutionTrace.DecisionKind.SchedulingChoice);
             Assert.True(trace[3].ScheduledOperationId is 1);
             Assert.True(!trace[3].BooleanChoice.HasValue);
             Assert.True(!trace[3].IntegerChoice.HasValue);
 
             Assert.True(trace[4].Index is 4);
-            Assert.True(trace[4].Type is ExecutionTrace.DecisionType.NondeterministicChoice);
+            Assert.True(trace[4].Kind is ExecutionTrace.DecisionKind.NondeterministicChoice);
             Assert.True(trace[4].ScheduledOperationId is 0);
             Assert.True(!trace[4].BooleanChoice.HasValue);
             Assert.True(trace[4].IntegerChoice.HasValue);

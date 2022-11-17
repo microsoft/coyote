@@ -110,20 +110,29 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 foreach (var decision in report.Decisions)
                 {
-                    if (decision.StartsWith("op("))
+                    string[] tokens = decision.Split(',');
+                    string kindToken = tokens[0];
+                    string spToken = tokens[1];
+
+#if NET || NETCOREAPP3_1
+                    SchedulingPointType sp = Enum.Parse<SchedulingPointType>(spToken.Substring(3, spToken.Length - 4));
+#else
+                    SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType), spToken.Substring(3, spToken.Length - 4));
+#endif
+                    if (kindToken.StartsWith("op("))
                     {
-                        ulong id = ulong.Parse(decision.Substring(3, decision.Length - 4));
-                        trace.AddSchedulingChoice(id);
+                        ulong id = ulong.Parse(kindToken.Substring(3, kindToken.Length - 4));
+                        trace.AddSchedulingChoice(id, sp);
                     }
-                    else if (decision.StartsWith("bool("))
+                    else if (kindToken.StartsWith("bool("))
                     {
-                        bool value = bool.Parse(decision.Substring(5, decision.Length - 6));
-                        trace.AddNondeterministicBooleanChoice(value);
+                        bool value = bool.Parse(kindToken.Substring(5, kindToken.Length - 6));
+                        trace.AddNondeterministicBooleanChoice(value, sp);
                     }
-                    else if (decision.StartsWith("int("))
+                    else if (kindToken.StartsWith("int("))
                     {
-                        int value = int.Parse(decision.Substring(4, decision.Length - 5));
-                        trace.AddNondeterministicIntegerChoice(value);
+                        int value = int.Parse(kindToken.Substring(4, kindToken.Length - 5));
+                        trace.AddNondeterministicIntegerChoice(value, sp);
                     }
                     else
                     {
@@ -144,17 +153,17 @@ namespace Microsoft.Coyote.SystematicTesting
             for (int idx = 0; idx < trace.Length; idx++)
             {
                 ExecutionTrace.Step step = trace[idx];
-                if (step.Type == ExecutionTrace.DecisionType.SchedulingChoice)
+                if (step.Kind == ExecutionTrace.DecisionKind.SchedulingChoice)
                 {
-                    this.Decisions.Add($"op({step.ScheduledOperationId})");
+                    this.Decisions.Add($"op({step.ScheduledOperationId}),sp({step.SchedulingPoint})");
                 }
                 else if (step.BooleanChoice != null)
                 {
-                    this.Decisions.Add($"bool({step.BooleanChoice.Value})");
+                    this.Decisions.Add($"bool({step.BooleanChoice.Value}),sp({step.SchedulingPoint})");
                 }
                 else
                 {
-                    this.Decisions.Add($"int({step.IntegerChoice.Value})");
+                    this.Decisions.Add($"int({step.IntegerChoice.Value}),sp({step.SchedulingPoint})");
                 }
             }
         }

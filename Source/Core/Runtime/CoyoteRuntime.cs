@@ -948,8 +948,7 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.",
-                    next.Name, next.Group);
+                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {

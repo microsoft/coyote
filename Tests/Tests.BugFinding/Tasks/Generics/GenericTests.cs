@@ -93,14 +93,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 var t = new GenericNestedMethod<string>();
                 int delay = 12;
-                var today = DateTime.Today;
-                var result = await t.RunTest("Delay is {0} on {1}", delay, today);
-                var expected = string.Format("Delay is {0} on {1}", delay, today);
+                bool condition = false;
+                var result = await t.RunTest("Delay is {0} on {1}", delay, condition);
+                var expected = string.Format("Delay is {0} on {1}", delay, condition);
                 Specification.Assert(result == expected, "Value is {0} instead of {1}.", result, expected);
             });
         }
 
-        public class GenericGenericResult<T>
+        public class NestedGenericResult<T>
         {
             public class Body<TDelay>
             {
@@ -126,11 +126,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var t = new GenericGenericResult<string>();
+                var t = new NestedGenericResult<string>();
                 int delay = 12;
-                var today = DateTime.Today;
-                var result = await t.RunTest("Delay is {0} on {1}", delay, today);
-                var expected = string.Format("Delay is {0} on {1}", delay, today);
+                bool condition = false;
+                var result = await t.RunTest("Delay is {0} on {1}", delay, condition);
+                var expected = string.Format("Delay is {0} on {1}", delay, condition);
                 Specification.Assert(result.Result == expected, "Value is {0} instead of {1}.", result.Result, expected);
             });
         }

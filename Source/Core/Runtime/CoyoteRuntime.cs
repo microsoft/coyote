@@ -893,11 +893,14 @@ namespace Microsoft.Coyote.Runtime
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
-                    this.LogWriter.LogDebug("[coyote::debug] Suppressing scheduling point in operation '{0}'.", current.Name);
+                    this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' suppressed scheduling point '{2}'.",
+                        current.Name, current.Group, type);
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Invoking scheduling point '{0}' at execution step '{1}'.", type, this.Scheduler.StepCount);
+                this.LogWriter.LogDebug(
+                    "[coyote::debug] Operation '{0}' of group '{1}' reached scheduling point '{2}' at execution step '{3}' on thread '{4}'.",
+                    current.Name, current.Group, type, this.Scheduler.StepCount, Thread.CurrentThread.ManagedThreadId);
                 this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
 
                 // Checks if the scheduling steps bound has been reached.
@@ -949,7 +952,8 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
+                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}' from thread '{2}'.",
+                    next.Name, next.Group, Thread.CurrentThread.ManagedThreadId);
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {

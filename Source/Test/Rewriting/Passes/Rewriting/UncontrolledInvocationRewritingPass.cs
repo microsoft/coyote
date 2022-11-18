@@ -34,11 +34,12 @@ namespace Microsoft.Coyote.Rewriting
             try
             {
                 bool isUncontrolledType = false;
+                bool isDataNondeterministic = false;
                 string invocationName = null;
 
                 if (instruction.OpCode == OpCodes.Initobj && instruction.Operand is TypeReference typeReference)
                 {
-                    if (IsUncontrolledType(typeReference.Resolve()))
+                    if (IsUncontrolledType(typeReference.Resolve(), null, out isDataNondeterministic))
                     {
                         invocationName = GetFullyQualifiedTypeName(typeReference);
                         isUncontrolledType = true;
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.Rewriting
                 else if ((instruction.OpCode == OpCodes.Newobj || instruction.OpCode == OpCodes.Call ||
                     instruction.OpCode == OpCodes.Callvirt) && instruction.Operand is MethodReference methodReference)
                 {
-                    if (IsUncontrolledType(methodReference.DeclaringType.Resolve(), methodReference))
+                    if (IsUncontrolledType(methodReference.DeclaringType.Resolve(), methodReference, out isDataNondeterministic))
                     {
                         invocationName = GetFullyQualifiedMethodName(methodReference);
                         isUncontrolledType = true;
@@ -59,8 +60,9 @@ namespace Microsoft.Coyote.Rewriting
                     this.LogWriter.LogDebug("............. [+] injected uncontrolled '{0}' invocation exception", invocationName);
 
                     var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
-                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
+                    MethodReference providerMethod = isDataNondeterministic ?
+                        providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledDataInvocationException)) :
+                        providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
                     providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
@@ -81,8 +83,9 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified type is not controlled. If the optional member is specified,
         /// then it also checks if the member is not controlled.
         /// </summary>
-        private static bool IsUncontrolledType(TypeDefinition type, MemberReference member = null)
+        private static bool IsUncontrolledType(TypeDefinition type, MemberReference member, out bool isDataNondeterministic)
         {
+            isDataNondeterministic = false;
             if (type is null || !IsSystemType(type))
             {
                 return false;
@@ -172,17 +175,21 @@ namespace Microsoft.Coyote.Rewriting
             }
             else if (type.Namespace.StartsWith(typeof(System.DateTime).Namespace))
             {
-                if (type.Name is nameof(System.DateTime) && member != null &&
 #if NET
+                if (type.Name is nameof(System.DateTime) && member != null &&
                     (member.Name is $"get_{nameof(System.DateTime.Now)}" ||
                     member.Name is $"get_{nameof(System.DateTime.Today)}" ||
                     member.Name is $"get_{nameof(System.DateTime.UtcNow)}"))
+                {
 #else
+                if (type.Name is nameof(System.DateTime) && member != null &&
+
                     (member.Name == $"get_{nameof(System.DateTime.Now)}" ||
                     member.Name == $"get_{nameof(System.DateTime.Today)}" ||
                     member.Name == $"get_{nameof(System.DateTime.UtcNow)}"))
-#endif
                 {
+#endif
+                    isDataNondeterministic = true;
                     return true;
                 }
             }

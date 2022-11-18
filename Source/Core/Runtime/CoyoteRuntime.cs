@@ -2116,6 +2116,43 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notify that an uncontrolled data non-deterministic method invocation was detected.
+        /// </summary>
+        internal void NotifyUncontrolledDataNondeterministicInvocation(string methodName)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.SchedulingPolicy != SchedulingPolicy.None)
+                {
+                    this.UncontrolledInvocations.Add(methodName);
+                }
+
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Invoking '{methodName}' introduces data non-determinism that is not intercepted " +
+                        "and controlled during testing, so it can interfere with the ability to reproduce bug traces.";
+                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
+                        this.Configuration.IsSystematicFuzzingFallbackEnabled)
+                    {
+                        if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
+                        {
+                            this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                                FormatUncontrolledStackTrace(new StackTrace()));
+                        }
+                        else
+                        {
+                            this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                        }
+                    }
+                    else
+                    {
+                        this.NotifyAssertionFailure(FormatUncontrolledInvocationExceptionMessage(message, methodName));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that the currently executing thread is uncontrolled.
         /// </summary>
         private void NotifyUncontrolledCurrentThread()
@@ -2224,7 +2261,7 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
+                this.NotifyAssertionFailure(FormatUncontrolledInvocationExceptionMessage(message, methodName));
             }
 
             return false;
@@ -2251,9 +2288,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Formats the message of the uncontrolled concurrency exception.
+        /// Formats the message of the uncontrolled invocation exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
+        private static string FormatUncontrolledInvocationExceptionMessage(string message, string methodName = default)
         {
             string trace = FormatUncontrolledStackTrace(new StackTrace());
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
@@ -2307,7 +2344,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Formats the specified stack trace of an uncontrolled thread.
+        /// Formats the specified stack trace of an uncontrolled invocation.
         /// </summary>
         private static string FormatUncontrolledStackTrace(StackTrace trace)
         {

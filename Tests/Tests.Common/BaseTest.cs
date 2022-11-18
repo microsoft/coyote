@@ -849,7 +849,8 @@ namespace Microsoft.Coyote.Tests.Common
             .WithVerbosityEnabled(VerbosityLevel.Debug)
             .WithTelemetryEnabled(false)
             .WithPartiallyControlledConcurrencyAllowed(false)
-            .WithSystematicFuzzingFallbackEnabled(false);
+            .WithSystematicFuzzingFallbackEnabled(false)
+            .WithLockAccessRaceCheckingEnabled(false);
 
         protected static string GetBugReport(TestingEngine engine)
         {

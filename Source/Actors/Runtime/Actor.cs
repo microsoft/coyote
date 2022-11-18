@@ -991,13 +991,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when an event has been enqueued.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void OnEnqueueEvent(Event e) => this.Context.LogEnqueuedEvent(this, e);
 
         /// <summary>
         /// Invoked when an event has been raised.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void OnRaiseEvent(Event e) => this.Context.LogRaisedEvent(this, e);
 
         /// <summary>

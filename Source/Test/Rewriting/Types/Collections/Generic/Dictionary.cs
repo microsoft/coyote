@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
-
 using SystemGenerics = System.Collections.Generic;
 using SystemInterlocked = System.Threading.Interlocked;
 
@@ -22,7 +20,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that is empty, has the default initial
         /// capacity, and uses the default equality comparer for the key type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create() =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper() :
@@ -32,7 +29,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that contains elements copied from the
         /// specified dictionary and uses the default equality comparer for the key type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IDictionary<TKey, TValue> dictionary) =>
             CoyoteRuntime.IsExecutionControlled ?
@@ -43,7 +39,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that is empty, has the default
         /// initial capacity, and uses the specified equality comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IEqualityComparer<TKey> comparer) =>
             CoyoteRuntime.IsExecutionControlled ?
@@ -54,7 +49,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that is empty, has the specified initial
         /// capacity, and uses the default equality comparer for the key type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create(int capacity) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(capacity) :
@@ -64,7 +58,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that contains elements copied from the specified dictionary
         /// and uses the specified equality comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create(
             SystemGenerics.IDictionary<TKey, TValue> dictionary,
             SystemGenerics.IEqualityComparer<TKey> comparer) =>
@@ -76,7 +69,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a new dictionary instance class that is empty, has the specified initial
         /// capacity, and uses the specified equality comparer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.Dictionary<TKey, TValue> Create(
             int capacity, SystemGenerics.IEqualityComparer<TKey> comparer) =>
             CoyoteRuntime.IsExecutionControlled ?

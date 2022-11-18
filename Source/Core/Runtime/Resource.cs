@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Resource that can be used to synchronize asynchronous operations.
+    /// Resource that can be used to synchronize controlled operations.
     /// </summary>
     internal class Resource
     {
@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Runtime
         internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// Set of asynchronous operations that are waiting on the resource to be released.
+        /// Set of operations that are waiting on the resource to be released.
         /// </summary>
         private readonly HashSet<ControlledOperation> AwaitingOperations;
 

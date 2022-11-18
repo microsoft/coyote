@@ -8,35 +8,43 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
 {
     /// <summary>
     /// Implements a state machine that can be used to control and asynchronously wait
-    /// for the completion of a task during testing.
+    /// for a condition to get resolved during testing.
     /// </summary>
     /// <remarks>
     /// We should be able to replace this in certain instances with the "AsyncMethodBuilder override" feature in C# 10.
     /// See: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-10.0/async-method-builders.
     /// </remarks>
-    internal class AsyncTaskAwaiterStateMachine<TResult> : AsyncAwaiterStateMachine<TResult>
+    internal class AsyncConditionAwaiterStateMachine : AsyncAwaiterStateMachine<bool>
     {
         /// <summary>
-        /// Handle that produces the completion of this state machine.
+        /// Condition that must get resolved to complete this state machine.
         /// </summary>
-        private readonly SystemTasks.Task<TResult> AwaitedTask;
+        private readonly Func<bool> Condition;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncTaskAwaiterStateMachine{T}"/> class.
+        /// The debug message to print while waiting for the condition to get resolved.
         /// </summary>
-        private AsyncTaskAwaiterStateMachine(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask, bool runContinuationAsynchronously)
+        private readonly string DebugMsg;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncConditionAwaiterStateMachine"/> class.
+        /// </summary>
+        private AsyncConditionAwaiterStateMachine(CoyoteRuntime runtime, Func<bool> condition,
+            bool runContinuationAsynchronously, string debugMsg)
             : base(runtime, runContinuationAsynchronously)
         {
-            this.AwaitedTask = awaitedTask;
+            this.Condition = condition;
+            this.DebugMsg = debugMsg;
         }
 
         /// <summary>
         /// Runs an asynchronous state machine that will pause the specified operation
-        /// until the task completes and return the result.
+        /// until the condition gets resolved and return the result.
         /// </summary>
-        internal static SystemTasks.Task<TResult> RunAsync(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask, bool runContinuationAsynchronously)
+        internal static SystemTasks.Task<bool> RunAsync(CoyoteRuntime runtime, Func<bool> condition,
+            bool runContinuationAsynchronously = true, string debugMsg = null)
         {
-            var stateMachine = new AsyncTaskAwaiterStateMachine<TResult>(runtime, awaitedTask, runContinuationAsynchronously);
+            var stateMachine = new AsyncConditionAwaiterStateMachine(runtime, condition, runContinuationAsynchronously, debugMsg);
             stateMachine.MoveNext();
             runtime.RegisterKnownControlledTask(stateMachine.CompletionSource.Task);
             return stateMachine.CompletionSource.Task;
@@ -52,7 +60,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                 try
                 {
                     ControlledOperation current = this.Runtime.GetExecutingOperation();
-                    if (this.CurrentStatus is Status.Running && !this.AwaitedTask.IsCompleted)
+                    if (this.CurrentStatus is Status.Running && !this.Condition())
                     {
                         // Schedule the continuation to execute asynchronously after the current state completes.
                         this.CurrentStatus = Status.Waiting;
@@ -69,13 +77,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                         return;
                     }
 
-                    // Wait for the task processing the result to complete synchronously.
-                    TaskServices.WaitUntilTaskCompletes(this.Runtime, current, this.AwaitedTask);
+                    // Wait for the condition to get resolved synchronously.
+                    this.Runtime.PauseOperationUntil(current, this.Condition, debugMsg: this.DebugMsg);
 
                     // Complete the state machine with the result.
-                    TResult result = this.AwaitedTask.Result;
                     this.CurrentStatus = Status.Completed;
-                    this.CompletionSource.SetResult(result);
+                    this.CompletionSource.SetResult(true);
                 }
                 catch (Exception exception)
                 {

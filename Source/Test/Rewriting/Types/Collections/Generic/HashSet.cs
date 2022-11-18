@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
-
 using SystemGenerics = System.Collections.Generic;
 using SystemInterlocked = System.Threading.Interlocked;
 
@@ -23,7 +21,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a hash set instance class that is empty and uses the
         /// default equality comparer for the set type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create() =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper() :
@@ -34,7 +31,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// for the set type, contains elements copied from the specified collection, and
         /// has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEnumerable<T> collection) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(collection) :
@@ -44,7 +40,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a hash set instance class that is empty and uses the default
         /// equality comparer for the set type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEqualityComparer<T> comparer) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(comparer) :
@@ -55,7 +50,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// set type, contains elements copied from the specified collection, and has sufficient
         /// capacity to accommodate the number of elements copied.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(SystemGenerics.IEnumerable<T> collection,
             SystemGenerics.IEqualityComparer<T> comparer) =>
             CoyoteRuntime.IsExecutionControlled ?
@@ -67,7 +61,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a hash set instance class that is empty, but has reserved
         /// space for 'capacity' items and and uses the default equality comparer for the set type.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(int capacity) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(capacity) :
@@ -77,7 +70,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Initializes a hash set instance class that uses the specified
         /// equality comparer for the set type, and has sufficient capacity to accommodate 'capacity' elements.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.HashSet<T> Create(int capacity,
             SystemGenerics.IEqualityComparer<T> comparer) =>
             CoyoteRuntime.IsExecutionControlled ?

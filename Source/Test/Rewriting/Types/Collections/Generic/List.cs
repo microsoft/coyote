@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
-
 using SystemGenerics = System.Collections.Generic;
 using SystemInterlocked = System.Threading.Interlocked;
 
@@ -21,7 +19,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// <summary>
         /// Creates a new list instance that is empty and has the default initial capacity.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.List<T> Create() =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper() :
@@ -30,7 +27,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// <summary>
         /// Creates a new list instance that is empty and has the specified initial capacity.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.List<T> Create(int capacity) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(capacity) :
@@ -40,7 +36,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Creates a new list instance that contains elements copied from the specified collection
         /// and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemGenerics.List<T> Create(SystemGenerics.IEnumerable<T> collection) =>
             CoyoteRuntime.IsExecutionControlled ?
             new Wrapper(collection) :

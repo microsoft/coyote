@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Mocks
@@ -301,13 +300,11 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Checks if the specified event is currently ignored.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual bool IsEventIgnored(Event e) => this.Owner.IsEventIgnored(e);
 
         /// <summary>
         /// Checks if the specified event is currently deferred.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual bool IsEventDeferred(Event e) => this.Owner.IsEventDeferred(e);
 
         /// <summary>
@@ -327,27 +324,23 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Notifies the actor that an event has been enqueued.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
             this.Owner.OnEnqueueEvent(e);
 
         /// <summary>
         /// Notifies the actor that an event has been raised.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
             this.Owner.OnRaiseEvent(e);
 
         /// <summary>
         /// Notifies the actor that it is waiting to receive an event of one of the specified types.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnWaitEvent(IEnumerable<Type> eventTypes) => this.Owner.OnWaitEvent(eventTypes);
 
         /// <summary>
         /// Notifies the actor that an event it was waiting to receive has been enqueued.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
             this.Owner.OnReceiveEvent(e, eventGroup);
 
@@ -355,39 +348,33 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// Notifies the actor that an event it was waiting to receive was already in the
         /// event queue when the actor invoked the receive statement.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
             this.Owner.OnReceiveEventWithoutWaiting(e, eventGroup);
 
         /// <summary>
         /// Notifies the actor that <see cref="ReceiveEventAsync(Type[])"/> or one of its overloaded methods was invoked.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnReceiveInvoked() => this.Owner.OnReceiveInvoked();
 
         /// <summary>
         /// Notifies the actor that an event has been ignored.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnIgnoreEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) => this.Owner.OnIgnoreEvent(e);
 
         /// <summary>
         /// Notifies the actor that an event has been deferred.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnDeferEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) => this.Owner.OnDeferEvent(e);
 
         /// <summary>
         /// Notifies the actor that an event has been dropped.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
             this.Owner.OnDropEvent(e, eventInfo);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an exception.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.Owner.Context.Assert(predicate, s, arg0, arg1, arg2);
 

@@ -3,7 +3,6 @@
 
 #if NET || NETCOREAPP3_1
 using System;
-using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 using SystemHttpMethod = System.Net.Http.HttpMethod;
 using SystemHttpRequestMessage = System.Net.Http.HttpRequestMessage;
@@ -21,21 +20,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Net.Http
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create() =>
             WithRuntimeHeaders(new SystemHttpRequestMessage());
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, string requestUri) =>
             WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 
         /// <summary>
         /// Creates a new instance of the HTTP request message class that is controlled during testing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemHttpRequestMessage Create(SystemHttpMethod method, Uri requestUri) =>
             WithRuntimeHeaders(new SystemHttpRequestMessage(method, requestUri));
 

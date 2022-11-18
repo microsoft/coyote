@@ -2201,16 +2201,25 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private bool TryHandleUncontrolledConcurrency(string message, string methodName = default)
         {
-            if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+            if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
+                this.Configuration.IsSystematicFuzzingFallbackEnabled)
             {
-                this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
+                {
+                    this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                        FormatUncontrolledStackTrace(new StackTrace()));
+                }
+                else
+                {
+                    this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                }
+
                 this.IsUncontrolledConcurrencyDetected = true;
-                return true;
-            }
-            else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-            {
-                this.LogWriter.LogDebug("[coyote::debug] {0}", message);
-                this.IsUncontrolledConcurrencyDetected = true;
+                if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                {
+                    return true;
+                }
+
                 this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
             }
             else
@@ -2246,10 +2255,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
         {
+            string trace = FormatUncontrolledStackTrace(new StackTrace());
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
                 "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
-                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace()}";
+                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.{Environment.NewLine}{trace}";
         }
 
         /// <summary>
@@ -2294,6 +2304,25 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrEmpty(line)));
+        }
+
+        /// <summary>
+        /// Formats the specified stack trace of an uncontrolled thread.
+        /// </summary>
+        private static string FormatUncontrolledStackTrace(StackTrace trace)
+        {
+            StringBuilder sb = new StringBuilder();
+#if NET || NETCOREAPP3_1
+            string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
+#else
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+#endif
+            foreach (var line in lines.Where(line => !line.Contains("at Microsoft.Coyote")))
+            {
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

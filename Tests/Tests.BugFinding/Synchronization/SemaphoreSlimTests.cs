@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithInitialAccess()
+        public void TestSemaphoreSlimWithNoInitialAccess()
         {
             this.Test(() =>
             {
@@ -78,43 +78,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithParallelAccess()
+        public void TestParallelSemaphoreSlim()
         {
-            this.Test(async () =>
-            {
-                int value = 0;
-                var semaphore = new SemaphoreSlim(1, 1);
-
-                var t1 = Task.Run(() =>
-                {
-                    semaphore.Wait();
-                    value++;
-                    SchedulingPoint.Interleave();
-                    value--;
-                    semaphore.Release();
-                });
-
-                var t2 = Task.Run(() =>
-                {
-                    semaphore.Wait();
-                    value++;
-                    SchedulingPoint.Interleave();
-                    value--;
-                    semaphore.Release();
-                });
-
-                await Task.WhenAll(t1, t2);
-
-                int expected = 0;
-                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithMultiParallelAccess()
-        {
-            this.Test(async () =>
+            this.Test(() =>
             {
                 int value = 0;
                 var semaphore = new SemaphoreSlim(1, 1);
@@ -146,7 +112,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     semaphore.Release();
                 });
 
-                await Task.WhenAll(t1, t2, t3);
+                Task.WaitAll(t1, t2, t3);
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
@@ -155,77 +121,49 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithParallelAccessAndForcedOrder()
+        public void TestParallelSemaphoreSlimWithDoubleAccess()
         {
-            this.Test(async () =>
+            this.TestWithError(() =>
             {
                 int value = 0;
-                var semaphore = new SemaphoreSlim(0, 1);
+                var semaphore = new SemaphoreSlim(2, 2);
 
+                bool isOrderHit = false;
                 var t1 = Task.Run(() =>
                 {
                     semaphore.Wait();
+                    value++;
                     SchedulingPoint.Interleave();
-                    value = 2;
+                    isOrderHit |= value is 2;
+                    value--;
                     semaphore.Release();
                 });
 
                 var t2 = Task.Run(() =>
                 {
-                    semaphore.Release();
                     semaphore.Wait();
-                    SchedulingPoint.Interleave();
-                    value = 1;
-                    semaphore.Release();
-                });
-
-                await Task.WhenAll(t1, t2);
-
-                int expected = 2;
-                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
-            },
-            configuration: this.GetConfiguration().WithTestingIterations(100));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithAsyncAccess()
-        {
-            this.Test(async () =>
-            {
-                int value = 0;
-                var semaphore = new SemaphoreSlim(1, 1);
-
-                var t1 = Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
                     value++;
                     SchedulingPoint.Interleave();
+                    isOrderHit |= value is 2;
                     value--;
                     semaphore.Release();
                 });
 
-                var t2 = Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    value++;
-                    SchedulingPoint.Interleave();
-                    value--;
-                    semaphore.Release();
-                });
-
-                await Task.WhenAll(t1, t2);
+                Task.WaitAll(t1, t2);
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(!isOrderHit, "Expected assertion failed!");
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100)
-                .WithPartiallyControlledConcurrencyAllowed());
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithMultiAsyncAccess()
+        public void TestAsyncSemaphoreSlim()
         {
-            this.Test(async () =>
+            this.Test(() =>
             {
                 int value = 0;
                 var semaphore = new SemaphoreSlim(1, 1);
@@ -257,53 +195,56 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     semaphore.Release();
                 });
 
-                await Task.WhenAll(t1, t2, t3);
+                Task.WaitAll(t1, t2, t3);
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100)
-                .WithPartiallyControlledConcurrencyAllowed());
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithAsyncAccessAndForcedOrder()
+        public void TestAsyncSemaphoreSlimWithDoubleAccess()
         {
-            this.Test(async () =>
+            this.TestWithError(() =>
             {
                 int value = 0;
-                var semaphore = new SemaphoreSlim(0, 1);
+                var semaphore = new SemaphoreSlim(2, 2);
 
+                bool isOrderHit = false;
                 var t1 = Task.Run(async () =>
                 {
                     await semaphore.WaitAsync();
                     value++;
                     SchedulingPoint.Interleave();
+                    isOrderHit |= value is 2;
                     value--;
                     semaphore.Release();
                 });
 
                 var t2 = Task.Run(async () =>
                 {
-                    semaphore.Release();
                     await semaphore.WaitAsync();
                     value++;
                     SchedulingPoint.Interleave();
+                    isOrderHit |= value is 2;
                     value--;
                     semaphore.Release();
                 });
 
-                await Task.WhenAll(t1, t2);
+                Task.WaitAll(t1, t2);
 
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(!isOrderHit, "Expected assertion failed!");
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100)
-                .WithPartiallyControlledConcurrencyAllowed());
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSemaphoreSlimWithAsyncAccessAndBlockingWait()
+        public void TestAsyncSemaphoreSlimWithBlockingWait()
         {
             this.Test(() =>
             {
@@ -333,8 +274,624 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int expected = 0;
                 Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
             },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlim()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(1, 1);
+
+                var t1 = Task.Run(() =>
+                {
+                    semaphore.Wait();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    value--;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    value--;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = 0;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlimWithDoubleAccess()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(2, 2);
+
+                bool isOrderHit = false;
+                var t1 = Task.Run(() =>
+                {
+                    semaphore.Wait();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    isOrderHit |= value is 2;
+                    value--;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    value++;
+                    SchedulingPoint.Interleave();
+                    isOrderHit |= value is 2;
+                    value--;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = 0;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(!isOrderHit, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestParallelSemaphoreSlimWithNoInitialAccess()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    semaphore.Wait();
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    semaphore.Wait();
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestParallelSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    semaphore.Wait();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    semaphore.Wait();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestParallelSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    semaphore.Wait();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    semaphore.Wait();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
             configuration: this.GetConfiguration().WithTestingIterations(100)
-                .WithPartiallyControlledConcurrencyAllowed());
+                .WithLockAccessRaceCheckingEnabled(),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAsyncSemaphoreSlimWithNoInitialAccess()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    await semaphore.WaitAsync();
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAsyncSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithLockAccessRaceCheckingEnabled(),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAsyncSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlimWithNoInitialAccess()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    semaphore.Wait();
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    await semaphore.WaitAsync();
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    semaphore.Wait();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(() =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    semaphore.Wait();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(async () =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithLockAccessRaceCheckingEnabled(),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedAltSemaphoreSlimWithNoInitialAccess()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    semaphore.Wait();
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedAltSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    semaphore.Wait();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithLockAccessRaceCheckingEnabled(),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedAltSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
+        {
+            this.TestWithError(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    order = order is 0 ? 1 : 0;
+                    await semaphore.WaitAsync();
+                    order = order is 2 ? 3 : 0;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    order = order is 1 ? 2 : 0;
+                    semaphore.Wait();
+                    order = order is 3 ? 4 : 0;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expected = firstHolder is 1 ? 2 : 1;
+                Specification.Assert(value == expected, "Value is {0} instead of {1}.", value, expected);
+                Specification.Assert(order < 4, "Expected assertion failed!");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100),
+            expectedError: "Expected assertion failed!",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMixedSemaphoreSlimForUnexpectedOrder()
+        {
+            this.Test(() =>
+            {
+                int value = 0;
+                var semaphore = new SemaphoreSlim(0, 1);
+
+                int order = 0;
+                int firstHolder = 0;
+                var t1 = Task.Run(async () =>
+                {
+                    Task awaiter = semaphore.WaitAsync();
+                    order = order is 0 ? 1 : order;
+                    await awaiter;
+                    order = order is 1 ? 0 : order;
+                    firstHolder = firstHolder is 0 ? 1 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 1;
+                    semaphore.Release();
+                });
+
+                var t2 = Task.Run(() =>
+                {
+                    semaphore.Release();
+                    semaphore.Wait();
+                    order = order is 1 ? 2 : order;
+                    firstHolder = firstHolder is 0 ? 2 : firstHolder;
+                    SchedulingPoint.Interleave();
+                    value = 2;
+                    semaphore.Release();
+                });
+
+                Task.WaitAll(t1, t2);
+
+                int expectedOrder = 2;
+                int expectedValue = 2;
+                Specification.Assert(order < expectedOrder, "Expected order must be less than {0}.", expectedOrder);
+                Specification.Assert(order < 2 || value == expectedValue, "Value is {0} instead of {1}.", value, expectedValue);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -354,8 +911,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 semaphore.Release();
                 await task;
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100)
-                .WithPartiallyControlledConcurrencyAllowed());
+            configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -383,12 +939,10 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await semaphore.WaitAsync();
                 await semaphore.WaitAsync();
             },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithDeadlockTimeout(10),
+            configuration: this.GetConfiguration().WithDeadlockTimeout(10),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Potential deadlock or hang detected. The periodic deadlock detection monitor", e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }

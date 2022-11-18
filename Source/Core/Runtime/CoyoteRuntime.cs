@@ -2070,7 +2070,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notify that an uncontrolled invocation was detected.
+        /// Notify that an uncontrolled method invocation was detected.
         /// </summary>
         internal void NotifyUncontrolledInvocation(string methodName)
         {
@@ -2086,6 +2086,31 @@ namespace Microsoft.Coyote.Runtime
                     string message = $"Invoking '{methodName}' is not intercepted and controlled during " +
                         "testing, so it can interfere with the ability to reproduce bug traces.";
                     this.TryHandleUncontrolledConcurrency(message, methodName);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Notify that an uncontrolled synchronization method invocation was detected.
+        /// </summary>
+        internal void NotifyUncontrolledSynchronizationInvocation(string methodName)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not controlled and " +
+                        $"is invoking the {methodName} synchronization method, which can cause deadlocks during testing.";
+                    if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
+                    {
+                        this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                        this.IsUncontrolledConcurrencyDetected = true;
+                        this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
+                    }
+                    else
+                    {
+                        this.NotifyAssertionFailure(message);
+                    }
                 }
             }
         }
@@ -2339,6 +2364,12 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the <see cref="CoverageGraph"/> of the current execution.
         /// </summary>
         internal CoverageGraph GetCoverageGraph() => this.Extension.GetCoverageGraph();
+
+        /// <summary>
+        /// Enters the synchronized section of the runtime. When the synchronized section
+        /// gets disposed, the thread will automatically exit it.
+        /// </summary>
+        internal SynchronizedSection EnterSynchronizedSection() => SynchronizedSection.Enter(this.RuntimeLock);
 
         /// <summary>
         /// Sets up the context of the executing controlled thread, allowing future retrieval

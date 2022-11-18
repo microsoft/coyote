@@ -290,7 +290,7 @@ namespace Microsoft.Coyote
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
             this.IsLivenessCheckingEnabled = true;
-            this.IsLockAccessRaceCheckingEnabled = false;
+            this.IsLockAccessRaceCheckingEnabled = true;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;

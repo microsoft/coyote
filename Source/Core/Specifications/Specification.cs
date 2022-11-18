@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
@@ -20,28 +19,24 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an exception.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, params object[] args) =>
             CoyoteRuntime.Current.Assert(predicate, s, args);
 
@@ -60,7 +55,6 @@ namespace Microsoft.Coyote.Specifications
         /// Registers a new safety or liveness monitor.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterMonitor<T>()
             where T : Monitor =>
             CoyoteRuntime.Current.RegisterMonitor<T>();
@@ -70,7 +64,6 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
         /// <param name="e">Event to send to the monitor.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Monitor<T>(Monitor.Event e)
             where T : Monitor =>
             CoyoteRuntime.Current.Monitor<T>(e);

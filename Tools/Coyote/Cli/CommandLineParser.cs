@@ -319,13 +319,6 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var checkLockRacesOption = new Option<bool>(
-                name: "--check-lock-races",
-                description: "Enables exploration of race conditions when accessing lock-based synchronization primitives.")
-            {
-                Arity = ArgumentArity.Zero
-            };
-
             var reduceSharedStateOption = new Option<bool>(
                 name: "--reduce-shared-state",
                 description: "Enables shared state reduction based on 'READ' and 'WRITE' scheduling points.")
@@ -405,9 +398,9 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var failOnMaxStepsOption = new Option<bool>(
-                name: "--fail-on-maxsteps",
-                description: "Reaching the specified max-steps is considered a bug.")
+            var skipLockRacesOption = new Option<bool>(
+                name: "--skip-lock-races",
+                description: "Disables exploration of race conditions when accessing lock-based synchronization primitives.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -429,6 +422,13 @@ namespace Microsoft.Coyote.Cli
             var noReproOption = new Option<bool>(
                 name: "--no-repro",
                 description: "Disable bug trace repro to ignore uncontrolled concurrency errors.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var failOnMaxStepsOption = new Option<bool>(
+                name: "--fail-on-maxsteps",
+                description: "Reaching the specified max-steps is considered a bug.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -496,7 +496,6 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, coverageOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
-            this.AddOption(command, checkLockRacesOption);
             this.AddOption(command, reduceSharedStateOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
@@ -506,10 +505,11 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
-            this.AddOption(command, failOnMaxStepsOption);
+            this.AddOption(command, skipLockRacesOption);
             this.AddOption(command, noFuzzingFallbackOption);
             this.AddOption(command, noPartialControlOption);
             this.AddOption(command, noReproOption);
+            this.AddOption(command, failOnMaxStepsOption);
             this.AddOption(command, exploreOption);
             this.AddOption(command, breakOption);
             this.AddOption(command, outputDirectoryOption);
@@ -936,9 +936,6 @@ namespace Microsoft.Coyote.Cli
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
                         break;
-                    case "check-lock-races":
-                        this.Configuration.IsLockAccessRaceCheckingEnabled = true;
-                        break;
                     case "reduce-shared-state":
                         this.Configuration.IsSharedStateReductionEnabled = true;
                         break;
@@ -967,14 +964,17 @@ namespace Microsoft.Coyote.Cli
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;
                         break;
-                    case "fail-on-maxsteps":
-                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
+                    case "skip-lock-races":
+                        this.Configuration.IsLockAccessRaceCheckingEnabled = false;
                         break;
                     case "no-fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
                         break;
                     case "no-partial-control":
                         this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                        break;
+                    case "fail-on-maxsteps":
+                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
                         break;
                     case "explore":
                         this.Configuration.RunTestIterationsToCompletion = true;

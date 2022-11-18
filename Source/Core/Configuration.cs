@@ -244,6 +244,11 @@ namespace Microsoft.Coyote
         internal bool IsConsoleLoggingEnabled { get; private set; }
 
         /// <summary>
+        /// Enables logging of stack traces when uncontrolled invocations are detected during testing.
+        /// </summary>
+        internal bool IsUncontrolledInvocationStackTraceLoggingEnabled { get; private set; }
+
+        /// <summary>
         /// Enables activity coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
@@ -310,6 +315,7 @@ namespace Microsoft.Coyote
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
 
+            this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
             this.IsActivityCoverageReported = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
@@ -705,6 +711,16 @@ namespace Microsoft.Coyote
         public Configuration WithTestIterationsRunToCompletion(bool runToCompletion = true)
         {
             this.RunTestIterationsToCompletion = runToCompletion;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with stack trace logging for uncontrolled invocations enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then stack trace logging for uncontrolled invocations is enabled.</param>
+        public Configuration WithUncontrolledInvocationStackTraceLoggingEnabled(bool isEnabled = true)
+        {
+            this.IsUncontrolledInvocationStackTraceLoggingEnabled = isEnabled;
             return this;
         }
 

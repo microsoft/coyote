@@ -39,6 +39,13 @@ namespace Microsoft.Coyote.Runtime
             CoyoteRuntime.Current.NotifyUncontrolledInvocation(methodName);
 
         /// <summary>
+        /// Throws an exception for the specified uncontrolled data non-deterministic method invocation.
+        /// </summary>
+        /// <param name="methodName">The name of the invoked method that is not controlled.</param>
+        public static void ThrowUncontrolledDataInvocationException(string methodName) =>
+            CoyoteRuntime.Current.NotifyUncontrolledDataNondeterministicInvocation(methodName);
+
+        /// <summary>
         /// Throws an exception if the task returned by the method with the specified name
         /// is not controlled during systematic testing.
         /// </summary>

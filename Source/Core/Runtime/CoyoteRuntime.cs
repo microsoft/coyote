@@ -893,11 +893,14 @@ namespace Microsoft.Coyote.Runtime
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
-                    this.LogWriter.LogDebug("[coyote::debug] Suppressing scheduling point in operation '{0}'.", current.Name);
+                    this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' suppressed scheduling point '{2}'.",
+                        current.Name, current.Group, type);
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Invoking scheduling point '{0}' at execution step '{1}'.", type, this.Scheduler.StepCount);
+                this.LogWriter.LogDebug(
+                    "[coyote::debug] Operation '{0}' of group '{1}' reached scheduling point '{2}' at execution step '{3}' on thread '{4}'.",
+                    current.Name, current.Group, type, this.Scheduler.StepCount, Thread.CurrentThread.ManagedThreadId);
                 this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
 
                 // Checks if the scheduling steps bound has been reached.
@@ -949,7 +952,8 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}'.", next.Name, next.Group);
+                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}' from thread '{2}'.",
+                    next.Name, next.Group, Thread.CurrentThread.ManagedThreadId);
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {
@@ -2116,6 +2120,43 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notify that an uncontrolled data non-deterministic method invocation was detected.
+        /// </summary>
+        internal void NotifyUncontrolledDataNondeterministicInvocation(string methodName)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.SchedulingPolicy != SchedulingPolicy.None)
+                {
+                    this.UncontrolledInvocations.Add(methodName);
+                }
+
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Invoking '{methodName}' introduces data non-determinism that is not intercepted " +
+                        "and controlled during testing, so it can interfere with the ability to reproduce bug traces.";
+                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
+                        this.Configuration.IsSystematicFuzzingFallbackEnabled)
+                    {
+                        if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
+                        {
+                            this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                                FormatUncontrolledStackTrace(new StackTrace()));
+                        }
+                        else
+                        {
+                            this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                        }
+                    }
+                    else
+                    {
+                        this.NotifyAssertionFailure(FormatUncontrolledInvocationExceptionMessage(message, methodName));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that the currently executing thread is uncontrolled.
         /// </summary>
         private void NotifyUncontrolledCurrentThread()
@@ -2201,21 +2242,30 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private bool TryHandleUncontrolledConcurrency(string message, string methodName = default)
         {
-            if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+            if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
+                this.Configuration.IsSystematicFuzzingFallbackEnabled)
             {
-                this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
+                {
+                    this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                        FormatUncontrolledStackTrace(new StackTrace()));
+                }
+                else
+                {
+                    this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                }
+
                 this.IsUncontrolledConcurrencyDetected = true;
-                return true;
-            }
-            else if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
-            {
-                this.LogWriter.LogDebug("[coyote::debug] {0}", message);
-                this.IsUncontrolledConcurrencyDetected = true;
+                if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
+                {
+                    return true;
+                }
+
                 this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
             }
             else
             {
-                this.NotifyAssertionFailure(FormatUncontrolledConcurrencyExceptionMessage(message, methodName));
+                this.NotifyAssertionFailure(FormatUncontrolledInvocationExceptionMessage(message, methodName));
             }
 
             return false;
@@ -2242,14 +2292,15 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Formats the message of the uncontrolled concurrency exception.
+        /// Formats the message of the uncontrolled invocation exception.
         /// </summary>
-        private static string FormatUncontrolledConcurrencyExceptionMessage(string message, string methodName = default)
+        private static string FormatUncontrolledInvocationExceptionMessage(string message, string methodName = default)
         {
+            string trace = FormatUncontrolledStackTrace(new StackTrace());
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
                 "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
-                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.\n{new StackTrace()}";
+                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.{Environment.NewLine}{trace}";
         }
 
         /// <summary>
@@ -2294,6 +2345,25 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrEmpty(line)));
+        }
+
+        /// <summary>
+        /// Formats the specified stack trace of an uncontrolled invocation.
+        /// </summary>
+        private static string FormatUncontrolledStackTrace(StackTrace trace)
+        {
+            StringBuilder sb = new StringBuilder();
+#if NET || NETCOREAPP3_1
+            string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
+#else
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+#endif
+            foreach (var line in lines.Where(line => !line.Contains("at Microsoft.Coyote")))
+            {
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

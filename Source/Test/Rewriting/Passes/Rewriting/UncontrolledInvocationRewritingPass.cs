@@ -34,11 +34,12 @@ namespace Microsoft.Coyote.Rewriting
             try
             {
                 bool isUncontrolledType = false;
+                bool isDataNondeterministic = false;
                 string invocationName = null;
 
                 if (instruction.OpCode == OpCodes.Initobj && instruction.Operand is TypeReference typeReference)
                 {
-                    if (IsUncontrolledType(typeReference.Resolve()))
+                    if (IsUncontrolledType(typeReference.Resolve(), null, out isDataNondeterministic))
                     {
                         invocationName = GetFullyQualifiedTypeName(typeReference);
                         isUncontrolledType = true;
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.Rewriting
                 else if ((instruction.OpCode == OpCodes.Newobj || instruction.OpCode == OpCodes.Call ||
                     instruction.OpCode == OpCodes.Callvirt) && instruction.Operand is MethodReference methodReference)
                 {
-                    if (IsUncontrolledType(methodReference.DeclaringType.Resolve(), methodReference))
+                    if (IsUncontrolledType(methodReference.DeclaringType.Resolve(), methodReference, out isDataNondeterministic))
                     {
                         invocationName = GetFullyQualifiedMethodName(methodReference);
                         isUncontrolledType = true;
@@ -59,8 +60,9 @@ namespace Microsoft.Coyote.Rewriting
                     this.LogWriter.LogDebug("............. [+] injected uncontrolled '{0}' invocation exception", invocationName);
 
                     var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
-                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
-                        m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
+                    MethodReference providerMethod = isDataNondeterministic ?
+                        providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledDataInvocationException)) :
+                        providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));
                     providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
@@ -78,11 +80,12 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is not controlled. If the optional method is specified,
-        /// then it also checks if the method is not controlled.
+        /// Checks if the specified type is not controlled. If the optional member is specified,
+        /// then it also checks if the member is not controlled.
         /// </summary>
-        private static bool IsUncontrolledType(TypeDefinition type, MethodReference method = null)
+        private static bool IsUncontrolledType(TypeDefinition type, MemberReference member, out bool isDataNondeterministic)
         {
+            isDataNondeterministic = false;
             if (type is null || !IsSystemType(type))
             {
                 return false;
@@ -90,58 +93,58 @@ namespace Microsoft.Coyote.Rewriting
 
             if (type.Namespace.StartsWith(typeof(System.Diagnostics.Process).Namespace))
             {
-                if (type.Name is nameof(System.Diagnostics.Process) && method != null &&
-                    (method.Name is nameof(System.Diagnostics.Process.Start) ||
-                    method.Name is nameof(System.Diagnostics.Process.BeginErrorReadLine) ||
-                    method.Name is nameof(System.Diagnostics.Process.BeginOutputReadLine) ||
-                    method.Name is nameof(System.Diagnostics.Process.CancelErrorRead) ||
-                    method.Name is nameof(System.Diagnostics.Process.CancelOutputRead) ||
-                    method.Name is nameof(System.Diagnostics.Process.WaitForExit) ||
-                    method.Name is nameof(System.Diagnostics.Process.WaitForInputIdle) ||
-                    method.Name is nameof(System.Diagnostics.Process.EnterDebugMode) ||
-                    method.Name is nameof(System.Diagnostics.Process.LeaveDebugMode) ||
-                    method.Name is nameof(System.Diagnostics.Process.InitializeLifetimeService) ||
-                    method.Name is nameof(System.Diagnostics.Process.Refresh) ||
-                    method.Name is nameof(System.Diagnostics.Process.Close) ||
-                    method.Name is nameof(System.Diagnostics.Process.Dispose) ||
-                    method.Name is nameof(System.Diagnostics.Process.Kill)))
+                if (type.Name is nameof(System.Diagnostics.Process) && member != null &&
+                    (member.Name is nameof(System.Diagnostics.Process.Start) ||
+                    member.Name is nameof(System.Diagnostics.Process.BeginErrorReadLine) ||
+                    member.Name is nameof(System.Diagnostics.Process.BeginOutputReadLine) ||
+                    member.Name is nameof(System.Diagnostics.Process.CancelErrorRead) ||
+                    member.Name is nameof(System.Diagnostics.Process.CancelOutputRead) ||
+                    member.Name is nameof(System.Diagnostics.Process.WaitForExit) ||
+                    member.Name is nameof(System.Diagnostics.Process.WaitForInputIdle) ||
+                    member.Name is nameof(System.Diagnostics.Process.EnterDebugMode) ||
+                    member.Name is nameof(System.Diagnostics.Process.LeaveDebugMode) ||
+                    member.Name is nameof(System.Diagnostics.Process.InitializeLifetimeService) ||
+                    member.Name is nameof(System.Diagnostics.Process.Refresh) ||
+                    member.Name is nameof(System.Diagnostics.Process.Close) ||
+                    member.Name is nameof(System.Diagnostics.Process.Dispose) ||
+                    member.Name is nameof(System.Diagnostics.Process.Kill)))
                 {
                     return true;
                 }
             }
             else if (type.Namespace.StartsWith(typeof(System.Threading.Tasks.Task).Namespace))
             {
-                if (type.Name is nameof(System.Threading.Tasks.Task) && method != null &&
-                    (method.Name is nameof(System.Threading.Tasks.Task.ContinueWith) ||
-                    method.Name is nameof(System.Threading.Tasks.Task.Run) ||
-                    method.Name is nameof(System.Threading.Tasks.Task.RunSynchronously)))
+                if (type.Name is nameof(System.Threading.Tasks.Task) && member != null &&
+                    (member.Name is nameof(System.Threading.Tasks.Task.ContinueWith) ||
+                    member.Name is nameof(System.Threading.Tasks.Task.Run) ||
+                    member.Name is nameof(System.Threading.Tasks.Task.RunSynchronously)))
                 {
                     return true;
                 }
             }
             else if (type.Namespace.StartsWith(typeof(System.Threading.Thread).Namespace))
             {
-                if (type.Name is nameof(System.Threading.Thread) && method != null &&
-                    (method.Name is nameof(System.Threading.Thread.Start) ||
-                    method.Name is nameof(System.Threading.Thread.Join) ||
-                    method.Name is nameof(System.Threading.Thread.SpinWait) ||
-                    method.Name is nameof(System.Threading.Thread.Sleep) ||
-                    method.Name is nameof(System.Threading.Thread.Interrupt) ||
-                    method.Name is nameof(System.Threading.Thread.Suspend) ||
-                    method.Name is nameof(System.Threading.Thread.Resume) ||
-                    method.Name is nameof(System.Threading.Thread.BeginCriticalRegion) ||
-                    method.Name is nameof(System.Threading.Thread.EndCriticalRegion) ||
-                    method.Name is nameof(System.Threading.Thread.Abort) ||
-                    method.Name is nameof(System.Threading.Thread.ResetAbort)))
+                if (type.Name is nameof(System.Threading.Thread) && member != null &&
+                    (member.Name is nameof(System.Threading.Thread.Start) ||
+                    member.Name is nameof(System.Threading.Thread.Join) ||
+                    member.Name is nameof(System.Threading.Thread.SpinWait) ||
+                    member.Name is nameof(System.Threading.Thread.Sleep) ||
+                    member.Name is nameof(System.Threading.Thread.Interrupt) ||
+                    member.Name is nameof(System.Threading.Thread.Suspend) ||
+                    member.Name is nameof(System.Threading.Thread.Resume) ||
+                    member.Name is nameof(System.Threading.Thread.BeginCriticalRegion) ||
+                    member.Name is nameof(System.Threading.Thread.EndCriticalRegion) ||
+                    member.Name is nameof(System.Threading.Thread.Abort) ||
+                    member.Name is nameof(System.Threading.Thread.ResetAbort)))
                 {
                     return true;
                 }
-                else if (type.Name is nameof(System.Threading.ThreadPool) && method != null &&
-                    (method.Name is nameof(System.Threading.ThreadPool.QueueUserWorkItem) ||
-                    method.Name is nameof(System.Threading.ThreadPool.UnsafeQueueUserWorkItem) ||
-                    method.Name is nameof(System.Threading.ThreadPool.UnsafeQueueNativeOverlapped) ||
-                    method.Name is nameof(System.Threading.ThreadPool.RegisterWaitForSingleObject) ||
-                    method.Name is nameof(System.Threading.ThreadPool.UnsafeRegisterWaitForSingleObject)))
+                else if (type.Name is nameof(System.Threading.ThreadPool) && member != null &&
+                    (member.Name is nameof(System.Threading.ThreadPool.QueueUserWorkItem) ||
+                    member.Name is nameof(System.Threading.ThreadPool.UnsafeQueueUserWorkItem) ||
+                    member.Name is nameof(System.Threading.ThreadPool.UnsafeQueueNativeOverlapped) ||
+                    member.Name is nameof(System.Threading.ThreadPool.RegisterWaitForSingleObject) ||
+                    member.Name is nameof(System.Threading.ThreadPool.UnsafeRegisterWaitForSingleObject)))
                 {
                     return true;
                 }
@@ -167,6 +170,26 @@ namespace Microsoft.Coyote.Rewriting
             {
                 if (type.Name is nameof(System.Timers.Timer))
                 {
+                    return true;
+                }
+            }
+            else if (type.Namespace.StartsWith(typeof(System.DateTime).Namespace))
+            {
+#if NET
+                if (type.Name is nameof(System.DateTime) && member != null &&
+                    (member.Name is $"get_{nameof(System.DateTime.Now)}" ||
+                    member.Name is $"get_{nameof(System.DateTime.Today)}" ||
+                    member.Name is $"get_{nameof(System.DateTime.UtcNow)}"))
+                {
+#else
+                if (type.Name is nameof(System.DateTime) && member != null &&
+
+                    (member.Name == $"get_{nameof(System.DateTime.Now)}" ||
+                    member.Name == $"get_{nameof(System.DateTime.Today)}" ||
+                    member.Name == $"get_{nameof(System.DateTime.UtcNow)}"))
+                {
+#endif
+                    isDataNondeterministic = true;
                     return true;
                 }
             }

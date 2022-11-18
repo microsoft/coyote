@@ -426,6 +426,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var logUncontrolledInvocationStackTracesOption = new Option<bool>(
+                name: "--log-uncontrolled-invocation-stack-traces",
+                description: "Enables logging the stack traces of uncontrolled invocations detected during testing.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var failOnMaxStepsOption = new Option<bool>(
                 name: "--fail-on-maxsteps",
                 description: "Reaching the specified max-steps is considered a bug.")
@@ -509,6 +516,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, noFuzzingFallbackOption);
             this.AddOption(command, noPartialControlOption);
             this.AddOption(command, noReproOption);
+            this.AddOption(command, logUncontrolledInvocationStackTracesOption);
             this.AddOption(command, failOnMaxStepsOption);
             this.AddOption(command, exploreOption);
             this.AddOption(command, breakOption);
@@ -972,6 +980,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "no-partial-control":
                         this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                        break;
+                    case "log-uncontrolled-invocation-stack-traces":
+                        this.Configuration.WithUncontrolledInvocationStackTraceLoggingEnabled();
                         break;
                     case "fail-on-maxsteps":
                         this.Configuration.ConsiderDepthBoundHitAsBug = true;

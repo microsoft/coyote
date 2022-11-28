@@ -421,10 +421,10 @@ namespace Microsoft.Coyote.Cli
 
             var partialControlOption = new Option<string>(
                 name: "--partial-control",
-                description: "Set the partial controlled mode to use during testing. If the value is 'concurrency' then " +
-                    "only concurrency can be partially controlled. If the value is 'data' then only data nondeterminism " +
-                    "can be partially controlled. If the value is 'none' then partially controlled testing is disabled. " +
-                    "By default, both concurrency and data nondeterminism can be partially controlled. " +
+                description: "Set the partial controlled mode to use during testing. If set to 'concurrency' then " +
+                    "only concurrency can be partially controlled. If set to 'data' then only data non-determinism " +
+                    "can be partially controlled. If set to 'none' then partially controlled testing is disabled. " +
+                    "By default, both concurrency and data non-determinism can be partially controlled. " +
                     $"Allowed values are {string.Join(", ", allowedPartialControlModes)}.")
             {
                 ArgumentHelpName = "MODE",

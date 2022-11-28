@@ -427,7 +427,7 @@ namespace Microsoft.Coyote.Cli
                     "By default, both concurrency and data nondeterminism can be partially controlled. " +
                     $"Allowed values are {string.Join(", ", allowedPartialControlModes)}.")
             {
-                ArgumentHelpName = "STRATEGY",
+                ArgumentHelpName = "MODE",
                 Arity = ArgumentArity.ExactlyOne
             };
 

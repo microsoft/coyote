@@ -84,6 +84,14 @@ namespace Microsoft.Coyote
         internal bool IsPartiallyControlledConcurrencyAllowed;
 
         /// <summary>
+        /// If this option is enabled and uncontrolled data non-determinism is detected, then the
+        /// runtime will attempt to partially control the data non-determinism of the application,
+        /// instead of immediately failing with an error.
+        /// </summary>
+        [DataMember]
+        internal bool IsPartiallyControlledDataNondeterminismAllowed;
+
+        /// <summary>
         /// If this option is enabled, the systematic fuzzing policy is used during testing.
         /// </summary>
         [DataMember]
@@ -291,6 +299,7 @@ namespace Microsoft.Coyote
             this.RandomGeneratorSeed = null;
             this.PortfolioMode = PortfolioMode.Fair;
             this.IsPartiallyControlledConcurrencyAllowed = true;
+            this.IsPartiallyControlledDataNondeterminismAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
@@ -509,6 +518,16 @@ namespace Microsoft.Coyote
         public Configuration WithPartiallyControlledConcurrencyAllowed(bool isAllowed = true)
         {
             this.IsPartiallyControlledConcurrencyAllowed = isAllowed;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with partially controlled data non-determinism allowed or disallowed.
+        /// </summary>
+        /// <param name="isAllowed">If true, then partially controlled data non-determinism is allowed.</param>
+        public Configuration WithPartiallyControlledDataNondeterminismAllowed(bool isAllowed = true)
+        {
+            this.IsPartiallyControlledDataNondeterminismAllowed = isAllowed;
             return this;
         }
 

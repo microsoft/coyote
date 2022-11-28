@@ -65,6 +65,7 @@ namespace Microsoft.Coyote.SystematicTesting
             report.Settings.LivenessTemperatureThreshold = configuration.LivenessTemperatureThreshold;
             report.Settings.IsLockAccessRaceCheckingEnabled = configuration.IsLockAccessRaceCheckingEnabled;
             report.Settings.IsPartiallyControlledConcurrencyAllowed = configuration.IsPartiallyControlledConcurrencyAllowed;
+            report.Settings.IsPartiallyControlledDataNondeterminismAllowed = configuration.IsPartiallyControlledDataNondeterminismAllowed;
             report.Settings.UncontrolledConcurrencyResolutionAttempts = configuration.UncontrolledConcurrencyResolutionAttempts;
             report.Settings.UncontrolledConcurrencyResolutionDelay = configuration.UncontrolledConcurrencyResolutionDelay;
 
@@ -105,6 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 configuration.LivenessTemperatureThreshold = report.Settings.LivenessTemperatureThreshold;
                 configuration.IsLockAccessRaceCheckingEnabled = report.Settings.IsLockAccessRaceCheckingEnabled;
                 configuration.IsPartiallyControlledConcurrencyAllowed = report.Settings.IsPartiallyControlledConcurrencyAllowed;
+                configuration.IsPartiallyControlledDataNondeterminismAllowed = report.Settings.IsPartiallyControlledDataNondeterminismAllowed;
                 configuration.UncontrolledConcurrencyResolutionAttempts = report.Settings.UncontrolledConcurrencyResolutionAttempts;
                 configuration.UncontrolledConcurrencyResolutionDelay = report.Settings.UncontrolledConcurrencyResolutionDelay;
 
@@ -243,6 +245,11 @@ namespace Microsoft.Coyote.SystematicTesting
             /// Value specifying if partially controlled concurrency is allowed or not.
             /// </summary>
             public bool IsPartiallyControlledConcurrencyAllowed { get; set; }
+
+            /// <summary>
+            /// Value specifying if partially controlled data non-determinism is allowed or not.
+            /// </summary>
+            public bool IsPartiallyControlledDataNondeterminismAllowed { get; set; }
 
             /// <summary>
             /// Value that controls how many times the runtime can check if each instance

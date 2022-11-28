@@ -412,11 +412,23 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var noPartialControlOption = new Option<bool>(
-                name: "--no-partial-control",
-                description: "Disallow partially controlled concurrency during controlled testing.")
+            var allowedPartiallyControlModes = new HashSet<string>
             {
-                Arity = ArgumentArity.Zero
+                "none",
+                "concurrency",
+                "data"
+            };
+
+            var partialControlOption = new Option<string>(
+                name: "--partial-control",
+                description: "Set the partially controlled mode to use during testing. If the value is 'concurrency' then " +
+                    "only concurrency can be partially controlled. If the value is 'data' then only data nondeterminism " +
+                    "can be partially controlled. If the value is 'none' then partially controlled testing is disabled. " +
+                    "By default, both concurrency and data nondeterminism can be partially controlled. " +
+                    $"Allowed values are {string.Join(", ", allowedPartiallyControlModes)}.")
+            {
+                ArgumentHelpName = "STRATEGY",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var noReproOption = new Option<bool>(
@@ -485,6 +497,7 @@ namespace Microsoft.Coyote.Cli
             maxFuzzDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            partialControlOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPartiallyControlModes));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
@@ -514,7 +527,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, skipLockRacesOption);
             this.AddOption(command, noFuzzingFallbackOption);
-            this.AddOption(command, noPartialControlOption);
+            this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
             this.AddOption(command, logUncontrolledInvocationStackTracesOption);
             this.AddOption(command, failOnMaxStepsOption);
@@ -978,8 +991,25 @@ namespace Microsoft.Coyote.Cli
                     case "no-fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
                         break;
-                    case "no-partial-control":
-                        this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                    case "partial-control":
+                        string mode = result.GetValueOrDefault<string>();
+                        switch (mode)
+                        {
+                            case "concurrency":
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = true;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = false;
+                                break;
+                            case "data":
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = true;
+                                break;
+                            case "none":
+                            default:
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = false;
+                                break;
+                        }
+
                         break;
                     case "log-uncontrolled-invocation-stack-traces":
                         this.Configuration.WithUncontrolledInvocationStackTraceLoggingEnabled();

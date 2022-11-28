@@ -2107,7 +2107,7 @@ namespace Microsoft.Coyote.Runtime
                         $"is invoking the {methodName} synchronization method, which can cause deadlocks during testing.";
                     if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
-                        this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                        this.LogWriter.LogWarning("[coyote::warning] {0}", message);
                         this.IsUncontrolledConcurrencyDetected = true;
                         this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
                     }
@@ -2135,17 +2135,17 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Invoking '{methodName}' introduces data non-determinism that is not intercepted " +
                         "and controlled during testing, so it can interfere with the ability to reproduce bug traces.";
-                    if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
+                    if (this.Configuration.IsPartiallyControlledDataNondeterminismAllowed ||
                         this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
                         {
-                            this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                            this.LogWriter.LogWarning("[coyote::warning] {0}{1}{2}", message, Environment.NewLine,
                                 FormatUncontrolledStackTrace(new StackTrace()));
                         }
                         else
                         {
-                            this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                            this.LogWriter.LogWarning("[coyote::warning] {0}", message);
                         }
                     }
                     else
@@ -2247,12 +2247,12 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.Configuration.IsUncontrolledInvocationStackTraceLoggingEnabled)
                 {
-                    this.LogWriter.LogDebug("[coyote::debug] {0}{1}{2}", message, Environment.NewLine,
+                    this.LogWriter.LogWarning("[coyote::warning] {0}{1}{2}", message, Environment.NewLine,
                         FormatUncontrolledStackTrace(new StackTrace()));
                 }
                 else
                 {
-                    this.LogWriter.LogDebug("[coyote::debug] {0}", message);
+                    this.LogWriter.LogWarning("[coyote::warning] {0}", message);
                 }
 
                 this.IsUncontrolledConcurrencyDetected = true;

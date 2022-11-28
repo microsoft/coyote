@@ -192,6 +192,12 @@ namespace Microsoft.Coyote.Rewriting
                     isDataNondeterministic = true;
                     return true;
                 }
+                else if (type.Name is nameof(System.Guid) && member != null &&
+                    member.Name is nameof(System.Guid.NewGuid))
+                {
+                    isDataNondeterministic = true;
+                    return true;
+                }
             }
 
             return false;

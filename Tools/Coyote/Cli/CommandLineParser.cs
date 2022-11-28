@@ -412,7 +412,7 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var allowedPartiallyControlModes = new HashSet<string>
+            var allowedPartialControlModes = new HashSet<string>
             {
                 "none",
                 "concurrency",
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.Cli
                     "only concurrency can be partially controlled. If the value is 'data' then only data nondeterminism " +
                     "can be partially controlled. If the value is 'none' then partially controlled testing is disabled. " +
                     "By default, both concurrency and data nondeterminism can be partially controlled. " +
-                    $"Allowed values are {string.Join(", ", allowedPartiallyControlModes)}.")
+                    $"Allowed values are {string.Join(", ", allowedPartialControlModes)}.")
             {
                 ArgumentHelpName = "STRATEGY",
                 Arity = ArgumentArity.ExactlyOne
@@ -497,7 +497,7 @@ namespace Microsoft.Coyote.Cli
             maxFuzzDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
-            partialControlOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPartiallyControlModes));
+            partialControlOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPartialControlModes));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +

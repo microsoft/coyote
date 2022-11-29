@@ -247,8 +247,16 @@ namespace Microsoft.Coyote.Coverage
 
             if (schedulingPointTypes.Count > 0)
             {
-                long numCallStacks = this.CoverageInfo.SchedulingPointStackTraces.Values.Sum(map => map.Values.Sum());
-                WriteHeader(writer, string.Format("Total scheduling decision call stacks: {0}", numCallStacks));
+                long numDecisions = this.CoverageInfo.SchedulingPointStackTraces.Values.Sum(map => map.Values.Sum());
+                long numDecisionTypes = this.CoverageInfo.SchedulingPointStackTraces.Count;
+                long numCallStacks = this.CoverageInfo.SchedulingPointStackTraces.Values.Sum(map => map.Keys.Count);
+
+                WriteHeader(writer, "Scheduling coverage");
+                writer.WriteLine("Number of scheduling decisions: {0}", numDecisions);
+                writer.WriteLine("Number of scheduling decision types: {0}", numDecisionTypes);
+                writer.WriteLine("Number of scheduling decision invocation sites: {0}", numCallStacks);
+                writer.WriteLine();
+
                 foreach (var schedulingPointType in schedulingPointTypes)
                 {
                     WriteHeader(writer, string.Format("Scheduling decision: {0}", schedulingPointType));

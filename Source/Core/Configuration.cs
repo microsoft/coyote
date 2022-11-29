@@ -257,10 +257,22 @@ namespace Microsoft.Coyote
         internal bool IsUncontrolledInvocationStackTraceLoggingEnabled { get; private set; }
 
         /// <summary>
-        /// Enables activity coverage reporting of a Coyote program.
+        /// Enables activity coverage reporting during testing.
         /// </summary>
         [DataMember]
         internal bool IsActivityCoverageReported;
+
+        /// <summary>
+        /// Enables schedule coverage reporting during testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsScheduleCoverageReported;
+
+        /// <summary>
+        /// Serialize the reported coverage information.
+        /// </summary>
+        [DataMember]
+        internal bool IsCoverageInfoSerialized;
 
         /// <summary>
         /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
@@ -326,6 +338,8 @@ namespace Microsoft.Coyote
 
             this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
             this.IsActivityCoverageReported = false;
+            this.IsScheduleCoverageReported = false;
+            this.IsCoverageInfoSerialized = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
 
@@ -750,6 +764,26 @@ namespace Microsoft.Coyote
         public Configuration WithActivityCoverageReported(bool isEnabled = true)
         {
             this.IsActivityCoverageReported = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable or disable reporting schedule coverage.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables schedule coverage reporting.</param>
+        public Configuration WithScheduleCoverageReported(bool isEnabled = true)
+        {
+            this.IsScheduleCoverageReported = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable or disable serializing the coverage information.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables serializing the coverage information.</param>
+        public Configuration WithCoverageInfoSerialized(bool isEnabled = true)
+        {
+            this.IsCoverageInfoSerialized = isEnabled;
             return this;
         }
 

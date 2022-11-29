@@ -42,19 +42,19 @@ namespace Microsoft.Coyote
             string name = OutputFilePrefix;
             string directoryPath = Environment.CurrentDirectory;
 
-            var activityCoverageReporter = new ActivityCoverageReporter(cinfo);
+            var coverageReporter = new CoverageReporter(cinfo);
 
             string[] graphFiles = Directory.GetFiles(directoryPath, name + "_*.dgml");
             string graphFilePath = Path.Combine(directoryPath, name + "_" + graphFiles.Length + ".dgml");
 
             Console.WriteLine($"... Writing {graphFilePath}");
-            activityCoverageReporter.EmitVisualizationGraph(graphFilePath);
+            coverageReporter.TryEmitVisualizationGraph(graphFilePath);
 
             string[] coverageFiles = Directory.GetFiles(directoryPath, name + "_*.coverage.txt");
             string coverageFilePath = Path.Combine(directoryPath, name + "_" + coverageFiles.Length + ".coverage.txt");
 
             Console.WriteLine($"... Writing {coverageFilePath}");
-            activityCoverageReporter.EmitCoverageReport(coverageFilePath);
+            coverageReporter.TryEmitActivityCoverageReport(coverageFilePath);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote
 
             if (args.Length is 0)
             {
-                Console.WriteLine("Usage: CoyoteMergeCoverageReports.exe file1.sci file2.sci ... [/output:prefix]");
+                Console.WriteLine("Usage: CoyoteMergeCoverageReports.exe file1.coverage.ser file2.coverage.ser ... [/output:prefix]");
                 return false;
             }
 
@@ -86,9 +86,9 @@ namespace Microsoft.Coyote
                 else
                 {
                     // Check the suffix.
-                    if (!arg.EndsWith(".sci"))
+                    if (!arg.EndsWith(".coverage.ser"))
                     {
-                        Console.WriteLine("Error: Only sci files accepted as input, got {0}", arg);
+                        Console.WriteLine("Error: Only 'coverage.ser' files accepted as input, got {0}", arg);
                         return false;
                     }
 

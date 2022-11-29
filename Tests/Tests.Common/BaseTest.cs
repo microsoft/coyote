@@ -127,8 +127,8 @@ namespace Microsoft.Coyote.Tests.Common
         {
             TestReport report = this.RunSystematicTest(test, configuration, null, null);
             using var writer = new StringWriter();
-            var activityCoverageReporter = new ActorActivityCoverageReporter(report.CoverageInfo);
-            activityCoverageReporter.WriteCoverageText(writer);
+            var coverageReporter = new ActorCoverageReporter(report.CoverageInfo);
+            coverageReporter.WriteActivityCoverageText(writer);
             string result = writer.ToString().RemoveNamespaceReferences();
             return result;
         }

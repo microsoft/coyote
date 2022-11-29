@@ -550,19 +550,32 @@ namespace Microsoft.Coyote.SystematicTesting
         public bool TryEmitCoverageReports(string directory, string fileName, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
+            var coverageReporter = new CoverageReporter(this.TestReport.CoverageInfo);
             if (this.Configuration.IsActivityCoverageReported)
             {
-                var codeCoverageReporter = new ActivityCoverageReporter(this.TestReport.CoverageInfo);
-
                 string graphFilePath = Path.Combine(directory, fileName + ".coverage.dgml");
-                codeCoverageReporter.EmitVisualizationGraph(graphFilePath);
-                paths.Add(graphFilePath);
+                if (coverageReporter.TryEmitVisualizationGraph(graphFilePath))
+                {
+                    paths.Add(graphFilePath);
+                }
 
                 string coverageFilePath = Path.Combine(directory, fileName + ".coverage.txt");
-                codeCoverageReporter.EmitCoverageReport(coverageFilePath);
-                paths.Add(coverageFilePath);
+                if (coverageReporter.TryEmitActivityCoverageReport(coverageFilePath))
+                {
+                    paths.Add(coverageFilePath);
+                }
+            }
 
-                string serFilePath = Path.Combine(directory, fileName + ".sci");
+            if (this.Configuration.IsScheduleCoverageReported)
+            {
+                string scheduleCoverageFilePath = Path.Combine(directory, fileName + ".coverage.schedule.txt");
+                coverageReporter.TryEmitScheduleCoverageReport(scheduleCoverageFilePath);
+                paths.Add(scheduleCoverageFilePath);
+            }
+
+            if (this.Configuration.IsCoverageInfoSerialized)
+            {
+                string serFilePath = Path.Combine(directory, fileName + ".coverage.ser");
                 this.TestReport.CoverageInfo.Save(serFilePath);
                 paths.Add(serFilePath);
             }

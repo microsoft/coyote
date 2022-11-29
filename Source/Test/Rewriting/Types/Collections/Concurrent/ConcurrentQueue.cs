@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.Count;
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.IsEmpty;
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Clear(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.Clear();
         }
 #endif
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void CopyTo(SystemConcurrent.ConcurrentQueue<T> instance, T[] array, int index)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.CopyTo(array, index);
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Enqueue(SystemConcurrent.ConcurrentQueue<T> instance, T item)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.Enqueue(item);
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.GetEnumerator();
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static T[] ToArray(SystemConcurrent.ConcurrentQueue<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.ToArray();
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryDequeue(SystemConcurrent.ConcurrentQueue<T> instance, out T result)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryDequeue(out result);
         }
 
@@ -108,8 +108,29 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPeek(SystemConcurrent.ConcurrentQueue<T> instance, out T result)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryPeek(out result);
+        }
+
+        /// <summary>
+        /// Asks the runtime to explore a possible interleaving.
+        /// </summary>
+        private static void ExploreInterleaving()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.Configuration.IsCollectionAccessRaceCheckingEnabled &&
+                runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
         }
     }
 #pragma warning restore CA1000 // Do not declare static members on generic types

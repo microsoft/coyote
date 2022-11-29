@@ -48,6 +48,12 @@ namespace Microsoft.Coyote.Coverage
         public MonitorEventCoverage MonitorEventInfo { get; set; }
 
         /// <summary>
+        /// Map from scheduling point types to invocation site stack traces and their frequencies.
+        /// </summary>
+        [DataMember]
+        public Dictionary<string, Dictionary<string, long>> SchedulingPointStackTraces { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
@@ -55,6 +61,7 @@ namespace Microsoft.Coyote.Coverage
             this.Monitors = new HashSet<string>();
             this.MonitorsToStates = new Dictionary<string, HashSet<string>>();
             this.RegisteredMonitorEvents = new Dictionary<string, HashSet<string>>();
+            this.SchedulingPointStackTraces = new Dictionary<string, Dictionary<string, long>>();
         }
 
         /// <summary>
@@ -103,6 +110,28 @@ namespace Microsoft.Coyote.Coverage
             }
 
             this.RegisteredMonitorEvents[key].Add(eventName);
+        }
+
+        /// <summary>
+        /// Declares a new scheduling point invocation with its stack trace.
+        /// </summary>
+        public void DeclareSchedulingPoint(string type, string trace)
+        {
+            if (this.SchedulingPointStackTraces.TryGetValue(type, out Dictionary<string, long> traces))
+            {
+                if (traces.TryGetValue(trace, out long count))
+                {
+                    traces[trace] = count + 1;
+                }
+                else
+                {
+                    traces.Add(trace, 1);
+                }
+            }
+            else
+            {
+                this.SchedulingPointStackTraces.Add(type, new Dictionary<string, long> { { trace, 1 } });
+            }
         }
 
         /// <summary>
@@ -182,6 +211,27 @@ namespace Microsoft.Coyote.Coverage
             else if (coverageInfo.MonitorEventInfo != null && this.MonitorEventInfo != coverageInfo.MonitorEventInfo)
             {
                 this.MonitorEventInfo.Merge(coverageInfo.MonitorEventInfo);
+            }
+
+            foreach (var kvp in coverageInfo.SchedulingPointStackTraces)
+            {
+                if (!this.SchedulingPointStackTraces.TryGetValue(kvp.Key, out Dictionary<string, long> traces))
+                {
+                    traces = new Dictionary<string, long>();
+                    this.SchedulingPointStackTraces.Add(kvp.Key, traces);
+                }
+
+                foreach (var trace in kvp.Value)
+                {
+                    if (traces.TryGetValue(trace.Key, out long count))
+                    {
+                        traces[trace.Key] = count + trace.Value;
+                    }
+                    else
+                    {
+                        traces.Add(trace.Key, trace.Value);
+                    }
+                }
             }
         }
     }

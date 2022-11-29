@@ -51,7 +51,7 @@ Starting TestingProcessScheduler in process 34068
 ... Emitting coverage reports:
 ..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
 ..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
+..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:

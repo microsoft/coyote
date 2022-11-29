@@ -945,6 +945,11 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckLivenessThresholdExceeded();
                 }
 
+                if (this.Configuration.IsScheduleCoverageReported)
+                {
+                    this.CoverageInfo.DeclareSchedulingPoint(type.ToString(), new StackTrace().ToString());
+                }
+
                 if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
                 {
                     // The scheduler hit the scheduling steps bound.

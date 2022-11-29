@@ -305,6 +305,20 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var scheduleCoverageOption = new Option<bool>(
+                name: "--schedule-coverage",
+                description: "Output a '.coverage.schedule.txt' file containing scheduling coverage information during testing.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var serializeCoverageInfoOption = new Option<bool>(
+                name: "--serialize-coverage",
+                description: "Output a '.coverage.ser' file that contains the serialized coverage information.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var graphOption = new Option<bool>(
                 name: "--graph",
                 description: "Output a DGML graph that visualizes the failing execution path if a bug is found.")
@@ -321,7 +335,7 @@ namespace Microsoft.Coyote.Cli
 
             var reduceSharedStateOption = new Option<bool>(
                 name: "--reduce-shared-state",
-                description: "Enables shared state reduction based on 'READ' and 'WRITE' scheduling points.")
+                description: "Enable shared state reduction based on 'READ' and 'WRITE' scheduling points.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -346,7 +360,7 @@ namespace Microsoft.Coyote.Cli
             var timeoutDelayOption = new Option<int>(
                 name: "--timeout-delay",
                 getDefaultValue: () => (int)configuration.TimeoutDelay,
-                description: "Controls the frequency of timeouts (not a unit of time).")
+                description: "Specify the frequency of timeouts (not a unit of time).")
             {
                 ArgumentHelpName = "DELAY",
                 Arity = ArgumentArity.ExactlyOne
@@ -355,7 +369,7 @@ namespace Microsoft.Coyote.Cli
             var deadlockTimeoutOption = new Option<int>(
                 name: "--deadlock-timeout",
                 getDefaultValue: () => (int)configuration.DeadlockTimeout,
-                description: "Controls how much time (in ms) to wait before reporting a potential deadlock.")
+                description: "Specify how much time (in ms) to wait before reporting a potential deadlock.")
             {
                 ArgumentHelpName = "TIMEOUT",
                 Arity = ArgumentArity.ExactlyOne
@@ -364,7 +378,7 @@ namespace Microsoft.Coyote.Cli
             var maxFuzzDelayOption = new Option<int>(
                 name: "--max-fuzz-delay",
                 getDefaultValue: () => (int)configuration.MaxFuzzingDelay,
-                description: "Controls the maximum time (in number of busy loops) an operation might " +
+                description: "Specify the maximum time (in number of busy loops) an operation might " +
                     "get delayed during systematic fuzzing.")
             {
                 ArgumentHelpName = "DELAY",
@@ -374,7 +388,7 @@ namespace Microsoft.Coyote.Cli
             var uncontrolledConcurrencyResolutionAttemptsOption = new Option<int>(
                 name: "--resolve-uncontrolled-concurrency-attempts",
                 getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionAttempts,
-                description: "Controls how many times to try resolve each instance of uncontrolled concurrency.")
+                description: "Specify how many times to try resolve each instance of uncontrolled concurrency.")
             {
                 ArgumentHelpName = "ATTEMPTS",
                 Arity = ArgumentArity.ExactlyOne
@@ -383,7 +397,7 @@ namespace Microsoft.Coyote.Cli
             var uncontrolledConcurrencyResolutionDelayOption = new Option<int>(
                 name: "--resolve-uncontrolled-concurrency-delay",
                 getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionDelay,
-                description: "Controls how much time (in number of busy loops) to wait between each attempt to " +
+                description: "Specify how much time (in number of busy loops) to wait between each attempt to " +
                     "resolve each instance of uncontrolled concurrency.")
             {
                 ArgumentHelpName = "DELAY",
@@ -398,9 +412,23 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var skipCollectionRacesOption = new Option<bool>(
+                name: "--skip-collection-races",
+                description: "Disable exploration of race conditions when accessing collections.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var skipLockRacesOption = new Option<bool>(
                 name: "--skip-lock-races",
-                description: "Disables exploration of race conditions when accessing lock-based synchronization primitives.")
+                description: "Disable exploration of race conditions when accessing lock-based synchronization primitives.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var skipAtomicRacesOption = new Option<bool>(
+                name: "--skip-atomic-races",
+                description: "Disable exploration of race conditions when performing atomic operations.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -440,7 +468,7 @@ namespace Microsoft.Coyote.Cli
 
             var logUncontrolledInvocationStackTracesOption = new Option<bool>(
                 name: "--log-uncontrolled-invocation-stack-traces",
-                description: "Enables logging the stack traces of uncontrolled invocations detected during testing.")
+                description: "Enable logging the stack traces of uncontrolled invocations detected during testing.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -462,7 +490,7 @@ namespace Microsoft.Coyote.Cli
 
             var breakOption = new Option<bool>(
                 aliases: new[] { "-b", "--break" },
-                description: "Attaches the debugger and adds a breakpoint when an assertion fails.")
+                description: "Attach the debugger and add a breakpoint when an assertion fails.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -490,6 +518,7 @@ namespace Microsoft.Coyote.Cli
             maxFairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
+            serializeCoverageInfoOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, coverageOption));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -514,6 +543,8 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, maxUnfairStepsOption);
             this.AddOption(command, fuzzOption);
             this.AddOption(command, coverageOption);
+            this.AddOption(command, scheduleCoverageOption);
+            this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
             this.AddOption(command, reduceSharedStateOption);
@@ -525,7 +556,9 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
+            this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
+            this.AddOption(command, skipAtomicRacesOption);
             this.AddOption(command, noFuzzingFallbackOption);
             this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
@@ -951,6 +984,12 @@ namespace Microsoft.Coyote.Cli
                     case "coverage":
                         this.Configuration.IsActivityCoverageReported = true;
                         break;
+                    case "schedule-coverage":
+                        this.Configuration.IsScheduleCoverageReported = true;
+                        break;
+                    case "serialize-coverage":
+                        this.Configuration.IsCoverageInfoSerialized = true;
+                        break;
                     case "graph":
                         this.Configuration.IsTraceVisualizationEnabled = true;
                         break;
@@ -985,8 +1024,14 @@ namespace Microsoft.Coyote.Cli
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;
                         break;
+                    case "skip-collection-races":
+                        this.Configuration.IsCollectionAccessRaceCheckingEnabled = false;
+                        break;
                     case "skip-lock-races":
                         this.Configuration.IsLockAccessRaceCheckingEnabled = false;
+                        break;
+                    case "skip-atomic-races":
+                        this.Configuration.IsAtomicOperationRaceCheckingEnabled = false;
                         break;
                     case "no-fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;

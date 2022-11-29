@@ -60,8 +60,9 @@ example, given `path` equal to `PingPong.exe`):
 * `PingPong.coverage.txt`. This file contains the Event Coverage metric along with a breakdown per
   machine and per state. It also summarizes other useful coverage information.
 * `PingPong.dgml`. This file contains the Event Coverage visualization as described below.
-* `PingPong.sci`. This is the serialized `CoverageInfo` object for the test run. Such 'sci' files
-  from multiple runs can be passed to `CoyoteCoverageReportMerger.exe` to create a merged report.
+* `PingPong.coverage.ser`. This is the serialized `CoverageInfo` object for the test run. Such
+  `.coverage.ser` files from multiple runs can be passed to `CoyoteCoverageReportMerger.exe` to
+  create a merged report.
 * If `--coverage activity-debug` was specified, then there will also be a Debug directory containing
   the same files as above for each process, with the filename qualified by a sequential process id,
   e.g: `PingPong.coverage_0.txt`

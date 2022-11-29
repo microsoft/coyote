@@ -412,9 +412,23 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var skipCollectionRacesOption = new Option<bool>(
+                name: "--skip-collection-races",
+                description: "Disable exploration of race conditions when accessing collections.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var skipLockRacesOption = new Option<bool>(
                 name: "--skip-lock-races",
                 description: "Disable exploration of race conditions when accessing lock-based synchronization primitives.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var skipAtomicRacesOption = new Option<bool>(
+                name: "--skip-atomic-races",
+                description: "Disable exploration of race conditions when performing atomic operations.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -542,7 +556,9 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
+            this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
+            this.AddOption(command, skipAtomicRacesOption);
             this.AddOption(command, noFuzzingFallbackOption);
             this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
@@ -1008,8 +1024,14 @@ namespace Microsoft.Coyote.Cli
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;
                         break;
+                    case "skip-collection-races":
+                        this.Configuration.IsCollectionAccessRaceCheckingEnabled = false;
+                        break;
                     case "skip-lock-races":
                         this.Configuration.IsLockAccessRaceCheckingEnabled = false;
+                        break;
+                    case "skip-atomic-races":
+                        this.Configuration.IsAtomicOperationRaceCheckingEnabled = false;
                         break;
                     case "no-fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;

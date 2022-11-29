@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Read(ref long location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Read(ref location);
         }
 
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Read(ref ulong location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Read(ref location);
         }
 #endif
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int Add(ref int location1, int value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Add(ref location1, value);
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Add(ref long location1, long value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Add(ref location1, value);
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint Add(ref uint location1, uint value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Add(ref location1, value);
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Add(ref ulong location1, ulong value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Add(ref location1, value);
         }
 #endif
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int Increment(ref int location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Increment(ref location);
         }
 
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Increment(ref long location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Increment(ref location);
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Increment(ref ulong location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Increment(ref location);
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint Increment(ref uint location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Increment(ref location);
         }
 #endif
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int Decrement(ref int location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Decrement(ref location);
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Decrement(ref long location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Decrement(ref location);
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint Decrement(ref uint location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Decrement(ref location);
         }
 
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Decrement(ref ulong location)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Decrement(ref location);
         }
 #endif
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int Exchange(ref int location1, int value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Exchange(ref long location1, long value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint Exchange(ref uint location1, uint value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Exchange(ref ulong location1, ulong value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 #endif
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static float Exchange(ref float location1, float value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static double Exchange(ref double location1, double value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static object Exchange(ref object location1, object value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static T Exchange<T>(ref T location1, T value)
             where T : class
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static IntPtr Exchange(ref IntPtr location1, IntPtr value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
@@ -247,7 +247,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int CompareExchange(ref int location1, int value, int comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long CompareExchange(ref long location1, long value, long comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -268,7 +268,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint CompareExchange(ref uint location1, uint value, uint comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -278,7 +278,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong CompareExchange(ref ulong location1, ulong value, ulong comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 #endif
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static float CompareExchange(ref float location1, float value, float comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static double CompareExchange(ref double location1, double value, double comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -309,7 +309,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static object CompareExchange(ref object location1, object value, object comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         public static T CompareExchange<T>(ref T location1, T value, T comparand)
             where T : class
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static IntPtr CompareExchange(ref IntPtr location1, IntPtr value, IntPtr comparand)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
@@ -341,7 +341,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int And(ref int location1, int value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.And(ref location1, value);
         }
 
@@ -351,7 +351,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long And(ref long location1, long value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.And(ref location1, value);
         }
 
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint And(ref uint location1, uint value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.And(ref location1, value);
         }
 
@@ -371,7 +371,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong And(ref ulong location1, ulong value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.And(ref location1, value);
         }
 
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int Or(ref int location1, int value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Or(ref location1, value);
         }
 
@@ -391,7 +391,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static long Or(ref long location1, long value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Or(ref location1, value);
         }
 
@@ -401,7 +401,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static uint Or(ref uint location1, uint value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Or(ref location1, value);
         }
 
@@ -411,9 +411,30 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static ulong Or(ref ulong location1, ulong value)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return SystemInterlocked.Or(ref location1, value);
         }
 #endif
+
+        /// <summary>
+        /// Asks the runtime to explore a possible interleaving.
+        /// </summary>
+        private static void ExploreInterleaving()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.Configuration.IsAtomicOperationRaceCheckingEnabled &&
+                runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
+        }
     }
 }

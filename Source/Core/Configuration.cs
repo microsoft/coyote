@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Threading;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Testing;
@@ -117,10 +118,22 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, checking races during lock accesses is enabled during systematic testing.
+        /// If this option is enabled, checking races at collection accesses is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsCollectionAccessRaceCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, checking races at lock accesses is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLockAccessRaceCheckingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, checking races at atomic operations is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
         /// If this option is enabled, shared state reduction is enabled during systematic testing.
@@ -316,7 +329,9 @@ namespace Microsoft.Coyote
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
             this.IsLivenessCheckingEnabled = true;
+            this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
+            this.IsAtomicOperationRaceCheckingEnabled = true;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -577,14 +592,38 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with race checking for collection accesses enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when concurrent operations try to access collections.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at collection accesses is enabled.</param>
+        public Configuration WithCollectionAccessRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsCollectionAccessRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with race checking for lock accesses enabled or disabled.
         /// If this race checking strategy is enabled, then the runtime will explore interleavings
         /// when concurrent operations try to access lock-based synchronization primitives.
         /// </summary>
-        /// <param name="isEnabled">If true, then checking races during lock accesses is enabled.</param>
+        /// <param name="isEnabled">If true, then checking races at lock accesses is enabled.</param>
         public Configuration WithLockAccessRaceCheckingEnabled(bool isEnabled = true)
         {
             this.IsLockAccessRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking for atomic operations enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when invoking atomic operations, such as <see cref="Interlocked"/> methods.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at atomic operations is enabled.</param>
+        public Configuration WithAtomicOperationRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsAtomicOperationRaceCheckingEnabled = isEnabled;
             return this;
         }
 

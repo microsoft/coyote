@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.Coverage
                     writer.WriteLine("Number of invocation sites: {0}", traces.Count);
                     writer.WriteLine();
 
-                    foreach (var trace in traces)
+                    foreach (var trace in traces.OrderByDescending(kvp => kvp.Value))
                     {
                         writer.WriteLine("Invocation frequency: {0}", trace.Value);
                         writer.WriteLine(trace.Key);

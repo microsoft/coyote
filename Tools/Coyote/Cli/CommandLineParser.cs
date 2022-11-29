@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.Cli
 
             var scheduleCoverageOption = new Option<bool>(
                 name: "--schedule-coverage",
-                description: "Output a JSON file containing information scheduling coverage during testing.")
+                description: "Output a '.sch.cov.txt' file containing scheduling coverage information during testing.")
             {
                 Arity = ArgumentArity.Zero
             };

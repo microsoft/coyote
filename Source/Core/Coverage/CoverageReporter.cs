@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Coverage
             }
             else
             {
-                WriteHeader(writer, "Total scheduling decision call stacks: N/A");
+                WriteHeader(writer, "Scheduling coverage: N/A");
             }
         }
 

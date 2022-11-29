@@ -251,11 +251,11 @@ namespace Microsoft.Coyote.Coverage
                 WriteHeader(writer, string.Format("Total scheduling decision call stacks: {0}", numCallStacks));
                 foreach (var schedulingPointType in schedulingPointTypes)
                 {
-                    WriteHeader(writer, schedulingPointType);
+                    WriteHeader(writer, string.Format("Scheduling decision: {0}", schedulingPointType));
                     this.CoverageInfo.SchedulingPointStackTraces.TryGetValue(schedulingPointType, out Dictionary<string, long> traces);
                     foreach (var trace in traces)
                     {
-                        writer.WriteLine("Frequency: {0}", trace.Value);
+                        writer.WriteLine("Invocation frequency: {0}", trace.Value);
                         writer.WriteLine(trace.Key);
                     }
                 }

@@ -568,7 +568,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (this.Configuration.IsScheduleCoverageReported)
             {
-                string scheduleCoverageFilePath = Path.Combine(directory, fileName + ".sch.cov.txt");
+                string scheduleCoverageFilePath = Path.Combine(directory, fileName + ".coverage.schedule.txt");
                 coverageReporter.TryEmitScheduleCoverageReport(scheduleCoverageFilePath);
                 paths.Add(scheduleCoverageFilePath);
             }

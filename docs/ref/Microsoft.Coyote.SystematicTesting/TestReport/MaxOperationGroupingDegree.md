@@ -1,9 +1,9 @@
-# TestReport.MaxControlledOperations property
+# TestReport.MaxOperationGroupingDegree property
 
-The maximum number of controlled operations.
+The maximum degree of operation grouping.
 
 ```csharp
-public int MaxControlledOperations { get; }
+public int MaxOperationGroupingDegree { get; }
 ```
 
 ## See Also

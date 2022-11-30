@@ -8,7 +8,7 @@ public Configuration WithLockAccessRaceCheckingEnabled(bool isEnabled = true)
 
 | parameter | description |
 | --- | --- |
-| isEnabled | If true, then checking races during lock accesses is enabled. |
+| isEnabled | If true, then checking races at lock accesses is enabled. |
 
 ## See Also
 

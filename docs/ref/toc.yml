@@ -32,14 +32,20 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy
         - name: WithPartiallyControlledConcurrencyAllowed
           link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed
+        - name: WithPartiallyControlledDataNondeterminismAllowed
+          link: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledDataNondeterminismAllowed
         - name: WithSystematicFuzzingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled
         - name: WithSystematicFuzzingFallbackEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithMaxFuzzingDelay
           link: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay
+        - name: WithCollectionAccessRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithCollectionAccessRaceCheckingEnabled
         - name: WithLockAccessRaceCheckingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
+        - name: WithAtomicOperationRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled
         - name: WithSharedStateReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
         - name: WithNoBugTraceRepro
@@ -58,8 +64,14 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout
         - name: WithRandomGeneratorSeed
           link: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
+        - name: WithUncontrolledInvocationStackTraceLoggingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithUncontrolledInvocationStackTraceLoggingEnabled
         - name: WithActivityCoverageReported
           link: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported
+        - name: WithScheduleCoverageReported
+          link: ref/Microsoft.Coyote/Configuration/WithScheduleCoverageReported
+        - name: WithCoverageInfoSerialized
+          link: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized
         - name: WithTraceVisualizationEnabled
           link: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled
         - name: WithXmlLogEnabled
@@ -102,6 +114,8 @@ toc:
           link: ref/Microsoft.Coyote.Coverage/CoverageGraph/LoadDgml
         - name: Merge
           link: ref/Microsoft.Coyote.Coverage/CoverageGraph/Merge
+        - name: IsAvailable
+          link: ref/Microsoft.Coyote.Coverage/CoverageGraph/IsAvailable
         - name: ToString
           link: ref/Microsoft.Coyote.Coverage/CoverageGraph/ToString
         - name: CoverageGraph
@@ -113,12 +127,6 @@ toc:
       - name: CoverageInfo
         link: ref/Microsoft.Coyote.Coverage/CoverageInfo
         subfolderitems:
-        - name: IsMonitorDeclared
-          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/IsMonitorDeclared
-        - name: DeclareMonitorState
-          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorState
-        - name: DeclareMonitorStateEventPair
-          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorStateEventPair
         - name: Load
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Load
         - name: Save
@@ -137,6 +145,10 @@ toc:
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredMonitorEvents
         - name: MonitorEventInfo
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo
+        - name: SchedulingPointStackTraces
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces
+        - name: VisitedStates
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates
       - name: MonitorEventCoverage
         link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage
         subfolderitems:
@@ -424,6 +436,8 @@ toc:
           link: ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor
         - name: Monitor
           link: ref/Microsoft.Coyote.Specifications/Specification/Monitor
+        - name: RegisterStateHashingFunction
+          link: ref/Microsoft.Coyote.Specifications/Specification/RegisterStateHashingFunction
       - name: Monitor.State
         link: ref/Microsoft.Coyote.Specifications/Monitor.State
         subfolderitems:
@@ -1036,6 +1050,12 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxConcurrencyDegree
         - name: TotalConcurrencyDegree
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalConcurrencyDegree
+        - name: MinOperationGroupingDegree
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinOperationGroupingDegree
+        - name: MaxOperationGroupingDegree
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxOperationGroupingDegree
+        - name: TotalOperationGroupingDegree
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalOperationGroupingDegree
         - name: MinExploredFairSteps
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
         - name: MaxExploredFairSteps

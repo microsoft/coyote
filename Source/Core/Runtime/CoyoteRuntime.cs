@@ -193,6 +193,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly List<TaskLivenessMonitor> TaskLivenessMonitors;
 
         /// <summary>
+        /// List of all registered state hashing functions.
+        /// </summary>
+        private readonly List<Func<int>> StateHashingFunctions;
+
+        /// <summary>
         /// The runtime completion source.
         /// </summary>
         private readonly TaskCompletionSource<bool> CompletionSource;
@@ -329,6 +334,7 @@ namespace Microsoft.Coyote.Runtime
             this.LogManager = logManager;
             this.SpecificationMonitors = new List<SpecMonitor>();
             this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
+            this.StateHashingFunctions = new List<Func<int>>();
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
             this.SyncContext = new ControlledSynchronizationContext(this);
@@ -910,11 +916,8 @@ namespace Microsoft.Coyote.Runtime
                 current.LastSchedulingPoint = type;
                 this.LastPostponedSchedulingPoint = null;
 
-                if (this.Configuration.IsProgramStateHashingEnabled)
-                {
-                    // Update the current operation with the hashed program state.
-                    current.LastHashedProgramState = this.GetHashedProgramState();
-                }
+                // Update the current operation with the hashed program state.
+                current.LastHashedProgramState = this.ComputeProgramState();
 
                 // Try to enable any operations with resolved dependencies before asking the
                 // scheduler to choose the next one to schedule.
@@ -1127,11 +1130,8 @@ namespace Microsoft.Coyote.Runtime
                         this.CheckLivenessThresholdExceeded();
                     }
 
-                    if (this.Configuration.IsProgramStateHashingEnabled)
-                    {
-                        // Update the current operation with the hashed program state.
-                        this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
-                    }
+                    // Update the current operation with the hashed program state.
+                    this.ScheduledOperation.LastHashedProgramState = this.ComputeProgramState();
 
                     if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, out result))
                     {
@@ -1174,11 +1174,8 @@ namespace Microsoft.Coyote.Runtime
                         this.CheckLivenessThresholdExceeded();
                     }
 
-                    if (this.Configuration.IsProgramStateHashingEnabled)
-                    {
-                        // Update the current operation with the hashed program state.
-                        this.ScheduledOperation.LastHashedProgramState = this.GetHashedProgramState();
-                    }
+                    // Update the current operation with the hashed program state.
+                    this.ScheduledOperation.LastHashedProgramState = this.ComputeProgramState();
 
                     if (!this.Scheduler.GetNextInteger(this.ScheduledOperation, maxValue, out result))
                     {
@@ -1496,30 +1493,56 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the next available unique operation id.
         /// </summary>
-        /// <returns>Value representing the next available unique operation id.</returns>
         internal ulong GetNextOperationId() =>
             // Atomically increments and safely wraps the value into an unsigned long.
             (ulong)Interlocked.Increment(ref this.OperationIdCounter) - 1;
 
         /// <summary>
-        /// Returns the current hashed state of the execution.
+        /// Registers a new state hashing function that contributes to computing
+        /// a representation of the program state in each scheduling step.
+        /// </summary>
+        internal void RegisterStateHashingFunction(Func<int> func)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                this.StateHashingFunctions.Add(func);
+            }   
+        }
+
+        /// <summary>
+        /// Returns the current program state represented by a hash.
         /// </summary>
         /// <remarks>
         /// The hash is updated in each execution step.
         /// </remarks>
-        private int GetHashedProgramState()
+        private int ComputeProgramState()
         {
             unchecked
             {
                 int hash = 19;
-                foreach (var operation in this.GetRegisteredOperations())
+                if (this.Configuration.IsImplicitProgramStateHashingEnabled)
                 {
-                    hash *= 31 + operation.GetHashedState(this.SchedulingPolicy);
+                    foreach (var operation in this.GetRegisteredOperations())
+                    {
+                        hash *= 31 + operation.GetHashedState(this.SchedulingPolicy);
+                    }
+
+                    foreach (var monitor in this.SpecificationMonitors)
+                    {
+                        hash *= 31 + monitor.GetHashedState();
+                    }
                 }
 
-                foreach (var monitor in this.SpecificationMonitors)
+                if (this.StateHashingFunctions.Count > 0)
                 {
-                    hash *= 31 + monitor.GetHashedState();
+                    int customHash = 19;
+                    foreach (var func in this.StateHashingFunctions)
+                    {
+                        customHash *= 31 + func();
+                    }
+
+                    this.CoverageInfo.DeclareVisitedState(customHash);
+                    hash *= 31 + customHash;
                 }
 
                 return hash;
@@ -2580,6 +2603,7 @@ namespace Microsoft.Coyote.Runtime
                     this.UncontrolledInvocations.Clear();
                     this.SpecificationMonitors.Clear();
                     this.TaskLivenessMonitors.Clear();
+                    this.StateHashingFunctions.Clear();
 
                     if (!(this.Extension is NullRuntimeExtension))
                     {

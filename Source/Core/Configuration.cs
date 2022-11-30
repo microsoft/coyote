@@ -77,30 +77,29 @@ namespace Microsoft.Coyote
         internal PortfolioMode PortfolioMode;
 
         /// <summary>
-        /// If this option is enabled and uncontrolled concurrency is detected, then the
-        /// runtime will attempt to partially control the concurrency of the application,
-        /// instead of immediately failing with an error.
+        /// If enabled and uncontrolled concurrency is detected, then the runtime will attempt to partially
+        /// control the concurrency of the application, instead of immediately failing with an error.
         /// </summary>
         [DataMember]
         internal bool IsPartiallyControlledConcurrencyAllowed;
 
         /// <summary>
-        /// If this option is enabled and uncontrolled data non-determinism is detected, then the
-        /// runtime will attempt to partially control the data non-determinism of the application,
-        /// instead of immediately failing with an error.
+        /// If enabled and uncontrolled data non-determinism is detected, then the runtime will attempt
+        /// to partially control the data non-determinism of the application, instead of immediately
+        /// failing with an error.
         /// </summary>
         [DataMember]
         internal bool IsPartiallyControlledDataNondeterminismAllowed;
 
         /// <summary>
-        /// If this option is enabled, the systematic fuzzing policy is used during testing.
+        /// If enabled, the systematic fuzzing policy is used during testing.
         /// </summary>
         [DataMember]
         internal bool IsSystematicFuzzingEnabled;
 
         /// <summary>
-        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
-        /// automatically switches to systematic fuzzing, instead of failing with an error.
+        /// If enabled and uncontrolled concurrency is detected, then the tester automatically switches
+        /// to systematic fuzzing, instead of failing with an error.
         /// </summary>
         [DataMember]
         internal bool IsSystematicFuzzingFallbackEnabled;
@@ -112,31 +111,31 @@ namespace Microsoft.Coyote
         public uint MaxFuzzingDelay { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled, liveness checking is enabled during systematic testing.
+        /// If enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, checking races at collection accesses is enabled during systematic testing.
+        /// If enabled, checking races at collection accesses is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsCollectionAccessRaceCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, checking races at lock accesses is enabled during systematic testing.
+        /// If enabled, checking races at lock accesses is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLockAccessRaceCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, checking races at atomic operations is enabled during systematic testing.
+        /// If enabled, checking races at atomic operations is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, shared state reduction is enabled during systematic testing.
+        /// If enabled, shared state reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsSharedStateReductionEnabled;
@@ -191,8 +190,7 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled then report any potential deadlock as a bug,
-        /// else skip to the next test iteration.
+        /// If enabled then report any potential deadlock as a bug, else skip to the next test iteration.
         /// </summary>
         [DataMember]
         internal bool ReportPotentialDeadlocksAsBugs;
@@ -225,20 +223,20 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetLivenessTemperatureThreshold;
 
         /// <summary>
-        /// If this option is enabled, the tester is hashing the program state.
+        /// If enabled, runtime and automatically inferred program state is used to contribute
+        /// to the computed program state at each scheduling step during testing.
         /// </summary>
         [DataMember]
-        internal bool IsProgramStateHashingEnabled;
+        internal bool IsImplicitProgramStateHashingEnabled;
 
         /// <summary>
-        /// If this option is enabled, safety monitors can run outside the scope of the testing engine.
+        /// If enabled, safety monitors can run outside the scope of the testing engine.
         /// </summary>
         [DataMember]
         internal bool IsMonitoringEnabledOutsideTesting { get; private set; }
 
         /// <summary>
-        /// If this option is enabled, the runtime can check for actor quiescence outside
-        /// the scope of the testing engine.
+        /// If enabled, the runtime can check for actor quiescence outside the scope of the testing engine.
         /// </summary>
         [DataMember]
         internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
@@ -346,7 +344,7 @@ namespace Microsoft.Coyote
             this.UncontrolledConcurrencyResolutionDelay = 1000;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
-            this.IsProgramStateHashingEnabled = false;
+            this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
@@ -505,7 +503,7 @@ namespace Microsoft.Coyote
         public Configuration WithQLearningStrategy()
         {
             this.ExplorationStrategy = ExplorationStrategy.QLearning;
-            this.IsProgramStateHashingEnabled = true;
+            this.IsImplicitProgramStateHashingEnabled = true;
             this.PortfolioMode = PortfolioMode.None;
             return this;
         }

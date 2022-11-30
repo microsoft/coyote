@@ -442,6 +442,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.NumOfFoundBugs * 100.0 / totalExploredSchedules);
             }
 
+            int visitedStatesCount = this.CoverageInfo.VisitedStates.Count;
+            if (visitedStatesCount > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Visited {1} state{2}.",
+                    prefix.Equals("...") ? "....." : prefix,
+                    visitedStatesCount,
+                    visitedStatesCount is 1 ? string.Empty : "s");
+            }
+
             if (this.TotalControlledOperations > 0)
             {
                 report.AppendLine();

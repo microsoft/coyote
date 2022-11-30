@@ -1506,7 +1506,7 @@ namespace Microsoft.Coyote.Runtime
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 this.StateHashingFunctions.Add(func);
-            }   
+            }
         }
 
         /// <summary>

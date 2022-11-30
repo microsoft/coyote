@@ -52,9 +52,9 @@ namespace Microsoft.Coyote.Actors
         Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events);
 
         /// <summary>
-        /// Returns the cached state of the queue.
+        /// Returns the hashed state of the queue.
         /// </summary>
-        int GetCachedState();
+        int GetHashedState();
 
         /// <summary>
         /// Closes the queue, which stops any further event enqueues.

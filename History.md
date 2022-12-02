@@ -1,3 +1,19 @@
+## v1.7.2
+- Added support for fully controlling the `SemaphoreSlim` type during testing.
+- Added support for detecting the `System.Guid` and `System.DateTime` APIs as sources of
+  uncontrolled data non-determinism during testing.
+- Added the `Configuration.WithPartiallyControlledDataNondeterminismAllowed` API (and
+  `--partial-control <MODE>` CLI option) for configuring how uncontrolled data non-determinism
+  should be handled during testing.
+- Added the `Configuration.WithScheduleCoverageReported` API (and `--schedule-coverage` CLI option)
+  for dumping coverage statistics and stack traces for scheduling decisions.
+- Added the `Specification.RegisterStateHashingFunction` API for registering custom program state
+  hashing functions, which can be used to compute an approximation of the program state during
+  testing, as well as reporting it in the test statistics.
+- Improved replay traces by registering the scheduling point type alongside each scheduling
+  decision.
+- Fixed missing `net462` dependency in the `Microsoft.Coyote.Tool` NuGet package.
+
 ## v1.7.1
 - Added support for operation grouping for `Task` continuations.
 - Added support for the delay-bounding exploration strategy.

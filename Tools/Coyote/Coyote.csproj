@@ -58,8 +58,8 @@
   <Target Name="ToolDependenciesTarget">
     <ItemGroup>
       <BuildOutputInPackage
-          Include="$(OutputPath)\*.dll;$(OutputPath)\*.json;$(OutputPath)\*.xml"
-          Exclude="$(OutputPath)\$(AssemblyName).*;$(OutputPath)\runtimes"
+          Include="$(OutputPath)*.dll;$(OutputPath)*.json;$(OutputPath)*.xml"
+          Exclude="$(OutputPath)$(AssemblyName).*;$(OutputPath)runtimes"
         >
         <TargetPath></TargetPath>
       </BuildOutputInPackage>
@@ -69,6 +69,9 @@
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/../../Scripts/NuGet/_._">
         <PackagePath>lib/$(TargetFramework)</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)*.exe.config" Condition="'$(TargetFramework)' == 'net462'">
+        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>

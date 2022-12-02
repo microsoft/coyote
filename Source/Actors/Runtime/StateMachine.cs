@@ -800,7 +800,7 @@ namespace Microsoft.Coyote.Actors
                         hash = (hash * 31) + state.GetType().GetHashCode();
                     }
 
-                    hash = (hash * 31) + this.Inbox.GetCachedState();
+                    hash = (hash * 31) + this.Inbox.GetHashedState();
                 }
 
                 if (this.HashedState != 0)

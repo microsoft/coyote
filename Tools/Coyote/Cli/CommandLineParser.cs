@@ -936,7 +936,7 @@ namespace Microsoft.Coyote.Cli
 
                                 break;
                             case "q-learning":
-                                this.Configuration.IsProgramStateHashingEnabled = true;
+                                this.Configuration.IsImplicitProgramStateHashingEnabled = true;
                                 break;
                             case "random":
                             default:

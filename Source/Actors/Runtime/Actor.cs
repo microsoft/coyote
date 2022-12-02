@@ -768,7 +768,7 @@ namespace Microsoft.Coyote.Actors
                     hash = (hash * 31) + this.IsHalted.GetHashCode();
                     hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
                     hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
-                    hash = (hash * 31) + this.Inbox.GetCachedState();
+                    hash = (hash * 31) + this.Inbox.GetHashedState();
                 }
 
                 if (this.HashedState != 0)

@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             this.Owner.Context.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <inheritdoc/>
-        public int GetCachedState()
+        public int GetHashedState()
         {
             unchecked
             {

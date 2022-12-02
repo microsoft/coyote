@@ -1,6 +1,6 @@
 # TestReport.MinControlledOperations property
 
-The min number of controlled operations.
+The minimum number of controlled operations.
 
 ```csharp
 public int MinControlledOperations { get; }

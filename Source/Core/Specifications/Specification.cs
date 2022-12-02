@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
@@ -67,5 +68,17 @@ namespace Microsoft.Coyote.Specifications
         public static void Monitor<T>(Monitor.Event e)
             where T : Monitor =>
             CoyoteRuntime.Current.Monitor<T>(e);
+
+        /// <summary>
+        /// Registers a new state hashing function that contributes to computing
+        /// a representation of the program state in each scheduling step.
+        /// </summary>
+        /// <param name="func">The state hashing function.</param>
+        /// <remarks>
+        /// If you register more than one state hashing function per iteration, the
+        /// runtime will aggregate the hashes computed from each function.
+        /// </remarks>
+        public static void RegisterStateHashingFunction(Func<int> func) =>
+            CoyoteRuntime.Current.RegisterStateHashingFunction(func);
     }
 }

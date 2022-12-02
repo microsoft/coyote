@@ -117,10 +117,13 @@ nav:
         - WithDelayBoundingStrategy: ref/Microsoft.Coyote/Configuration/WithDelayBoundingStrategy.md
         - WithQLearningStrategy: ref/Microsoft.Coyote/Configuration/WithQLearningStrategy.md
         - WithPartiallyControlledConcurrencyAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledConcurrencyAllowed.md
+        - WithPartiallyControlledDataNondeterminismAllowed: ref/Microsoft.Coyote/Configuration/WithPartiallyControlledDataNondeterminismAllowed.md
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
         - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
         - WithMaxFuzzingDelay: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay.md
+        - WithCollectionAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithCollectionAccessRaceCheckingEnabled.md
         - WithLockAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled.md
+        - WithAtomicOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled.md
         - WithSharedStateReductionEnabled: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
@@ -130,7 +133,10 @@ nav:
         - WithPotentialDeadlocksReportedAsBugs: ref/Microsoft.Coyote/Configuration/WithPotentialDeadlocksReportedAsBugs.md
         - WithUncontrolledConcurrencyResolutionTimeout: ref/Microsoft.Coyote/Configuration/WithUncontrolledConcurrencyResolutionTimeout.md
         - WithRandomGeneratorSeed: ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed.md
+        - WithUncontrolledInvocationStackTraceLoggingEnabled: ref/Microsoft.Coyote/Configuration/WithUncontrolledInvocationStackTraceLoggingEnabled.md
         - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
+        - WithScheduleCoverageReported: ref/Microsoft.Coyote/Configuration/WithScheduleCoverageReported.md
+        - WithCoverageInfoSerialized: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized.md
         - WithTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
@@ -153,15 +159,13 @@ nav:
         - WriteDgml: ref/Microsoft.Coyote.Coverage/CoverageGraph/WriteDgml.md
         - LoadDgml: ref/Microsoft.Coyote.Coverage/CoverageGraph/LoadDgml.md
         - Merge: ref/Microsoft.Coyote.Coverage/CoverageGraph/Merge.md
+        - IsAvailable: ref/Microsoft.Coyote.Coverage/CoverageGraph/IsAvailable.md
         - ToString: ref/Microsoft.Coyote.Coverage/CoverageGraph/ToString.md
         - CoverageGraph: ref/Microsoft.Coyote.Coverage/CoverageGraph/CoverageGraph.md
         - Nodes: ref/Microsoft.Coyote.Coverage/CoverageGraph/Nodes.md
         - Links: ref/Microsoft.Coyote.Coverage/CoverageGraph/Links.md
       - CoverageInfo:
         - Overview: ref/Microsoft.Coyote.Coverage/CoverageInfo.md
-        - IsMonitorDeclared: ref/Microsoft.Coyote.Coverage/CoverageInfo/IsMonitorDeclared.md
-        - DeclareMonitorState: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorState.md
-        - DeclareMonitorStateEventPair: ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMonitorStateEventPair.md
         - Load: ref/Microsoft.Coyote.Coverage/CoverageInfo/Load.md
         - Save: ref/Microsoft.Coyote.Coverage/CoverageInfo/Save.md
         - Merge: ref/Microsoft.Coyote.Coverage/CoverageInfo/Merge.md
@@ -171,6 +175,8 @@ nav:
         - MonitorsToStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorsToStates.md
         - RegisteredMonitorEvents: ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredMonitorEvents.md
         - MonitorEventInfo: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo.md
+        - SchedulingPointStackTraces: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces.md
+        - VisitedStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates.md
       - MonitorEventCoverage:
         - Overview: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage.md
         - GetEventsProcessed: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed.md
@@ -326,6 +332,7 @@ nav:
         - IsEventuallyCompletedSuccessfully: ref/Microsoft.Coyote.Specifications/Specification/IsEventuallyCompletedSuccessfully.md
         - RegisterMonitor: ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor.md
         - Monitor: ref/Microsoft.Coyote.Specifications/Specification/Monitor.md
+        - RegisterStateHashingFunction: ref/Microsoft.Coyote.Specifications/Specification/RegisterStateHashingFunction.md
       - Monitor.State:
         - Overview: ref/Microsoft.Coyote.Specifications/Monitor.State.md
         - State: ref/Microsoft.Coyote.Specifications/Monitor.State/State.md
@@ -661,6 +668,9 @@ nav:
         - MinConcurrencyDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinConcurrencyDegree.md
         - MaxConcurrencyDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxConcurrencyDegree.md
         - TotalConcurrencyDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalConcurrencyDegree.md
+        - MinOperationGroupingDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinOperationGroupingDegree.md
+        - MaxOperationGroupingDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxOperationGroupingDegree.md
+        - TotalOperationGroupingDegree: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalOperationGroupingDegree.md
         - MinExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps.md
         - MaxExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps.md
         - TotalExploredFairSteps: ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps.md

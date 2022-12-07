@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -103,6 +105,85 @@ namespace Microsoft.Coyote.Runtime
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
                     runtime.DelayOperation(current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Waits for a signal to a resource with the specified name.
+        /// </summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static void Wait(string name)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                using (runtime.EnterSynchronizedSection())
+                {
+                    if (!runtime.SignalMap.TryGetValue(name, out var signal))
+                    {
+                        runtime.SignalMap.Add(name, 0);
+                    }
+
+                    runtime.SignalMap[name]--;
+                    if (runtime.SignalMap[name] < 0)
+                    {
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting a signal for '{1}'.",
+                            current.Name, name);
+                        runtime.SignalMap[name] = 0;
+                        current.Status = OperationStatus.Suppressed;
+                        current.Suppression = name;
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Waits asynchronously for a signal to a resource with the specified name.
+        /// </summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static SignalAwaitable WaitAsync(string name)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                return new SignalAwaitable(runtime, current, name);
+            }
+
+            return new SignalAwaitable(null, null, name);
+        }
+
+        /// <summary>
+        /// Signals a resource with the specified name.
+        /// </summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static void Signal(string name)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                using (runtime.EnterSynchronizedSection())
+                {
+                    var ops = runtime.GetOperationsWith(op => op.Suppression == name);
+                    foreach (var op in ops)
+                    {
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is signaled for '{1}'.",
+                            op.Name, name);
+                        op.Status = OperationStatus.Enabled;
+                        op.Suppression = string.Empty;
+                    }
+
+                    if (!runtime.SignalMap.TryGetValue(name, out var signal))
+                    {
+                        runtime.SignalMap.Add(name, 0);
+                    }
+
+                    runtime.SignalMap[name]++;
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);
                 }
             }
         }

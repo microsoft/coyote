@@ -28,6 +28,11 @@ namespace Microsoft.Coyote.Runtime
         internal string Name { get; }
 
         /// <summary>
+        /// The description of this operation.
+        /// </summary>
+        internal string Description { get; }
+
+        /// <summary>
         /// The status of this operation. An operation can be scheduled only
         /// if it is <see cref="OperationStatus.Enabled"/>.
         /// </summary>
@@ -97,11 +102,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group, CoyoteRuntime runtime)
+        internal ControlledOperation(ulong operationId, string name, string description, OperationGroup group, CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.Id = operationId;
             this.Name = name;
+            this.Description = description ?? string.Empty;
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
             this.Continuations = new Queue<Action>();

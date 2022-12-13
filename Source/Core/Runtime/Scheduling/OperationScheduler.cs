@@ -221,11 +221,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="target">The target operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            bool isYielding, out ControlledOperation next)
+            ControlledOperation target, bool isYielding, out ControlledOperation next)
         {
             // Filter out any operations that cannot be scheduled.
             var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
@@ -245,7 +246,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
-                    this.Trace.AddSchedulingChoice(next.Id, current.LastSchedulingPoint);
+                    this.Trace.AddSchedulingDecision(current.Id, current.LastSchedulingPoint, target.Id, next.Id);
                     return true;
                 }
             }
@@ -265,7 +266,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextBoolean(current, out next))
             {
-                this.Trace.AddNondeterministicBooleanChoice(next, current.LastSchedulingPoint);
+                this.Trace.AddNondeterministicBooleanDecision(current.Id, next);
                 return true;
             }
 
@@ -285,7 +286,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextInteger(current, maxValue, out next))
             {
-                this.Trace.AddNondeterministicIntegerChoice(next, current.LastSchedulingPoint);
+                this.Trace.AddNondeterministicIntegerDecision(current.Id, next);
                 return true;
             }
 

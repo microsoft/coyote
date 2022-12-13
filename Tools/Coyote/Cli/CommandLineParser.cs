@@ -321,6 +321,13 @@ namespace Microsoft.Coyote.Cli
 
             var graphOption = new Option<bool>(
                 name: "--graph",
+                description: "Output a DOT graph that visualizes the failing execution path if a bug is found.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var dgmlGraphOption = new Option<bool>(
+                name: "--dgml-graph",
                 description: "Output a DGML graph that visualizes the failing execution path if a bug is found.")
             {
                 Arity = ArgumentArity.Zero
@@ -519,6 +526,7 @@ namespace Microsoft.Coyote.Cli
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             serializeCoverageInfoOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, coverageOption));
+            graphOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, dgmlGraphOption));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -546,6 +554,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, scheduleCoverageOption);
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
+            this.AddOption(command, dgmlGraphOption);
             this.AddOption(command, xmlLogOption);
             this.AddOption(command, reduceSharedStateOption);
             this.AddOption(command, seedOption);
@@ -992,6 +1001,10 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "graph":
                         this.Configuration.IsTraceVisualizationEnabled = true;
+                        break;
+                    case "dgml-graph":
+                        this.Configuration.IsTraceVisualizationEnabled = true;
+                        this.Configuration.IsDgmlFormatEnabled = true;
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;

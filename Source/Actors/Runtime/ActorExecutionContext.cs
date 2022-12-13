@@ -992,11 +992,6 @@ namespace Microsoft.Coyote.Actors
             {
                 this.Assert(type.IsSubclassOf(typeof(Actor)), "Type '{0}' is not an actor.", type.FullName);
 
-                // Using ulong.MaxValue because a Create operation cannot specify
-                // the id of its target, because the id does not exist yet.
-                this.Runtime.ScheduleNextOperation(creator?.Operation, SchedulingPointType.Create);
-                this.ResetProgramCounter(creator);
-
                 if (id is null)
                 {
                     id = this.CreateActorId(type, name);
@@ -1048,6 +1043,9 @@ namespace Microsoft.Coyote.Actors
                 {
                     this.LogManager.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
                 }
+
+                this.Runtime.ScheduleNextOperation(creator?.Operation, SchedulingPointType.Create, op);
+                this.ResetProgramCounter(creator);
 
                 return actor;
             }
@@ -1138,7 +1136,7 @@ namespace Microsoft.Coyote.Actors
                     "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                     e.GetType().FullName, targetId.Value);
 
-                this.Runtime.ScheduleNextOperation(sender?.Operation, SchedulingPointType.Send);
+                this.Runtime.ScheduleNextOperation(sender?.Operation, SchedulingPointType.Send, target.Operation);
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.

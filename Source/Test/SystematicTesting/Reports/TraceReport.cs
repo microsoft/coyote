@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -33,15 +34,20 @@ namespace Microsoft.Coyote.SystematicTesting
         public TestSettings Settings { get; set; }
 
         /// <summary>
-        /// The controlled decisions of this trace.
+        /// The operations executing in this trace.
         /// </summary>
-        public List<string> Decisions { get; set; }
+        public Dictionary<string, string> Operations { get; set; }
+
+        /// <summary>
+        /// The execution steps in this trace.
+        /// </summary>
+        public List<string> Steps { get; set; }
 
         /// <summary>
         /// Constructs a <see cref="TraceReport"/> from the specified <see cref="OperationScheduler"/>
         /// and <see cref="Configuration"/>, and returns it in JSON format.
         /// </summary>
-        internal static string GetJson(OperationScheduler scheduler, Configuration configuration)
+        internal static string GetJson(CoyoteRuntime runtime, OperationScheduler scheduler, Configuration configuration)
         {
             var report = new TraceReport();
             report.TestName = configuration.TestMethodName;
@@ -69,6 +75,7 @@ namespace Microsoft.Coyote.SystematicTesting
             report.Settings.UncontrolledConcurrencyResolutionAttempts = configuration.UncontrolledConcurrencyResolutionAttempts;
             report.Settings.UncontrolledConcurrencyResolutionDelay = configuration.UncontrolledConcurrencyResolutionDelay;
 
+            report.ReportOperations(runtime.OperationMap);
             report.ReportTrace(scheduler.Trace);
             return report.ToJson();
         }
@@ -110,35 +117,43 @@ namespace Microsoft.Coyote.SystematicTesting
                 configuration.UncontrolledConcurrencyResolutionAttempts = report.Settings.UncontrolledConcurrencyResolutionAttempts;
                 configuration.UncontrolledConcurrencyResolutionDelay = report.Settings.UncontrolledConcurrencyResolutionDelay;
 
-                foreach (var decision in report.Decisions)
+                for (int idx = 0; idx < report.Steps.Count; idx++)
                 {
-                    string[] tokens = decision.Split(',');
-                    string kindToken = tokens[0];
-                    string spToken = tokens[1];
+                    string[] tokens = report.Steps[idx].Split(',');
+                    string opToken = tokens[0];
+                    string decisionToken = tokens[1];
 
+                    ulong op = ulong.Parse(opToken.Substring(3, opToken.Length - 4));
+                    if (decisionToken.StartsWith("sp("))
+                    {
 #if NET || NETCOREAPP3_1
-                    SchedulingPointType sp = Enum.Parse<SchedulingPointType>(spToken.Substring(3, spToken.Length - 4));
+                        SchedulingPointType sp = Enum.Parse<SchedulingPointType>(decisionToken.Substring(
+                            3, decisionToken.Length - 4));
 #else
-                    SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType), spToken.Substring(3, spToken.Length - 4));
+                        SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType),
+                            decisionToken.Substring(3, decisionToken.Length - 4));
 #endif
-                    if (kindToken.StartsWith("op("))
-                    {
-                        ulong id = ulong.Parse(kindToken.Substring(3, kindToken.Length - 4));
-                        trace.AddSchedulingChoice(id, sp);
+
+                        string targetToken = tokens[2];
+                        string nextToken = tokens[3];
+
+                        ulong target = ulong.Parse(targetToken.Substring(7, targetToken.Length - 8));
+                        ulong next = ulong.Parse(nextToken.Substring(5, nextToken.Length - 6));
+                        trace.AddSchedulingDecision(op, sp, target, next);
                     }
-                    else if (kindToken.StartsWith("bool("))
+                    else if (decisionToken.StartsWith("bool("))
                     {
-                        bool value = bool.Parse(kindToken.Substring(5, kindToken.Length - 6));
-                        trace.AddNondeterministicBooleanChoice(value, sp);
+                        bool value = bool.Parse(decisionToken.Substring(5, decisionToken.Length - 6));
+                        trace.AddNondeterministicBooleanDecision(op, value);
                     }
-                    else if (kindToken.StartsWith("int("))
+                    else if (decisionToken.StartsWith("int("))
                     {
-                        int value = int.Parse(kindToken.Substring(4, kindToken.Length - 5));
-                        trace.AddNondeterministicIntegerChoice(value, sp);
+                        int value = int.Parse(decisionToken.Substring(4, decisionToken.Length - 5));
+                        trace.AddNondeterministicIntegerDecision(op, value);
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Unexpected decision '{decision}'.");
+                        throw new InvalidOperationException($"Unexpected execution step '{report.Steps[idx]}'.");
                     }
                 }
             }
@@ -147,25 +162,140 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Constructs a visualization graph from the specified parameters, and returns it in DOT format.
+        /// </summary>
+        internal static string GetGraph(CoyoteRuntime runtime, ExecutionTrace trace)
+        {
+            StringBuilder graph = new StringBuilder();
+            graph.AppendLine("digraph trace {");
+
+            if (trace.Length > 1)
+            {
+                // The first operation is always the main thread running the test method.
+                string firstOp = $"op(0)";
+                string firstDescription = runtime.OperationMap[0].Description;
+
+                string next = string.Empty;
+
+                var completedOps = new HashSet<ulong>();
+                var chainMap = new Dictionary<ulong, HashSet<ulong>>();
+                var aliasMap = new Dictionary<string, HashSet<ulong>>();
+
+                int stepCount = 0;
+                for (int idx = 0; idx < trace.Length; idx++)
+                {
+                    if (trace[idx] is ExecutionTrace.SchedulingStep step)
+                    {
+                        string op = $"op({step.Current})";
+                        string name = runtime.OperationMap[step.Current].Description;
+                        string source = $"{name}({op})";
+
+                        if (!chainMap.TryGetValue(step.Current, out HashSet<ulong> opChain))
+                        {
+                            opChain = new HashSet<ulong>();
+                            chainMap.Add(step.Current, opChain);
+                        }
+
+                        if (!aliasMap.TryGetValue(name, out HashSet<ulong> opAliases))
+                        {
+                            opAliases = new HashSet<ulong>();
+                            aliasMap.Add(name, opAliases);
+                        }
+
+                        opChain.Add(step.Current);
+                        opAliases.Add(step.Current);
+
+                        string nextOp = $"op({step.Value})";
+                        string nextName = runtime.OperationMap[step.Value].Description;
+                        next = $"{nextName}({nextOp})";
+
+                        if (step.SchedulingPoint is SchedulingPointType.Create)
+                        {
+                            string targetOp = $"op({step.Target})";
+                            string targetName = runtime.OperationMap[step.Target].Description;
+                            string target = $"{targetName}({targetOp})";
+                            graph.Append($"  \"{source}\" -> \"{target}\"");
+                            graph.AppendLine($" [label=\" {step.SchedulingPoint} [{stepCount}] \" color=\"#3868ceff\"];");
+                            stepCount++;
+                        }
+                        else if (step.SchedulingPoint is SchedulingPointType.ContinueWith)
+                        {
+                            opChain.Add(step.Target);
+                            if (!chainMap.ContainsKey(step.Target))
+                            {
+                                chainMap.Add(step.Target, opChain);
+                            }
+                        }
+                        else if (step.SchedulingPoint is SchedulingPointType.Complete)
+                        {
+                            completedOps.Add(step.Current);
+                        }
+                        else if (step.Current != step.Target || opAliases.Count > 0)
+                        {
+                            graph.Append($"  \"{source}\" -> \"{next}\"");
+                            graph.AppendLine($" [label=\" {step.SchedulingPoint} [{stepCount}] \",style=dashed];");
+                            stepCount++;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                // Write the error state.
+                graph.Append($"  \"{next}\" -> error");
+                graph.AppendLine($" [label=\" [{stepCount}] \",color=\"#ce3838ff\"];");
+
+                // Write the style options.
+                graph.AppendLine();
+                graph.AppendLine($"  \"{firstDescription}\"[shape=box];");
+                graph.AppendLine("  error[shape=Mdiamond,color=\"#ce3838ff\"];");
+            }
+            else
+            {
+                // Write the empty graph.
+                graph.AppendLine("  \"N/A\"[shape=Mdiamond];");
+            }
+
+            graph.AppendLine("}");
+            return graph.ToString();
+        }
+
+        /// <summary>
+        /// Adds the specified entity information to the report.
+        /// </summary>
+        internal void ReportOperations(Dictionary<ulong, ControlledOperation> operations)
+        {
+            this.Operations = new Dictionary<string, string>();
+            foreach (var op in operations.Values)
+            {
+                this.Operations.Add($"op({op.Id})", op.Description);
+            }
+        }
+
+        /// <summary>
         /// Adds the specified trace to the report.
         /// </summary>
         internal void ReportTrace(ExecutionTrace trace)
         {
-            this.Decisions = new List<string>();
-            for (int idx = 0; idx < trace.Length; idx++)
+            this.Steps = new List<string>();
+            if (trace.Length > 0)
             {
-                ExecutionTrace.Step step = trace[idx];
-                if (step.Kind == ExecutionTrace.DecisionKind.SchedulingChoice)
+                for (int idx = 0; idx < trace.Length; idx++)
                 {
-                    this.Decisions.Add($"op({step.ScheduledOperationId}),sp({step.SchedulingPoint})");
-                }
-                else if (step.BooleanChoice != null)
-                {
-                    this.Decisions.Add($"bool({step.BooleanChoice.Value}),sp({step.SchedulingPoint})");
-                }
-                else
-                {
-                    this.Decisions.Add($"int({step.IntegerChoice.Value}),sp({step.SchedulingPoint})");
+                    if (trace[idx] is ExecutionTrace.SchedulingStep step)
+                    {
+                        this.Steps.Add($"op({step.Current}),sp({step.SchedulingPoint}),target({step.Target}),next({step.Value})");
+                    }
+                    else if (trace[idx] is ExecutionTrace.BooleanChoiceStep boolChoiceStep)
+                    {
+                        this.Steps.Add($"op({boolChoiceStep.Current}),bool({boolChoiceStep.Value})");
+                    }
+                    else if (trace[idx] is ExecutionTrace.IntegerChoiceStep intChoiceStep)
+                    {
+                        this.Steps.Add($"op({intChoiceStep.Current}),int({intChoiceStep.Value})");
+                    }
                 }
             }
         }

@@ -37,12 +37,12 @@ namespace Microsoft.Coyote.Coverage
         /// <summary>
         /// Emits the visualization graph, if it is available.
         /// </summary>
-        public bool TryEmitVisualizationGraph(string graphFile)
+        public bool TryEmitVisualizationGraph(string graphFile, bool useDgmlFormat = false)
         {
             bool isAvailable = this.CoverageInfo.CoverageGraph?.IsAvailable() ?? false;
             if (isAvailable)
             {
-                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile, true);
+                this.CoverageInfo.CoverageGraph.Save(graphFile, true, useDgmlFormat);
             }
 
             return isAvailable;

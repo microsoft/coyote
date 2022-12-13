@@ -20,7 +20,7 @@ using SpecMonitor = Microsoft.Coyote.Specifications.Monitor;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for controlling, scheduling and executing asynchronous operations.
+    /// Runtime for controlling, scheduling and executing operations.
     /// </summary>
     /// <remarks>
     /// Invoking scheduling methods is thread-safe.
@@ -115,9 +115,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<ulong, Thread> ThreadPool;
 
         /// <summary>
-        /// Map from unique operation ids to asynchronous operations.
+        /// Map from unique operation ids to controlled operations.
         /// </summary>
-        private readonly Dictionary<ulong, ControlledOperation> OperationMap;
+        internal readonly Dictionary<ulong, ControlledOperation> OperationMap;
 
         /// <summary>
         /// Map from newly created operations that have not started executing yet
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.Runtime
         private readonly object RuntimeLock;
 
         /// <summary>
-        /// Produces tokens for canceling asynchronous operations when the runtime detaches.
+        /// Produces tokens for canceling controlled operations when the runtime detaches.
         /// </summary>
         private readonly CancellationTokenSource CancellationSource;
 
@@ -364,7 +364,7 @@ namespace Microsoft.Coyote.Runtime
                 Thread.CurrentThread.ManagedThreadId, this.Scheduler.GetStrategyName());
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
-            ControlledOperation op = this.CreateControlledOperation();
+            ControlledOperation op = this.CreateControlledOperation(description: string.IsNullOrEmpty(testName) ? "test" : testName);
             this.ScheduleOperation(op, () =>
             {
                 Task task = Task.CompletedTask;
@@ -430,14 +430,15 @@ namespace Microsoft.Coyote.Runtime
             }
             else
             {
-                op = this.CreateControlledOperation();
+                string callerInfo = GetCallerInfoFromStackTrace(new StackTrace());
+                op = this.CreateControlledOperation(description: callerInfo);
             }
 
             // Register this task as a known controlled task.
             this.ControlledTasks.TryAdd(task, op);
 
             this.ScheduleOperation(op, () => this.ControlledTaskScheduler.ExecuteTask(task));
-            this.ScheduleNextOperation(default, SchedulingPointType.Create);
+            this.ScheduleNextOperation(default, SchedulingPointType.Create, op);
         }
 
         /// <summary>
@@ -447,7 +448,7 @@ namespace Microsoft.Coyote.Runtime
         {
             ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
             this.ScheduleOperation(op, continuation, preCondition, postCondition);
-            this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
+            this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith, op);
         }
 
         /// <summary>
@@ -543,7 +544,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     var delayedOp = state as ControlledOperation;
                     delayedOp.Status = OperationStatus.PausedOnDelay;
-                    this.ScheduleNextOperation(delayedOp, SchedulingPointType.Yield);
+                    this.ScheduleNextOperation(delayedOp, SchedulingPointType.Delay);
                 },
                 op,
                 cancellationToken,
@@ -616,15 +617,16 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new controlled operation with the specified group and an optional delay.
         /// </summary>
-        internal ControlledOperation CreateControlledOperation(OperationGroup group = null, uint delay = 0)
+        internal ControlledOperation CreateControlledOperation(string description = null, OperationGroup group = null, uint delay = 0)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 // Create a new controlled operation using the next available operation id.
+                Console.WriteLine($"Creating controlled operation: {new System.Diagnostics.StackTrace()}");
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
                     new DelayOperation(operationId, $"Delay({operationId})", delay, group, this) :
-                    new ControlledOperation(operationId, $"Op({operationId})", group, this);
+                    new ControlledOperation(operationId, $"Op({operationId})", description, group, this);
                 if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
                 {
                     op.IsSourceUncontrolled = true;
@@ -842,6 +844,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="current">The currently executing operation, if there is one.</param>
         /// <param name="type">The type of the scheduling point.</param>
+        /// <param name="target">The target operation, if there is one.</param>
         /// <param name="isSuppressible">True if the interleaving can be suppressed, else false.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <returns>True if an operation other than the current was scheduled, else false.</returns>
@@ -849,7 +852,7 @@ namespace Microsoft.Coyote.Runtime
         /// An enabled operation is one that is not paused nor completed.
         /// </remarks>
         internal bool ScheduleNextOperation(ControlledOperation current, SchedulingPointType type,
-            bool isSuppressible = true, bool isYielding = false)
+            ControlledOperation target = null, bool isSuppressible = true, bool isYielding = false)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
@@ -965,7 +968,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CoverageInfo.DeclareSchedulingPoint(type.ToString(), new StackTrace().ToString());
                 }
 
-                if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
+                if (!this.Scheduler.GetNextOperation(ops, current, target ?? current, isYielding, out ControlledOperation next))
                 {
                     // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);
@@ -2451,6 +2454,42 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Returns the caller info from the specified stack trace.
+        /// </summary>
+        private static string GetCallerInfoFromStackTrace(StackTrace trace)
+        {
+#if NET || NETCOREAPP3_1
+            string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
+#else
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+#endif
+
+            string info = string.Empty;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (!lines[i].StartsWith("   at System", StringComparison.Ordinal) &&
+                    !lines[i].StartsWith("   at Microsoft.Coyote", StringComparison.Ordinal))
+                {
+                    // Get the method name with the parameters from the trace line.
+                    int index = lines[i].IndexOf("at ", StringComparison.Ordinal);
+                    if (index >= 0)
+                    {
+                        index += 3;
+                        int endIndex = lines[i].IndexOf("(", index, StringComparison.Ordinal);
+                        if (endIndex >= 0)
+                        {
+                            info = lines[i].Substring(index, endIndex - index);
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            return info;
         }
 
         /// <summary>

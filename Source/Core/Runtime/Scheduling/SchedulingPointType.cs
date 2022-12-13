@@ -29,6 +29,16 @@ namespace Microsoft.Coyote.Runtime
         ContinueWith,
 
         /// <summary>
+        /// A controlled operation is paused until its dependency is resolved.
+        /// </summary>
+        Pause,
+
+        /// <summary>
+        /// A controlled operation has delayed its execution.
+        /// </summary>
+        Delay,
+
+        /// <summary>
         /// A controlled operation yielded its execution.
         /// </summary>
         Interleave,
@@ -47,11 +57,6 @@ namespace Microsoft.Coyote.Runtime
         /// A controlled operation is writing shared state.
         /// </summary>
         Write,
-
-        /// <summary>
-        /// A controlled operation is paused until its dependency is resolved.
-        /// </summary>
-        Pause,
 
         /// <summary>
         /// A controlled operation is acquiring a synchronized resource.

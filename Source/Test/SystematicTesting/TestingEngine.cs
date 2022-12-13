@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly LogWriter LogWriter;
 
         /// <summary>
-        /// The DGML coverage graph of the execution path explored in the last iteration.
+        /// The coverage graph of the execution path explored in the last iteration.
         /// </summary>
         private CoverageGraph LastCoverageGraph;
 
@@ -94,14 +94,19 @@ namespace Microsoft.Coyote.SystematicTesting
         private StringBuilder XmlLog;
 
         /// <summary>
-        /// The readable trace, if any.
-        /// </summary>
-        public string ReadableTrace { get; private set; }
-
-        /// <summary>
         /// The reproducible trace, if any.
         /// </summary>
         public string ReproducibleTrace { get; private set; }
+
+        /// <summary>
+        /// The visual trace in DOT format, if any.
+        /// </summary>
+        public string VisualTrace { get; private set; }
+
+        /// <summary>
+        /// The readable trace, if any.
+        /// </summary>
+        public string ReadableTrace { get; private set; }
 
         /// <summary>
         /// A guard for printing info.
@@ -181,8 +186,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.StartIterationCallbacks = new HashSet<Action<uint>>();
             this.EndIterationCallbacks = new HashSet<Action<uint>>();
             this.TestReport = new TestReport(configuration);
-            this.ReadableTrace = string.Empty;
             this.ReproducibleTrace = string.Empty;
+            this.VisualTrace = string.Empty;
+            this.ReadableTrace = string.Empty;
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
             this.EngineLock = new object();
@@ -408,7 +414,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler, this.Configuration);
+                        this.ReproducibleTrace = TraceReport.GetJson(runtime, this.Scheduler, this.Configuration);
+                        this.VisualTrace = TraceReport.GetGraph(runtime, this.Scheduler.Trace);
                     }
                 }
 
@@ -515,11 +522,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(xmlPath);
                 }
 
-                if (this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                // if (this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                // {
+                //     string extension = this.Configuration.IsDgmlFormatEnabled ? "dgml" : "gv";
+                //     string graphPath = Path.Combine(directory, fileName + $".trace.{extension}");
+                //     this.LastCoverageGraph.Save(graphPath, true, this.Configuration.IsDgmlFormatEnabled);
+                //     paths.Add(graphPath);
+                // }
+
+                if (!string.IsNullOrEmpty(this.VisualTrace))
                 {
-                    string graphPath = Path.Combine(directory, fileName + ".trace.dgml");
-                    this.LastCoverageGraph.SaveDgml(graphPath, true);
-                    paths.Add(graphPath);
+                    string visualTracePath = Path.Combine(directory, fileName + $".trace.gv");
+                    File.WriteAllText(visualTracePath, this.VisualTrace);
+                    paths.Add(visualTracePath);
                 }
 
                 // Emits the reproducible trace, if it exists.
@@ -553,8 +568,9 @@ namespace Microsoft.Coyote.SystematicTesting
             var coverageReporter = new CoverageReporter(this.TestReport.CoverageInfo);
             if (this.Configuration.IsActivityCoverageReported)
             {
-                string graphFilePath = Path.Combine(directory, fileName + ".coverage.dgml");
-                if (coverageReporter.TryEmitVisualizationGraph(graphFilePath))
+                string extension = this.Configuration.IsDgmlFormatEnabled ? "dgml" : "gv";
+                string graphFilePath = Path.Combine(directory, fileName + $".coverage.{extension}");
+                if (coverageReporter.TryEmitVisualizationGraph(graphFilePath, this.Configuration.IsDgmlFormatEnabled))
                 {
                     paths.Add(graphFilePath);
                 }

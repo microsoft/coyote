@@ -49,29 +49,29 @@ namespace Microsoft.Coyote.Runtime
         internal static ExecutionTrace Create() => new ExecutionTrace();
 
         /// <summary>
-        /// Adds a scheduling choice.
+        /// Adds a scheduling decision.
         /// </summary>
-        internal void AddSchedulingChoice(ulong scheduledOperationId, SchedulingPointType sp)
+        internal void AddSchedulingDecision(ulong current, SchedulingPointType sp, ulong target, ulong next)
         {
-            var scheduleStep = Step.CreateSchedulingChoice(this.Length, scheduledOperationId, sp);
+            var scheduleStep = new SchedulingStep(this.Length, current, sp, target, next);
             this.Push(scheduleStep);
         }
 
         /// <summary>
-        /// Adds a nondeterministic boolean choice.
+        /// Adds a nondeterministic boolean decision.
         /// </summary>
-        internal void AddNondeterministicBooleanChoice(bool choice, SchedulingPointType sp)
+        internal void AddNondeterministicBooleanDecision(ulong current, bool value)
         {
-            var scheduleStep = Step.CreateNondeterministicBooleanChoice(this.Length, choice, sp);
+            var scheduleStep = new BooleanChoiceStep(this.Length, current, value);
             this.Push(scheduleStep);
         }
 
         /// <summary>
-        /// Adds a nondeterministic integer choice.
+        /// Adds a nondeterministic integer decision.
         /// </summary>
-        internal void AddNondeterministicIntegerChoice(int choice, SchedulingPointType sp)
+        internal void AddNondeterministicIntegerDecision(ulong current, int value)
         {
-            var scheduleStep = Step.CreateNondeterministicIntegerChoice(this.Length, choice, sp);
+            var scheduleStep = new IntegerChoiceStep(this.Length, current, value);
             this.Push(scheduleStep);
         }
 
@@ -143,17 +143,18 @@ namespace Microsoft.Coyote.Runtime
         {
             foreach (var step in trace.Steps)
             {
-                if (step.Kind is DecisionKind.SchedulingChoice)
+                if (step is SchedulingStep schedulingStep)
                 {
-                    this.AddSchedulingChoice(step.ScheduledOperationId, step.SchedulingPoint);
+                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.SchedulingPoint,
+                        schedulingStep.Target, schedulingStep.Value);
                 }
-                else if (step.Kind is DecisionKind.NondeterministicChoice && step.BooleanChoice.HasValue)
+                else if (step is BooleanChoiceStep boolChoiceStep)
                 {
-                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value, step.SchedulingPoint);
+                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.Value);
                 }
-                else if (step.Kind is DecisionKind.NondeterministicChoice && step.IntegerChoice.HasValue)
+                else if (step is IntegerChoiceStep intChoiceStep)
                 {
-                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value, step.SchedulingPoint);
+                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.Value);
                 }
             }
 
@@ -185,17 +186,18 @@ namespace Microsoft.Coyote.Runtime
             while (appendIndex < trace.Length)
             {
                 Step step = trace[appendIndex];
-                if (step.Kind is DecisionKind.SchedulingChoice)
+                if (step is SchedulingStep schedulingStep)
                 {
-                    this.AddSchedulingChoice(step.ScheduledOperationId, step.SchedulingPoint);
+                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.SchedulingPoint,
+                        schedulingStep.Target, schedulingStep.Value);
                 }
-                else if (step.Kind is DecisionKind.NondeterministicChoice && step.BooleanChoice.HasValue)
+                else if (step is BooleanChoiceStep boolChoiceStep)
                 {
-                    this.AddNondeterministicBooleanChoice(step.BooleanChoice.Value, step.SchedulingPoint);
+                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.Value);
                 }
-                else if (step.Kind is DecisionKind.NondeterministicChoice && step.IntegerChoice.HasValue)
+                else if (step is IntegerChoiceStep intChoiceStep)
                 {
-                    this.AddNondeterministicIntegerChoice(step.IntegerChoice.Value, step.SchedulingPoint);
+                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.Value);
                 }
 
                 appendIndex++;
@@ -210,18 +212,9 @@ namespace Microsoft.Coyote.Runtime
         internal void Clear() => this.Steps.Clear();
 
         /// <summary>
-        /// The kind of decision taken during an execution step.
-        /// </summary>
-        internal enum DecisionKind
-        {
-            SchedulingChoice = 0,
-            NondeterministicChoice
-        }
-
-        /// <summary>
         /// Contains metadata related to a single execution step.
         /// </summary>
-        internal sealed class Step : IEquatable<Step>, IComparable<Step>
+        internal abstract class Step : IEquatable<Step>, IComparable<Step>
         {
             /// <summary>
             /// The unique index of this execution step.
@@ -229,32 +222,9 @@ namespace Microsoft.Coyote.Runtime
             internal int Index;
 
             /// <summary>
-            /// The kind of controlled decision taken in this execution step.
+            /// The id of the currently executing operation.
             /// </summary>
-            internal DecisionKind Kind { get; private set; }
-
-            /// <summary>
-            /// The type of scheduling point encountered in this execution step.
-            /// </summary>
-            internal SchedulingPointType SchedulingPoint { get; private set; }
-
-            /// <summary>
-            /// The id of the scheduled operation. Only relevant if this is
-            /// a regular execution step.
-            /// </summary>
-            internal ulong ScheduledOperationId;
-
-            /// <summary>
-            /// The non-deterministic boolean choice value. Only relevant if
-            /// this is a choice execution step.
-            /// </summary>
-            internal bool? BooleanChoice;
-
-            /// <summary>
-            /// The non-deterministic integer choice value. Only relevant if
-            /// this is a choice execution step.
-            /// </summary>
-            internal int? IntegerChoice;
+            internal ulong Current;
 
             /// <summary>
             /// The previous execution step.
@@ -267,52 +237,14 @@ namespace Microsoft.Coyote.Runtime
             internal Step Next;
 
             /// <summary>
-            /// Creates an execution step.
+            /// Initializes a new instance of the <see cref="Step"/> class.
             /// </summary>
-            internal static Step CreateSchedulingChoice(int index, ulong scheduledOperationId, SchedulingPointType sp)
+            protected Step(int index, ulong current)
             {
-                var scheduleStep = new Step();
-                scheduleStep.Index = index;
-                scheduleStep.Kind = DecisionKind.SchedulingChoice;
-                scheduleStep.SchedulingPoint = sp;
-                scheduleStep.ScheduledOperationId = scheduledOperationId;
-                scheduleStep.BooleanChoice = null;
-                scheduleStep.IntegerChoice = null;
-                scheduleStep.Previous = null;
-                scheduleStep.Next = null;
-                return scheduleStep;
-            }
-
-            /// <summary>
-            /// Creates a nondeterministic boolean choice execution step.
-            /// </summary>
-            internal static Step CreateNondeterministicBooleanChoice(int index, bool choice, SchedulingPointType sp)
-            {
-                var scheduleStep = new Step();
-                scheduleStep.Index = index;
-                scheduleStep.Kind = DecisionKind.NondeterministicChoice;
-                scheduleStep.SchedulingPoint = sp;
-                scheduleStep.BooleanChoice = choice;
-                scheduleStep.IntegerChoice = null;
-                scheduleStep.Previous = null;
-                scheduleStep.Next = null;
-                return scheduleStep;
-            }
-
-            /// <summary>
-            /// Creates a nondeterministic integer choice execution step.
-            /// </summary>
-            internal static Step CreateNondeterministicIntegerChoice(int index, int choice, SchedulingPointType sp)
-            {
-                var scheduleStep = new Step();
-                scheduleStep.Index = index;
-                scheduleStep.Kind = DecisionKind.NondeterministicChoice;
-                scheduleStep.SchedulingPoint = sp;
-                scheduleStep.BooleanChoice = null;
-                scheduleStep.IntegerChoice = choice;
-                scheduleStep.Previous = null;
-                scheduleStep.Next = null;
-                return scheduleStep;
+                this.Index = index;
+                this.Current = current;
+                this.Previous = null;
+                this.Next = null;
             }
 
             /// <summary>
@@ -324,13 +256,7 @@ namespace Microsoft.Coyote.Runtime
             /// Indicates whether the specified <see cref="Step"/> is equal
             /// to the current <see cref="Step"/>.
             /// </summary>
-            internal bool Equals(Step other) => other != null ?
-                this.Index == other.Index && this.Kind == other.Kind &&
-                this.SchedulingPoint == other.SchedulingPoint &&
-                this.ScheduledOperationId == other.ScheduledOperationId &&
-                this.BooleanChoice == other.BooleanChoice &&
-                this.IntegerChoice == other.IntegerChoice :
-                false;
+            internal abstract bool Equals(Step other);
 
             /// <summary>
             /// Determines whether the specified object is equal to the current object.
@@ -348,6 +274,110 @@ namespace Microsoft.Coyote.Runtime
             /// <see cref="Step"/> for ordering or sorting purposes.
             /// </summary>
             int IComparable<Step>.CompareTo(Step other) => this.Index - other.Index;
+        }
+
+        /// <summary>
+        /// Contains metadata related to a single scheduling step.
+        /// </summary>
+        internal sealed class SchedulingStep : Step
+        {
+            /// <summary>
+            /// The type of scheduling point encountered in this execution step.
+            /// </summary>
+            internal SchedulingPointType SchedulingPoint { get; private set; }
+
+            /// <summary>
+            /// The id of the target operation.
+            /// </summary>
+            internal ulong Target;
+
+            /// <summary>
+            /// The non-deterministic scheduling choice value.
+            /// </summary>
+            internal ulong Value;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SchedulingStep"/> class.
+            /// </summary>
+            internal SchedulingStep(int index, ulong current, SchedulingPointType sp, ulong target, ulong next)
+                : base(index, current)
+            {
+                this.SchedulingPoint = sp;
+                this.Target = target;
+                this.Value = next;
+            }
+
+            /// <summary>
+            /// Indicates whether the specified <see cref="Step"/> is equal
+            /// to the current <see cref="Step"/>.
+            /// </summary>
+            internal override bool Equals(Step other) => other is SchedulingStep step ?
+                this.Index == step.Index &&
+                this.Current == step.Current &&
+                this.SchedulingPoint == step.SchedulingPoint &&
+                this.Target == step.Target &&
+                this.Value == step.Value :
+                false;
+        }
+
+        /// <summary>
+        /// Contains metadata related to a single boolean choice step.
+        /// </summary>
+        internal sealed class BooleanChoiceStep : Step
+        {
+            /// <summary>
+            /// The non-deterministic boolean choice value.
+            /// </summary>
+            internal bool Value;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="BooleanChoiceStep"/> class.
+            /// </summary>
+            internal BooleanChoiceStep(int index, ulong current, bool value)
+                : base(index, current)
+            {
+                this.Value = value;
+            }
+
+            /// <summary>
+            /// Indicates whether the specified <see cref="Step"/> is equal
+            /// to the current <see cref="Step"/>.
+            /// </summary>
+            internal override bool Equals(Step other) => other is BooleanChoiceStep step ?
+                this.Index == step.Index &&
+                this.Current == step.Current &&
+                this.Value == step.Value :
+                false;
+        }
+
+        /// <summary>
+        /// Contains metadata related to a single integer choice step.
+        /// </summary>
+        internal sealed class IntegerChoiceStep : Step
+        {
+            /// <summary>
+            /// The non-deterministic integer choice value.
+            /// </summary>
+            internal int Value;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="IntegerChoiceStep"/> class.
+            /// </summary>
+            internal IntegerChoiceStep(int index, ulong current, int value)
+                : base(index, current)
+            {
+                this.Value = value;
+            }
+
+            /// <summary>
+            /// Indicates whether the specified <see cref="Step"/> is equal
+            /// to the current <see cref="Step"/>.
+            /// </summary>
+            internal override bool Equals(Step other) => other is IntegerChoiceStep step ?
+                this.Index == step.Index &&
+                this.Current == step.Current &&
+                this.Value == step.Value :
+                false;
         }
     }
 }

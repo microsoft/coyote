@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
@@ -156,10 +157,53 @@ namespace Microsoft.Coyote.Coverage
             return index;
         }
 
-        internal void SaveDgml(string graphFilePath, bool includeDefaultStyles)
+        internal void Save(string graphFilePath, bool includeDefaultStyles, bool useDgmlFormat = false)
         {
             using StreamWriter writer = new StreamWriter(graphFilePath, false, Encoding.UTF8);
-            this.WriteDgml(writer, includeDefaultStyles);
+            if (useDgmlFormat)
+            {
+                this.WriteDgml(writer, includeDefaultStyles);
+            }
+            else
+            {
+                this.WriteDot(writer, includeDefaultStyles);
+            }
+        }
+
+        /// <summary>
+        /// Serializes the <see cref="CoverageGraph"/> to DOT format.
+        /// </summary>
+        public void WriteDot(TextWriter writer, bool includeDefaultStyles)
+        {
+            writer.WriteLine("digraph CoyoteGraph {");
+            if (includeDefaultStyles)
+            {
+                writer.WriteLine(
+@"  start[shape=Mdiamond];
+  end[shape=Msquare];");
+            }
+
+            if (this.InternalNodes != null && this.InternalLinks != null)
+            {
+                List<string> nodes = new List<string>(this.InternalNodes.Keys);
+                nodes.Sort(StringComparer.Ordinal);
+
+                foreach (var nodeId in nodes)
+                {
+                    Node node = this.InternalNodes[nodeId];
+                    List<string> links = new List<string>(this.InternalLinks.Where(
+                        link => link.Value.Source?.Id == node.Id).Select(link => link.Key));
+                    links.Sort(StringComparer.Ordinal);
+
+                    foreach (var linkId in links)
+                    {
+                        Link link = this.InternalLinks[linkId];
+                        writer.WriteLine("  \"{0}\" -> \"{1}\";", link.Source.Id, link.Target.Id);
+                    }
+                }
+            }
+
+            writer.WriteLine("}");
         }
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Runtime
         /// Initializes a new instance of the <see cref="UserDefinedOperation"/> class.
         /// </summary>
         internal UserDefinedOperation(CoyoteRuntime runtime, IOperationBuilder builder, ulong operationId)
-            : base(operationId, builder.Name, null, runtime)
+            : base(operationId, builder.Name, string.Empty, null, runtime)
         {
             this.HashedStateCallback = builder.HashedStateCallback;
         }

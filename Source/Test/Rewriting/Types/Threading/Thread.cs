@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                return runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, true, true);
+                return runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
             }
 
             return SystemThread.Yield();

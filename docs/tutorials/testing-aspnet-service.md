@@ -155,7 +155,7 @@ Just run them from inside Visual Studio, or run the following:
 
 ```
 cd Samples/WebApps/ImageGalleryAspNet/
-dotnet test bin/net6.0/ImageGalleryTests.dll
+dotnet test bin/net7.0/ImageGalleryTests.dll
 ```
 
 The tests may or may not trigger the bug! Most likely you will see this output:

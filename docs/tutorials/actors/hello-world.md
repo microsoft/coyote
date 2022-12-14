@@ -24,7 +24,7 @@ You can build the sample by following the instructions
 Now you can run the HelloWorldActors application:
 
 ```plain
-"./Samples/bin/net6.0/HelloWorldActors.exe"
+"./Samples/bin/net7.0/HelloWorldActors.exe"
 ```
 
 Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
@@ -59,13 +59,13 @@ find the `coyote` test tool and setup your environment to use it.
 Enter the following from the command line:
 
 ```plain
-coyote test ./Samples/bin/net6.0/HelloWorldActors.dll --iterations 30
+coyote test ./Samples/bin/net7.0/HelloWorldActors.dll --iterations 30
 ```
 
 The result is:
 
 ```plain
-. Testing .\Samples\bin\net6.0\HelloWorldActors.dll
+. Testing .\Samples\bin\net7.0\HelloWorldActors.dll
 Starting TestingProcessScheduler in process 16432
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:308255541).
@@ -73,8 +73,8 @@ Starting TestingProcessScheduler in process 16432
 ..... Iteration #2
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
-..... Writing .\Samples\bin\net6.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.trace
+..... Writing .\Samples\bin\net7.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\Samples\bin\net7.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.trace
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -240,7 +240,7 @@ tool has ways of interrupting and restarting this `Execute` method based on `--i
 So now you know what happened when you ran the following command line:
 
 ```plain
-coyote test ./Samples/bin/net6.0/HelloWorldActors.exe --iterations 30
+coyote test ./Samples/bin/net7.0/HelloWorldActors.exe --iterations 30
 ```
 
 A special coyote `TestingEngine` was created, it invoked the `Execute` method 30 times, and during

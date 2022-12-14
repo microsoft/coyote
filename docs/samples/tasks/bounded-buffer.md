@@ -25,13 +25,13 @@ Now you can run the `BoundedBuffer` application in a mode that should trigger th
 the time:
 
 ```plain
-./Samples/bin/net6.0/BoundedBuffer.exe -m
+./Samples/bin/net7.0/BoundedBuffer.exe -m
 ```
 
 And you can run it with a fix for the deadlock as follows:
 
 ```plain
-./Samples/bin/net6.0/BoundedBuffer.exe -f
+./Samples/bin/net7.0/BoundedBuffer.exe -f
 ```
 
 ### Can you find the deadlock bug in BoundedBuffer class?

@@ -10,7 +10,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Install .NET 7.0 SDK'
   inputs:
-    useGlobalJson: true
+    version: 7.0.x
 
 - task: UseDotNet@2
   displayName: 'Install .NET 6.0 SDK'

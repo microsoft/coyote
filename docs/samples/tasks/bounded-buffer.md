@@ -10,7 +10,7 @@ article](https://cloudblogs.microsoft.com/opensource/2020/07/14/extreme-programm
 To run the `BoundedBuffer` example, you will need to:
 
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 7.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 

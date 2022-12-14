@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 param(
-    [ValidateSet("net7.0", "net462")]
+    [ValidateSet("net7.0", "net6.0", "netcoreapp3.1", "net462")]
     [string]$framework = "net7.0",
     [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "standalone")]
     [string]$test = "all",

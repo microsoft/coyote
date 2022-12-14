@@ -1,4 +1,4 @@
-## vNext
+## v1.7.3
 - Added support for the `net7.0` target framework.
 
 ## v1.7.2

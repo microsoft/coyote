@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Runtime
                             current.Name, name);
                         runtime.SignalMap[name] = 0;
                         current.Status = OperationStatus.Suppressed;
-                        current.Suppression = name;
+                        runtime.OperationSignalAwaiters.Add(current.Id, name);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);
                     }
                 }
@@ -168,13 +168,14 @@ namespace Microsoft.Coyote.Runtime
             {
                 using (runtime.EnterSynchronizedSection())
                 {
-                    var ops = runtime.GetOperationsWith(op => op.Suppression == name);
-                    foreach (var op in ops)
+                    var ids = runtime.OperationSignalAwaiters.Where(kvp => kvp.Value == name).Select(kvp => kvp.Key);
+                    foreach (var id in ids)
                     {
+                        var op = runtime.GetOperationWithId(id);
                         runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is signaled for '{1}'.",
                             op.Name, name);
                         op.Status = OperationStatus.Enabled;
-                        op.Suppression = string.Empty;
+                        runtime.OperationSignalAwaiters.Remove(id);
                     }
 
                     if (!runtime.SignalMap.TryGetValue(name, out var signal))

@@ -151,6 +151,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly Dictionary<string, int> SignalMap;
 
         /// <summary>
+        /// Map from operation ids to the name of the signal they are awaiting.
+        /// </summary>
+        internal readonly Dictionary<ulong, string> OperationSignalAwaiters;
+
+        /// <summary>
         /// The currently scheduled operation during systematic testing.
         /// </summary>
         private ControlledOperation ScheduledOperation;
@@ -326,6 +331,7 @@ namespace Microsoft.Coyote.Runtime
             this.UncontrolledTasks = new ConcurrentDictionary<Task, string>();
             this.UncontrolledInvocations = new HashSet<string>();
             this.SignalMap = new Dictionary<string, int>();
+            this.OperationSignalAwaiters = new Dictionary<ulong, string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
 
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
@@ -1329,9 +1335,10 @@ namespace Microsoft.Coyote.Runtime
                         if (op.Status is OperationStatus.Suppressed)
                         {
                             op.Status = OperationStatus.Enabled;
-                            op.Suppression = string.Empty;
                         }
                     }
+
+                    this.OperationSignalAwaiters.Clear();
                 }
                 else
                 {
@@ -1499,18 +1506,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return default;
-        }
-
-        /// <summary>
-        /// Tries to return the <see cref="ControlledOperation"/> that satisfies the given predicate,
-        /// or false if no such operation exists.
-        /// </summary>
-        internal IEnumerable<ControlledOperation> GetOperationsWith(Func<ControlledOperation, bool> predicate)
-        {
-            using (SynchronizedSection.Enter(this.RuntimeLock))
-            {
-                return this.OperationMap.Values.Where(op => predicate(op));
-            }
         }
 
         /// <summary>
@@ -2643,6 +2638,7 @@ namespace Microsoft.Coyote.Runtime
                     this.TaskLivenessMonitors.Clear();
                     this.StateHashingFunctions.Clear();
                     this.SignalMap.Clear();
+                    this.OperationSignalAwaiters.Clear();
 
                     if (!(this.Extension is NullRuntimeExtension))
                     {

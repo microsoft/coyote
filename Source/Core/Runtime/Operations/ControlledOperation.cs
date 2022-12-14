@@ -86,11 +86,6 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsRoot => this.Id is 0;
 
         /// <summary>
-        /// True if this is the root operation, else false.
-        /// </summary>
-        internal string Suppression;
-
-        /// <summary>
         /// True if this operation is currently paused, else false.
         /// </summary>
         internal bool IsPaused =>
@@ -116,7 +111,6 @@ namespace Microsoft.Coyote.Runtime
             this.LastAccessedSharedState = string.Empty;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
-            this.Suppression = string.Empty;
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);

@@ -1,3 +1,6 @@
+## vNext
+- Added support for the `net7.0` target framework.
+
 ## v1.7.2
 - Added support for fully controlling the `SemaphoreSlim` type during testing.
 - Added support for detecting the `System.Guid` and `System.DateTime` APIs as sources of

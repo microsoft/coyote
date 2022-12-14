@@ -3,7 +3,7 @@
 
 $root_dir = "$PSScriptRoot\.."
 $packages_path = "$root_dir\packages"
-$framework = "net6.0"
+$framework = "net7.0"
 
 # Build the GenDoc tool.
 $path = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath "Tools", "GenDoc"

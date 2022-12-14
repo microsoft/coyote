@@ -27,7 +27,7 @@ $dotnet = "dotnet"
 $dotnet_sdk_path = FindDotNetSdkPath -dotnet $dotnet
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
 $version_netcore31 = FindMatchingVersion -path $dotnet_sdk_path -version "3.1.0"
-$version_net5 = FindMatchingVersion -path $dotnet_sdk_path -version "5.0.0"
+$version_net6 = FindMatchingVersion -path $dotnet_sdk_path -version "6.0.0"
 $sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 
 if ($null -eq $sdk_version) {
@@ -49,10 +49,10 @@ if ($ci.IsPresent) {
         $extra_frameworks = $extra_frameworks + " /p:BUILD_NETCORE31=yes"
     }
 
-    # if ($null -ne $version_net5 -and $version_net5 -ne $sdk_version) {
-    #     # Build .NET 5.0 as well as the latest version.
-    #     $extra_frameworks = $extra_frameworks + " /p:BUILD_NET5=yes"
-    # }
+    if ($null -ne $version_net6 -and $version_net6 -ne $sdk_version) {
+        # Build .NET 6.0 as well as the latest version.
+        $extra_frameworks = $extra_frameworks + " /p:BUILD_NET6=yes"
+    }
 }
 
 Write-Comment -text "Using configuration '$configuration'." -color "magenta"

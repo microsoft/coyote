@@ -16,7 +16,7 @@ a complete example using xUnit. The project simply includes xUnit and the Coyote
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Coyote" Version="1.4.1" />

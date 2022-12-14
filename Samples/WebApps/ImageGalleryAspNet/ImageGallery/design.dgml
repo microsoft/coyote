@@ -48,7 +48,7 @@
     <Node Id="@36" Category="CodeSchema_Namespace" Bounds="773.927185201584,490.713883260739,740.406808803008,298.840566741276" DelayedChildNodesState="Fetched" DelayedCrossGroupLinksState="Fetched" FetchedChildrenCount="8" Group="Expanded" Label="ImageGallery‎.Store‎.Cosmos" UseManualLocation="True" />
     <Node Id="@37" Category="CodeSchema_Namespace" Bounds="320.695885131207,974.343676357855,176.473333333333,140.0003" DelayedChildNodesState="Fetched" DelayedCrossGroupLinksState="Fetched" FetchedChildrenCount="2" Group="Expanded" Label="ImageGallery‎.Tests" UseManualLocation="True" />
     <Node Id="@38" Category="CodeSchema_Namespace" Bounds="280.053178930798,1181.14193404704,265.356666666667,85.0002" DelayedChildNodesState="Fetched" DelayedCrossGroupLinksState="Fetched" FetchedChildrenCount="1" Group="Expanded" Label="ImageGallery‎.Tests‎.Mocks‎.AzureStorage" />
-    <Node Id="@4" Category="CodeSchema_Assembly" Bounds="1558.10211411794,987.249543980297,282.306666666668,250.9604999995" CodeSchemaProperty_IsExternal="True" CodeSchemaProperty_StrongName="Azure.Storage.Blobs, Version=12.6.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8" DelayedChildNodesState="Incomplete" DelayedCrossGroupLinksState="Fetched" FilePath="C:\git\foundry99\CoyoteSamples\packages\azure.storage.blobs\12.6.0\lib\netstandard2.0\Azure.Storage.Blobs.dll" Group="Expanded" Label="Azure.Storage.Blobs.dll" UseManualLocation="True">
+    <Node Id="@4" Category="CodeSchema_Assembly" Bounds="1558.10211411794,987.249543980297,282.306666666668,250.9604999995" CodeSchemaProperty_IsExternal="True" CodeSchemaProperty_StrongName="Azure.Storage.Blobs, Version=12.6.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8" DelayedChildNodesState="Incomplete" DelayedCrossGroupLinksState="Fetched" FilePath="C:\git\microsoft\CoyoteSamples\packages\azure.storage.blobs\12.6.0\lib\netstandard2.0\Azure.Storage.Blobs.dll" Group="Expanded" Label="Azure.Storage.Blobs.dll" UseManualLocation="True">
       <Category Ref="FileSystem.Category.FileOfType.dll" />
     </Node>
     <Node Id="@40" Category="CodeSchema_Namespace" Bounds="575.409845597464,1046.72182699855,504.586666666667,353.8403" DelayedChildNodesState="Fetched" DelayedCrossGroupLinksState="Fetched" FetchedChildrenCount="4" Group="Expanded" Label="ImageGallery‎.Tests‎.Mocks‎.Cosmos" />
@@ -88,7 +88,7 @@
     <Node Id="@77" Category="CodeSchema_Class" Bounds="210.295453208094,564.611686405997,160.766666666666,25" CodeSchemaProperty_IsPublic="True" DelayedChildNodesState="NotFetched" DelayedCrossGroupLinksState="Fetched" Group="Collapsed" Label="ImageGalleryClient" />
     <Node Id="@78" Category="CodeSchema_Class" Bounds="176.437119874758,734.61208640555,111.696666666667,25" CodeSchemaProperty_IsPublic="True" DelayedChildNodesState="Incomplete" DelayedCrossGroupLinksState="Fetched" Group="Collapsed" Label="ImageList" />
     <Node Id="@79" Category="CodeSchema_Class" Bounds="307.808178930798,1221.14203404704,209.846666666667,25" CodeSchemaProperty_IsInternal="True" DelayedChildNodesState="NotFetched" DelayedCrossGroupLinksState="Fetched" Group="Collapsed" Label="MockBlobContainerProvider" />
-    <Node Id="@8" Category="CodeSchema_Assembly" Bounds="1225.89527256953,923.54879414669,249.660030705313,156.9203" CodeSchemaProperty_IsExternal="True" CodeSchemaProperty_StrongName="Microsoft.Azure.Cosmos.Client, Version=3.12.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" DelayedChildNodesState="Incomplete" DelayedCrossGroupLinksState="Fetched" FilePath="C:\git\foundry99\CoyoteSamples\packages\microsoft.azure.cosmos\3.12.0\ref\netstandard2.0\Microsoft.Azure.Cosmos.Client.dll" Group="Expanded" Label="Microsoft.Azure.Cosmos.Client.dll" UseManualLocation="True">
+    <Node Id="@8" Category="CodeSchema_Assembly" Bounds="1225.89527256953,923.54879414669,249.660030705313,156.9203" CodeSchemaProperty_IsExternal="True" CodeSchemaProperty_StrongName="Microsoft.Azure.Cosmos.Client, Version=3.12.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" DelayedChildNodesState="Incomplete" DelayedCrossGroupLinksState="Fetched" FilePath="C:\git\microsoft\CoyoteSamples\packages\microsoft.azure.cosmos\3.12.0\ref\netstandard2.0\Microsoft.Azure.Cosmos.Client.dll" Group="Expanded" Label="Microsoft.Azure.Cosmos.Client.dll" UseManualLocation="True">
       <Category Ref="FileSystem.Category.FileOfType.dll" />
     </Node>
     <Node Id="@80" Category="CodeSchema_Class" Bounds="637.789845597465,1190.56202699855,164.783333333333,25" CodeSchemaProperty_IsInternal="True" DelayedChildNodesState="NotFetched" DelayedCrossGroupLinksState="Fetched" Group="Collapsed" Label="MockClientProvider" />
@@ -524,11 +524,11 @@
   <IdentifierAliases>
     <Alias n="1" Uri="Assembly=$(e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPathUri)" />
     <Alias n="2" Id="(@1)" />
-    <Alias n="3" Uri="Assembly=file:///C:/git/foundry99/CoyoteSamples/packages/azure.storage.blobs/12.6.0/lib/netstandard2.0/Azure.Storage.Blobs.dll" />
+    <Alias n="3" Uri="Assembly=file:///C:/git/microsoft/CoyoteSamples/packages/azure.storage.blobs/12.6.0/lib/netstandard2.0/Azure.Storage.Blobs.dll" />
     <Alias n="4" Id="(@3)" />
     <Alias n="5" Uri="Assembly=$(b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPathUri)" />
     <Alias n="6" Id="(@5)" />
-    <Alias n="7" Uri="Assembly=file:///C:/git/foundry99/CoyoteSamples/packages/microsoft.azure.cosmos/3.12.0/ref/netstandard2.0/Microsoft.Azure.Cosmos.Client.dll" />
+    <Alias n="7" Uri="Assembly=file:///C:/git/microsoft/CoyoteSamples/packages/microsoft.azure.cosmos/3.12.0/ref/netstandard2.0/Microsoft.Azure.Cosmos.Client.dll" />
     <Alias n="8" Id="(@7)" />
     <Alias n="9" Uri="Assembly=$(a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPathUri)" />
     <Alias n="10" Id="(@9)" />
@@ -617,7 +617,7 @@
     <Alias n="93" Id="(@1 @21 @44 Member=(Name=Create OverloadingParameters=[@43]))" />
     <Alias n="94" Id="(@1 @21 @44 Member=(Name=Update OverloadingParameters=[@43]))" />
     <Alias n="95" Id="(@1 @21 @67 Member=(Name=Store OverloadingParameters=[@76]))" />
-    <Alias n="96" Uri="Assembly=file:///C:/Program Files/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/System.Runtime.dll" />
+    <Alias n="96" Uri="Assembly=file:///C:/Program Files/dotnet/packs/Microsoft.NETCore.App.Ref/7.0.100/ref/net7.0/System.Runtime.dll" />
     <Alias n="97" Id="(@96 Namespace=System Type=String)" />
     <Alias n="98" Id="OverloadingParameters=[@97]" />
     <Alias n="99" Id="(@1 @21 @44 Member=(Name=Get @98))" />
@@ -869,13 +869,13 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPath" Value="C:\git\foundry99\CoyoteSamples\ImageGalleryAspNet\bin\netcoreapp3.1\ImageGalleryClient.dll" />
-    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPathUri" Value="file:///C:/git/foundry99/CoyoteSamples/ImageGalleryAspNet/bin/netcoreapp3.1/ImageGalleryClient.dll" />
-    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPath" Value="C:\git\foundry99\CoyoteSamples\ImageGalleryAspNet\bin\netcoreapp3.1\ImageGalleryTests.dll" />
-    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPathUri" Value="file:///C:/git/foundry99/CoyoteSamples/ImageGalleryAspNet/bin/netcoreapp3.1/ImageGalleryTests.dll" />
-    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPath" Value="C:\git\foundry99\CoyoteSamples\ImageGalleryAspNet\ImageGallery\bin\Debug\netcoreapp3.1\ImageGallery.dll" />
-    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPathUri" Value="file:///C:/git/foundry99/CoyoteSamples/ImageGalleryAspNet/ImageGallery/bin/Debug/netcoreapp3.1/ImageGallery.dll" />
-    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPath" Value="C:\git\foundry99\CoyoteSamples\ImageGalleryAspNet\bin\netcoreapp3.1\ImageGalleryService.dll" />
-    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPathUri" Value="file:///C:/git/foundry99/CoyoteSamples/ImageGalleryAspNet/bin/netcoreapp3.1/ImageGalleryService.dll" />
+    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryClient.dll" />
+    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryClient.dll" />
+    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryTests.dll" />
+    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryTests.dll" />
+    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\ImageGallery\bin\Debug\net7.0\ImageGallery.dll" />
+    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/ImageGallery/bin/Debug/net7.0/ImageGallery.dll" />
+    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryService.dll" />
+    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryService.dll" />
   </Paths>
 </DirectedGraph>

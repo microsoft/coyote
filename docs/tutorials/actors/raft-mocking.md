@@ -19,7 +19,7 @@ you achieve a high level of confidence that the code is rock solid.
 You will also need to:
 
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 7.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
@@ -33,12 +33,12 @@ You can build the sample by following the instructions
 Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+coyote test ./Samples/bin/net7.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
 ```
 
 You should see the test succeed with output like this, including a coverage report and graph:
 ```plain
-. Testing ./Samples/bin/net6.0/Raft.Mocking.dll
+. Testing ./Samples/bin/net7.0/Raft.Mocking.dll
 Starting TestingProcessScheduler in process 34068
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:1388735316).
@@ -49,9 +49,9 @@ Starting TestingProcessScheduler in process 34068
 ..... Iteration #900
 ..... Iteration #1000
 ... Emitting coverage reports:
-..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
-..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing .\Samples\bin\net6.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
+..... Writing .\Samples\bin\net7.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\Samples\bin\net7.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\Samples\bin\net7.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:
@@ -127,7 +127,7 @@ async operations. The last option is interesting because it allows you to test m
 scheduling strategies at once:
 
 ```plain
-coyote test ./Samples/bin/net6.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -s portfolio
+coyote test ./Samples/bin/net7.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -s portfolio
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

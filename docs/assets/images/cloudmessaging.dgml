@@ -413,9 +413,9 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\netcoreapp3.1\Raft.dll" />
-    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/netcoreapp3.1/Raft.dll" />
-    <Path Id="9513779f-4e37-4a20-9e33-8beb11477695.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\netcoreapp3.1\Raft.Azure.dll" />
-    <Path Id="9513779f-4e37-4a20-9e33-8beb11477695.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/netcoreapp3.1/Raft.Azure.dll" />
+    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net7.0\Raft.dll" />
+    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net7.0/Raft.dll" />
+    <Path Id="9513779f-4e37-4a20-9e33-8beb11477695.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net7.0\Raft.Azure.dll" />
+    <Path Id="9513779f-4e37-4a20-9e33-8beb11477695.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net7.0/Raft.Azure.dll" />
   </Paths>
 </DirectedGraph>

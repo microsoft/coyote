@@ -688,7 +688,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     // Only release the lock if the invocation is not reentrant.
                     this.LockCountMap.Remove(op);
                     this.UnlockNextReady();
-                    runtime.ScheduleNextOperation(op, SchedulingPointType.Release);
                 }
 
                 int useCount = SystemInterlocked.Decrement(ref this.UseCount);

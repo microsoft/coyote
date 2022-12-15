@@ -146,6 +146,16 @@ namespace Microsoft.Coyote.Runtime
         private readonly HashSet<string> UncontrolledInvocations;
 
         /// <summary>
+        /// Map from signal names to their corresponding counters.
+        /// </summary>
+        internal readonly Dictionary<string, int> SignalMap;
+
+        /// <summary>
+        /// Map from operation ids to the name of the signal they are awaiting.
+        /// </summary>
+        internal readonly Dictionary<ulong, string> OperationSignalAwaiters;
+
+        /// <summary>
         /// The currently scheduled operation during systematic testing.
         /// </summary>
         private ControlledOperation ScheduledOperation;
@@ -320,6 +330,8 @@ namespace Microsoft.Coyote.Runtime
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new ConcurrentDictionary<Task, string>();
             this.UncontrolledInvocations = new HashSet<string>();
+            this.SignalMap = new Dictionary<string, int>();
+            this.OperationSignalAwaiters = new Dictionary<ulong, string>();
             this.CompletionSource = new TaskCompletionSource<bool>();
 
             if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
@@ -431,10 +443,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Schedules the specified continuation to execute on the controlled thread pool.
         /// </summary>
-        internal void Schedule(Action continuation)
+        internal void Schedule(Action continuation, Action preCondition = null, Action postCondition = null)
         {
             ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
-            this.ScheduleOperation(op, continuation);
+            this.ScheduleOperation(op, continuation, preCondition, postCondition);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }
 
@@ -456,9 +468,6 @@ namespace Microsoft.Coyote.Runtime
                 {
                     try
                     {
-                        // Execute the optional pre-condition.
-                        preCondition?.Invoke();
-
                         // Start the operation.
                         this.StartOperation(op);
 
@@ -468,6 +477,9 @@ namespace Microsoft.Coyote.Runtime
                         {
                             this.DelayOperation(op);
                         }
+
+                        // Execute the optional pre-condition.
+                        preCondition?.Invoke();
 
                         // Execute the controlled action.
                         action.Invoke();
@@ -1311,6 +1323,27 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 break;
+            }
+
+            if (enabledOpsCount is 0 && this.OperationMap.Values.Any(op => op.Status is OperationStatus.Suppressed))
+            {
+                if (this.Configuration.IsSchedulingSuppressionWeak)
+                {
+                    // Enable all suppressed operations, to avoid deadlocking the program.
+                    foreach (var op in this.OperationMap.Values)
+                    {
+                        if (op.Status is OperationStatus.Suppressed)
+                        {
+                            op.Status = OperationStatus.Enabled;
+                        }
+                    }
+
+                    this.OperationSignalAwaiters.Clear();
+                }
+                else
+                {
+                    this.NotifyAssertionFailure("Only suppressed operations remain.");
+                }
             }
 
             this.LogWriter.LogDebug("[coyote::debug] There are {0} enabled operations in runtime '{1}'.",
@@ -2604,6 +2637,8 @@ namespace Microsoft.Coyote.Runtime
                     this.SpecificationMonitors.Clear();
                     this.TaskLivenessMonitors.Clear();
                     this.StateHashingFunctions.Clear();
+                    this.SignalMap.Clear();
+                    this.OperationSignalAwaiters.Clear();
 
                     if (!(this.Extension is NullRuntimeExtension))
                     {

@@ -242,6 +242,12 @@ namespace Microsoft.Coyote
         internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
 
         /// <summary>
+        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsSchedulingSuppressionWeak;
+
+        /// <summary>
         /// Attaches the debugger during trace replay.
         /// </summary>
         [DataMember]
@@ -347,6 +353,7 @@ namespace Microsoft.Coyote
             this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
+            this.IsSchedulingSuppressionWeak = false;
             this.AttachDebugger = false;
 
             this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
@@ -863,6 +870,15 @@ namespace Microsoft.Coyote
         internal Configuration WithMonitoringEnabledOutsideTesting(bool isEnabled = true)
         {
             this.IsMonitoringEnabledOutsideTesting = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable weak scheduling suppression during testing.
+        /// </summary>
+        public Configuration WithWeakSchedulingSuppressionEnabled(bool isEnabled = true)
+        {
+            this.IsSchedulingSuppressionWeak = isEnabled;
             return this;
         }
 

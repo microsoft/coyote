@@ -54,14 +54,9 @@ namespace Microsoft.Coyote.Runtime
         Pause,
 
         /// <summary>
-        /// A controlled operation acquired a synchronized resource.
+        /// A controlled operation is acquiring a synchronized resource.
         /// </summary>
         Acquire,
-
-        /// <summary>
-        /// A controlled operation released a synchronized resource.
-        /// </summary>
-        Release,
 
         /// <summary>
         /// A controlled operation sent an event.

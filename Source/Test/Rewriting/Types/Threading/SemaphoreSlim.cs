@@ -229,14 +229,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         private class Wrapper : SystemSemaphoreSlim
         {
             /// <summary>
-            /// The resource id of this semaphore.
-            /// </summary>
-            private readonly Guid ResourceId;
-
-            /// <summary>
             /// The id of the <see cref="CoyoteRuntime"/> that created this semaphore.
             /// </summary>
             private readonly Guid RuntimeId;
+
+            /// <summary>
+            /// The resource id of this semaphore.
+            /// </summary>
+            private readonly Guid ResourceId;
 
             /// <summary>
             /// Queue of operations waiting to be released.
@@ -269,8 +269,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             internal Wrapper(CoyoteRuntime runtime, int initialCount, int maxCount)
                 : base(initialCount, maxCount)
             {
-                this.ResourceId = Guid.NewGuid();
                 this.RuntimeId = runtime.Id;
+                this.ResourceId = Guid.NewGuid();
                 this.PausedOperations = new Queue<ControlledOperation>();
                 this.AsyncAwaiters = new Queue<SystemTasks.TaskCompletionSource<bool>>();
                 this.LockCount = initialCount;
@@ -283,13 +283,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal bool Enter(int millisecondsTimeout)
             {
-                var runtime = CoyoteRuntime.Current;
-                if (runtime.Id != this.RuntimeId)
-                {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
-                }
-
+                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -326,13 +320,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal SystemTasks.Task<bool> EnterAsync(int millisecondsTimeout)
             {
-                var runtime = CoyoteRuntime.Current;
-                if (runtime.Id != this.RuntimeId)
-                {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
-                }
-
+                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -368,13 +356,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal int Exit(int releaseCount)
             {
-                var runtime = CoyoteRuntime.Current;
-                if (runtime.Id != this.RuntimeId)
-                {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
-                }
-
+                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -415,6 +397,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     this.LockCount = lockCount;
                     return previousCount;
                 }
+            }
+
+            /// <summary>
+            /// Returns the current runtime, asserting that it is the same runtime that created this resource.
+            /// </summary>
+            private CoyoteRuntime GetRuntime()
+            {
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.Id != this.RuntimeId)
+                {
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
+                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
+                }
+
+                return runtime;
             }
         }
     }

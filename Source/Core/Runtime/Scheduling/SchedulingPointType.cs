@@ -59,6 +59,11 @@ namespace Microsoft.Coyote.Runtime
         Acquire,
 
         /// <summary>
+        /// A controlled operation released a synchronized resource.
+        /// </summary>
+        Release,
+
+        /// <summary>
         /// A controlled operation sent an event.
         /// </summary>
         Send,

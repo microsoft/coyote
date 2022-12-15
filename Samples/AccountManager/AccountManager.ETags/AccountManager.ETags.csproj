@@ -19,7 +19,6 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="xunit.assert" Version="2.4.2" />
   </ItemGroup>
 </Project>

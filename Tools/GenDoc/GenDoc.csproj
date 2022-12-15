@@ -14,7 +14,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="XmlDocMarkdown.Core" Version="2.8.0" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>

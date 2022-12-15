@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("SemaphoreSlim.Wait");
                     }
-                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.LockCount > 0)
+                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
                     {
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
                     }
@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("SemaphoreSlim.WaitAsync");
                     }
-                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.LockCount > 0)
+                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
                     {
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
                     }

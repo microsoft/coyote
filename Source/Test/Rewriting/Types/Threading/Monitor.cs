@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                SynchronizedBlock.Lock(runtime, obj);
+                SynchronizedBlock.Lock(obj);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                lockTaken = SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
-                return SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                return SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                return SynchronizedBlock.Lock(runtime, obj).IsLockTaken;
+                return SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -427,9 +427,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// Creates a new <see cref="SynchronizedBlock"/> for synchronizing access
             /// to the specified object and enters the lock.
             /// </summary>
-            internal static SynchronizedBlock Lock(CoyoteRuntime runtime, object syncObject) =>
+            internal static SynchronizedBlock Lock(object syncObject) =>
                 Cache.GetOrAdd(syncObject, key => new Lazy<SynchronizedBlock>(
-                    () => new SynchronizedBlock(runtime, key))).Value.EnterLock();
+                    () => new SynchronizedBlock(CoyoteRuntime.Current, key))).Value.EnterLock();
 
             /// <summary>
             /// Finds the synchronized block associated with the specified synchronization object.

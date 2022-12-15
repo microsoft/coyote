@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -78,7 +77,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithException<ArgumentNullException>(() =>
             {
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, null);
+                using var monitor = SynchronizedBlock.Lock(null);
             },
             replay: true);
         }
@@ -89,7 +88,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.TestWithException<SynchronizationLockException>(() =>
             {
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, new object()))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -104,7 +103,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.TestWithException<SynchronizationLockException>(() =>
             {
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, new object()))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -119,7 +118,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             this.TestWithException<SynchronizationLockException>(() =>
             {
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, new object()))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -135,7 +134,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 try
                 {
-                    var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, new object());
+                    var monitor = SynchronizedBlock.Lock(new object());
                     // We yield to make sure the execution is asynchronous.
                     await Task.Yield();
                     monitor.Pulse();
@@ -208,14 +207,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
             internal void Signal()
             {
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 this.Signalled = true;
                 monitor.Pulse();
             }
 
             internal void Wait()
             {
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 while (!this.Signalled)
                 {
                     bool result = monitor.Wait();
@@ -226,28 +225,28 @@ namespace Microsoft.Coyote.BugFinding.Tests
             internal void ReentrantLock()
             {
                 Debug.WriteLine("Entering lock on task {0}.", GetCurrentTaskId());
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 Debug.WriteLine("Entered lock on task {0}.", GetCurrentTaskId());
                 this.DoLock();
             }
 
             internal void DoLock()
             {
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 Debug.WriteLine("Re-entered lock from the same task {0}.", GetCurrentTaskId());
             }
 
             internal void ReentrantWait()
             {
                 Debug.WriteLine("Entering lock on task {0}.", GetCurrentTaskId());
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 Debug.WriteLine("Entered lock on task {0}.", GetCurrentTaskId());
                 this.DoWait();
             }
 
             internal void DoWait()
             {
-                using var monitor = SynchronizedBlock.Lock(CoyoteRuntime.Current, this.SyncObject);
+                using var monitor = SynchronizedBlock.Lock(this.SyncObject);
                 Debug.WriteLine("Re-entered lock from the same task {0}.", GetCurrentTaskId());
                 Debug.WriteLine("Task {0} is now waiting...", GetCurrentTaskId());
                 this.Wait();

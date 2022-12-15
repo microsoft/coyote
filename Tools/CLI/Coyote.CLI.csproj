@@ -18,17 +18,19 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />

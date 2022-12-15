@@ -168,14 +168,13 @@ namespace Microsoft.Coyote.Runtime
             {
                 using (runtime.EnterSynchronizedSection())
                 {
-                    var ids = runtime.OperationSignalAwaiters.Where(kvp => kvp.Value == name).Select(kvp => kvp.Key);
-                    foreach (var id in ids)
+                    foreach (var kvp in runtime.OperationSignalAwaiters.Where(kvp => kvp.Value == name).ToList())
                     {
-                        var op = runtime.GetOperationWithId(id);
+                        var op = runtime.GetOperationWithId(kvp.Key);
                         runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is signaled for '{1}'.",
                             op.Name, name);
                         op.Status = OperationStatus.Enabled;
-                        runtime.OperationSignalAwaiters.Remove(id);
+                        runtime.OperationSignalAwaiters.Remove(kvp.Key);
                     }
 
                     if (!runtime.SignalMap.TryGetValue(name, out var signal))

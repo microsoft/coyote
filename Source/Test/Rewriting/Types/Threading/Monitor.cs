@@ -348,7 +348,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             private static readonly ConcurrentDictionary<object, Lazy<SynchronizedBlock>> Cache =
                 new ConcurrentDictionary<object, Lazy<SynchronizedBlock>>();
-            
+
             /// <summary>
             /// The runtime that created this resource.
             /// </summary>

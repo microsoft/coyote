@@ -38,7 +38,7 @@ steps:
     failOnStderr: true
     pwsh: true
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning .NET 7.0'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
@@ -68,7 +68,7 @@ steps:
          }
      ]
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning .NET 6.0'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
@@ -98,7 +98,7 @@ steps:
          }
      ]
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning .NET Core 3.1'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
@@ -128,7 +128,7 @@ steps:
          }
      ]
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning .NET Standard 2.0'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
@@ -158,7 +158,7 @@ steps:
          }
      ]
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning .NET 4.6.2'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
@@ -188,7 +188,7 @@ steps:
          }
      ]
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@2
   displayName: 'ESRP CodeSigning NuGet package'
   inputs:
     ConnectedServiceName: CoyoteNugetSign

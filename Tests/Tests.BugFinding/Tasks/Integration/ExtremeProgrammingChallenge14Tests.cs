@@ -119,7 +119,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Task.WaitAll(tasks.ToArray());
             },
-            configuration: this.GetConfiguration().WithTestingIterations(100),
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithLockAccessRaceCheckingEnabled(true),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Deadlock detected.", e);

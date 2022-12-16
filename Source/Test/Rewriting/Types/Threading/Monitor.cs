@@ -497,20 +497,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Notifies a thread in the waiting queue of a change in the locked object's state.
             /// </summary>
-            internal void Pulse() => this.SchedulePulse(PulseOperation.Next);
+            internal void Pulse() => this.Pulse(PulseOperation.Next);
 
             /// <summary>
             /// Notifies all waiting threads of a change in the object's state.
             /// </summary>
-            internal void PulseAll() => this.SchedulePulse(PulseOperation.All);
+            internal void PulseAll() => this.Pulse(PulseOperation.All);
 
             /// <summary>
-            /// Schedules a pulse operation that will either execute immediately or be scheduled
-            /// to execute after the current owner releases the lock. This nondeterministic action
-            /// is controlled by the runtime to simulate scenarios where the pulse is delayed by
-            /// the operation system.
+            /// Invokes the specified pulse operation.
             /// </summary>
-            private void SchedulePulse(PulseOperation pulseOperation)
+            private void Pulse(PulseOperation pulseOperation)
             {
                 CoyoteRuntime runtime = this.GetRuntime();
                 var op = runtime.GetExecutingOperation();
@@ -519,44 +516,37 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     throw new SystemSynchronizationLockException();
                 }
 
-                // Pulse has a delay in the operating system, we can simulate that here
-                // by scheduling the pulse operation to be executed non-deterministically.
-                this.PulseQueue.Enqueue(pulseOperation);
-                if (this.PulseQueue.Count is 1)
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
                 {
-                    // Create a task for draining the queue. To optimize the testing performance,
-                    // we create and maintain a single task to perform this role.
-                    Task.Run(() => this.DrainPulseQueue(runtime));
-                }
-            }
-
-            /// <summary>
-            /// Drains the pulse queue, if it contains one or more buffered pulse operations.
-            /// </summary>
-            private void DrainPulseQueue(CoyoteRuntime runtime)
-            {
-                while (this.PulseQueue.Count > 0)
-                {
-                    // Pulses can happen non-deterministically while other operations execute,
-                    // which models delays by the OS.
-                    runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
-
-                    var pulseOperation = this.PulseQueue.Dequeue();
-                    this.Pulse(pulseOperation);
-
-                    if (this.Owner is null)
+                    // Pulse can be delayed by the operating system, so simulate this by scheduling the pulse
+                    // operation to execute either immediately or after the current owner releases the lock.
+                    this.PulseQueue.Enqueue(pulseOperation);
+                    if (this.PulseQueue.Count is 1)
                     {
-                        this.UnlockNextReady();
+                        // Create a task for draining the queue. To optimize for testing performance,
+                        // we create and maintain a single task to perform this role.
+                        Task.Run(() =>
+                        {
+                            while (this.PulseQueue.Count > 0)
+                            {
+                                var pulseOperation = this.PulseQueue.Dequeue();
+                                runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
+                                this.Pulse(runtime, pulseOperation);
+                            }
+                        });
                     }
                 }
+                else
+                {
+                    this.Pulse(runtime, pulseOperation);
+                }
             }
 
             /// <summary>
-            /// Invokes the pulse operation.
+            /// Invokes the specified pulse operation.
             /// </summary>
-            private void Pulse(PulseOperation pulseOperation)
+            private void Pulse(CoyoteRuntime runtime, PulseOperation pulseOperation)
             {
-                CoyoteRuntime runtime = this.GetRuntime();
                 if (pulseOperation is PulseOperation.Next)
                 {
                     if (this.WaitQueue.Count > 0)
@@ -579,6 +569,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     }
 
                     this.WaitQueue.Clear();
+                }
+
+                if (this.Owner is null)
+                {
+                    this.UnlockNextReady();
                 }
             }
 

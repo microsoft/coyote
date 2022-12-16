@@ -555,8 +555,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, SystemTask.CurrentId);
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by thread '{1}'.",
+                            waitingOp.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                     }
                 }
                 else
@@ -564,8 +564,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, SystemTask.CurrentId);
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by thread '{1}'.",
+                            waitingOp.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                     }
 
                     this.WaitQueue.Clear();
@@ -600,8 +600,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 // Pause this operation and schedule the next enabled operation.
                 op.Status = OperationStatus.PausedOnResource;
-                runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' with task id '{1}' is waiting.",
-                    op.Id, SystemTask.CurrentId);
+                runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting on thread '{1}'.",
+                    op.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                 runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
                 return true;
             }

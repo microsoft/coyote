@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Runtime
 
                     if (!runtime.SignalMap.TryGetValue(name, out var signal))
                     {
-                        runtime.SignalMap.Add(name, 0);
+                        runtime.SignalMap.Add(name, 1);
                     }
 
                     runtime.SignalMap[name]++;

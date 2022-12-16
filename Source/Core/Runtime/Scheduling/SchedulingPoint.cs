@@ -123,15 +123,15 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (!runtime.SignalMap.TryGetValue(name, out var signal))
                     {
-                        runtime.SignalMap.Add(name, 0);
+                        runtime.SignalMap.Add(name, 1);
                     }
 
                     runtime.SignalMap[name]--;
-                    if (runtime.SignalMap[name] < 0)
+                    if (runtime.SignalMap[name] is 0)
                     {
                         runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting a signal for '{1}'.",
                             current.Name, name);
-                        runtime.SignalMap[name] = 0;
+                        runtime.SignalMap[name] = 1;
                         current.Status = OperationStatus.Suppressed;
                         runtime.OperationSignalAwaiters.Add(current.Id, name);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);

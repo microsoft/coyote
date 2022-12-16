@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +22,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 long value = long.MaxValue - 42;
                 Assert.Equal(long.MaxValue - 42, Interlocked.Read(ref value));
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -34,7 +33,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 ulong value = ulong.MaxValue - 42;
                 Assert.Equal(ulong.MaxValue - 42, Interlocked.Read(ref value));
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -54,7 +53,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 value = int.MaxValue;
                 Assert.Equal(int.MinValue, Interlocked.Add(ref value, 1));
                 Assert.Equal(int.MinValue, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -73,7 +72,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 value = long.MaxValue;
                 Assert.Equal(long.MinValue, Interlocked.Add(ref value, 1));
                 Assert.Equal(long.MinValue, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -93,7 +92,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 value = uint.MaxValue;
                 Assert.Equal(0u, Interlocked.Add(ref value, 1));
                 Assert.Equal(0u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -112,7 +111,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 value = ulong.MaxValue;
                 Assert.Equal(0u, Interlocked.Add(ref value, 1));
                 Assert.Equal(0u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -124,7 +123,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 42;
                 Assert.Equal(43, Interlocked.Increment(ref value));
                 Assert.Equal(43, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -135,7 +134,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 long value = 42;
                 Assert.Equal(43, Interlocked.Increment(ref value));
                 Assert.Equal(43, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -147,7 +146,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 uint value = 42u;
                 Assert.Equal(43u, Interlocked.Increment(ref value));
                 Assert.Equal(43u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -158,7 +157,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 ulong value = 42u;
                 Assert.Equal(43u, Interlocked.Increment(ref value));
                 Assert.Equal(43u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -170,7 +169,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 42;
                 Assert.Equal(41, Interlocked.Decrement(ref value));
                 Assert.Equal(41, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -181,7 +180,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 long value = 42;
                 Assert.Equal(41, Interlocked.Decrement(ref value));
                 Assert.Equal(41, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -193,7 +192,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 uint value = 42u;
                 Assert.Equal(41u, Interlocked.Decrement(ref value));
                 Assert.Equal(41u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -204,7 +203,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 ulong value = 42u;
                 Assert.Equal(41u, Interlocked.Decrement(ref value));
                 Assert.Equal(41u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -216,7 +215,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 42;
                 Assert.Equal(42, Interlocked.Exchange(ref value, 12345));
                 Assert.Equal(12345, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -227,7 +226,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 long value = 42;
                 Assert.Equal(42, Interlocked.Exchange(ref value, 12345));
                 Assert.Equal(12345, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -239,7 +238,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 uint value = 42;
                 Assert.Equal(42u, Interlocked.Exchange(ref value, 12345u));
                 Assert.Equal(12345u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -250,7 +249,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 ulong value = 42;
                 Assert.Equal(42u, Interlocked.Exchange(ref value, 12345u));
                 Assert.Equal(12345u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -262,7 +261,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 float value = 42.1f;
                 Assert.Equal(42.1f, Interlocked.Exchange(ref value, 12345.1f));
                 Assert.Equal(12345.1f, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -273,7 +272,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 double value = 42.1;
                 Assert.Equal(42.1, Interlocked.Exchange(ref value, 12345.1));
                 Assert.Equal(12345.1, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -287,7 +286,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Same(oldValue, Interlocked.Exchange(ref value, newValue));
                 Assert.Same(newValue, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -304,7 +303,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.Equal(42, (int)valueBeforeUpdate);
                 Assert.Same(newValue, value);
                 Assert.Equal(12345, (int)value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -319,7 +318,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42, Interlocked.CompareExchange(ref value, 12345, 42));
                 Assert.Equal(12345, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -334,7 +333,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42, Interlocked.CompareExchange(ref value, 12345, 42));
                 Assert.Equal(12345, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -350,7 +349,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42u, Interlocked.CompareExchange(ref value, 12345u, 42u));
                 Assert.Equal(12345u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -365,7 +364,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42u, Interlocked.CompareExchange(ref value, 12345u, 42u));
                 Assert.Equal(12345u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
@@ -381,7 +380,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42.1f, Interlocked.CompareExchange(ref value, 12345.1f, 42.1f));
                 Assert.Equal(12345.1f, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -396,7 +395,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Equal(42.1, Interlocked.CompareExchange(ref value, 12345.1, 42.1));
                 Assert.Equal(12345.1, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -413,7 +412,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 Assert.Same(oldValue, Interlocked.CompareExchange(ref value, newValue, oldValue));
                 Assert.Same(newValue, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -436,7 +435,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.Equal(42, (int)valueBeforeUpdate);
                 Assert.Same(newValue, value);
                 Assert.Equal(12345, (int)value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
 #if NET
@@ -448,7 +447,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 0x12345670;
                 Assert.Equal(0x12345670, Interlocked.And(ref value, 0x7654321));
                 Assert.Equal(0x02244220, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -459,7 +458,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 long value = 0x12345670;
                 Assert.Equal(0x12345670, Interlocked.And(ref value, 0x7654321));
                 Assert.Equal(0x02244220, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -470,7 +469,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 uint value = 0x12345670u;
                 Assert.Equal(0x12345670u, Interlocked.And(ref value, 0x7654321));
                 Assert.Equal(0x02244220u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -481,7 +480,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 ulong value = 0x12345670u;
                 Assert.Equal(0x12345670u, Interlocked.And(ref value, 0x7654321));
                 Assert.Equal(0x02244220u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -492,7 +491,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 int value = 0x12345670;
                 Assert.Equal(0x12345670, Interlocked.Or(ref value, 0x7654321));
                 Assert.Equal(0x17755771, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -503,7 +502,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 long value = 0x12345670;
                 Assert.Equal(0x12345670, Interlocked.Or(ref value, 0x7654321));
                 Assert.Equal(0x17755771, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -514,7 +513,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 uint value = 0x12345670u;
                 Assert.Equal(0x12345670u, Interlocked.Or(ref value, 0x7654321));
                 Assert.Equal(0x17755771u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 
         [Fact(Timeout = 5000)]
@@ -525,30 +524,34 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 ulong value = 0x12345670u;
                 Assert.Equal(0x12345670u, Interlocked.Or(ref value, 0x7654321));
                 Assert.Equal(0x17755771u, value);
-            });
+            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
         }
 #endif
 
         [Fact(Timeout = 5000)]
         public void TestInterlockedConcurrentIncrementInt()
         {
-            int value = 0;
-            const int taskCount = 3;
-            const int iterationCount = 10;
-            var tasks = new Task[taskCount];
-            for (int i = 0; i < taskCount; ++i)
+            this.Test(() =>
             {
-                tasks[i] = Task.Run(() =>
+                int value = 0;
+                const int taskCount = 3;
+                const int iterationCount = 10;
+                var tasks = new Task[taskCount];
+                for (int i = 0; i < taskCount; ++i)
                 {
-                    for (int i = 0; i < iterationCount; ++i)
+                    tasks[i] = Task.Run(() =>
                     {
-                        Interlocked.Increment(ref value);
-                    }
-                });
-            }
+                        for (int i = 0; i < iterationCount; ++i)
+                        {
+                            Interlocked.Increment(ref value);
+                        }
+                    });
+                }
 
-            Task.WaitAll(tasks);
-            Assert.Equal(taskCount * iterationCount, value);
+                Task.WaitAll(tasks);
+                Assert.Equal(taskCount * iterationCount, value);
+            }, configuration: this.GetConfiguration().WithTestingIterations(10)
+                .WithAtomicOperationRaceCheckingEnabled(true));
         }
     }
 }

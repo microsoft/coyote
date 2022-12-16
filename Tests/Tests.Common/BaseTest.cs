@@ -848,9 +848,10 @@ namespace Microsoft.Coyote.Tests.Common
         protected virtual Configuration GetConfiguration() => Configuration.Create()
             .WithVerbosityEnabled(VerbosityLevel.Debug)
             .WithTelemetryEnabled(false)
+            .WithAtomicOperationRaceCheckingEnabled(false)
+            .WithLockAccessRaceCheckingEnabled(false)
             .WithPartiallyControlledConcurrencyAllowed(false)
-            .WithSystematicFuzzingFallbackEnabled(false)
-            .WithLockAccessRaceCheckingEnabled(false);
+            .WithSystematicFuzzingFallbackEnabled(false);
 
         protected static string GetBugReport(TestingEngine engine)
         {

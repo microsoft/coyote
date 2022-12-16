@@ -370,11 +370,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             private ControlledOperation Owner;
 
             /// <summary>
-            /// Set of operations that are waiting on the resource to be released.
-            /// </summary>
-            private readonly HashSet<ControlledOperation> AwaitingOperations;
-
-            /// <summary>
             /// Wait queue of asynchronous operations.
             /// </summary>
             private readonly List<ControlledOperation> WaitQueue;
@@ -415,7 +410,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                 this.RuntimeId = runtime.Id;
                 this.SyncObject = syncObject;
-                this.AwaitingOperations = new HashSet<ControlledOperation>();
                 this.WaitQueue = new List<ControlledOperation>();
                 this.ReadyQueue = new List<ControlledOperation>();
                 this.PulseQueue = new Queue<PulseOperation>();
@@ -486,9 +480,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                         // Pause this operation and schedule the next enabled operation.
                         op.Status = OperationStatus.PausedOnResource;
-                        this.AwaitingOperations.Add(op);
                         runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
 
+                        // This operation can finally take the lock.
                         this.LockCountMap.Add(op, 1);
                         return this;
                     }
@@ -526,7 +520,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 // Pulse has a delay in the operating system, we can simulate that here
-                // by scheduling the pulse operation to be executed nondeterministically.
+                // by scheduling the pulse operation to be executed non-deterministically.
                 this.PulseQueue.Enqueue(pulseOperation);
                 if (this.PulseQueue.Count is 1)
                 {
@@ -543,7 +537,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 while (this.PulseQueue.Count > 0)
                 {
-                    // Pulses can happen nondeterministically while other operations execute,
+                    // Pulses can happen non-deterministically while other operations execute,
                     // which models delays by the OS.
                     runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
 
@@ -608,12 +602,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.UnlockNextReady();
-                runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' with task id '{1}' is waiting.",
-                    op.Id, SystemTask.CurrentId);
 
                 // Pause this operation and schedule the next enabled operation.
                 op.Status = OperationStatus.PausedOnResource;
-                this.AwaitingOperations.Add(op);
+                runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' with task id '{1}' is waiting.",
+                    op.Id, SystemTask.CurrentId);
                 runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
                 return true;
             }
@@ -665,13 +658,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // If there is a operation waiting in the ready queue, then awake it.
                     ControlledOperation op = this.ReadyQueue[0];
+                    op.Status = OperationStatus.Enabled;
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
-                    if (this.AwaitingOperations.Contains(op))
-                    {
-                        op.Status = OperationStatus.Enabled;
-                        this.AwaitingOperations.Remove(op);
-                    }
                 }
             }
 

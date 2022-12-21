@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -171,95 +172,239 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (trace.Length > 1)
             {
-                // The first operation is always the main thread running the test method.
-                string firstOp = $"op(0)";
-                string firstDescription = runtime.OperationMap[0].Description;
+                var aliases = new Dictionary<string, HashSet<ulong>>();
+                var dictionary = new Dictionary<string, (string, string)>();
+                var edges = new Dictionary<string, Dictionary<string, Dictionary<SchedulingPointType, ulong>>>();
 
                 string next = string.Empty;
-
-                var completedOps = new HashSet<ulong>();
-                var chainMap = new Dictionary<ulong, HashSet<ulong>>();
-                var aliasMap = new Dictionary<string, HashSet<ulong>>();
-
-                int stepCount = 0;
                 for (int idx = 0; idx < trace.Length; idx++)
                 {
                     if (trace[idx] is ExecutionTrace.SchedulingStep step)
                     {
-                        string op = $"op({step.Current})";
-                        string name = runtime.OperationMap[step.Current].Description;
-                        string source = $"{name}({op})";
+                        string source = GetOperationAlias(runtime, step.Current, dictionary);
+                        var sourceChain = UpdateOperationChain(source, step.Current, aliases);
+                        next = step.Current == step.Value ? source : GetOperationAlias(runtime, step.Value, dictionary);
 
-                        if (!chainMap.TryGetValue(step.Current, out HashSet<ulong> opChain))
-                        {
-                            opChain = new HashSet<ulong>();
-                            chainMap.Add(step.Current, opChain);
-                        }
-
-                        if (!aliasMap.TryGetValue(name, out HashSet<ulong> opAliases))
-                        {
-                            opAliases = new HashSet<ulong>();
-                            aliasMap.Add(name, opAliases);
-                        }
-
-                        opChain.Add(step.Current);
-                        opAliases.Add(step.Current);
-
-                        string nextOp = $"op({step.Value})";
-                        string nextName = runtime.OperationMap[step.Value].Description;
-                        next = $"{nextName}({nextOp})";
-
+                        string target = null;
                         if (step.SchedulingPoint is SchedulingPointType.Create)
                         {
-                            string targetOp = $"op({step.Target})";
-                            string targetName = runtime.OperationMap[step.Target].Description;
-                            string target = $"{targetName}({targetOp})";
-                            graph.Append($"  \"{source}\" -> \"{target}\"");
-                            graph.AppendLine($" [label=\" {step.SchedulingPoint} [{stepCount}] \" color=\"#3868ceff\"];");
-                            stepCount++;
+                            target = GetOperationAlias(runtime, step.Target, dictionary);
+                            if (target == source)
+                            {
+                                sourceChain.Add(step.Target);
+                            }
+                            else
+                            {
+                                UpdateOperationChain(target, step.Target, aliases);
+                            }
                         }
                         else if (step.SchedulingPoint is SchedulingPointType.ContinueWith)
                         {
-                            opChain.Add(step.Target);
-                            if (!chainMap.ContainsKey(step.Target))
-                            {
-                                chainMap.Add(step.Target, opChain);
-                            }
+                            target = GetOperationAlias(runtime, step.Target, dictionary);
+                            sourceChain.Add(step.Target);
                         }
-                        else if (step.SchedulingPoint is SchedulingPointType.Complete)
+
+                        if (target != null)
                         {
-                            completedOps.Add(step.Current);
+                            AddEdge(source, target, step.SchedulingPoint, edges);
                         }
-                        else if (step.Current != step.Target || opAliases.Count > 0)
-                        {
-                            graph.Append($"  \"{source}\" -> \"{next}\"");
-                            graph.AppendLine($" [label=\" {step.SchedulingPoint} [{stepCount}] \",style=dashed];");
-                            stepCount++;
-                        }
-                    }
-                    else
-                    {
-                        continue;
+
+                        AddEdge(source, next, SchedulingPointType.Default, edges);
                     }
                 }
 
+                int typesCounter = 0;
+                var typeEntries = dictionary.Values.Select(v => v.Item1).Where(t => !string.IsNullOrEmpty(t)).Distinct();
+                foreach (var typeEntry in typeEntries)
+                {
+                    graph.AppendLine($"  subgraph cluster_{typesCounter} {{");
+                    graph.AppendLine($"    label=\"{typeEntry}\";");
+                    graph.AppendLine("    node [style=filled];");
+                    graph.AppendLine("    color=purple;");
+                    graph.AppendLine();
+                    foreach (var kvp in dictionary)
+                    {
+                        if (kvp.Value.Item1 == typeEntry)
+                        {
+                            graph.AppendLine($"    \"{kvp.Key}\" [label=\"{kvp.Value.Item2}\"];");
+                        }
+                    }
+
+                    graph.AppendLine("  }");
+                    typesCounter++;
+                }
+
+                foreach (var source in edges)
+                {
+                    foreach (var destination in source.Value)
+                    {
+                        string edge = $"  \"{source.Key}\" -> \"{destination.Key}\"";
+                        foreach (var sp in destination.Value)
+                        {
+                            if (sp.Key is SchedulingPointType.Create ||
+                                sp.Key is SchedulingPointType.ContinueWith)
+                            {
+                                string text;
+                                if (sp.Key is SchedulingPointType.Create)
+                                {
+                                    text = $"{edge} [color=\"#3868ceff\"];";
+                                }
+                                else
+                                {
+                                    text = $"{edge};";
+                                }
+
+                                bool summarize = sp.Value > 10;
+                                ulong loops = summarize ? 10 : sp.Value;
+                                for (ulong idx = 0; idx < loops; idx++)
+                                {
+                                    if (summarize && idx == loops - 1)
+                                    {
+                                        text = text.Insert(text.LastIndexOf(';'), $"[style=dotted]");
+                                    }
+
+                                    graph.AppendLine(text);
+                                }
+                            }
+                            else if (source.Key != destination.Key)
+                            {
+                                string text = $"{edge} [color=\"lightgrey\",style=dashed];";
+                                graph.AppendLine(text);
+                            }
+                        }
+                    }
+                }
+
+                string start = GetOperationAlias(runtime, 0, dictionary);
+
                 // Write the error state.
-                graph.Append($"  \"{next}\" -> error");
-                graph.AppendLine($" [label=\" [{stepCount}] \",color=\"#ce3838ff\"];");
+                graph.Append($"  \"{next}\" -> End");
+                graph.AppendLine($" [color=\"#ce3838ff\"];");
 
                 // Write the style options.
                 graph.AppendLine();
-                graph.AppendLine($"  \"{firstDescription}\"[shape=box];");
-                graph.AppendLine("  error[shape=Mdiamond,color=\"#ce3838ff\"];");
+                graph.AppendLine($"  \"{start}\"[shape=Mdiamond];");
+                graph.AppendLine("  End[shape=Msquare,color=\"#ce3838ff\"];");
             }
             else
             {
                 // Write the empty graph.
-                graph.AppendLine("  \"N/A\"[shape=Mdiamond];");
+                graph.AppendLine("  \"N/A\"[shape=Msquare];");
             }
+
+            graph.AppendLine("  subgraph cluster_01 {");
+            graph.AppendLine("    label = \"Legend\";");
+            graph.AppendLine("    node [style=filled];");
+            graph.AppendLine();
+            graph.AppendLine("    \"_COYOTE__START\" [label=\"\"];");
+            graph.AppendLine("    \"_COYOTE__END\" [label=\"\"];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" StartOp \",color=\"#3868ceff\"];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" StartOp(>10) \",color=\"#3868ceff\",style=dashed];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" ContinueOp \"];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" ContinueOp(>10) \",style=dotted];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" ContextSwitch \",color=\"lightgrey\",style=dashed];");
+            graph.AppendLine("    \"_COYOTE__START\" -> \"_COYOTE__END\" [label=\" Error \",color=\"#ce3838ff\"];");
+            graph.AppendLine("  }");
 
             graph.AppendLine("}");
             return graph.ToString();
+        }
+
+        /// <summary>
+        /// Returns the alias for the specified operation.
+        /// </summary>
+        private static string GetOperationAlias(CoyoteRuntime runtime, ulong id, Dictionary<string, (string, string)> dictionary)
+        {
+            string alias = runtime.OperationMap[id].Description;
+            if (!dictionary.ContainsKey(alias))
+            {
+                string typeName;
+                string methodName;
+                if (alias.EndsWith(".MoveNext"))
+                {
+                    string formattedAlias = alias.Substring(0, alias.Length - ".MoveNext".Length);
+                    int splitIndex = formattedAlias.LastIndexOf('.');
+                    typeName = formattedAlias.Substring(0, splitIndex);
+                    methodName = formattedAlias.Substring(splitIndex + 1);
+
+                    // Format the method name to human readable form.
+                    int methodStartIndex = methodName.IndexOf('<');
+                    int methodEndIndex = methodName.IndexOf('>');
+                    if (methodStartIndex >= 0 && methodEndIndex >= 0)
+                    {
+                        methodName = methodName.Substring(methodStartIndex + 1, methodEndIndex - methodStartIndex - 1);
+                    }
+                }
+                else
+                {
+                    int splitIndex = alias.LastIndexOf('.');
+                    if (splitIndex >= 0)
+                    {
+                        typeName = alias.Substring(0, splitIndex);
+                        methodName = alias.Substring(splitIndex + 1);
+                    }
+                    else
+                    {
+                        typeName = string.Empty;
+                        methodName = alias;
+                    }
+                }
+
+                dictionary.Add(alias, (typeName, methodName));
+            }
+
+            if (string.IsNullOrEmpty(alias))
+            {
+                alias = $"op({id})";
+            }
+
+            return alias;
+        }
+
+        /// <summary>
+        /// Adds a new edge for the specified source and destination operations.
+        /// </summary>
+        private static void AddEdge(string source, string destination, SchedulingPointType sp,
+            Dictionary<string, Dictionary<string, Dictionary<SchedulingPointType, ulong>>> edges)
+        {
+            if (!edges.TryGetValue(source, out Dictionary<string, Dictionary<SchedulingPointType, ulong>> destinations))
+            {
+                destinations = new Dictionary<string, Dictionary<SchedulingPointType, ulong>>();
+                edges.Add(source, destinations);
+            }
+
+            if (!destinations.TryGetValue(destination, out Dictionary<SchedulingPointType, ulong> count))
+            {
+                count = new Dictionary<SchedulingPointType, ulong>();
+                destinations.Add(destination, count);
+            }
+
+            if (count.TryGetValue(sp, out ulong value))
+            {
+                count[sp] = value + 1;
+            }
+            else
+            {
+                count.Add(sp, 1);
+            }
+        }
+
+        /// <summary>
+        /// Returns the chain for the specified operation.
+        /// </summary>
+        private static HashSet<ulong> UpdateOperationChain(string alias, ulong id, Dictionary<string, HashSet<ulong>> aliases)
+        {
+            if (!aliases.TryGetValue(alias, out HashSet<ulong> chain))
+            {
+                chain = new HashSet<ulong> { id };
+                aliases.Add(alias, chain);
+            }
+            else
+            {
+                chain.Add(id);
+            }
+
+            return chain;
         }
 
         /// <summary>

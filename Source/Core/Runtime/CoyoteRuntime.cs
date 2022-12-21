@@ -446,7 +446,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action continuation, Action preCondition = null, Action postCondition = null)
         {
-            ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
+            string callerInfo = GetCallerInfoFromStackTrace(new StackTrace());
+            ControlledOperation op = this.CreateControlledOperation(description: callerInfo, group: ExecutingOperation?.Group);
             this.ScheduleOperation(op, continuation, preCondition, postCondition);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith, op);
         }
@@ -539,7 +540,7 @@ namespace Microsoft.Coyote.Runtime
                 // TODO: cache the dummy delay action to optimize memory.
                 // TODO: figure out a good strategy for grouping delays, especially if they
                 // are shared in different contexts and not awaited immediately.
-                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group, delay: timeout);
+                ControlledOperation op = this.CreateControlledOperation(description: "delay", group: ExecutingOperation?.Group, delay: timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;

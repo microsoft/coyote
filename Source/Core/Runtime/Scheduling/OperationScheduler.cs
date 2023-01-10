@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Runtime
         private Strategy Strategy => this.Portfolio.First.Value;
 
         /// <summary>
-        /// The pipeline of schedule reducers.
+        /// The pipeline of state-space reducers.
         /// </summary>
         private readonly List<IScheduleReducer> Reducers;
 
@@ -98,7 +98,12 @@ namespace Microsoft.Coyote.Runtime
 
             this.Portfolio = new LinkedList<Strategy>();
             this.Reducers = new List<IScheduleReducer>();
-            if (configuration.IsSharedStateReductionEnabled)
+            if (configuration.IsExecutionTraceCycleReductionEnabled)
+            {
+                this.Reducers.Add(new TraceCycleReducer());
+                this.Reducers.Add(new RacyAccessReducer());
+            }
+            else if (configuration.IsSharedStateReductionEnabled)
             {
                 this.Reducers.Add(new SharedStateReducer());
             }

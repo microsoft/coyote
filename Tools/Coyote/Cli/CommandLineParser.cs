@@ -333,6 +333,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var reduceExecutionTraceCyclesOption = new Option<bool>(
+                name: "--reduce-execution-trace-cycles",
+                description: "Enable execution trace cycle detection and reduction heuristics.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var reduceSharedStateOption = new Option<bool>(
                 name: "--reduce-shared-state",
                 description: "Enable shared state reduction based on 'READ' and 'WRITE' scheduling points.")
@@ -547,6 +554,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
+            this.AddOption(command, reduceExecutionTraceCyclesOption);
             this.AddOption(command, reduceSharedStateOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
@@ -995,6 +1003,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
+                        break;
+                    case "reduce-execution-trace-cycles":
+                        this.Configuration.IsExecutionTraceCycleReductionEnabled = true;
                         break;
                     case "reduce-shared-state":
                         this.Configuration.IsSharedStateReductionEnabled = true;

@@ -135,6 +135,12 @@ namespace Microsoft.Coyote
         internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
+        /// If enabled, execution trace reduction is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsExecutionTraceCycleReductionEnabled;
+
+        /// <summary>
         /// If enabled, shared state reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -354,6 +360,7 @@ namespace Microsoft.Coyote
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
             this.IsAtomicOperationRaceCheckingEnabled = true;
+            this.IsExecutionTraceCycleReductionEnabled = false;
             this.IsSharedStateReductionEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
@@ -650,6 +657,18 @@ namespace Microsoft.Coyote
         public Configuration WithAtomicOperationRaceCheckingEnabled(bool isEnabled = true)
         {
             this.IsAtomicOperationRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with execution trace reduction enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by identifying and de-prioritizing cycles in the execution trace.
+        /// </summary>
+        /// <param name="isEnabled">If true, then execution trace reduction is enabled.</param>
+        public Configuration WithExecutionTraceCycleReductionEnabled(bool isEnabled = true)
+        {
+            this.IsExecutionTraceCycleReductionEnabled = isEnabled;
             return this;
         }
 

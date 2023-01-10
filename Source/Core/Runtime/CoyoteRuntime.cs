@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.Runtime
             // Create a new controlled operation using the next available operation id.
             ulong operationId = this.GetNextOperationId();
             ControlledOperation op = delay > 0 ?
-                new DelayOperation(operationId, $"Delay({operationId})", delay) :
+                new DelayOperation(operationId, $"Delay({operationId})", delay, group) :
                 new ControlledOperation(operationId, $"Op({operationId})", group);
             this.RegisterOperation(op);
             if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
@@ -633,7 +633,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // TODO: cache the dummy delay action to optimize memory.
-                ControlledOperation op = this.CreateControlledOperation(timeout);
+                ControlledOperation op = this.CreateControlledOperation(this.GetExecutingOperation().Group, timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;

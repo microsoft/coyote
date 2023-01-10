@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Coyote.Actors.Coverage;
@@ -542,6 +543,19 @@ namespace Microsoft.Coyote.SystematicTesting
                         configuration.MaxUnfairSchedulingSteps,
                         (double)this.MaxUnfairStepsHitInUnfairTests / this.NumOfExploredUnfairSchedules * 100);
                 }
+            }
+
+            report.AppendLine();
+            report.AppendLine("===READSET===");
+            foreach (var read in Runtime.SchedulingPoint.ReadSet.ToList())
+            {
+                report.AppendLine(read);
+            }
+
+            report.AppendLine("===WRITESET===");
+            foreach (var write in Runtime.SchedulingPoint.WriteSet.ToList())
+            {
+                report.AppendLine(write);
             }
 
             return report.ToString();

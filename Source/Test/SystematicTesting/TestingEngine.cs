@@ -585,7 +585,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Gathers the exploration strategy statistics from the specified runtimne.
+        /// Gathers the exploration strategy statistics from the specified runtime.
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {

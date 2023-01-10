@@ -38,13 +38,13 @@ namespace Microsoft.Coyote.Runtime
             ControlledOperation current)
         {
             // Find all operations that are not invoking a user-defined scheduling decision.
-            var noUserDefinedSchedulingOps = ops.Where(
-                op => !SchedulingPoint.IsUserDefined(op.LastSchedulingPoint));
-            if (noUserDefinedSchedulingOps.Any())
+            var noReadOrWriteSchedulingOps = ops.Where(
+                op => !SchedulingPoint.IsReadOrWrite(op.LastSchedulingPoint));
+            if (noReadOrWriteSchedulingOps.Any())
             {
                 // One or more operations exist that are not invoking a user-defined
                 // scheduling decision, so return them.
-                return noUserDefinedSchedulingOps;
+                return noReadOrWriteSchedulingOps;
             }
             else
             {
@@ -57,18 +57,30 @@ namespace Microsoft.Coyote.Runtime
                 this.WriteAccesses.UnionWith(writeAccessOps.Select(op => op.LastAccessedSharedState));
 
                 // Find if any operations are explicitly interleaving, and if yes do not perform any reduction.
-                if (!ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Interleave ||
-                    op.LastSchedulingPoint is SchedulingPointType.Yield))
+                // if (!ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Interleave ||
+                //     op.LastSchedulingPoint is SchedulingPointType.Yield))
                 {
                     // Find if there are any read-only accesses. Note that this is just an approximation
                     // based on current knowledge. An access that is considered read-only might not be
                     // considered anymore in later steps or iterations once the known 'READ' and 'WRITE'
                     // access sets have been updated.
                     var readOnlyAccessOps = readAccessOps.Where(op => !this.WriteAccesses.Any(
-                        state => state.StartsWith(op.LastAccessedSharedState) ||
-                        op.LastAccessedSharedState.StartsWith(state)));
+                        state => op.LastAccessedSharedStateComparer?.Equals(op.LastAccessedSharedState, state) ??
+                        op.LastAccessedSharedState == state));
+                    CoyoteRuntime.Current.Logger.WriteLine(">>> Checking for read-only accesses.");
+                    foreach (var opx in ops)
+                    {
+                        CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
+                    }
+
                     if (readOnlyAccessOps.Any())
                     {
+                        CoyoteRuntime.Current.Logger.WriteLine(">>>>> Reducing operations to read-only accesses.");
+                        foreach (var opx in readOnlyAccessOps)
+                        {
+                            CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
+                        }
+
                         // Return all read-only access operations.
                         return readOnlyAccessOps;
                     }

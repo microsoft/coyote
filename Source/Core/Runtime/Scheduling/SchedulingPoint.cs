@@ -60,6 +60,9 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
+        internal static SortedSet<string> ReadSet = new SortedSet<string>();
+        internal static SortedSet<string> WriteSet = new SortedSet<string>();
+
 #pragma warning disable CA1801 // Parameter not used
         /// <summary>
         /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
@@ -68,15 +71,20 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the read shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Read(string state, IEqualityComparer<string> comparer = default)
+        public static void Read(string state, IEqualityComparer<string> comparer = null)
         {
+            ReadSet.Add(state);
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Read, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
@@ -92,15 +100,20 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the written shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Write(string state, IEqualityComparer<string> comparer = default)
+        public static void Write(string state, IEqualityComparer<string> comparer = null)
         {
+            WriteSet.Add(state);
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Write, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
@@ -116,7 +129,8 @@ namespace Microsoft.Coyote.Runtime
         public static void Wait(string name)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+            if (runtime.Configuration.IsSchedulingSuppressionEnabled &&
+                runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 using (runtime.EnterSynchronizedSection())
@@ -147,7 +161,8 @@ namespace Microsoft.Coyote.Runtime
         public static SignalAwaitable WaitAsync(string name)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+            if (runtime.Configuration.IsSchedulingSuppressionEnabled &&
+                runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 return new SignalAwaitable(runtime, current, name);
@@ -163,7 +178,8 @@ namespace Microsoft.Coyote.Runtime
         public static void Signal(string name)
         {
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+            if (runtime.Configuration.IsSchedulingSuppressionEnabled &&
+                runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 using (runtime.EnterSynchronizedSection())
@@ -247,6 +263,13 @@ namespace Microsoft.Coyote.Runtime
         internal static bool IsUserDefined(SchedulingPointType type) =>
             type is SchedulingPointType.Interleave ||
             type is SchedulingPointType.Yield ||
+            type is SchedulingPointType.Read ||
+            type is SchedulingPointType.Write;
+
+        /// <summary>
+        /// Returns true if the specified scheduling point is a 'READ' or 'WRITE' operation.
+        /// </summary>
+        internal static bool IsReadOrWrite(SchedulingPointType type) =>
             type is SchedulingPointType.Read ||
             type is SchedulingPointType.Write;
     }

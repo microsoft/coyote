@@ -248,6 +248,18 @@ namespace Microsoft.Coyote
         internal bool IsSchedulingSuppressionWeak;
 
         /// <summary>
+        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsSchedulingSuppressionEnabled;
+
+        /// <summary>
+        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsReadWriteSchedulingEnabled;
+
+        /// <summary>
         /// Attaches the debugger during trace replay.
         /// </summary>
         [DataMember]
@@ -292,11 +304,17 @@ namespace Microsoft.Coyote
         internal bool IsCoverageInfoSerialized;
 
         /// <summary>
-        /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// If true, requests a visual graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
         internal bool IsTraceVisualizationEnabled;
+
+        /// <summary>
+        /// If true, visual traces are produced in the DGML format, else in the DOT format.
+        /// </summary>
+        [DataMember]
+        internal bool IsDgmlFormatEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
@@ -354,6 +372,8 @@ namespace Microsoft.Coyote
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.IsSchedulingSuppressionWeak = false;
+            this.IsSchedulingSuppressionEnabled = true;
+            this.IsReadWriteSchedulingEnabled = true;
             this.AttachDebugger = false;
 
             this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
@@ -361,6 +381,7 @@ namespace Microsoft.Coyote
             this.IsScheduleCoverageReported = false;
             this.IsCoverageInfoSerialized = false;
             this.IsTraceVisualizationEnabled = false;
+            this.IsDgmlFormatEnabled = false;
             this.IsXmlLogEnabled = false;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
@@ -646,6 +667,15 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// ...
+        /// </summary>
+        public Configuration WithDepthBoundHitAsBugEnabled(bool isEnabled = true)
+        {
+            this.ConsiderDepthBoundHitAsBug = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the ability to reproduce bug traces enabled or disabled.
         /// Disabling reproducibility allows skipping errors due to uncontrolled concurrency, for
         /// example when the program is only partially rewritten, or there is external concurrency
@@ -833,13 +863,15 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// Updates the configuration with trace visualization enabled or disabled.
-        /// If enabled, the testing engine can produce a DGML graph representing
+        /// If enabled, the testing engine can produce a visual graph representing
         /// an execution leading up to a bug.
         /// </summary>
         /// <param name="isEnabled">If true, then enables trace visualization.</param>
-        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true)
+        /// <param name="useDgmlFormat">If true, then uses DGML format, else DOT.</param>
+        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true, bool useDgmlFormat = false)
         {
             this.IsTraceVisualizationEnabled = isEnabled;
+            this.IsDgmlFormatEnabled = useDgmlFormat;
             return this;
         }
 
@@ -879,6 +911,24 @@ namespace Microsoft.Coyote
         public Configuration WithWeakSchedulingSuppressionEnabled(bool isEnabled = true)
         {
             this.IsSchedulingSuppressionWeak = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable weak scheduling suppression during testing.
+        /// </summary>
+        public Configuration WithSchedulingSuppressionEnabled(bool isEnabled = true)
+        {
+            this.IsSchedulingSuppressionEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable weak scheduling suppression during testing.
+        /// </summary>
+        public Configuration WithReadWriteSchedulingEnabled(bool isEnabled = true)
+        {
+            this.IsReadWriteSchedulingEnabled = isEnabled;
             return this;
         }
 

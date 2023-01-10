@@ -965,7 +965,13 @@ namespace Microsoft.Coyote.Runtime
                     this.CoverageInfo.DeclareSchedulingPoint(type.ToString(), new StackTrace().ToString());
                 }
 
-                if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
+                ControlledOperation next = null;
+                if (!this.Configuration.IsReadWriteSchedulingEnabled &&
+                    (type is SchedulingPointType.Read || type is SchedulingPointType.Write))
+                {
+                    next = current;
+                }
+                else if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out next))
                 {
                     // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);

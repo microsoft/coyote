@@ -29,44 +29,15 @@ namespace Microsoft.Coyote.Runtime
         /// <inheritdoc/>
         public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
-            CoyoteRuntime.Current.Logger.WriteLine(">>> [TraceCycleReducer] Reducing operations:");
-            foreach (var opx in ops)
-            {
-                CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
-            }
+            // Find all operations that perform 'WRITE' accesses.
+            var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write).ToArray();
 
             // Filter out all 'READ' operations that are repeatedly 'READ' accessing shared state when there is a 'WRITE' access.
             var filteredOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read &&
-                this.RepeatedReadAccesses.Any(state => op.LastAccessedSharedState == state));
-            CoyoteRuntime.Current.Logger.WriteLine(">>>>> 1:");
-            foreach (var opx in filteredOps)
-            {
-                CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
-            }
-
-            var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write);
-            CoyoteRuntime.Current.Logger.WriteLine(">>>>> 2:");
-            foreach (var opx in writeAccessOps)
-            {
-                CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
-            }
-
-            filteredOps = filteredOps.Where(op => writeAccessOps.Any(wop =>
-                wop.LastAccessedSharedStateComparer?.Equals(wop.LastAccessedSharedState, op.LastAccessedSharedState) ??
-                wop.LastAccessedSharedState == op.LastAccessedSharedState));
-            CoyoteRuntime.Current.Logger.WriteLine(">>>>> 3:");
-            foreach (var opx in filteredOps)
-            {
-                CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
-            }
-
-            ops = ops.Except(filteredOps);
-
-            CoyoteRuntime.Current.Logger.WriteLine(">>>>> Reducing operations that are repeated 'READ' accesses.");
-            foreach (var opx in ops)
-            {
-                CoyoteRuntime.Current.Logger.WriteLine($"   |_ {opx}: {opx.LastSchedulingPoint} | {opx.LastAccessedSharedState}");
-            }
+                this.RepeatedReadAccesses.Any(state => op.LastAccessedSharedState == state) &&
+                writeAccessOps.Any(wop =>
+                    wop.LastAccessedSharedStateComparer?.Equals(wop.LastAccessedSharedState, op.LastAccessedSharedState) ??
+                    wop.LastAccessedSharedState == op.LastAccessedSharedState)).ToArray();
 
             if (current.LastSchedulingPoint is SchedulingPointType.Read)
             {
@@ -81,8 +52,7 @@ namespace Microsoft.Coyote.Runtime
                     current.LastAccessedSharedState == state);
             }
 
-            CoyoteRuntime.Current.Logger.WriteLine(">>> Done reducing.");
-            return ops;
+            return ops.Except(filteredOps);
         }
     }
 }

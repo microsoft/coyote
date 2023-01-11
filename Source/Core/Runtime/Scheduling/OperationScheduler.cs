@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Runtime
         private Strategy Strategy => this.Portfolio.First.Value;
 
         /// <summary>
-        /// The pipeline of state-space reducers.
+        /// The pipeline of schedule reducers.
         /// </summary>
         private readonly List<IScheduleReducer> Reducers;
 

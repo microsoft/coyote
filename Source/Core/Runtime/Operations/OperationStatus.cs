@@ -39,11 +39,6 @@ namespace Microsoft.Coyote.Runtime
         PausedOnReceive,
 
         /// <summary>
-        /// The operation is suppressed until it is resumed.
-        /// </summary>
-        Suppressed,
-
-        /// <summary>
         /// The operation is completed.
         /// </summary>
         Completed

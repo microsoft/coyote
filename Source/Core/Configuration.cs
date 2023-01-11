@@ -135,7 +135,7 @@ namespace Microsoft.Coyote
         internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
-        /// If enabled, execution trace reduction is enabled during systematic testing.
+        /// If enabled, execution trace cycle reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsExecutionTraceCycleReductionEnabled;
@@ -246,24 +246,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
-
-        /// <summary>
-        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsSchedulingSuppressionWeak;
-
-        /// <summary>
-        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsSchedulingSuppressionEnabled;
-
-        /// <summary>
-        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsReadWriteSchedulingEnabled;
 
         /// <summary>
         /// Attaches the debugger during trace replay.
@@ -378,9 +360,6 @@ namespace Microsoft.Coyote
             this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
-            this.IsSchedulingSuppressionWeak = false;
-            this.IsSchedulingSuppressionEnabled = true;
-            this.IsReadWriteSchedulingEnabled = true;
             this.AttachDebugger = false;
 
             this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
@@ -921,33 +900,6 @@ namespace Microsoft.Coyote
         internal Configuration WithMonitoringEnabledOutsideTesting(bool isEnabled = true)
         {
             this.IsMonitoringEnabledOutsideTesting = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to enable weak scheduling suppression during testing.
-        /// </summary>
-        public Configuration WithWeakSchedulingSuppressionEnabled(bool isEnabled = true)
-        {
-            this.IsSchedulingSuppressionWeak = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to enable weak scheduling suppression during testing.
-        /// </summary>
-        public Configuration WithSchedulingSuppressionEnabled(bool isEnabled = true)
-        {
-            this.IsSchedulingSuppressionEnabled = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to enable weak scheduling suppression during testing.
-        /// </summary>
-        public Configuration WithReadWriteSchedulingEnabled(bool isEnabled = true)
-        {
-            this.IsReadWriteSchedulingEnabled = isEnabled;
             return this;
         }
 

@@ -299,12 +299,6 @@ namespace Microsoft.Coyote
         internal bool IsTraceVisualizationEnabled;
 
         /// <summary>
-        /// If true, visual traces are produced in the DGML format, else in the DOT format.
-        /// </summary>
-        [DataMember]
-        internal bool IsDgmlFormatEnabled;
-
-        /// <summary>
         /// Produce an XML formatted runtime log file.
         /// </summary>
         [DataMember]
@@ -367,7 +361,6 @@ namespace Microsoft.Coyote
             this.IsScheduleCoverageReported = false;
             this.IsCoverageInfoSerialized = false;
             this.IsTraceVisualizationEnabled = false;
-            this.IsDgmlFormatEnabled = false;
             this.IsXmlLogEnabled = false;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
@@ -865,11 +858,9 @@ namespace Microsoft.Coyote
         /// an execution leading up to a bug.
         /// </summary>
         /// <param name="isEnabled">If true, then enables trace visualization.</param>
-        /// <param name="useDgmlFormat">If true, then uses DGML format, else DOT.</param>
-        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true, bool useDgmlFormat = false)
+        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true)
         {
             this.IsTraceVisualizationEnabled = isEnabled;
-            this.IsDgmlFormatEnabled = useDgmlFormat;
             return this;
         }
 

@@ -7,14 +7,15 @@ using System.Linq;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// A reducer that prioritizes non-racy access scheduling decisions.
+    /// A reducer that prioritizes non-racy access scheduling decisions to try force
+    /// racy operations interleave.
     /// </summary>
-    internal sealed class RacyAccessReducer : IScheduleReducer
+    internal sealed class PartialOrderReducer : IScheduleReducer
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RacyAccessReducer"/> class.
+        /// Initializes a new instance of the <see cref="PartialOrderReducer"/> class.
         /// </summary>
-        internal RacyAccessReducer()
+        internal PartialOrderReducer()
         {
         }
 

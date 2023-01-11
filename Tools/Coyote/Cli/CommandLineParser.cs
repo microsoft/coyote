@@ -340,9 +340,9 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var reduceSharedStateOption = new Option<bool>(
-                name: "--reduce-shared-state",
-                description: "Enable shared state reduction based on 'READ' and 'WRITE' scheduling points.")
+            var samplePartialOrdersOption = new Option<bool>(
+                name: "--partial-order-sampling",
+                description: "Enable partial-order sampling based on 'READ' and 'WRITE' scheduling points.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -555,7 +555,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
             this.AddOption(command, reduceExecutionTraceCyclesOption);
-            this.AddOption(command, reduceSharedStateOption);
+            this.AddOption(command, samplePartialOrdersOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
@@ -1007,8 +1007,8 @@ namespace Microsoft.Coyote.Cli
                     case "reduce-execution-trace-cycles":
                         this.Configuration.IsExecutionTraceCycleReductionEnabled = true;
                         break;
-                    case "reduce-shared-state":
-                        this.Configuration.IsSharedStateReductionEnabled = true;
+                    case "partial-order-sampling":
+                        this.Configuration.IsPartialOrderSamplingEnabled = true;
                         break;
                     case "seed":
                         this.Configuration.RandomGeneratorSeed = (uint)result.GetValueOrDefault<int>();

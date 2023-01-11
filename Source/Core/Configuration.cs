@@ -141,10 +141,10 @@ namespace Microsoft.Coyote
         internal bool IsExecutionTraceCycleReductionEnabled;
 
         /// <summary>
-        /// If enabled, shared state reduction is enabled during systematic testing.
+        /// If enabled, partial-order sampling is enabled during systematic testing.
         /// </summary>
         [DataMember]
-        internal bool IsSharedStateReductionEnabled;
+        internal bool IsPartialOrderSamplingEnabled;
 
         /// <summary>
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote
             this.IsLockAccessRaceCheckingEnabled = true;
             this.IsAtomicOperationRaceCheckingEnabled = true;
             this.IsExecutionTraceCycleReductionEnabled = false;
-            this.IsSharedStateReductionEnabled = false;
+            this.IsPartialOrderSamplingEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
@@ -673,15 +673,15 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// Updates the configuration with partial-order sampling enabled or disabled. If this
         /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
-        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// space by taking into account any 'READ' and 'WRITE' races declared by invoking
         /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
         /// </summary>
-        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
-        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial-order sampling is enabled.</param>
+        public Configuration WithPartialOrderSamplingEnabled(bool isEnabled = true)
         {
-            this.IsSharedStateReductionEnabled = isEnabled;
+            this.IsPartialOrderSamplingEnabled = isEnabled;
             return this;
         }
 

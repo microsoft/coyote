@@ -101,11 +101,11 @@ namespace Microsoft.Coyote.Runtime
             if (configuration.IsExecutionTraceCycleReductionEnabled)
             {
                 this.Reducers.Add(new TraceCycleReducer());
-                this.Reducers.Add(new RacyAccessReducer());
             }
-            else if (configuration.IsSharedStateReductionEnabled)
+
+            if (configuration.IsPartialOrderSamplingEnabled)
             {
-                this.Reducers.Add(new SharedStateReducer());
+                this.Reducers.Add(new PartialOrderReducer());
             }
 
             this.IsReplaying = this.SchedulingPolicy is SchedulingPolicy.Interleaving && prefixTrace.Length > 0;

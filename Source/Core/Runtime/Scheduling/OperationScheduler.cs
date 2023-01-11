@@ -98,9 +98,14 @@ namespace Microsoft.Coyote.Runtime
 
             this.Portfolio = new LinkedList<Strategy>();
             this.Reducers = new List<IScheduleReducer>();
-            if (configuration.IsSharedStateReductionEnabled)
+            if (configuration.IsExecutionTraceCycleReductionEnabled)
             {
-                this.Reducers.Add(new SharedStateReducer());
+                this.Reducers.Add(new TraceCycleReducer());
+            }
+
+            if (configuration.IsPartialOrderSamplingEnabled)
+            {
+                this.Reducers.Add(new PartialOrderReducer());
             }
 
             this.IsReplaying = this.SchedulingPolicy is SchedulingPolicy.Interleaving && prefixTrace.Length > 0;

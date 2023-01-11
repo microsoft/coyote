@@ -76,6 +76,13 @@ namespace Microsoft.Coyote.Runtime
         internal string LastAccessedSharedState;
 
         /// <summary>
+        /// A comparer that checks if the shared state being accessed when this
+        /// operation last executed is equal with another shared state that is
+        /// being accessed by some other operation.
+        /// </summary>
+        internal IEqualityComparer<string> LastAccessedSharedStateComparer;
+
+        /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
@@ -115,6 +122,7 @@ namespace Microsoft.Coyote.Runtime
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
             this.LastAccessedSharedState = string.Empty;
+            this.LastAccessedSharedStateComparer = null;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
 

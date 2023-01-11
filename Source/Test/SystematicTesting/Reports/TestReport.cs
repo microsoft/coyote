@@ -545,19 +545,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            report.AppendLine();
-            report.AppendLine("===READSET===");
-            foreach (var read in Runtime.SchedulingPoint.ReadSet.ToList())
-            {
-                report.AppendLine(read);
-            }
-
-            report.AppendLine("===WRITESET===");
-            foreach (var write in Runtime.SchedulingPoint.WriteSet.ToList())
-            {
-                report.AppendLine(write);
-            }
-
             return report.ToString();
         }
 

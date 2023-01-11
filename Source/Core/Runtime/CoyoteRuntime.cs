@@ -2046,7 +2046,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Scheduler.IsMaxStepsReached)
             {
                 string message = $"Scheduling steps bound of {this.Scheduler.StepCount} reached.";
-                if (this.Configuration.ConsiderDepthBoundHitAsBug)
+                if (this.Configuration.FailOnMaxStepsBound)
                 {
                     this.NotifyAssertionFailure(message);
                 }

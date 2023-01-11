@@ -173,11 +173,10 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetMaxFairSchedulingSteps;
 
         /// <summary>
-        /// If true, then the Coyote tester will consider an execution
-        /// that hits the depth bound as buggy.
+        /// If true, then hitting the max steps bound is treated as a bug.
         /// </summary>
         [DataMember]
-        internal bool ConsiderDepthBoundHitAsBug;
+        internal bool FailOnMaxStepsBound;
 
         /// <summary>
         /// Value that controls the probability of triggering a timeout during systematic testing.
@@ -342,7 +341,7 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ConsiderDepthBoundHitAsBug = false;
+            this.FailOnMaxStepsBound = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 1000;
@@ -658,11 +657,12 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// ...
+        /// Updates the configuration to treat reaching the execution steps bound as a bug during testing.
         /// </summary>
-        public Configuration WithDepthBoundHitAsBugEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then reaching the execution steps bound is treated as a bug.</param>
+        public Configuration WithFailureOnMaxStepsBoundEnabled(bool isEnabled = true)
         {
-            this.ConsiderDepthBoundHitAsBug = isEnabled;
+            this.FailOnMaxStepsBound = isEnabled;
             return this;
         }
 

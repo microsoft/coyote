@@ -481,8 +481,8 @@ namespace Microsoft.Coyote.Cli
             };
 
             var failOnMaxStepsOption = new Option<bool>(
-                name: "--fail-on-maxsteps",
-                description: "Reaching the specified max-steps is considered a bug.")
+                name: "--fail-on-max-steps",
+                description: "Reaching the specified max-steps is treated as a bug.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -1070,8 +1070,8 @@ namespace Microsoft.Coyote.Cli
                     case "log-uncontrolled-invocation-stack-traces":
                         this.Configuration.WithUncontrolledInvocationStackTraceLoggingEnabled();
                         break;
-                    case "fail-on-maxsteps":
-                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
+                    case "fail-on-max-steps":
+                        this.Configuration.FailOnMaxStepsBound = true;
                         break;
                     case "explore":
                         this.Configuration.RunTestIterationsToCompletion = true;

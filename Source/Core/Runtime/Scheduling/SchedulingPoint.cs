@@ -60,9 +60,6 @@ namespace Microsoft.Coyote.Runtime
             }
         }
 
-        internal static SortedSet<string> ReadSet = new SortedSet<string>();
-        internal static SortedSet<string> WriteSet = new SortedSet<string>();
-
 #pragma warning disable CA1801 // Parameter not used
         /// <summary>
         /// Explores a possible interleaving due to a 'READ' operation on the specified shared state.
@@ -73,7 +70,6 @@ namespace Microsoft.Coyote.Runtime
         /// </param>
         public static void Read(string state, IEqualityComparer<string> comparer = null)
         {
-            ReadSet.Add(state);
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -102,7 +98,6 @@ namespace Microsoft.Coyote.Runtime
         /// </param>
         public static void Write(string state, IEqualityComparer<string> comparer = null)
         {
-            WriteSet.Add(state);
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))

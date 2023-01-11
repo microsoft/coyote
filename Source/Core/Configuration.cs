@@ -135,10 +135,16 @@ namespace Microsoft.Coyote
         internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
-        /// If enabled, shared state reduction is enabled during systematic testing.
+        /// If enabled, execution trace cycle reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
-        internal bool IsSharedStateReductionEnabled;
+        internal bool IsExecutionTraceCycleReductionEnabled;
+
+        /// <summary>
+        /// If enabled, partial-order sampling is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsPartialOrderSamplingEnabled;
 
         /// <summary>
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
@@ -167,11 +173,10 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetMaxFairSchedulingSteps;
 
         /// <summary>
-        /// If true, then the Coyote tester will consider an execution
-        /// that hits the depth bound as buggy.
+        /// If true, then hitting the max steps bound is treated as a bug.
         /// </summary>
         [DataMember]
-        internal bool ConsiderDepthBoundHitAsBug;
+        internal bool FailOnMaxStepsBound;
 
         /// <summary>
         /// Value that controls the probability of triggering a timeout during systematic testing.
@@ -242,12 +247,6 @@ namespace Microsoft.Coyote
         internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
 
         /// <summary>
-        /// If enabled, the runtime can bypass scheduling suppression to avoid deadlocking during testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsSchedulingSuppressionWeak;
-
-        /// <summary>
         /// Attaches the debugger during trace replay.
         /// </summary>
         [DataMember]
@@ -292,7 +291,7 @@ namespace Microsoft.Coyote
         internal bool IsCoverageInfoSerialized;
 
         /// <summary>
-        /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// If true, requests a visual graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
@@ -336,12 +335,13 @@ namespace Microsoft.Coyote
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
             this.IsAtomicOperationRaceCheckingEnabled = true;
-            this.IsSharedStateReductionEnabled = false;
+            this.IsExecutionTraceCycleReductionEnabled = false;
+            this.IsPartialOrderSamplingEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ConsiderDepthBoundHitAsBug = false;
+            this.FailOnMaxStepsBound = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 1000;
@@ -353,7 +353,6 @@ namespace Microsoft.Coyote
             this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
-            this.IsSchedulingSuppressionWeak = false;
             this.AttachDebugger = false;
 
             this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
@@ -633,15 +632,37 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// Updates the configuration with execution trace reduction enabled or disabled. If this
         /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
-        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// space by identifying and de-prioritizing cycles in the execution trace.
+        /// </summary>
+        /// <param name="isEnabled">If true, then execution trace reduction is enabled.</param>
+        public Configuration WithExecutionTraceCycleReductionEnabled(bool isEnabled = true)
+        {
+            this.IsExecutionTraceCycleReductionEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with partial-order sampling enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by taking into account any 'READ' and 'WRITE' races declared by invoking
         /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
         /// </summary>
-        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
-        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial-order sampling is enabled.</param>
+        public Configuration WithPartialOrderSamplingEnabled(bool isEnabled = true)
         {
-            this.IsSharedStateReductionEnabled = isEnabled;
+            this.IsPartialOrderSamplingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to treat reaching the execution steps bound as a bug during testing.
+        /// </summary>
+        /// <param name="isEnabled">If true, then reaching the execution steps bound is treated as a bug.</param>
+        public Configuration WithFailureOnMaxStepsBoundEnabled(bool isEnabled = true)
+        {
+            this.FailOnMaxStepsBound = isEnabled;
             return this;
         }
 
@@ -833,7 +854,7 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// Updates the configuration with trace visualization enabled or disabled.
-        /// If enabled, the testing engine can produce a DGML graph representing
+        /// If enabled, the testing engine can produce a visual graph representing
         /// an execution leading up to a bug.
         /// </summary>
         /// <param name="isEnabled">If true, then enables trace visualization.</param>
@@ -870,15 +891,6 @@ namespace Microsoft.Coyote
         internal Configuration WithMonitoringEnabledOutsideTesting(bool isEnabled = true)
         {
             this.IsMonitoringEnabledOutsideTesting = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to enable weak scheduling suppression during testing.
-        /// </summary>
-        public Configuration WithWeakSchedulingSuppressionEnabled(bool isEnabled = true)
-        {
-            this.IsSchedulingSuppressionWeak = isEnabled;
             return this;
         }
 

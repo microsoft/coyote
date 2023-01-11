@@ -333,9 +333,16 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var reduceSharedStateOption = new Option<bool>(
-                name: "--reduce-shared-state",
-                description: "Enable shared state reduction based on 'READ' and 'WRITE' scheduling points.")
+            var reduceExecutionTraceCyclesOption = new Option<bool>(
+                name: "--reduce-execution-trace-cycles",
+                description: "Enable execution trace cycle detection and reduction heuristics.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var samplePartialOrdersOption = new Option<bool>(
+                name: "--partial-order-sampling",
+                description: "Enable partial-order sampling based on 'READ' and 'WRITE' scheduling points.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -474,8 +481,8 @@ namespace Microsoft.Coyote.Cli
             };
 
             var failOnMaxStepsOption = new Option<bool>(
-                name: "--fail-on-maxsteps",
-                description: "Reaching the specified max-steps is considered a bug.")
+                name: "--fail-on-max-steps",
+                description: "Reaching the specified max-steps is treated as a bug.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -547,7 +554,8 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
-            this.AddOption(command, reduceSharedStateOption);
+            this.AddOption(command, reduceExecutionTraceCyclesOption);
+            this.AddOption(command, samplePartialOrdersOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
@@ -996,8 +1004,11 @@ namespace Microsoft.Coyote.Cli
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
                         break;
-                    case "reduce-shared-state":
-                        this.Configuration.IsSharedStateReductionEnabled = true;
+                    case "reduce-execution-trace-cycles":
+                        this.Configuration.IsExecutionTraceCycleReductionEnabled = true;
+                        break;
+                    case "partial-order-sampling":
+                        this.Configuration.IsPartialOrderSamplingEnabled = true;
                         break;
                     case "seed":
                         this.Configuration.RandomGeneratorSeed = (uint)result.GetValueOrDefault<int>();
@@ -1059,8 +1070,8 @@ namespace Microsoft.Coyote.Cli
                     case "log-uncontrolled-invocation-stack-traces":
                         this.Configuration.WithUncontrolledInvocationStackTraceLoggingEnabled();
                         break;
-                    case "fail-on-maxsteps":
-                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
+                    case "fail-on-max-steps":
+                        this.Configuration.FailOnMaxStepsBound = true;
                         break;
                     case "explore":
                         this.Configuration.RunTestIterationsToCompletion = true;

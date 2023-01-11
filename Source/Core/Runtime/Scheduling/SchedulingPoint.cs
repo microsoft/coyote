@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the read shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Read(string state, IEqualityComparer<string> comparer = default)
+        public static void Read(string state, IEqualityComparer<string> comparer = null)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
@@ -76,7 +76,11 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Read, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
@@ -92,7 +96,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the written shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Write(string state, IEqualityComparer<string> comparer = default)
+        public static void Write(string state, IEqualityComparer<string> comparer = null)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
@@ -100,90 +104,15 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Write, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
                     runtime.DelayOperation(current);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Waits for a signal to a resource with the specified name.
-        /// </summary>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public static void Wait(string name)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
-            {
-                using (runtime.EnterSynchronizedSection())
-                {
-                    if (!runtime.SignalMap.TryGetValue(name, out var signal))
-                    {
-                        runtime.SignalMap.Add(name, 1);
-                    }
-
-                    runtime.SignalMap[name]--;
-                    if (runtime.SignalMap[name] is 0)
-                    {
-                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting a signal for '{1}'.",
-                            current.Name, name);
-                        runtime.SignalMap[name] = 1;
-                        current.Status = OperationStatus.Suppressed;
-                        runtime.OperationSignalAwaiters.Add(current.Id, name);
-                        runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Waits asynchronously for a signal to a resource with the specified name.
-        /// </summary>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public static SignalAwaitable WaitAsync(string name)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
-            {
-                return new SignalAwaitable(runtime, current, name);
-            }
-
-            return new SignalAwaitable(null, null, name);
-        }
-
-        /// <summary>
-        /// Signals a resource with the specified name.
-        /// </summary>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public static void Signal(string name)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
-            {
-                using (runtime.EnterSynchronizedSection())
-                {
-                    foreach (var kvp in runtime.OperationSignalAwaiters.Where(kvp => kvp.Value == name).ToList())
-                    {
-                        var op = runtime.GetOperationWithId(kvp.Key);
-                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is signaled for '{1}'.",
-                            op.Name, name);
-                        op.Status = OperationStatus.Enabled;
-                        runtime.OperationSignalAwaiters.Remove(kvp.Key);
-                    }
-
-                    if (!runtime.SignalMap.TryGetValue(name, out var signal))
-                    {
-                        runtime.SignalMap.Add(name, 0);
-                    }
-
-                    runtime.SignalMap[name]++;
-                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default, isSuppressible: false);
                 }
             }
         }
@@ -247,6 +176,13 @@ namespace Microsoft.Coyote.Runtime
         internal static bool IsUserDefined(SchedulingPointType type) =>
             type is SchedulingPointType.Interleave ||
             type is SchedulingPointType.Yield ||
+            type is SchedulingPointType.Read ||
+            type is SchedulingPointType.Write;
+
+        /// <summary>
+        /// Returns true if the specified scheduling point is a 'READ' or 'WRITE' operation.
+        /// </summary>
+        internal static bool IsReadOrWrite(SchedulingPointType type) =>
             type is SchedulingPointType.Read ||
             type is SchedulingPointType.Write;
     }

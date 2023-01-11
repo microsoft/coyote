@@ -99,14 +99,8 @@ namespace Microsoft.Coyote.Testing.Interleaving
             if (ops.Select(op => op.Group).Distinct().Skip(1).Any())
             {
                 // Change the priority of the highest priority operation group.
-                // If the shared-state reduction is enabled, check if there is at least
-                // one 'WRITE' operation, before trying to change the priority.
-                if (!this.Configuration.IsSharedStateReductionEnabled ||
-                    ops.Any(op => op.LastSchedulingPoint is SchedulingPointType.Write))
-                {
-                    this.PrioritizeNextOperationGroup(ops);
-                    this.NumPriorityChangePoints++;
-                }
+                this.PrioritizeNextOperationGroup(ops);
+                this.NumPriorityChangePoints++;
 
                 // Get the operations that belong to the highest priority group.
                 OperationGroup nextGroup = this.GetOperationGroupWithHighestPriority(ops);

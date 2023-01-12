@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.SystematicTesting
         internal void ReportTrace(ExecutionTrace trace)
         {
             this.Decisions = new List<string>();
-            for (int idx = 0; idx < trace.Length; idx++)
+            for (int idx = 0; idx < trace.Length; ++idx)
             {
                 ExecutionTrace.Step step = trace[idx];
                 if (step.Kind == ExecutionTrace.DecisionKind.SchedulingChoice)

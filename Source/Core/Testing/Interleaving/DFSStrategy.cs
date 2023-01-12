@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             else
             {
                 ncs = new List<NondetIntegerChoice>();
-                for (int value = 0; value < maxValue; value++)
+                for (int value = 0; value < maxValue; ++value)
                 {
                     ncs.Add(new NondetIntegerChoice(value));
                 }
@@ -278,7 +278,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("*******************");
                 sb.AppendLine($"Schedule stack size: {this.ScheduleStack.Count}");
-                for (int idx = 0; idx < this.ScheduleStack.Count; idx++)
+                for (int idx = 0; idx < this.ScheduleStack.Count; ++idx)
                 {
                     sb.AppendLine($"Index: {idx}");
                     foreach (var sc in this.ScheduleStack[idx])
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
                 sb.AppendLine("*******************");
                 sb.AppendLine($"Random bool stack size: {this.BoolNondetStack.Count}");
-                for (int idx = 0; idx < this.BoolNondetStack.Count; idx++)
+                for (int idx = 0; idx < this.BoolNondetStack.Count; ++idx)
                 {
                     sb.AppendLine($"Index: {idx}");
                     foreach (var nc in this.BoolNondetStack[idx])
@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
                 sb.AppendLine("*******************");
                 sb.AppendLine($"Random int stack size: {this.IntNondetStack.Count}");
-                for (int idx = 0; idx < this.IntNondetStack.Count; idx++)
+                for (int idx = 0; idx < this.IntNondetStack.Count; ++idx)
                 {
                     sb.AppendLine($"Index: {idx}");
                     foreach (var nc in this.IntNondetStack[idx])

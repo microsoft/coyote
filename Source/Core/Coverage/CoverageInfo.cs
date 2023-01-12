@@ -54,10 +54,21 @@ namespace Microsoft.Coyote.Coverage
         public Dictionary<string, Dictionary<string, long>> SchedulingPointStackTraces { get; private set; }
 
         /// <summary>
+        /// Set of explored paths represented as ordered operation creation sequence ids.
+        /// </summary>
+        [DataMember]
+        public HashSet<string> ExploredPaths { get; private set; }
+
+        /// <summary>
         /// Set of visited program states represented as hashes.
         /// </summary>
         [DataMember]
         public HashSet<int> VisitedStates { get; private set; }
+
+        /// <summary>
+        /// Set of encountered operation creation sequence ids.
+        /// </summary>
+        public HashSet<ulong> OperationSequenceIds { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
@@ -68,7 +79,9 @@ namespace Microsoft.Coyote.Coverage
             this.MonitorsToStates = new Dictionary<string, HashSet<string>>();
             this.RegisteredMonitorEvents = new Dictionary<string, HashSet<string>>();
             this.SchedulingPointStackTraces = new Dictionary<string, Dictionary<string, long>>();
+            this.ExploredPaths = new HashSet<string>();
             this.VisitedStates = new HashSet<int>();
+            this.OperationSequenceIds = new HashSet<ulong>();
         }
 
         /// <summary>
@@ -142,9 +155,19 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
+        /// Declares a new explored execution path.
+        /// </summary>
+        internal void DeclareExploredExecutionPath(string path) => this.ExploredPaths.Add(path);
+
+        /// <summary>
         /// Declares a new visited state.
         /// </summary>
         internal void DeclareVisitedState(int state) => this.VisitedStates.Add(state);
+
+        /// <summary>
+        /// Declares a new operation creation sequence id.
+        /// </summary>
+        internal void DeclareOperationSequenceId(ulong sequenceId) => this.OperationSequenceIds.Add(sequenceId);
 
         /// <summary>
         /// Loads the coverage info XML file into a <see cref="CoverageInfo"/> object of the specified type.
@@ -246,7 +269,9 @@ namespace Microsoft.Coyote.Coverage
                 }
             }
 
+            this.ExploredPaths.UnionWith(coverageInfo.ExploredPaths);
             this.VisitedStates.UnionWith(coverageInfo.VisitedStates);
+            this.OperationSequenceIds.UnionWith(coverageInfo.OperationSequenceIds);
         }
     }
 }

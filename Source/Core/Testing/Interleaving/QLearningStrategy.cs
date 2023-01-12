@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         private int GetNextIntegerChoiceByPolicy(int state, int maxValue)
         {
             var qValues = new List<double>(maxValue);
-            for (ulong i = 0; i < (ulong)maxValue; i++)
+            for (ulong i = 0; i < (ulong)maxValue; ++i)
             {
                 qValues.Add(this.OperationQTable[state][this.MinIntegerChoiceOpValue - i]);
             }
@@ -205,13 +205,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
         private int ChooseQValueIndexFromDistribution(List<double> qValues)
         {
             double sum = 0;
-            for (int i = 0; i < qValues.Count; i++)
+            for (int i = 0; i < qValues.Count; ++i)
             {
                 qValues[i] = Math.Exp(qValues[i]);
                 sum += qValues[i];
             }
 
-            for (int i = 0; i < qValues.Count; i++)
+            for (int i = 0; i < qValues.Count; ++i)
             {
                 qValues[i] /= sum;
             }
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 this.OperationQTable.Add(state, qValues);
             }
 
-            for (ulong i = 0; i < (ulong)maxValue; i++)
+            for (ulong i = 0; i < (ulong)maxValue; ++i)
             {
                 ulong opValue = this.MinIntegerChoiceOpValue - i;
                 if (!qValues.ContainsKey(opValue))

@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.Rewriting
                     onlyImport, ref isRewritten);
                 GenericInstanceType newGenericType = newElementType as GenericInstanceType ??
                      new GenericInstanceType(newElementType);
-                for (int idx = 0; idx < genericType.GenericArguments.Count; idx++)
+                for (int idx = 0; idx < genericType.GenericArguments.Count; ++idx)
                 {
                     newGenericType.GenericArguments.Add(this.RewriteType(genericType.GenericArguments[idx],
                         options & ~Options.AllowStaticRewrittenType, false, ref isRewritten));

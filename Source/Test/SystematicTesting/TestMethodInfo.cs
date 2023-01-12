@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     error += " Possible methods are:" + Environment.NewLine;
 
                     var possibleMethods = filteredTestMethods?.Count > 1 ? filteredTestMethods : testMethods;
-                    for (int idx = 0; idx < possibleMethods.Count; idx++)
+                    for (int idx = 0; idx < possibleMethods.Count; ++idx)
                     {
                         var mi = possibleMethods[idx];
                         error += string.Format("  {0}.{1}", mi.DeclaringType.FullName, mi.Name);

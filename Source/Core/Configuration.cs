@@ -3,8 +3,10 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Threading;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote
 {
@@ -35,18 +37,6 @@ namespace Microsoft.Coyote
         internal string TestMethodName;
 
         /// <summary>
-        /// The systematic testing strategy to use.
-        /// </summary>
-        [DataMember]
-        public string SchedulingStrategy { get; internal set; }
-
-        /// <summary>
-        /// A strategy-specific bound.
-        /// </summary>
-        [DataMember]
-        internal int StrategyBound;
-
-        /// <summary>
         /// Number of testing iterations.
         /// </summary>
         [DataMember]
@@ -69,22 +59,47 @@ namespace Microsoft.Coyote
         public uint? RandomGeneratorSeed { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled and uncontrolled concurrency is detected, then the
-        /// runtime will attempt to partially control the concurrency of the application,
-        /// instead of immediately failing with an error.
+        /// The exploration strategy to use during testing.
+        /// </summary>
+        [DataMember]
+        internal ExplorationStrategy ExplorationStrategy { get; set; }
+
+        /// <summary>
+        /// A strategy-specific bound.
+        /// </summary>
+        [DataMember]
+        internal int StrategyBound;
+
+        /// <summary>
+        /// The exploration strategy portfolio mode that is enabled during testing.
+        /// </summary>
+        [DataMember]
+        internal PortfolioMode PortfolioMode;
+
+        /// <summary>
+        /// If enabled and uncontrolled concurrency is detected, then the runtime will attempt to partially
+        /// control the concurrency of the application, instead of immediately failing with an error.
         /// </summary>
         [DataMember]
         internal bool IsPartiallyControlledConcurrencyAllowed;
 
         /// <summary>
-        /// If this option is enabled, the systematic fuzzing policy is used during testing.
+        /// If enabled and uncontrolled data non-determinism is detected, then the runtime will attempt
+        /// to partially control the data non-determinism of the application, instead of immediately
+        /// failing with an error.
+        /// </summary>
+        [DataMember]
+        internal bool IsPartiallyControlledDataNondeterminismAllowed;
+
+        /// <summary>
+        /// If enabled, the systematic fuzzing policy is used during testing.
         /// </summary>
         [DataMember]
         internal bool IsSystematicFuzzingEnabled;
 
         /// <summary>
-        /// If this option is enabled and uncontrolled concurrency is detected, then the tester
-        /// automatically switches to systematic fuzzing, instead of failing with an error.
+        /// If enabled and uncontrolled concurrency is detected, then the tester automatically switches
+        /// to systematic fuzzing, instead of failing with an error.
         /// </summary>
         [DataMember]
         internal bool IsSystematicFuzzingFallbackEnabled;
@@ -96,22 +111,40 @@ namespace Microsoft.Coyote
         public uint MaxFuzzingDelay { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled, liveness checking is enabled during systematic testing.
+        /// If enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, checking races during lock accesses is enabled during systematic testing.
+        /// If enabled, checking races at collection accesses is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsCollectionAccessRaceCheckingEnabled;
+
+        /// <summary>
+        /// If enabled, checking races at lock accesses is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLockAccessRaceCheckingEnabled;
 
         /// <summary>
-        /// If this option is enabled, shared state reduction is enabled during systematic testing.
+        /// If enabled, checking races at atomic operations is enabled during systematic testing.
         /// </summary>
         [DataMember]
-        internal bool IsSharedStateReductionEnabled;
+        internal bool IsAtomicOperationRaceCheckingEnabled;
+
+        /// <summary>
+        /// If enabled, execution trace cycle reduction is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsExecutionTraceCycleReductionEnabled;
+
+        /// <summary>
+        /// If enabled, partial-order sampling is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsPartialOrderSamplingEnabled;
 
         /// <summary>
         /// If true, the tester runs all iterations up to a bound, even if a bug is found.
@@ -140,11 +173,10 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetMaxFairSchedulingSteps;
 
         /// <summary>
-        /// If true, then the Coyote tester will consider an execution
-        /// that hits the depth bound as buggy.
+        /// If true, then hitting the max steps bound is treated as a bug.
         /// </summary>
         [DataMember]
-        internal bool ConsiderDepthBoundHitAsBug;
+        internal bool FailOnMaxStepsBound;
 
         /// <summary>
         /// Value that controls the probability of triggering a timeout during systematic testing.
@@ -163,8 +195,7 @@ namespace Microsoft.Coyote
         public uint DeadlockTimeout { get; internal set; }
 
         /// <summary>
-        /// If this option is enabled then report any potential deadlock as a bug,
-        /// else skip to the next test iteration.
+        /// If enabled then report any potential deadlock as a bug, else skip to the next test iteration.
         /// </summary>
         [DataMember]
         internal bool ReportPotentialDeadlocksAsBugs;
@@ -197,20 +228,20 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetLivenessTemperatureThreshold;
 
         /// <summary>
-        /// If this option is enabled, the tester is hashing the program state.
+        /// If enabled, runtime and automatically inferred program state is used to contribute
+        /// to the computed program state at each scheduling step during testing.
         /// </summary>
         [DataMember]
-        internal bool IsProgramStateHashingEnabled;
+        internal bool IsImplicitProgramStateHashingEnabled;
 
         /// <summary>
-        /// If this option is enabled, safety monitors can run outside the scope of the testing engine.
+        /// If enabled, safety monitors can run outside the scope of the testing engine.
         /// </summary>
         [DataMember]
         internal bool IsMonitoringEnabledOutsideTesting { get; private set; }
 
         /// <summary>
-        /// If this option is enabled, the runtime can check for actor quiescence outside
-        /// the scope of the testing engine.
+        /// If enabled, the runtime can check for actor quiescence outside the scope of the testing engine.
         /// </summary>
         [DataMember]
         internal bool IsActorQuiescenceCheckingEnabledOutsideTesting;
@@ -237,13 +268,30 @@ namespace Microsoft.Coyote
         internal bool IsConsoleLoggingEnabled { get; private set; }
 
         /// <summary>
-        /// Enables activity coverage reporting of a Coyote program.
+        /// Enables logging of stack traces when uncontrolled invocations are detected during testing.
+        /// </summary>
+        internal bool IsUncontrolledInvocationStackTraceLoggingEnabled { get; private set; }
+
+        /// <summary>
+        /// Enables activity coverage reporting during testing.
         /// </summary>
         [DataMember]
         internal bool IsActivityCoverageReported;
 
         /// <summary>
-        /// If true, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// Enables schedule coverage reporting during testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsScheduleCoverageReported;
+
+        /// <summary>
+        /// Serialize the reported coverage information.
+        /// </summary>
+        [DataMember]
+        internal bool IsCoverageInfoSerialized;
+
+        /// <summary>
+        /// If true, requests a visual graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
@@ -273,22 +321,27 @@ namespace Microsoft.Coyote
             this.VerbosityLevel = VerbosityLevel.Error;
             this.IsConsoleLoggingEnabled = false;
 
-            this.SchedulingStrategy = "random";
+            this.ExplorationStrategy = ExplorationStrategy.Random;
             this.TestingIterations = 1;
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
+            this.PortfolioMode = PortfolioMode.Fair;
             this.IsPartiallyControlledConcurrencyAllowed = true;
+            this.IsPartiallyControlledDataNondeterminismAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
             this.IsLivenessCheckingEnabled = true;
-            this.IsLockAccessRaceCheckingEnabled = false;
-            this.IsSharedStateReductionEnabled = false;
+            this.IsCollectionAccessRaceCheckingEnabled = true;
+            this.IsLockAccessRaceCheckingEnabled = true;
+            this.IsAtomicOperationRaceCheckingEnabled = true;
+            this.IsExecutionTraceCycleReductionEnabled = false;
+            this.IsPartialOrderSamplingEnabled = false;
             this.RunTestIterationsToCompletion = false;
             this.MaxUnfairSchedulingSteps = 10000;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ConsiderDepthBoundHitAsBug = false;
+            this.FailOnMaxStepsBound = false;
             this.StrategyBound = 0;
             this.TimeoutDelay = 10;
             this.DeadlockTimeout = 1000;
@@ -297,12 +350,15 @@ namespace Microsoft.Coyote
             this.UncontrolledConcurrencyResolutionDelay = 1000;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
-            this.IsProgramStateHashingEnabled = false;
+            this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
 
+            this.IsUncontrolledInvocationStackTraceLoggingEnabled = false;
             this.IsActivityCoverageReported = false;
+            this.IsScheduleCoverageReported = false;
+            this.IsCoverageInfoSerialized = false;
             this.IsTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
 
@@ -373,59 +429,118 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the random scheduling strategy during systematic testing.
+        /// Updates the configuration to use the random exploration strategy during systematic testing.
         /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithRandomStrategy()
         {
-            this.SchedulingStrategy = "random";
+            this.ExplorationStrategy = ExplorationStrategy.Random;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration to use the probabilistic scheduling strategy during systematic testing.
+        /// Updates the configuration to use the probabilistic exploration strategy during systematic testing.
         /// You can specify a value controlling the probability of each scheduling decision. This value is
         /// specified as the integer N in the equation 0.5 to the power of N. So for N=1, the probability is
         /// 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc. By default, this value is 3.
         /// </summary>
         /// <param name="probabilityLevel">The probability level.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithProbabilisticStrategy(uint probabilityLevel = 3)
         {
-            this.SchedulingStrategy = "probabilistic";
+            this.ExplorationStrategy = ExplorationStrategy.Probabilistic;
             this.StrategyBound = (int)probabilityLevel;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration to use the priority-based scheduling strategy during systematic testing.
+        /// Updates the configuration to use the priority-based exploration strategy during systematic testing.
         /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
         /// bound of possible priority changes, which by default can be up to 10.
         /// </summary>
         /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
         /// <param name="priorityChangeBound">Upper bound of possible priority changes per test iteration.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
         {
-            this.SchedulingStrategy = isFair ? "fair-prioritization" : "prioritization";
+            this.ExplorationStrategy = isFair ? ExplorationStrategy.FairPrioritization : ExplorationStrategy.Prioritization;
             this.StrategyBound = (int)priorityChangeBound;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration to use the reinforcement learning (RL) scheduling strategy
-        /// during systematic testing.
+        /// Updates the configuration to use the delay-bounding exploration strategy during systematic testing.
+        /// You can specify if you want to enable liveness checking, which is disabled by default, and an upper
+        /// bound of possible delays, which by default can be up to 10.
         /// </summary>
-        public Configuration WithRLStrategy()
+        /// <param name="isFair">If true, enable liveness checking by using fair scheduling.</param>
+        /// <param name="delayBound">Upper bound of possible priority delays per test iteration.</param>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
+        public Configuration WithDelayBoundingStrategy(bool isFair = false, uint delayBound = 10)
         {
-            this.SchedulingStrategy = "rl";
-            this.IsProgramStateHashingEnabled = true;
+            this.ExplorationStrategy = isFair ? ExplorationStrategy.FairDelayBounding : ExplorationStrategy.DelayBounding;
+            this.StrategyBound = (int)delayBound;
+            this.PortfolioMode = PortfolioMode.None;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration to use the dfs scheduling strategy during systematic testing.
+        /// Updates the configuration to use the Q-learning exploration strategy during systematic testing.
         /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
+        public Configuration WithQLearningStrategy()
+        {
+            this.ExplorationStrategy = ExplorationStrategy.QLearning;
+            this.IsImplicitProgramStateHashingEnabled = true;
+            this.PortfolioMode = PortfolioMode.None;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to use the dfs exploration strategy during systematic testing.
+        /// </summary>
+        /// <remarks>
+        /// Note that explicitly setting this strategy disables the default exploration mode
+        /// that uses a tuned portfolio of strategies.
+        /// </remarks>
         internal Configuration WithDFSStrategy()
         {
-            this.SchedulingStrategy = "dfs";
+            this.ExplorationStrategy = ExplorationStrategy.DFS;
+            this.PortfolioMode = PortfolioMode.None;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to use fair or unfair portfolio mode during testing. Portfolio
+        /// mode uses a tuned portfolio of strategies, instead of the default or user-specified strategy.
+        /// If fair mode is enabled, then the portfolio will upgrade any unfair strategies to fair,
+        /// by adding a fair execution suffix after the the max fair scheduling steps bound has been
+        /// reached. By default, fair portfolio mode is enabled.
+        /// </summary>
+        /// <param name="isFair">
+        /// If true, which is the default value, then the portfolio mode is fair, else it is unfair.
+        /// </param>
+        internal Configuration WithPortfolioMode(bool isFair = true)
+        {
+            this.PortfolioMode = isFair ? PortfolioMode.Fair : PortfolioMode.Unfair;
             return this;
         }
 
@@ -436,6 +551,16 @@ namespace Microsoft.Coyote
         public Configuration WithPartiallyControlledConcurrencyAllowed(bool isAllowed = true)
         {
             this.IsPartiallyControlledConcurrencyAllowed = isAllowed;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with partially controlled data non-determinism allowed or disallowed.
+        /// </summary>
+        /// <param name="isAllowed">If true, then partially controlled data non-determinism is allowed.</param>
+        public Configuration WithPartiallyControlledDataNondeterminismAllowed(bool isAllowed = true)
+        {
+            this.IsPartiallyControlledDataNondeterminismAllowed = isAllowed;
             return this;
         }
 
@@ -471,11 +596,23 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with race checking for collection accesses enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when concurrent operations try to access collections.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at collection accesses is enabled.</param>
+        public Configuration WithCollectionAccessRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsCollectionAccessRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with race checking for lock accesses enabled or disabled.
         /// If this race checking strategy is enabled, then the runtime will explore interleavings
         /// when concurrent operations try to access lock-based synchronization primitives.
         /// </summary>
-        /// <param name="isEnabled">If true, then checking races during lock accesses is enabled.</param>
+        /// <param name="isEnabled">If true, then checking races at lock accesses is enabled.</param>
         public Configuration WithLockAccessRaceCheckingEnabled(bool isEnabled = true)
         {
             this.IsLockAccessRaceCheckingEnabled = isEnabled;
@@ -483,15 +620,49 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with shared state reduction enabled or disabled. If this
+        /// Updates the configuration with race checking for atomic operations enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when invoking atomic operations, such as <see cref="Interlocked"/> methods.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at atomic operations is enabled.</param>
+        public Configuration WithAtomicOperationRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsAtomicOperationRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with execution trace reduction enabled or disabled. If this
         /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
-        /// space by taking into account any 'READ' and 'WRITE' operations declared by invoking
+        /// space by identifying and de-prioritizing cycles in the execution trace.
+        /// </summary>
+        /// <param name="isEnabled">If true, then execution trace reduction is enabled.</param>
+        public Configuration WithExecutionTraceCycleReductionEnabled(bool isEnabled = true)
+        {
+            this.IsExecutionTraceCycleReductionEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with partial-order sampling enabled or disabled. If this
+        /// reduction strategy is enabled, then the runtime will attempt to reduce the schedule
+        /// space by taking into account any 'READ' and 'WRITE' races declared by invoking
         /// <see cref="SchedulingPoint.Read"/> and <see cref="SchedulingPoint.Write"/>.
         /// </summary>
-        /// <param name="isEnabled">If true, then shared state reduction is enabled.</param>
-        public Configuration WithSharedStateReductionEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then partial-order sampling is enabled.</param>
+        public Configuration WithPartialOrderSamplingEnabled(bool isEnabled = true)
         {
-            this.IsSharedStateReductionEnabled = isEnabled;
+            this.IsPartialOrderSamplingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to treat reaching the execution steps bound as a bug during testing.
+        /// </summary>
+        /// <param name="isEnabled">If true, then reaching the execution steps bound is treated as a bug.</param>
+        public Configuration WithFailureOnMaxStepsBoundEnabled(bool isEnabled = true)
+        {
+            this.FailOnMaxStepsBound = isEnabled;
             return this;
         }
 
@@ -642,6 +813,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with stack trace logging for uncontrolled invocations enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then stack trace logging for uncontrolled invocations is enabled.</param>
+        public Configuration WithUncontrolledInvocationStackTraceLoggingEnabled(bool isEnabled = true)
+        {
+            this.IsUncontrolledInvocationStackTraceLoggingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration to enable or disable reporting activity coverage.
         /// </summary>
         /// <param name="isEnabled">If true, then enables activity coverage.</param>
@@ -652,8 +833,28 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to enable or disable reporting schedule coverage.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables schedule coverage reporting.</param>
+        public Configuration WithScheduleCoverageReported(bool isEnabled = true)
+        {
+            this.IsScheduleCoverageReported = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to enable or disable serializing the coverage information.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables serializing the coverage information.</param>
+        public Configuration WithCoverageInfoSerialized(bool isEnabled = true)
+        {
+            this.IsCoverageInfoSerialized = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with trace visualization enabled or disabled.
-        /// If enabled, the testing engine can produce a DGML graph representing
+        /// If enabled, the testing engine can produce a visual graph representing
         /// an execution leading up to a bug.
         /// </summary>
         /// <param name="isEnabled">If true, then enables trace visualization.</param>

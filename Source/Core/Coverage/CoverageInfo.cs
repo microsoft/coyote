@@ -48,6 +48,18 @@ namespace Microsoft.Coyote.Coverage
         public MonitorEventCoverage MonitorEventInfo { get; set; }
 
         /// <summary>
+        /// Map from scheduling point types to invocation site stack traces and their frequencies.
+        /// </summary>
+        [DataMember]
+        public Dictionary<string, Dictionary<string, long>> SchedulingPointStackTraces { get; private set; }
+
+        /// <summary>
+        /// Set of visited program states represented as hashes.
+        /// </summary>
+        [DataMember]
+        public HashSet<int> VisitedStates { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
@@ -55,22 +67,24 @@ namespace Microsoft.Coyote.Coverage
             this.Monitors = new HashSet<string>();
             this.MonitorsToStates = new Dictionary<string, HashSet<string>>();
             this.RegisteredMonitorEvents = new Dictionary<string, HashSet<string>>();
+            this.SchedulingPointStackTraces = new Dictionary<string, Dictionary<string, long>>();
+            this.VisitedStates = new HashSet<int>();
         }
 
         /// <summary>
         /// Checks if the specification monitor type has already been registered for coverage.
         /// </summary>
-        public bool IsMonitorDeclared(string monitorName) => this.MonitorsToStates.ContainsKey(monitorName);
+        internal bool IsMonitorDeclared(string monitorName) => this.MonitorsToStates.ContainsKey(monitorName);
 
         /// <summary>
         /// Declares a specification monitor state.
         /// </summary>
-        public void DeclareMonitorState(string monitor, string state) => this.AddMonitorState(monitor, state);
+        internal void DeclareMonitorState(string monitor, string state) => this.AddMonitorState(monitor, state);
 
         /// <summary>
         /// Declares a registered specification monitor state-event pair.
         /// </summary>
-        public void DeclareMonitorStateEventPair(string monitor, string state, string eventName)
+        internal void DeclareMonitorStateEventPair(string monitor, string state, string eventName)
         {
             this.AddMonitorState(monitor, state);
 
@@ -106,11 +120,39 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Loads the given coverage info XML file.
+        /// Declares a new scheduling point invocation with its stack trace.
+        /// </summary>
+        internal void DeclareSchedulingPoint(string type, string trace)
+        {
+            if (this.SchedulingPointStackTraces.TryGetValue(type, out Dictionary<string, long> traces))
+            {
+                if (traces.TryGetValue(trace, out long count))
+                {
+                    traces[trace] = count + 1;
+                }
+                else
+                {
+                    traces.Add(trace, 1);
+                }
+            }
+            else
+            {
+                this.SchedulingPointStackTraces.Add(type, new Dictionary<string, long> { { trace, 1 } });
+            }
+        }
+
+        /// <summary>
+        /// Declares a new visited state.
+        /// </summary>
+        internal void DeclareVisitedState(int state) => this.VisitedStates.Add(state);
+
+        /// <summary>
+        /// Loads the coverage info XML file into a <see cref="CoverageInfo"/> object of the specified type.
         /// </summary>
         /// <param name="filename">Path to the file to load.</param>
         /// <returns>The deserialized coverage info.</returns>
-        public static CoverageInfo Load(string filename)
+        public static T Load<T>(string filename)
+            where T : CoverageInfo
         {
             using var fs = new FileStream(filename, FileMode.Open);
             using var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas());
@@ -119,8 +161,8 @@ namespace Microsoft.Coyote.Coverage
                 PreserveObjectReferences = true
             };
 
-            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
-            return (CoverageInfo)ser.ReadObject(reader, true);
+            var ser = new DataContractSerializer(typeof(T), settings);
+            return (T)ser.ReadObject(reader, true);
         }
 
         /// <summary>
@@ -135,7 +177,7 @@ namespace Microsoft.Coyote.Coverage
                 PreserveObjectReferences = true
             };
 
-            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+            var ser = new DataContractSerializer(this.GetType(), settings);
             ser.WriteObject(fs, this);
         }
 
@@ -182,6 +224,29 @@ namespace Microsoft.Coyote.Coverage
             {
                 this.MonitorEventInfo.Merge(coverageInfo.MonitorEventInfo);
             }
+
+            foreach (var kvp in coverageInfo.SchedulingPointStackTraces)
+            {
+                if (!this.SchedulingPointStackTraces.TryGetValue(kvp.Key, out Dictionary<string, long> traces))
+                {
+                    traces = new Dictionary<string, long>();
+                    this.SchedulingPointStackTraces.Add(kvp.Key, traces);
+                }
+
+                foreach (var trace in kvp.Value)
+                {
+                    if (traces.TryGetValue(trace.Key, out long count))
+                    {
+                        traces[trace.Key] = count + trace.Value;
+                    }
+                    else
+                    {
+                        traces.Add(trace.Key, trace.Value);
+                    }
+                }
+            }
+
+            this.VisitedStates.UnionWith(coverageInfo.VisitedStates);
         }
     }
 }

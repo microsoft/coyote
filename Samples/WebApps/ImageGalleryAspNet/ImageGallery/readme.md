@@ -8,7 +8,7 @@ This is a web client front end that uses the ImageGalleryService middle tier.
 
 The app depends on the following:
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet) must be installed.
+- [.NET 7.0 SDK](https://dotnet.microsoft.com/download/dotnet) must be installed.
 - [Azure Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) must be hnstalled running.
 - [Azure Cosmos Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=cli%2Cssl-netstd21) must be installed and running.
 - Open Azure Cosmos Data Explorer from taskbar tray and copy the `Primary Connection String` from there into `~/ImageGalleryAspNet/ImageGalleryService/appsettings.json`.

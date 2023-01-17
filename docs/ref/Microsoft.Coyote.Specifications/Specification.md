@@ -14,6 +14,7 @@ public static class Specification
 | static [IsEventuallyCompletedSuccessfully](Specification/IsEventuallyCompletedSuccessfully.md)(…) | Creates a monitor that checks if the specified task eventually completes its execution successfully, and if not, fails with a liveness property violation. |
 | static [Monitor&lt;T&gt;](Specification/Monitor.md)(…) | Invokes the specified monitor with the given event. |
 | static [RegisterMonitor&lt;T&gt;](Specification/RegisterMonitor.md)() | Registers a new safety or liveness monitor. |
+| static [RegisterStateHashingFunction](Specification/RegisterStateHashingFunction.md)(…) | Registers a new state hashing function that contributes to computing a representation of the program state in each scheduling step. |
 
 ## Remarks
 

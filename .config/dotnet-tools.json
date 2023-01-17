@@ -2,14 +2,26 @@
   "version": 1,
   "isRoot": true,
   "tools": {
+    "dotnet-counters": {
+      "version": "6.0.351802",
+      "commands": [
+        "dotnet-counters"
+      ]
+    },
+    "dotnet-dump": {
+      "version": "6.0.351802",
+      "commands": [
+        "dotnet-dump"
+      ]
+    },
     "dotnet-ilverify": {
-      "version": "6.0.0",
+      "version": "7.0.0",
       "commands": [
         "ilverify"
       ]
     },
     "microsoft.coyote.cli": {
-      "version": "1.6.2",
+      "version": "1.7.3",
       "commands": [
         "coyote"
       ]

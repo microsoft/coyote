@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunSystematicTest(test, configuration);
+                this.RunSystematicTest(test, configuration, null, null);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunSystematicTest(test, configuration);
+                this.RunSystematicTest(test, configuration, null, null);
             }
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunSystematicTest(test, configuration);
+                this.RunSystematicTest(test, configuration, null, null);
             }
         }
 
@@ -79,26 +79,40 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                this.RunSystematicTest(test, configuration);
+                this.RunSystematicTest(test, configuration, null, null);
             }
         }
 
         protected TestReport RunSystematicTest(Action test, Configuration configuration = null) =>
-            this.RunSystematicTest(test as Delegate, configuration);
+            this.RunSystematicTest(test as Delegate, configuration, null, null);
 
         protected TestReport RunSystematicTest(Func<Task> test, Configuration configuration = null) =>
-            this.RunSystematicTest(test as Delegate, configuration);
+            this.RunSystematicTest(test as Delegate, configuration, null, null);
 
-        private TestReport RunSystematicTest(Delegate test, Configuration configuration)
+        protected TestReport RunSystematicTest(Action test, Configuration configuration = null,
+            Action<uint> startIterationCallBack = null, Action<uint> endIterationCallBack = null) =>
+            this.RunSystematicTest(test as Delegate, configuration, startIterationCallBack, endIterationCallBack);
+
+        protected TestReport RunSystematicTest(Func<Task> test, Configuration configuration = null,
+            Action<uint> startIterationCallBack = null, Action<uint> endIterationCallBack = null) =>
+            this.RunSystematicTest(test as Delegate, configuration, startIterationCallBack, endIterationCallBack);
+
+        private TestReport RunSystematicTest(Delegate test, Configuration configuration,
+            Action<uint> startIterationCallBack, Action<uint> endIterationCallBack)
         {
             configuration ??= this.GetConfiguration();
 
             using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
-                var numErrors = engine.TestReport.NumOfFoundBugs;
-                Assert.True(numErrors is 0, GetBugReport(engine));
+                using TestingEngine engine = RunTestingEngine(test, configuration,
+                    startIterationCallBack, endIterationCallBack, logger);
+                if (!configuration.RunTestIterationsToCompletion)
+                {
+                    var numErrors = engine.TestReport.NumOfFoundBugs;
+                    Assert.True(numErrors is 0, GetBugReport(engine));
+                }
+
                 return engine.TestReport;
             }
             catch (Exception ex)
@@ -111,10 +125,10 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
-            TestReport report = this.RunSystematicTest(test, configuration);
+            TestReport report = this.RunSystematicTest(test, configuration, null, null);
             using var writer = new StringWriter();
-            var activityCoverageReporter = new ActorActivityCoverageReporter(report.CoverageInfo);
-            activityCoverageReporter.WriteCoverageText(writer);
+            var coverageReporter = new ActorCoverageReporter(report.CoverageInfo);
+            coverageReporter.WriteActivityCoverageText(writer);
             string result = writer.ToString().RemoveNamespaceReferences();
             return result;
         }
@@ -287,13 +301,18 @@ namespace Microsoft.Coyote.Tests.Common
             using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
+                using TestingEngine engine = RunTestingEngine(test, configuration, null, null, logger);
                 CheckErrors(engine, errorChecker);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
+                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, null, null, logger);
+                    if (engine.TestReport.NumOfFoundBugs is 0)
+                    {
+                        this.TestOutput.WriteLine(engine.ReproducibleTrace);
+                    }
+
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, errorChecker);
@@ -376,13 +395,18 @@ namespace Microsoft.Coyote.Tests.Common
             using var logger = new TestOutputLogger(this.TestOutput);
             try
             {
-                using TestingEngine engine = RunTestingEngine(test, configuration, logger);
+                using TestingEngine engine = RunTestingEngine(test, configuration, null, null, logger);
                 CheckErrors(engine, exceptionType);
 
                 if (replay && this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
                     configuration.WithReproducibleTrace(engine.ReproducibleTrace);
-                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, logger);
+                    using TestingEngine replayEngine = RunTestingEngine(test, configuration, null, null, logger);
+                    if (engine.TestReport.NumOfFoundBugs is 0)
+                    {
+                        this.TestOutput.WriteLine(engine.ReproducibleTrace);
+                    }
+
                     string replayError = replayEngine.Scheduler.GetLastError();
                     Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(replayEngine, exceptionType);
@@ -758,13 +782,24 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        private static TestingEngine RunTestingEngine(Delegate test, Configuration configuration, TestOutputLogger logger)
+        private static TestingEngine RunTestingEngine(Delegate test, Configuration configuration,
+            Action<uint> startIterationCallBack, Action<uint> endIterationCallBack, TestOutputLogger logger)
         {
             var logWriter = new LogWriter(configuration);
             var engine = new TestingEngine(configuration, test, logWriter);
             if (!configuration.IsConsoleLoggingEnabled)
             {
                 engine.SetLogger(logger);
+            }
+
+            if (startIterationCallBack != null)
+            {
+                engine.RegisterStartIterationCallBack(startIterationCallBack);
+            }
+
+            if (endIterationCallBack != null)
+            {
+                engine.RegisterEndIterationCallBack(endIterationCallBack);
             }
 
             engine.Run();
@@ -813,6 +848,8 @@ namespace Microsoft.Coyote.Tests.Common
         protected virtual Configuration GetConfiguration() => Configuration.Create()
             .WithVerbosityEnabled(VerbosityLevel.Debug)
             .WithTelemetryEnabled(false)
+            .WithAtomicOperationRaceCheckingEnabled(false)
+            .WithLockAccessRaceCheckingEnabled(false)
             .WithPartiallyControlledConcurrencyAllowed(false)
             .WithSystematicFuzzingFallbackEnabled(false);
 

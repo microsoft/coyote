@@ -1,12 +1,13 @@
 # `Coyote`
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
+[![Nuget](https://img.shields.io/nuget/dt/Microsoft.Coyote?color=informational)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/coyote_dev?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=coyote_dev)
 
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
 ![CodeQL](https://github.com/microsoft/coyote/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 
-Coyote is a library and tool for testing concurrent C# code and deterministically reproducing bugs.
+Coyote is a cross-platform library and tool for testing concurrent C# code and deterministically reproducing bugs.
 
 Using Coyote, you can easily test the *concurrency* and other *nondeterminism* in your C# code, by
 writing what we call a *concurrency unit test*. These look like your regular unit tests, but can
@@ -24,9 +25,9 @@ Coyote is made with :heart: by Microsoft Research.
 
 **New:** Check out our experimental [systematic testing library for
 C++](https://github.com/microsoft/cpp-systematic-testing) that is based on the same research and
-technology that powers Coyote.
+technology behind Coyote.
 
-## How it works?
+## How it works
 
 Consider the following simple test:
 ```csharp
@@ -79,15 +80,19 @@ fixing the issue significantly easier.
 
 ## Get started
 
-Getting started with Coyote is easy! Check out
-[https://microsoft.github.io/coyote](https://microsoft.github.io/coyote/) for tutorials,
-documentation, how-tos, samples and more information about the project. Enjoy!
+Getting started with Coyote is easy! First, follow this
+[guide](https://microsoft.github.io/coyote/#get-started/install/) to install the `coyote`
+command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready
+to check out the Coyote [website](https://microsoft.github.io/coyote/) for tutorials, documentation,
+how-tos, samples and more information about the project. Enjoy!
 
 If you are a Microsoft employee, please consider joining the internal-only [Friends of Coyote Teams
 channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47),
 to be part of our community and learn from each other. Otherwise, please feel free to start a
 [discussion](https://github.com/microsoft/coyote/discussions) with us or open an
 [issue](https://github.com/microsoft/coyote/issues) on GitHub, thank you!
+
+Upgrading your `coyote` dependencies? Check the changelog [here](History.md).
 
 ## Contributing
 

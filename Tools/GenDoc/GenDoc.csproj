@@ -8,14 +8,15 @@
     <NetStandard2Supported>false</NetStandard2Supported>
     <Framework462Supported>false</Framework462Supported>
     <NetCore31Supported>false</NetCore31Supported>
-    <Net5Supported>false</Net5Supported>
+    <Net6Supported>false</Net6Supported>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="XmlDocMarkdown.Core" Version="2.8.0" />
-    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="YamlDotNet" Version="12.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />

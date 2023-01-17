@@ -7,6 +7,14 @@ using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
 using Microsoft.Coyote.Testing.Interleaving;
+using BoundedRandomFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.BoundedRandomStrategy;
+using DelayBoundingInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DelayBoundingStrategy;
+using DFSInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.DFSStrategy;
+using PrioritizationFuzzingStrategy = Microsoft.Coyote.Testing.Fuzzing.PrioritizationStrategy;
+using PrioritizationInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.PrioritizationStrategy;
+using ProbabilisticRandomInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.ProbabilisticRandomStrategy;
+using QLearningInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.QLearningStrategy;
+using RandomInterleavingStrategy = Microsoft.Coyote.Testing.Interleaving.RandomStrategy;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -21,12 +29,17 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The installed program exploration strategy.
+        /// The portfolio of exploration strategies.
         /// </summary>
-        private readonly ExplorationStrategy Strategy;
+        private readonly LinkedList<Strategy> Portfolio;
 
         /// <summary>
-        /// The installed schedule reducers, if any.
+        /// The exploration strategy used in the current iteration.
+        /// </summary>
+        private Strategy Strategy => this.Portfolio.First.Value;
+
+        /// <summary>
+        /// The pipeline of schedule reducers.
         /// </summary>
         private readonly List<IScheduleReducer> Reducers;
 
@@ -63,9 +76,9 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsMaxStepsReached => this.Strategy.IsMaxStepsReached();
 
         /// <summary>
-        /// True if the schedule is fair, else false.
+        /// True if the current iteration is fair, else false.
         /// </summary>
-        internal bool IsScheduleFair => this.Strategy.IsFair;
+        internal bool IsIterationFair => this.Strategy.IsFair;
 
         /// <summary>
         /// Checks if the scheduler is replaying the schedule trace.
@@ -83,29 +96,92 @@ namespace Microsoft.Coyote.Runtime
             this.ValueGenerator = generator;
             this.Trace = ExecutionTrace.Create();
 
+            this.Portfolio = new LinkedList<Strategy>();
             this.Reducers = new List<IScheduleReducer>();
-            if (configuration.IsSharedStateReductionEnabled)
+            if (configuration.IsExecutionTraceCycleReductionEnabled)
             {
-                this.Reducers.Add(new SharedStateReducer());
+                this.Reducers.Add(new TraceCycleReducer());
             }
 
+            if (configuration.IsPartialOrderSamplingEnabled)
+            {
+                this.Reducers.Add(new PartialOrderReducer());
+            }
+
+            this.IsReplaying = this.SchedulingPolicy is SchedulingPolicy.Interleaving && prefixTrace.Length > 0;
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
             {
                 configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
             }
 
-            if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            // Portfolio mode only works with interleaving exploration strategies and no replay.
+            if (this.Configuration.PortfolioMode.IsEnabled() && !this.IsReplaying &&
+                this.SchedulingPolicy is SchedulingPolicy.Interleaving )
             {
-                this.Strategy = InterleavingStrategy.Create(configuration, prefixTrace);
-                this.IsReplaying = prefixTrace.Length > 0;
+                bool isFair = this.Configuration.PortfolioMode.IsFair();
+                this.Portfolio.AddLast(new RandomInterleavingStrategy(configuration));
+                this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, 3));
+                this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, 10, isFair));
+                this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, 10, isFair));
             }
-            else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+            else
             {
-                this.Strategy = FuzzingStrategy.Create(configuration);
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    switch (configuration.ExplorationStrategy)
+                    {
+                        case ExplorationStrategy.Probabilistic:
+                            this.Portfolio.AddLast(new ProbabilisticRandomInterleavingStrategy(configuration, configuration.StrategyBound));
+                            break;
+                        case ExplorationStrategy.Prioritization:
+                            this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, false));
+                            break;
+                        case ExplorationStrategy.FairPrioritization:
+                            this.Portfolio.AddLast(new PrioritizationInterleavingStrategy(configuration, configuration.StrategyBound, true));
+                            break;
+                        case ExplorationStrategy.DelayBounding:
+                            this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, configuration.StrategyBound, false));
+                            break;
+                        case ExplorationStrategy.FairDelayBounding:
+                            this.Portfolio.AddLast(new DelayBoundingInterleavingStrategy(configuration, configuration.StrategyBound, true));
+                            break;
+                        case ExplorationStrategy.QLearning:
+                            this.Portfolio.AddLast(new QLearningInterleavingStrategy(configuration));
+                            break;
+                        case ExplorationStrategy.DFS:
+                            this.Portfolio.AddLast(new DFSInterleavingStrategy(configuration));
+                            break;
+                        case ExplorationStrategy.Random:
+                        default:
+                            this.Portfolio.AddLast(new RandomInterleavingStrategy(configuration));
+                            break;
+                    }
+                }
+                else if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    switch (configuration.ExplorationStrategy)
+                    {
+                        case ExplorationStrategy.Prioritization:
+                            this.Portfolio.AddLast(new PrioritizationFuzzingStrategy(configuration));
+                            break;
+                        case ExplorationStrategy.Random:
+                        default:
+                            this.Portfolio.AddLast(new BoundedRandomFuzzingStrategy(configuration));
+                            break;
+                    }
+                }
             }
 
-            this.Strategy.RandomValueGenerator = generator;
+            // Setup all instantiated exploration strategies with additional features.
+            foreach (var strategy in this.Portfolio)
+            {
+                strategy.RandomValueGenerator = generator;
+                if (strategy is InterleavingStrategy interleavingStrategy)
+                {
+                    interleavingStrategy.TracePrefix = prefixTrace;
+                }
+            }
         }
 
         /// <summary>
@@ -131,7 +207,16 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True to start the specified test iteration, else false to stop exploring.</returns>
         internal bool InitializeNextIteration(uint iteration, LogWriter logWriter)
         {
-            this.Trace.Clear();
+            if (iteration > 0)
+            {
+                // Rotate the portfolio strategies using round-robin.
+                var strategy = this.Portfolio.First.Value;
+                this.Portfolio.RemoveFirst();
+                this.Portfolio.AddLast(strategy);
+
+                this.Trace.Clear();
+            }
+
             this.Strategy.LogWriter = logWriter;
             return this.Strategy.InitializeNextIteration(iteration);
         }
@@ -165,7 +250,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
-                    this.Trace.AddSchedulingChoice(next.Id);
+                    this.Trace.AddSchedulingChoice(next.Id, current.LastSchedulingPoint);
                     return true;
                 }
             }
@@ -185,7 +270,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextBoolean(current, out next))
             {
-                this.Trace.AddNondeterministicBooleanChoice(next);
+                this.Trace.AddNondeterministicBooleanChoice(next, current.LastSchedulingPoint);
                 return true;
             }
 
@@ -205,7 +290,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextInteger(current, maxValue, out next))
             {
-                this.Trace.AddNondeterministicIntegerChoice(next);
+                this.Trace.AddNondeterministicIntegerChoice(next, current.LastSchedulingPoint);
                 return true;
             }
 
@@ -232,9 +317,16 @@ namespace Microsoft.Coyote.Runtime
         internal ExecutionTrace CheckpointExecutionTrace() => this.PrefixTrace.ExtendOrReplace(this.Trace);
 
         /// <summary>
-        /// Returns a description of the scheduling strategy in text format.
+        /// Returns the name of the current exploration strategy.
         /// </summary>
-        internal string GetDescription() => this.Strategy.GetDescription();
+        internal string GetStrategyName() => this.Strategy.GetName();
+
+        /// <summary>
+        /// Returns a description of the current exploration strategy in text format.
+        /// </summary>
+        internal string GetDescription() => this.Portfolio.Count > 1 ?
+            $"portfolio[{(this.Configuration.PortfolioMode.IsFair() ? "fair," : string.Empty)}seed:{this.Strategy.RandomValueGenerator.Seed}]" :
+            this.Strategy.GetDescription();
 
         /// <summary>
         /// Returns the last scheduling error, or the empty string if there is none.

@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>The Coyote .NET command-line tool.</Description>
+    <AssemblyName>coyote</AssemblyName>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+    <RootNamespace>Microsoft.Coyote</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\..\bin\</OutputPath>
+    <NetStandard2Supported>false</NetStandard2Supported>
+    <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Microsoft.Coyote.CLI</PackageId>
+    <PackageTags>systematic-testing;specifications;concurrency;dotnet;csharp;cli;tool</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackAsTool>true</PackAsTool>
+  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\*.cs"/>
+    <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\Cli\*.cs"/>
+  </ItemGroup>
+  <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/../Coyote/update-runtime-config.ps1 -outputPath $(OutputPath)" />
+  </Target>
+</Project>

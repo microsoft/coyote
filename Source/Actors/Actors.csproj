@@ -3,9 +3,13 @@
     <Description>The Coyote actor runtime and library.</Description>
     <AssemblyName>Microsoft.Coyote.Actors</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors</RootNamespace>
-    <PackageTags>actors;state-machines;asynchronous;reactive;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
     <Framework462Supported>false</Framework462Supported>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Microsoft.Coyote.Actors</PackageId>
+    <PackageTags>actors;state-machines;asynchronous;reactive;systematic-testing</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

@@ -60,8 +60,9 @@ example, given `path` equal to `PingPong.exe`):
 * `PingPong.coverage.txt`. This file contains the Event Coverage metric along with a breakdown per
   machine and per state. It also summarizes other useful coverage information.
 * `PingPong.dgml`. This file contains the Event Coverage visualization as described below.
-* `PingPong.sci`. This is the serialized `CoverageInfo` object for the test run. Such 'sci' files
-  from multiple runs can be passed to `CoyoteCoverageReportMerger.exe` to create a merged report.
+* `PingPong.coverage.ser`. This is the serialized `CoverageInfo` object for the test run. Such
+  `.coverage.ser` files from multiple runs can be passed to `CoyoteCoverageReportMerger.exe` to
+  create a merged report.
 * If `--coverage activity-debug` was specified, then there will also be a Debug directory containing
   the same files as above for each process, with the filename qualified by a sequential process id,
   e.g: `PingPong.coverage_0.txt`
@@ -88,14 +89,14 @@ Then run `coyote` with one of the coverage flags, as well as the other options y
 some minimal examples:
 
 ```plain
-coyote test ./bin/net6.0/Monitors.exe -i 10 --coverage
+coyote test ./bin/net7.0/Monitors.exe -i 10 --coverage
 ```
 
-This will create the directory `./bin/net6.0/Output/Monitors.exe/CoyoteOutput/`, then it
+This will create the directory `./bin/net7.0/Output/Monitors.exe/CoyoteOutput/`, then it
 generates coverage files for code coverage which you can load into Visual Studio to see the results.
 
 ```plain
-coyote test ./bin/net6.0/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
+coyote test ./bin/net7.0/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
 ```
 
 This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it generates only

@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors
             : base(id, name)
         {
             this.Tcs = new TaskCompletionSource<T>();
-            CoyoteRuntime.Current?.RegisterKnownControlledTask(this.Tcs.Task);
+            CoyoteRuntime.Current.RegisterKnownControlledTask(this.Tcs.Task);
         }
 
         /// <summary>

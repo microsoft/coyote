@@ -31,7 +31,7 @@ public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionNa
 | --- | --- |
 | eventType | The type of the dequeued event. |
 | stateType | The type of the state. |
-| actionName | Name of action to perform on exit. |
+| actionName | Name of action to perform on-exit. |
 
 ## See Also
 

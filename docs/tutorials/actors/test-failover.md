@@ -64,7 +64,7 @@ it happens after failover just to prove the usefulness of this testing methodolo
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 6.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 7.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
@@ -78,7 +78,7 @@ You can build the sample by following the instructions
 Now you can run the `CoffeeMachine` application:
 
 ```plain
-./Samples/bin/net6.0/CoffeeMachineActors.exe
+./Samples/bin/net7.0/CoffeeMachineActors.exe
 ```
 
 ## The coffee machine
@@ -189,15 +189,15 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net6.0/CoffeeMachineActors.dll -i 100 -ms 2000 -s prioritization -sv 10 --graph
+coyote test ./Samples/bin/net7.0/CoffeeMachineActors.dll -i 100 -ms 2000 -s prioritization -sv 10 --graph
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
 that a test output log and [DGML diagram](../../how-to/generate-dgml.md) are produced, like this:
 
 ```plain
-.\Samples\bin\net6.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt
-.\Samples\bin\net6.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.dgml
+.\Samples\bin\net7.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+.\Samples\bin\net7.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.dgml
 ```
 
 This log can be pretty big, a couple thousand lines where each line represents one async operation.

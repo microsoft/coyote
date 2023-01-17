@@ -1,10 +1,54 @@
-## v1.6.3
-- Refactored the NuGet packages and moved `Microsoft.Coyote.Actors` to its own dedicated package.
+## v1.7.3
+- Added support for the `net7.0` target framework.
+
+## v1.7.2
+- Added support for fully controlling the `SemaphoreSlim` type during testing.
+- Added support for detecting the `System.Guid` and `System.DateTime` APIs as sources of
+  uncontrolled data non-determinism during testing.
+- Added the `Configuration.WithPartiallyControlledDataNondeterminismAllowed` API (and
+  `--partial-control <MODE>` CLI option) for configuring how uncontrolled data non-determinism
+  should be handled during testing.
+- Added the `Configuration.WithScheduleCoverageReported` API (and `--schedule-coverage` CLI option)
+  for dumping coverage statistics and stack traces for scheduling decisions.
+- Added the `Specification.RegisterStateHashingFunction` API for registering custom program state
+  hashing functions, which can be used to compute an approximation of the program state during
+  testing, as well as reporting it in the test statistics.
+- Improved replay traces by registering the scheduling point type alongside each scheduling
+  decision.
+- Fixed missing `net462` dependency in the `Microsoft.Coyote.Tool` NuGet package.
+
+## v1.7.1
+- Added support for operation grouping for `Task` continuations.
+- Added support for the delay-bounding exploration strategy.
+- Added support for rewriting the `Thread.Yield` and `Interlocked` APIs.
+- Updated the runtime to not fail with a potential deadlock when the debugger is attached, and
+  instead add a breakpoint, to avoid spurious failures when debugging.
+- Hardened the `SchedulingPoint.Suppress` and `SchedulingPoint.Resume` methods so that they do not
+  resume scheduling earlier than expected when they are used in a nested manner.
+- Fixed a runtime memory leak when test iterations terminated early.
+- Fixed a rare stack-overflow exception when popping states during a `StateMachine` execution.
+- Fixed a few cases of internally spawned tasks considered to be uncontrolled by the runtime.
+
+## v1.7.0
+- Updated the default `random` exploration strategy with a `portfolio` testing mode that uses a
+  tuned set of different exploration strategies to increase coverage for different bug patterns. The
+  portfolio will be transparently enhanced over time as new exploration strategies become available
+  inside Coyote. The Portfolio can be set to fair or unfair using `Configuration.WithPortfolioMode`
+  or the `--portfolio-mode` command-line option. The portfolio mode can be disabled and explicitly
+  set to one of the available exploration strategies by setting a strategy-related option such as
+  `Configuration.WithRandomStrategy` or `-s <STRATEGY>`.
+- Refactored the NuGet packages, by moving `Microsoft.Coyote.Actors` to its own dedicated package,
+  introducing a new `Microsoft.Coyote.Tool` package that contains the self-contained `coyote`
+  command-line tool (for users that do not want to manage `coyote` via the `Microsoft.Coyote.CLI`
+  .NET tool), introducing a new `Microsoft.Coyote.Core` package that only contains the core runtime
+  library of Coyote, and converting the `Microsoft.Coyote` NuGet package into a meta-package that
+  pulls all non-tool packages.
 - Moved the actor `Event` type under the `Microsoft.Coyote.Actors` namespace.
 - Introduced a `Monitor.Event` type (nested in the `Microsoft.Coyote.Specifications.Monitor` class),
-  which must now be used for declaring specification monitor events.
-- Enhanced and streamlined the logging API, which is now available in the `Microsoft.Coyote.Logging`
-  namespace, instead of `Microsoft.Coyote.IO`.
+  which must now be used for declaring specification monitor events, instead of the original `Event`
+  type above.
+- Enhanced and streamlined the logging API and built-in loggers, which are now available in the
+  `Microsoft.Coyote.Logging` namespace, instead of `Microsoft.Coyote.IO`.
 - Removed support for the end-of-life `net5.0` target framework.
 
 ## v1.6.2

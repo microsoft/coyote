@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Coyote.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -66,7 +68,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the read shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Read(string state, IEqualityComparer<string> comparer = default)
+        public static void Read(string state, IEqualityComparer<string> comparer = null)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
@@ -74,7 +76,11 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Read, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
@@ -90,7 +96,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="comparer">
         /// Checks if the written shared state is equal with another shared state that is being accessed concurrently.
         /// </param>
-        public static void Write(string state, IEqualityComparer<string> comparer = default)
+        public static void Write(string state, IEqualityComparer<string> comparer = null)
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
@@ -98,7 +104,11 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
+                    current.LastAccessedSharedState = state;
+                    current.LastAccessedSharedStateComparer = comparer;
                     runtime.ScheduleNextOperation(current, SchedulingPointType.Write, isSuppressible: false);
+                    current.LastAccessedSharedState = string.Empty;
+                    current.LastAccessedSharedStateComparer = null;
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {
@@ -166,6 +176,13 @@ namespace Microsoft.Coyote.Runtime
         internal static bool IsUserDefined(SchedulingPointType type) =>
             type is SchedulingPointType.Interleave ||
             type is SchedulingPointType.Yield ||
+            type is SchedulingPointType.Read ||
+            type is SchedulingPointType.Write;
+
+        /// <summary>
+        /// Returns true if the specified scheduling point is a 'READ' or 'WRITE' operation.
+        /// </summary>
+        internal static bool IsReadOrWrite(SchedulingPointType type) =>
             type is SchedulingPointType.Read ||
             type is SchedulingPointType.Write;
     }

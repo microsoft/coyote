@@ -251,6 +251,6 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="553af466-0fe6-41de-9ec4-7312877ac238.OutputPath" Value="D:\git\foundry99\CoyoteSamples\bin\net47\CoffeeMachineTasks.exe" />
+    <Path Id="553af466-0fe6-41de-9ec4-7312877ac238.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net47\CoffeeMachineTasks.exe" />
   </Paths>
 </DirectedGraph>

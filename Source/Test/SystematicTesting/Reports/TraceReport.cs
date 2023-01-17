@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// Report containing the reproducible trace from a test run.
+    /// Report containing the execution trace from a test run.
     /// </summary>
     internal sealed class TraceReport
     {
@@ -19,6 +21,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The name of the test corresponding to this trace.
         /// </summary>
         public string TestName { get; set; }
+
+        /// <summary>
+        /// The version of Coyote used during testing.
+        /// </summary>
+        public string CoyoteVersion { get; set; }
 
         /// <summary>
         /// The settings that were used during testing.
@@ -31,15 +38,17 @@ namespace Microsoft.Coyote.SystematicTesting
         public List<string> Decisions { get; set; }
 
         /// <summary>
-        /// Returns the report from the specified <see cref="ExecutionTrace"/> in JSON format.
+        /// Constructs a <see cref="TraceReport"/> from the specified <see cref="OperationScheduler"/>
+        /// and <see cref="Configuration"/>, and returns it in JSON format.
         /// </summary>
-        internal static string GetJson(ExecutionTrace trace, Configuration configuration)
+        internal static string GetJson(OperationScheduler scheduler, Configuration configuration)
         {
             var report = new TraceReport();
             report.TestName = configuration.TestMethodName;
+            report.CoyoteVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             report.Settings = new TestSettings();
-            report.Settings.Strategy = configuration.SchedulingStrategy;
+            report.Settings.Strategy = scheduler.GetStrategyName();
             report.Settings.StrategyBound = configuration.StrategyBound;
 
             if (configuration.RandomGeneratorSeed.HasValue)
@@ -47,41 +56,21 @@ namespace Microsoft.Coyote.SystematicTesting
                 report.Settings.Seed = configuration.RandomGeneratorSeed.Value;
             }
 
-            report.Settings.IsLivenessCheckingEnabled = configuration.IsLivenessCheckingEnabled;
-            report.Settings.LivenessTemperatureThreshold = configuration.LivenessTemperatureThreshold;
-            report.Settings.IsLockAccessRaceCheckingEnabled = configuration.IsLockAccessRaceCheckingEnabled;
             report.Settings.MaxFairSchedulingSteps = configuration.MaxFairSchedulingSteps;
             report.Settings.MaxUnfairSchedulingSteps = configuration.MaxUnfairSchedulingSteps;
             report.Settings.TimeoutDelay = configuration.TimeoutDelay;
             report.Settings.DeadlockTimeout = configuration.DeadlockTimeout;
+            report.Settings.PortfolioMode = configuration.PortfolioMode.ToString().ToLower();
+            report.Settings.IsLivenessCheckingEnabled = configuration.IsLivenessCheckingEnabled;
+            report.Settings.LivenessTemperatureThreshold = configuration.LivenessTemperatureThreshold;
+            report.Settings.IsLockAccessRaceCheckingEnabled = configuration.IsLockAccessRaceCheckingEnabled;
             report.Settings.IsPartiallyControlledConcurrencyAllowed = configuration.IsPartiallyControlledConcurrencyAllowed;
+            report.Settings.IsPartiallyControlledDataNondeterminismAllowed = configuration.IsPartiallyControlledDataNondeterminismAllowed;
             report.Settings.UncontrolledConcurrencyResolutionAttempts = configuration.UncontrolledConcurrencyResolutionAttempts;
             report.Settings.UncontrolledConcurrencyResolutionDelay = configuration.UncontrolledConcurrencyResolutionDelay;
 
-            report.Decisions = new List<string>();
-            for (int idx = 0; idx < trace.Length; idx++)
-            {
-                ExecutionTrace.Step step = trace[idx];
-                if (step.Type == ExecutionTrace.DecisionType.SchedulingChoice)
-                {
-                    report.Decisions.Add($"op({step.ScheduledOperationId})");
-                }
-                else if (step.BooleanChoice != null)
-                {
-                    report.Decisions.Add($"bool({step.BooleanChoice.Value})");
-                }
-                else
-                {
-                    report.Decisions.Add($"int({step.IntegerChoice.Value})");
-                }
-            }
-
-            return JsonSerializer.Serialize(report, new JsonSerializerOptions()
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            });
+            report.ReportTrace(scheduler.Trace);
+            return report.ToJson();
         }
 
         /// <summary>
@@ -101,40 +90,51 @@ namespace Microsoft.Coyote.SystematicTesting
                 });
 
                 configuration.TestMethodName = report.TestName;
-                configuration.SchedulingStrategy = report.Settings.Strategy;
+                configuration.ExplorationStrategy = ExplorationStrategyExtensions.FromName(report.Settings.Strategy);
                 configuration.StrategyBound = report.Settings.StrategyBound;
                 if (report.Settings.Seed.HasValue)
                 {
                     configuration.RandomGeneratorSeed = report.Settings.Seed.Value;
                 }
 
-                configuration.IsLivenessCheckingEnabled = report.Settings.IsLivenessCheckingEnabled;
-                configuration.LivenessTemperatureThreshold = report.Settings.LivenessTemperatureThreshold;
-                configuration.IsLockAccessRaceCheckingEnabled = report.Settings.IsLockAccessRaceCheckingEnabled;
                 configuration.MaxFairSchedulingSteps = report.Settings.MaxFairSchedulingSteps;
                 configuration.MaxUnfairSchedulingSteps = report.Settings.MaxUnfairSchedulingSteps;
                 configuration.TimeoutDelay = report.Settings.TimeoutDelay;
                 configuration.DeadlockTimeout = report.Settings.DeadlockTimeout;
+                configuration.PortfolioMode = PortfolioModeExtensions.FromString(report.Settings.PortfolioMode);
+                configuration.IsLivenessCheckingEnabled = report.Settings.IsLivenessCheckingEnabled;
+                configuration.LivenessTemperatureThreshold = report.Settings.LivenessTemperatureThreshold;
+                configuration.IsLockAccessRaceCheckingEnabled = report.Settings.IsLockAccessRaceCheckingEnabled;
                 configuration.IsPartiallyControlledConcurrencyAllowed = report.Settings.IsPartiallyControlledConcurrencyAllowed;
+                configuration.IsPartiallyControlledDataNondeterminismAllowed = report.Settings.IsPartiallyControlledDataNondeterminismAllowed;
                 configuration.UncontrolledConcurrencyResolutionAttempts = report.Settings.UncontrolledConcurrencyResolutionAttempts;
                 configuration.UncontrolledConcurrencyResolutionDelay = report.Settings.UncontrolledConcurrencyResolutionDelay;
 
                 foreach (var decision in report.Decisions)
                 {
-                    if (decision.StartsWith("op("))
+                    string[] tokens = decision.Split(',');
+                    string kindToken = tokens[0];
+                    string spToken = tokens[1];
+
+#if NET || NETCOREAPP3_1
+                    SchedulingPointType sp = Enum.Parse<SchedulingPointType>(spToken.Substring(3, spToken.Length - 4));
+#else
+                    SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType), spToken.Substring(3, spToken.Length - 4));
+#endif
+                    if (kindToken.StartsWith("op("))
                     {
-                        ulong id = ulong.Parse(decision.Substring(3, decision.Length - 4));
-                        trace.AddSchedulingChoice(id);
+                        ulong id = ulong.Parse(kindToken.Substring(3, kindToken.Length - 4));
+                        trace.AddSchedulingChoice(id, sp);
                     }
-                    else if (decision.StartsWith("bool("))
+                    else if (kindToken.StartsWith("bool("))
                     {
-                        bool value = bool.Parse(decision.Substring(5, decision.Length - 6));
-                        trace.AddNondeterministicBooleanChoice(value);
+                        bool value = bool.Parse(kindToken.Substring(5, kindToken.Length - 6));
+                        trace.AddNondeterministicBooleanChoice(value, sp);
                     }
-                    else if (decision.StartsWith("int("))
+                    else if (kindToken.StartsWith("int("))
                     {
-                        int value = int.Parse(decision.Substring(4, decision.Length - 5));
-                        trace.AddNondeterministicIntegerChoice(value);
+                        int value = int.Parse(kindToken.Substring(4, kindToken.Length - 5));
+                        trace.AddNondeterministicIntegerChoice(value, sp);
                     }
                     else
                     {
@@ -145,6 +145,40 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return trace;
         }
+
+        /// <summary>
+        /// Adds the specified trace to the report.
+        /// </summary>
+        internal void ReportTrace(ExecutionTrace trace)
+        {
+            this.Decisions = new List<string>();
+            for (int idx = 0; idx < trace.Length; idx++)
+            {
+                ExecutionTrace.Step step = trace[idx];
+                if (step.Kind == ExecutionTrace.DecisionKind.SchedulingChoice)
+                {
+                    this.Decisions.Add($"op({step.ScheduledOperationId}),sp({step.SchedulingPoint})");
+                }
+                else if (step.BooleanChoice != null)
+                {
+                    this.Decisions.Add($"bool({step.BooleanChoice.Value}),sp({step.SchedulingPoint})");
+                }
+                else
+                {
+                    this.Decisions.Add($"int({step.IntegerChoice.Value}),sp({step.SchedulingPoint})");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the trace report in JSON format.
+        /// </summary>
+        internal string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            });
 
         /// <summary>
         /// The settings that were used during testing.
@@ -165,21 +199,6 @@ namespace Microsoft.Coyote.SystematicTesting
             /// The random seed.
             /// </summary>
             public uint? Seed { get; set; }
-
-            /// <summary>
-            /// Value specifying if liveness checking is enabled or not.
-            /// </summary>
-            public bool IsLivenessCheckingEnabled { get; set; }
-
-            /// <summary>
-            /// The liveness temperature threshold.
-            /// </summary>
-            public int LivenessTemperatureThreshold { get; set; }
-
-            /// <summary>
-            /// Value specifying if checking races during lock accesses is enabled or not.
-            /// </summary>
-            public bool IsLockAccessRaceCheckingEnabled { get; set; }
 
             /// <summary>
             /// The maximum scheduling steps to explore for fair schedulers.
@@ -203,9 +222,34 @@ namespace Microsoft.Coyote.SystematicTesting
             public uint DeadlockTimeout { get; set; }
 
             /// <summary>
+            /// The enabled exploration strategy portfolio mode.
+            /// </summary>
+            public string PortfolioMode { get; set; }
+
+            /// <summary>
+            /// Value specifying if liveness checking is enabled or not.
+            /// </summary>
+            public bool IsLivenessCheckingEnabled { get; set; }
+
+            /// <summary>
+            /// The liveness temperature threshold.
+            /// </summary>
+            public int LivenessTemperatureThreshold { get; set; }
+
+            /// <summary>
+            /// Value specifying if checking races during lock accesses is enabled or not.
+            /// </summary>
+            public bool IsLockAccessRaceCheckingEnabled { get; set; }
+
+            /// <summary>
             /// Value specifying if partially controlled concurrency is allowed or not.
             /// </summary>
             public bool IsPartiallyControlledConcurrencyAllowed { get; set; }
+
+            /// <summary>
+            /// Value specifying if partially controlled data non-determinism is allowed or not.
+            /// </summary>
+            public bool IsPartiallyControlledDataNondeterminismAllowed { get; set; }
 
             /// <summary>
             /// Value that controls how many times the runtime can check if each instance

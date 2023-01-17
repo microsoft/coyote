@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.Count;
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.IsEmpty;
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Clear(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.Clear();
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void CopyTo(SystemConcurrent.ConcurrentStack<T> instance, T[] array, int index)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.CopyTo(array, index);
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static SystemGenerics.IEnumerator<T> GetEnumerator(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.GetEnumerator();
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void Push(SystemConcurrent.ConcurrentStack<T> instance, T item)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.Push(item);
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void PushRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.PushRange(items);
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static void PushRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items, int startIndex, int count)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             instance.PushRange(items, startIndex, count);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static T[] ToArray(SystemConcurrent.ConcurrentStack<T> instance)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.ToArray();
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPeek(SystemConcurrent.ConcurrentStack<T> instance, out T result)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryPeek(out result);
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static bool TryPop(SystemConcurrent.ConcurrentStack<T> instance, out T result)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryPop(out result);
         }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items, int startIndex, int count)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryPopRange(items, startIndex, count);
         }
 
@@ -142,8 +142,29 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
         /// </summary>
         public static int TryPopRange(SystemConcurrent.ConcurrentStack<T> instance, T[] items)
         {
-            Operation.ScheduleNext();
+            ExploreInterleaving();
             return instance.TryPopRange(items);
+        }
+
+        /// <summary>
+        /// Asks the runtime to explore a possible interleaving.
+        /// </summary>
+        private static void ExploreInterleaving()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.Configuration.IsCollectionAccessRaceCheckingEnabled &&
+                runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Default);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
         }
     }
 #pragma warning restore CA1000 // Do not declare static members on generic types

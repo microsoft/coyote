@@ -1,6 +1,6 @@
 # Configuration.WithPrioritizationStrategy method
 
-Updates the configuration to use the priority-based scheduling strategy during systematic testing. You can specify if you want to enable liveness checking, which is disabled by default, and an upper bound of possible priority changes, which by default can be up to 10.
+Updates the configuration to use the priority-based exploration strategy during systematic testing. You can specify if you want to enable liveness checking, which is disabled by default, and an upper bound of possible priority changes, which by default can be up to 10.
 
 ```csharp
 public Configuration WithPrioritizationStrategy(bool isFair = false, uint priorityChangeBound = 10)
@@ -10,6 +10,10 @@ public Configuration WithPrioritizationStrategy(bool isFair = false, uint priori
 | --- | --- |
 | isFair | If true, enable liveness checking by using fair scheduling. |
 | priorityChangeBound | Upper bound of possible priority changes per test iteration. |
+
+## Remarks
+
+Note that explicitly setting this strategy disables the default exploration mode that uses a tuned portfolio of strategies.
 
 ## See Also
 

@@ -36,7 +36,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="methodName">The name of the invoked method that is not controlled.</param>
         public static void ThrowUncontrolledInvocationException(string methodName) =>
-            CoyoteRuntime.Current?.NotifyUncontrolledInvocation(methodName);
+            CoyoteRuntime.Current.NotifyUncontrolledInvocation(methodName);
+
+        /// <summary>
+        /// Throws an exception for the specified uncontrolled data non-deterministic method invocation.
+        /// </summary>
+        /// <param name="methodName">The name of the invoked method that is not controlled.</param>
+        public static void ThrowUncontrolledDataInvocationException(string methodName) =>
+            CoyoteRuntime.Current.NotifyUncontrolledDataNondeterministicInvocation(methodName);
 
         /// <summary>
         /// Throws an exception if the task returned by the method with the specified name
@@ -46,7 +53,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="methodName">The name of the method returning the task.</param>
         public static Task ThrowIfReturnedTaskNotControlled(Task task, string methodName)
         {
-            CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
+            CoyoteRuntime.Current.CheckIfReturnedTaskIsUncontrolled(task, methodName);
             return task;
         }
 
@@ -58,7 +65,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="methodName">The name of the method returning the task.</param>
         public static Task<TResult> ThrowIfReturnedTaskNotControlled<TResult>(Task<TResult> task, string methodName)
         {
-            CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(task, methodName);
+            CoyoteRuntime.Current.CheckIfReturnedTaskIsUncontrolled(task, methodName);
             return task;
         }
 
@@ -72,7 +79,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (RuntimeCompiler.ValueTaskAwaiter.TryGetTask(ref task, out Task innerTask))
             {
-                CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(innerTask, methodName);
+                CoyoteRuntime.Current.CheckIfReturnedTaskIsUncontrolled(innerTask, methodName);
             }
 
             return ref task;
@@ -89,7 +96,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (RuntimeCompiler.ValueTaskAwaiter.TryGetTask<TResult>(ref task, out Task<TResult> innerTask))
             {
-                CoyoteRuntime.Current?.CheckIfReturnedTaskIsUncontrolled(innerTask, methodName);
+                CoyoteRuntime.Current.CheckIfReturnedTaskIsUncontrolled(innerTask, methodName);
             }
 
             return ref task;

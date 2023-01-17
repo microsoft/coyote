@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             using var stream = new MemoryStream();
             using (var interceptor = new ConsoleOutputInterceptor(stream))
             {
-                var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+                var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                     .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info);
                 using TestingEngine engine = TestingEngine.Create(config, () =>
                 {
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -83,6 +83,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
@@ -96,7 +97,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             using var stream = new MemoryStream();
             using (var interceptor = new ConsoleOutputInterceptor(stream))
             {
-                var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+                var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                     .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info)
                     .WithConsoleLoggingEnabled();
                 using TestingEngine engine = TestingEngine.Create(config, () =>
@@ -120,7 +121,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Using the random[seed:0] exploration strategy.",
                 "... Running test iterations:",
                 "..... Iteration #1",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -130,7 +131,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Iteration #1 found bug #1",
                 "Detected an assertion failure.",
                 "..... Iteration #2",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -147,7 +148,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -160,6 +161,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
@@ -169,7 +171,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
         [Fact(Timeout = 5000)]
         public void TestCustomTestingEngineLogger()
         {
-            var config = this.GetConfiguration().WithTestingIterations(2).WithRandomGeneratorSeed(0)
+            var config = this.GetConfiguration().WithRandomStrategy().WithTestingIterations(2).WithRandomGeneratorSeed(0)
                 .WithTestIterationsRunToCompletion().WithVerbosityEnabled(VerbosityLevel.Info);
             using TestingEngine engine = TestingEngine.Create(config, () =>
             {
@@ -193,7 +195,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Using the random[seed:0] exploration strategy.",
                 "... Running test iterations:",
                 "..... Iteration #1",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -203,7 +205,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "..... Iteration #1 found bug #1",
                 "Detected an assertion failure.",
                 "..... Iteration #2",
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -220,7 +222,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             Assert.Equal(expectedLogged, logged);
 
             string expectedObserved = StringExtensions.FormatLines(
-                "[coyote::test] Runtime '' started test on thread ''.",
+                "[coyote::test] Runtime '' started the test on thread '' using the 'random' strategy.",
                 VerbosityMessages.InfoMessage,
                 VerbosityMessages.WarningMessage,
                 VerbosityMessages.ErrorMessage,
@@ -233,6 +235,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Explored 2 schedules: 2 fair and 0 unfair.",
                 "[coyote::report] Found 100.00% buggy schedules.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
+                "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating schedules: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);

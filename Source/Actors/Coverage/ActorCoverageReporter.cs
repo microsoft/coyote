@@ -10,9 +10,9 @@ using Microsoft.Coyote.Coverage;
 namespace Microsoft.Coyote.Actors.Coverage
 {
     /// <summary>
-    /// Reports actor activity coverage.
+    /// Reports actor coverage statistics and information.
     /// </summary>
-    internal class ActorActivityCoverageReporter : ActivityCoverageReporter
+    internal class ActorCoverageReporter : CoverageReporter
     {
         /// <summary>
         /// Data structure containing information regarding testing coverage.
@@ -25,19 +25,20 @@ namespace Microsoft.Coyote.Actors.Coverage
         private readonly HashSet<string> BuiltInEvents = new HashSet<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActorActivityCoverageReporter"/> class.
+        /// Initializes a new instance of the <see cref="ActorCoverageReporter"/> class.
         /// </summary>
-        public ActorActivityCoverageReporter(ActorCoverageInfo coverageInfo)
+        public ActorCoverageReporter(ActorCoverageInfo coverageInfo)
             : base(coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
-            this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
-            this.BuiltInEvents.Add(typeof(PushStateEvent).FullName);
             this.BuiltInEvents.Add(typeof(DefaultEvent).FullName);
+            this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(PopStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(PushStateEvent).FullName);
         }
 
         /// <inheritdoc/>
-        internal override void WriteCoverageText(TextWriter writer)
+        internal override void WriteActivityCoverageText(TextWriter writer)
         {
             var machines = new List<string>(this.CoverageInfo.Machines);
             machines.Sort(StringComparer.Ordinal);
@@ -198,8 +199,11 @@ namespace Microsoft.Coyote.Actors.Coverage
                 WriteHeader(writer, "Total actor coverage: N/A");
             }
 
-            base.WriteCoverageText(writer);
+            base.WriteActivityCoverageText(writer);
         }
+
+        /// <inheritdoc/>
+        internal override bool IsActivityCoverageAvailable() => this.CoverageInfo.Machines.Count > 0 || base.IsActivityCoverageAvailable();
 
         private void RemoveBuiltInEvents(HashSet<string> eventList)
         {

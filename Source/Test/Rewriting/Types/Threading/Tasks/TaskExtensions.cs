@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Runtime;
-using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
-using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTasks = System.Threading.Tasks;
 
@@ -19,7 +17,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Creates a proxy task that represents the asynchronous operation of a task.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTask Unwrap(this SystemTasks.Task<SystemTask> task)
         {
             var runtime = CoyoteRuntime.Current;
@@ -34,7 +31,6 @@ namespace Microsoft.Coyote.Rewriting.Types
         /// <summary>
         /// Creates a proxy generic task that represents the asynchronous operation of a task.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SystemTasks.Task<TResult> Unwrap<TResult>(
             this SystemTasks.Task<SystemTasks.Task<TResult>> task)
         {

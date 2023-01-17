@@ -339,6 +339,10 @@ namespace Microsoft.Coyote.Actors
                 {
                     await this.PushStateAsync(pushStateEvent.State, e);
                 }
+                else if (e is PopStateEvent popStateEvent)
+                {
+                    await this.PopStateAsync(e);
+                }
                 else if (this.EventHandlerMap.ContainsKey(e.GetType()))
                 {
                     await this.HandleEventAsync(e, this.StateStack.Peek(), this.EventHandlerMap[e.GetType()]);
@@ -373,7 +377,7 @@ namespace Microsoft.Coyote.Actors
                         // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
                         this.Context.LogInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName);
                         await this.InvokeActionAsync(handler, e);
-                        await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+                        this.ApplyEventHandlerTransition(this.PendingTransition);
                     }
                     else
                     {
@@ -400,7 +404,7 @@ namespace Microsoft.Coyote.Actors
                 CachedDelegate cachedAction = this.StateMachineActionMap[actionEventHandler.Name];
                 this.Context.LogInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName);
                 await this.InvokeActionAsync(cachedAction, e);
-                await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+                this.ApplyEventHandlerTransition(this.PendingTransition);
             }
             else if (eventHandler is GotoStateTransition gotoTransition)
             {
@@ -413,7 +417,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Executes the on entry action of the current state.
+        /// Executes the on-entry action of the current state.
         /// </summary>
         private async Task ExecuteCurrentStateOnEntryAsync(Event e)
         {
@@ -432,11 +436,11 @@ namespace Microsoft.Coyote.Actors
                 await this.InvokeActionAsync(entryAction, e);
             }
 
-            await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+            this.ApplyEventHandlerTransition(this.PendingTransition);
         }
 
         /// <summary>
-        /// Executes the on exit action of the current state.
+        /// Executes the on-exit action of the current state.
         /// </summary>
         private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName, Event e)
         {
@@ -459,7 +463,7 @@ namespace Microsoft.Coyote.Actors
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
-                await this.ApplyEventHandlerTransitionAsync(transition, e);
+                this.ApplyEventHandlerTransition(transition);
             }
 
             // Invokes the exit action of the event handler,
@@ -474,14 +478,14 @@ namespace Microsoft.Coyote.Actors
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
-                await this.ApplyEventHandlerTransitionAsync(transition, e);
+                this.ApplyEventHandlerTransition(transition);
             }
         }
 
         /// <summary>
         /// Applies the specified event handler transition.
         /// </summary>
-        private async Task ApplyEventHandlerTransitionAsync(Transition transition, Event e)
+        private void ApplyEventHandlerTransition(Transition transition)
         {
             if (transition.TypeValue != this.PendingTransition.TypeValue && this.PendingTransition.TypeValue != Transition.Type.None)
             {
@@ -505,17 +509,7 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.PopState)
             {
                 this.PendingTransition = default;
-                var prevStateName = this.CurrentStateName;
-                this.Context.LogPopState(this);
-
-                // The state machine performs the on exit action of the current state.
-                await this.ExecuteCurrentStateOnExitAsync(null, e);
-                if (this.CurrentStatus is ActorExecutionStatus.Active)
-                {
-                    this.DoStatePop();
-                    this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
-                    this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
-                }
+                this.Inbox.RaiseEvent(PopStateEvent.Instance, this.EventGroup);
             }
             else if (transition.TypeValue is Transition.Type.Halt)
             {
@@ -568,7 +562,7 @@ namespace Microsoft.Coyote.Actors
             this.Context.LogManager.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
-            // The state machine performs the on exit action of the current state.
+            // The state machine performs the on-exit action of the current state.
             await this.ExecuteCurrentStateOnExitAsync(onExitActionName, e);
             if (this.CurrentStatus is ActorExecutionStatus.Active)
             {
@@ -578,7 +572,7 @@ namespace Microsoft.Coyote.Actors
                 var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
                 this.DoStatePush(nextState);
 
-                // The state machine performs the on entry action of the new state.
+                // The state machine performs the on-entry action of the new state.
                 await this.ExecuteCurrentStateOnEntryAsync(e);
             }
         }
@@ -593,8 +587,26 @@ namespace Microsoft.Coyote.Actors
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
 
-            // The state machine performs the on entry statements of the new state.
+            // The state machine performs the on-entry statements of the new state.
             await this.ExecuteCurrentStateOnEntryAsync(e);
+        }
+
+        /// <summary>
+        /// Performs a pop transition from the specified state.
+        /// </summary>
+        private async Task PopStateAsync(Event e)
+        {
+            var prevStateName = this.CurrentStateName;
+            this.Context.LogPopState(this);
+
+            // The state machine performs the on-exit action of the current state.
+            await this.ExecuteCurrentStateOnExitAsync(null, e);
+            if (this.CurrentStatus is ActorExecutionStatus.Active)
+            {
+                this.DoStatePop();
+                this.Context.LogManager.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
+            }
         }
 
         private void PushHandler(State state, Type eventType, EventHandlerDeclaration handler)
@@ -660,7 +672,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.StateStack.Count > 0)
             {
-                // re-instate the non-inheritable handlers from previous state.
+                // Re-instate the non-inheritable handlers from previous state.
                 state = this.StateStack.Peek();
                 this.CurrentState = state.GetType();
                 this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);
@@ -788,7 +800,7 @@ namespace Microsoft.Coyote.Actors
                         hash = (hash * 31) + state.GetType().GetHashCode();
                     }
 
-                    hash = (hash * 31) + this.Inbox.GetCachedState();
+                    hash = (hash * 31) + this.Inbox.GetHashedState();
                 }
 
                 if (this.HashedState != 0)
@@ -1652,7 +1664,7 @@ namespace Microsoft.Coyote.Actors
                 /// </summary>
                 /// <param name="eventType">The type of the dequeued event.</param>
                 /// <param name="stateType">The type of the state.</param>
-                /// <param name="actionName">Name of action to perform on exit.</param>
+                /// <param name="actionName">Name of action to perform on-exit.</param>
                 public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionName)
                 {
                     this.Event = eventType;

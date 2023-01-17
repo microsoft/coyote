@@ -350,6 +350,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 new ConcurrentDictionary<object, Lazy<SynchronizedBlock>>();
 
             /// <summary>
+            /// The id of the <see cref="CoyoteRuntime"/> that created this semaphore.
+            /// </summary>
+            private readonly Guid RuntimeId;
+
+            /// <summary>
             /// The object used for synchronization.
             /// </summary>
             protected readonly object SyncObject;
@@ -358,11 +363,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// True if the lock was taken, else false.
             /// </summary>
             internal bool IsLockTaken;
-
-            /// <summary>
-            /// The resource associated with this synchronization object.
-            /// </summary>
-            private readonly Resource Resource;
 
             /// <summary>
             /// The current owner of this synchronization object.
@@ -401,15 +401,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
             /// </summary>
-            private SynchronizedBlock(object syncObject)
+            private SynchronizedBlock(CoyoteRuntime runtime, object syncObject)
             {
                 if (syncObject is null)
                 {
                     throw new ArgumentNullException(nameof(syncObject));
                 }
 
+                this.RuntimeId = runtime.Id;
                 this.SyncObject = syncObject;
-                this.Resource = new Resource();
                 this.WaitQueue = new List<ControlledOperation>();
                 this.ReadyQueue = new List<ControlledOperation>();
                 this.PulseQueue = new Queue<PulseOperation>();
@@ -423,7 +423,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal static SynchronizedBlock Lock(object syncObject) =>
                 Cache.GetOrAdd(syncObject, key => new Lazy<SynchronizedBlock>(
-                    () => new SynchronizedBlock(key))).Value.EnterLock();
+                    () => new SynchronizedBlock(CoyoteRuntime.Current, key))).Value.EnterLock();
 
             /// <summary>
             /// Finds the synchronized block associated with the specified synchronization object.
@@ -438,7 +438,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation();
+                    CoyoteRuntime runtime = this.GetRuntime();
+                    var op = runtime.GetExecutingOperation();
                     return this.Owner == op;
                 }
 
@@ -447,19 +448,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
             private SynchronizedBlock EnterLock()
             {
+                CoyoteRuntime runtime = this.GetRuntime();
                 this.IsLockTaken = true;
                 SystemInterlocked.Increment(ref this.UseCount);
 
-                if (this.Owner is null)
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.Owner is null)
                 {
                     // If this operation is trying to acquire this lock while it is free, then inject a scheduling
                     // point to give another enabled operation the chance to race and acquire this lock.
-                    this.Resource.Runtime.ScheduleNextOperation(default, SchedulingPointType.Acquire);
+                    runtime.ScheduleNextOperation(default, SchedulingPointType.Acquire);
                 }
 
                 if (this.Owner != null)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation();
+                    var op = runtime.GetExecutingOperation();
                     if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
@@ -476,14 +478,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                             this.ReadyQueue.Add(op);
                         }
 
-                        this.Resource.Wait();
+                        // Pause this operation and schedule the next enabled operation.
+                        op.Status = OperationStatus.PausedOnResource;
+                        runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
+
+                        // This operation can finally take the lock.
                         this.LockCountMap.Add(op, 1);
                         return this;
                     }
                 }
 
                 // The executing op acquired the lock and can proceed.
-                this.Owner = this.Resource.Runtime.GetExecutingOperation();
+                this.Owner = runtime.GetExecutingOperation();
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }
@@ -491,63 +497,55 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Notifies a thread in the waiting queue of a change in the locked object's state.
             /// </summary>
-            internal void Pulse() => this.SchedulePulse(PulseOperation.Next);
+            internal void Pulse() => this.Pulse(PulseOperation.Next);
 
             /// <summary>
             /// Notifies all waiting threads of a change in the object's state.
             /// </summary>
-            internal void PulseAll() => this.SchedulePulse(PulseOperation.All);
+            internal void PulseAll() => this.Pulse(PulseOperation.All);
 
             /// <summary>
-            /// Schedules a pulse operation that will either execute immediately or be scheduled
-            /// to execute after the current owner releases the lock. This nondeterministic action
-            /// is controlled by the runtime to simulate scenarios where the pulse is delayed by
-            /// the operation system.
+            /// Invokes the specified pulse operation.
             /// </summary>
-            private void SchedulePulse(PulseOperation pulseOperation)
+            private void Pulse(PulseOperation pulseOperation)
             {
-                var op = this.Resource.Runtime.GetExecutingOperation();
+                CoyoteRuntime runtime = this.GetRuntime();
+                var op = runtime.GetExecutingOperation();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
                 }
 
-                // Pulse has a delay in the operating system, we can simulate that here
-                // by scheduling the pulse operation to be executed nondeterministically.
-                this.PulseQueue.Enqueue(pulseOperation);
-                if (this.PulseQueue.Count is 1)
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
                 {
-                    // Create a task for draining the queue. To optimize the testing performance,
-                    // we create and maintain a single task to perform this role.
-                    Task.Run(this.DrainPulseQueue);
-                }
-            }
-
-            /// <summary>
-            /// Drains the pulse queue, if it contains one or more buffered pulse operations.
-            /// </summary>
-            private void DrainPulseQueue()
-            {
-                while (this.PulseQueue.Count > 0)
-                {
-                    // Pulses can happen nondeterministically while other operations execute,
-                    // which models delays by the OS.
-                    this.Resource.Runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
-
-                    var pulseOperation = this.PulseQueue.Dequeue();
-                    this.Pulse(pulseOperation);
-
-                    if (this.Owner is null)
+                    // Pulse can be delayed by the operating system, so simulate this by scheduling the pulse
+                    // operation to execute either immediately or after the current owner releases the lock.
+                    this.PulseQueue.Enqueue(pulseOperation);
+                    if (this.PulseQueue.Count is 1)
                     {
-                        this.UnlockNextReady();
+                        // Create a task for draining the queue. To optimize for testing performance,
+                        // we create and maintain a single task to perform this role.
+                        Task.Run(() =>
+                        {
+                            while (this.PulseQueue.Count > 0)
+                            {
+                                var pulseOperation = this.PulseQueue.Dequeue();
+                                runtime.ScheduleNextOperation(default, SchedulingPointType.Default);
+                                this.Pulse(runtime, pulseOperation);
+                            }
+                        });
                     }
                 }
+                else
+                {
+                    this.Pulse(runtime, pulseOperation);
+                }
             }
 
             /// <summary>
-            /// Invokes the pulse operation.
+            /// Invokes the specified pulse operation.
             /// </summary>
-            private void Pulse(PulseOperation pulseOperation)
+            private void Pulse(CoyoteRuntime runtime, PulseOperation pulseOperation)
             {
                 if (pulseOperation is PulseOperation.Next)
                 {
@@ -557,8 +555,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         var waitingOp = this.WaitQueue[0];
                         this.WaitQueue.RemoveAt(0);
                         this.ReadyQueue.Add(waitingOp);
-                        this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, SystemTask.CurrentId);
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by thread '{1}'.",
+                            waitingOp.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                     }
                 }
                 else
@@ -566,11 +564,16 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     foreach (var waitingOp in this.WaitQueue)
                     {
                         this.ReadyQueue.Add(waitingOp);
-                        this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by task '{1}'.",
-                            waitingOp.Id, SystemTask.CurrentId);
+                        runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is pulsed by thread '{1}'.",
+                            waitingOp.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                     }
 
                     this.WaitQueue.Clear();
+                }
+
+                if (this.Owner is null)
+                {
+                    this.UnlockNextReady();
                 }
             }
 
@@ -580,7 +583,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             internal bool Wait()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation();
+                CoyoteRuntime runtime = this.GetRuntime();
+                var op = runtime.GetExecutingOperation();
                 if (this.Owner != op)
                 {
                     throw new SystemSynchronizationLockException();
@@ -593,11 +597,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.UnlockNextReady();
-                this.Resource.Runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' with task id '{1}' is waiting.",
-                    op.Id, SystemTask.CurrentId);
 
-                // Block this operation and schedule the next enabled operation.
-                this.Resource.Wait();
+                // Pause this operation and schedule the next enabled operation.
+                op.Status = OperationStatus.PausedOnResource;
+                runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting on thread '{1}'.",
+                    op.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
+                runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
                 return true;
             }
 
@@ -646,18 +651,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.Owner = null;
                 if (this.ReadyQueue.Count > 0)
                 {
-                    // If there is a operation waiting in the ready queue, then signal it.
+                    // If there is a operation waiting in the ready queue, then awake it.
                     ControlledOperation op = this.ReadyQueue[0];
+                    op.Status = OperationStatus.Enabled;
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
-                    this.Resource.Signal(op);
                 }
             }
 
             internal void Exit()
             {
-                var op = this.Resource.Runtime.GetExecutingOperation();
-                this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op),
+                CoyoteRuntime runtime = this.GetRuntime();
+                var op = runtime.GetExecutingOperation();
+                runtime.Assert(this.LockCountMap.ContainsKey(op),
                     "Cannot invoke Dispose without acquiring the lock.");
 
                 this.LockCountMap[op]--;
@@ -666,7 +672,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     // Only release the lock if the invocation is not reentrant.
                     this.LockCountMap.Remove(op);
                     this.UnlockNextReady();
-                    this.Resource.Runtime.ScheduleNextOperation(op, SchedulingPointType.Release);
                 }
 
                 int useCount = SystemInterlocked.Decrement(ref this.UseCount);
@@ -675,6 +680,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     // It is safe to remove this instance from the cache.
                     Cache.TryRemove(this.SyncObject, out _);
                 }
+            }
+
+            /// <summary>
+            /// Returns the current runtime, asserting that it is the same runtime that created this resource.
+            /// </summary>
+            private CoyoteRuntime GetRuntime()
+            {
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.Id != this.RuntimeId)
+                {
+                    runtime.NotifyAssertionFailure($"Accessing 'lock' that was created in a previous " +
+                        $"test iteration with runtime id '{this.RuntimeId}'.");
+                }
+
+                return runtime;
             }
 
             /// <summary>

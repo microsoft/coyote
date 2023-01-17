@@ -1,10 +1,14 @@
 # Configuration.WithRandomStrategy method
 
-Updates the configuration to use the random scheduling strategy during systematic testing.
+Updates the configuration to use the random exploration strategy during systematic testing.
 
 ```csharp
 public Configuration WithRandomStrategy()
 ```
+
+## Remarks
+
+Note that explicitly setting this strategy disables the default exploration mode that uses a tuned portfolio of strategies.
 
 ## See Also
 

@@ -1,6 +1,6 @@
 # TestReport.MaxControlledOperations property
 
-The max number of controlled operations.
+The maximum number of controlled operations.
 
 ```csharp
 public int MaxControlledOperations { get; }

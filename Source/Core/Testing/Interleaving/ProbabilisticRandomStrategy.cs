@@ -8,7 +8,7 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Testing.Interleaving
 {
     /// <summary>
-    /// A randomized scheduling strategy with increased probability
+    /// A randomized exploration strategy with increased probability
     /// to remain in the same scheduling choice.
     /// </summary>
     internal sealed class ProbabilisticRandomStrategy : RandomStrategy
@@ -21,10 +21,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
         /// </summary>
-        internal ProbabilisticRandomStrategy(Configuration configuration)
+        internal ProbabilisticRandomStrategy(Configuration configuration, int bound)
             : base(configuration)
         {
-            this.Bound = configuration.StrategyBound;
+            this.Bound = bound;
         }
 
         /// <inheritdoc/>
@@ -47,8 +47,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
+        internal override string GetName() => ExplorationStrategy.Probabilistic.GetName();
+
+        /// <inheritdoc/>
         internal override string GetDescription() =>
-            $"probabilistic[bound:{this.Bound},seed:{this.RandomValueGenerator.Seed}']";
+            $"{this.GetName()}[bound:{this.Bound},seed:{this.RandomValueGenerator.Seed}']";
 
         /// <summary>
         /// Flip the coin a specified number of times.

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.Cli
 {
@@ -120,6 +121,7 @@ namespace Microsoft.Coyote.Cli
 
             var commandLineBuilder = new CommandLineBuilder(rootCommand);
             commandLineBuilder.UseDefaults();
+            commandLineBuilder.EnablePosixBundling(false);
 
             var parser = commandLineBuilder.Build();
             this.Results = parser.Parse(args);
@@ -138,20 +140,37 @@ namespace Microsoft.Coyote.Cli
         }
 
         /// <summary>
-        /// Invoke the handler of the command that was selected by the user.
+        /// Invokes the command selected by the user.
         /// </summary>
-        internal ExitCode InvokeSelectedCommand(
-            Func<Configuration, ExitCode> testHandler,
-            Func<Configuration, ExitCode> replayHandler,
-            Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        internal ExitCode InvokeCommand()
         {
             PrintDetailedCoyoteVersion();
+            return (ExitCode)this.Results.Invoke();
+        }
 
+        /// <summary>
+        /// Sets the handler to be invoked when the test command is selected by the user.
+        /// </summary>
+        internal void SetTestCommandHandler(Func<Configuration, ExitCode> testHandler)
+        {
             this.TestCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)testHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the replay command is selected by the user.
+        /// </summary>
+        internal void SetReplayCommandHandler(Func<Configuration, ExitCode> replayHandler)
+        {
             this.ReplayCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)replayHandler(this.Configuration));
+        }
+
+        /// <summary>
+        /// Sets the handler to be invoked when the rewrite command is selected by the user.
+        /// </summary>
+        internal void SetRewriteCommandHandler(Func<Configuration, RewritingOptions, ExitCode> rewriteHandler)
+        {
             this.RewriteCommand.SetHandler((InvocationContext context) => context.ExitCode = (int)rewriteHandler(
                 this.Configuration, this.RewritingOptions));
-            return (ExitCode)this.Results.Invoke();
         }
 
         /// <summary>
@@ -159,7 +178,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateTestCommand(Configuration configuration)
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to test.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to test.")
             {
                 HelpName = "PATH"
             };
@@ -193,18 +212,20 @@ namespace Microsoft.Coyote.Cli
             var allowedStrategies = new HashSet<string>
             {
                 "random",
+                "probabilistic",
                 "prioritization",
                 "fair-prioritization",
-                "probabilistic",
-                "rl",
-                "portfolio"
+                "delay-bounding",
+                "fair-delay-bounding",
+                "q-learning"
             };
 
             var strategyOption = new Option<string>(
                 aliases: new[] { "-s", "--strategy" },
-                getDefaultValue: () => configuration.SchedulingStrategy,
-                description: "Set exploration strategy to use during testing. The exploration strategy " +
-                    "controls all scheduling decisions and nondeterministic choices. " +
+                getDefaultValue: () => configuration.ExplorationStrategy.GetName(),
+                description: "Set exploration strategy to use during testing. The exploration strategy controls " +
+                    "all scheduling decisions and nondeterministic choices. Note that explicitly setting this " +
+                    "value disables the default exploration mode that uses a tuned portfolio of strategies. " +
                     $"Allowed values are {string.Join(", ", allowedStrategies)}.")
             {
                 ArgumentHelpName = "STRATEGY",
@@ -214,10 +235,30 @@ namespace Microsoft.Coyote.Cli
             var strategyValueOption = new Option<int>(
                 aliases: new[] { "-sv", "--strategy-value" },
                 description: "Set exploration strategy specific value. Supported strategies (and values): " +
-                    "(fair-)prioritization (maximum number of priority change points per iteration), " +
-                    "probabilistic (probability of deviating from a scheduled operation).")
+                    "probabilistic (probability of deviating from a scheduled operation), " +
+                    "(fair-)prioritization (maximum number of priority changes per iteration), " +
+                    "(fair-)delay-bounding (maximum number of delays per iteration).")
             {
                 ArgumentHelpName = "VALUE",
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var allowedPortfolioMode = new HashSet<string>
+            {
+                "fair",
+                "unfair"
+            };
+
+            var portfolioModeOption = new Option<string>(
+                name: "--portfolio-mode",
+                getDefaultValue: () => configuration.PortfolioMode.ToString().ToLower(),
+                description: "Set the portfolio mode to use during testing. Portfolio mode uses a tuned portfolio " +
+                    "of strategies, instead of the default or user-specified strategy. If fair mode is enabled, " +
+                    "then the portfolio will upgrade any unfair strategies to fair, by adding a fair execution " +
+                    "suffix after the the max fair scheduling steps bound has been reached. " +
+                    $"Allowed values are {string.Join(", ", allowedPortfolioMode)}.")
+            {
+                ArgumentHelpName = "MODE",
                 Arity = ArgumentArity.ExactlyOne
             };
 
@@ -264,6 +305,20 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var scheduleCoverageOption = new Option<bool>(
+                name: "--schedule-coverage",
+                description: "Output a '.coverage.schedule.txt' file containing scheduling coverage information during testing.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var serializeCoverageInfoOption = new Option<bool>(
+                name: "--serialize-coverage",
+                description: "Output a '.coverage.ser' file that contains the serialized coverage information.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var graphOption = new Option<bool>(
                 name: "--graph",
                 description: "Output a DGML graph that visualizes the failing execution path if a bug is found.")
@@ -278,16 +333,16 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var checkLockRacesOption = new Option<bool>(
-                name: "--check-lock-races",
-                description: "Enables exploration of race conditions when accessing lock-based synchronization primitives.")
+            var reduceExecutionTraceCyclesOption = new Option<bool>(
+                name: "--reduce-execution-trace-cycles",
+                description: "Enable execution trace cycle detection and reduction heuristics.")
             {
                 Arity = ArgumentArity.Zero
             };
 
-            var reduceSharedStateOption = new Option<bool>(
-                name: "--reduce-shared-state",
-                description: "Enables shared state reduction based on 'READ' and 'WRITE' scheduling points.")
+            var samplePartialOrdersOption = new Option<bool>(
+                name: "--partial-order-sampling",
+                description: "Enable partial-order sampling based on 'READ' and 'WRITE' scheduling points.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -312,7 +367,7 @@ namespace Microsoft.Coyote.Cli
             var timeoutDelayOption = new Option<int>(
                 name: "--timeout-delay",
                 getDefaultValue: () => (int)configuration.TimeoutDelay,
-                description: "Controls the frequency of timeouts (not a unit of time).")
+                description: "Specify the frequency of timeouts (not a unit of time).")
             {
                 ArgumentHelpName = "DELAY",
                 Arity = ArgumentArity.ExactlyOne
@@ -321,7 +376,7 @@ namespace Microsoft.Coyote.Cli
             var deadlockTimeoutOption = new Option<int>(
                 name: "--deadlock-timeout",
                 getDefaultValue: () => (int)configuration.DeadlockTimeout,
-                description: "Controls how much time (in ms) to wait before reporting a potential deadlock.")
+                description: "Specify how much time (in ms) to wait before reporting a potential deadlock.")
             {
                 ArgumentHelpName = "TIMEOUT",
                 Arity = ArgumentArity.ExactlyOne
@@ -330,7 +385,7 @@ namespace Microsoft.Coyote.Cli
             var maxFuzzDelayOption = new Option<int>(
                 name: "--max-fuzz-delay",
                 getDefaultValue: () => (int)configuration.MaxFuzzingDelay,
-                description: "Controls the maximum time (in number of busy loops) an operation might " +
+                description: "Specify the maximum time (in number of busy loops) an operation might " +
                     "get delayed during systematic fuzzing.")
             {
                 ArgumentHelpName = "DELAY",
@@ -340,7 +395,7 @@ namespace Microsoft.Coyote.Cli
             var uncontrolledConcurrencyResolutionAttemptsOption = new Option<int>(
                 name: "--resolve-uncontrolled-concurrency-attempts",
                 getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionAttempts,
-                description: "Controls how many times to try resolve each instance of uncontrolled concurrency.")
+                description: "Specify how many times to try resolve each instance of uncontrolled concurrency.")
             {
                 ArgumentHelpName = "ATTEMPTS",
                 Arity = ArgumentArity.ExactlyOne
@@ -349,7 +404,7 @@ namespace Microsoft.Coyote.Cli
             var uncontrolledConcurrencyResolutionDelayOption = new Option<int>(
                 name: "--resolve-uncontrolled-concurrency-delay",
                 getDefaultValue: () => (int)configuration.UncontrolledConcurrencyResolutionDelay,
-                description: "Controls how much time (in number of busy loops) to wait between each attempt to " +
+                description: "Specify how much time (in number of busy loops) to wait between each attempt to " +
                     "resolve each instance of uncontrolled concurrency.")
             {
                 ArgumentHelpName = "DELAY",
@@ -364,9 +419,23 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var failOnMaxStepsOption = new Option<bool>(
-                name: "--fail-on-maxsteps",
-                description: "Reaching the specified max-steps is considered a bug.")
+            var skipCollectionRacesOption = new Option<bool>(
+                name: "--skip-collection-races",
+                description: "Disable exploration of race conditions when accessing collections.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var skipLockRacesOption = new Option<bool>(
+                name: "--skip-lock-races",
+                description: "Disable exploration of race conditions when accessing lock-based synchronization primitives.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var skipAtomicRacesOption = new Option<bool>(
+                name: "--skip-atomic-races",
+                description: "Disable exploration of race conditions when performing atomic operations.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -378,16 +447,42 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var noPartialControlOption = new Option<bool>(
-                name: "--no-partial-control",
-                description: "Disallow partially controlled concurrency during controlled testing.")
+            var allowedPartialControlModes = new HashSet<string>
             {
-                Arity = ArgumentArity.Zero
+                "none",
+                "concurrency",
+                "data"
+            };
+
+            var partialControlOption = new Option<string>(
+                name: "--partial-control",
+                description: "Set the partial controlled mode to use during testing. If set to 'concurrency' then " +
+                    "only concurrency can be partially controlled. If set to 'data' then only data non-determinism " +
+                    "can be partially controlled. If set to 'none' then partially controlled testing is disabled. " +
+                    "By default, both concurrency and data non-determinism can be partially controlled. " +
+                    $"Allowed values are {string.Join(", ", allowedPartialControlModes)}.")
+            {
+                ArgumentHelpName = "MODE",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var noReproOption = new Option<bool>(
                 name: "--no-repro",
                 description: "Disable bug trace repro to ignore uncontrolled concurrency errors.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var logUncontrolledInvocationStackTracesOption = new Option<bool>(
+                name: "--log-uncontrolled-invocation-stack-traces",
+                description: "Enable logging the stack traces of uncontrolled invocations detected during testing.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var failOnMaxStepsOption = new Option<bool>(
+                name: "--fail-on-max-steps",
+                description: "Reaching the specified max-steps is treated as a bug.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -402,7 +497,7 @@ namespace Microsoft.Coyote.Cli
 
             var breakOption = new Option<bool>(
                 aliases: new[] { "-b", "--break" },
-                description: "Attaches the debugger and adds a breakpoint when an assertion fails.")
+                description: "Attach the debugger and add a breakpoint when an assertion fails.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -420,7 +515,9 @@ namespace Microsoft.Coyote.Cli
             iterationsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             strategyOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedStrategies));
+            strategyOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, portfolioModeOption));
             strategyValueOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, strategyOption));
+            portfolioModeOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPortfolioMode));
             maxStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxFairStepsOption));
             maxStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxUnfairStepsOption));
@@ -428,6 +525,7 @@ namespace Microsoft.Coyote.Cli
             maxFairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
+            serializeCoverageInfoOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, coverageOption));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -435,6 +533,7 @@ namespace Microsoft.Coyote.Cli
             maxFuzzDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionAttemptsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             uncontrolledConcurrencyResolutionDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
+            partialControlOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedPartialControlModes));
 
             // Build command.
             var command = new Command("test", "Run tests using the Coyote systematic testing engine.\n" +
@@ -445,15 +544,18 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, timeoutOption);
             this.AddOption(command, strategyOption);
             this.AddOption(command, strategyValueOption);
+            this.AddOption(command, portfolioModeOption);
             this.AddOption(command, maxStepsOption);
             this.AddOption(command, maxFairStepsOption);
             this.AddOption(command, maxUnfairStepsOption);
             this.AddOption(command, fuzzOption);
             this.AddOption(command, coverageOption);
+            this.AddOption(command, scheduleCoverageOption);
+            this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
-            this.AddOption(command, checkLockRacesOption);
-            this.AddOption(command, reduceSharedStateOption);
+            this.AddOption(command, reduceExecutionTraceCyclesOption);
+            this.AddOption(command, samplePartialOrdersOption);
             this.AddOption(command, seedOption);
             this.AddOption(command, livenessTemperatureThresholdOption);
             this.AddOption(command, timeoutDelayOption);
@@ -462,10 +564,14 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
-            this.AddOption(command, failOnMaxStepsOption);
+            this.AddOption(command, skipCollectionRacesOption);
+            this.AddOption(command, skipLockRacesOption);
+            this.AddOption(command, skipAtomicRacesOption);
             this.AddOption(command, noFuzzingFallbackOption);
-            this.AddOption(command, noPartialControlOption);
+            this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
+            this.AddOption(command, logUncontrolledInvocationStackTracesOption);
+            this.AddOption(command, failOnMaxStepsOption);
             this.AddOption(command, exploreOption);
             this.AddOption(command, breakOption);
             this.AddOption(command, outputDirectoryOption);
@@ -478,12 +584,12 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateReplayCommand()
         {
-            var pathArg = new Argument("path", $"Path to the assembly (*.dll, *.exe) to replay.")
+            var pathArg = new Argument<string>("path", $"Path to the assembly (*.dll, *.exe) to replay.")
             {
                 HelpName = "PATH"
             };
 
-            var traceFileArg = new Argument("trace", $"*.trace file containing the execution path to replay.")
+            var traceFileArg = new Argument<string>("trace", $"*.trace file containing the execution path to replay.")
             {
                 HelpName = "TRACE_FILE"
             };
@@ -532,7 +638,7 @@ namespace Microsoft.Coyote.Cli
         /// </summary>
         private Command CreateRewriteCommand()
         {
-            var pathArg = new Argument("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
+            var pathArg = new Argument<string>("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
                 HelpName = "PATH"
             };
@@ -820,14 +926,6 @@ namespace Microsoft.Coyote.Cli
                         string strategy = result.GetValueOrDefault<string>();
                         switch (strategy)
                         {
-                            case "prioritization":
-                            case "fair-prioritization":
-                                if (strategyBound is null)
-                                {
-                                    this.Configuration.StrategyBound = 10;
-                                }
-
-                                break;
                             case "probabilistic":
                                 if (strategyBound is null)
                                 {
@@ -835,20 +933,42 @@ namespace Microsoft.Coyote.Cli
                                 }
 
                                 break;
-                            case "rl":
-                                this.Configuration.IsProgramStateHashingEnabled = true;
+                            case "prioritization":
+                            case "fair-prioritization":
+                            case "delay-bounding":
+                            case "fair-delay-bounding":
+                                if (strategyBound is null)
+                                {
+                                    this.Configuration.StrategyBound = 10;
+                                }
+
                                 break;
-                            case "portfolio":
-                                strategy = "random";
+                            case "q-learning":
+                                this.Configuration.IsImplicitProgramStateHashingEnabled = true;
                                 break;
+                            case "random":
                             default:
                                 break;
                         }
 
-                        this.Configuration.SchedulingStrategy = strategy;
+                        this.Configuration.ExplorationStrategy = ExplorationStrategyExtensions.FromName(strategy);
+                        this.Configuration.PortfolioMode = PortfolioMode.None;
                         break;
                     case "strategy-value":
                         this.Configuration.StrategyBound = result.GetValueOrDefault<int>();
+                        break;
+                    case "portfolio-mode":
+                        switch (result.GetValueOrDefault<string>())
+                        {
+                            case "unfair":
+                                this.Configuration.PortfolioMode = PortfolioMode.Unfair;
+                                break;
+                            case "fair":
+                            default:
+                                this.Configuration.PortfolioMode = PortfolioMode.Fair;
+                                break;
+                        }
+
                         break;
                     case "max-steps":
                         this.Configuration.WithMaxSchedulingSteps((uint)result.GetValueOrDefault<int>());
@@ -872,17 +992,23 @@ namespace Microsoft.Coyote.Cli
                     case "coverage":
                         this.Configuration.IsActivityCoverageReported = true;
                         break;
+                    case "schedule-coverage":
+                        this.Configuration.IsScheduleCoverageReported = true;
+                        break;
+                    case "serialize-coverage":
+                        this.Configuration.IsCoverageInfoSerialized = true;
+                        break;
                     case "graph":
                         this.Configuration.IsTraceVisualizationEnabled = true;
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
                         break;
-                    case "check-lock-races":
-                        this.Configuration.IsLockAccessRaceCheckingEnabled = true;
+                    case "reduce-execution-trace-cycles":
+                        this.Configuration.IsExecutionTraceCycleReductionEnabled = true;
                         break;
-                    case "reduce-shared-state":
-                        this.Configuration.IsSharedStateReductionEnabled = true;
+                    case "partial-order-sampling":
+                        this.Configuration.IsPartialOrderSamplingEnabled = true;
                         break;
                     case "seed":
                         this.Configuration.RandomGeneratorSeed = (uint)result.GetValueOrDefault<int>();
@@ -909,14 +1035,43 @@ namespace Microsoft.Coyote.Cli
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;
                         break;
-                    case "fail-on-maxsteps":
-                        this.Configuration.ConsiderDepthBoundHitAsBug = true;
+                    case "skip-collection-races":
+                        this.Configuration.IsCollectionAccessRaceCheckingEnabled = false;
+                        break;
+                    case "skip-lock-races":
+                        this.Configuration.IsLockAccessRaceCheckingEnabled = false;
+                        break;
+                    case "skip-atomic-races":
+                        this.Configuration.IsAtomicOperationRaceCheckingEnabled = false;
                         break;
                     case "no-fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
                         break;
-                    case "no-partial-control":
-                        this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                    case "partial-control":
+                        string mode = result.GetValueOrDefault<string>();
+                        switch (mode)
+                        {
+                            case "concurrency":
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = true;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = false;
+                                break;
+                            case "data":
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = true;
+                                break;
+                            case "none":
+                            default:
+                                this.Configuration.IsPartiallyControlledConcurrencyAllowed = false;
+                                this.Configuration.IsPartiallyControlledDataNondeterminismAllowed = false;
+                                break;
+                        }
+
+                        break;
+                    case "log-uncontrolled-invocation-stack-traces":
+                        this.Configuration.WithUncontrolledInvocationStackTraceLoggingEnabled();
+                        break;
+                    case "fail-on-max-steps":
+                        this.Configuration.FailOnMaxStepsBound = true;
                         break;
                     case "explore":
                         this.Configuration.RunTestIterationsToCompletion = true;

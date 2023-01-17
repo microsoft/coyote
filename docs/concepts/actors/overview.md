@@ -28,7 +28,7 @@ See also: [how are Coyote Actors different from existing Microsoft Actor framewo
 
 An actor based program in Coyote is a normal .NET program that also uses the `Actor`, `StateMachine`
 and `Event` base classes from the `Microsoft.Coyote.Actors` namespace, which is available in the
-[Microsoft.Coyote.Actors NuGet package](https://www.nuget.org/packages/Microsoft.Coyote.Actors/).
+[Microsoft.Coyote.Actors](https://www.nuget.org/packages/Microsoft.Coyote.Actors/) NuGet package.
 Actors can be declared in the following way:
 
 ```csharp
@@ -96,8 +96,8 @@ class Program
 ```
 
 You must first import the Coyote actor runtime library (`Microsoft.Coyote.Actors.dll`), which you
-can get from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote.Actors/), then create a
-`runtime` instance (of type `IActorRuntime`) which you pass to a `[Test]` method.
+can get from its [NuGet package](https://www.nuget.org/packages/Microsoft.Coyote.Actors/), then
+create a `runtime` instance (of type `IActorRuntime`) which you pass to a `[Test]` method.
 
 The test method named `Execute` will be the entry point that is used during testing of your Coyote
 program. In this case it simply invokes the `CreateActor` method of the `runtime` to instantiate the

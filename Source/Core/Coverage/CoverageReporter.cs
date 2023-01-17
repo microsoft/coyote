@@ -10,9 +10,9 @@ using SpecMonitor = Microsoft.Coyote.Specifications.Monitor;
 namespace Microsoft.Coyote.Coverage
 {
     /// <summary>
-    /// Reports activity coverage.
+    /// Reports coverage statistics and information.
     /// </summary>
-    internal class ActivityCoverageReporter
+    internal class CoverageReporter
     {
         /// <summary>
         /// Data structure containing information regarding testing coverage.
@@ -25,9 +25,9 @@ namespace Microsoft.Coyote.Coverage
         private readonly HashSet<string> BuiltInEvents = new HashSet<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityCoverageReporter"/> class.
+        /// Initializes a new instance of the <see cref="CoverageReporter"/> class.
         /// </summary>
-        public ActivityCoverageReporter(CoverageInfo coverageInfo)
+        public CoverageReporter(CoverageInfo coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
             this.BuiltInEvents.Add(typeof(SpecMonitor.GotoStateEvent).FullName);
@@ -35,24 +35,38 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
-        /// Emits the visualization graph.
+        /// Emits the visualization graph, if it is available.
         /// </summary>
-        public void EmitVisualizationGraph(string graphFile) =>
-            this.CoverageInfo.CoverageGraph?.SaveDgml(graphFile, true);
+        public bool TryEmitVisualizationGraph(string graphFile)
+        {
+            bool isAvailable = this.CoverageInfo.CoverageGraph?.IsAvailable() ?? false;
+            if (isAvailable)
+            {
+                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile, true);
+            }
+
+            return isAvailable;
+        }
 
         /// <summary>
-        /// Emits the activity coverage report.
+        /// Emits the activity coverage report, if it is available.
         /// </summary>
-        public void EmitCoverageReport(string coverageFile)
+        public bool TryEmitActivityCoverageReport(string coverageFile)
         {
-            using var writer = new StreamWriter(coverageFile);
-            this.WriteCoverageText(writer);
+            bool isAvailable = this.IsActivityCoverageAvailable();
+            if (isAvailable)
+            {
+                using var writer = new StreamWriter(coverageFile);
+                this.WriteActivityCoverageText(writer);
+            }
+
+            return isAvailable;
         }
 
         /// <summary>
         /// Emits the activity coverage report.
         /// </summary>
-        internal virtual void WriteCoverageText(TextWriter writer)
+        internal virtual void WriteActivityCoverageText(TextWriter writer)
         {
             var monitors = new List<string>(this.CoverageInfo.Monitors);
             monitors.Sort(StringComparer.Ordinal);
@@ -202,6 +216,73 @@ namespace Microsoft.Coyote.Coverage
                 WriteHeader(writer, "Total specification monitor coverage: N/A");
             }
         }
+
+        /// <summary>
+        /// Checks if the activity coverage report is available.
+        /// </summary>
+        internal virtual bool IsActivityCoverageAvailable() => this.CoverageInfo.Monitors.Count > 0;
+
+        /// <summary>
+        /// Emits the schedule coverage report, if it is available.
+        /// </summary>
+        public bool TryEmitScheduleCoverageReport(string coverageFile)
+        {
+            bool isAvailable = this.IsScheduleCoverageAvailable();
+            if (isAvailable)
+            {
+                using var writer = new StreamWriter(coverageFile);
+                this.WriteScheduleCoverageText(writer);
+            }
+
+            return isAvailable;
+        }
+
+        /// <summary>
+        /// Emits the schedule coverage report.
+        /// </summary>
+        internal void WriteScheduleCoverageText(TextWriter writer)
+        {
+            var schedulingPointTypes = new List<string>(this.CoverageInfo.SchedulingPointStackTraces.Keys);
+            schedulingPointTypes.Sort(StringComparer.Ordinal);
+
+            if (schedulingPointTypes.Count > 0)
+            {
+                long numDecisions = this.CoverageInfo.SchedulingPointStackTraces.Values.Sum(map => map.Values.Sum());
+                long numDecisionTypes = this.CoverageInfo.SchedulingPointStackTraces.Count;
+                long numCallStacks = this.CoverageInfo.SchedulingPointStackTraces.Values.Sum(map => map.Keys.Count);
+
+                WriteHeader(writer, "Scheduling coverage");
+                writer.WriteLine("Number of scheduling decisions: {0}", numDecisions);
+                writer.WriteLine("Number of scheduling decision types: {0}", numDecisionTypes);
+                writer.WriteLine("Number of scheduling decision invocation sites: {0}", numCallStacks);
+                writer.WriteLine();
+
+                foreach (var schedulingPointType in schedulingPointTypes)
+                {
+                    WriteHeader(writer, string.Format("Scheduling decision: {0}", schedulingPointType));
+
+                    this.CoverageInfo.SchedulingPointStackTraces.TryGetValue(schedulingPointType, out Dictionary<string, long> traces);
+                    writer.WriteLine("Number of invocations: {0}", traces.Values.Sum());
+                    writer.WriteLine("Number of invocation sites: {0}", traces.Count);
+                    writer.WriteLine();
+
+                    foreach (var trace in traces.OrderByDescending(kvp => kvp.Value))
+                    {
+                        writer.WriteLine("Invocation frequency: {0}", trace.Value);
+                        writer.WriteLine(trace.Key);
+                    }
+                }
+            }
+            else
+            {
+                WriteHeader(writer, "Scheduling coverage: N/A");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the schedule coverage report is available.
+        /// </summary>
+        internal bool IsScheduleCoverageAvailable() => this.CoverageInfo.SchedulingPointStackTraces.Count > 0;
 
         private void RemoveBuiltInEvents(HashSet<string> eventList)
         {

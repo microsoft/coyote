@@ -343,6 +343,11 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <summary>
+        /// Checks if the coverage graph is available.
+        /// </summary>
+        public bool IsAvailable() => this.InternalNodes.Count > 0;
+
+        /// <summary>
         /// Serialize the <see cref="CoverageGraph"/> to a DGML formatted string.
         /// </summary>
         public override string ToString()

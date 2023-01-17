@@ -21,7 +21,7 @@ namespace Microsoft.Coyote
 
         private static void Main(string[] args)
         {
-            if (!TryParseArgs(args, out List<CoverageInfo> inputFiles))
+            if (!TryParseArgs(args, out List<ActorCoverageInfo> inputFiles))
             {
                 return;
             }
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote
                 return;
             }
 
-            var cinfo = new CoverageInfo();
+            var cinfo = new ActorCoverageInfo();
             foreach (var other in inputFiles)
             {
                 cinfo.Merge(other);
@@ -42,32 +42,32 @@ namespace Microsoft.Coyote
             string name = OutputFilePrefix;
             string directoryPath = Environment.CurrentDirectory;
 
-            var activityCoverageReporter = new ActivityCoverageReporter(cinfo);
+            var coverageReporter = new CoverageReporter(cinfo);
 
             string[] graphFiles = Directory.GetFiles(directoryPath, name + "_*.dgml");
             string graphFilePath = Path.Combine(directoryPath, name + "_" + graphFiles.Length + ".dgml");
 
             Console.WriteLine($"... Writing {graphFilePath}");
-            activityCoverageReporter.EmitVisualizationGraph(graphFilePath);
+            coverageReporter.TryEmitVisualizationGraph(graphFilePath);
 
             string[] coverageFiles = Directory.GetFiles(directoryPath, name + "_*.coverage.txt");
             string coverageFilePath = Path.Combine(directoryPath, name + "_" + coverageFiles.Length + ".coverage.txt");
 
             Console.WriteLine($"... Writing {coverageFilePath}");
-            activityCoverageReporter.EmitCoverageReport(coverageFilePath);
+            coverageReporter.TryEmitActivityCoverageReport(coverageFilePath);
         }
 
         /// <summary>
         /// Parses the arguments.
         /// </summary>
-        private static bool TryParseArgs(string[] args, out List<CoverageInfo> inputFiles)
+        private static bool TryParseArgs(string[] args, out List<ActorCoverageInfo> inputFiles)
         {
-            inputFiles = new List<CoverageInfo>();
+            inputFiles = new List<ActorCoverageInfo>();
             OutputFilePrefix = "merged";
 
             if (args.Length is 0)
             {
-                Console.WriteLine("Usage: CoyoteMergeCoverageReports.exe file1.sci file2.sci ... [/output:prefix]");
+                Console.WriteLine("Usage: CoyoteMergeCoverageReports.exe file1.coverage.ser file2.coverage.ser ... [/output:prefix]");
                 return false;
             }
 
@@ -86,9 +86,9 @@ namespace Microsoft.Coyote
                 else
                 {
                     // Check the suffix.
-                    if (!arg.EndsWith(".sci"))
+                    if (!arg.EndsWith(".coverage.ser"))
                     {
-                        Console.WriteLine("Error: Only sci files accepted as input, got {0}", arg);
+                        Console.WriteLine("Error: Only 'coverage.ser' files accepted as input, got {0}", arg);
                         return false;
                     }
 
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote
 
                     try
                     {
-                        CoverageInfo info = CoverageInfo.Load(arg);
+                        ActorCoverageInfo info = CoverageInfo.Load<ActorCoverageInfo>(arg);
                         inputFiles.Add(info);
                     }
                     catch (Exception e)

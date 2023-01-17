@@ -284,6 +284,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.LogWriter.LogImportant("..... Launching and attaching the debugger.");
                     Debugger.Launch();
+                    if (!Debugger.IsAttached)
+                    {
+                        this.LogWriter.LogError("..... Failed to launch or attach the debugger.");
+                    }
                 }
 
                 try
@@ -309,7 +313,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         }
 
                         // Increments the seed in the random number generator, to capture the seed used
-                        // by the scheduling strategy in the next iteration.
+                        // by the exploration strategy in the next iteration.
                         this.Scheduler.ValueGenerator.Seed++;
                         iteration++;
                     }
@@ -404,7 +408,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler.Trace, this.Configuration);
+                        this.ReproducibleTrace = TraceReport.GetJson(this.Scheduler, this.Configuration);
                     }
                 }
 
@@ -417,11 +421,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing, this.Scheduler.ValueGenerator);
                     this.LogWriter.LogImportant("..... Iteration #{0} enables systematic fuzzing due to uncontrolled concurrency",
                         iteration + 1);
-                }
-                else if (runtime.ExecutionStatus is ExecutionStatus.BoundReached)
-                {
-                    this.LogWriter.LogImportant("..... Iteration #{0} hit bound of '{1}' scheduling steps",
-                        iteration + 1, this.Scheduler.StepCount);
                 }
                 else if (runtime.ExecutionStatus is ExecutionStatus.BugFound)
                 {
@@ -464,7 +463,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
                     this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
-                    this.Configuration.AttachDebugger ? string.Empty : " (use --break to attach the debugger)");
+                    Debugger.IsAttached ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 return report.ToString();
             }
@@ -551,19 +550,32 @@ namespace Microsoft.Coyote.SystematicTesting
         public bool TryEmitCoverageReports(string directory, string fileName, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
+            var coverageReporter = new CoverageReporter(this.TestReport.CoverageInfo);
             if (this.Configuration.IsActivityCoverageReported)
             {
-                var codeCoverageReporter = new ActivityCoverageReporter(this.TestReport.CoverageInfo);
-
                 string graphFilePath = Path.Combine(directory, fileName + ".coverage.dgml");
-                codeCoverageReporter.EmitVisualizationGraph(graphFilePath);
-                paths.Add(graphFilePath);
+                if (coverageReporter.TryEmitVisualizationGraph(graphFilePath))
+                {
+                    paths.Add(graphFilePath);
+                }
 
                 string coverageFilePath = Path.Combine(directory, fileName + ".coverage.txt");
-                codeCoverageReporter.EmitCoverageReport(coverageFilePath);
-                paths.Add(coverageFilePath);
+                if (coverageReporter.TryEmitActivityCoverageReport(coverageFilePath))
+                {
+                    paths.Add(coverageFilePath);
+                }
+            }
 
-                string serFilePath = Path.Combine(directory, fileName + ".sci");
+            if (this.Configuration.IsScheduleCoverageReported)
+            {
+                string scheduleCoverageFilePath = Path.Combine(directory, fileName + ".coverage.schedule.txt");
+                coverageReporter.TryEmitScheduleCoverageReport(scheduleCoverageFilePath);
+                paths.Add(scheduleCoverageFilePath);
+            }
+
+            if (this.Configuration.IsCoverageInfoSerialized)
+            {
+                string serFilePath = Path.Combine(directory, fileName + ".coverage.ser");
                 this.TestReport.CoverageInfo.Save(serFilePath);
                 paths.Add(serFilePath);
             }
@@ -573,7 +585,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Gathers the exploration strategy statistics from the specified runtimne.
+        /// Gathers the exploration strategy statistics from the specified runtime.
         /// </summary>
         private void GatherTestingStatistics(CoyoteRuntime runtime)
         {

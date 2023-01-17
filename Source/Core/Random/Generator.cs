@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Random
@@ -40,13 +39,11 @@ namespace Microsoft.Coyote.Random
         /// <summary>
         /// Returns a random boolean, that can be controlled during testing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool NextBoolean() => this.Runtime.RandomBoolean();
 
         /// <summary>
         /// Returns a random integer, that can be controlled during testing.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int NextInteger(int maxValue) => this.Runtime.RandomInteger(maxValue);
     }
 }

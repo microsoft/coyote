@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
@@ -168,9 +169,7 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests.Specifications
         [Fact(Timeout = 5000)]
         public void TestHotStateMonitor()
         {
-            var configuration = this.GetConfiguration();
-            configuration.SchedulingStrategy = "dfs";
-
+            var configuration = this.GetConfiguration().WithDFSStrategy();
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<M>();

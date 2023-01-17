@@ -369,6 +369,13 @@ namespace Microsoft.Coyote.SystematicTesting
             this.LogWriter.LogDebug("[coyote::debug] Resolving assembly '{0}'.", assemblyName.Name);
             RuntimeLibrary runtimeLibrary = this.DependencyContext.RuntimeLibraries.FirstOrDefault(
                 runtime => string.Equals(runtime.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
+            if (runtimeLibrary is null)
+            {
+                runtimeLibrary = this.DependencyContext.RuntimeLibraries.FirstOrDefault(
+                    runtime => runtime.GetDefaultAssemblyNames(this.DependencyContext).Any(
+                        name => string.Equals(name.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)));
+            }
+
             if (runtimeLibrary != null)
             {
                 var assemblies = new List<string>();

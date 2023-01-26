@@ -33,9 +33,9 @@ namespace Microsoft.Coyote.SystematicTesting
         public TestSettings Settings { get; set; }
 
         /// <summary>
-        /// The controlled decisions of this trace.
+        /// The execution steps in this trace.
         /// </summary>
-        public List<string> Decisions { get; set; }
+        public List<string> Steps { get; set; }
 
         /// <summary>
         /// Constructs a <see cref="TraceReport"/> from the specified <see cref="OperationScheduler"/>
@@ -110,35 +110,47 @@ namespace Microsoft.Coyote.SystematicTesting
                 configuration.UncontrolledConcurrencyResolutionAttempts = report.Settings.UncontrolledConcurrencyResolutionAttempts;
                 configuration.UncontrolledConcurrencyResolutionDelay = report.Settings.UncontrolledConcurrencyResolutionDelay;
 
-                foreach (var decision in report.Decisions)
+                for (int idx = 0; idx < report.Steps.Count; idx++)
                 {
-                    string[] tokens = decision.Split(',');
-                    string kindToken = tokens[0];
-                    string spToken = tokens[1];
+                    string[] tokens = report.Steps[idx].Split(',');
 
+                    // The current operation token is of the form 'op(id:seqId)'.
+                    string opToken = tokens[0];
+                    string[] opTokens = opToken.Substring(3, opToken.Length - 4).Split(':');
+                    ulong opId = ulong.Parse(opTokens[0]);
+                    ulong opSeqId = ulong.Parse(opTokens[1]);
+
+                    string decisionToken = tokens[1];
+                    if (decisionToken.StartsWith("sp("))
+                    {
 #if NET || NETCOREAPP3_1
-                    SchedulingPointType sp = Enum.Parse<SchedulingPointType>(spToken.Substring(3, spToken.Length - 4));
+                        SchedulingPointType sp = Enum.Parse<SchedulingPointType>(decisionToken.Substring(
+                            3, decisionToken.Length - 4));
 #else
-                    SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType), spToken.Substring(3, spToken.Length - 4));
+                        SchedulingPointType sp = (SchedulingPointType)Enum.Parse(typeof(SchedulingPointType),
+                            decisionToken.Substring(3, decisionToken.Length - 4));
 #endif
-                    if (kindToken.StartsWith("op("))
-                    {
-                        ulong id = ulong.Parse(kindToken.Substring(3, kindToken.Length - 4));
-                        trace.AddSchedulingChoice(id, sp);
+
+                        // The next operation token is of the form 'next(id:seqId)'.
+                        string nextToken = tokens[2];
+                        string[] nextTokens = nextToken.Substring(5, nextToken.Length - 6).Split(':');
+                        ulong nextId = ulong.Parse(nextTokens[0]);
+                        ulong nextSeqId = ulong.Parse(nextTokens[1]);
+                        trace.AddSchedulingDecision(opId, opSeqId, sp, nextId, nextSeqId);
                     }
-                    else if (kindToken.StartsWith("bool("))
+                    else if (decisionToken.StartsWith("bool("))
                     {
-                        bool value = bool.Parse(kindToken.Substring(5, kindToken.Length - 6));
-                        trace.AddNondeterministicBooleanChoice(value, sp);
+                        bool value = bool.Parse(decisionToken.Substring(5, decisionToken.Length - 6));
+                        trace.AddNondeterministicBooleanDecision(opId, opSeqId, value);
                     }
-                    else if (kindToken.StartsWith("int("))
+                    else if (decisionToken.StartsWith("int("))
                     {
-                        int value = int.Parse(kindToken.Substring(4, kindToken.Length - 5));
-                        trace.AddNondeterministicIntegerChoice(value, sp);
+                        int value = int.Parse(decisionToken.Substring(4, decisionToken.Length - 5));
+                        trace.AddNondeterministicIntegerDecision(opId, opSeqId, value);
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Unexpected decision '{decision}'.");
+                        throw new InvalidOperationException($"Unexpected execution step '{report.Steps[idx]}'.");
                     }
                 }
             }
@@ -151,22 +163,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void ReportTrace(ExecutionTrace trace)
         {
-            this.Decisions = new List<string>();
-            for (int idx = 0; idx < trace.Length; ++idx)
+            this.Steps = new List<string>();
+            foreach (var step in trace)
             {
-                ExecutionTrace.Step step = trace[idx];
-                if (step.Kind == ExecutionTrace.DecisionKind.SchedulingChoice)
-                {
-                    this.Decisions.Add($"op({step.ScheduledOperationId}),sp({step.SchedulingPoint})");
-                }
-                else if (step.BooleanChoice != null)
-                {
-                    this.Decisions.Add($"bool({step.BooleanChoice.Value}),sp({step.SchedulingPoint})");
-                }
-                else
-                {
-                    this.Decisions.Add($"int({step.IntegerChoice.Value}),sp({step.SchedulingPoint})");
-                }
+                this.Steps.Add(step.ToString());
             }
         }
 

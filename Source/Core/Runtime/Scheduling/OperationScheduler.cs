@@ -250,7 +250,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
-                    this.Trace.AddSchedulingChoice(next.Id, current.LastSchedulingPoint);
+                    this.Trace.AddSchedulingDecision(current, current.LastSchedulingPoint, next);
                     return true;
                 }
             }
@@ -270,7 +270,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextBoolean(current, out next))
             {
-                this.Trace.AddNondeterministicBooleanChoice(next, current.LastSchedulingPoint);
+                this.Trace.AddNondeterministicBooleanDecision(current, next);
                 return true;
             }
 
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Strategy is InterleavingStrategy strategy &&
                 strategy.GetNextInteger(current, maxValue, out next))
             {
-                this.Trace.AddNondeterministicIntegerChoice(next, current.LastSchedulingPoint);
+                this.Trace.AddNondeterministicIntegerDecision(current, next);
                 return true;
             }
 

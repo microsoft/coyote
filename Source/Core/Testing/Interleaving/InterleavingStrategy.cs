@@ -51,21 +51,24 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Kind != ExecutionTrace.DecisionKind.SchedulingChoice)
+                    if (nextStep is ExecutionTrace.SchedulingStep step)
+                    {
+                        next = ops.FirstOrDefault(op => op.Id == step.Value);
+                        if (next is null)
+                        {
+                            this.ErrorText = this.FormatReplayError(nextStep.Index, $"cannot detect id '{step.Value}'");
+                            throw new InvalidOperationException(this.ErrorText);
+                        }
+                        else if (step.SchedulingPoint != current.LastSchedulingPoint)
+                        {
+                            this.ErrorText = this.FormatReplayError(nextStep.Index,
+                                $"expected scheduling point '{step.SchedulingPoint}' instead of '{current.LastSchedulingPoint}'");
+                            throw new InvalidOperationException(this.ErrorText);
+                        }
+                    }
+                    else
                     {
                         this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a scheduling choice");
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-
-                    next = ops.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
-                    if (next is null)
-                    {
-                        this.ErrorText = this.FormatReplayError(nextStep.Index, $"cannot detect id '{nextStep.ScheduledOperationId}'");
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
-                    {
-                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
                         throw new InvalidOperationException(this.ErrorText);
                     }
                 }
@@ -110,24 +113,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
+                    if (nextStep is ExecutionTrace.BooleanChoiceStep step)
+                    {
+                        next = step.Value;
+                    }
+                    else
                     {
                         this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
                     }
-
-                    if (nextStep.BooleanChoice is null)
-                    {
-                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic boolean choice");
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
-                    {
-                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-
-                    next = nextStep.BooleanChoice.Value;
                 }
                 else
                 {
@@ -168,24 +162,15 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.StepCount < this.TracePrefix.Length)
                 {
                     ExecutionTrace.Step nextStep = this.TracePrefix[this.StepCount];
-                    if (nextStep.Kind != ExecutionTrace.DecisionKind.NondeterministicChoice)
+                    if (nextStep is ExecutionTrace.IntegerChoiceStep step)
+                    {
+                        next = step.Value;
+                    }
+                    else
                     {
                         this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic choice");
                         throw new InvalidOperationException(this.ErrorText);
                     }
-
-                    if (nextStep.IntegerChoice is null)
-                    {
-                        this.ErrorText = this.FormatReplayError(nextStep.Index, "next step is not a nondeterministic integer choice");
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-                    else if (nextStep.SchedulingPoint != current.LastSchedulingPoint)
-                    {
-                        this.ErrorText = this.FormatSchedulingPointReplayError(nextStep.Index, nextStep.SchedulingPoint, current.LastSchedulingPoint);
-                        throw new InvalidOperationException(this.ErrorText);
-                    }
-
-                    next = nextStep.IntegerChoice.Value;
                 }
                 else
                 {
@@ -219,12 +204,6 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// This is typically invoked by parent strategies to reset child strategies.
         /// </remarks>
         internal virtual void Reset() => this.StepCount = 0;
-
-        /// <summary>
-        /// Formats the error message regarding an unexpected scheduling point.
-        /// </summary>
-        private string FormatSchedulingPointReplayError(int step, SchedulingPointType expected, SchedulingPointType actual) =>
-            this.FormatReplayError(step, $"expected scheduling point '{expected}' instead of '{actual}'");
 
         /// <summary>
         /// Formats the error message.

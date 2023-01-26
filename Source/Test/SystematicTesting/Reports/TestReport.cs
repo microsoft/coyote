@@ -29,16 +29,16 @@ namespace Microsoft.Coyote.SystematicTesting
         public ActorCoverageInfo CoverageInfo { get; private set; }
 
         /// <summary>
-        /// Number of explored fair schedules.
+        /// Number of explored fair execution paths.
         /// </summary>
         [DataMember]
-        public int NumOfExploredFairSchedules { get; internal set; }
+        public int NumOfExploredFairPaths { get; internal set; }
 
         /// <summary>
-        /// Number of explored unfair schedules.
+        /// Number of explored unfair execution paths.
         /// </summary>
         [DataMember]
-        public int NumOfExploredUnfairSchedules { get; internal set; }
+        public int NumOfExploredUnfairPaths { get; internal set; }
 
         /// <summary>
         /// Number of found bugs.
@@ -113,37 +113,37 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalOperationGroupingDegree { get; internal set; }
 
         /// <summary>
-        /// The min explored scheduling steps in fair tests.
+        /// The min explored execution steps in fair tests.
         /// </summary>
         [DataMember]
         public int MinExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// The max explored scheduling steps in fair tests.
+        /// The max explored execution steps in fair tests.
         /// </summary>
         [DataMember]
         public int MaxExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// The total explored scheduling steps (across all testing iterations) in fair tests.
+        /// The total explored execution steps (across all testing iterations) in fair tests.
         /// </summary>
         [DataMember]
         public int TotalExploredFairSteps { get; internal set; }
 
         /// <summary>
-        /// The min explored scheduling steps in unfair tests.
+        /// The min explored execution steps in unfair tests.
         /// </summary>
         [DataMember]
         public int MinExploredUnfairSteps { get; internal set; }
 
         /// <summary>
-        /// The max explored scheduling steps in unfair tests.
+        /// The max explored execution steps in unfair tests.
         /// </summary>
         [DataMember]
         public int MaxExploredUnfairSteps { get; internal set; }
 
         /// <summary>
-        /// The total explored scheduling steps (across all testing iterations) in unfair tests.
+        /// The total explored execution steps (across all testing iterations) in unfair tests.
         /// </summary>
         [DataMember]
         public int TotalExploredUnfairSteps { get; internal set; }
@@ -191,8 +191,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.CoverageInfo = new ActorCoverageInfo();
 
-            this.NumOfExploredFairSchedules = 0;
-            this.NumOfExploredUnfairSchedules = 0;
+            this.NumOfExploredFairPaths = 0;
+            this.NumOfExploredUnfairPaths = 0;
             this.NumOfFoundBugs = 0;
             this.BugReports = new HashSet<string>();
             this.UncontrolledInvocations = new HashSet<string>();
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <inheritdoc/>
         void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int concurrencyDegree,
-            int groupingDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair)
+            int groupingDegree, int executionSteps, bool isMaxStepsBoundReached, bool isExecutionPathFair)
         {
             if (isBugFound)
             {
@@ -255,39 +255,39 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MinOperationGroupingDegree = groupingDegree;
             }
 
-            if (isScheduleFair)
+            if (isExecutionPathFair)
             {
-                this.NumOfExploredFairSchedules++;
-                this.TotalExploredFairSteps += scheduledSteps;
-                this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, scheduledSteps);
+                this.NumOfExploredFairPaths++;
+                this.TotalExploredFairSteps += executionSteps;
+                this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, executionSteps);
                 if (this.MinExploredFairSteps < 0 ||
-                    this.MinExploredFairSteps > scheduledSteps)
+                    this.MinExploredFairSteps > executionSteps)
                 {
-                    this.MinExploredFairSteps = scheduledSteps;
+                    this.MinExploredFairSteps = executionSteps;
                 }
 
-                if (isMaxScheduledStepsBoundReached)
+                if (isMaxStepsBoundReached)
                 {
                     this.MaxFairStepsHitInFairTests++;
                 }
 
-                if (scheduledSteps >= this.Configuration.MaxUnfairSchedulingSteps)
+                if (executionSteps >= this.Configuration.MaxUnfairSchedulingSteps)
                 {
                     this.MaxUnfairStepsHitInFairTests++;
                 }
             }
             else
             {
-                this.NumOfExploredUnfairSchedules++;
-                this.TotalExploredUnfairSteps += scheduledSteps;
-                this.MaxExploredUnfairSteps = Math.Max(this.MaxExploredUnfairSteps, scheduledSteps);
+                this.NumOfExploredUnfairPaths++;
+                this.TotalExploredUnfairSteps += executionSteps;
+                this.MaxExploredUnfairSteps = Math.Max(this.MaxExploredUnfairSteps, executionSteps);
                 if (this.MinExploredUnfairSteps < 0 ||
-                    this.MinExploredUnfairSteps > scheduledSteps)
+                    this.MinExploredUnfairSteps > executionSteps)
                 {
-                    this.MinExploredUnfairSteps = scheduledSteps;
+                    this.MinExploredUnfairSteps = executionSteps;
                 }
 
-                if (isMaxScheduledStepsBoundReached)
+                if (isMaxStepsBoundReached)
                 {
                     this.MaxUnfairStepsHitInUnfairTests++;
                 }
@@ -354,8 +354,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MinOperationGroupingDegree = testReport.MinOperationGroupingDegree;
                 }
 
-                this.NumOfExploredFairSchedules += testReport.NumOfExploredFairSchedules;
-                this.NumOfExploredUnfairSchedules += testReport.NumOfExploredUnfairSchedules;
+                this.NumOfExploredFairPaths += testReport.NumOfExploredFairPaths;
+                this.NumOfExploredUnfairPaths += testReport.NumOfExploredUnfairPaths;
 
                 this.TotalExploredFairSteps += testReport.TotalExploredFairSteps;
                 this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, testReport.MaxExploredFairSteps);
@@ -420,26 +420,27 @@ namespace Microsoft.Coyote.SystematicTesting
             report.AppendLine();
             report.AppendFormat("{0} Scheduling statistics:", prefix);
 
-            int totalExploredSchedules = this.NumOfExploredFairSchedules +
-                this.NumOfExploredUnfairSchedules;
+            int totalExploredPaths = this.NumOfExploredFairPaths +
+                this.NumOfExploredUnfairPaths;
 
             report.AppendLine();
             report.AppendFormat(
-                "{0} Explored {1} schedule{2}: {3} fair and {4} unfair.",
+                "{0} Explored {1} execution path{2}: {3} fair, {4} unfair, {5} unique.",
                 prefix.Equals("...") ? "....." : prefix,
-                totalExploredSchedules,
-                totalExploredSchedules is 1 ? string.Empty : "s",
-                this.NumOfExploredFairSchedules,
-                this.NumOfExploredUnfairSchedules);
+                totalExploredPaths,
+                totalExploredPaths is 1 ? string.Empty : "s",
+                this.NumOfExploredFairPaths,
+                this.NumOfExploredUnfairPaths,
+                this.CoverageInfo.ExploredPaths.Count);
 
-            if (totalExploredSchedules > 0 &&
+            if (totalExploredPaths > 0 &&
                 this.NumOfFoundBugs > 0)
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Found {1:F2}% buggy schedules.",
+                    "{0} Found {1:F2}% buggy execution paths.",
                     prefix.Equals("...") ? "....." : prefix,
-                    this.NumOfFoundBugs * 100.0 / totalExploredSchedules);
+                    this.NumOfFoundBugs * 100.0 / totalExploredPaths);
             }
 
             int visitedStatesCount = this.CoverageInfo.VisitedStates.Count;
@@ -447,7 +448,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Visited {1} state{2}.",
+                    "{0} Visited {1} unique state{2}.",
                     prefix.Equals("...") ? "....." : prefix,
                     visitedStatesCount,
                     visitedStatesCount is 1 ? string.Empty : "s");
@@ -457,12 +458,12 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max), {6} (sequences).",
+                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max), {6} (unique).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.TotalControlledOperations,
                     this.TotalControlledOperations is 1 ? string.Empty : "s",
                     this.MinControlledOperations,
-                    this.TotalControlledOperations / totalExploredSchedules,
+                    this.TotalControlledOperations / totalExploredPaths,
                     this.MaxControlledOperations,
                     this.CoverageInfo.OperationSequenceIds.Count);
             }
@@ -474,7 +475,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     "{0} Degree of concurrency: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinConcurrencyDegree,
-                    this.TotalConcurrencyDegree / totalExploredSchedules,
+                    this.TotalConcurrencyDegree / totalExploredPaths,
                     this.MaxConcurrencyDegree);
             }
 
@@ -485,18 +486,18 @@ namespace Microsoft.Coyote.SystematicTesting
                     "{0} Degree of operation grouping: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinOperationGroupingDegree,
-                    this.TotalOperationGroupingDegree / totalExploredSchedules,
+                    this.TotalOperationGroupingDegree / totalExploredPaths,
                     this.MaxOperationGroupingDegree);
             }
 
-            if (this.NumOfExploredFairSchedules > 0)
+            if (this.NumOfExploredFairPaths > 0)
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Number of scheduling decisions in fair terminating schedules: {1} (min), {2} (avg), {3} (max).",
+                    "{0} Number of scheduling decisions in fair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredFairSteps < 0 ? 0 : this.MinExploredFairSteps,
-                    this.TotalExploredFairSteps / this.NumOfExploredFairSchedules,
+                    this.TotalExploredFairSteps / this.NumOfExploredFairPaths,
                     this.MaxExploredFairSteps < 0 ? 0 : this.MaxExploredFairSteps);
 
                 if (configuration.MaxUnfairSchedulingSteps > 0 &&
@@ -504,10 +505,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     report.AppendLine();
                     report.AppendFormat(
-                        "{0} Exceeded the max-steps bound of '{1}' in {2:F2}% of the fair schedules.",
+                        "{0} Exceeded the max-steps bound of '{1}' in {2:F2}% of the fair execution paths.",
                         prefix.Equals("...") ? "....." : prefix,
                         configuration.MaxUnfairSchedulingSteps,
-                        (double)this.MaxUnfairStepsHitInFairTests / this.NumOfExploredFairSchedules * 100);
+                        (double)this.MaxUnfairStepsHitInFairTests / this.NumOfExploredFairPaths * 100);
                 }
 
                 if (configuration.UserExplicitlySetMaxFairSchedulingSteps &&
@@ -516,21 +517,21 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     report.AppendLine();
                     report.AppendFormat(
-                        "{0} Hit the max-steps bound of '{1}' in {2:F2}% of the fair schedules.",
+                        "{0} Hit the max-steps bound of '{1}' in {2:F2}% of the fair execution paths.",
                         prefix.Equals("...") ? "....." : prefix,
                         configuration.MaxFairSchedulingSteps,
-                        (double)this.MaxFairStepsHitInFairTests / this.NumOfExploredFairSchedules * 100);
+                        (double)this.MaxFairStepsHitInFairTests / this.NumOfExploredFairPaths * 100);
                 }
             }
 
-            if (this.NumOfExploredUnfairSchedules > 0)
+            if (this.NumOfExploredUnfairPaths > 0)
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Number of scheduling decisions in unfair terminating schedules: {1} (min), {2} (avg), {3} (max).",
+                    "{0} Number of scheduling decisions in unfair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredUnfairSteps < 0 ? 0 : this.MinExploredUnfairSteps,
-                    this.TotalExploredUnfairSteps / this.NumOfExploredUnfairSchedules,
+                    this.TotalExploredUnfairSteps / this.NumOfExploredUnfairPaths,
                     this.MaxExploredUnfairSteps < 0 ? 0 : this.MaxExploredUnfairSteps);
 
                 if (configuration.MaxUnfairSchedulingSteps > 0 &&
@@ -538,10 +539,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     report.AppendLine();
                     report.AppendFormat(
-                        "{0} Hit the max-steps bound of '{1}' in {2:F2}% of the unfair schedules.",
+                        "{0} Hit the max-steps bound of '{1}' in {2:F2}% of the unfair execution paths.",
                         prefix.Equals("...") ? "....." : prefix,
                         configuration.MaxUnfairSchedulingSteps,
-                        (double)this.MaxUnfairStepsHitInUnfairTests / this.NumOfExploredUnfairSchedules * 100);
+                        (double)this.MaxUnfairStepsHitInUnfairTests / this.NumOfExploredUnfairPaths * 100);
                 }
             }
 

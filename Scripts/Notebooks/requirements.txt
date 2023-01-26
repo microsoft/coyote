@@ -1,1 +1,3 @@
 azure-cosmos
+ipykernel>=6.20
+jupyter

@@ -141,11 +141,19 @@ namespace Microsoft.Coyote.Runtime
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
 
-            // If no parent operation is found, and this is not the root operation, then assign the root operation as the
-            // parent operation. This is just an approximation that is applied in the case of uncontrolled threads.
-            ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
-            this.Sequence = GetSequenceFromParent(operationId, parent);
-            this.SequenceId = this.GetSequenceHash();
+            // Only compute the sequence if the runtime scheduler is controlled.
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                this.SequenceId = 0;
+            }
+            else
+            {
+                // If no parent operation is found, and this is not the root operation, then assign the root operation as the
+                // parent operation. This is just an approximation that is applied in the case of uncontrolled threads.
+                ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
+                this.Sequence = GetSequenceFromParent(operationId, parent);
+                this.SequenceId = this.GetSequenceHash();
+            }
 
             // Set the debug information for this operation.
             this.DebugInfo = $"'{this.Name}' with sequence id '{this.SequenceId}' and group id '{this.Group.Id}'";

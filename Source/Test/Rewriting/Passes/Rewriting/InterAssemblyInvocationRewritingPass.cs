@@ -249,35 +249,47 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Resolves the generic arguments of the specified type using the given method reference.
         /// </summary>
-        private static GenericInstanceType ResolveGenericTypeArguments(GenericInstanceType genericType,
-            MethodReference methodReference)
+        private static GenericInstanceType ResolveGenericTypeArguments(GenericInstanceType genericType, MethodReference methodReference)
         {
             GenericInstanceType resolvedType = new GenericInstanceType(genericType.ElementType);
             foreach (var genericArgument in genericType.GenericArguments)
             {
-                TypeReference argType = genericArgument;
-                if (argType is GenericParameter gp)
-                {
-                    if (gp.Type is GenericParameterType.Type &&
-                        methodReference.DeclaringType is GenericInstanceType dgt)
-                    {
-                        argType = dgt.GenericArguments[gp.Position];
-                    }
-                    else if (gp.Type is GenericParameterType.Method &&
-                        methodReference is GenericInstanceMethod gim)
-                    {
-                        argType = gim.GenericArguments[gp.Position];
-                    }
-                }
-                else if (argType is GenericInstanceType git)
-                {
-                    argType = ResolveGenericTypeArguments(git, methodReference);
-                }
-
+                TypeReference argType = ResolveArgumentType(genericArgument, methodReference);
                 resolvedType.GenericArguments.Add(argType);
             }
 
             return resolvedType;
+        }
+
+        /// <summary>
+        /// Resolves the specified argument type using the given method reference.
+        /// </summary>
+        private static TypeReference ResolveArgumentType(TypeReference argType, MethodReference methodReference)
+        {
+            if (argType is GenericParameter gp)
+            {
+                if (gp.Type is GenericParameterType.Type &&
+                    methodReference.DeclaringType is GenericInstanceType dgt)
+                {
+                    argType = dgt.GenericArguments[gp.Position];
+                }
+                else if (gp.Type is GenericParameterType.Method &&
+                    methodReference is GenericInstanceMethod gim)
+                {
+                    argType = gim.GenericArguments[gp.Position];
+                }
+            }
+            else if (argType is ArrayType at)
+            {
+                TypeReference newElementType = ResolveArgumentType(at.ElementType, methodReference);
+                argType = new ArrayType(newElementType, at.Rank);
+            }
+            else if (argType is GenericInstanceType git)
+            {
+                argType = ResolveGenericTypeArguments(git, methodReference);
+            }
+
+            return argType;
         }
 
         /// <summary>

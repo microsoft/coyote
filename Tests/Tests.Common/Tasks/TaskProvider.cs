@@ -18,6 +18,8 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
 
         public static Task<T> GetGenericTask<T>() => Task.FromResult<T>(default(T));
 
+        public static Task<T[]> GetGenericTaskArray<T>() => Task.FromResult<T[]>(default(T[]));
+
         public static Task<(int, bool)> GetValueTupleTask() => Task.FromResult((0, true));
 
         public static Task<(TLeft, TRight)> GetGenericValueTupleTask<TLeft, TRight>() =>
@@ -60,6 +62,8 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
         public static ValueTask GetTask() => ValueTask.CompletedTask;
 
         public static ValueTask<T> GetGenericTask<T>() => ValueTask.FromResult<T>(default(T));
+
+        public static ValueTask<T[]> GetGenericTaskArray<T>() => ValueTask.FromResult<T[]>(default(T[]));
     }
 
     /// <summary>

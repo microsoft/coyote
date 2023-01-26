@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Coverage
         public Dictionary<string, Dictionary<string, long>> SchedulingPointStackTraces { get; private set; }
 
         /// <summary>
-        /// Set of explored paths represented as ordered operation creation sequence ids.
+        /// Set of explored paths represented as ordered operations identified by their creation sequence ids.
         /// </summary>
         [DataMember]
         public HashSet<string> ExploredPaths { get; private set; }

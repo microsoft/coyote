@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("[coyote::strategy] Updated operation group priority list: ");
-                for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; idx++)
+                for (int idx = 0; idx < this.PrioritizedOperationGroups.Count; ++idx)
                 {
                     var group = this.PrioritizedOperationGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))

@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Rewriting
                 // if it has, find the rewritten method. The signature does not include the return
                 // type according to C# rules, so we do not take it into account.
                 List<TypeReference> paramTypes = new List<TypeReference>();
-                for (int i = 0; i < method.Parameters.Count; i++)
+                for (int i = 0; i < method.Parameters.Count; ++i)
                 {
                     var p = method.Parameters[i];
                     paramTypes.Add(this.RewriteType(p.ParameterType, Options.None));
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.Rewriting
             Collection<TypeReference> genericArguments, ref bool isRewritten)
         {
             var genericMethod = new GenericInstanceMethod(method);
-            for (int i = 0; i < genericArguments.Count; i++)
+            for (int i = 0; i < genericArguments.Count; ++i)
             {
                 GenericParameter parameter = new GenericParameter(genericParameters[i].Name, genericMethod);
                 method.GenericParameters.Add(parameter);
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.Rewriting
         private MethodReference RewriteParameters(MethodReference method, Collection<ParameterDefinition> parameters,
             ref bool isRewritten)
         {
-            for (int i = 0; i < parameters.Count; i++)
+            for (int i = 0; i < parameters.Count; ++i)
             {
                 // Try rewrite the parameter only if the declaring type is a non-runtime type,
                 // else assign the generic arguments if the parameter is generic.
@@ -347,7 +347,7 @@ namespace Microsoft.Coyote.Rewriting
                 return false;
             }
 
-            for (int idx = 0; idx < right.Parameters.Count; idx++)
+            for (int idx = 0; idx < right.Parameters.Count; ++idx)
             {
                 var leftParam = left.Parameters[idx];
                 var rightParam = right.Parameters[idx];
@@ -407,7 +407,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // Check if the parameters match.
-            for (int idx = 0; idx < originalMethod.Parameters.Count; idx++)
+            for (int idx = 0; idx < originalMethod.Parameters.Count; ++idx)
             {
                 // If we are converting to static, we have one extra parameter, so skip it.
                 var newParameter = newMethod.Parameters[isConvertedToStatic ? idx + 1 : idx];

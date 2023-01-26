@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private bool ShouldCurrentOperationChange()
         {
-            for (int idx = 0; idx < this.Bound; idx++)
+            for (int idx = 0; idx < this.Bound; ++idx)
             {
                 if (this.RandomValueGenerator.Next(2) is 1)
                 {

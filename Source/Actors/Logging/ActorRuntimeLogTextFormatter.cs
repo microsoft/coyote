@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.Actors
             else
             {
                 string[] eventNameArray = new string[eventTypes.Length - 1];
-                for (int i = 0; i < eventTypes.Length - 2; i++)
+                for (int i = 0; i < eventTypes.Length - 2; ++i)
                 {
                     eventNameArray[i] = eventTypes[i].FullName;
                 }

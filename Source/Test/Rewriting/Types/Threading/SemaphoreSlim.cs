@@ -303,8 +303,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         }
 
                         runtime.LogWriter.LogDebug(
-                            "[coyote::debug] Operation '{0}' of group '{1}' is waiting for '{2}' to get released on thread '{3}'.",
-                            current.Name, current.Group, this.DebugName, SystemThread.CurrentThread.ManagedThreadId);
+                            "[coyote::debug] Operation {0} is waiting for '{1}' to get released on thread '{2}'.",
+                            current.DebugInfo, this.DebugName, SystemThread.CurrentThread.ManagedThreadId);
                         current.Status = OperationStatus.PausedOnResource;
                         this.PausedOperations.Enqueue(current);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);

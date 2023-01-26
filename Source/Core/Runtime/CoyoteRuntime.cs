@@ -678,8 +678,11 @@ namespace Microsoft.Coyote.Runtime
                     this.PendingStartOperationMap.Add(op, new ManualResetEventSlim(false));
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Created operation '{0}' of group '{1}' on thread '{2}'.",
-                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                // Register the operation creation sequence id for coverage.
+                this.CoverageInfo.DeclareOperationSequenceId(op.SequenceId);
+
+                this.LogWriter.LogDebug("[coyote::debug] Created operation {0} on thread '{1}'.",
+                    op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
             }
         }
 
@@ -697,8 +700,8 @@ namespace Microsoft.Coyote.Runtime
             this.SetCurrentExecutionContext(op);
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                this.LogWriter.LogDebug("[coyote::debug] Started operation '{0}' of group '{1}' on thread '{2}'.",
-                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                this.LogWriter.LogDebug("[coyote::debug] Started operation {0} on thread '{1}'.",
+                    op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Enabled;
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
@@ -733,8 +736,8 @@ namespace Microsoft.Coyote.Runtime
                     var pendingOp = this.PendingStartOperationMap.First();
                     while (pendingOp.Key.Status is OperationStatus.None)
                     {
-                        this.LogWriter.LogDebug("[coyote::debug] Sleeping thread '{0}' until operation '{1}' of group '{2}' starts.",
-                            Thread.CurrentThread.ManagedThreadId, pendingOp.Key.Name, pendingOp.Key.Group);
+                        this.LogWriter.LogDebug("[coyote::debug] Sleeping thread '{0}' until operation {1} starts.",
+                            Thread.CurrentThread.ManagedThreadId, pendingOp.Key.DebugInfo);
                         using (SynchronizedSection.Exit(this.RuntimeLock))
                         {
                             try
@@ -771,15 +774,15 @@ namespace Microsoft.Coyote.Runtime
                 // Do not allow the operation to wake up, unless its currently scheduled and enabled or the runtime stopped running.
                 while (!(op == this.ScheduledOperation && op.Status is OperationStatus.Enabled) && this.ExecutionStatus is ExecutionStatus.Running)
                 {
-                    this.LogWriter.LogDebug("[coyote::debug] Sleeping operation '{0}' of group '{1}' on thread '{2}'.",
-                        op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                    this.LogWriter.LogDebug("[coyote::debug] Sleeping operation {0} on thread '{1}'.",
+                        op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                     using (SynchronizedSection.Exit(this.RuntimeLock))
                     {
                         op.WaitSignal();
                     }
 
-                    this.LogWriter.LogDebug("[coyote::debug] Waking up operation '{0}' of group '{1}' on thread '{2}'.",
-                        op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                    this.LogWriter.LogDebug("[coyote::debug] Waking up operation {0} on thread '{1}'.",
+                        op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                 }
             }
         }
@@ -798,8 +801,8 @@ namespace Microsoft.Coyote.Runtime
                     current ??= this.GetExecutingOperation();
                     while (current != null && !condition() && this.ExecutionStatus is ExecutionStatus.Running)
                     {
-                        this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' is waiting for {2} on thread '{3}'.",
-                            current.Name, current.Group, debugMsg ?? "condition to get resolved", Thread.CurrentThread.ManagedThreadId);
+                        this.LogWriter.LogDebug("[coyote::debug] Operation {0} is waiting for {1} on thread '{2}'.",
+                            current.DebugInfo, debugMsg ?? "condition to get resolved", Thread.CurrentThread.ManagedThreadId);
                         // TODO: can we identify when the dependency is uncontrolled?
                         current.PauseWithDependency(condition, isConditionControlled);
                         this.ScheduleNextOperation(current, SchedulingPointType.Pause);
@@ -862,8 +865,8 @@ namespace Microsoft.Coyote.Runtime
                         // now been resolved, so resume it on this uncontrolled thread.
                         current = this.ScheduledOperation;
                         type = this.LastPostponedSchedulingPoint.Value;
-                        this.LogWriter.LogDebug("[coyote::debug] Resuming scheduling point '{0}' of operation '{1}' in uncontrolled thread '{2}'.",
-                            type, current, Thread.CurrentThread.ManagedThreadId);
+                        this.LogWriter.LogDebug("[coyote::debug] Resuming scheduling point '{0}' of operation {1} in uncontrolled thread '{2}'.",
+                            type, current.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                     }
                     else if (type is SchedulingPointType.Create || type is SchedulingPointType.ContinueWith)
                     {
@@ -899,14 +902,14 @@ namespace Microsoft.Coyote.Runtime
                     isSuppressible && current.Status is OperationStatus.Enabled)
                 {
                     // Suppress the scheduling point.
-                    this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' suppressed scheduling point '{2}'.",
-                        current.Name, current.Group, type);
+                    this.LogWriter.LogDebug("[coyote::debug] Operation {0} suppressed scheduling point '{1}'.",
+                        current.DebugInfo, type);
                     return false;
                 }
 
                 this.LogWriter.LogDebug(
-                    "[coyote::debug] Operation '{0}' of group '{1}' reached scheduling point '{2}' at execution step '{3}' on thread '{4}'.",
-                    current.Name, current.Group, type, this.Scheduler.StepCount, Thread.CurrentThread.ManagedThreadId);
+                    "[coyote::debug] Operation {0} reached scheduling point '{1}' at execution step '{2}' on thread '{3}'.",
+                    current.DebugInfo, type, this.Scheduler.StepCount, Thread.CurrentThread.ManagedThreadId);
                 this.Assert(!this.IsSpecificationInvoked, "Executing a specification monitor must be atomic.");
 
                 // Checks if the scheduling steps bound has been reached.
@@ -931,8 +934,8 @@ namespace Microsoft.Coyote.Runtime
                         // If uncontrolled concurrency is detected, then do not check for deadlocks directly,
                         // but instead leave it to the background deadlock detection timer and postpone the
                         // scheduling point, which might get resolved from an uncontrolled thread.
-                        this.LogWriter.LogDebug("[coyote::debug] Postponing scheduling point '{0}' of operation '{1}' due to potential deadlock.",
-                            type, current);
+                        this.LogWriter.LogDebug("[coyote::debug] Postponing scheduling point '{0}' of operation {1} due to potential deadlock.",
+                            type, current.DebugInfo);
                         this.LastPostponedSchedulingPoint = type;
                         this.PauseOperation(current);
                         return false;
@@ -960,8 +963,8 @@ namespace Microsoft.Coyote.Runtime
                     return false;
                 }
 
-                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation '{0}' of group '{1}' from thread '{2}'.",
-                    next.Name, next.Group, Thread.CurrentThread.ManagedThreadId);
+                this.LogWriter.LogDebug("[coyote::debug] Scheduling operation {0} from thread '{1}'.",
+                    next.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {
@@ -1001,8 +1004,8 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Choose the next delay to inject. The value is in milliseconds.
                     int delay = this.GetNondeterministicDelay(current, (int)this.Configuration.MaxFuzzingDelay);
-                    this.LogWriter.LogDebug("[coyote::debug] Delaying operation '{0}' on thread '{1}' by {2}ms.",
-                        current.Name, Thread.CurrentThread.ManagedThreadId, delay);
+                    this.LogWriter.LogDebug("[coyote::debug] Delaying operation {0} on thread '{1}' by {2}ms.",
+                        current.DebugInfo, Thread.CurrentThread.ManagedThreadId, delay);
 
                     // Only sleep the executing operation if a non-zero delay was chosen.
                     if (delay > 0)
@@ -1028,8 +1031,8 @@ namespace Microsoft.Coyote.Runtime
             op.ExecuteContinuations();
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                this.LogWriter.LogDebug("[coyote::debug] Completed operation '{0}' of group '{1}' on thread '{2}'.",
-                    op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                this.LogWriter.LogDebug("[coyote::debug] Completed operation {0} on thread '{1}'.",
+                    op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                 op.Status = OperationStatus.Completed;
             }
         }
@@ -1045,8 +1048,8 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (op.Status is OperationStatus.Completed)
                 {
-                    this.LogWriter.LogDebug("[coyote::debug] Resetting operation '{0}' of group '{1}' from thread '{2}'.",
-                        op.Name, op.Group, Thread.CurrentThread.ManagedThreadId);
+                    this.LogWriter.LogDebug("[coyote::debug] Resetting operation {0} from thread '{1}'.",
+                        op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
                     op.Status = OperationStatus.None;
                     if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
@@ -1244,8 +1247,7 @@ namespace Microsoft.Coyote.Runtime
                         this.TryEnableOperation(op);
                         if (previousStatus == op.Status)
                         {
-                            this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' has status '{2}'.",
-                                op.Name, op.Group, op.Status);
+                            this.LogWriter.LogDebug("[coyote::debug] Operation {0} has status '{1}'.", op.DebugInfo, op.Status);
                             if (op.IsPaused && op.IsDependencyUncontrolled)
                             {
                                 if (op.IsRoot)
@@ -1260,8 +1262,8 @@ namespace Microsoft.Coyote.Runtime
                         }
                         else
                         {
-                            this.LogWriter.LogDebug("[coyote::debug] Operation '{0}' of group '{1}' changed status from '{2}' to '{3}'.",
-                                op.Name, op.Group, previousStatus, op.Status);
+                            this.LogWriter.LogDebug("[coyote::debug] Operation {0} changed status from '{1}' to '{2}'.",
+                                op.DebugInfo, previousStatus, op.Status);
                             statusChanges++;
                         }
                     }
@@ -1400,6 +1402,9 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the currently executing <see cref="ControlledOperation"/>,
         /// or null if no such operation is executing.
         /// </summary>
+        /// <remarks>
+        /// Invoking this method checks if the current thread is uncontrolled or not.
+        /// </remarks>
         internal ControlledOperation GetExecutingOperation()
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
@@ -1418,6 +1423,9 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the currently executing <see cref="ControlledOperation"/> of the
         /// specified type, or null if no such operation is executing.
         /// </summary>
+        /// <remarks>
+        /// Invoking this method checks if the current thread is uncontrolled or not.
+        /// </remarks>
         internal TControlledOperation GetExecutingOperation<TControlledOperation>()
             where TControlledOperation : ControlledOperation
         {
@@ -1430,6 +1438,18 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 return op is TControlledOperation expected ? expected : default;
+            }
+        }
+
+        /// <summary>
+        /// Returns the currently executing <see cref="ControlledOperation"/>,
+        /// or null if no such operation is executing.
+        /// </summary>
+        internal ControlledOperation GetExecutingOperationUnsafe()
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                return ExecutingOperation;
             }
         }
 
@@ -1840,7 +1860,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (pausedOperations.Count > 0)
             {
-                for (int idx = 0; idx < pausedOperations.Count; idx++)
+                for (int idx = 0; idx < pausedOperations.Count; ++idx)
                 {
                     msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", pausedOperations[idx].Name));
                     if (idx == pausedOperations.Count - 2)
@@ -1859,7 +1879,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (pausedOnResources.Count > 0)
             {
-                for (int idx = 0; idx < pausedOnResources.Count; idx++)
+                for (int idx = 0; idx < pausedOnResources.Count; ++idx)
                 {
                     msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", pausedOnResources[idx].Name));
                     if (idx == pausedOnResources.Count - 2)
@@ -1879,7 +1899,7 @@ namespace Microsoft.Coyote.Runtime
 
             if (pausedOnReceiveOperations.Count > 0)
             {
-                for (int idx = 0; idx < pausedOnReceiveOperations.Count; idx++)
+                for (int idx = 0; idx < pausedOnReceiveOperations.Count; ++idx)
                 {
                     msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", pausedOnReceiveOperations[idx].Name));
                     if (idx == pausedOnReceiveOperations.Count - 2)
@@ -2364,7 +2384,7 @@ namespace Microsoft.Coyote.Runtime
 #else
             string[] lines = exception.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 #endif
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 0; i < lines.Length; ++i)
             {
                 if (lines[i].StartsWith("   at Microsoft.Coyote.Rewriting", StringComparison.Ordinal))
                 {
@@ -2537,6 +2557,9 @@ namespace Microsoft.Coyote.Runtime
                     this.LogWriter.LogInfo("[coyote::test] Exploration finished in runtime '{0}' [found a bug using the '{1}' strategy].",
                         this.Id, this.Scheduler.GetStrategyName());
                 }
+
+                // Register the explored execution path for coverage.
+                this.CoverageInfo.DeclareExploredExecutionPath(this.Scheduler.Trace.ToString());
 
                 this.ExecutionStatus = status;
                 this.CancellationSource.Cancel();

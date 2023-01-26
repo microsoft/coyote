@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 if (this.MaxDelaysPerIteration > 0)
                 {
                     var delays = this.RandomValueGenerator.Next(this.MaxDelaysPerIteration) + 1;
-                    for (int i = 0; i < delays; i++)
+                    for (int i = 0; i < delays; ++i)
                     {
                         this.DelayPoints.Add(this.RandomValueGenerator.Next(this.MaxDelayPoints + 1));
                     }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("[coyote::strategy] Updated operation group round-robin list: ");
-                for (int idx = 0; idx < this.OperationGroups.Count; idx++)
+                for (int idx = 0; idx < this.OperationGroups.Count; ++idx)
                 {
                     var group = this.OperationGroups[idx];
                     if (group.Any(m => m.Status is OperationStatus.Enabled))

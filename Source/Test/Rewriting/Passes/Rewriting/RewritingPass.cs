@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (method.Name == name && method.Parameters.Count == parameterTypes.Length)
                 {
                     bool isMatch = true;
-                    for (int i = 0; isMatch && i < method.Parameters.Count; i++)
+                    for (int i = 0; isMatch && i < method.Parameters.Count; ++i)
                     {
                         var left = parameterTypes[i];
                         var right = method.Parameters[i].ParameterType;

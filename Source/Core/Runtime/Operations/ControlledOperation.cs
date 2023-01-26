@@ -23,6 +23,11 @@ namespace Microsoft.Coyote.Runtime
         internal ulong Id { get; }
 
         /// <summary>
+        /// The creation sequence id of this operation.
+        /// </summary>
+        internal ulong SequenceId { get; }
+
+        /// <summary>
         /// The name of this operation.
         /// </summary>
         internal string Name { get; }
@@ -38,6 +43,11 @@ namespace Microsoft.Coyote.Runtime
         /// by the scheduler to optimize exploration.
         /// </summary>
         internal readonly OperationGroup Group;
+
+        /// <summary>
+        /// The creation sequence of this operation.
+        /// </summary>
+        private readonly List<ulong> Sequence;
 
         /// <summary>
         /// Queue of continuations that this operation must execute before it completes.
@@ -78,6 +88,11 @@ namespace Microsoft.Coyote.Runtime
         internal IEqualityComparer<string> LastAccessedSharedStateComparer;
 
         /// <summary>
+        /// The count of operations created by this operation.
+        /// </summary>
+        internal ulong OperationCreationCount;
+
+        /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
@@ -86,6 +101,11 @@ namespace Microsoft.Coyote.Runtime
         /// True if the dependency is uncontrolled, else false.
         /// </summary>
         internal bool IsDependencyUncontrolled;
+
+        /// <summary>
+        /// The debug information of this operation.
+        /// </summary>
+        internal string DebugInfo { get; }
 
         /// <summary>
         /// True if this is the root operation, else false.
@@ -117,8 +137,26 @@ namespace Microsoft.Coyote.Runtime
             this.LastHashedProgramState = 0;
             this.LastAccessedSharedState = string.Empty;
             this.LastAccessedSharedStateComparer = null;
+            this.OperationCreationCount = 0;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
+
+            // Only compute the sequence if the runtime scheduler is controlled.
+            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
+            {
+                this.SequenceId = 0;
+            }
+            else
+            {
+                // If no parent operation is found, and this is not the root operation, then assign the root operation as the
+                // parent operation. This is just an approximation that is applied in the case of uncontrolled threads.
+                ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
+                this.Sequence = GetSequenceFromParent(operationId, parent);
+                this.SequenceId = this.GetSequenceHash();
+            }
+
+            // Set the debug information for this operation.
+            this.DebugInfo = $"'{this.Name}' with sequence id '{this.SequenceId}' and group id '{this.Group.Id}'";
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);
@@ -191,6 +229,45 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return this.Status is OperationStatus.Enabled;
+        }
+
+        /// <summary>
+        /// Returns the creation sequence based on the specified parent operation.
+        /// </summary>
+        private static List<ulong> GetSequenceFromParent(ulong operationId, ControlledOperation parent)
+        {
+            var sequence = new List<ulong>();
+            if (operationId is 0)
+            {
+                // If this is the root operation, then the sequence only contains the root operation itself.
+                sequence.Add(0);
+            }
+            else
+            {
+                sequence.AddRange(parent.Sequence);
+                sequence.Add(parent.OperationCreationCount);
+                parent.OperationCreationCount++;
+            }
+
+            return sequence;
+        }
+
+        /// <summary>
+        /// Returns the hash of the creation sequence.
+        /// </summary>
+        private ulong GetSequenceHash()
+        {
+            // Iterate the creation sequence and create a low collision rate hash.
+            ulong hash = (ulong)this.Sequence.Count;
+            foreach (ulong element in this.Sequence)
+            {
+                ulong seq = ((element >> 16) ^ element) * 0x45d9f3b;
+                seq = ((seq >> 16) ^ seq) * 0x45d9f3b;
+                seq = (seq >> 16) ^ seq;
+                hash ^= seq + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+
+            return hash;
         }
 
         /// <summary>

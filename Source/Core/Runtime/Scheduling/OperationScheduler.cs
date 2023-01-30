@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -227,10 +228,11 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
+        /// <param name="coverageInfo">Stores coverage data across multiple test iterations.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            bool isYielding, out ControlledOperation next)
+            bool isYielding, CoverageInfo coverageInfo, out ControlledOperation next)
         {
             // Filter out any operations that cannot be scheduled.
             var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
@@ -239,7 +241,7 @@ namespace Microsoft.Coyote.Runtime
                 // Invoke any installed schedule reducers.
                 foreach (var reducer in this.Reducers)
                 {
-                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current, coverageInfo);
                     if (reducedOps.Any())
                     {
                         enabledOps = reducedOps;

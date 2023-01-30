@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -16,7 +17,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="ops">All available operations to schedule.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="coverageInfo">Stores coverage data across multiple test iterations.</param>
         /// <returns>The subset of operations to schedule.</returns>
-        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current);
+        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, CoverageInfo coverageInfo);
     }
 }

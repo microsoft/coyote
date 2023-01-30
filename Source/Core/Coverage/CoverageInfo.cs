@@ -9,7 +9,7 @@ using System.Xml;
 namespace Microsoft.Coyote.Coverage
 {
     /// <summary>
-    /// Class for storing coverage-specific data across multiple testing iterations.
+    /// Class for storing coverage-specific data across multiple test iterations.
     /// </summary>
     [DataContract]
     public class CoverageInfo

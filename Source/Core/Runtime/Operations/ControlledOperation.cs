@@ -103,6 +103,11 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsDependencyUncontrolled;
 
         /// <summary>
+        /// The length of the creation sequence of this operation.
+        /// </summary>
+        internal int SequenceLength => this.Sequence?.Count ?? 0;
+
+        /// <summary>
         /// The debug information of this operation.
         /// </summary>
         internal string DebugInfo { get; }
@@ -153,6 +158,11 @@ namespace Microsoft.Coyote.Runtime
                 ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
                 this.Sequence = GetSequenceFromParent(operationId, parent);
                 this.SequenceId = this.GetSequenceHash();
+                if (this.SequenceLength > 100)
+                {
+                    this.Runtime.LogWriter.LogDebug("[coyote::debug] New operation {0} has '{1}' parents: {2}",
+                        this.Name, this.SequenceLength, new System.Diagnostics.StackTrace());
+                }
             }
 
             // Set the debug information for this operation.

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -20,7 +21,8 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops,
+            ControlledOperation current, CoverageInfo coverageInfo)
         {
             // Find all operations that are not invoking a 'READ' or 'WRITE' scheduling decision,
             // and if there are any, then return them. This effectively helps racy scheduling

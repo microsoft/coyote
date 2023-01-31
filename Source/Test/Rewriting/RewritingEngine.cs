@@ -133,6 +133,9 @@ namespace Microsoft.Coyote.Rewriting
             this.Passes.AddFirst(new MemberTypeRewritingPass(this.Options, assemblies, this.LogWriter));
             this.Passes.AddLast(new MethodBodyTypeRewritingPass(this.Options, assemblies, this.LogWriter));
 
+            // Add a pass that injects callbacks to the runtime for extracting call-site information.
+            this.Passes.AddLast(new CallSiteExtractionRewritingPass(assemblies, this.LogWriter));
+
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and

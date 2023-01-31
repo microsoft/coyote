@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -55,6 +56,11 @@ namespace Microsoft.Coyote.Rewriting
         protected internal readonly LogWriter LogWriter;
 
         /// <summary>
+        /// True if the currently visited type is a generated async state machine.
+        /// </summary>
+        protected bool IsAsyncStateMachineType { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Pass"/> class.
         /// </summary>
         protected Pass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
@@ -99,6 +105,8 @@ namespace Microsoft.Coyote.Rewriting
             this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
+            this.IsAsyncStateMachineType = type.Interfaces.Any(
+                i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
         }
 
         /// <summary>
@@ -124,6 +132,9 @@ namespace Microsoft.Coyote.Rewriting
             {
                 this.Processor = method.Body.GetILProcessor();
 
+                // Visit the method body.
+                this.VisitMethodBody(method.Body);
+
                 // Visit the method body variables.
                 foreach (var variable in method.Body.Variables.ToArray())
                 {
@@ -138,6 +149,15 @@ namespace Microsoft.Coyote.Rewriting
                     instruction = instruction.Next;
                 }
             }
+        }
+
+        /// <summary>
+        /// Visits the specified <see cref="MethodBody"/> inside the currently
+        /// visited <see cref="MethodDefinition"/>.
+        /// </summary>
+        /// <param name="body">The method body to visit.</param>
+        protected virtual void VisitMethodBody(MethodBody body)
+        {
         }
 
         /// <summary>

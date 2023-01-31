@@ -201,5 +201,18 @@ namespace Microsoft.Coyote.Runtime
 
             return false;
         }
+
+        /// <summary>
+        /// Registers the method invoked by the currently executing operation.
+        /// </summary>
+        public static void RegisterCallSite(string method)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                current.LastCallSite = method;
+            }
+        }
     }
 }

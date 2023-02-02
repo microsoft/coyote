@@ -2434,32 +2434,34 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 RuntimeProvider.Deregister(this.Id);
-
-                foreach (var op in this.OperationMap.Values)
+                using (SynchronizedSection.Enter(this.SyncObject))
                 {
-                    op.Dispose();
-                }
+                    foreach (var op in this.OperationMap.Values)
+                    {
+                        op.Dispose();
+                    }
 
-                this.ThreadPool.Clear();
-                this.OperationMap.Clear();
-                this.ControlledThreads.Clear();
-                this.ControlledTasks.Clear();
-                this.UncontrolledTasks.Clear();
-                this.UncontrolledInvocations.Clear();
+                    this.ThreadPool.Clear();
+                    this.OperationMap.Clear();
+                    this.ControlledThreads.Clear();
+                    this.ControlledTasks.Clear();
+                    this.UncontrolledTasks.Clear();
+                    this.UncontrolledInvocations.Clear();
 
-                this.DefaultActorExecutionContext.Dispose();
-                this.ControlledTaskScheduler.Dispose();
-                this.SyncContext.Dispose();
-                this.DeadlockMonitor.Dispose();
-                this.SpecificationMonitors.Clear();
-                this.TaskLivenessMonitors.Clear();
+                    this.DefaultActorExecutionContext.Dispose();
+                    this.ControlledTaskScheduler.Dispose();
+                    this.SyncContext.Dispose();
+                    this.DeadlockMonitor.Dispose();
+                    this.SpecificationMonitors.Clear();
+                    this.TaskLivenessMonitors.Clear();
 
-                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
-                {
-                    // Note: this makes it possible to run a Controlled unit test followed by a production
-                    // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
-                    // This does not solve mixing unit test type in parallel.
-                    Interlocked.Decrement(ref ExecutionControlledUseCount);
+                    if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                    {
+                        // Note: this makes it possible to run a Controlled unit test followed by a production
+                        // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
+                        // This does not solve mixing unit test type in parallel.
+                        Interlocked.Decrement(ref ExecutionControlledUseCount);
+                    }
                 }
             }
         }

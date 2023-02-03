@@ -278,7 +278,7 @@ The test succeeds.
 ..... Iteration #10
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
 ..... Number of scheduling decisions in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
 ... Elapsed 0.2354834 sec.

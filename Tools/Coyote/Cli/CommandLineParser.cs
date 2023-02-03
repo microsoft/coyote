@@ -411,6 +411,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.ExactlyOne
             };
 
+            var skipExecutionGraphAnalysisOption = new Option<bool>(
+                name: "--skip-execution-graph-analysis",
+                description: "Disable execution graph analysis during testing.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var skipPotentialDeadlocksOption = new Option<bool>(
                 name: "--skip-potential-deadlocks",
                 description: "Only report a deadlock when the runtime can fully determine that it is genuine " +
@@ -563,6 +570,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, maxFuzzDelayOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
+            this.AddOption(command, skipExecutionGraphAnalysisOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
@@ -1031,6 +1039,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "resolve-uncontrolled-concurrency-delay":
                         this.Configuration.UncontrolledConcurrencyResolutionDelay = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "skip-execution-graph-analysis":
+                        this.Configuration.IsExecutionGraphAnalysisEnabled = false;
                         break;
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;

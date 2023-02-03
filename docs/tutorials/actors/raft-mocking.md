@@ -54,7 +54,7 @@ Starting TestingProcessScheduler in process 34068
 ..... Writing .\Samples\bin\net7.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 1000 schedules: 0 fair and 1000 unfair.
 ..... Hit the max-steps bound of '200' in 100.00% of the unfair schedules.
 ... Elapsed 61.3283634 sec.

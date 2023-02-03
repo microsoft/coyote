@@ -111,6 +111,12 @@ namespace Microsoft.Coyote
         public uint MaxFuzzingDelay { get; internal set; }
 
         /// <summary>
+        /// If enabled, execution graph analysis is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsExecutionGraphAnalysisEnabled;
+
+        /// <summary>
         /// If enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -331,6 +337,7 @@ namespace Microsoft.Coyote
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
+            this.IsExecutionGraphAnalysisEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
@@ -592,6 +599,16 @@ namespace Microsoft.Coyote
         public Configuration WithMaxFuzzingDelay(uint delay)
         {
             this.MaxFuzzingDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with execution graph analysis is enabled enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then execution graph analysis is enabled.</param>
+        public Configuration WithExecutionGraphAnalysisEnabled(bool isEnabled = true)
+        {
+            this.IsExecutionGraphAnalysisEnabled = isEnabled;
             return this;
         }
 

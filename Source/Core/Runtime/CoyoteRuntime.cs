@@ -69,6 +69,11 @@ namespace Microsoft.Coyote.Runtime
         internal static bool IsExecutionControlled => ExecutionControlledUseCount > 0;
 
         /// <summary>
+        /// If true, the currently executing thread is inside the synchronized section of the runtime.
+        /// </summary>
+        internal static bool IsExecutionSynchronized => SynchronizedSection.IsSynchronized();
+
+        /// <summary>
         /// Count of controlled execution runtimes that have been used in this process.
         /// </summary>
         private static int ExecutionControlledUseCount;
@@ -916,6 +921,7 @@ namespace Microsoft.Coyote.Runtime
                 this.CheckIfSchedulingStepsBoundIsReached();
 
                 // Update metadata related to this scheduling point.
+                current.ExecutionStepDepth++;
                 current.LastSchedulingPoint = type;
                 this.LastPostponedSchedulingPoint = null;
 
@@ -956,7 +962,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CoverageInfo.DeclareSchedulingPoint(type.ToString(), new StackTrace().ToString());
                 }
 
-                if (!this.Scheduler.GetNextOperation(ops, current, isYielding, this.CoverageInfo, out ControlledOperation next))
+                if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
                 {
                     // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);
@@ -1540,7 +1546,7 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                if (this.Configuration.IsImplicitProgramStateHashingEnabled)
+                // if (this.Configuration.IsImplicitProgramStateHashingEnabled)
                 {
                     foreach (var operation in this.GetRegisteredOperations())
                     {
@@ -1561,10 +1567,11 @@ namespace Microsoft.Coyote.Runtime
                         customHash *= 31 + func();
                     }
 
-                    this.CoverageInfo.DeclareVisitedState(customHash);
+                    // this.CoverageInfo.DeclareVisitedState(customHash);
                     hash *= 31 + customHash;
                 }
 
+                this.CoverageInfo.DeclareVisitedState(hash);
                 return hash;
             }
         }

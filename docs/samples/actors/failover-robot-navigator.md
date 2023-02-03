@@ -267,7 +267,7 @@ Starting TestingProcessScheduler in process 26236
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 34 schedules: 0 fair and 34 unfair.
 ..... Found 2.94% buggy schedules.
 ... Elapsed 0.6310144 sec.
@@ -284,7 +284,7 @@ see something like this:
            in hot state 'Busy' at the end of program execution.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
-<StrategyLog> Scheduling statistics:
+<StrategyLog> Exploration statistics:
 <StrategyLog> Explored 9 schedules: 0 fair and 9 unfair.
 <StrategyLog> Found 11.11% buggy schedules.
 ```
@@ -654,7 +654,7 @@ And now no bug will be found -- you should get result similar to this:
 ..... Iteration #1000
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 2000 schedules: 0 fair and 2000 unfair.
 ..... Hit the max-steps bound of '2000' in 8.55% of the unfair schedules.
 ... Elapsed 25.7423125 sec.

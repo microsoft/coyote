@@ -55,6 +55,11 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
+        /// Directed graph representing the execution as steps (edges) between operations (nodes).
+        /// </summary>
+        internal readonly ExecutionGraph Graph;
+
+        /// <summary>
         /// The trace explored in the current iteration.
         /// </summary>
         internal readonly ExecutionTrace Trace;
@@ -95,6 +100,7 @@ namespace Microsoft.Coyote.Runtime
             this.SchedulingPolicy = policy;
             this.PrefixTrace = prefixTrace;
             this.ValueGenerator = generator;
+            this.Graph = ExecutionGraph.Create();
             this.Trace = ExecutionTrace.Create();
 
             this.Portfolio = new LinkedList<Strategy>();
@@ -215,7 +221,14 @@ namespace Microsoft.Coyote.Runtime
                 this.Portfolio.RemoveFirst();
                 this.Portfolio.AddLast(strategy);
 
+                this.Graph.Clear();
                 this.Trace.Clear();
+            }
+
+            // Initialize any installed schedule reducers.
+            foreach (var reducer in this.Reducers)
+            {
+                reducer.InitializeNextIteration(iteration);
             }
 
             this.Strategy.LogWriter = logWriter;
@@ -228,11 +241,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
-        /// <param name="coverageInfo">Stores coverage data across multiple test iterations.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            bool isYielding, CoverageInfo coverageInfo, out ControlledOperation next)
+            bool isYielding, out ControlledOperation next)
         {
             // Filter out any operations that cannot be scheduled.
             var enabledOps = ops.Where(op => op.Status is OperationStatus.Enabled);
@@ -241,7 +253,7 @@ namespace Microsoft.Coyote.Runtime
                 // Invoke any installed schedule reducers.
                 foreach (var reducer in this.Reducers)
                 {
-                    var reducedOps = reducer.ReduceOperations(enabledOps, current, coverageInfo);
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
                     if (reducedOps.Any())
                     {
                         enabledOps = reducedOps;
@@ -252,6 +264,11 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
+                    if (this.Configuration.IsExecutionGraphAnalysisEnabled)
+                    {
+                        this.Graph.Add(current);
+                    }
+
                     this.Trace.AddSchedulingDecision(current, current.LastSchedulingPoint, next);
                     return true;
                 }

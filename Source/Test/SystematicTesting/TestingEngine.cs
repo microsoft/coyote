@@ -19,6 +19,7 @@ using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
+using Microsoft.Coyote.Visualization;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -528,6 +529,16 @@ namespace Microsoft.Coyote.SystematicTesting
                     string reproTracePath = Path.Combine(directory, fileName + ".trace");
                     File.WriteAllText(reproTracePath, this.ReproducibleTrace);
                     paths.Add(reproTracePath);
+                }
+
+                // Emits the trace in DOT format, if it exists.
+                if (this.Configuration.IsExecutionGraphAnalysisEnabled &&
+                    this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
+                {
+                    string visualTracePath = Path.Combine(directory, fileName + $".trace.gv");
+                    File.WriteAllText(visualTracePath, ExecutionGraphVisualizer.Visualize(
+                        this.Scheduler.Graph, ExecutionGraphVisualizer.Layout.Trace));
+                    paths.Add(visualTracePath);
                 }
             }
 

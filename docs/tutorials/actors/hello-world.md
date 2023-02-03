@@ -78,7 +78,7 @@ Starting TestingProcessScheduler in process 16432
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 2 schedules: 2 fair and 0 unfair.
 ..... Found 50.00% buggy schedules.
 ..... Number of scheduling decisions in fair terminating schedules: 23 (min), 30 (avg), 37 (max).

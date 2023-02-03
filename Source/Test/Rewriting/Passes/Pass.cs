@@ -56,6 +56,11 @@ namespace Microsoft.Coyote.Rewriting
         protected internal readonly LogWriter LogWriter;
 
         /// <summary>
+        /// True if the currently visited type is compiler generated.
+        /// </summary>
+        protected bool IsCompilerGeneratedType { get; private set; }
+
+        /// <summary>
         /// True if the currently visited type is a generated async state machine.
         /// </summary>
         protected bool IsAsyncStateMachineType { get; private set; }
@@ -105,6 +110,8 @@ namespace Microsoft.Coyote.Rewriting
             this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
+            this.IsCompilerGeneratedType = type.CustomAttributes.Any(
+                attr => attr.AttributeType.FullName == typeof(SystemCompiler.CompilerGeneratedAttribute).FullName);
             this.IsAsyncStateMachineType = type.Interfaces.Any(
                 i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
         }

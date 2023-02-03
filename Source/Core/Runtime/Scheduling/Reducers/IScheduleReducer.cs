@@ -13,12 +13,17 @@ namespace Microsoft.Coyote.Runtime
     internal interface IScheduleReducer
     {
         /// <summary>
+        /// Initializes the next iteration.
+        /// </summary>
+        /// <param name="iteration">The id of the next iteration.</param>
+        void InitializeNextIteration(uint iteration);
+
+        /// <summary>
         /// Returns a subset of all available operations to be scheduled at the next scheduling step.
         /// </summary>
         /// <param name="ops">All available operations to schedule.</param>
         /// <param name="current">The currently scheduled operation.</param>
-        /// <param name="coverageInfo">Stores coverage data across multiple test iterations.</param>
         /// <returns>The subset of operations to schedule.</returns>
-        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, CoverageInfo coverageInfo);
+        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current);
     }
 }

@@ -132,7 +132,7 @@ at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
 <TestLog> Exploration finished [found a bug using the 'random' strategy].
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
-<StrategyLog> Scheduling statistics:
+<StrategyLog> Exploration statistics:
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
 <StrategyLog> Number of scheduling decisions in fair terminating schedules: 

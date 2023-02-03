@@ -26,14 +26,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         protected override void VisitMethodBody(MethodBody body)
         {
-            if (this.Method is null || this.Method.IsConstructor)
+            if (this.IsCompilerGeneratedType || this.IsAsyncStateMachineType ||
+                this.Method is null || this.Method.IsConstructor || this.Method.IsGetter || this.Method.IsSetter)
             {
-                return;
-            }
-
-            if (this.IsAsyncStateMachineType && this.Method.Name != "MoveNext")
-            {
-                // For asynchronous state machine types, only instrument the 'MoveNext' method.
                 return;
             }
 

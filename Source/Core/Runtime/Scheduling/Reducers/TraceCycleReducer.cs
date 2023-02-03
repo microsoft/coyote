@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -28,8 +27,12 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops,
-            ControlledOperation current, CoverageInfo coverageInfo)
+        public void InitializeNextIteration(uint iteration)
+        {
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
             // Find all operations that perform 'WRITE' accesses.
             var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write).ToArray();

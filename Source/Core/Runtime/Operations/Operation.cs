@@ -207,11 +207,17 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public static void RegisterCallSite(string method)
         {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            // Make sure to skip this if the runtime is currently synchronized, else
+            // it can update the call site of the operation to a method invoked by
+            // the runtime rather than the user program.
+            if (!CoyoteRuntime.IsExecutionSynchronized)
             {
-                current.LastCallSite = method;
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                    runtime.TryGetExecutingOperation(out ControlledOperation current))
+                {
+                    current.VisitCallSite(method);
+                }
             }
         }
     }

@@ -177,8 +177,6 @@ namespace Microsoft.Coyote.Runtime
                 this.Sequence = GetSequenceFromParent(operationId, parent);
                 this.SequenceId = this.GetSequenceHash();
                 this.ParentId = operationId is 0 ? 0 : parent.Id;
-                this.Runtime.LogWriter.LogDebug("[coyote::debug] New operation {0} has '{1}' parents: {2}",
-                    this.Name, this.SequenceLength, new System.Diagnostics.StackTrace());
             }
 
             // Set the debug information for this operation.

@@ -1,6 +1,6 @@
 # TestReport.TotalExploredUnfairSteps property
 
-The total explored scheduling steps (across all testing iterations) in unfair tests.
+The total explored execution steps (across all testing iterations) in unfair tests.
 
 ```csharp
 public int TotalExploredUnfairSteps { get; }

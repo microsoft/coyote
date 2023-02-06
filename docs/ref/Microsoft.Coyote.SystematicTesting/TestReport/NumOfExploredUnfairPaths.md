@@ -1,9 +1,9 @@
-# TestReport.NumOfExploredUnfairSchedules property
+# TestReport.NumOfExploredUnfairPaths property
 
-Number of explored unfair schedules.
+Number of explored unfair execution paths.
 
 ```csharp
-public int NumOfExploredUnfairSchedules { get; }
+public int NumOfExploredUnfairPaths { get; }
 ```
 
 ## See Also

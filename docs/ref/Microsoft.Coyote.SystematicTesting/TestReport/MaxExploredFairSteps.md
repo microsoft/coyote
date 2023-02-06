@@ -1,6 +1,6 @@
 # TestReport.MaxExploredFairSteps property
 
-The max explored scheduling steps in fair tests.
+The max explored execution steps in fair tests.
 
 ```csharp
 public int MaxExploredFairSteps { get; }

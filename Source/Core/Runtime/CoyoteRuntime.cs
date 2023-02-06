@@ -69,6 +69,11 @@ namespace Microsoft.Coyote.Runtime
         internal static bool IsExecutionControlled => ExecutionControlledUseCount > 0;
 
         /// <summary>
+        /// If true, the currently executing thread is inside the synchronized section of the runtime.
+        /// </summary>
+        internal static bool IsExecutionSynchronized => SynchronizedSection.IsSynchronized();
+
+        /// <summary>
         /// Count of controlled execution runtimes that have been used in this process.
         /// </summary>
         private static int ExecutionControlledUseCount;
@@ -1561,10 +1566,10 @@ namespace Microsoft.Coyote.Runtime
                         customHash *= 31 + func();
                     }
 
-                    this.CoverageInfo.DeclareVisitedState(customHash);
                     hash *= 31 + customHash;
                 }
 
+                this.CoverageInfo.DeclareVisitedState(hash);
                 return hash;
             }
         }

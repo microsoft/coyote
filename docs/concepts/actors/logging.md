@@ -263,8 +263,8 @@ different things. The runtime will invoke each callback for every registered `IA
 For example, see the `ActorRuntimeLogGraphBuilder` class which implements `IActorRuntimeLog` and
 generates a directed graph representing all activities that happened during the execution of your
 actors. See [activity coverage](../../how-to/coverage.md) for an example graph output. The `coyote`
-test tool sets this up for you when you specify `--graph` or `--coverage activity` command line
-options.
+test tool sets this up for you when you specify `--actor-graph` or `--coverage activity` command
+line options.
 
 See [IActorRuntimeLog API documentation](../../ref/Microsoft.Coyote.Actors/IActorRuntimeLog.md).
 

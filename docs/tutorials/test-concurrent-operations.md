@@ -90,7 +90,7 @@ a bug very fast. This bug is caused due to a very similar race condition that ma
 ... Elapsed 0.1939681 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 3 schedules: 3 fair and 0 unfair.
 ..... Found 33.33% buggy schedules.
 ..... Number of scheduling decisions in fair terminating schedules: 24 (min), 27 (avg), 31 (max).
@@ -256,7 +256,7 @@ The test passed without reporting any bugs which gives you confidence in the cor
 ..... Iteration #100
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 100 schedules: 100 fair and 0 unfair.
 ..... Number of scheduling decisions in fair terminating schedules: 12 (min), 23 (avg), 35 (max).
 ... Elapsed 0.2443369 sec.

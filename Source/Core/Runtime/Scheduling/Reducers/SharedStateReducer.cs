@@ -34,6 +34,11 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
+        public void InitializeNextIteration(uint iteration)
+        {
+        }
+
+        /// <inheritdoc/>
         public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
         {
             // Find all operations that are not invoking a user-defined scheduling decision.

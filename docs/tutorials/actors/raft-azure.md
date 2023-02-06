@@ -239,7 +239,7 @@ In this tutorial you learned:
    machine design can be continually maintained in your code, and this way Coyote is ensuring design
    and implementation remain in sync over time.
 4. How to reserve an `ActorId` before creating an `Actor` using `CreateActorIdFromName`.
-5. How to great [DGML diagram](../../how-to/generate-dgml.md) of production runs by registering the
+5. How to generate visualizations of execution traces by registering the
    `ActorRuntimeLogGraphBuilder`.
 
 Now you need to be sure this `Server` protocol implementation is trustworthy, and for that you can

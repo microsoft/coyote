@@ -17,24 +17,24 @@ public class TestReport
 | [InternalErrors](TestReport/InternalErrors.md) { get; } | Set of internal errors. If no internal errors occurred, then this set is empty. |
 | [MaxConcurrencyDegree](TestReport/MaxConcurrencyDegree.md) { get; } | The max degree of concurrency. |
 | [MaxControlledOperations](TestReport/MaxControlledOperations.md) { get; } | The maximum number of controlled operations. |
-| [MaxExploredFairSteps](TestReport/MaxExploredFairSteps.md) { get; } | The max explored scheduling steps in fair tests. |
-| [MaxExploredUnfairSteps](TestReport/MaxExploredUnfairSteps.md) { get; } | The max explored scheduling steps in unfair tests. |
+| [MaxExploredFairSteps](TestReport/MaxExploredFairSteps.md) { get; } | The max explored execution steps in fair tests. |
+| [MaxExploredUnfairSteps](TestReport/MaxExploredUnfairSteps.md) { get; } | The max explored execution steps in unfair tests. |
 | [MaxFairStepsHitInFairTests](TestReport/MaxFairStepsHitInFairTests.md) { get; } | Number of times the fair max steps bound was hit in fair tests. |
 | [MaxOperationGroupingDegree](TestReport/MaxOperationGroupingDegree.md) { get; } | The maximum degree of operation grouping. |
 | [MaxUnfairStepsHitInFairTests](TestReport/MaxUnfairStepsHitInFairTests.md) { get; } | Number of times the unfair max steps bound was hit in fair tests. |
 | [MaxUnfairStepsHitInUnfairTests](TestReport/MaxUnfairStepsHitInUnfairTests.md) { get; } | Number of times the unfair max steps bound was hit in unfair tests. |
 | [MinConcurrencyDegree](TestReport/MinConcurrencyDegree.md) { get; } | The min degree of concurrency. |
 | [MinControlledOperations](TestReport/MinControlledOperations.md) { get; } | The minimum number of controlled operations. |
-| [MinExploredFairSteps](TestReport/MinExploredFairSteps.md) { get; } | The min explored scheduling steps in fair tests. |
-| [MinExploredUnfairSteps](TestReport/MinExploredUnfairSteps.md) { get; } | The min explored scheduling steps in unfair tests. |
+| [MinExploredFairSteps](TestReport/MinExploredFairSteps.md) { get; } | The min explored execution steps in fair tests. |
+| [MinExploredUnfairSteps](TestReport/MinExploredUnfairSteps.md) { get; } | The min explored execution steps in unfair tests. |
 | [MinOperationGroupingDegree](TestReport/MinOperationGroupingDegree.md) { get; } | The minimum degree of operation grouping. |
-| [NumOfExploredFairSchedules](TestReport/NumOfExploredFairSchedules.md) { get; } | Number of explored fair schedules. |
-| [NumOfExploredUnfairSchedules](TestReport/NumOfExploredUnfairSchedules.md) { get; } | Number of explored unfair schedules. |
+| [NumOfExploredFairPaths](TestReport/NumOfExploredFairPaths.md) { get; } | Number of explored fair execution paths. |
+| [NumOfExploredUnfairPaths](TestReport/NumOfExploredUnfairPaths.md) { get; } | Number of explored unfair execution paths. |
 | [NumOfFoundBugs](TestReport/NumOfFoundBugs.md) { get; } | Number of found bugs. |
 | [TotalConcurrencyDegree](TestReport/TotalConcurrencyDegree.md) { get; } | The total degree of concurrency (across all testing iterations). |
 | [TotalControlledOperations](TestReport/TotalControlledOperations.md) { get; } | The total number of controlled operations. |
-| [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored scheduling steps (across all testing iterations) in fair tests. |
-| [TotalExploredUnfairSteps](TestReport/TotalExploredUnfairSteps.md) { get; } | The total explored scheduling steps (across all testing iterations) in unfair tests. |
+| [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored execution steps (across all testing iterations) in fair tests. |
+| [TotalExploredUnfairSteps](TestReport/TotalExploredUnfairSteps.md) { get; } | The total explored execution steps (across all testing iterations) in unfair tests. |
 | [TotalOperationGroupingDegree](TestReport/TotalOperationGroupingDegree.md) { get; } | The total degree of operation grouping (across all testing iterations). |
 | [UncontrolledInvocations](TestReport/UncontrolledInvocations.md) { get; } | Set of uncontrolled invocations. |
 | [Clone](TestReport/Clone.md)() | Clones the test report. |

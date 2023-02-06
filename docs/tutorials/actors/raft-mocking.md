@@ -54,7 +54,7 @@ Starting TestingProcessScheduler in process 34068
 ..... Writing .\Samples\bin\net7.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 1000 schedules: 0 fair and 1000 unfair.
 ..... Hit the max-steps bound of '200' in 100.00% of the unfair schedules.
 ... Elapsed 61.3283634 sec.
@@ -100,9 +100,9 @@ every possible interleaving of asynchronous operations. This systematic approach
 doesn't just test the same happy paths over and over (like a stress test does) but instead it is
 more likely to find one bad path where a bug is hiding.
 
-The `--coverage` report also generates a [DGML diagram](../../how-to/generate-dgml.md) of all the
-messages sent during the test. You can browse these graphs using Visual Studio. The file name in
-this case is `Raft.Mocking.dgml` and it will look something like this:
+The `--coverage` report also generates a DGML diagram of all the messages sent during the test. You
+can browse these graphs using Visual Studio. The file name in this case is `Raft.Mocking.dgml` and
+it will look something like this:
 
 ![RaftMockCoverage](../../assets/images/RaftMockCoverage.svg)
 

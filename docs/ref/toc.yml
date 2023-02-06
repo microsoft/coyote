@@ -40,14 +40,20 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled
         - name: WithMaxFuzzingDelay
           link: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay
+        - name: WithTraceAnalysisEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithTraceAnalysisEnabled
         - name: WithCollectionAccessRaceCheckingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithCollectionAccessRaceCheckingEnabled
         - name: WithLockAccessRaceCheckingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
         - name: WithAtomicOperationRaceCheckingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled
-        - name: WithSharedStateReductionEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled
+        - name: WithExecutionTraceCycleReductionEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithExecutionTraceCycleReductionEnabled
+        - name: WithPartialOrderSamplingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithPartialOrderSamplingEnabled
+        - name: WithFailureOnMaxStepsBoundEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithFailureOnMaxStepsBoundEnabled
         - name: WithNoBugTraceRepro
           link: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro
         - name: WithMaxSchedulingSteps
@@ -72,10 +78,14 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithScheduleCoverageReported
         - name: WithCoverageInfoSerialized
           link: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized
-        - name: WithTraceVisualizationEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled
+        - name: WithActorTraceVisualizationEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled
         - name: WithXmlLogEnabled
           link: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled
+        - name: WithDgmlTraceVisualizationFormatEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithDgmlTraceVisualizationFormatEnabled
+        - name: WithGraphVizTraceVisualizationFormatEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithGraphVizTraceVisualizationFormatEnabled
         - name: WithTelemetryEnabled
           link: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled
         - name: Configuration
@@ -147,8 +157,12 @@ toc:
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo
         - name: SchedulingPointStackTraces
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces
+        - name: ExploredPaths
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths
         - name: VisitedStates
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates
+        - name: OperationSequenceIds
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/OperationSequenceIds
       - name: MonitorEventCoverage
         link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage
         subfolderitems:
@@ -379,6 +393,8 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/Operation/Complete
         - name: TryReset
           link: ref/Microsoft.Coyote.Runtime/Operation/TryReset
+        - name: RegisterCallSite
+          link: ref/Microsoft.Coyote.Runtime/Operation/RegisterCallSite
       - name: RuntimeProvider
         link: ref/Microsoft.Coyote.Runtime/RuntimeProvider
         subfolderitems:
@@ -1028,10 +1044,10 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
         - name: CoverageInfo
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
-        - name: NumOfExploredFairSchedules
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
-        - name: NumOfExploredUnfairSchedules
-          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
+        - name: NumOfExploredFairPaths
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairPaths
+        - name: NumOfExploredUnfairPaths
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairPaths
         - name: NumOfFoundBugs
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
         - name: BugReports

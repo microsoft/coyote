@@ -118,7 +118,7 @@ The test succeeds.
 ..... Iteration #10
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
 ..... Number of scheduling decisions in fair terminating schedules: 0 (min), 0 (avg), 0 (max).
 ... Elapsed 0.1182 sec.
@@ -179,7 +179,7 @@ This time the test immediately (and always) fails!
 ... Elapsed 0.0798435 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 1 schedule: 1 fair and 0 unfair.
 ..... Found 100.00% buggy schedules.
 ..... Number of scheduling decisions in fair terminating schedules: 5 (min), 5 (avg), 5 (max).
@@ -242,7 +242,7 @@ more precisely for your test. Build, rewrite and run the same test once again.
 ..... Iteration #10
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 10 schedules: 10 fair and 0 unfair.
 ..... Number of scheduling decisions in fair terminating schedules: 2 (min), 3 (avg), 6 (max).
 ... Elapsed 0.1560682 sec.
@@ -319,7 +319,7 @@ that the bug in `CreateAccount` is now triggered and the assertion fails!
 ... Elapsed 0.0902799 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 8 schedules: 8 fair and 0 unfair.
 ..... Found 12.50% buggy schedules.
 ..... Number of scheduling decisions in fair terminating schedules: 10 (min), 14 (avg), 23 (max).

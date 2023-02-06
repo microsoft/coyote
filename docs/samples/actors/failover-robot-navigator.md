@@ -267,7 +267,7 @@ Starting TestingProcessScheduler in process 26236
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 34 schedules: 0 fair and 34 unfair.
 ..... Found 2.94% buggy schedules.
 ... Elapsed 0.6310144 sec.
@@ -284,7 +284,7 @@ see something like this:
            in hot state 'Busy' at the end of program execution.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
-<StrategyLog> Scheduling statistics:
+<StrategyLog> Exploration statistics:
 <StrategyLog> Explored 9 schedules: 0 fair and 9 unfair.
 <StrategyLog> Found 11.11% buggy schedules.
 ```
@@ -468,10 +468,10 @@ Remember the last lines of the coyote test execution log file:
 liveness bug in hot state 'Busy' at the end of program execution.
 ```
 
-If you add to the coyote test command line `--graph`, and test again:
+If you add to the coyote test command line `--actor-graph`, and test again:
 
 ```plain
-coyote test .\Samples\bin\net7.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --graph
+coyote test .\Samples\bin\net7.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --actor-graph
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -654,7 +654,7 @@ And now no bug will be found -- you should get result similar to this:
 ..... Iteration #1000
 ... Testing statistics:
 ..... Found 0 bugs.
-... Scheduling statistics:
+... Exploration statistics:
 ..... Explored 2000 schedules: 0 fair and 2000 unfair.
 ..... Hit the max-steps bound of '2000' in 8.55% of the unfair schedules.
 ... Elapsed 25.7423125 sec.
@@ -677,7 +677,7 @@ In this tutorial you learned:
 1. How to do failover testing using a Coyote `FailoverDriver` state machine.
 2. How to use Coyote to test failover in a service.
 3. How to use `--strategy prioritization` testing to find tricky bugs.
-4. How to specify the `--graph` argument so that the coyote test tool would produce a snapshot-DGML
+4. How to specify the `--actor-graph` argument so that the coyote test tool would produce a snapshot-DGML
   diagram of the final state of the system when the bug was found.
 5. How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in
   handling common events in one place.

@@ -19,24 +19,11 @@ namespace Microsoft.Coyote.Rewriting
     internal class ExceptionFilterRewritingPass : RewritingPass
     {
         /// <summary>
-        /// True if the visited type is a generated async state machine.
-        /// </summary>
-        private bool IsAsyncStateMachineType;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionFilterRewritingPass"/> class.
         /// </summary>
         internal ExceptionFilterRewritingPass(IEnumerable<AssemblyInfo> visitedAssemblies, LogWriter logWriter)
             : base(visitedAssemblies, logWriter)
         {
-        }
-
-        /// <inheritdoc/>
-        protected internal override void VisitType(TypeDefinition type)
-        {
-            this.IsAsyncStateMachineType = type.Interfaces.Any(
-                i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
-            base.VisitType(type);
         }
 
         /// <inheritdoc/>
@@ -62,7 +49,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </remarks>
         internal void VisitExceptionHandler(ExceptionHandler handler)
         {
-            if ((this.IsAsyncStateMachineType && IsAsyncStateMachineHandler(handler)) ||
+            if ((this.IsAsyncStateMachineType && IsAsyncStateMachineExceptionHandler(handler)) ||
                 IsRethrowHandler(handler))
             {
                 // Do not instrument the compiler generated catch block of an async state machine,
@@ -178,9 +165,9 @@ namespace Microsoft.Coyote.Rewriting
             storeCode is Code.Stloc_3 && loadCode is Code.Ldloc_3;
 
         /// <summary>
-        /// Checks if the specified handler is generated for the async state machine.
+        /// Checks if the specified exception handler is generated for the async state machine.
         /// </summary>
-        private static bool IsAsyncStateMachineHandler(ExceptionHandler handler)
+        private static bool IsAsyncStateMachineExceptionHandler(ExceptionHandler handler)
         {
             Instruction instruction = handler.HandlerStart;
             while (instruction != handler.HandlerEnd)

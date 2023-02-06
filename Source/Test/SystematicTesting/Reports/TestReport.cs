@@ -418,7 +418,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             report.AppendLine();
-            report.AppendFormat("{0} Scheduling statistics:", prefix);
+            report.AppendFormat("{0} Exploration statistics:", prefix);
 
             int totalExploredPaths = this.NumOfExploredFairPaths +
                 this.NumOfExploredUnfairPaths;

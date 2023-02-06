@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Testing;
+using Microsoft.Coyote.Visualization;
 
 namespace Microsoft.Coyote.Cli
 {
@@ -320,10 +321,26 @@ namespace Microsoft.Coyote.Cli
             };
 
             var graphOption = new Option<bool>(
-                name: "--graph",
-                description: "Output a DGML graph that visualizes the failing execution path if a bug is found.")
+                name: "--actor-graph",
+                description: "Output a DGML graph that visualizes the failing actor execution path if a bug is found.")
             {
                 Arity = ArgumentArity.Zero
+            };
+
+            var allowedTraceFormats = new HashSet<string>
+            {
+                "dgml",
+                "graphviz"
+            };
+
+            var traceFormatOption = new Option<string>(
+                name: "--trace-format",
+                getDefaultValue: () => configuration.PortfolioMode.ToString().ToLower(),
+                description: "Set the format to be used for visualizing execution traces. " +
+                    $"Allowed values are {string.Join(", ", allowedTraceFormats)}.")
+            {
+                ArgumentHelpName = "FORMAT",
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var xmlLogOption = new Option<bool>(
@@ -409,6 +426,13 @@ namespace Microsoft.Coyote.Cli
             {
                 ArgumentHelpName = "DELAY",
                 Arity = ArgumentArity.ExactlyOne
+            };
+
+            var skipTraceAnalysisOption = new Option<bool>(
+                name: "--skip-trace-analysis",
+                description: "Disable execution graph analysis during testing.")
+            {
+                Arity = ArgumentArity.Zero
             };
 
             var skipPotentialDeadlocksOption = new Option<bool>(
@@ -526,6 +550,7 @@ namespace Microsoft.Coyote.Cli
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             serializeCoverageInfoOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, coverageOption));
+            traceFormatOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedTraceFormats));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -553,6 +578,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, scheduleCoverageOption);
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
+            this.AddOption(command, traceFormatOption);
             this.AddOption(command, xmlLogOption);
             this.AddOption(command, reduceExecutionTraceCyclesOption);
             this.AddOption(command, samplePartialOrdersOption);
@@ -563,6 +589,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, maxFuzzDelayOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
+            this.AddOption(command, skipTraceAnalysisOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
@@ -958,17 +985,7 @@ namespace Microsoft.Coyote.Cli
                         this.Configuration.StrategyBound = result.GetValueOrDefault<int>();
                         break;
                     case "portfolio-mode":
-                        switch (result.GetValueOrDefault<string>())
-                        {
-                            case "unfair":
-                                this.Configuration.PortfolioMode = PortfolioMode.Unfair;
-                                break;
-                            case "fair":
-                            default:
-                                this.Configuration.PortfolioMode = PortfolioMode.Fair;
-                                break;
-                        }
-
+                        this.Configuration.PortfolioMode = PortfolioModeExtensions.FromString(result.GetValueOrDefault<string>());
                         break;
                     case "max-steps":
                         this.Configuration.WithMaxSchedulingSteps((uint)result.GetValueOrDefault<int>());
@@ -998,8 +1015,11 @@ namespace Microsoft.Coyote.Cli
                     case "serialize-coverage":
                         this.Configuration.IsCoverageInfoSerialized = true;
                         break;
-                    case "graph":
-                        this.Configuration.IsTraceVisualizationEnabled = true;
+                    case "actor-graph":
+                        this.Configuration.IsActorTraceVisualizationEnabled = true;
+                        break;
+                    case "trace-format":
+                        this.Configuration.TraceVisualizationFormat = TraceFormatExtensions.FromString(result.GetValueOrDefault<string>());
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
@@ -1031,6 +1051,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "resolve-uncontrolled-concurrency-delay":
                         this.Configuration.UncontrolledConcurrencyResolutionDelay = (uint)result.GetValueOrDefault<int>();
+                        break;
+                    case "skip-trace-analysis":
+                        this.Configuration.IsTraceAnalysisEnabled = false;
                         break;
                     case "skip-potential-deadlocks":
                         this.Configuration.ReportPotentialDeadlocksAsBugs = false;

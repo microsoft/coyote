@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Testing.Fuzzing;
@@ -54,6 +55,11 @@ namespace Microsoft.Coyote.Runtime
         internal SchedulingPolicy SchedulingPolicy { get; private set; }
 
         /// <summary>
+        /// Directed graph representing the execution as steps (edges) between operations (nodes).
+        /// </summary>
+        internal readonly ExecutionGraph Graph;
+
+        /// <summary>
         /// The trace explored in the current iteration.
         /// </summary>
         internal readonly ExecutionTrace Trace;
@@ -94,6 +100,7 @@ namespace Microsoft.Coyote.Runtime
             this.SchedulingPolicy = policy;
             this.PrefixTrace = prefixTrace;
             this.ValueGenerator = generator;
+            this.Graph = ExecutionGraph.Create();
             this.Trace = ExecutionTrace.Create();
 
             this.Portfolio = new LinkedList<Strategy>();
@@ -214,7 +221,14 @@ namespace Microsoft.Coyote.Runtime
                 this.Portfolio.RemoveFirst();
                 this.Portfolio.AddLast(strategy);
 
+                this.Graph.Clear();
                 this.Trace.Clear();
+            }
+
+            // Initialize any installed schedule reducers.
+            foreach (var reducer in this.Reducers)
+            {
+                reducer.InitializeNextIteration(iteration);
             }
 
             this.Strategy.LogWriter = logWriter;
@@ -250,6 +264,11 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
+                    if (this.Configuration.IsTraceAnalysisEnabled)
+                    {
+                        this.Graph.Add(current);
+                    }
+
                     this.Trace.AddSchedulingDecision(current, current.LastSchedulingPoint, next);
                     return true;
                 }

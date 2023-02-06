@@ -28,6 +28,11 @@ namespace Microsoft.Coyote.Runtime
         internal ulong SequenceId { get; }
 
         /// <summary>
+        /// The unique id of the parent of this operation.
+        /// </summary>
+        internal ulong ParentId { get; }
+
+        /// <summary>
         /// The name of this operation.
         /// </summary>
         internal string Name { get; }
@@ -55,6 +60,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly Queue<Action> Continuations;
 
         /// <summary>
+        /// The list of visited call sites during execution of this operation.
+        /// </summary>
+        internal readonly List<string> VisitedCallSites;
+
+        /// <summary>
         /// Dependency that must get resolved before this operation can resume executing.
         /// </summary>
         private Func<bool> Dependency;
@@ -68,6 +78,12 @@ namespace Microsoft.Coyote.Runtime
         /// The type of the last encountered scheduling point.
         /// </summary>
         internal SchedulingPointType LastSchedulingPoint;
+
+        /// <summary>
+        /// The call site that was last executed by this operation.
+        /// </summary>
+        internal string LastCallSite => this.VisitedCallSites.Count is 0 ?
+            string.Empty : this.VisitedCallSites[this.VisitedCallSites.Count - 1];
 
         /// <summary>
         /// A value that represents the hashed program state when this operation last executed.
@@ -93,6 +109,16 @@ namespace Microsoft.Coyote.Runtime
         internal ulong OperationCreationCount;
 
         /// <summary>
+        /// The length of the creation sequence of this operation.
+        /// </summary>
+        internal int SequenceLength => this.Sequence?.Count ?? 0;
+
+        /// <summary>
+        /// True if this is the root operation, else false.
+        /// </summary>
+        internal bool IsRoot => this.Id is 0;
+
+        /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
         /// </summary>
         internal bool IsSourceUncontrolled;
@@ -103,16 +129,6 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsDependencyUncontrolled;
 
         /// <summary>
-        /// The debug information of this operation.
-        /// </summary>
-        internal string DebugInfo { get; }
-
-        /// <summary>
-        /// True if this is the root operation, else false.
-        /// </summary>
-        internal bool IsRoot => this.Id is 0;
-
-        /// <summary>
         /// True if this operation is currently paused, else false.
         /// </summary>
         internal bool IsPaused =>
@@ -120,6 +136,11 @@ namespace Microsoft.Coyote.Runtime
             this.Status is OperationStatus.PausedOnDelay ||
             this.Status is OperationStatus.PausedOnResource ||
             this.Status is OperationStatus.PausedOnReceive;
+
+        /// <summary>
+        /// The debug information of this operation.
+        /// </summary>
+        internal string DebugInfo { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
@@ -132,6 +153,7 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.None;
             this.Group = group ?? OperationGroup.Create(this);
             this.Continuations = new Queue<Action>();
+            this.VisitedCallSites = new List<string>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
@@ -145,6 +167,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
                 this.SequenceId = 0;
+                this.ParentId = 0;
             }
             else
             {
@@ -153,6 +176,7 @@ namespace Microsoft.Coyote.Runtime
                 ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
                 this.Sequence = GetSequenceFromParent(operationId, parent);
                 this.SequenceId = this.GetSequenceHash();
+                this.ParentId = operationId is 0 ? 0 : parent.Id;
             }
 
             // Set the debug information for this operation.
@@ -160,20 +184,6 @@ namespace Microsoft.Coyote.Runtime
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);
-        }
-
-        /// <summary>
-        /// Executes all continuations of this operation in order, if there are any.
-        /// </summary>
-        internal void ExecuteContinuations()
-        {
-            // New continuations can be added while executing a continuation,
-            // so keep executing them until the queue is drained.
-            while (this.Continuations.Count > 0)
-            {
-                var nextContinuation = this.Continuations.Dequeue();
-                nextContinuation();
-            }
         }
 
         /// <summary>
@@ -201,11 +211,6 @@ namespace Microsoft.Coyote.Runtime
         internal void Signal() => this.SyncEvent.Set();
 
         /// <summary>
-        /// Sets a callback that executes the next continuation of this operation.
-        /// </summary>
-        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
-
-        /// <summary>
         /// Pauses this operation and sets a callback that returns true when the
         /// dependency causing the pause has been resolved.
         /// </summary>
@@ -230,6 +235,30 @@ namespace Microsoft.Coyote.Runtime
 
             return this.Status is OperationStatus.Enabled;
         }
+
+        /// <summary>
+        /// Sets a callback that executes the next continuation of this operation.
+        /// </summary>
+        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
+
+        /// <summary>
+        /// Executes all continuations of this operation in order, if there are any.
+        /// </summary>
+        internal void ExecuteContinuations()
+        {
+            // New continuations can be added while executing a continuation,
+            // so keep executing them until the queue is drained.
+            while (this.Continuations.Count > 0)
+            {
+                var nextContinuation = this.Continuations.Dequeue();
+                nextContinuation();
+            }
+        }
+
+        /// <summary>
+        /// Registers the specified call site as visited.
+        /// </summary>
+        internal void VisitCallSite(string callSite) => this.VisitedCallSites.Add(callSite);
 
         /// <summary>
         /// Returns the creation sequence based on the specified parent operation.
@@ -273,7 +302,22 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the hashed state of this operation for the specified policy.
         /// </summary>
-        internal virtual int GetHashedState(SchedulingPolicy policy) => this.LastSchedulingPoint.GetHashCode();
+        internal virtual int GetHashedState(SchedulingPolicy policy)
+        {
+            unchecked
+            {
+                var hash = 19;
+                if (policy != SchedulingPolicy.None)
+                {
+                    hash = (hash * 31) + this.SequenceId.GetHashCode();
+                    hash = (hash * 31) + this.LastCallSite.GetHashCode();
+                    hash = (hash * 31) + this.LastSchedulingPoint.GetHashCode();
+                    hash = (hash * 31) + this.Status.GetHashCode();
+                }
+
+                return hash;
+            }
+        }
 
         /// <summary>
         /// Determines whether the specified object is equal to the current object.

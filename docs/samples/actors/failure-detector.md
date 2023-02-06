@@ -70,11 +70,11 @@ coyote replay ./Samples/bin/net7.0/Monitors.dll
 Attach a debugger during replay and you can see what exactly is going wrong.
 
 You might be wondering what the `Monitors` sample app is really doing. The `coyote` command line
-tool can help you with that also. If you run the following command line it will produce a [DGML
-diagram](../../how-to/generate-dgml.md) of the state machines that are being tested:
+tool can help you with that also. If you run the following command line it will produce a DGML
+diagram of the state machines that are being tested:
 
 ```plain
-coyote test ./Samples/bin/net7.0/Monitors.dll --iterations 10 --max-steps 20 --graph
+coyote test ./Samples/bin/net7.0/Monitors.dll --iterations 10 --max-steps 20 --actor-graph
 ```
 
 You will see the following output:

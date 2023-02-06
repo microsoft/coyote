@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Testing;
+using Microsoft.Coyote.Visualization;
 
 namespace Microsoft.Coyote
 {
@@ -109,6 +110,12 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public uint MaxFuzzingDelay { get; internal set; }
+
+        /// <summary>
+        /// If enabled, execution trace analysis is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsTraceAnalysisEnabled;
 
         /// <summary>
         /// If enabled, liveness checking is enabled during systematic testing.
@@ -295,13 +302,19 @@ namespace Microsoft.Coyote
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        internal bool IsTraceVisualizationEnabled;
+        internal bool IsActorTraceVisualizationEnabled;
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
         /// </summary>
         [DataMember]
         internal bool IsXmlLogEnabled;
+
+        /// <summary>
+        /// The format for visualizing execution traces.
+        /// </summary>
+        [DataMember]
+        internal TraceFormat TraceVisualizationFormat;
 
         /// <summary>
         /// If true, then anonymized telemetry is enabled, else false.
@@ -331,6 +344,7 @@ namespace Microsoft.Coyote
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
+            this.IsTraceAnalysisEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
@@ -359,8 +373,9 @@ namespace Microsoft.Coyote
             this.IsActivityCoverageReported = false;
             this.IsScheduleCoverageReported = false;
             this.IsCoverageInfoSerialized = false;
-            this.IsTraceVisualizationEnabled = false;
+            this.IsActorTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
+            this.TraceVisualizationFormat = TraceFormat.DGML;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -592,6 +607,16 @@ namespace Microsoft.Coyote
         public Configuration WithMaxFuzzingDelay(uint delay)
         {
             this.MaxFuzzingDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with execution trace analysis enabled enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then execution trace analysis is enabled.</param>
+        public Configuration WithTraceAnalysisEnabled(bool isEnabled = true)
+        {
+            this.IsTraceAnalysisEnabled = isEnabled;
             return this;
         }
 
@@ -853,14 +878,14 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with trace visualization enabled or disabled.
+        /// Updates the configuration with actor trace visualization enabled or disabled.
         /// If enabled, the testing engine can produce a visual graph representing
         /// an execution leading up to a bug.
         /// </summary>
-        /// <param name="isEnabled">If true, then enables trace visualization.</param>
-        public Configuration WithTraceVisualizationEnabled(bool isEnabled = true)
+        /// <param name="isEnabled">If true, then enables actor trace visualization.</param>
+        public Configuration WithActorTraceVisualizationEnabled(bool isEnabled = true)
         {
-            this.IsTraceVisualizationEnabled = isEnabled;
+            this.IsActorTraceVisualizationEnabled = isEnabled;
             return this;
         }
 
@@ -871,6 +896,24 @@ namespace Microsoft.Coyote
         public Configuration WithXmlLogEnabled(bool isEnabled = true)
         {
             this.IsXmlLogEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to use DGML formatting for execution trace visualization.
+        /// </summary>
+        public Configuration WithDgmlTraceVisualizationFormatEnabled()
+        {
+            this.TraceVisualizationFormat = TraceFormat.DGML;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration to use GraphViz formatting for execution trace visualization.
+        /// </summary>
+        public Configuration WithGraphVizTraceVisualizationFormatEnabled()
+        {
+            this.TraceVisualizationFormat = TraceFormat.GraphViz;
             return this;
         }
 

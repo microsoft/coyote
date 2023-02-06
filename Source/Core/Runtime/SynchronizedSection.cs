@@ -61,6 +61,11 @@ namespace Microsoft.Coyote.Runtime
             new SynchronizedSection(syncObject, false).InvokeAction();
 
         /// <summary>
+        /// Checks if the currently executing thread is inside the synchronized section.
+        /// </summary>
+        internal static bool IsSynchronized() => IsEntered;
+
+        /// <summary>
         /// Invokes the locking action on the synchronized section.
         /// </summary>
         private SynchronizedSection InvokeAction()

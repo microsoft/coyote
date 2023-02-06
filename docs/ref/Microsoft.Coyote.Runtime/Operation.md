@@ -18,6 +18,7 @@ public static class Operation
 | static [PauseUntilAsync](Operation/PauseUntilAsync.md)(…) | Asynchronously pauses the currently executing operation until the operation with the specified id completes. If *resumeAsynchronously* is set to true, then after the asynchronous pause, a new operation will be created to execute the continuation. |
 | static [PauseUntilCompleted](Operation/PauseUntilCompleted.md)(…) | Pauses the currently executing operation until the operation with the specified id completes. |
 | static [PauseUntilCompletedAsync](Operation/PauseUntilCompletedAsync.md)(…) | Asynchronously pauses the currently executing operation until the operation with the specified id completes. If *resumeAsynchronously* is set to true, then after the asynchronous pause, a new operation will be created to execute the continuation. |
+| static [RegisterCallSite](Operation/RegisterCallSite.md)(…) | Registers the method invoked by the currently executing operation. |
 | static [ScheduleNext](Operation/ScheduleNext.md)() | Schedules the next enabled operation, which can include the currently executing operation. |
 | static [Start](Operation/Start.md)(…) | Starts executing the operation with the specified id. |
 | static [TryReset](Operation/TryReset.md)(…) | Tries to reset the the operation with the specified id so that it can be reused. This is only allowed if the operation is already completed. |

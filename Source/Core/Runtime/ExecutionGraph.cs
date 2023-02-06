@@ -135,6 +135,11 @@ namespace Microsoft.Coyote.Runtime
                 {
                     callSite = operation.VisitedCallSites[lastVisitedCallSiteIndex - 1];
                 }
+                else if (operation.IsRoot)
+                {
+                    // This is the root operation, and has no known call sites so far, so assign a dummy 'Test' call site.
+                    callSite = "Test";
+                }
                 else
                 {
                     // This operation has not visited any call sites yet, so use the call site of its parent operation.

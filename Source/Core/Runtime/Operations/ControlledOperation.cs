@@ -109,12 +109,6 @@ namespace Microsoft.Coyote.Runtime
         internal ulong OperationCreationCount;
 
         /// <summary>
-        /// The count of execution steps invoked by this operation, which includes the
-        /// steps invoked by its parent operation at the time of creation.
-        /// </summary>
-        internal int ExecutionStepDepth;
-
-        /// <summary>
         /// The length of the creation sequence of this operation.
         /// </summary>
         internal int SequenceLength => this.Sequence?.Count ?? 0;
@@ -166,7 +160,6 @@ namespace Microsoft.Coyote.Runtime
             this.LastAccessedSharedState = string.Empty;
             this.LastAccessedSharedStateComparer = null;
             this.OperationCreationCount = 0;
-            this.ExecutionStepDepth = 0;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
 
@@ -184,8 +177,6 @@ namespace Microsoft.Coyote.Runtime
                 this.Sequence = GetSequenceFromParent(operationId, parent);
                 this.SequenceId = this.GetSequenceHash();
                 this.ParentId = operationId is 0 ? 0 : parent.Id;
-                // this.LastCallSite = operationId is 0 ? string.Empty : parent.LastCallSite;
-                this.ExecutionStepDepth = operationId is 0 ? 0 : parent.ExecutionStepDepth + 1;
                 this.Runtime.LogWriter.LogDebug("[coyote::debug] New operation {0} has '{1}' parents: {2}",
                     this.Name, this.SequenceLength, new System.Diagnostics.StackTrace());
             }

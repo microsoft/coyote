@@ -921,7 +921,6 @@ namespace Microsoft.Coyote.Runtime
                 this.CheckIfSchedulingStepsBoundIsReached();
 
                 // Update metadata related to this scheduling point.
-                current.ExecutionStepDepth++;
                 current.LastSchedulingPoint = type;
                 this.LastPostponedSchedulingPoint = null;
 
@@ -1546,7 +1545,7 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-                // if (this.Configuration.IsImplicitProgramStateHashingEnabled)
+                if (this.Configuration.IsImplicitProgramStateHashingEnabled)
                 {
                     foreach (var operation in this.GetRegisteredOperations())
                     {
@@ -1567,7 +1566,6 @@ namespace Microsoft.Coyote.Runtime
                         customHash *= 31 + func();
                     }
 
-                    // this.CoverageInfo.DeclareVisitedState(customHash);
                     hash *= 31 + customHash;
                 }
 

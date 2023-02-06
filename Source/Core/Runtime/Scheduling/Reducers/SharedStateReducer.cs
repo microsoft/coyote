@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Runtime
 {

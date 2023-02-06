@@ -72,9 +72,9 @@ activity`, you must specify `--coverage activity-debug` explicitly.
 
 ### Activity coverage visualization example
 
-The activity coverage can additionally be displayed in [DGML diagram](generate-dgml.md) format. Run
-`coyote` as described in the [`coyote` examples](#coyote-test-examples) section below. This produces
-a file in the DGML format as described in the [activity coverage output
+The activity coverage can additionally be displayed in [DGML](https://en.wikipedia.org/wiki/DGML)
+format. Run `coyote` as described in the [`coyote` examples](#coyote-test-examples) section below.
+This produces a file in the DGML format as described in the [activity coverage output
 files](#activity-coverage-output-files) section. Open the file using Visual Studio. It captures
 machines, states and transitions witnessed during the testing of the program. The file also contains
 inter-machine transitions. These transitions are usually auto-hidden when opened in Visual Studio,

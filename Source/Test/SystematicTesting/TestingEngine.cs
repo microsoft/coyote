@@ -516,13 +516,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(xmlPath);
                 }
 
-                if (this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
-                {
-                    string graphPath = Path.Combine(directory, fileName + ".trace.dgml");
-                    this.LastCoverageGraph.SaveDgml(graphPath, true);
-                    paths.Add(graphPath);
-                }
-
                 // Emits the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
@@ -531,14 +524,24 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(reproTracePath);
                 }
 
-                // Emits the trace in DOT format, if it exists.
-                if (this.Configuration.IsExecutionGraphAnalysisEnabled &&
+                // Emits the trace visualization, if it exists.
+                if (this.Configuration.IsTraceAnalysisEnabled &&
                     this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
                 {
-                    string visualTracePath = Path.Combine(directory, fileName + $".trace.gv");
-                    File.WriteAllText(visualTracePath, ExecutionGraphVisualizer.Visualize(
-                        this.Scheduler.Graph, ExecutionGraphVisualizer.Layout.Trace));
+                    string format = TraceFormatExtensions.GetFileExtension(this.Configuration.TraceVisualizationFormat);
+                    string visualTracePath = Path.Combine(directory, fileName + $".trace.{format}");
+                    File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph,
+                        this.Configuration.TraceVisualizationFormat, TraceVisualizer.Layout.Trace));
                     paths.Add(visualTracePath);
+                }
+
+                if (this.Configuration.IsActorTraceVisualizationEnabled &&
+                    this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                {
+                    // TODO: combine with the new ExecutionGraphVisualizer capability.
+                    string graphPath = Path.Combine(directory, fileName + ".actors.trace.dgml");
+                    this.LastCoverageGraph.SaveDgml(graphPath, true);
+                    paths.Add(graphPath);
                 }
             }
 
@@ -676,7 +679,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void InitializeCustomActorLogging(IActorRuntime runtime)
         {
-            if (this.Configuration.IsTraceVisualizationEnabled)
+            if (this.Configuration.IsActorTraceVisualizationEnabled)
             {
                 // Registers an activity coverage graph builder.
                 runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false, false));

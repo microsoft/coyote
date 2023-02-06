@@ -189,11 +189,11 @@ You can now use [coyote test](../../get-started/using-coyote.md) to exercise the
 can be found. From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net7.0/CoffeeMachineActors.dll -i 100 -ms 2000 -s prioritization -sv 10 --graph
+coyote test ./Samples/bin/net7.0/CoffeeMachineActors.dll -i 100 -ms 2000 -s prioritization -sv 10 --actor-graph
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
-that a test output log and [DGML diagram](../../how-to/generate-dgml.md) are produced, like this:
+that a test output log and a DGML diagram are produced, like this:
 
 ```plain
 .\Samples\bin\net7.0\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt

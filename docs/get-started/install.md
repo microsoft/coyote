@@ -26,7 +26,6 @@ Additionally, you can **optionally** install:
 - [Visual Studio Code](https://code.visualstudio.com/Download), which is cross-platform.
 - [Visual Studio 2022](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
 if you are on Windows.
-- The [DGML editor](../how-to/generate-dgml.md) feature of Visual Studio 2022.
 
 ### Installing the Coyote NuGet packages
 

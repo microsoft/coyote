@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Runtime
                 if (this.Strategy is InterleavingStrategy strategy &&
                     strategy.GetNextOperation(enabledOps, current, isYielding, out next))
                 {
-                    if (this.Configuration.IsExecutionGraphAnalysisEnabled)
+                    if (this.Configuration.IsTraceAnalysisEnabled)
                     {
                         this.Graph.Add(current);
                     }

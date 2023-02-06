@@ -81,9 +81,7 @@ class. Use the `With*` helper methods to set the various configurations, for exa
 var config = Configuration.Create().WithPrioritizationStrategy(false, 10);
 ```
 
-For `--iterations` use `WithTestingIterations`. The `--graph` option maps to the `Configuration`
-method `WithDgmlGraphEnabled`, while the `--coverage` option maps to `WithActivityCoverageEnabled`.
-The `--xml-trace` option becomes `WithXmlLogEnabled` and so on.
+For `--iterations` use `WithTestingIterations` and so on.
 
 If you want the rich Coyote log files, you can use the `TryEmitTraces` method on the `TestingEngine`
 to produce those log files in the folder of your choice like this:
@@ -241,7 +239,7 @@ class MyActor : Actor
 ```
 
 If you run this test setting `WithXmlLogEnabled(true)` on the `Configuration` you will get the
-following [DGML diagram](generate-dgml.md) showing you what happened during this test:
+following DGML diagram showing you what happened during this test:
 
 ![unittest](../assets/images/unittest.svg)
 

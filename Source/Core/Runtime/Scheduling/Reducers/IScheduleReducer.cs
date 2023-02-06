@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Runtime
 {

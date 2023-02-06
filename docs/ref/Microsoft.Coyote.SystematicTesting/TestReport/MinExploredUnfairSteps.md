@@ -1,6 +1,6 @@
 # TestReport.MinExploredUnfairSteps property
 
-The min explored scheduling steps in unfair tests.
+The min explored execution steps in unfair tests.
 
 ```csharp
 public int MinExploredUnfairSteps { get; }

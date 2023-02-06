@@ -120,10 +120,13 @@ nav:
         - WithSystematicFuzzingEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingEnabled.md
         - WithSystematicFuzzingFallbackEnabled: ref/Microsoft.Coyote/Configuration/WithSystematicFuzzingFallbackEnabled.md
         - WithMaxFuzzingDelay: ref/Microsoft.Coyote/Configuration/WithMaxFuzzingDelay.md
+        - WithTraceAnalysisEnabled: ref/Microsoft.Coyote/Configuration/WithTraceAnalysisEnabled.md
         - WithCollectionAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithCollectionAccessRaceCheckingEnabled.md
         - WithLockAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled.md
         - WithAtomicOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled.md
-        - WithSharedStateReductionEnabled: ref/Microsoft.Coyote/Configuration/WithSharedStateReductionEnabled.md
+        - WithExecutionTraceCycleReductionEnabled: ref/Microsoft.Coyote/Configuration/WithExecutionTraceCycleReductionEnabled.md
+        - WithPartialOrderSamplingEnabled: ref/Microsoft.Coyote/Configuration/WithPartialOrderSamplingEnabled.md
+        - WithFailureOnMaxStepsBoundEnabled: ref/Microsoft.Coyote/Configuration/WithFailureOnMaxStepsBoundEnabled.md
         - WithNoBugTraceRepro: ref/Microsoft.Coyote/Configuration/WithNoBugTraceRepro.md
         - WithMaxSchedulingSteps: ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps.md
         - WithLivenessTemperatureThreshold: ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold.md
@@ -136,8 +139,10 @@ nav:
         - WithActivityCoverageReported: ref/Microsoft.Coyote/Configuration/WithActivityCoverageReported.md
         - WithScheduleCoverageReported: ref/Microsoft.Coyote/Configuration/WithScheduleCoverageReported.md
         - WithCoverageInfoSerialized: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized.md
-        - WithTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithTraceVisualizationEnabled.md
+        - WithActorTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
+        - WithDgmlTraceVisualizationFormatEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlTraceVisualizationFormatEnabled.md
+        - WithGraphVizTraceVisualizationFormatEnabled: ref/Microsoft.Coyote/Configuration/WithGraphVizTraceVisualizationFormatEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
         - Configuration: ref/Microsoft.Coyote/Configuration/Configuration.md
         - TestingIterations: ref/Microsoft.Coyote/Configuration/TestingIterations.md
@@ -175,7 +180,9 @@ nav:
         - RegisteredMonitorEvents: ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredMonitorEvents.md
         - MonitorEventInfo: ref/Microsoft.Coyote.Coverage/CoverageInfo/MonitorEventInfo.md
         - SchedulingPointStackTraces: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces.md
+        - ExploredPaths: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths.md
         - VisitedStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates.md
+        - OperationSequenceIds: ref/Microsoft.Coyote.Coverage/CoverageInfo/OperationSequenceIds.md
       - MonitorEventCoverage:
         - Overview: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage.md
         - GetEventsProcessed: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed.md
@@ -300,6 +307,7 @@ nav:
         - ScheduleNext: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext.md
         - Complete: ref/Microsoft.Coyote.Runtime/Operation/Complete.md
         - TryReset: ref/Microsoft.Coyote.Runtime/Operation/TryReset.md
+        - RegisterCallSite: ref/Microsoft.Coyote.Runtime/Operation/RegisterCallSite.md
       - RuntimeProvider:
         - Overview: ref/Microsoft.Coyote.Runtime/RuntimeProvider.md
         - Current: ref/Microsoft.Coyote.Runtime/RuntimeProvider/Current.md
@@ -656,8 +664,8 @@ nav:
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport.md
         - Configuration: ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration.md
         - CoverageInfo: ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo.md
-        - NumOfExploredFairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules.md
-        - NumOfExploredUnfairSchedules: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules.md
+        - NumOfExploredFairPaths: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairPaths.md
+        - NumOfExploredUnfairPaths: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairPaths.md
         - NumOfFoundBugs: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs.md
         - BugReports: ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports.md
         - UncontrolledInvocations: ref/Microsoft.Coyote.SystematicTesting/TestReport/UncontrolledInvocations.md

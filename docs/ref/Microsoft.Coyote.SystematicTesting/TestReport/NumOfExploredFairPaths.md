@@ -1,9 +1,9 @@
-# TestReport.NumOfExploredFairSchedules property
+# TestReport.NumOfExploredFairPaths property
 
-Number of explored fair schedules.
+Number of explored fair execution paths.
 
 ```csharp
-public int NumOfExploredFairSchedules { get; }
+public int NumOfExploredFairPaths { get; }
 ```
 
 ## See Also

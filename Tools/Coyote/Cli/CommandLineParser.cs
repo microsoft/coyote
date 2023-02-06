@@ -428,8 +428,8 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.ExactlyOne
             };
 
-            var skipExecutionGraphAnalysisOption = new Option<bool>(
-                name: "--skip-execution-graph-analysis",
+            var skipTraceAnalysisOption = new Option<bool>(
+                name: "--skip-trace-analysis",
                 description: "Disable execution graph analysis during testing.")
             {
                 Arity = ArgumentArity.Zero
@@ -589,7 +589,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, maxFuzzDelayOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionAttemptsOption);
             this.AddOption(command, uncontrolledConcurrencyResolutionDelayOption);
-            this.AddOption(command, skipExecutionGraphAnalysisOption);
+            this.AddOption(command, skipTraceAnalysisOption);
             this.AddOption(command, skipPotentialDeadlocksOption);
             this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);

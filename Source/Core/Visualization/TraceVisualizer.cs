@@ -113,16 +113,17 @@ namespace Microsoft.Coyote.Visualization
                         // Cache the node to avoid repeating it.
                         nodeCache.Add(node.CallSite);
 
+                        string callSite = FormatToken(node.CallSite, format);
                         if (format is TraceFormat.DGML)
                         {
-                            dgmlClusteringLinks.Add($"Source='{operationName}' Target='{operationName}.{node.CallSite}'");
-                            sb.AppendLine($"    <Node Id='{operationName}.{node.CallSite}' Label='{node.CallSite}'/>");
+                            dgmlClusteringLinks.Add($"Source='{operationName}' Target='{operationName}.{callSite}'");
+                            sb.AppendLine($"    <Node Id='{operationName}.{callSite}' Label='{callSite}'/>");
                         }
                         else if (format is TraceFormat.GraphViz)
                         {
-                            string nodeName = $"{node.CallSite}({operation})";
+                            string nodeName = $"{callSite}({operation})";
                             string attributes = $"style=filled,color=white,shape=rect";
-                            sb.AppendLine($"    \"{nodeName}\" [{attributes},label=\"{node.CallSite}\"];");
+                            sb.AppendLine($"    \"{nodeName}\" [{attributes},label=\"{callSite}\"];");
                         }
                     }
                 }
@@ -233,6 +234,9 @@ namespace Microsoft.Coyote.Visualization
                 }
             }
 
+            source = FormatToken(source, format);
+            target = FormatToken(target, format);
+
             string edgeStmt = format is TraceFormat.DGML ? $"Source='{source}' Target='{target}'" : $"\"{source}\" -> \"{target}\"";
             if (cache.Contains(edgeStmt))
             {
@@ -316,6 +320,19 @@ namespace Microsoft.Coyote.Visualization
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Formats the specified token for the given visualization format.
+        /// </summary>
+        private static string FormatToken(string token, TraceFormat format)
+        {
+            if (format is TraceFormat.DGML)
+            {
+                return token.Replace("<", "&lt;").Replace(">", "&gt;");
+            }
+
+            return token;
         }
 
         /// <summary>

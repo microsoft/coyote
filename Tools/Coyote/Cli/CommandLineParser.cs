@@ -327,22 +327,6 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var allowedTraceFormats = new HashSet<string>
-            {
-                "dgml",
-                "graphviz"
-            };
-
-            var traceFormatOption = new Option<string>(
-                name: "--trace-format",
-                getDefaultValue: () => configuration.PortfolioMode.ToString().ToLower(),
-                description: "Set the format to be used for visualizing execution traces. " +
-                    $"Allowed values are {string.Join(", ", allowedTraceFormats)}.")
-            {
-                ArgumentHelpName = "FORMAT",
-                Arity = ArgumentArity.ExactlyOne
-            };
-
             var xmlLogOption = new Option<bool>(
                 name: "--xml-trace",
                 description: "Output an XML formatted runtime log file.")
@@ -550,7 +534,6 @@ namespace Microsoft.Coyote.Cli
             maxUnfairStepsOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             maxUnfairStepsOption.AddValidator(result => ValidateExclusiveOptionValueIsAvailable(result, maxStepsOption));
             serializeCoverageInfoOption.AddValidator(result => ValidatePrerequisiteOptionValueIsAvailable(result, coverageOption));
-            traceFormatOption.AddValidator(result => ValidateOptionValueIsAllowed(result, allowedTraceFormats));
             seedOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             livenessTemperatureThresholdOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
             timeoutDelayOption.AddValidator(result => ValidateOptionValueIsUnsignedInteger(result));
@@ -578,7 +561,6 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, scheduleCoverageOption);
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
-            this.AddOption(command, traceFormatOption);
             this.AddOption(command, xmlLogOption);
             this.AddOption(command, reduceExecutionTraceCyclesOption);
             this.AddOption(command, samplePartialOrdersOption);
@@ -1017,9 +999,6 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "actor-graph":
                         this.Configuration.IsActorTraceVisualizationEnabled = true;
-                        break;
-                    case "trace-format":
-                        this.Configuration.TraceVisualizationFormat = TraceFormatExtensions.FromString(result.GetValueOrDefault<string>());
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;

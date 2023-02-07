@@ -498,7 +498,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var paths = new List<string>();
             if (!this.Configuration.RunTestIterationsToCompletion)
             {
-                // Emits the human readable trace, if it exists.
+                // Emit the human readable trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReadableTrace))
                 {
                     string readableTracePath = Path.Combine(directory, fileName + ".txt");
@@ -516,7 +516,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(xmlPath);
                 }
 
-                // Emits the reproducible trace, if it exists.
+                // Emit the reproducible trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
                     string reproTracePath = Path.Combine(directory, fileName + ".trace");
@@ -524,14 +524,12 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(reproTracePath);
                 }
 
-                // Emits the trace visualization, if it exists.
+                // Emit the trace visualization, if it exists.
                 if (this.Configuration.IsTraceAnalysisEnabled &&
                     this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
                 {
-                    string format = TraceFormatExtensions.GetFileExtension(this.Configuration.TraceVisualizationFormat);
-                    string visualTracePath = Path.Combine(directory, fileName + $".trace.{format}");
-                    File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph,
-                        this.Configuration.TraceVisualizationFormat, TraceVisualizer.Layout.Trace));
+                    string visualTracePath = Path.Combine(directory, fileName + ".trace.dgml");
+                    File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Trace));
                     paths.Add(visualTracePath);
                 }
 
@@ -545,7 +543,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            // Emits the uncontrolled invocations report, if it exists.
+            // Emit the uncontrolled invocations report, if it exists.
             if (this.TestReport.UncontrolledInvocations.Count > 0)
             {
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
@@ -565,6 +563,8 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             var paths = new List<string>();
             var coverageReporter = new CoverageReporter(this.TestReport.CoverageInfo);
+
+            // Emit the coverage visualization, if it exists.
             if (this.Configuration.IsActivityCoverageReported)
             {
                 string graphFilePath = Path.Combine(directory, fileName + ".coverage.dgml");
@@ -578,6 +578,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     paths.Add(coverageFilePath);
                 }
+            }
+            else if (this.Configuration.IsTraceAnalysisEnabled && this.Scheduler.Graph.Length > 0)
+            {
+                string coveragePath = Path.Combine(directory, fileName + ".coverage.dgml");
+                File.WriteAllText(coveragePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Coverage));
+                paths.Add(coveragePath);
             }
 
             if (this.Configuration.IsScheduleCoverageReported)

@@ -50,7 +50,7 @@ namespace Microsoft.Coyote
                 string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
 
                 // Emit the test reports.
-                logWriter.LogImportant("... Emitting trace-related reports:");
+                logWriter.LogImportant("... Emitting execution trace reports:");
                 if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
                 {
                     foreach (var path in reportPaths)

@@ -7,7 +7,6 @@ using System.Threading;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Testing;
-using Microsoft.Coyote.Visualization;
 
 namespace Microsoft.Coyote
 {
@@ -311,12 +310,6 @@ namespace Microsoft.Coyote
         internal bool IsXmlLogEnabled;
 
         /// <summary>
-        /// The format for visualizing execution traces.
-        /// </summary>
-        [DataMember]
-        internal TraceFormat TraceVisualizationFormat;
-
-        /// <summary>
         /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
         internal bool IsTelemetryEnabled;
@@ -375,7 +368,6 @@ namespace Microsoft.Coyote
             this.IsCoverageInfoSerialized = false;
             this.IsActorTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
-            this.TraceVisualizationFormat = TraceFormat.DGML;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -896,24 +888,6 @@ namespace Microsoft.Coyote
         public Configuration WithXmlLogEnabled(bool isEnabled = true)
         {
             this.IsXmlLogEnabled = isEnabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to use DGML formatting for execution trace visualization.
-        /// </summary>
-        public Configuration WithDgmlTraceVisualizationFormatEnabled()
-        {
-            this.TraceVisualizationFormat = TraceFormat.DGML;
-            return this;
-        }
-
-        /// <summary>
-        /// Updates the configuration to use GraphViz formatting for execution trace visualization.
-        /// </summary>
-        public Configuration WithGraphVizTraceVisualizationFormatEnabled()
-        {
-            this.TraceVisualizationFormat = TraceFormat.GraphViz;
             return this;
         }
 

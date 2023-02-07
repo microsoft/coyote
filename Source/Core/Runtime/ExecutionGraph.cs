@@ -40,9 +40,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly Dictionary<ulong, Dictionary<string, ulong>> CallSiteFrequenciesForOperation;
 
         /// <summary>
-        /// Map containing the ranks of each call site per operation id.
+        /// Map containing coverage information across executions. It maps call site transitions.
         /// </summary>
-        private readonly Dictionary<ulong, Dictionary<string, ulong>> CallSiteRanksForOperation;
+        internal readonly Dictionary<string, HashSet<string>> CoverageMap;
 
         /// <summary>
         /// The number of nodes in the graph.
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Runtime
             this.LastNodeForOperation = new Dictionary<ulong, Node>();
             this.LastVisitedCallSiteIndexForOperation = new Dictionary<ulong, int>();
             this.CallSiteFrequenciesForOperation = new Dictionary<ulong, Dictionary<string, ulong>>();
-            this.CallSiteRanksForOperation = new Dictionary<ulong, Dictionary<string, ulong>>();
+            this.CoverageMap = new Dictionary<string, HashSet<string>>();
         }
 
         /// <summary>
@@ -87,13 +87,10 @@ namespace Microsoft.Coyote.Runtime
             var writer = CoyoteRuntime.Current.LogWriter;
 
             // Create the call site frequency & rank map if this is the first time executing this operation.
-            if (!this.CallSiteFrequenciesForOperation.TryGetValue(operation.Id, out var callSiteFrequencies) ||
-                !this.CallSiteRanksForOperation.TryGetValue(operation.Id, out var callSiteRanks))
+            if (!this.CallSiteFrequenciesForOperation.TryGetValue(operation.Id, out var callSiteFrequencies))
             {
                 callSiteFrequencies = new Dictionary<string, ulong>();
-                callSiteRanks = new Dictionary<string, ulong>();
                 this.CallSiteFrequenciesForOperation.Add(operation.Id, callSiteFrequencies);
-                this.CallSiteRanksForOperation.Add(operation.Id, callSiteRanks);
             }
 
             // Create sequence of nodes corresponding to call sites invoked by the operation since its previous node occurrence.
@@ -104,23 +101,21 @@ namespace Microsoft.Coyote.Runtime
                 Node previousNode = nodes.LastOrDefault();
                 Node callSiteNode = new Node(this, operation.Id, operation.SequenceId, callSite, operation.LastHashedProgramState);
                 nodes.Add(callSiteNode);
+
                 if (previousNode != null)
                 {
-                    Edge edge = new InvocationEdge(previousNode, callSiteNode);
+                    Edge edge = new Edge(previousNode, callSiteNode, EdgeCategory.Invocation);
                     previousNode.AddEdge(edge);
                 }
 
                 // Cache the frequency and rank of the call site.
-                if (callSiteFrequencies.TryGetValue(callSite, out ulong callSiteFrequency) &&
-                    callSiteRanks.TryGetValue(callSite, out ulong callSiteRank))
+                if (callSiteFrequencies.TryGetValue(callSite, out ulong callSiteFrequency))
                 {
                     callSiteFrequencies[callSite] = callSiteFrequency + 1;
-                    callSiteRanks[callSite] = (ulong)operation.VisitedCallSites.Count;
                 }
                 else
                 {
                     callSiteFrequencies.Add(callSite, 1);
-                    callSiteRanks.Add(callSite, (ulong)lastVisitedCallSiteIndex);
                 }
 
                 lastVisitedCallSiteIndex++;
@@ -165,14 +160,14 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // This operation is new, so connect it with its parent operation.
                     Node parentNode = this.LastNodeForOperation[operation.ParentId];
-                    Edge edge = new CreationEdge(parentNode, node);
+                    Edge edge = new Edge(parentNode, node, EdgeCategory.Creation);
                     parentNode.AddEdge(edge);
                 }
                 else
                 {
                     // This operation is not new, so connect it to the previous node corresponding to the same operation.
                     Node previousNode = this.LastNodeForOperation[operation.Id];
-                    Edge edge = new StepEdge(previousNode, node);
+                    Edge edge = new Edge(previousNode, node, EdgeCategory.Step);
                     previousNode.AddEdge(edge);
                 }
             }
@@ -183,37 +178,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 // Cache the first node index for this operation.
                 this.FirstNodeForOperation.Add(operation.Id, nodes.First());
-            }
-        }
-
-        /// <summary>
-        /// Adds any missing invocation edges associated with the specified operation to the graph.
-        /// </summary>
-        private void AddInvocationEdges(ControlledOperation operation)
-        {
-            if (this.Length > 0)
-            {
-                // Only add an edge if there is at least one node in the graph.
-                if (!this.LastNodeForOperation.ContainsKey(operation.Id))
-                {
-                    // This operation is new, so connect it with its parent operation.
-                    Node parentNode = this.LastNodeForOperation[operation.ParentId];
-                    Node node = new Node(this, operation.Id, operation.SequenceId, operation.LastCallSite, operation.LastHashedProgramState);
-                    Edge edge = new CreationEdge(parentNode, node);
-                    parentNode.AddEdge(edge);
-                    this.Nodes.Add(node);
-                    this.LastNodeForOperation[operation.Id] = node;
-                }
-                else
-                {
-                    // This operation is not new, so connect it to the previous node corresponding to the same operation.
-                    Node previousNode = this.LastNodeForOperation[operation.Id];
-                    Node node = new Node(this, operation.Id, operation.SequenceId, operation.LastCallSite, operation.LastHashedProgramState);
-                    Edge edge = new StepEdge(previousNode, node);
-                    previousNode.AddEdge(edge);
-                    this.Nodes.Add(node);
-                    this.LastNodeForOperation[operation.Id] = node;
-                }
             }
         }
 
@@ -254,30 +218,6 @@ namespace Microsoft.Coyote.Runtime
             null;
 
         /// <summary>
-        /// Returns the rank for the specified call site invoked by the operation with the given id.
-        /// </summary>
-        internal ulong GetCallSiteRank(ulong operationId, string callSite) =>
-            this.CallSiteRanksForOperation.TryGetValue(operationId, out var callSiteRanks) ?
-            callSiteRanks.TryGetValue(callSite, out ulong rank) ?
-            rank : 0 : 0;
-
-        /// <summary>
-        /// Returns the lowest rank call site invoked by the operation with the specified id.
-        /// </summary>
-        internal string GetLowestCallSiteRankForOperation(ulong operationId) =>
-            this.CallSiteRanksForOperation.TryGetValue(operationId, out var callSiteRanks) ?
-            callSiteRanks.Aggregate((l, r) => l.Value < r.Value ? l : r).Key :
-            null;
-
-        /// <summary>
-        /// Returns the highest rank call site invoked by the operation with the specified id.
-        /// </summary>
-        internal string GetHighestCallSiteRankForOperation(ulong operationId) =>
-            this.CallSiteRanksForOperation.TryGetValue(operationId, out var callSiteRanks) ?
-            callSiteRanks.Aggregate((l, r) => l.Value > r.Value ? l : r).Key :
-            null;
-
-        /// <summary>
         /// Returns an enumerator.
         /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
@@ -303,7 +243,6 @@ namespace Microsoft.Coyote.Runtime
             this.LastNodeForOperation.Clear();
             this.LastVisitedCallSiteIndexForOperation.Clear();
             this.CallSiteFrequenciesForOperation.Clear();
-            this.CallSiteRanksForOperation.Clear();
         }
 
         /// <summary>
@@ -373,6 +312,20 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.OutEdges.Add(edge);
                 edge.Target.InEdge = edge;
+
+                // Cache the new edge to track coverage.
+                if (edge.Category is EdgeCategory.Creation || edge.Category is EdgeCategory.Invocation ||
+                    this.CallSite != edge.Target.CallSite)
+                {
+                    if (this.Graph.CoverageMap.TryGetValue(this.CallSite, out var targetMap))
+                    {
+                        targetMap.Add(edge.Target.CallSite);
+                    }
+                    else
+                    {
+                        this.Graph.CoverageMap.Add(this.CallSite, new HashSet<string> { edge.Target.CallSite });
+                    }
+                }
             }
 
             /// <inheritdoc/>
@@ -405,7 +358,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Represents an edge in the execution graph.
         /// </summary>
-        internal abstract class Edge
+        internal sealed class Edge
         {
             /// <summary>
             /// The source execution node.
@@ -418,6 +371,11 @@ namespace Microsoft.Coyote.Runtime
             internal readonly Node Target;
 
             /// <summary>
+            /// The edge category.
+            /// </summary>
+            internal readonly EdgeCategory Category;
+
+            /// <summary>
             /// The execution graph containing this edge.
             /// </summary>
             internal ExecutionGraph Graph => this.Source.Graph;
@@ -425,53 +383,22 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Initializes a new instance of the <see cref="Edge"/> class.
             /// </summary>
-            protected Edge(Node source, Node target)
+            internal Edge(Node source, Node target, EdgeCategory category)
             {
                 this.Source = source;
                 this.Target = target;
+                this.Category = category;
             }
         }
 
         /// <summary>
-        /// Edge representing an execution step where a scheduling or nondeterministic decision is taken.
+        /// The edge category.
         /// </summary>
-        internal sealed class StepEdge : Edge
+        internal enum EdgeCategory
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StepEdge"/> class.
-            /// </summary>
-            internal StepEdge(Node source, Node target)
-                : base(source, target)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Edge representing a method invocation.
-        /// </summary>
-        internal sealed class InvocationEdge : Edge
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="InvocationEdge"/> class.
-            /// </summary>
-            internal InvocationEdge(Node source, Node target)
-                : base(source, target)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Edge representing the creation of an operation.
-        /// </summary>
-        internal sealed class CreationEdge : Edge
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="CreationEdge"/> class.
-            /// </summary>
-            internal CreationEdge(Node source, Node target)
-                : base(source, target)
-            {
-            }
+            Creation = 0,
+            Invocation,
+            Step
         }
     }
 }

@@ -180,13 +180,10 @@ Testing](../how-to/unit-testing.md).
 
 ### Visualizing execution traces
 
-Whenever a bug is found, Coyote by default produces a [DGML diagram](https://en.wikipedia.org/wiki/DGML)
-containing a graphical trace of all captured method invocations per controlled concurrent entity
-(e.g., task, thread, actor) that happened in the last test iteration leading up to a bug.
-Alternatively, the tool can produce the visualization in [GraphViz](https://graphviz.org/)) format,
-by specifying the option `--trace-format graphviz` or
-`Configuration.WithGraphVizTraceVisualizationFormatEnabled()`. This capability can be disabled by
-using the `skip-trace-analysis` command line option or the
+Whenever a bug is found, Coyote by default produces a [DGML](https://en.wikipedia.org/wiki/DGML)
+diagram containing a graphical trace of all captured method invocations per controlled concurrent
+entity (e.g., task, thread, actor) that happened in the last test iteration leading up to a bug.
+This capability can be disabled by using the `skip-trace-analysis` command line option or the
 `Configuration.WithTraceAnalysisEnabled(false)` option.
 
 For the [actor](../concepts/actors/overview.md) programming model of Coyote, the tool can

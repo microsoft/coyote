@@ -87,11 +87,21 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null)
+        internal ControlledOperation(ulong operationId, string name, OperationGroup group = null, bool isDelayOperation = false)
         {
             this.Id = operationId;
             this.Name = name;
             this.Status = OperationStatus.None;
+
+            if (isDelayOperation)
+            {
+                this.Group = group ?? OperationGroup.Create(this, true);
+            }
+            else
+            {
+                this.Group = group ?? OperationGroup.Create(this);
+            }
+
             this.Group = group ?? OperationGroup.Create(this);
             this.Dependencies = new HashSet<object>();
             this.SyncEvent = new ManualResetEventSlim(false);

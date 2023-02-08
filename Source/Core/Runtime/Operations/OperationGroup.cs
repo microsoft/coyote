@@ -40,10 +40,12 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private readonly HashSet<ControlledOperation> Members;
 
+        internal readonly bool IsDelayOperation;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
-        private OperationGroup(ControlledOperation owner)
+        private OperationGroup(ControlledOperation owner, bool isDelayOperation = false)
         {
             this.Id = Guid.NewGuid();
             this.Owner = owner;
@@ -53,7 +55,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="OperationGroup"/> instance.
         /// </summary>
-        internal static OperationGroup Create(ControlledOperation owner) => new OperationGroup(owner);
+        internal static OperationGroup Create(ControlledOperation owner, bool isDelayOperation = false) => new OperationGroup(owner, isDelayOperation);
 
         /// <summary>
         /// Registers the specified operation as a member of this group.

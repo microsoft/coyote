@@ -50,6 +50,7 @@ namespace Microsoft.Coyote.Runtime
             this.Id = Guid.NewGuid();
             this.Owner = owner;
             this.Members = new HashSet<ControlledOperation>();
+            this.IsDelayOperation = isDelayOperation;
         }
 
         /// <summary>

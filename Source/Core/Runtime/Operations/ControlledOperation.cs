@@ -102,7 +102,6 @@ namespace Microsoft.Coyote.Runtime
                 this.Group = group ?? OperationGroup.Create(this);
             }
 
-            this.Group = group ?? OperationGroup.Create(this);
             this.Dependencies = new HashSet<object>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;

@@ -379,18 +379,18 @@ namespace Microsoft.Coyote.Actors.Mocks
             this.Owner.Context.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <inheritdoc/>
-        public int GetHashedState()
+        public ulong GetHashedState()
         {
             unchecked
             {
-                var hash = 19;
+                ulong hash = 17;
+                var uniqueEvents = new HashSet<string>();
                 foreach (var (_, _, info) in this.Queue)
                 {
-                    hash = (hash * 31) + info.EventName.GetHashCode();
-                    if (info.HashedState != 0)
+                    if (!uniqueEvents.Contains(info.EventName))
                     {
-                        // Adds the user-defined hashed event state.
-                        hash = (hash * 31) + info.HashedState;
+                        hash = (hash * 31) + (ulong)info.EventName.GetHashCode();
+                        uniqueEvents.Add(info.EventName);
                     }
                 }
 

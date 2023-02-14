@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -15,14 +14,14 @@ namespace Microsoft.Coyote.Runtime
     internal class OperationGroup : IEnumerable<ControlledOperation>, IEquatable<OperationGroup>
     {
         /// <summary>
+        /// The default operation group.
+        /// </summary>
+        internal static OperationGroup Default { get; } = new OperationGroup(Guid.Empty);
+
+        /// <summary>
         /// The unique id of this group.
         /// </summary>
         internal readonly Guid Id;
-
-        /// <summary>
-        /// The controlled operation that owns this group.
-        /// </summary>
-        internal readonly ControlledOperation Owner;
 
         /// <summary>
         /// The controlled operations that are members of this group.
@@ -32,27 +31,21 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationGroup"/> class.
         /// </summary>
-        private OperationGroup(Guid? id, ControlledOperation owner)
+        private OperationGroup(Guid id)
         {
-            this.Id = id ?? Guid.NewGuid();
-            this.Owner = owner;
+            this.Id = id;
             this.Members = new HashSet<ControlledOperation>();
         }
 
         /// <summary>
-        /// Creates a new <see cref="OperationGroup"/> instance.
-        /// </summary>
-        internal static OperationGroup Create(ControlledOperation owner) => Create(null, owner);
-
-        /// <summary>
         /// Creates a new <see cref="OperationGroup"/> instance with the specified id.
         /// </summary>
-        internal static OperationGroup Create(Guid? id, ControlledOperation owner) => new OperationGroup(id, owner);
+        internal static OperationGroup Create(Guid id) => new OperationGroup(id);
 
         /// <summary>
-        /// Registers the specified operation as a member of this group.
+        /// Adds the specified operation as a member of this group.
         /// </summary>
-        internal void RegisterMember(ControlledOperation member) => this.Members.Add(member);
+        internal void AddMember(ControlledOperation member) => this.Members.Add(member);
 
         /// <summary>
         /// Returns an enumerator that iterates through the members of this group.

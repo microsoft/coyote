@@ -30,6 +30,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly Configuration Configuration;
 
         /// <summary>
+        /// The test execution context across iterations.
+        /// </summary>
+        internal readonly ExecutionContext Context;
+
+        /// <summary>
         /// The portfolio of exploration strategies.
         /// </summary>
         private readonly LinkedList<Strategy> Portfolio;
@@ -94,9 +99,11 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        private OperationScheduler(Configuration configuration, SchedulingPolicy policy, IRandomValueGenerator generator, ExecutionTrace prefixTrace)
+        private OperationScheduler(Configuration configuration, ExecutionContext context, SchedulingPolicy policy,
+            IRandomValueGenerator generator, ExecutionTrace prefixTrace)
         {
             this.Configuration = configuration;
+            this.Context = context;
             this.SchedulingPolicy = policy;
             this.PrefixTrace = prefixTrace;
             this.ValueGenerator = generator;
@@ -107,7 +114,7 @@ namespace Microsoft.Coyote.Runtime
             this.Reducers = new List<IScheduleReducer>();
             if (configuration.IsExecutionTraceCycleReductionEnabled)
             {
-                this.Reducers.Add(new TraceCycleReducer());
+                this.Reducers.Add(new TraceCycleReducer(this.Context));
             }
 
             if (configuration.IsPartialOrderSamplingEnabled)
@@ -194,17 +201,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration, ExecutionTrace prefixTrace) =>
-            new OperationScheduler(configuration,
+        internal static OperationScheduler Setup(Configuration configuration, ExecutionContext context, ExecutionTrace prefixTrace) =>
+            new OperationScheduler(configuration, context,
                 configuration.IsSystematicFuzzingEnabled ? SchedulingPolicy.Fuzzing : SchedulingPolicy.Interleaving,
                 new RandomValueGenerator(configuration), prefixTrace);
 
         /// <summary>
         /// Creates a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal static OperationScheduler Setup(Configuration configuration, SchedulingPolicy policy,
+        internal static OperationScheduler Setup(Configuration configuration, ExecutionContext context, SchedulingPolicy policy,
             IRandomValueGenerator valueGenerator) =>
-            new OperationScheduler(configuration, policy, valueGenerator, ExecutionTrace.Create());
+            new OperationScheduler(configuration, context, policy, valueGenerator, ExecutionTrace.Create());
 
         /// <summary>
         /// Initializes the next test iteration.
@@ -240,10 +247,11 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="ops">The set of available operations.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
             // Filter out any operations that cannot be scheduled.
@@ -253,7 +261,7 @@ namespace Microsoft.Coyote.Runtime
                 // Invoke any installed schedule reducers.
                 foreach (var reducer in this.Reducers)
                 {
-                    var reducedOps = reducer.ReduceOperations(enabledOps, current);
+                    var reducedOps = reducer.ReduceOperations(enabledOps, current, state);
                     if (reducedOps.Any())
                     {
                         enabledOps = reducedOps;
@@ -262,13 +270,8 @@ namespace Microsoft.Coyote.Runtime
 
                 // Invoke the strategy to choose the next operation.
                 if (this.Strategy is InterleavingStrategy strategy &&
-                    strategy.GetNextOperation(enabledOps, current, isYielding, out next))
+                    strategy.GetNextOperation(enabledOps, current, state, isYielding, out next))
                 {
-                    if (this.Configuration.IsTraceAnalysisEnabled)
-                    {
-                        this.Graph.Add(current);
-                    }
-
                     this.Trace.AddSchedulingDecision(current, current.LastSchedulingPoint, next);
                     return true;
                 }
@@ -282,12 +285,13 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the next boolean choice.
         /// </summary>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBoolean(ControlledOperation current, out bool next)
+        internal bool GetNextBoolean(ControlledOperation current, ulong state, out bool next)
         {
             if (this.Strategy is InterleavingStrategy strategy &&
-                strategy.GetNextBoolean(current, out next))
+                strategy.GetNextBoolean(current, state, out next))
             {
                 this.Trace.AddNondeterministicBooleanDecision(current, next);
                 return true;
@@ -300,14 +304,15 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Returns the next integer choice.
         /// </summary>
-        /// <param name="current">The currently scheduled operation.</param>
         /// <param name="maxValue">The max value.</param>
+        /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextInteger(ControlledOperation current, int maxValue, out int next)
+        internal bool GetNextInteger(int maxValue, ControlledOperation current, ulong state, out int next)
         {
             if (this.Strategy is InterleavingStrategy strategy &&
-                strategy.GetNextInteger(current, maxValue, out next))
+                strategy.GetNextInteger(maxValue, current, state, out next))
             {
                 this.Trace.AddNondeterministicIntegerDecision(current, next);
                 return true;

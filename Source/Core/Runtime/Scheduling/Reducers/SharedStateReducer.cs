@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state)
         {
             // Find all operations that are not invoking a user-defined scheduling decision.
             var noReadOrWriteSchedulingOps = ops.Where(

@@ -13,17 +13,16 @@ namespace Microsoft.Coyote.Runtime
     internal sealed class TraceCycleReducer : IScheduleReducer
     {
         /// <summary>
-        /// Set of states that have been 'READ' accessed. States are removed from the set
-        /// when they are 'WRITE' accessed.
+        /// The test execution context across iterations.
         /// </summary>
-        private readonly HashSet<string> RepeatedReadAccesses;
+        private readonly ExecutionContext Context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceCycleReducer"/> class.
         /// </summary>
-        internal TraceCycleReducer()
+        internal TraceCycleReducer(ExecutionContext context)
         {
-            this.RepeatedReadAccesses = new HashSet<string>();
+            this.Context = context;
         }
 
         /// <inheritdoc/>
@@ -32,32 +31,16 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state)
         {
-            // Find all operations that perform 'WRITE' accesses.
-            var writeAccessOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Write).ToArray();
-
-            // Filter out all 'READ' operations that are repeatedly 'READ' accessing shared state when there is a 'WRITE' access.
-            var filteredOps = ops.Where(op => op.LastSchedulingPoint is SchedulingPointType.Read &&
-                this.RepeatedReadAccesses.Any(state => op.LastAccessedSharedState == state) &&
-                writeAccessOps.Any(wop =>
-                    wop.LastAccessedSharedStateComparer?.Equals(wop.LastAccessedSharedState, op.LastAccessedSharedState) ??
-                    wop.LastAccessedSharedState == op.LastAccessedSharedState)).ToArray();
-
-            if (current.LastSchedulingPoint is SchedulingPointType.Read)
+            // Check if there is any write operation, and if yes do nothing.
+            if (!ops.All(op => this.Context.IsOperationGroupReadOnly(op.Group)))
             {
-                // The current operation is a 'READ' access, so add it to the set of repeated read accesses.
-                this.RepeatedReadAccesses.Add(current.LastAccessedSharedState);
-            }
-            else if (current.LastSchedulingPoint is SchedulingPointType.Write)
-            {
-                // The current operation is a 'WRITE' access, so remove it from the set of repeated read accesses.
-                this.RepeatedReadAccesses.RemoveWhere(state =>
-                    current.LastAccessedSharedStateComparer?.Equals(current.LastAccessedSharedState, state) ??
-                    current.LastAccessedSharedState == state);
+                return ops;
             }
 
-            return ops.Except(filteredOps);
+            var highFrequencyOps = ops.Where(op => this.Context.GetStateFrequencyOfOperation(op) > 10).ToArray();
+            return ops.Except(highFrequencyOps);
         }
     }
 }

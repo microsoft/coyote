@@ -443,29 +443,32 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.NumOfFoundBugs * 100.0 / totalExploredPaths);
             }
 
-            int visitedStatesCount = this.CoverageInfo.VisitedStates.Count;
-            if (visitedStatesCount > 0)
+            int visitedImplicitStatesCount = this.CoverageInfo.VisitedImplicitStates.Count;
+            int visitedExplicitStatesCount = this.CoverageInfo.VisitedExplicitStates.Count;
+            int visitedTotalStatesCount = this.CoverageInfo.VisitedStates.Count;
+            if (visitedTotalStatesCount > 0)
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Visited {1} unique state{2}.",
+                    "{0} Visited {1} unique program state{2}: {3} implicit, {4} explicit.",
                     prefix.Equals("...") ? "....." : prefix,
-                    visitedStatesCount,
-                    visitedStatesCount is 1 ? string.Empty : "s");
+                    visitedTotalStatesCount,
+                    visitedTotalStatesCount is 1 ? string.Empty : "s",
+                    visitedImplicitStatesCount,
+                    visitedExplicitStatesCount);
             }
 
             if (this.TotalControlledOperations > 0)
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max), {6} (unique).",
+                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.TotalControlledOperations,
                     this.TotalControlledOperations is 1 ? string.Empty : "s",
                     this.MinControlledOperations,
                     this.TotalControlledOperations / totalExploredPaths,
-                    this.MaxControlledOperations,
-                    this.CoverageInfo.OperationSequenceIds.Count);
+                    this.MaxControlledOperations);
             }
 
             if (this.TotalConcurrencyDegree > 0)

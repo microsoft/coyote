@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     string opToken = tokens[0];
                     string[] opTokens = opToken.Substring(3, opToken.Length - 4).Split(':');
                     ulong opId = ulong.Parse(opTokens[0]);
-                    ulong opSeqId = ulong.Parse(opTokens[1]);
+                    Guid opGroup = Guid.Parse(opTokens[1]);
 
                     string decisionToken = tokens[1];
                     if (decisionToken.StartsWith("sp("))
@@ -135,18 +135,18 @@ namespace Microsoft.Coyote.SystematicTesting
                         string nextToken = tokens[2];
                         string[] nextTokens = nextToken.Substring(5, nextToken.Length - 6).Split(':');
                         ulong nextId = ulong.Parse(nextTokens[0]);
-                        ulong nextSeqId = ulong.Parse(nextTokens[1]);
-                        trace.AddSchedulingDecision(opId, opSeqId, sp, nextId, nextSeqId);
+                        Guid nextGroup = Guid.Parse(nextTokens[1]);
+                        trace.AddSchedulingDecision(opId, opGroup, sp, nextId, nextGroup);
                     }
                     else if (decisionToken.StartsWith("bool("))
                     {
                         bool value = bool.Parse(decisionToken.Substring(5, decisionToken.Length - 6));
-                        trace.AddNondeterministicBooleanDecision(opId, opSeqId, value);
+                        trace.AddNondeterministicBooleanDecision(opId, opGroup, value);
                     }
                     else if (decisionToken.StartsWith("int("))
                     {
                         int value = int.Parse(decisionToken.Substring(4, decisionToken.Length - 5));
-                        trace.AddNondeterministicIntegerDecision(opId, opSeqId, value);
+                        trace.AddNondeterministicIntegerDecision(opId, opGroup, value);
                     }
                     else
                     {

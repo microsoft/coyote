@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors;
@@ -20,6 +19,7 @@ using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
 using Microsoft.Coyote.Visualization;
+using CancellationTokenSource = System.Threading.CancellationTokenSource;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -56,6 +56,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Set of callbacks to invoke at the end of each iteration.
         /// </summary>
         private readonly ISet<Action<uint>> EndIterationCallbacks;
+
+        /// <summary>
+        /// The test execution context.
+        /// </summary>
+        private readonly ExecutionContext Context;
 
         /// <summary>
         /// The scheduler used by the runtime during testing.
@@ -178,6 +183,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;
             this.LogWriter = logWriter;
+            this.Context = ExecutionContext.Create();
             this.Profiler = new Profiler();
             this.StartIterationCallbacks = new HashSet<Action<uint>>();
             this.EndIterationCallbacks = new HashSet<Action<uint>>();
@@ -197,7 +203,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // Parse the trace if one is provided, and update any configuration values.
-            this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
+            this.Scheduler = OperationScheduler.Setup(configuration, this.Context, prefixTrace);
 
             // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
@@ -379,7 +385,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Creates a new instance of the controlled runtime and adds the actor runtime extension.
                 var logManager = RuntimeFactory.CreateLogManager(iterationLogWriter);
                 var actorRuntimeExtension = Actors.RuntimeFactory.Create(this.Configuration, logManager, this.Scheduler.SchedulingPolicy);
-                runtime = CoyoteRuntime.Create(this.Configuration, this.Scheduler, iterationLogWriter, logManager, actorRuntimeExtension);
+                runtime = CoyoteRuntime.Create(this.Configuration, this.Context, this.Scheduler, iterationLogWriter, logManager, actorRuntimeExtension);
                 actorRuntimeExtension.WithRuntime(runtime);
 
                 this.InitializeCustomActorLogging(actorRuntimeExtension);
@@ -413,13 +419,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
+                // HACK
+                int avg = (int)Math.Ceiling(this.Context.OperationStateFrequencies.ToArray().Select(op => (int)op.Value).Average());
+                this.LogWriter.LogImportant($">>> FREQ-AVG: {avg}");
+
                 if (this.Configuration.IsSystematicFuzzingFallbackEnabled &&
                     runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                     (runtime.ExecutionStatus is ExecutionStatus.ConcurrencyUncontrolled ||
                     runtime.ExecutionStatus is ExecutionStatus.Deadlocked))
                 {
                     // Detected uncontrolled concurrency or deadlock, so switch to systematic fuzzing.
-                    this.Scheduler = OperationScheduler.Setup(this.Configuration, SchedulingPolicy.Fuzzing, this.Scheduler.ValueGenerator);
+                    this.Scheduler = OperationScheduler.Setup(this.Configuration, this.Context, SchedulingPolicy.Fuzzing, this.Scheduler.ValueGenerator);
                     this.LogWriter.LogImportant("..... Iteration #{0} enables systematic fuzzing due to uncontrolled concurrency",
                         iteration + 1);
                 }
@@ -525,11 +535,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 // Emit the trace visualization, if it exists.
+                    // this.Context.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
                 if (this.Configuration.IsTraceAnalysisEnabled &&
-                    this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
+                    this.Context.Length > 0)
                 {
                     string visualTracePath = Path.Combine(directory, fileName + ".trace.dgml");
-                    File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Trace));
+                    File.WriteAllText(visualTracePath, TraceVisualizer2.Visualize(this.Context, TraceVisualizer2.Layout.Trace));
                     paths.Add(visualTracePath);
                 }
 
@@ -579,10 +590,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     paths.Add(coverageFilePath);
                 }
             }
-            else if (this.Configuration.IsTraceAnalysisEnabled && this.Scheduler.Graph.Length > 0)
+            else if (this.Configuration.IsTraceAnalysisEnabled && this.Context.Length > 0)
             {
                 string coveragePath = Path.Combine(directory, fileName + ".coverage.dgml");
-                File.WriteAllText(coveragePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Coverage));
+                File.WriteAllText(coveragePath, TraceVisualizer2.Visualize(this.Context, TraceVisualizer2.Layout.Coverage));
                 paths.Add(coveragePath);
             }
 

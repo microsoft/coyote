@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.Actors
             this.Owner.OnDropEvent(e, eventInfo);
 
         //// <inheritdoc/>
-        public int GetHashedState() => 0;
+        public ulong GetHashedState() => 0;
 
         /// <inheritdoc/>
         public void Close()

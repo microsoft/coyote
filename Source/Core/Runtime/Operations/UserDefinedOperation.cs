@@ -21,20 +21,18 @@ namespace Microsoft.Coyote.Runtime
         /// Optional callback that returns the hashed state of the operation being built.
         /// If provided, it can be used by the test engine to optimize exploration.
         /// </summary>
-        internal Func<int> HashedStateCallback { get; }
+        internal Func<ulong> HashedStateCallback { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserDefinedOperation"/> class.
         /// </summary>
         internal UserDefinedOperation(CoyoteRuntime runtime, IOperationBuilder builder, ulong operationId)
-            : base(operationId, builder.Name, null, runtime)
+            : base(operationId, builder.Name, runtime)
         {
             this.HashedStateCallback = builder.HashedStateCallback;
         }
 
-        /// <summary>
-        /// Returns the hashed state of this operation for the specified policy.
-        /// </summary>
-        internal override int GetHashedState(SchedulingPolicy policy) => this.HashedStateCallback?.Invoke() ?? 0;
+        /// <inheritdoc/>
+        protected override ulong GetLatestHashedState(SchedulingPolicy policy) => this.HashedStateCallback?.Invoke() ?? 0;
     }
 }

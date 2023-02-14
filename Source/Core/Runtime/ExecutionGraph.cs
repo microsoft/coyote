@@ -30,16 +30,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly Dictionary<ulong, Node> LastNodeForOperation;
 
         /// <summary>
-        /// Last visited call site index per operation id.
-        /// </summary>
-        private readonly Dictionary<ulong, int> LastVisitedCallSiteIndexForOperation;
-
-        /// <summary>
-        /// Map containing the frequencies of executing each call site per operation id.
-        /// </summary>
-        private readonly Dictionary<ulong, Dictionary<string, ulong>> CallSiteFrequenciesForOperation;
-
-        /// <summary>
         /// Map containing coverage information across executions. It maps call site transitions.
         /// </summary>
         internal readonly Dictionary<string, HashSet<string>> CoverageMap;
@@ -69,8 +59,6 @@ namespace Microsoft.Coyote.Runtime
             this.Nodes = new List<Node>();
             this.FirstNodeForOperation = new Dictionary<ulong, Node>();
             this.LastNodeForOperation = new Dictionary<ulong, Node>();
-            this.LastVisitedCallSiteIndexForOperation = new Dictionary<ulong, int>();
-            this.CallSiteFrequenciesForOperation = new Dictionary<ulong, Dictionary<string, ulong>>();
             this.CoverageMap = new Dictionary<string, HashSet<string>>();
         }
 
@@ -82,102 +70,36 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Adds the execution step associated with the specified operation to the graph.
         /// </summary>
-        internal void Add(ControlledOperation operation)
+        internal void Add(ControlledOperation operation, ulong explicitState, ulong totalState, bool isInvocation)
         {
-            var writer = CoyoteRuntime.Current.LogWriter;
+            // First, find the predecessor node in the execution, if one exists. This is either the node corresponding
+            // to the last call site of the same operation, or the node corresponding to its parent operation.
+            Node predecessorNode = this.Length is 0 ? null :
+                this.LastNodeForOperation.ContainsKey(operation.Id) ? this.LastNodeForOperation[operation.Id] :
+                this.LastNodeForOperation.ContainsKey(operation.ParentId) ? this.LastNodeForOperation[operation.ParentId] :
+                null;
 
-            // Create the call site frequency & rank map if this is the first time executing this operation.
-            if (!this.CallSiteFrequenciesForOperation.TryGetValue(operation.Id, out var callSiteFrequencies))
+            // Next, create a node corresponding to the latest call site invoked by the operation.
+            // Else, if it has no known call sites so far and this is the root operation, assign
+            // a dummy 'Test' call site, else assign the call site of its parent operation.
+            string callSite = operation.CallSiteSequence.Count > 0 ? operation.LastCallSite :
+                predecessorNode is null ? "Test" : predecessorNode.CallSite;
+            Node node = new Node(this, operation, callSite, explicitState, totalState);
+
+            // Next, connect the new node with the predecessor node, if a predecessor exists.
+            if (predecessorNode != null)
             {
-                callSiteFrequencies = new Dictionary<string, ulong>();
-                this.CallSiteFrequenciesForOperation.Add(operation.Id, callSiteFrequencies);
+                EdgeCategory edgeCategory = node.Operation == operation.Id ?
+                    isInvocation ? EdgeCategory.Invocation : EdgeCategory.Step : EdgeCategory.Creation;
+                Edge edge = new Edge(predecessorNode, node, edgeCategory);
+                predecessorNode.AddEdge(edge);
             }
 
-            // Create sequence of nodes corresponding to call sites invoked by the operation since its previous node occurrence.
-            var nodes = new List<Node>();
-            this.LastVisitedCallSiteIndexForOperation.TryGetValue(operation.Id, out int lastVisitedCallSiteIndex);
-            foreach (var callSite in operation.VisitedCallSites.Skip(lastVisitedCallSiteIndex))
-            {
-                Node previousNode = nodes.LastOrDefault();
-                Node callSiteNode = new Node(this, operation.Id, operation.SequenceId, callSite, operation.LastHashedProgramState);
-                nodes.Add(callSiteNode);
-
-                if (previousNode != null)
-                {
-                    Edge edge = new Edge(previousNode, callSiteNode, EdgeCategory.Invocation);
-                    previousNode.AddEdge(edge);
-                }
-
-                // Cache the frequency and rank of the call site.
-                if (callSiteFrequencies.TryGetValue(callSite, out ulong callSiteFrequency))
-                {
-                    callSiteFrequencies[callSite] = callSiteFrequency + 1;
-                }
-                else
-                {
-                    callSiteFrequencies.Add(callSite, 1);
-                }
-
-                lastVisitedCallSiteIndex++;
-            }
-
-            if (nodes.Count is 0)
-            {
-                // If there are no new call sites invoked by the operation,
-                // then create a new node from the last visited call site.
-                string callSite;
-                if (operation.VisitedCallSites.Count > 0)
-                {
-                    callSite = operation.VisitedCallSites[lastVisitedCallSiteIndex - 1];
-                }
-                else if (operation.IsRoot)
-                {
-                    // This is the root operation, and has no known call sites so far, so assign a dummy 'Test' call site.
-                    callSite = "Test";
-                }
-                else
-                {
-                    // This operation has not visited any call sites yet, so use the call site of its parent operation.
-                    Node parentNode = this.LastNodeForOperation[operation.ParentId];
-                    callSite = parentNode.CallSite;
-                }
-
-                Node callSiteNode = new Node(this, operation.Id, operation.SequenceId, callSite, operation.LastHashedProgramState);
-                nodes.Add(callSiteNode);
-            }
-            else
-            {
-                this.LastVisitedCallSiteIndexForOperation[operation.Id] = operation.VisitedCallSites.Count;
-            }
-
-            if (this.Length > 0)
-            {
-                // Get the first node in the sequence of nodes corresponding to the operation.
-                Node node = nodes.First();
-
-                // Only add an edge if there is at least one node in the graph.
-                if (!this.LastNodeForOperation.ContainsKey(operation.Id))
-                {
-                    // This operation is new, so connect it with its parent operation.
-                    Node parentNode = this.LastNodeForOperation[operation.ParentId];
-                    Edge edge = new Edge(parentNode, node, EdgeCategory.Creation);
-                    parentNode.AddEdge(edge);
-                }
-                else
-                {
-                    // This operation is not new, so connect it to the previous node corresponding to the same operation.
-                    Node previousNode = this.LastNodeForOperation[operation.Id];
-                    Edge edge = new Edge(previousNode, node, EdgeCategory.Step);
-                    previousNode.AddEdge(edge);
-                }
-            }
-
-            this.Nodes.AddRange(nodes);
-            this.LastNodeForOperation[operation.Id] = nodes.Last();
+            this.Nodes.Add(node);
+            this.LastNodeForOperation[operation.Id] = node;
             if (!this.FirstNodeForOperation.ContainsKey(operation.Id))
             {
-                // Cache the first node index for this operation.
-                this.FirstNodeForOperation.Add(operation.Id, nodes.First());
+                this.FirstNodeForOperation.Add(operation.Id, node);
             }
         }
 
@@ -192,30 +114,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal Node GetLastNodeForOperation(ulong operationId) =>
             this.LastNodeForOperation.TryGetValue(operationId, out Node node) ? node : null;
-
-        /// <summary>
-        /// Returns the frequency for the specified call site invoked by the operation with the given id.
-        /// </summary>
-        internal ulong GetCallSiteFrequency(ulong operationId, string callSite) =>
-            this.CallSiteFrequenciesForOperation.TryGetValue(operationId, out var callSiteFrequencies) ?
-            callSiteFrequencies.TryGetValue(callSite, out ulong rank) ?
-            rank : 0 : 0;
-
-        /// <summary>
-        /// Returns the lowest frequency call site invoked by the operation with the specified id.
-        /// </summary>
-        internal string GetLowestCallSiteFrequencyForOperation(ulong operationId) =>
-            this.CallSiteFrequenciesForOperation.TryGetValue(operationId, out var callSiteFrequencies) ?
-            callSiteFrequencies.Aggregate((l, r) => l.Value < r.Value ? l : r).Key :
-            null;
-
-        /// <summary>
-        /// Returns the highest frequency call site invoked by the operation with the specified id.
-        /// </summary>
-        internal string GetHighestCallSiteFrequencyForOperation(ulong operationId) =>
-            this.CallSiteFrequenciesForOperation.TryGetValue(operationId, out var callSiteFrequencies) ?
-            callSiteFrequencies.Aggregate((l, r) => l.Value > r.Value ? l : r).Key :
-            null;
 
         /// <summary>
         /// Returns an enumerator.
@@ -241,8 +139,6 @@ namespace Microsoft.Coyote.Runtime
             this.Nodes.Clear();
             this.FirstNodeForOperation.Clear();
             this.LastNodeForOperation.Clear();
-            this.LastVisitedCallSiteIndexForOperation.Clear();
-            this.CallSiteFrequenciesForOperation.Clear();
         }
 
         /// <summary>
@@ -266,9 +162,9 @@ namespace Microsoft.Coyote.Runtime
             internal readonly ulong Operation;
 
             /// <summary>
-            /// The creation sequence id of the executing operation.
+            /// The id of the operation group associated with this node.
             /// </summary>
-            internal readonly ulong SequenceId;
+            internal readonly Guid GroupId;
 
             /// <summary>
             /// The call site associated with this node.
@@ -276,9 +172,29 @@ namespace Microsoft.Coyote.Runtime
             internal readonly string CallSite;
 
             /// <summary>
-            /// A value that represents the hashed program state associated with this node.
+            /// A hash value that represents the operation state associated with this node.
             /// </summary>
-            internal readonly int HashedProgramState;
+            internal readonly ulong OperationState;
+
+            /// <summary>
+            /// A hash value that represents the explicit program state associated with this node.
+            /// </summary>
+            internal readonly ulong ExplicitProgramState;
+
+            /// <summary>
+            /// A hash value that represents the total program state associated with this node.
+            /// </summary>
+            internal readonly ulong ProgramState;
+
+            /// <summary>
+            /// True if this node modified the explicit program state.
+            /// </summary>
+            internal readonly bool IsReadOnly;
+
+            /// <summary>
+            /// A value representing the depth of this node from the root.
+            /// </summary>
+            internal int Depth => this.InEdge?.Depth ?? 0;
 
             /// <summary>
             /// The ingoing edges of this node.
@@ -293,16 +209,21 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Initializes a new instance of the <see cref="Node"/> class.
             /// </summary>
-            internal Node(ExecutionGraph graph, ulong op, ulong seqId, string callSite, int state)
+            internal Node(ExecutionGraph graph, ControlledOperation operation, string callSite, ulong explicitState, ulong totalState)
             {
                 this.Graph = graph;
                 this.Index = graph.Length;
-                this.Operation = op;
-                this.SequenceId = seqId;
+                this.Operation = operation.Id;
+                this.GroupId = operation.Group.Id;
                 this.CallSite = callSite;
-                this.HashedProgramState = state;
+                this.OperationState = operation.LastHashedState;
+                this.ExplicitProgramState = explicitState;
+                this.ProgramState = totalState;
                 this.InEdge = null;
                 this.OutEdges = new List<Edge>();
+
+                // Check if the node is read-only or not in regards to explicit program state.
+                this.IsReadOnly = graph.Length is 0 ? false : graph[this.Index - 1].ExplicitProgramState == explicitState;
             }
 
             /// <summary>
@@ -376,6 +297,11 @@ namespace Microsoft.Coyote.Runtime
             internal readonly EdgeCategory Category;
 
             /// <summary>
+            /// A value representing the depth of this edge from the root.
+            /// </summary>
+            internal readonly int Depth;
+
+            /// <summary>
             /// The execution graph containing this edge.
             /// </summary>
             internal ExecutionGraph Graph => this.Source.Graph;
@@ -388,6 +314,9 @@ namespace Microsoft.Coyote.Runtime
                 this.Source = source;
                 this.Target = target;
                 this.Category = category;
+
+                // Calculate the depth of the edge by incrementing the depth of the source node.
+                this.Depth = this.Source.Depth + 1;
             }
         }
 

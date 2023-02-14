@@ -53,14 +53,14 @@ namespace Microsoft.Coyote.Runtime
         /// Adds a scheduling decision.
         /// </summary>
         internal void AddSchedulingDecision(ControlledOperation current, SchedulingPointType sp, ControlledOperation next) =>
-            this.AddSchedulingDecision(current.Id, current.SequenceId, sp, next.Id, next.SequenceId);
+            this.AddSchedulingDecision(current.Id, current.Group.Id, sp, next.Id, next.Group.Id);
 
         /// <summary>
         /// Adds a scheduling decision.
         /// </summary>
-        internal void AddSchedulingDecision(ulong current, ulong currentSeqId, SchedulingPointType sp, ulong next, ulong nextSeqId)
+        internal void AddSchedulingDecision(ulong current, Guid currentGroup, SchedulingPointType sp, ulong next, Guid nextGroup)
         {
-            var scheduleStep = new SchedulingStep(this.Length, current, currentSeqId, sp, next, nextSeqId);
+            var scheduleStep = new SchedulingStep(this.Length, current, currentGroup, sp, next, nextGroup);
             this.Push(scheduleStep);
         }
 
@@ -68,14 +68,14 @@ namespace Microsoft.Coyote.Runtime
         /// Adds a nondeterministic boolean decision.
         /// </summary>
         internal void AddNondeterministicBooleanDecision(ControlledOperation current, bool value) =>
-            this.AddNondeterministicBooleanDecision(current.Id, current.SequenceId, value);
+            this.AddNondeterministicBooleanDecision(current.Id, current.Group.Id, value);
 
         /// <summary>
         /// Adds a nondeterministic boolean decision.
         /// </summary>
-        internal void AddNondeterministicBooleanDecision(ulong current, ulong currentSeqId, bool value)
+        internal void AddNondeterministicBooleanDecision(ulong current, Guid currentGroup, bool value)
         {
-            var scheduleStep = new BooleanChoiceStep(this.Length, current, currentSeqId, value);
+            var scheduleStep = new BooleanChoiceStep(this.Length, current, currentGroup, value);
             this.Push(scheduleStep);
         }
 
@@ -83,14 +83,14 @@ namespace Microsoft.Coyote.Runtime
         /// Adds a nondeterministic integer decision.
         /// </summary>
         internal void AddNondeterministicIntegerDecision(ControlledOperation current, int value) =>
-            this.AddNondeterministicIntegerDecision(current.Id, current.SequenceId, value);
+            this.AddNondeterministicIntegerDecision(current.Id, current.Group.Id, value);
 
         /// <summary>
         /// Adds a nondeterministic integer decision.
         /// </summary>
-        internal void AddNondeterministicIntegerDecision(ulong current, ulong currentSeqId, int value)
+        internal void AddNondeterministicIntegerDecision(ulong current, Guid currentGroup, int value)
         {
-            var scheduleStep = new IntegerChoiceStep(this.Length, current, currentSeqId, value);
+            var scheduleStep = new IntegerChoiceStep(this.Length, current, currentGroup, value);
             this.Push(scheduleStep);
         }
 
@@ -164,16 +164,16 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (step is SchedulingStep schedulingStep)
                 {
-                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentSequenceId, schedulingStep.SchedulingPoint,
-                        schedulingStep.Value, schedulingStep.SequenceId);
+                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentGroup, schedulingStep.SchedulingPoint,
+                        schedulingStep.Value, schedulingStep.Group);
                 }
                 else if (step is BooleanChoiceStep boolChoiceStep)
                 {
-                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentSequenceId, boolChoiceStep.Value);
+                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentGroup, boolChoiceStep.Value);
                 }
                 else if (step is IntegerChoiceStep intChoiceStep)
                 {
-                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentSequenceId, intChoiceStep.Value);
+                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentGroup, intChoiceStep.Value);
                 }
             }
 
@@ -207,16 +207,16 @@ namespace Microsoft.Coyote.Runtime
                 Step step = trace[appendIndex];
                 if (step is SchedulingStep schedulingStep)
                 {
-                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentSequenceId, schedulingStep.SchedulingPoint,
-                        schedulingStep.Value, schedulingStep.SequenceId);
+                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentGroup, schedulingStep.SchedulingPoint,
+                        schedulingStep.Value, schedulingStep.Group);
                 }
                 else if (step is BooleanChoiceStep boolChoiceStep)
                 {
-                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentSequenceId, boolChoiceStep.Value);
+                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentGroup, boolChoiceStep.Value);
                 }
                 else if (step is IntegerChoiceStep intChoiceStep)
                 {
-                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentSequenceId, intChoiceStep.Value);
+                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentGroup, intChoiceStep.Value);
                 }
 
                 appendIndex++;
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Returns a string that represents the execution trace with all operations
-        /// identified by their creation sequence ids.
+        /// identified by their deterministic sequence hashes.
         /// </summary>
         public override string ToString()
         {
@@ -265,9 +265,9 @@ namespace Microsoft.Coyote.Runtime
             internal ulong Current;
 
             /// <summary>
-            /// The creation sequence id of the currently executing operation.
+            /// The group id of the currently executing operation.
             /// </summary>
-            internal ulong CurrentSequenceId;
+            internal Guid CurrentGroup;
 
             /// <summary>
             /// The previous execution step.
@@ -282,11 +282,11 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Initializes a new instance of the <see cref="Step"/> class.
             /// </summary>
-            protected Step(int index, ulong current, ulong currentSeqId)
+            protected Step(int index, ulong current, Guid currentGroup)
             {
                 this.Index = index;
                 this.Current = current;
-                this.CurrentSequenceId = currentSeqId;
+                this.CurrentGroup = currentGroup;
                 this.Previous = null;
                 this.Next = null;
             }
@@ -317,7 +317,7 @@ namespace Microsoft.Coyote.Runtime
 
             /// <summary>
             /// Returns a string that represents the execution step with all operations
-            /// identified by their creation sequence ids.
+            /// identified by their deterministic sequence hashes.
             /// </summary>
             public abstract string ToSequenceString();
         }
@@ -338,19 +338,19 @@ namespace Microsoft.Coyote.Runtime
             internal ulong Value;
 
             /// <summary>
-            /// The creation sequence id of the chosen operation.
+            /// The group id of the chosen operation.
             /// </summary>
-            internal ulong SequenceId;
+            internal Guid Group;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SchedulingStep"/> class.
             /// </summary>
-            internal SchedulingStep(int index, ulong current, ulong currentSeqId, SchedulingPointType sp, ulong next, ulong seqId)
-                : base(index, current, currentSeqId)
+            internal SchedulingStep(int index, ulong current, Guid currentGroup, SchedulingPointType sp, ulong next, Guid seqHash)
+                : base(index, current, currentGroup)
             {
                 this.SchedulingPoint = sp;
                 this.Value = next;
-                this.SequenceId = seqId;
+                this.Group = seqHash;
             }
 
             /// <inheritdoc/>
@@ -365,10 +365,10 @@ namespace Microsoft.Coyote.Runtime
             /// Returns a string that represents the execution step.
             /// </summary>
             public override string ToString() =>
-                $"op({this.Current}:{this.CurrentSequenceId}),sp({this.SchedulingPoint}),next({this.Value}:{this.SequenceId})";
+                $"op({this.Current}:{this.CurrentGroup}),sp({this.SchedulingPoint}),next({this.Value}:{this.Group})";
 
             /// <inheritdoc/>
-            public override string ToSequenceString() => $"op({this.CurrentSequenceId}),sp({this.SchedulingPoint}),next({this.SequenceId})";
+            public override string ToSequenceString() => $"op({this.CurrentGroup}),sp({this.SchedulingPoint}),next({this.Group})";
         }
 
         /// <summary>
@@ -384,8 +384,8 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Initializes a new instance of the <see cref="BooleanChoiceStep"/> class.
             /// </summary>
-            internal BooleanChoiceStep(int index, ulong current, ulong currentSeqId, bool value)
-                : base(index, current, currentSeqId)
+            internal BooleanChoiceStep(int index, ulong current, Guid currentGroup, bool value)
+                : base(index, current, currentGroup)
             {
                 this.Value = value;
             }
@@ -400,10 +400,10 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Returns a string that represents the execution step.
             /// </summary>
-            public override string ToString() => $"op({this.Current}:{this.CurrentSequenceId}),bool({this.Value})";
+            public override string ToString() => $"op({this.Current}:{this.CurrentGroup}),bool({this.Value})";
 
             /// <inheritdoc/>
-            public override string ToSequenceString() => $"op({this.CurrentSequenceId}),bool({this.Value})";
+            public override string ToSequenceString() => $"op({this.CurrentGroup}),bool({this.Value})";
         }
 
         /// <summary>
@@ -419,8 +419,8 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Initializes a new instance of the <see cref="IntegerChoiceStep"/> class.
             /// </summary>
-            internal IntegerChoiceStep(int index, ulong current, ulong currentSeqId, int value)
-                : base(index, current, currentSeqId)
+            internal IntegerChoiceStep(int index, ulong current, Guid currentGroup, int value)
+                : base(index, current, currentGroup)
             {
                 this.Value = value;
             }
@@ -435,10 +435,10 @@ namespace Microsoft.Coyote.Runtime
             /// <summary>
             /// Returns a string that represents the execution step.
             /// </summary>
-            public override string ToString() => $"op({this.Current}:{this.CurrentSequenceId}),int({this.Value})";
+            public override string ToString() => $"op({this.Current}:{this.CurrentGroup}),int({this.Value})";
 
             /// <inheritdoc/>
-            public override string ToSequenceString() => $"op({this.CurrentSequenceId}),int({this.Value})";
+            public override string ToSequenceString() => $"op({this.CurrentGroup}),int({this.Value})";
         }
     }
 }

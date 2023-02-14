@@ -35,12 +35,6 @@ namespace Microsoft.Coyote.Actors
         internal int Assert { get; set; }
 
         /// <summary>
-        /// User-defined hash of the event. The default value is 0. Override to
-        /// improve the accuracy of stateful techniques during testing.
-        /// </summary>
-        internal int HashedState { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="EventInfo"/> class.
         /// </summary>
         internal EventInfo(Event e)
@@ -48,7 +42,6 @@ namespace Microsoft.Coyote.Actors
             this.EventName = e.GetType().FullName;
             this.MustHandle = false;
             this.Assert = -1;
-            this.HashedState = 0;
         }
 
         /// <summary>

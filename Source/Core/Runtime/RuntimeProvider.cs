@@ -66,7 +66,8 @@ namespace Microsoft.Coyote.Runtime
                 logManager.RegisterLog(new RuntimeLogTextFormatter(), logWriter);
             }
 
-            return CoyoteRuntime.Create(configuration, valueGenerator, logWriter, logManager, extension);
+            ExecutionContext context = ExecutionContext.Create();
+            return CoyoteRuntime.Create(configuration, context, valueGenerator, logWriter, logManager, extension);
         }
 
         /// <summary>

@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.Cli
                 "fair-prioritization",
                 "delay-bounding",
                 "fair-delay-bounding",
-                "q-learning"
+                "rl"
             };
 
             var strategyOption = new Option<string>(
@@ -952,8 +952,8 @@ namespace Microsoft.Coyote.Cli
                                 }
 
                                 break;
-                            case "q-learning":
-                                this.Configuration.IsImplicitProgramStateHashingEnabled = true;
+                            case "rl":
+                                this.Configuration.IsTraceAnalysisEnabled = true;
                                 break;
                             case "random":
                             default:

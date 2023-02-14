@@ -20,20 +20,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Map from program states to a map from next operations to their quality values.
         /// </summary>
-        private readonly Dictionary<int, Dictionary<ulong, double>> OperationQTable;
+        private readonly Dictionary<ulong, Dictionary<ulong, double>> OperationQTable;
 
         /// <summary>
         /// The path that is being executed during the current iteration. Each
         /// step of the execution is represented by an operation and a value
         /// representing the program state after the operation executed.
         /// </summary>
-        private readonly LinkedList<(ulong op, SchedulingPointType sp, int state)> ExecutionPath;
+        private readonly LinkedList<(ulong op, SchedulingPointType sp, ulong state)> ExecutionPath;
 
         /// <summary>
         /// Map from values representing program states to their transition
         /// frequency in the current execution path.
         /// </summary>
-        private readonly Dictionary<int, ulong> TransitionFrequencies;
+        private readonly Dictionary<ulong, ulong> TransitionFrequencies;
 
         /// <summary>
         /// The last chosen operation.
@@ -87,9 +87,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         public QLearningStrategy(Configuration configuration)
             : base(configuration, false)
         {
-            this.OperationQTable = new Dictionary<int, Dictionary<ulong, double>>();
-            this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, int)>();
-            this.TransitionFrequencies = new Dictionary<int, ulong>();
+            this.OperationQTable = new Dictionary<ulong, Dictionary<ulong, double>>();
+            this.ExecutionPath = new LinkedList<(ulong, SchedulingPointType, ulong)>();
+            this.TransitionFrequencies = new Dictionary<ulong, ulong>();
             this.LastOperation = 0;
             this.LearningRate = 0.3;
             this.Gamma = 0.7;
@@ -112,21 +112,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
-            int state = this.CaptureExecutionStep(current);
+            this.CaptureExecutionStep(current, state);
             this.InitializeOperationQValues(state, ops);
-
             next = this.GetNextOperationByPolicy(state, ops);
             this.LastOperation = next.Id;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool NextBoolean(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, ulong state, out bool next)
         {
-            int state = this.CaptureExecutionStep(current);
+            this.CaptureExecutionStep(current, state);
             this.InitializeBooleanChoiceQValues(state);
             next = this.GetNextBooleanChoiceByPolicy(state);
             this.LastOperation = next ? this.TrueChoiceOpValue : this.FalseChoiceOpValue;
@@ -134,9 +133,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(int maxValue, ControlledOperation current, ulong state, out int next)
         {
-            int state = this.CaptureExecutionStep(current);
+            this.CaptureExecutionStep(current, state);
             this.InitializeIntegerChoiceQValues(state, maxValue);
             next = this.GetNextIntegerChoiceByPolicy(state, maxValue);
             this.LastOperation = this.MinIntegerChoiceOpValue - (ulong)next;
@@ -147,7 +146,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Returns the next operation to schedule by drawing from the probability
         /// distribution over the specified state and enabled operations.
         /// </summary>
-        private ControlledOperation GetNextOperationByPolicy(int state, IEnumerable<ControlledOperation> ops)
+        private ControlledOperation GetNextOperationByPolicy(ulong state, IEnumerable<ControlledOperation> ops)
         {
             var opIds = new List<ulong>();
             var qValues = new List<double>();
@@ -168,7 +167,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Returns the next boolean choice by drawing from the probability
         /// distribution over the specified state and boolean choices.
         /// </summary>
-        private bool GetNextBooleanChoiceByPolicy(int state)
+        private bool GetNextBooleanChoiceByPolicy(ulong state)
         {
             double trueQValue = this.OperationQTable[state][this.TrueChoiceOpValue];
             double falseQValue = this.OperationQTable[state][this.FalseChoiceOpValue];
@@ -187,7 +186,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Returns the next integer choice by drawing from the probability
         /// distribution over the specified state and integer choices.
         /// </summary>
-        private int GetNextIntegerChoiceByPolicy(int state, int maxValue)
+        private int GetNextIntegerChoiceByPolicy(ulong state, int maxValue)
         {
             var qValues = new List<double>(maxValue);
             for (ulong i = 0; i < (ulong)maxValue; ++i)
@@ -253,13 +252,10 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <summary>
-        /// Captures metadata related to the current execution step, and returns
-        /// a value representing the current program state.
+        /// Captures metadata related to the current execution step and program state.
         /// </summary>
-        private int CaptureExecutionStep(ControlledOperation current)
+        private void CaptureExecutionStep(ControlledOperation current, ulong state)
         {
-            int state = current.LastHashedProgramState;
-
             // Update the execution path with the current state.
             this.ExecutionPath.AddLast((this.LastOperation, current.LastSchedulingPoint, state));
 
@@ -270,15 +266,13 @@ namespace Microsoft.Coyote.Testing.Interleaving
 
             // Increment the state transition frequency.
             this.TransitionFrequencies[state]++;
-
-            return state;
         }
 
         /// <summary>
         /// Initializes the Q values of all operations that can be chosen at the
         /// specified state that have not been previously encountered.
         /// </summary>
-        private void InitializeOperationQValues(int state, IEnumerable<ControlledOperation> ops)
+        private void InitializeOperationQValues(ulong state, IEnumerable<ControlledOperation> ops)
         {
             if (!this.OperationQTable.TryGetValue(state, out Dictionary<ulong, double> qValues))
             {
@@ -300,7 +294,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Initializes the Q values of all boolean choices that can be chosen
         /// at the specified state that have not been previously encountered.
         /// </summary>
-        private void InitializeBooleanChoiceQValues(int state)
+        private void InitializeBooleanChoiceQValues(ulong state)
         {
             if (!this.OperationQTable.TryGetValue(state, out Dictionary<ulong, double> qValues))
             {
@@ -323,7 +317,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Initializes the Q values of all integer choices that can be chosen
         /// at the specified state that have not been previously encountered.
         /// </summary>
-        private void InitializeIntegerChoiceQValues(int state, int maxValue)
+        private void InitializeIntegerChoiceQValues(ulong state, int maxValue)
         {
             if (!this.OperationQTable.TryGetValue(state, out Dictionary<ulong, double> qValues))
             {

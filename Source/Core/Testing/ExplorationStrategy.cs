@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Testing
                 ExplorationStrategy.FairPrioritization => "fair-prioritization",
                 ExplorationStrategy.DelayBounding => "delay-bounding",
                 ExplorationStrategy.FairDelayBounding => "fair-delay-bounding",
-                ExplorationStrategy.QLearning => "q-learning",
+                ExplorationStrategy.QLearning => "rl",
                 ExplorationStrategy.DFS => "dfs",
                 _ => throw new NotSupportedException($"The strategy '{strategy}' is not expected.")
             };
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Testing
                 "fair-prioritization" => ExplorationStrategy.FairPrioritization,
                 "delay-bounding" => ExplorationStrategy.DelayBounding,
                 "fair-delay-bounding" => ExplorationStrategy.FairDelayBounding,
-                "q-learning" => ExplorationStrategy.QLearning,
+                "rl" => ExplorationStrategy.QLearning,
                 "dfs" => ExplorationStrategy.DFS,
                 _ => throw new ArgumentOutOfRangeException($"The name '{name}' is not expected.")
             };

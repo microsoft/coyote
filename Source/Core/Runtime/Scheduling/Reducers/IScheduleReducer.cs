@@ -22,7 +22,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="ops">All available operations to schedule.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <returns>The subset of operations to schedule.</returns>
-        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current);
+        IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state);
     }
 }

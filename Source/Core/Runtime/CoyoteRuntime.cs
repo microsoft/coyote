@@ -89,6 +89,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly Configuration Configuration;
 
         /// <summary>
+        /// The execution context across test iterations.
+        /// </summary>
+        internal readonly ExecutionContext Context;
+
+        /// <summary>
         /// Scheduler that controls the execution of operations during testing.
         /// </summary>
         private readonly OperationScheduler Scheduler;
@@ -200,7 +205,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// List of all registered state hashing functions.
         /// </summary>
-        private readonly List<Func<int>> StateHashingFunctions;
+        private readonly List<Func<ulong>> StateHashingFunctions;
 
         /// <summary>
         /// The runtime completion source.
@@ -285,27 +290,28 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal static CoyoteRuntime Create(Configuration configuration, IRandomValueGenerator valueGenerator,
+        internal static CoyoteRuntime Create(Configuration configuration, ExecutionContext context, IRandomValueGenerator valueGenerator,
             LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
-            new CoyoteRuntime(configuration, null, valueGenerator, logWriter, logManager, extension);
+            new CoyoteRuntime(configuration, context, null, valueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal static CoyoteRuntime Create(Configuration configuration, OperationScheduler scheduler,
+        internal static CoyoteRuntime Create(Configuration configuration, ExecutionContext context, OperationScheduler scheduler,
             LogWriter logWriter, LogManager logManager, IRuntimeExtension extension) =>
-            new CoyoteRuntime(configuration, scheduler, scheduler.ValueGenerator, logWriter, logManager, extension);
+            new CoyoteRuntime(configuration, context, scheduler, scheduler.ValueGenerator, logWriter, logManager, extension);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        private CoyoteRuntime(Configuration configuration, OperationScheduler scheduler, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter, LogManager logManager, IRuntimeExtension extension)
+        private CoyoteRuntime(Configuration configuration, ExecutionContext context, OperationScheduler scheduler,
+            IRandomValueGenerator valueGenerator, LogWriter logWriter, LogManager logManager, IRuntimeExtension extension)
         {
             // Registers the runtime with the provider which in return assigns a unique identifier.
             this.Id = RuntimeProvider.Register(this);
 
             this.Configuration = configuration;
+            this.Context = context;
             this.Scheduler = scheduler;
             this.RuntimeLock = new object();
             this.CancellationSource = new CancellationTokenSource();
@@ -339,7 +345,7 @@ namespace Microsoft.Coyote.Runtime
             this.LogManager = logManager;
             this.SpecificationMonitors = new List<SpecMonitor>();
             this.TaskLivenessMonitors = new List<TaskLivenessMonitor>();
-            this.StateHashingFunctions = new List<Func<int>>();
+            this.StateHashingFunctions = new List<Func<ulong>>();
 
             this.ControlledTaskScheduler = new ControlledTaskScheduler(this);
             this.SyncContext = new ControlledSynchronizationContext(this);
@@ -438,7 +444,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Schedule(Action continuation, Action preCondition = null, Action postCondition = null)
         {
-            ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
+            ControlledOperation op = this.CreateControlledOperation();
             this.ScheduleOperation(op, continuation, preCondition, postCondition);
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
         }
@@ -531,7 +537,7 @@ namespace Microsoft.Coyote.Runtime
                 // TODO: cache the dummy delay action to optimize memory.
                 // TODO: figure out a good strategy for grouping delays, especially if they
                 // are shared in different contexts and not awaited immediately.
-                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group, delay: timeout);
+                ControlledOperation op = this.CreateControlledOperation(delay: timeout);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
@@ -585,39 +591,17 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Registers the specified task as a known controlled task.
+        /// Creates a new controlled operation with an optional delay.
         /// </summary>
-        internal void RegisterKnownControlledTask(Task task)
-        {
-            if (this.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                this.ControlledTasks.TryAdd(task, null);
-            }
-        }
-
-        /// <summary>
-        /// Registers the specified task as a known uncontrolled task.
-        /// </summary>
-        internal void RegisterKnownUncontrolledTask(Task task, string methodName)
-        {
-            if (this.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                this.UncontrolledTasks.TryAdd(task, methodName);
-            }
-        }
-
-        /// <summary>
-        /// Creates a new controlled operation with the specified group and an optional delay.
-        /// </summary>
-        internal ControlledOperation CreateControlledOperation(OperationGroup group = null, uint delay = 0)
+        internal ControlledOperation CreateControlledOperation(uint delay = 0)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
                 ControlledOperation op = delay > 0 ?
-                    new DelayOperation(operationId, $"Delay({operationId})", delay, group, this) :
-                    new ControlledOperation(operationId, $"Op({operationId})", group, this);
+                    new DelayOperation(operationId, $"Delay({operationId})", delay, this) :
+                    new ControlledOperation(operationId, $"Op({operationId})", this);
                 if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
                 {
                     op.IsSourceUncontrolled = true;
@@ -668,8 +652,14 @@ namespace Microsoft.Coyote.Runtime
                 this.OperationMap.TryAdd(op.Id, op);
 #endif
 
-                // Assign the operation as a member of its group.
-                op.Group.RegisterMember(op);
+                if (this.Configuration.IsTraceAnalysisEnabled)
+                {
+                    // Compute the latest hashed program state.
+                    (ulong explicitState, ulong totalState) = this.ComputeProgramState();
+                    this.Context.ApplyCreation(op, explicitState, totalState);
+                    // this.Scheduler.Graph.Add(current, explicitState, totalState, false);
+                }
+
                 if (this.OperationMap.Count is 1)
                 {
                     // This is the first operation registered, so schedule it.
@@ -682,9 +672,6 @@ namespace Microsoft.Coyote.Runtime
                     // this operation starts executing to avoid race conditions.
                     this.PendingStartOperationMap.Add(op, new ManualResetEventSlim(false));
                 }
-
-                // Register the operation creation sequence id for coverage.
-                this.CoverageInfo.DeclareOperationSequenceId(op.SequenceId);
 
                 this.LogWriter.LogDebug("[coyote::debug] Created operation {0} on thread '{1}'.",
                     op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
@@ -921,11 +908,8 @@ namespace Microsoft.Coyote.Runtime
                 this.CheckIfSchedulingStepsBoundIsReached();
 
                 // Update metadata related to this scheduling point.
-                current.LastSchedulingPoint = type;
+                current.RegisterSchedulingPoint(type);
                 this.LastPostponedSchedulingPoint = null;
-
-                // Update the current operation with the hashed program state.
-                current.LastHashedProgramState = this.ComputeProgramState();
 
                 // Try to enable any operations with resolved dependencies before asking the
                 // scheduler to choose the next one to schedule.
@@ -961,7 +945,15 @@ namespace Microsoft.Coyote.Runtime
                     this.CoverageInfo.DeclareSchedulingPoint(type.ToString(), new StackTrace().ToString());
                 }
 
-                if (!this.Scheduler.GetNextOperation(ops, current, isYielding, out ControlledOperation next))
+                // Compute the latest hashed program state.
+                (ulong explicitState, ulong totalState) = this.ComputeProgramState();
+                if (this.Configuration.IsTraceAnalysisEnabled)
+                {
+                    this.Context.ApplyInvocation(current, explicitState, totalState);
+                    // this.Scheduler.Graph.Add(current, explicitState, totalState, false);
+                }
+
+                if (!this.Scheduler.GetNextOperation(ops, current, totalState, isYielding, out ControlledOperation next))
                 {
                     // The scheduler hit the scheduling steps bound.
                     this.Detach(ExecutionStatus.BoundReached);
@@ -970,6 +962,11 @@ namespace Microsoft.Coyote.Runtime
 
                 this.LogWriter.LogDebug("[coyote::debug] Scheduling operation {0} from thread '{1}'.",
                     next.DebugInfo, Thread.CurrentThread.ManagedThreadId);
+                if (this.Configuration.IsTraceAnalysisEnabled)
+                {
+                    this.Context.ApplyContextSwitch(next, explicitState, totalState);
+                }
+
                 bool isNextOperationScheduled = current != next;
                 if (isNextOperationScheduled)
                 {
@@ -1138,10 +1135,9 @@ namespace Microsoft.Coyote.Runtime
                         this.CheckLivenessThresholdExceeded();
                     }
 
-                    // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.LastHashedProgramState = this.ComputeProgramState();
-
-                    if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, out result))
+                    // Compute the latest hashed program state.
+                    (ulong explicitState, ulong totalState) = this.ComputeProgramState();
+                    if (!this.Scheduler.GetNextBoolean(this.ScheduledOperation, totalState, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }
@@ -1182,10 +1178,9 @@ namespace Microsoft.Coyote.Runtime
                         this.CheckLivenessThresholdExceeded();
                     }
 
-                    // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.LastHashedProgramState = this.ComputeProgramState();
-
-                    if (!this.Scheduler.GetNextInteger(this.ScheduledOperation, maxValue, out result))
+                    // Compute the latest hashed program state.
+                    (ulong explicitState, ulong totalState) = this.ComputeProgramState();
+                    if (!this.Scheduler.GetNextInteger(maxValue, this.ScheduledOperation, totalState, out result))
                     {
                         this.Detach(ExecutionStatus.BoundReached);
                     }
@@ -1404,8 +1399,20 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns the currently scheduled <see cref="ControlledOperation"/>,
+        /// or null if no operation is scheduled.
+        /// </summary>
+        internal ControlledOperation GetScheduledOperation()
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                return this.ScheduledOperation;
+            }
+        }
+
+        /// <summary>
         /// Returns the currently executing <see cref="ControlledOperation"/>,
-        /// or null if no such operation is executing.
+        /// or null if no operation is executing.
         /// </summary>
         /// <remarks>
         /// Invoking this method checks if the current thread is uncontrolled or not.
@@ -1426,7 +1433,7 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Returns the currently executing <see cref="ControlledOperation"/> of the
-        /// specified type, or null if no such operation is executing.
+        /// specified type, or null if no operation is executing.
         /// </summary>
         /// <remarks>
         /// Invoking this method checks if the current thread is uncontrolled or not.
@@ -1447,8 +1454,18 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Tries to return the currently executing <see cref="ControlledOperation"/>,
+        /// or false if no operation is executing.
+        /// </summary>
+        internal bool TryGetExecutingOperation(out ControlledOperation op)
+        {
+            op = this.GetExecutingOperation();
+            return op != null;
+        }
+
+        /// <summary>
         /// Returns the currently executing <see cref="ControlledOperation"/>,
-        /// or null if no such operation is executing.
+        /// or null if no operation is executing.
         /// </summary>
         internal ControlledOperation GetExecutingOperationUnsafe()
         {
@@ -1456,16 +1473,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 return ExecutingOperation;
             }
-        }
-
-        /// <summary>
-        /// Tries to return the currently executing <see cref="ControlledOperation"/>,
-        /// or false if no such operation is executing.
-        /// </summary>
-        internal bool TryGetExecutingOperation(out ControlledOperation op)
-        {
-            op = this.GetExecutingOperation();
-            return op != null;
         }
 
         /// <summary>
@@ -1523,10 +1530,43 @@ namespace Microsoft.Coyote.Runtime
             (ulong)Interlocked.Increment(ref this.OperationIdCounter) - 1;
 
         /// <summary>
+        /// Registers the method invoked by the currently executing operation.
+        /// </summary>
+        internal static void RegisterCallSiteForExecutingOperation(string method)
+        {
+            // Important to skip the registration if the runtime is currently synchronized, else it can update
+            // the call site of the operation to a method invoked by the runtime, rather than the user program
+            // and can also lead to stack overflow.
+            if (!CoyoteRuntime.IsExecutionSynchronized)
+            {
+                var runtime = CoyoteRuntime.Current;
+                if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+                {
+                    using (SynchronizedSection.Enter(runtime.RuntimeLock))
+                    {
+                        ControlledOperation current = ExecutingOperation;
+                        if (current != null)
+                        {
+                            current.RegisterCallSite(method);
+
+                            // Compute the latest hashed program state.
+                            if (runtime.Configuration.IsTraceAnalysisEnabled)
+                            {
+                                (ulong explicitState, ulong totalState) = runtime.ComputeProgramState();
+                                runtime.Context.ApplyInvocation(current, explicitState, totalState);
+                                // runtime.Scheduler.Graph.Add(current, explicitState, totalState, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Registers a new state hashing function that contributes to computing
         /// a representation of the program state in each scheduling step.
         /// </summary>
-        internal void RegisterStateHashingFunction(Func<int> func)
+        internal void RegisterStateHashingFunction(Func<ulong> func)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
@@ -1535,42 +1575,39 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns the current program state represented by a hash.
+        /// Returns the current explicit and total program state represented by a hash.
         /// </summary>
-        /// <remarks>
-        /// The hash is updated in each execution step.
-        /// </remarks>
-        private int ComputeProgramState()
+        private (ulong, ulong) ComputeProgramState()
         {
             unchecked
             {
-                int hash = 19;
-                if (this.Configuration.IsImplicitProgramStateHashingEnabled)
+                ulong implicitHash = 0;
+                if (this.Configuration.IsTraceAnalysisEnabled)
                 {
+                    ExecutingOperation?.ComputeHashedState(this.SchedulingPolicy);
                     foreach (var operation in this.GetRegisteredOperations())
                     {
-                        hash *= 31 + operation.GetHashedState(this.SchedulingPolicy);
+                        if (operation.Status != OperationStatus.Completed)
+                        {
+                            implicitHash ^= operation.LastHashedState;
+                        }
                     }
 
                     foreach (var monitor in this.SpecificationMonitors)
                     {
-                        hash *= 31 + monitor.GetHashedState();
+                        implicitHash ^= monitor.ComputeHashedState();
                     }
                 }
 
-                if (this.StateHashingFunctions.Count > 0)
+                ulong explicitHash = 0;
+                foreach (var func in this.StateHashingFunctions)
                 {
-                    int customHash = 19;
-                    foreach (var func in this.StateHashingFunctions)
-                    {
-                        customHash *= 31 + func();
-                    }
-
-                    hash *= 31 + customHash;
+                    explicitHash ^= func();
                 }
 
-                this.CoverageInfo.DeclareVisitedState(hash);
-                return hash;
+                ulong hash = implicitHash ^ explicitHash;
+                this.CoverageInfo.DeclareVisitedState(implicitHash, explicitHash, hash);
+                return (explicitHash, hash);
             }
         }
 
@@ -1755,6 +1792,28 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private void StartMonitoringDeadlocks() => Task.Factory.StartNew(this.CheckIfExecutionHasDeadlockedAsync,
             this.CancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+        /// <summary>
+        /// Registers the specified task as a known controlled task.
+        /// </summary>
+        internal void RegisterKnownControlledTask(Task task)
+        {
+            if (this.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                this.ControlledTasks.TryAdd(task, null);
+            }
+        }
+
+        /// <summary>
+        /// Registers the specified task as a known uncontrolled task.
+        /// </summary>
+        internal void RegisterKnownUncontrolledTask(Task task, string methodName)
+        {
+            if (this.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                this.UncontrolledTasks.TryAdd(task, methodName);
+            }
+        }
 
         /// <summary>
         /// Returns true if the specified thread is controlled, else false.
@@ -2622,6 +2681,7 @@ namespace Microsoft.Coyote.Runtime
                         handler.Dispose();
                     }
 
+                    this.Context.Clear();
                     this.ThreadPool.Clear();
                     this.OperationMap.Clear();
                     this.PendingStartOperationMap.Clear();

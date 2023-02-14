@@ -77,7 +77,7 @@ namespace Microsoft.Coyote
                     logWriter.LogImportant("..... No coverage reports available.");
                 }
 
-                logWriter.LogImportant(engine.TestReport.GetText(configuration, "..."));
+                logWriter.LogImportant(engine.GetReport());
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
                 return GetExitCodeFromTestReport(engine.TestReport);
             }

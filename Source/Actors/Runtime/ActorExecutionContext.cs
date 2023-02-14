@@ -731,12 +731,6 @@ namespace Microsoft.Coyote.Actors
             return result;
         }
 
-        /// <summary>
-        /// Returns the program counter of the specified actor.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual int GetActorProgramCounter(ActorId actorId) => 0;
-
         /// <inheritdoc/>
         public void RegisterMonitor<T>()
             where T : Monitor =>
@@ -867,12 +861,6 @@ namespace Microsoft.Coyote.Actors
             private readonly ConcurrentDictionary<string, ActorId> NameValueToActorId;
 
             /// <summary>
-            /// Map of program counters used for state-caching to distinguish
-            /// scheduling from non-deterministic choices.
-            /// </summary>
-            private readonly ConcurrentDictionary<ActorId, int> ProgramCounterMap;
-
-            /// <summary>
             /// If true, the actor execution is controlled, else false.
             /// </summary>
             internal override bool IsExecutionControlled => true;
@@ -885,7 +873,6 @@ namespace Microsoft.Coyote.Actors
             {
                 this.ActorIds = new ConcurrentDictionary<ActorId, byte>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
-                this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
             }
 
             /// <inheritdoc/>
@@ -995,7 +982,6 @@ namespace Microsoft.Coyote.Actors
                 // Using ulong.MaxValue because a Create operation cannot specify
                 // the id of its target, because the id does not exist yet.
                 this.Runtime.ScheduleNextOperation(creator?.Operation, SchedulingPointType.Create);
-                this.ResetProgramCounter(creator);
 
                 if (id is null)
                 {
@@ -1139,7 +1125,6 @@ namespace Microsoft.Coyote.Actors
                     e.GetType().FullName, targetId.Value);
 
                 this.Runtime.ScheduleNextOperation(sender?.Operation, SchedulingPointType.Send);
-                this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
                 if (eventGroup is null && sender != null)
@@ -1227,11 +1212,6 @@ namespace Microsoft.Coyote.Actors
                         {
                             this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
                         }
-
-                        if (!actor.IsHalted)
-                        {
-                            this.ResetProgramCounter(actor);
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -1280,11 +1260,6 @@ namespace Microsoft.Coyote.Actors
             internal override bool GetNondeterministicBooleanChoice(string callerName, string callerType)
             {
                 var caller = this.Runtime.GetExecutingOperation<ActorOperation>()?.Actor;
-                if (caller is Actor callerActor)
-                {
-                    this.IncrementActorProgramCounter(callerActor.Id);
-                }
-
                 return this.Runtime.GetNextNondeterministicBooleanChoice(callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             }
 
@@ -1294,11 +1269,6 @@ namespace Microsoft.Coyote.Actors
             internal override int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
             {
                 var caller = this.Runtime.GetExecutingOperation<ActorOperation>()?.Actor;
-                if (caller is Actor callerActor)
-                {
-                    this.IncrementActorProgramCounter(callerActor.Id);
-                }
-
                 return this.Runtime.GetNextNondeterministicIntegerChoice(maxValue, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             }
 
@@ -1310,18 +1280,14 @@ namespace Microsoft.Coyote.Actors
                     // Skip the scheduling point, as this is the first dequeue of the event handler,
                     // to avoid unnecessary context switches.
                     this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Receive);
-                    this.ResetProgramCounter(actor);
                 }
 
                 base.LogDequeuedEvent(actor, e, eventInfo, isFreshDequeue);
             }
 
             /// <inheritdoc/>
-            internal override void LogDefaultEventDequeued(Actor actor)
-            {
+            internal override void LogDefaultEventDequeued(Actor actor) =>
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Receive);
-                this.ResetProgramCounter(actor);
-            }
 
             /// <inheritdoc/>
             internal override void LogHandleHaltEvent(Actor actor, int inboxSize)
@@ -1339,7 +1305,6 @@ namespace Microsoft.Coyote.Actors
             {
                 base.LogReceivedEventWithoutWaiting(actor, e);
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Receive);
-                this.ResetProgramCounter(actor);
             }
 
             /// <inheritdoc/>
@@ -1347,7 +1312,6 @@ namespace Microsoft.Coyote.Actors
             {
                 base.LogWaitEvent(actor, eventTypes);
                 this.Runtime.ScheduleNextOperation(actor.Operation, SchedulingPointType.Pause);
-                this.ResetProgramCounter(actor);
             }
 
             /// <inheritdoc/>
@@ -1355,29 +1319,6 @@ namespace Microsoft.Coyote.Actors
             {
                 this.AssertExpectedCallerActor(stateMachine, "Pop");
                 this.LogManager.LogPopState(stateMachine.Id, default, stateMachine.CurrentStateName);
-            }
-
-            /// <inheritdoc/>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal override int GetActorProgramCounter(ActorId actorId) =>
-                this.ProgramCounterMap.GetOrAdd(actorId, 0);
-
-            /// <summary>
-            /// Increments the program counter of the specified actor.
-            /// </summary>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void IncrementActorProgramCounter(ActorId actorId) =>
-                this.ProgramCounterMap.AddOrUpdate(actorId, 1, (id, value) => value + 1);
-
-            /// <summary>
-            /// Resets the program counter of the specified actor.
-            /// </summary>
-            private void ResetProgramCounter(Actor actor)
-            {
-                if (actor != null)
-                {
-                    this.ProgramCounterMap.AddOrUpdate(actor.Id, 0, (id, value) => 0);
-                }
             }
 
             /// <inheritdoc/>
@@ -1407,7 +1348,6 @@ namespace Microsoft.Coyote.Actors
                 if (disposing)
                 {
                     this.NameValueToActorId.Clear();
-                    this.ProgramCounterMap.Clear();
                     foreach (var id in this.ActorIds)
                     {
                         // Unbind the runtime to avoid memory leaks if the user holds the id.

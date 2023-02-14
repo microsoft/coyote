@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
             int count = ops.Count();

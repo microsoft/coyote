@@ -39,10 +39,11 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal bool GetNextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
             try
@@ -74,7 +75,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
                 else
                 {
-                    result = this.NextOperation(ops, current, isYielding, out next);
+                    result = this.NextOperation(ops, current, state, isYielding, out next);
                 }
 
                 this.StepCount++;
@@ -93,19 +94,21 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal abstract bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
         /// </summary>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextBoolean(ControlledOperation current, out bool next)
+        internal bool GetNextBoolean(ControlledOperation current, ulong state, out bool next)
         {
             try
             {
@@ -125,7 +128,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
                 else
                 {
-                    result = this.NextBoolean(current, out next);
+                    result = this.NextBoolean(current, state, out next);
                 }
 
                 this.StepCount++;
@@ -143,18 +146,20 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// Returns the next boolean choice.
         /// </summary>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool NextBoolean(ControlledOperation current, out bool next);
+        internal abstract bool NextBoolean(ControlledOperation current, ulong state, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.
         /// </summary>
-        /// <param name="current">The currently scheduled operation.</param>
         /// <param name="maxValue">The max value.</param>
+        /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal bool GetNextInteger(ControlledOperation current, int maxValue, out int next)
+        internal bool GetNextInteger(int maxValue, ControlledOperation current, ulong state, out int next)
         {
             try
             {
@@ -174,7 +179,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
                 }
                 else
                 {
-                    result = this.NextInteger(current, maxValue, out next);
+                    result = this.NextInteger(maxValue, current, state, out next);
                 }
 
                 this.StepCount++;
@@ -191,11 +196,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// <summary>
         /// Returns the next integer choice.
         /// </summary>
-        /// <param name="current">The currently scheduled operation.</param>
         /// <param name="maxValue">The max value.</param>
+        /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="state">Hash representing the current state of the program.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        internal abstract bool NextInteger(ControlledOperation current, int maxValue, out int next);
+        internal abstract bool NextInteger(int maxValue, ControlledOperation current, ulong state, out int next);
 
         /// <summary>
         /// Resets the strategy.

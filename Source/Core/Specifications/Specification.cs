@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Specifications
         /// If you register more than one state hashing function per iteration, the
         /// runtime will aggregate the hashes computed from each function.
         /// </remarks>
-        public static void RegisterStateHashingFunction(Func<int> func) =>
+        public static void RegisterStateHashingFunction(Func<ulong> func) =>
             CoyoteRuntime.Current.RegisterStateHashingFunction(func);
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
             int idx = this.RandomValueGenerator.Next(ops.Count());
@@ -30,14 +30,14 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextBoolean(ControlledOperation current, out bool next)
+        internal override bool NextBoolean(ControlledOperation current, ulong state, out bool next)
         {
             next = this.RandomValueGenerator.Next(2) is 0 ? true : false;
             return true;
         }
 
         /// <inheritdoc/>
-        internal override bool NextInteger(ControlledOperation current, int maxValue, out int next)
+        internal override bool NextInteger(int maxValue, ControlledOperation current, ulong state, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             return true;

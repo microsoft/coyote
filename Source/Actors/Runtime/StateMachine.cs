@@ -782,22 +782,17 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of this state machine.
         /// </summary>
-        internal override int GetHashedState(SchedulingPolicy policy)
+        internal override ulong GetHashedState(SchedulingPolicy policy)
         {
             unchecked
             {
-                var hash = 19;
+                ulong hash = 17;
                 if (policy is SchedulingPolicy.Interleaving)
                 {
-                    hash = (hash * 31) + this.GetType().GetHashCode();
-                    hash = (hash * 31) + this.Id.Value.GetHashCode();
-                    hash = (hash * 31) + this.IsHalted.GetHashCode();
-                    hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
-                    hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
-
+                    hash = (hash * 31) + (ulong)this.GetType().GetHashCode();
                     foreach (var state in this.StateStack)
                     {
-                        hash = (hash * 31) + state.GetType().GetHashCode();
+                        hash = (hash * 31) + (ulong)state.GetType().GetHashCode();
                     }
 
                     hash = (hash * 31) + this.Inbox.GetHashedState();
@@ -806,7 +801,7 @@ namespace Microsoft.Coyote.Actors
                 if (this.HashedState != 0)
                 {
                     // Adds the user-defined hashed state.
-                    hash = (hash * 31) + this.HashedState;
+                    hash = (hash * 31) + (ulong)this.HashedState;
                 }
 
                 return hash;

@@ -77,6 +77,12 @@ namespace Microsoft.Coyote
         internal PortfolioMode PortfolioMode;
 
         /// <summary>
+        /// If enabled, execution trace analysis is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsTraceAnalysisEnabled;
+
+        /// <summary>
         /// If enabled and uncontrolled concurrency is detected, then the runtime will attempt to partially
         /// control the concurrency of the application, instead of immediately failing with an error.
         /// </summary>
@@ -109,12 +115,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public uint MaxFuzzingDelay { get; internal set; }
-
-        /// <summary>
-        /// If enabled, execution trace analysis is enabled during systematic testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsTraceAnalysisEnabled;
 
         /// <summary>
         /// If enabled, liveness checking is enabled during systematic testing.
@@ -234,13 +234,6 @@ namespace Microsoft.Coyote
         internal bool UserExplicitlySetLivenessTemperatureThreshold;
 
         /// <summary>
-        /// If enabled, runtime and automatically inferred program state is used to contribute
-        /// to the computed program state at each scheduling step during testing.
-        /// </summary>
-        [DataMember]
-        internal bool IsImplicitProgramStateHashingEnabled;
-
-        /// <summary>
         /// If enabled, safety monitors can run outside the scope of the testing engine.
         /// </summary>
         [DataMember]
@@ -332,12 +325,12 @@ namespace Microsoft.Coyote
             this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.PortfolioMode = PortfolioMode.Fair;
+            this.IsTraceAnalysisEnabled = true;
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsPartiallyControlledDataNondeterminismAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
             this.IsSystematicFuzzingFallbackEnabled = true;
             this.MaxFuzzingDelay = 1000;
-            this.IsTraceAnalysisEnabled = true;
             this.IsLivenessCheckingEnabled = true;
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
@@ -357,7 +350,6 @@ namespace Microsoft.Coyote
             this.UncontrolledConcurrencyResolutionDelay = 1000;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
-            this.IsImplicitProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledOutsideTesting = false;
             this.IsActorQuiescenceCheckingEnabledOutsideTesting = false;
             this.AttachDebugger = false;
@@ -507,16 +499,16 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration to use the Q-learning exploration strategy during systematic testing.
+        /// Updates the configuration to use the reinforcement learning (RL) exploration strategy during systematic testing.
         /// </summary>
         /// <remarks>
         /// Note that explicitly setting this strategy disables the default exploration mode
         /// that uses a tuned portfolio of strategies.
         /// </remarks>
-        public Configuration WithQLearningStrategy()
+        public Configuration WithReinforcementLearningStrategy()
         {
             this.ExplorationStrategy = ExplorationStrategy.QLearning;
-            this.IsImplicitProgramStateHashingEnabled = true;
+            this.IsTraceAnalysisEnabled = true;
             this.PortfolioMode = PortfolioMode.None;
             return this;
         }

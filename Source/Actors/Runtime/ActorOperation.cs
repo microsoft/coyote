@@ -19,20 +19,18 @@ namespace Microsoft.Coyote.Actors
         /// Initializes a new instance of the <see cref="ActorOperation"/> class.
         /// </summary>
         internal ActorOperation(ulong operationId, string name, Actor actor, CoyoteRuntime runtime)
-            : base(operationId, name, null, runtime)
+            : base(operationId, name, runtime)
         {
             this.Actor = actor;
         }
 
         /// <inheritdoc/>
-        internal override int GetHashedState(SchedulingPolicy policy)
+        protected override ulong GetLatestHashedState(SchedulingPolicy policy)
         {
             unchecked
             {
-                var hash = 19;
-                hash = (hash * 31) + this.Actor.GetHashedState(policy);
-                hash = (hash * 31) + base.GetHashedState(policy);
-                return hash;
+                var hash = base.GetLatestHashedState(policy);
+                return hash ^ this.Actor.GetHashedState(policy);
             }
         }
     }

@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current)
+        public IEnumerable<ControlledOperation> ReduceOperations(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state)
         {
             // Find all operations that are not invoking a 'READ' or 'WRITE' scheduling decision,
             // and if there are any, then return them. This effectively helps racy scheduling

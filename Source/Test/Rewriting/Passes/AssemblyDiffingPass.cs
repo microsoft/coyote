@@ -528,7 +528,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 unchecked
                 {
-                    var hash = 19;
+                    var hash = 17;
                     hash = (hash * 31) + this.Index.GetHashCode();
                     hash = (hash * 31) + this.Name.GetHashCode();
                     return hash;

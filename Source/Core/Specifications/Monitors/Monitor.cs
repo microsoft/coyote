@@ -654,21 +654,21 @@ namespace Microsoft.Coyote.Specifications
         internal bool? GetHotState() => this.IsInHotState() ? true : this.IsInColdState() ? (bool?)false : null;
 
         /// <summary>
-        /// Returns the hashed state of this monitor.
+        /// Computes the latest hashed state of this monitor.
         /// </summary>
-        internal int GetHashedState()
+        internal ulong ComputeHashedState()
         {
             unchecked
             {
-                var hash = 19;
+                ulong hash = 17;
 
-                hash = (hash * 31) + this.GetType().GetHashCode();
-                hash = (hash * 31) + this.CurrentState.GetHashCode();
+                hash = (hash * 31) + (ulong)this.GetType().GetHashCode();
+                hash = (hash * 31) + (ulong)this.CurrentState.GetHashCode();
 
                 if (this.HashedState != 0)
                 {
                     // Adds the user-defined hashed state.
-                    hash = (hash * 31) + this.HashedState;
+                    hash = (hash * 31) + (ulong)this.HashedState;
                 }
 
                 return hash;

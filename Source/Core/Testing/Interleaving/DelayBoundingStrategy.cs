@@ -84,12 +84,12 @@ namespace Microsoft.Coyote.Testing.Interleaving
         }
 
         /// <inheritdoc/>
-        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current,
+        internal override bool NextOperation(IEnumerable<ControlledOperation> ops, ControlledOperation current, ulong state,
             bool isYielding, out ControlledOperation next)
         {
             if (this.IsFair && this.StepCount >= this.Configuration.MaxUnfairSchedulingSteps)
             {
-                return base.NextOperation(ops, current, isYielding, out next);
+                return base.NextOperation(ops, current, state, isYielding, out next);
             }
 
             this.RegisterNewOperationGroup(ops);

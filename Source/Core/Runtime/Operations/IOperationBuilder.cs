@@ -26,6 +26,6 @@ namespace Microsoft.Coyote.Runtime
         /// Optional callback that returns the hashed state of the operation being built.
         /// If provided, it can be used by the test engine to optimize exploration.
         /// </summary>
-        public Func<int> HashedStateCallback { get; }
+        public Func<ulong> HashedStateCallback { get; }
     }
 }

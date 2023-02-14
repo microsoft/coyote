@@ -23,11 +23,6 @@ namespace Microsoft.Coyote.Runtime
         internal ulong Id { get; }
 
         /// <summary>
-        /// The creation sequence id of this operation.
-        /// </summary>
-        internal ulong SequenceId { get; }
-
-        /// <summary>
         /// The unique id of the parent of this operation.
         /// </summary>
         internal ulong ParentId { get; }
@@ -38,36 +33,16 @@ namespace Microsoft.Coyote.Runtime
         internal string Name { get; }
 
         /// <summary>
-        /// The status of this operation. An operation can be scheduled only
-        /// if it is <see cref="OperationStatus.Enabled"/>.
-        /// </summary>
-        internal OperationStatus Status;
-
-        /// <summary>
         /// The group where this operation has membership. This can be used
         /// by the scheduler to optimize exploration.
         /// </summary>
         internal readonly OperationGroup Group;
 
         /// <summary>
-        /// The creation sequence of this operation.
+        /// The status of this operation. An operation can be scheduled only
+        /// if it is <see cref="OperationStatus.Enabled"/>.
         /// </summary>
-        private readonly List<ulong> Sequence;
-
-        /// <summary>
-        /// Queue of continuations that this operation must execute before it completes.
-        /// </summary>
-        private readonly Queue<Action> Continuations;
-
-        /// <summary>
-        /// The list of visited call sites during execution of this operation.
-        /// </summary>
-        internal readonly List<string> VisitedCallSites;
-
-        /// <summary>
-        /// Dependency that must get resolved before this operation can resume executing.
-        /// </summary>
-        private Func<bool> Dependency;
+        internal OperationStatus Status;
 
         /// <summary>
         /// Synchronization mechanism for controlling the execution of this operation.
@@ -75,20 +50,29 @@ namespace Microsoft.Coyote.Runtime
         private ManualResetEventSlim SyncEvent;
 
         /// <summary>
-        /// The type of the last encountered scheduling point.
+        /// Sequence of visited call sites during execution of this operation.
         /// </summary>
-        internal SchedulingPointType LastSchedulingPoint;
+        internal readonly List<string> CallSiteSequence;
 
         /// <summary>
-        /// The call site that was last executed by this operation.
+        /// Sequence of invoked scheduling points during execution of this operation.
         /// </summary>
-        internal string LastCallSite => this.VisitedCallSites.Count is 0 ?
-            string.Empty : this.VisitedCallSites[this.VisitedCallSites.Count - 1];
+        internal readonly List<SchedulingPointType> SchedulingPointSequence;
 
         /// <summary>
-        /// A value that represents the hashed program state when this operation last executed.
+        /// Queue of continuations that this operation must execute before it completes.
         /// </summary>
-        internal int LastHashedProgramState;
+        private readonly Queue<Action> Continuations;
+
+        /// <summary>
+        /// Dependency that must get resolved before this operation can resume executing.
+        /// </summary>
+        private Func<bool> Dependency;
+
+        /// <summary>
+        /// A value that represents the hashed state when this operation last executed.
+        /// </summary>
+        internal ulong LastHashedState { get; private set; }
 
         /// <summary>
         /// A value that represents the shared state being accessed when this
@@ -104,19 +88,14 @@ namespace Microsoft.Coyote.Runtime
         internal IEqualityComparer<string> LastAccessedSharedStateComparer;
 
         /// <summary>
-        /// The count of operations created by this operation.
+        /// The hash of the call sites that this operation has visited.
         /// </summary>
-        internal ulong OperationCreationCount;
+        private ulong CallSiteSequenceHash;
 
         /// <summary>
-        /// The length of the creation sequence of this operation.
+        /// The hash of the scheduling points that this operation has invoked.
         /// </summary>
-        internal int SequenceLength => this.Sequence?.Count ?? 0;
-
-        /// <summary>
-        /// True if this is the root operation, else false.
-        /// </summary>
-        internal bool IsRoot => this.Id is 0;
+        private ulong SchedulingPointSequenceHash;
 
         /// <summary>
         /// True if the source of this operation is uncontrolled, else false.
@@ -129,6 +108,11 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsDependencyUncontrolled;
 
         /// <summary>
+        /// True if this is the root operation, else false.
+        /// </summary>
+        internal bool IsRoot => this.Id is 0;
+
+        /// <summary>
         /// True if this operation is currently paused, else false.
         /// </summary>
         internal bool IsPaused =>
@@ -138,6 +122,17 @@ namespace Microsoft.Coyote.Runtime
             this.Status is OperationStatus.PausedOnReceive;
 
         /// <summary>
+        /// The call site that was last executed by this operation.
+        /// </summary>
+        internal string LastCallSite => this.CallSiteSequence.Count is 0 ?
+            string.Empty : this.CallSiteSequence[this.CallSiteSequence.Count - 1];
+
+        /// <summary>
+        /// The type of the last invoked scheduling point.
+        /// </summary>
+        internal SchedulingPointType LastSchedulingPoint => this.SchedulingPointSequence[this.SchedulingPointSequence.Count - 1];
+
+        /// <summary>
         /// The debug information of this operation.
         /// </summary>
         internal string DebugInfo { get; }
@@ -145,42 +140,33 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledOperation"/> class.
         /// </summary>
-        internal ControlledOperation(ulong operationId, string name, OperationGroup group, CoyoteRuntime runtime)
+        internal ControlledOperation(ulong operationId, string name, CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.Id = operationId;
+            this.ParentId = 0;
             this.Name = name;
             this.Status = OperationStatus.None;
-            this.Group = group ?? OperationGroup.Create(this);
-            this.Continuations = new Queue<Action>();
-            this.VisitedCallSites = new List<string>();
             this.SyncEvent = new ManualResetEventSlim(false);
-            this.LastSchedulingPoint = SchedulingPointType.Start;
-            this.LastHashedProgramState = 0;
+            this.CallSiteSequence = new List<string>();
+            this.SchedulingPointSequence = new List<SchedulingPointType> { SchedulingPointType.Start };
+            this.Continuations = new Queue<Action>();
             this.LastAccessedSharedState = string.Empty;
             this.LastAccessedSharedStateComparer = null;
-            this.OperationCreationCount = 0;
+            this.CallSiteSequenceHash = 17;
+            this.SchedulingPointSequenceHash = 17;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
 
-            // Only compute the sequence if the runtime scheduler is controlled.
-            if (this.Runtime.SchedulingPolicy is SchedulingPolicy.None)
-            {
-                this.SequenceId = 0;
-                this.ParentId = 0;
-            }
-            else
-            {
-                // If no parent operation is found, and this is not the root operation, then assign the root operation as the
-                // parent operation. This is just an approximation that is applied in the case of uncontrolled threads.
-                ControlledOperation parent = this.Runtime.GetExecutingOperationUnsafe() ?? this.Runtime.GetOperationWithId(0);
-                this.Sequence = GetSequenceFromParent(operationId, parent);
-                this.SequenceId = this.GetSequenceHash();
-                this.ParentId = operationId is 0 ? 0 : parent.Id;
-            }
+            // Assign the operation group from the execution context. If there is no scheduling policy,
+            // assign the default operation group, else assign a group based on the runtime context.
+            this.Group = runtime.SchedulingPolicy is SchedulingPolicy.None ? OperationGroup.Default :
+                runtime.Context.AssignOperationGroup(this);
+            this.LastHashedState = (ulong)this.Group.Id.GetHashCode();
+            // this.Runtime.LogWriter.LogImportant($">>> ASSIGN GROUP FOR {this.Id} (STATE:{this.LastHashedState}): {this.Id}");
 
             // Set the debug information for this operation.
-            this.DebugInfo = $"'{this.Name}' with sequence id '{this.SequenceId}' and group id '{this.Group.Id}'";
+            this.DebugInfo = $"'{this.Name}' with group id '{this.Group.Id}'";
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);
@@ -258,66 +244,56 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Registers the specified call site as visited.
         /// </summary>
-        internal void VisitCallSite(string callSite) => this.VisitedCallSites.Add(callSite);
-
-        /// <summary>
-        /// Returns the creation sequence based on the specified parent operation.
-        /// </summary>
-        private static List<ulong> GetSequenceFromParent(ulong operationId, ControlledOperation parent)
+        internal void RegisterCallSite(string callSite)
         {
-            var sequence = new List<ulong>();
-            if (operationId is 0)
-            {
-                // If this is the root operation, then the sequence only contains the root operation itself.
-                sequence.Add(0);
-            }
-            else
-            {
-                sequence.AddRange(parent.Sequence);
-                sequence.Add(parent.OperationCreationCount);
-                parent.OperationCreationCount++;
-            }
-
-            return sequence;
+            this.CallSiteSequenceHash = (this.CallSiteSequenceHash * 31) + (ulong)callSite.GetHashCode();
+            this.CallSiteSequence.Add(callSite);
         }
 
         /// <summary>
-        /// Returns the hash of the creation sequence.
+        /// Registers the specified scheduling point as invoked.
         /// </summary>
-        private ulong GetSequenceHash()
+        internal void RegisterSchedulingPoint(SchedulingPointType sp)
         {
-            // Iterate the creation sequence and create a low collision rate hash.
-            ulong hash = (ulong)this.Sequence.Count;
-            foreach (ulong element in this.Sequence)
-            {
-                ulong seq = ((element >> 16) ^ element) * 0x45d9f3b;
-                seq = ((seq >> 16) ^ seq) * 0x45d9f3b;
-                seq = (seq >> 16) ^ seq;
-                hash ^= seq + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            }
-
-            return hash;
+            this.SchedulingPointSequenceHash = (this.SchedulingPointSequenceHash * 31) + (ulong)sp.GetHashCode();
+            this.SchedulingPointSequence.Add(sp);
         }
 
         /// <summary>
-        /// Returns the hashed state of this operation for the specified policy.
+        /// Computes the latest hashed state of this operation for the specified policy.
         /// </summary>
-        internal virtual int GetHashedState(SchedulingPolicy policy)
+        /// <summary>
+        /// Compute the latest hashed state of this operation for the specified policy.
+        /// </summary>
+        internal ulong ComputeHashedState(SchedulingPolicy policy)
+        {
+            this.LastHashedState = this.GetLatestHashedState(policy);
+            return this.LastHashedState;
+        }
+
+        /// <summary>
+        /// Returns the latest hashed state of this operation for the specified policy.
+        /// </summary>
+        protected virtual ulong GetLatestHashedState(SchedulingPolicy policy)
         {
             unchecked
             {
-                var hash = 19;
+                ulong hash = 17;
                 if (policy != SchedulingPolicy.None)
                 {
-                    hash = (hash * 31) + this.SequenceId.GetHashCode();
-                    hash = (hash * 31) + this.LastCallSite.GetHashCode();
-                    hash = (hash * 31) + this.LastSchedulingPoint.GetHashCode();
-                    hash = (hash * 31) + this.Status.GetHashCode();
+                    hash = (hash * 31) + this.CallSiteSequenceHash;
+                    hash = (hash * 31) + this.SchedulingPointSequenceHash;
+                    hash ^= (ulong)this.Group.Id.GetHashCode();
                 }
 
                 return hash;
             }
         }
+
+        /// <summary>
+        /// Returns the group-agnostic latest hashed state of this operation.
+        /// </summary>
+        internal ulong GetGroupAgnosticLatestHashedState() => this.LastHashedState ^ (ulong)this.Group.Id.GetHashCode();
 
         /// <summary>
         /// Determines whether the specified object is equal to the current object.

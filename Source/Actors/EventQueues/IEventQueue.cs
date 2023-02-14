@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hashed state of the queue.
         /// </summary>
-        int GetHashedState();
+        ulong GetHashedState();
 
         /// <summary>
         /// Closes the queue, which stops any further event enqueues.

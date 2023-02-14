@@ -82,10 +82,6 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled
         - name: WithXmlLogEnabled
           link: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled
-        - name: WithDgmlTraceVisualizationFormatEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithDgmlTraceVisualizationFormatEnabled
-        - name: WithGraphVizTraceVisualizationFormatEnabled
-          link: ref/Microsoft.Coyote/Configuration/WithGraphVizTraceVisualizationFormatEnabled
         - name: WithTelemetryEnabled
           link: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled
         - name: Configuration
@@ -161,8 +157,6 @@ toc:
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths
         - name: VisitedStates
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates
-        - name: OperationSequenceIds
-          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/OperationSequenceIds
       - name: MonitorEventCoverage
         link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage
         subfolderitems:

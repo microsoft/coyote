@@ -1,3 +1,9 @@
+## v1.7.4
+- Added support for visualizing traces from testing task-based programs in DGML format.
+- Implemented various runtime optimizations for more efficient coverage during testing.
+- Optimized the modeling of various lock APIs during testing.
+- Fixed a rewriting bug occurring when methods return task arrays.
+
 ## v1.7.3
 - Added support for the `net7.0` target framework.
 

@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
-                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 (), 1 ().",
+                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
-                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 (), 1 ().",
+                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
@@ -234,7 +234,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
-                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 (), 1 ().",
+                "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
                 "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");

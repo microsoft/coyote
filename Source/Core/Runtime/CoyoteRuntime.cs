@@ -683,9 +683,6 @@ namespace Microsoft.Coyote.Runtime
                     this.PendingStartOperationMap.Add(op, new ManualResetEventSlim(false));
                 }
 
-                // Register the operation creation sequence id for coverage.
-                this.CoverageInfo.DeclareOperationSequenceId(op.SequenceId);
-
                 this.LogWriter.LogDebug("[coyote::debug] Created operation {0} on thread '{1}'.",
                     op.DebugInfo, Thread.CurrentThread.ManagedThreadId);
             }

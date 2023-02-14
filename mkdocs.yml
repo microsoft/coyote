@@ -141,8 +141,6 @@ nav:
         - WithCoverageInfoSerialized: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized.md
         - WithActorTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
-        - WithDgmlTraceVisualizationFormatEnabled: ref/Microsoft.Coyote/Configuration/WithDgmlTraceVisualizationFormatEnabled.md
-        - WithGraphVizTraceVisualizationFormatEnabled: ref/Microsoft.Coyote/Configuration/WithGraphVizTraceVisualizationFormatEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
         - Configuration: ref/Microsoft.Coyote/Configuration/Configuration.md
         - TestingIterations: ref/Microsoft.Coyote/Configuration/TestingIterations.md
@@ -182,7 +180,6 @@ nav:
         - SchedulingPointStackTraces: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces.md
         - ExploredPaths: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths.md
         - VisitedStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates.md
-        - OperationSequenceIds: ref/Microsoft.Coyote.Coverage/CoverageInfo/OperationSequenceIds.md
       - MonitorEventCoverage:
         - Overview: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage.md
         - GetEventsProcessed: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed.md

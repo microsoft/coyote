@@ -458,14 +458,13 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max), {6} (unique).",
+                    "{0} Controlled {1} operation{2}: {3} (min), {4} (avg), {5} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.TotalControlledOperations,
                     this.TotalControlledOperations is 1 ? string.Empty : "s",
                     this.MinControlledOperations,
                     this.TotalControlledOperations / totalExploredPaths,
-                    this.MaxControlledOperations,
-                    this.CoverageInfo.OperationSequenceIds.Count);
+                    this.MaxControlledOperations);
             }
 
             if (this.TotalConcurrencyDegree > 0)

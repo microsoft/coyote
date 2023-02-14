@@ -109,11 +109,6 @@ namespace Microsoft.Coyote.Runtime
         internal ulong OperationCreationCount;
 
         /// <summary>
-        /// The length of the creation sequence of this operation.
-        /// </summary>
-        internal int SequenceLength => this.Sequence?.Count ?? 0;
-
-        /// <summary>
         /// True if this is the root operation, else false.
         /// </summary>
         internal bool IsRoot => this.Id is 0;
@@ -180,7 +175,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // Set the debug information for this operation.
-            this.DebugInfo = $"'{this.Name}' with sequence id '{this.SequenceId}' and group id '{this.Group.Id}'";
+            this.DebugInfo = $"'{this.Name}' and group id '{this.Group.Id}'";
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);

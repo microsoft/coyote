@@ -66,11 +66,6 @@ namespace Microsoft.Coyote.Coverage
         public HashSet<int> VisitedStates { get; private set; }
 
         /// <summary>
-        /// Set of encountered operation creation sequence ids.
-        /// </summary>
-        public HashSet<ulong> OperationSequenceIds { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
@@ -81,7 +76,6 @@ namespace Microsoft.Coyote.Coverage
             this.SchedulingPointStackTraces = new Dictionary<string, Dictionary<string, long>>();
             this.ExploredPaths = new HashSet<string>();
             this.VisitedStates = new HashSet<int>();
-            this.OperationSequenceIds = new HashSet<ulong>();
         }
 
         /// <summary>
@@ -163,11 +157,6 @@ namespace Microsoft.Coyote.Coverage
         /// Declares a new visited state.
         /// </summary>
         internal void DeclareVisitedState(int state) => this.VisitedStates.Add(state);
-
-        /// <summary>
-        /// Declares a new operation creation sequence id.
-        /// </summary>
-        internal void DeclareOperationSequenceId(ulong sequenceId) => this.OperationSequenceIds.Add(sequenceId);
 
         /// <summary>
         /// Loads the coverage info XML file into a <see cref="CoverageInfo"/> object of the specified type.
@@ -271,7 +260,6 @@ namespace Microsoft.Coyote.Coverage
 
             this.ExploredPaths.UnionWith(coverageInfo.ExploredPaths);
             this.VisitedStates.UnionWith(coverageInfo.VisitedStates);
-            this.OperationSequenceIds.UnionWith(coverageInfo.OperationSequenceIds);
         }
     }
 }

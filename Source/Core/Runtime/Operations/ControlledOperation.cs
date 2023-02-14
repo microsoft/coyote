@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // Set the debug information for this operation.
-            this.DebugInfo = $"'{this.Name}' and group id '{this.Group.Id}'";
+            this.DebugInfo = $"'{this.Name}' with group id '{this.Group.Id}'";
 
             // Register this operation with the runtime.
             this.Runtime.RegisterNewOperation(this);

@@ -850,8 +850,7 @@ namespace Microsoft.Coyote.Tests.Common
             .WithTelemetryEnabled(false)
             .WithAtomicOperationRaceCheckingEnabled(false)
             .WithLockAccessRaceCheckingEnabled(false)
-            .WithPartiallyControlledConcurrencyAllowed(false)
-            .WithSystematicFuzzingFallbackEnabled(false);
+            .WithPartiallyControlledConcurrencyAllowed(false);
 
         protected static string GetBugReport(TestingEngine engine)
         {

@@ -335,7 +335,7 @@ namespace Microsoft.Coyote
             this.IsPartiallyControlledConcurrencyAllowed = true;
             this.IsPartiallyControlledDataNondeterminismAllowed = true;
             this.IsSystematicFuzzingEnabled = false;
-            this.IsSystematicFuzzingFallbackEnabled = true;
+            this.IsSystematicFuzzingFallbackEnabled = false;
             this.MaxFuzzingDelay = 1000;
             this.IsTraceAnalysisEnabled = true;
             this.IsLivenessCheckingEnabled = true;

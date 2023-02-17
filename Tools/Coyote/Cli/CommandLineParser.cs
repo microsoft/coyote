@@ -448,9 +448,9 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
-            var noFuzzingFallbackOption = new Option<bool>(
-                name: "--no-fuzzing-fallback",
-                description: "Disable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency.")
+            var fuzzingFallbackOption = new Option<bool>(
+                name: "--fuzzing-fallback",
+                description: "Enable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency.")
             {
                 Arity = ArgumentArity.Zero
             };
@@ -576,7 +576,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
             this.AddOption(command, skipAtomicRacesOption);
-            this.AddOption(command, noFuzzingFallbackOption);
+            this.AddOption(command, fuzzingFallbackOption);
             this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
             this.AddOption(command, logUncontrolledInvocationStackTracesOption);
@@ -1046,7 +1046,7 @@ namespace Microsoft.Coyote.Cli
                     case "skip-atomic-races":
                         this.Configuration.IsAtomicOperationRaceCheckingEnabled = false;
                         break;
-                    case "no-fuzzing-fallback":
+                    case "fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
                         break;
                     case "partial-control":

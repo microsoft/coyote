@@ -21,8 +21,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
             stopWatch.Start();
 
             // AccountManager tests.
-            var configuration = Configuration.Create().WithTestingIterations(100)
-                .WithSystematicFuzzingFallbackEnabled(false);
+            var configuration = Configuration.Create().WithTestingIterations(100);
             RunTest(Samples.AccountManager.Program.TestAccountCreation, configuration,
                 "AccountManager.TestAccountCreation");
             RunTest(Samples.AccountManager.Program.TestConcurrentAccountCreation, configuration,
@@ -41,8 +40,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
                 "AccountManager.ETags.TestConcurrentAccountDeletion");
 
             // BoundedBuffer tests.
-            configuration = Configuration.Create().WithTestingIterations(100)
-                .WithSystematicFuzzingFallbackEnabled(false);
+            configuration = Configuration.Create().WithTestingIterations(100);
             RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferNoDeadlock, configuration,
                 "BoundedBuffer.TestBoundedBufferNoDeadlock");
             RunTest(Samples.BoundedBuffer.Program.TestBoundedBufferMinimalDeadlock, configuration,
@@ -59,8 +57,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
 
             // CoffeeMachineActors tests.
             configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true)
-                .WithSystematicFuzzingFallbackEnabled(false);
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true);
             RunTest(Samples.CoffeeMachineActors.Program.Execute, configuration,
                 "CoffeeMachineActors.Test",
                 "Please do not turn on grinder if there are no beans in the hopper",
@@ -69,8 +66,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
             // TODO: sometimes does not find bug below 1k iterations.
             // CoffeeMachineTasks tests.
             configuration = Configuration.Create().WithTestingIterations(10000)
-                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true)
-                .WithSystematicFuzzingFallbackEnabled(false);
+                .WithMaxSchedulingSteps(500).WithPrioritizationStrategy(true);
             RunTest(Samples.CoffeeMachineTasks.Program.Execute, configuration,
                 "CoffeeMachineTasks.Test",
                 "Please do not turn on grinder if there are no beans in the hopper",
@@ -78,15 +74,13 @@ namespace Microsoft.Coyote.Samples.TestDriver
 
             // DrinksServingRobotActors tests.
             configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true)
-                .WithSystematicFuzzingFallbackEnabled(false);
+                .WithMaxSchedulingSteps(2000).WithPrioritizationStrategy(true);
             RunTest(Samples.DrinksServingRobot.Program.Execute, configuration,
                 "DrinksServingRobotActors.Test",
                 "detected liveness bug in hot state 'Busy'");
 
             // HelloWorldActors tests.
-            configuration = Configuration.Create().WithTestingIterations(100)
-                .WithSystematicFuzzingFallbackEnabled(false);
+            configuration = Configuration.Create().WithTestingIterations(100);
             RunTest(Samples.HelloWorldActors.Program.Execute, configuration,
                 "HelloWorldActors.Test",
                 "Too many greetings returned!");
@@ -94,8 +88,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
             // TODO: takes too long.
             // Monitors tests.
             // configuration = Configuration.Create().WithTestingIterations(10000)
-            //     .WithMaxSchedulingSteps(200).WithPrioritizationStrategy(false).
-            //     WithSystematicFuzzingFallbackEnabled(false);
+            //     .WithMaxSchedulingSteps(200).WithPrioritizationStrategy(false);
             // RunTest(Samples.Monitors.Program.Execute, configuration,
             //     "Monitors.Test",
             //     "ping count must be <= 3");
@@ -114,8 +107,7 @@ namespace Microsoft.Coyote.Samples.TestDriver
 
             // PetImages tests.
             configuration = Configuration.Create().WithTestingIterations(1000)
-                .WithPotentialDeadlocksReportedAsBugs(false)
-                .WithSystematicFuzzingFallbackEnabled(false);
+                .WithPotentialDeadlocksReportedAsBugs(false);
             var petImagesTests = new PetImages.Tests.Tests();
             RunTest(petImagesTests.TestFirstScenario, configuration,
                 "PetImages.TestFirstScenario",

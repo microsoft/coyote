@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.Runtime
         internal Thread Schedule(ThreadStart start, int maxStackSize)
         {
             ControlledOperation op = this.CreateControlledOperation();
-            return this.CreateControlledThread(op, start, null, null, null, maxStackSize);
+            return this.CreateControlledThread(op, start, maxStackSize: maxStackSize);
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.Runtime
         internal Thread Schedule(ParameterizedThreadStart start, int maxStackSize)
         {
             ControlledOperation op = this.CreateControlledOperation();
-            return this.CreateControlledThread(op, start, null, null, null, maxStackSize);
+            return this.CreateControlledThread(op, start, maxStackSize: maxStackSize);
         }
 
         /// <summary>
@@ -522,11 +522,11 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Creates a new controlled thread for executing the specified operation. The operation executes
-        /// the given logic with an optional input alongside an optional pre-condition and post-condition.
-        /// The controlled thread optionally uses the specified max stack size.
+        /// the given logic alongside an optional pre-condition and post-condition. The controlled thread
+        /// optionally uses the specified max stack size.
         /// </summary>
         private Thread CreateControlledThread(ControlledOperation op, Delegate logic, Action preCondition = null,
-            Action postCondition = null, object input = null, int maxStackSize = 0)
+            Action postCondition = null, int maxStackSize = 0)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {

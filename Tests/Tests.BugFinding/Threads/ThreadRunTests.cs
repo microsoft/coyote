@@ -37,6 +37,30 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestParameterizedThreadStartAndJoin()
+        {
+            this.Test(() =>
+            {
+                bool isDone = false;
+                Thread t = new Thread(input =>
+                {
+                    if ((int)input is 7)
+                    {
+                        isDone = true;
+                    }
+                });
+
+                t.Start(7);
+                t.Join();
+
+                Specification.Assert(isDone, "The expected condition was not satisfied.");
+                Specification.Assert(t.ThreadState is ThreadState.Stopped, "State of thread '{0}' is {1} instead of Stopped.",
+                    t.ManagedThreadId, t.ThreadState);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestThreadStartAndJoinStress()
         {
             this.Test(() =>

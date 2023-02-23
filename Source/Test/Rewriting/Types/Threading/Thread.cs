@@ -33,8 +33,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
 
             ControlledOperation op = runtime.CreateControlledOperation();
-            SystemThread thread = runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
-            return thread ?? new SystemThread(() => { });
+            return runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
         }
 
         /// <summary>
@@ -57,8 +56,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
 
             ControlledOperation op = runtime.CreateControlledOperation();
-            SystemThread thread = runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
-            return thread ?? new SystemThread(() => { });
+            return runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
         }
 
         /// <summary>

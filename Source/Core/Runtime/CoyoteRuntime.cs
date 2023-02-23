@@ -521,7 +521,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (this.ExecutionStatus != ExecutionStatus.Running)
                 {
-                    return null;
+                    throw new ThreadInterruptedException();
                 }
 
                 // Create a new thread that is instrumented to control and execute the operation.

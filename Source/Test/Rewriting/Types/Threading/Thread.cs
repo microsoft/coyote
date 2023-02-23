@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Runtime;
 using SystemThread = System.Threading.Thread;
 using SystemThreading = System.Threading;
@@ -87,6 +88,60 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
 
         /// <summary>
+        /// Suspends the current thread for the specified number of milliseconds.
+        /// </summary>
+        public static void Sleep(int millisecondsTimeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                Sleep(current, runtime, millisecondsTimeout);
+            }
+            else
+            {
+                Thread.Sleep(millisecondsTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Suspends the current thread for the specified amount of time.
+        /// </summary>
+        public static void Sleep(TimeSpan timeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                Sleep(current, runtime, (int)timeout.TotalMilliseconds);
+            }
+            else
+            {
+                Thread.Sleep(timeout);
+            }
+        }
+
+        /// <summary>
+        /// Sleeps the current controlled operation for the specified amount of time.
+        /// </summary>
+        private static void Sleep(ControlledOperation op, CoyoteRuntime runtime, int millisecondsTimeout)
+        {
+            if (millisecondsTimeout is 0)
+            {
+                return;
+            }
+
+            uint timeout = (uint)runtime.GetNextNondeterministicIntegerChoice((int)runtime.Configuration.TimeoutDelay, null, null);
+            if (timeout is 0)
+            {
+                return;
+            }
+
+            op.PauseWithDelay(timeout);
+            runtime.ScheduleNextOperation(op, SchedulingPointType.Yield);
+        }
+
+        /// <summary>
         /// Causes the calling thread to yield execution to another thread that is ready
         /// to run on the current processor.
         /// </summary>
@@ -96,7 +151,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                return runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, true, true);
+                return runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
             }
 
             return SystemThread.Yield();

@@ -495,11 +495,11 @@ namespace Microsoft.Coyote.Runtime
                 // TODO: cache the dummy delay action to optimize memory.
                 // TODO: figure out a good strategy for grouping delays, especially if they
                 // are shared in different contexts and not awaited immediately.
-                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group, delay: timeout);
+                ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
                 return this.TaskFactory.StartNew(state =>
                 {
                     var delayedOp = state as ControlledOperation;
-                    delayedOp.Status = OperationStatus.PausedOnDelay;
+                    delayedOp.PauseWithDelay(timeout);
                     this.ScheduleNextOperation(delayedOp, SchedulingPointType.Yield);
                 },
                 op,
@@ -651,17 +651,15 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a new controlled operation with the specified group and an optional delay.
+        /// Creates a new controlled operation assigned to the specified optional group.
         /// </summary>
-        internal ControlledOperation CreateControlledOperation(OperationGroup group = null, uint delay = 0)
+        internal ControlledOperation CreateControlledOperation(OperationGroup group = null)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 // Create a new controlled operation using the next available operation id.
                 ulong operationId = this.GetNextOperationId();
-                ControlledOperation op = delay > 0 ?
-                    new DelayOperation(operationId, $"Delay({operationId})", delay, group, this) :
-                    new ControlledOperation(operationId, $"Op({operationId})", group, this);
+                var op = new ControlledOperation(operationId, $"Op({operationId})", group, this);
                 if (operationId > 0 && !this.IsThreadControlled(Thread.CurrentThread))
                 {
                     op.IsSourceUncontrolled = true;
@@ -1375,20 +1373,20 @@ namespace Microsoft.Coyote.Runtime
         /// </remarks>
         private bool TryEnableOperation(ControlledOperation op)
         {
-            if (op.Status is OperationStatus.PausedOnDelay && op is DelayOperation delayedOp)
+            if (op.Status is OperationStatus.PausedOnDelay)
             {
-                if (delayedOp.Delay > 0)
+                if (op.DelayedStepsCount > 0)
                 {
-                    delayedOp.Delay--;
+                    op.DelayedStepsCount--;
                 }
 
                 // The operation is delayed, so it is enabled either if the delay completes
                 // or if no other operation is enabled.
-                if (delayedOp.Delay is 0 ||
+                if (op.DelayedStepsCount is 0 ||
                     !this.OperationMap.Any(kvp => kvp.Value.Status is OperationStatus.Enabled))
                 {
-                    delayedOp.Delay = 0;
-                    delayedOp.Status = OperationStatus.Enabled;
+                    op.DelayedStepsCount = 0;
+                    op.Status = OperationStatus.Enabled;
                     return true;
                 }
 

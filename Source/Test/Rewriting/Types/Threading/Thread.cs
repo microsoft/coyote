@@ -5,6 +5,7 @@ using System;
 using Microsoft.Coyote.Runtime;
 using SystemThread = System.Threading.Thread;
 using SystemThreading = System.Threading;
+using SystemTimeout = System.Threading.Timeout;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading
 {
@@ -96,7 +97,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                Sleep(current, runtime, millisecondsTimeout);
+                DelayCurrentOperation(current, runtime, millisecondsTimeout);
             }
             else
             {
@@ -113,7 +114,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                Sleep(current, runtime, (int)timeout.TotalMilliseconds);
+                DelayCurrentOperation(current, runtime, (int)timeout.TotalMilliseconds);
             }
             else
             {
@@ -122,9 +123,27 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
 
         /// <summary>
-        /// Sleeps the current controlled operation for the specified amount of time.
+        /// Causes the current thread to wait the number of times defined by the iterations parameter.
         /// </summary>
-        private static void Sleep(ControlledOperation op, CoyoteRuntime runtime, int millisecondsTimeout)
+        public static void SpinWait(int iterations)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                // We model 'SpinWait' by delaying the current operation, similar to 'Sleep'.
+                DelayCurrentOperation(current, runtime, iterations);
+            }
+            else
+            {
+                Thread.SpinWait(iterations);
+            }
+        }
+
+        /// <summary>
+        /// Delays the currently executing controlled operation for the specified amount of time.
+        /// </summary>
+        private static void DelayCurrentOperation(ControlledOperation op, CoyoteRuntime runtime, int millisecondsTimeout)
         {
             if (millisecondsTimeout is 0)
             {
@@ -155,6 +174,56 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
 
             return SystemThread.Yield();
+        }
+
+        /// <summary>
+        /// Blocks the calling thread until the thread represented by this instance terminates.
+        /// </summary>
+        public static void Join(SystemThread instance) => Join(instance, SystemTimeout.Infinite);
+
+        /// <summary>
+        /// Blocks the calling thread until the thread represented by this instance terminates or the specified time elapses.
+        /// </summary>
+        public static bool Join(SystemThread instance, int millisecondsTimeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                return PauseUntilThreadCompletes(current, runtime, instance, millisecondsTimeout);
+            }
+
+            return instance.Join(millisecondsTimeout);
+        }
+
+        /// <summary>
+        /// Blocks the calling thread until the thread represented by this instance terminates or the specified time elapses.
+        /// </summary>
+        public static bool Join(SystemThread instance, TimeSpan timeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                return PauseUntilThreadCompletes(current, runtime, instance, (int)timeout.TotalMilliseconds);
+            }
+
+            return instance.Join(timeout);
+        }
+
+        /// <summary>
+        /// Pauses the currently executing controlled operation until the specified thread completes or the specified time elapses.
+        /// </summary>
+        private static bool PauseUntilThreadCompletes(ControlledOperation current, CoyoteRuntime runtime,
+            SystemThread thread, int millisecondsTimeout)
+        {
+            // TODO: support timeouts during testing.
+            millisecondsTimeout = SystemTimeout.Infinite;
+            bool isThreadUncontrolled = runtime.CheckIfAwaitedThreadIsUncontrolled(thread);
+            ControlledOperation threadOp = isThreadUncontrolled ? null : runtime.GetOperationExecutingOnThread(thread);
+            Func<bool> condition = threadOp is null ? () => thread.Join(0) : (Func<bool>)(() => threadOp.Status is OperationStatus.Completed);
+            runtime.PauseOperationUntil(current, condition, !isThreadUncontrolled, $"thread '{thread.ManagedThreadId}' to complete");
+            return true;
         }
     }
 }

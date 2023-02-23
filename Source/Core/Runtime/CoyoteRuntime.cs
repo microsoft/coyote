@@ -640,17 +640,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Registers the specified task as a known uncontrolled task.
-        /// </summary>
-        internal void RegisterKnownUncontrolledTask(Task task, string methodName)
-        {
-            if (this.SchedulingPolicy != SchedulingPolicy.None)
-            {
-                this.UncontrolledTasks.TryAdd(task, methodName);
-            }
-        }
-
-        /// <summary>
         /// Creates a new controlled operation assigned to the specified optional group.
         /// </summary>
         internal ControlledOperation CreateControlledOperation(OperationGroup group = null)
@@ -1398,13 +1387,13 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Pauses the scheduled controlled operation until either the uncontrolled task completes,
-        /// it tries to invoke an uncontrolled scheduling point, or the timeout expires.
+        /// Pauses the scheduled controlled operation until either the uncontrolled condition resolves, the
+        /// corresponding logic tries to invoke an uncontrolled scheduling point, or the timeout expires.
         /// </summary>
         /// <remarks>
         /// It is assumed that this method runs in the scope of a <see cref="SynchronizedSection"/>.
         /// </remarks>
-        private void TryPauseAndResolveUncontrolledTask(Task task)
+        private void TryPauseAndResolveUncontrolledCondition(Func<bool> condition)
         {
             if (this.IsThreadControlled(Thread.CurrentThread))
             {
@@ -1415,7 +1404,7 @@ namespace Microsoft.Coyote.Runtime
                     int attempt = 0;
                     int delay = (int)this.Configuration.UncontrolledConcurrencyResolutionDelay;
                     uint maxAttempts = this.Configuration.UncontrolledConcurrencyResolutionAttempts;
-                    while (attempt++ < maxAttempts && !task.IsCompleted)
+                    while (attempt++ < maxAttempts && !condition())
                     {
                         this.LogWriter.LogDebug("[coyote::debug] Pausing controlled thread '{0}' to try resolve uncontrolled concurrency.",
                             Thread.CurrentThread.ManagedThreadId);
@@ -1505,6 +1494,25 @@ namespace Microsoft.Coyote.Runtime
         {
             op = this.GetExecutingOperation();
             return op != null;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="ControlledOperation"/> executing on the specified
+        /// controlled thread, or null if no such operation exists.
+        /// </summary>
+        internal ControlledOperation GetOperationExecutingOnThread(Thread thread)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                ControlledOperation op = null;
+                string name = thread?.Name;
+                if (!string.IsNullOrEmpty(name))
+                {
+                    this.ControlledThreads.TryGetValue(name, out op);
+                }
+
+                return op;
+            }
         }
 
         /// <summary>
@@ -1822,6 +1830,20 @@ namespace Microsoft.Coyote.Runtime
 
             return this.UncontrolledTasks.TryGetValue(task, out methodName) ||
                 !this.ControlledTasks.ContainsKey(task);
+        }
+
+        /// <summary>
+        /// Checks if the awaited thread is uncontrolled.
+        /// </summary>
+        internal bool CheckIfAwaitedThreadIsUncontrolled(Thread thread)
+        {
+            if (!this.IsThreadControlled(thread))
+            {
+                this.NotifyUncontrolledThreadWait(thread);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -2264,6 +2286,25 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notify that an uncontrolled thread is being waited.
+        /// </summary>
+        private void NotifyUncontrolledThreadWait(Thread thread)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    string message = $"Waiting thread '{thread.ManagedThreadId}' that is not intercepted and controlled " +
+                        "during testing, so it can interfere with the ability to reproduce bug traces.";
+                    if (this.TryHandleUncontrolledConcurrency(message))
+                    {
+                        this.TryPauseAndResolveUncontrolledCondition(() => thread.Join(0));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Notify that an uncontrolled task is being waited.
         /// </summary>
         private void NotifyUncontrolledTaskWait(Task task)
@@ -2277,7 +2318,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.TryHandleUncontrolledConcurrency(message))
                     {
                         this.UncontrolledTasks.TryAdd(task, null);
-                        this.TryPauseAndResolveUncontrolledTask(task);
+                        this.TryPauseAndResolveUncontrolledCondition(() => task.IsCompleted);
                     }
                 }
             }
@@ -2297,7 +2338,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.TryHandleUncontrolledConcurrency(message, methodName))
                     {
                         this.UncontrolledTasks.TryAdd(task, methodName);
-                        this.TryPauseAndResolveUncontrolledTask(task);
+                        this.TryPauseAndResolveUncontrolledCondition(() => task.IsCompleted);
                     }
                 }
             }
@@ -2322,7 +2363,7 @@ namespace Microsoft.Coyote.Runtime
                     if (this.TryHandleUncontrolledConcurrency(message, methodName))
                     {
                         this.UncontrolledTasks.TryAdd(task, methodName);
-                        this.TryPauseAndResolveUncontrolledTask(task);
+                        this.TryPauseAndResolveUncontrolledCondition(() => task.IsCompleted);
                     }
                 }
             }

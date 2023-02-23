@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Runtime
                 var op = runtime.GetOperationWithId(operationId);
                 if (op != null)
                 {
-                    runtime.PauseOperationUntil(default, () => op.Status == OperationStatus.Completed);
+                    runtime.PauseOperationUntil(default, () => op.Status is OperationStatus.Completed);
                 }
             }
         }

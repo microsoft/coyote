@@ -383,8 +383,10 @@ toc:
           link: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync
         - name: ScheduleNext
           link: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext
-        - name: Complete
-          link: ref/Microsoft.Coyote.Runtime/Operation/Complete
+        - name: OnStarted
+          link: ref/Microsoft.Coyote.Runtime/Operation/OnStarted
+        - name: OnCompleted
+          link: ref/Microsoft.Coyote.Runtime/Operation/OnCompleted
         - name: TryReset
           link: ref/Microsoft.Coyote.Runtime/Operation/TryReset
         - name: RegisterCallSite

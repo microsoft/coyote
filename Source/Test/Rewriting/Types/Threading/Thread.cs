@@ -193,7 +193,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// <summary>
         /// Blocks the calling thread until the thread represented by this instance terminates.
         /// </summary>
-        public static void Join(SystemThread instance) => Join(instance, SystemTimeout.Infinite);
+        public static void Join(SystemThread instance)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                PauseUntilThreadCompletes(current, runtime, instance, SystemTimeout.Infinite);
+            }
+
+            instance.Join();
+        }
 
         /// <summary>
         /// Blocks the calling thread until the thread represented by this instance terminates or the specified time elapses.

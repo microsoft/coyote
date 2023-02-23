@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.Runtime
             this.Assert(testMethod != null, "Unable to execute a null test method.");
 
             ControlledOperation op = this.CreateControlledOperation();
-            this.ScheduleOperation(op, () =>
+            Action runTest = () =>
             {
                 Task task = Task.CompletedTask;
                 if (this.Extension.RunTest(testMethod, out Task extensionTask))
@@ -390,8 +390,9 @@ namespace Microsoft.Coyote.Runtime
                 this.RegisterKnownControlledTask(extensionQuiescenceTask);
                 TaskServices.WaitUntilTaskCompletes(this, op, extensionQuiescenceTask);
                 extensionQuiescenceTask.GetAwaiter().GetResult();
-            },
-            postCondition: () =>
+            };
+
+            this.CreateControlledThread(op, runTest, postCondition: () =>
             {
                 using (SynchronizedSection.Enter(this.RuntimeLock))
                 {
@@ -399,7 +400,7 @@ namespace Microsoft.Coyote.Runtime
                     this.CheckLivenessErrors();
                     this.Detach(ExecutionStatus.PathExplored);
                 }
-            });
+            })?.Start();
 
             // Start running a background monitor that checks for potential deadlocks. This
             // mechanism is defensive for cases where there is uncontrolled concurrency or
@@ -407,6 +408,24 @@ namespace Microsoft.Coyote.Runtime
             // deadlock detection mechanism when scheduling controlled operations.
             this.StartMonitoringDeadlocks();
             return this.CompletionSource.Task;
+        }
+
+        /// <summary>
+        /// Schedules the specified thread entry point to execute on the controlled thread pool.
+        /// </summary>
+        internal Thread Schedule(ThreadStart start, int maxStackSize)
+        {
+            ControlledOperation op = this.CreateControlledOperation();
+            return this.CreateControlledThread(op, start, null, null, null, maxStackSize);
+        }
+
+        /// <summary>
+        /// Schedules the specified parameterized thread entry point to execute on the controlled thread pool.
+        /// </summary>
+        internal Thread Schedule(ParameterizedThreadStart start, int maxStackSize)
+        {
+            ControlledOperation op = this.CreateControlledOperation();
+            return this.CreateControlledThread(op, start, null, null, null, maxStackSize);
         }
 
         /// <summary>
@@ -429,7 +448,12 @@ namespace Microsoft.Coyote.Runtime
             // Register this task as a known controlled task.
             this.ControlledTasks.TryAdd(task, op);
 
-            this.ScheduleOperation(op, () => this.ControlledTaskScheduler.ExecuteTask(task));
+            Action runTask = () => this.ControlledTaskScheduler.ExecuteTask(task);
+            Thread thread = this.CreateControlledThread(op, runTask);
+            thread?.Start();
+
+            // Add a scheduling point to explore interleavings between the current operation
+            // and the operation that was just scheduled.
             this.ScheduleNextOperation(default, SchedulingPointType.Create);
         }
 
@@ -439,72 +463,12 @@ namespace Microsoft.Coyote.Runtime
         internal void Schedule(Action continuation, Action preCondition = null, Action postCondition = null)
         {
             ControlledOperation op = this.CreateControlledOperation(group: ExecutingOperation?.Group);
-            this.ScheduleOperation(op, continuation, preCondition, postCondition);
+            Thread thread = this.CreateControlledThread(op, continuation, preCondition, postCondition);
+            thread?.Start();
+
+            // Add a scheduling point to explore interleavings between the current operation
+            // and the operation that was just scheduled.
             this.ScheduleNextOperation(default, SchedulingPointType.ContinueWith);
-        }
-
-        /// <summary>
-        /// Schedules the specified operation to execute on the controlled thread pool. The operation
-        /// executes the given action alongside an optional pre-condition and post-condition.
-        /// </summary>
-        private void ScheduleOperation(ControlledOperation op, Action action, Action preCondition = null, Action postCondition = null)
-        {
-            using (SynchronizedSection.Enter(this.RuntimeLock))
-            {
-                if (this.ExecutionStatus != ExecutionStatus.Running)
-                {
-                    return;
-                }
-
-                // Create a new thread that is instrumented to control and execute the operation.
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        // Start the operation.
-                        this.StartOperation(op);
-
-                        // If fuzzing is enabled, and this is not the first started operation,
-                        // then try to delay it to explore race conditions.
-                        if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing && op.Id > 0)
-                        {
-                            this.DelayOperation(op);
-                        }
-
-                        // Execute the optional pre-condition.
-                        preCondition?.Invoke();
-
-                        // Execute the controlled action.
-                        action.Invoke();
-
-                        // Complete the operation and schedule the next enabled operation.
-                        this.CompleteOperation(op);
-
-                        // Execute the optional post-condition.
-                        postCondition?.Invoke();
-
-                        // Schedule the next operation, if there is one enabled.
-                        this.ScheduleNextOperation(op, SchedulingPointType.Complete);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.ProcessUnhandledExceptionInOperation(op, ex);
-                    }
-                    finally
-                    {
-                        CleanCurrentExecutionContext();
-                    }
-                });
-
-                thread.Name = Guid.NewGuid().ToString();
-                thread.IsBackground = true;
-
-                // TODO: optimize by reusing threads instead of creating a new thread each time?
-                this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
-                this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
-
-                thread.Start();
-            }
         }
 
         /// <summary>
@@ -554,6 +518,86 @@ namespace Microsoft.Coyote.Runtime
             // Fuzz the delay.
             return Task.Delay(TimeSpan.FromMilliseconds(
                 this.GetNondeterministicDelay(current, (int)delay.TotalMilliseconds)));
+        }
+
+        /// <summary>
+        /// Creates a new controlled thread for executing the specified operation. The operation executes
+        /// the given logic with an optional input alongside an optional pre-condition and post-condition.
+        /// The controlled thread optionally uses the specified max stack size.
+        /// </summary>
+        private Thread CreateControlledThread(ControlledOperation op, Delegate logic, Action preCondition = null,
+            Action postCondition = null, object input = null, int maxStackSize = 0)
+        {
+            using (SynchronizedSection.Enter(this.RuntimeLock))
+            {
+                if (this.ExecutionStatus != ExecutionStatus.Running)
+                {
+                    return null;
+                }
+
+                // Create a new thread that is instrumented to control and execute the operation.
+                var thread = new Thread(parameter =>
+                {
+                    try
+                    {
+                        // Start the operation.
+                        this.StartOperation(op);
+
+                        // If fuzzing is enabled, and this is not the first started operation,
+                        // then try to delay it to explore race conditions.
+                        if (this.SchedulingPolicy is SchedulingPolicy.Fuzzing && op.Id > 0)
+                        {
+                            this.DelayOperation(op);
+                        }
+
+                        // Execute the optional pre-condition.
+                        preCondition?.Invoke();
+
+                        // Execute the controlled logic.
+                        if (logic is ThreadStart threadStart)
+                        {
+                            threadStart();
+                        }
+                        else if (logic is ParameterizedThreadStart parameterizedThreadStart)
+                        {
+                            parameterizedThreadStart(parameter);
+                        }
+                        else if (logic is Action action)
+                        {
+                            action();
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unsupported controlled logic of type '{logic.GetType()}'.");
+                        }
+
+                        // Complete the operation and schedule the next enabled operation.
+                        this.CompleteOperation(op);
+
+                        // Execute the optional post-condition.
+                        postCondition?.Invoke();
+
+                        // Schedule the next operation, if there is one enabled.
+                        this.ScheduleNextOperation(op, SchedulingPointType.Complete);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.ProcessUnhandledExceptionInOperation(op, ex);
+                    }
+                    finally
+                    {
+                        CleanCurrentExecutionContext();
+                    }
+                }, maxStackSize);
+
+                thread.Name = Guid.NewGuid().ToString();
+                thread.IsBackground = true;
+
+                // TODO: optimize by reusing threads instead of creating a new thread each time?
+                this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
+                this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
+                return thread;
+            }
         }
 
         /// <summary>

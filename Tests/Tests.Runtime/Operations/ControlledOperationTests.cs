@@ -26,12 +26,13 @@ namespace Microsoft.Coyote.Runtime.Tests
                 int value = 0;
                 Thread thread = new Thread(state =>
                 {
-                    Operation.Start((ulong)state);
+                    Operation.OnStarted((ulong)state);
                     value = 1;
-                    Operation.Complete();
+                    Operation.OnCompleted();
                     Operation.ScheduleNext();
                 });
 
+                Operation.Start(operationId.Value);
                 thread.Start(operationId.Value);
                 Operation.ScheduleNext();
 

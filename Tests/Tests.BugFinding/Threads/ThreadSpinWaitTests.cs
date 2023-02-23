@@ -8,25 +8,25 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {
-    public class ThreadYieldTests : BaseBugFindingTest
+    public class ThreadSpinWaitTests : BaseBugFindingTest
     {
-        public ThreadYieldTests(ITestOutputHelper output)
+        public ThreadSpinWaitTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestThreadYield()
+        public void TestThreadSpinWait()
         {
             this.Test(() =>
             {
-                Thread.Yield();
+                Thread.SpinWait(10);
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestCooperativeThreadYield()
+        public void TestCooperativeThreadSpinWait()
         {
             this.Test(() =>
             {
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 {
                     while (!isDone)
                     {
-                        Thread.Yield();
+                        Thread.SpinWait(10);
                     }
                 });
 

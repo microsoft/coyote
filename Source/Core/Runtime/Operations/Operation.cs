@@ -169,15 +169,33 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Completes the currently executing operation.
+        /// Notifies that the operation with the specified id has started executing.
         /// </summary>
-        public static void Complete()
+        public static void OnStarted(ulong operationId)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            {
+                var current = runtime.GetOperationWithId(operationId);
+                if (current is null)
+                {
+                    throw new InvalidOperationException($"Operation with id '{operationId}' does not exist.");
+                }
+
+                runtime.OnStarted(current);
+            }
+        }
+
+        /// <summary>
+        /// Notifies that the currently executing operation has completed.
+        /// </summary>
+        public static void OnCompleted()
         {
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                runtime.CompleteOperation(current);
+                runtime.OnCompleted(current);
             }
         }
 

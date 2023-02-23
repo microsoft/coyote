@@ -32,7 +32,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 return new SystemThread(start);
             }
 
-            SystemThread thread = runtime.Schedule(start, maxStackSize);
+            ControlledOperation op = runtime.CreateControlledOperation();
+            SystemThread thread = runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
             return thread ?? new SystemThread(() => { });
         }
 
@@ -55,7 +56,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 return new SystemThread(start);
             }
 
-            SystemThread thread = runtime.Schedule(start, maxStackSize);
+            ControlledOperation op = runtime.CreateControlledOperation();
+            SystemThread thread = runtime.CreateControlledThread(op, start, maxStackSize: maxStackSize);
             return thread ?? new SystemThread(() => { });
         }
 
@@ -64,11 +66,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static void Start(SystemThread instance)
         {
-            instance.Start();
-
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
+                instance.Start();
+            }
+            else
+            {
+                // Start executing the controlled thread.
+                runtime.StartControlledThread(instance);
+
+                // Add a scheduling point to explore interleavings between the current operation
+                // and the operation that was just scheduled.
                 runtime.ScheduleNextOperation(default, SchedulingPointType.Create);
             }
         }
@@ -79,11 +88,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static void Start(SystemThread instance, object parameter)
         {
-            instance.Start(parameter);
-
             var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy != SchedulingPolicy.None)
+            if (runtime.SchedulingPolicy is SchedulingPolicy.None)
             {
+                instance.Start(parameter);
+            }
+            else
+            {
+                // Start executing the controlled thread.
+                runtime.StartControlledThread(instance, input: parameter);
+
+                // Add a scheduling point to explore interleavings between the current operation
+                // and the operation that was just scheduled.
                 runtime.ScheduleNextOperation(default, SchedulingPointType.Create);
             }
         }

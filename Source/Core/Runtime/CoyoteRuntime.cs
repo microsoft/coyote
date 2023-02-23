@@ -525,7 +525,7 @@ namespace Microsoft.Coyote.Runtime
                 }
 
                 // Create a new thread that is instrumented to control and execute the operation.
-                var thread = new Thread(parameter =>
+                var thread = new Thread(input =>
                 {
                     try
                     {
@@ -549,7 +549,7 @@ namespace Microsoft.Coyote.Runtime
                         }
                         else if (logic is ParameterizedThreadStart parameterizedThreadStart)
                         {
-                            parameterizedThreadStart(parameter);
+                            parameterizedThreadStart(input);
                         }
                         else if (logic is Action action)
                         {

@@ -10,10 +10,11 @@ public static class Operation
 
 | name | description |
 | --- | --- |
-| static [Complete](Operation/Complete.md)() | Completes the currently executing operation. |
 | static [CreateFrom](Operation/CreateFrom.md)(…) | Creates a new controlled operation from the specified builder and returns its unique id, or null if the test engine is detached. |
 | static [CreateNext](Operation/CreateNext.md)() | Creates a new controlled operation and returns its unique id, or null if the test engine is detached. |
 | static [GetNextId](Operation/GetNextId.md)() | Returns the next available unique operation id, or null if the test engine is detached. |
+| static [OnCompleted](Operation/OnCompleted.md)() | Notifies that the currently executing operation has completed. |
+| static [OnStarted](Operation/OnStarted.md)(…) | Notifies that the operation with the specified id has started executing. |
 | static [PauseUntil](Operation/PauseUntil.md)(…) | Pauses the currently executing operation until the specified condition gets resolved. |
 | static [PauseUntilAsync](Operation/PauseUntilAsync.md)(…) | Asynchronously pauses the currently executing operation until the operation with the specified id completes. If *resumeAsynchronously* is set to true, then after the asynchronous pause, a new operation will be created to execute the continuation. |
 | static [PauseUntilCompleted](Operation/PauseUntilCompleted.md)(…) | Pauses the currently executing operation until the operation with the specified id completes. |

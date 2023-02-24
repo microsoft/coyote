@@ -45,32 +45,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestUncontrolledThreadSpinWaitInvocation()
-        {
-            this.Test(() =>
-            {
-                Thread.SpinWait(10);
-            },
-            configuration: this.GetConfiguration()
-                .WithPartiallyControlledConcurrencyAllowed()
-                .WithTestingIterations(10));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestUncontrolledThreadSpinWaitInvocationWithNoPartialControl()
-        {
-            this.TestWithError(() =>
-            {
-                Thread.SpinWait(10);
-            },
-            errorChecker: (e) =>
-            {
-                var expectedMethodName = GetFullyQualifiedMethodName(typeof(Thread), nameof(Thread.SpinWait));
-                Assert.StartsWith($"Invoking '{expectedMethodName}' is not intercepted", e);
-            });
-        }
-
-        [Fact(Timeout = 5000)]
         public void TestUncontrolledTimerInvocation()
         {
             this.Test(() =>

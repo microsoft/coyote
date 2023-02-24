@@ -109,6 +109,11 @@ namespace Microsoft.Coyote.Runtime
         internal ulong OperationCreationCount;
 
         /// <summary>
+        /// Value denoting the number of scheduling steps this operation must remain delayed.
+        /// </summary>
+        internal int DelayedStepsCount;
+
+        /// <summary>
         /// True if this is the root operation, else false.
         /// </summary>
         internal bool IsRoot => this.Id is 0;
@@ -155,6 +160,7 @@ namespace Microsoft.Coyote.Runtime
             this.LastAccessedSharedState = string.Empty;
             this.LastAccessedSharedStateComparer = null;
             this.OperationCreationCount = 0;
+            this.DelayedStepsCount = 0;
             this.IsSourceUncontrolled = false;
             this.IsDependencyUncontrolled = false;
 
@@ -214,6 +220,16 @@ namespace Microsoft.Coyote.Runtime
             this.Status = OperationStatus.Paused;
             this.Dependency = callback;
             this.IsDependencyUncontrolled = !isControlled;
+        }
+
+        /// <summary>
+        /// Pauses this operation and sets a delay counter that decrements in each scheduling step.
+        /// When the counter reaches 0, the operation can become enabled again.
+        /// </summary>
+        internal void PauseWithDelay(uint delay)
+        {
+            this.Status = OperationStatus.PausedOnDelay;
+            this.DelayedStepsCount = delay > int.MaxValue ? int.MaxValue : (int)delay;
         }
 
         /// <summary>

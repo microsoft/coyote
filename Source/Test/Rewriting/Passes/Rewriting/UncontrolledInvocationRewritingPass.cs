@@ -125,11 +125,7 @@ namespace Microsoft.Coyote.Rewriting
             else if (type.Namespace.StartsWith(typeof(System.Threading.Thread).Namespace))
             {
                 if (type.Name is nameof(System.Threading.Thread) && member != null &&
-                    (member.Name is nameof(System.Threading.Thread.Start) ||
-                    member.Name is nameof(System.Threading.Thread.Join) ||
-                    member.Name is nameof(System.Threading.Thread.SpinWait) ||
-                    member.Name is nameof(System.Threading.Thread.Sleep) ||
-                    member.Name is nameof(System.Threading.Thread.Interrupt) ||
+                    (member.Name is nameof(System.Threading.Thread.Interrupt) ||
                     member.Name is nameof(System.Threading.Thread.Suspend) ||
                     member.Name is nameof(System.Threading.Thread.Resume) ||
                     member.Name is nameof(System.Threading.Thread.BeginCriticalRegion) ||

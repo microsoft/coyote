@@ -302,7 +302,8 @@ nav:
         - PauseUntilAsync: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilAsync.md
         - PauseUntilCompletedAsync: ref/Microsoft.Coyote.Runtime/Operation/PauseUntilCompletedAsync.md
         - ScheduleNext: ref/Microsoft.Coyote.Runtime/Operation/ScheduleNext.md
-        - Complete: ref/Microsoft.Coyote.Runtime/Operation/Complete.md
+        - OnStarted: ref/Microsoft.Coyote.Runtime/Operation/OnStarted.md
+        - OnCompleted: ref/Microsoft.Coyote.Runtime/Operation/OnCompleted.md
         - TryReset: ref/Microsoft.Coyote.Runtime/Operation/TryReset.md
         - RegisterCallSite: ref/Microsoft.Coyote.Runtime/Operation/RegisterCallSite.md
       - RuntimeProvider:

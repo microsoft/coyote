@@ -1,9 +1,9 @@
-# Operation.Complete method
+# Operation.OnStarted method
 
-Completes the currently executing operation.
+Notifies that the operation with the specified id has started executing.
 
 ```csharp
-public static void Complete()
+public static void OnStarted(ulong operationId)
 ```
 
 ## See Also

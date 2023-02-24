@@ -18,7 +18,9 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
         private class M1 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             internal int Add(int m, int k)
+#pragma warning restore CA1822 // Mark members as static
             {
                 return m + k;
             }
@@ -36,7 +38,9 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
         private class M2 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             internal async Task<int> AddAsync(int m, int k)
+#pragma warning restore CA1822 // Mark members as static
             {
                 await Task.CompletedTask;
                 return m + k;
@@ -55,7 +59,9 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
         private class M3 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private int Add(int m, int k)
+#pragma warning restore CA1822 // Mark members as static
             {
                 return m + k;
             }
@@ -76,7 +82,9 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
         private class M4 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private async Task<int> AddAsync(int m, int k)
+#pragma warning restore CA1822 // Mark members as static
             {
                 await Task.CompletedTask;
                 return m + k;

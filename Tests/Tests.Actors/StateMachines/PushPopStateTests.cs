@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             await test.SendEventAsync(new E3());
             await test.SendEventAsync(new E4());
             test.AssertStateTransition("Final");
-            string actual = string.Join(", ", test.ActorInstance.Log);
+            string actual = $"{string.Join(", ", test.ActorInstance.Log)}.";
             Assert.Equal("E2 in state Final, E4 in state Final.", actual);
         }
 

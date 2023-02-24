@@ -5,13 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Logging;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors.UnitTesting
 {
     /// <summary>
     /// Execution context for testing an actor in isolation.
     /// </summary>
-    internal sealed class SiloedExecutionContext : ActorExecutionContext
+    internal sealed class SiloedExecutionContext<T> : ActorExecutionContext
+        where T : Actor
     {
         /// <summary>
         /// The actor being tested.
@@ -34,15 +37,18 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         internal bool IsActorWaitingToReceiveEvent { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SiloedExecutionContext"/> class.
+        /// Initializes a new instance of the <see cref="SiloedExecutionContext{T}"/> class.
         /// </summary>
-        internal SiloedExecutionContext(Configuration configuration, Type actorType, ActorLogManager logManager)
+        internal SiloedExecutionContext(Configuration configuration, ActorLogManager logManager, LogWriter logWriter)
             : base(configuration, logManager)
         {
-            this.Assert(actorType.IsSubclassOf(typeof(Actor)), "Type '{0}' is not an actor.", actorType.FullName);
+            // First instantiate the runtime.
+            CoyoteRuntime runtime = RuntimeProvider.CreateAndInstall(configuration, logWriter, logManager, this);
+            this.WithRuntime(runtime);
 
-            var id = this.CreateActorId(actorType, null);
-            this.Instance = ActorFactory.Create(actorType);
+            // Then initialize the actor instance to manage in isolation.
+            var id = this.CreateActorId(typeof(T), null);
+            this.Instance = ActorFactory.Create(typeof(T));
             ActorOperation op = this.GetOrCreateActorOperation(id, this.Instance);
             this.Inbox = new EventQueue(this.Instance);
             this.Instance.Configure(this, id, op, this.Inbox, null);
@@ -165,7 +171,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
 
             this.LogManager.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? default, e, opId, isTargetHalted: false);
-            
+
             if (targetId != this.Instance.Id)
             {
                 // Drop all events sent to an actor other than the actor-under-test.

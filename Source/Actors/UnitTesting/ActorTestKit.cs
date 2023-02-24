@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         /// <summary>
         /// The actor unit testing execution context.
         /// </summary>
-        private readonly SiloedExecutionContext Context;
+        private readonly SiloedExecutionContext<T> Context;
 
         /// <summary>
         /// The instance of the actor being tested.
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             var logManager = new ActorLogManager();
             logManager.RegisterLog(new ActorRuntimeLogTextFormatter(), logWriter);
 
-            this.Context = new SiloedExecutionContext(configuration, typeof(T), logManager);
+            this.Context = new SiloedExecutionContext<T>(configuration, logManager, logWriter);
             this.ActorInstance = this.Context.Instance as T;
             this.IsRunning = false;
             this.Context.OnFailure += ex =>

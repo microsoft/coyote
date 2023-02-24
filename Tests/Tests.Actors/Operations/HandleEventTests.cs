@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tests.Common.Actors;
+using System.Threading.Tasks;
+using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -12,6 +13,21 @@ namespace Microsoft.Coyote.Actors.Tests
         public HandleEventTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        private class Result
+        {
+            public int Value = 0;
+        }
+
+        private class SetupEvent : Event
+        {
+            public Result Result;
+
+            public SetupEvent(Result result)
+            {
+                this.Result = result;
+            }
         }
 
         private class E1 : Event
@@ -26,8 +42,10 @@ namespace Microsoft.Coyote.Actors.Tests
         {
         }
 
-        private class M1 : TraceableStateMachine
+        private class M1 : StateMachine
         {
+            private Result Result;
+
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
@@ -35,20 +53,21 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Trace("InitOnEntry");
+                this.Result = (e as SetupEvent).Result;
             }
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
-                this.OnFinalEvent();
+                this.Result.Value += 1;
             }
         }
 
-        private class M2 : TraceableStateMachine
+        private class M2 : StateMachine
         {
+            private Result Result;
+
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
@@ -58,56 +77,57 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Trace("InitOnEntry");
+                this.Result = (e as SetupEvent).Result;
             }
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
+                this.Result.Value += 1;
             }
 
             private void HandleE2()
             {
-                this.Trace("HandleE2");
+                this.Result.Value += 2;
             }
 
             private void HandleE3()
             {
-                this.Trace("HandleE3");
-                this.OnFinalEvent();
+                this.Result.Value += 3;
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestHandleEventInStateMachine()
+        public async Task TestHandleEventInStateMachine()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M1), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("InitOnEntry, HandleE1", actual);
-            });
+            var result = new Result();
+
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M1>(configuration: configuration);
+
+            await test.StartActorAsync(new SetupEvent(result));
+            await test.SendEventAsync(new E1());
+
+            test.AssertInboxSize(0);
+            test.Assert(result.Value == 1, $"Incorrect result '{result.Value}'");
         }
 
         [Fact(Timeout = 5000)]
-        public void TestHandleMultipleEventsInStateMachine()
+        public async Task TestHandleMultipleEventsInStateMachine()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M2), null, op);
-                runtime.SendEvent(id, new E1());
-                runtime.SendEvent(id, new E2());
-                runtime.SendEvent(id, new E3());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("InitOnEntry, HandleE1, HandleE2, HandleE3", actual);
-            });
+            var result = new Result();
+
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M2>(configuration: configuration);
+
+            await test.StartActorAsync(new SetupEvent(result));
+            await test.SendEventAsync(new E1());
+            await test.SendEventAsync(new E2());
+            await test.SendEventAsync(new E3());
+
+            test.AssertInboxSize(0);
+            test.Assert(result.Value == 6, $"Incorrect result '{result.Value}'");
         }
     }
 }

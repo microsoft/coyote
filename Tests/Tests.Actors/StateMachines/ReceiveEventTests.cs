@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestReceiveEventStatement()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
 
             await test.StartActorAsync();
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestMultipleReceiveEventStatements()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
 
             await test.StartActorAsync();
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestMultipleReceiveEventStatementsUnordered()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
 
             await test.StartActorAsync();
@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestReceiveEventStatementWithMultipleTypes()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
 
             await test.StartActorAsync();
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestMultipleReceiveEventStatementsWithMultipleTypes()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M4>(configuration: configuration);
 
             await test.StartActorAsync();

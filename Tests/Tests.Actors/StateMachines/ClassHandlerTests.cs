@@ -8,10 +8,6 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
-    /// <summary>
-    /// Tests that StateMachines can also fall back on class level OnEventDoActions that
-    /// all Actors can define.
-    /// </summary>
     public class ClassHandlerTests : BaseActorTest
     {
         public ClassHandlerTests(ITestOutputHelper output)
@@ -127,45 +123,45 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestClassEventHandler()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
 
             await test.StartActorAsync();
             await test.SendEventAsync(new E1());
-            test.Assert(test.ActorInstance.Count == 1, "HandleE1 was not called");
+            test.Assert(test.ActorInstance.Count == 1, "HandleE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
         public async Task TestClassEventHandlerOverride()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
 
             await test.StartActorAsync();
             await test.SendEventAsync(new E1());
-            test.Assert(test.ActorInstance.Count == 1, "HandleInitE1 was not called");
+            test.Assert(test.ActorInstance.Count == 1, "HandleInitE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
         public async Task TestClassEventHandlerDeferOverride()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
 
             await test.StartActorAsync();
             await test.SendEventAsync(new E1());
-            test.Assert(test.ActorInstance.Count == 1, "HandleActiveE1 was not called");
+            test.Assert(test.ActorInstance.Count == 1, "HandleActiveE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
         public async Task TestClassEventHandlerWildcardOverride()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
 
             await test.StartActorAsync();
             await test.SendEventAsync(new E1());
-            test.Assert(test.ActorInstance.Count == 1, "HandleWildCard was not called");
+            test.Assert(test.ActorInstance.Count == 1, "HandleWildCard was not called.");
         }
     }
 }

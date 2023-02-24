@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestPushStateTransition()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
             await test.StartActorAsync();
             test.AssertStateTransition("Final");
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestPushStateTransitionAfterSend()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
             await test.StartActorAsync();
             test.AssertStateTransition("Init");
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestPushStateTransitionAfterRaise()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
             await test.StartActorAsync();
             test.AssertStateTransition("Final");
@@ -132,18 +132,15 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestPushPopTransition()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M4>(configuration: configuration);
             await test.StartActorAsync();
             await test.SendEventAsync(new E1());
             await test.SendEventAsync(new E2());
             test.AssertStateTransition("Init");
-            test.Assert(test.ActorInstance.Count == 1, "Did not reach Final state");
+            test.Assert(test.ActorInstance.Count == 1, "Did not reach the Final state.");
         }
 
-        /// <summary>
-        /// Test that Defer, Ignore and DoAction can be inherited.
-        /// </summary>
         private class M5 : StateMachine
         {
             public List<string> Log = new List<string>();
@@ -171,22 +168,18 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestPushStateInheritance()
         {
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M5>(configuration: configuration);
             await test.StartActorAsync();
-            await test.SendEventAsync(new E2()); // should be deferred
-            await test.SendEventAsync(new E1()); // push
-            await test.SendEventAsync(new E3()); // ignored
-            await test.SendEventAsync(new E4()); // inherited handler
+            await test.SendEventAsync(new E2());
+            await test.SendEventAsync(new E1());
+            await test.SendEventAsync(new E3());
+            await test.SendEventAsync(new E4());
             test.AssertStateTransition("Final");
             string actual = string.Join(", ", test.ActorInstance.Log);
-            string expected = "E2 in state Final, E4 in state Final";
-            Assert.Equal(expected, actual);
+            Assert.Equal("E2 in state Final, E4 in state Final.", actual);
         }
 
-        /// <summary>
-        /// Test you cannot have duplicated handlers for the same event.
-        /// </summary>
         private class M6 : StateMachine
         {
             public List<string> Log = new List<string>();
@@ -205,20 +198,18 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             string actual = null;
             try
             {
-                var test = new ActorTestKit<M6>(GetConfiguration());
+                var configuration = this.GetConfiguration();
+                var test = new ActorTestKit<M6>(configuration);
             }
             catch (Exception e)
             {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
+                string name = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(name + "+", string.Empty);
             }
 
             Assert.Equal("M6(0) declared multiple handlers for event 'E2' in state 'M6+Init'.", actual);
         }
 
-        /// <summary>
-        /// Test you cannot have duplicated handlers for the same event.
-        /// </summary>
         private class M7 : StateMachine
         {
             public List<string> Log = new List<string>();
@@ -241,21 +232,18 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             string actual = null;
             try
             {
-                var test = new ActorTestKit<M7>(GetConfiguration());
+                var configuration = this.GetConfiguration();
+                var test = new ActorTestKit<M7>(configuration);
             }
             catch (Exception e)
             {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
+                string name = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(name + "+", string.Empty);
             }
 
             Assert.Equal("M7(0) declared multiple handlers for event 'E2' in state 'M7+Init'.", actual);
         }
 
-        /// <summary>
-        /// Test if you have duplicate handlers for the same event on inherited State class then the
-        /// most derrived handler wins.
-        /// </summary>
         [DeferEvents(typeof(E1))]
         [IgnoreEvents(typeof(E2))]
         [OnEventGotoState(typeof(E3), typeof(StateMachine.State))]
@@ -281,7 +269,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void HandleEvent()
             {
-                this.Assert(false, "HandleEvent not happen!");
+                this.Assert(false, "HandleEvent did not happen!");
             }
         }
 
@@ -291,12 +279,13 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             string actual = null;
             try
             {
-                var test = new ActorTestKit<M8>(GetConfiguration());
+                var configuration = this.GetConfiguration();
+                var test = new ActorTestKit<M8>(configuration);
             }
             catch (Exception e)
             {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
+                string name = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(name + "+", string.Empty);
             }
 
             Assert.Equal("M8(0) inherited multiple handlers for event 'E1' from state 'BaseState' in state 'M8+Init'.", actual);
@@ -329,13 +318,12 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         [Fact(Timeout = 5000)]
         public async Task TestInheritedDuplicateDeferHandler()
         {
-            // inherited state can re-define a DeferEvent, IgnoreEvent or a Goto if it wants to, this is not an error.
-            var configuration = GetConfiguration();
+            var configuration = this.GetConfiguration();
             var test = new ActorTestKit<M9>(configuration: configuration);
             await test.StartActorAsync();
-            await test.SendEventAsync(new E1()); // should be deferred
-            await test.SendEventAsync(new E2()); // should be ignored
-            await test.SendEventAsync(new E3()); // should trigger goto, where deferred E1 can be handled.
+            await test.SendEventAsync(new E1());
+            await test.SendEventAsync(new E2());
+            await test.SendEventAsync(new E3());
             test.AssertStateTransition("Final");
         }
     }

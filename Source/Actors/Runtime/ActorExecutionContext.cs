@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Completes when actor quiescence is reached.
         /// </summary>
-        internal TaskCompletionSource<bool> QuiescenceCompletionSource;
+        internal readonly TaskCompletionSource<bool> QuiescenceCompletionSource;
 
         /// <summary>
         /// True if the runtime is waiting for actor quiescence.
@@ -193,25 +193,21 @@ namespace Microsoft.Coyote.Actors
             this.CreateActor(id, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null,
-            EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
-            EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
-            EventGroup eventGroup = null) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
             this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, eventGroup);
 
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator,
-            EventGroup eventGroup)
+        internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, EventGroup eventGroup)
         {
             Actor actor = this.CreateActor(id, type, name, creator, eventGroup);
             if (actor is StateMachine)
@@ -315,8 +311,8 @@ namespace Microsoft.Coyote.Actors
             this.SendEvent(targetId, initialEvent, null, eventGroup, options);
 
         /// <inheritdoc/>
-        public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
-            EventGroup eventGroup = null, SendOptions options = null) =>
+        public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent, EventGroup eventGroup = null,
+            SendOptions options = null) =>
             this.SendEventAndExecuteAsync(targetId, initialEvent, null, eventGroup, options);
 
         /// <summary>
@@ -336,8 +332,8 @@ namespace Microsoft.Coyote.Actors
         /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
         /// already running. Otherwise blocks until the target handles the event and reaches quiescence.
         /// </summary>
-        internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            EventGroup eventGroup, SendOptions options)
+        internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender, EventGroup eventGroup,
+            SendOptions options)
         {
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, eventGroup, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -615,7 +611,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified actor enqueued an event that it was waiting to receive.
         /// </summary>
-        internal void LogReceivedEvent(Actor actor, Event e)
+        internal virtual void LogReceivedEvent(Actor actor, Event e)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogManager.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);

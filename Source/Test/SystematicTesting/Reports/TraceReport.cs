@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.SystematicTesting
             report.Settings.UncontrolledConcurrencyResolutionAttempts = configuration.UncontrolledConcurrencyResolutionAttempts;
             report.Settings.UncontrolledConcurrencyResolutionDelay = configuration.UncontrolledConcurrencyResolutionDelay;
 
-            report.ReportTrace(scheduler.Trace);
+            report.ReportTrace(scheduler.Trace.Clone());
             return report.ToJson();
         }
 

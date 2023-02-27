@@ -156,31 +156,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Appends the steps from the specified trace.
-        /// </summary>
-        internal ExecutionTrace Append(ExecutionTrace trace)
-        {
-            foreach (var step in trace.Steps)
-            {
-                if (step is SchedulingStep schedulingStep)
-                {
-                    this.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentSequenceId, schedulingStep.SchedulingPoint,
-                        schedulingStep.Value, schedulingStep.SequenceId);
-                }
-                else if (step is BooleanChoiceStep boolChoiceStep)
-                {
-                    this.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentSequenceId, boolChoiceStep.Value);
-                }
-                else if (step is IntegerChoiceStep intChoiceStep)
-                {
-                    this.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentSequenceId, intChoiceStep.Value);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
         /// Extends the trace with any new steps from the specified trace, or replaces the trace
         /// with the new trace if the two traces diverge.
         /// </summary>
@@ -223,6 +198,33 @@ namespace Microsoft.Coyote.Runtime
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// Clones this trace.
+        /// </summary>
+        internal ExecutionTrace Clone()
+        {
+            var steps = new List<Step>(this.Steps);
+            ExecutionTrace trace = ExecutionTrace.Create();
+            foreach (var step in steps)
+            {
+                if (step is SchedulingStep schedulingStep)
+                {
+                    trace.AddSchedulingDecision(schedulingStep.Current, schedulingStep.CurrentSequenceId, schedulingStep.SchedulingPoint,
+                        schedulingStep.Value, schedulingStep.SequenceId);
+                }
+                else if (step is BooleanChoiceStep boolChoiceStep)
+                {
+                    trace.AddNondeterministicBooleanDecision(boolChoiceStep.Current, boolChoiceStep.CurrentSequenceId, boolChoiceStep.Value);
+                }
+                else if (step is IntegerChoiceStep intChoiceStep)
+                {
+                    trace.AddNondeterministicIntegerDecision(intChoiceStep.Current, intChoiceStep.CurrentSequenceId, intChoiceStep.Value);
+                }
+            }
+
+            return trace;
         }
 
         /// <summary>

@@ -1,16 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tests.Common.Actors;
+using System.Threading.Tasks;
+using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.Tests.StateMachines
 {
-    /// <summary>
-    /// Tests that StateMachines can also fall back on class level OnEventDoActions that
-    /// all Actors can define.
-    /// </summary>
     public class ClassHandlerTests : BaseActorTest
     {
         public ClassHandlerTests(ITestOutputHelper output)
@@ -31,8 +28,10 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         }
 
         [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-        private class M1 : TraceableStateMachine
+        private class M1 : StateMachine
         {
+            public int Count;
+
             [Start]
             private class Init : State
             {
@@ -40,14 +39,15 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
-                this.OnFinalEvent();
+                this.Count++;
             }
         }
 
         [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-        private class M2 : TraceableStateMachine
+        private class M2 : StateMachine
         {
+            public int Count;
+
             [Start]
             [OnEventDoAction(typeof(E1), nameof(HandleInitE1))]
             private class Init : State
@@ -56,20 +56,20 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
-                this.OnFinalEvent();
+                this.Count--;
             }
 
             private void HandleInitE1()
             {
-                this.Trace("HandleInitE1");
-                this.OnFinalEvent();
+                this.Count++;
             }
         }
 
         [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-        private class M3 : TraceableStateMachine
+        private class M3 : StateMachine
         {
+            public int Count;
+
             [Start]
             [OnEntry(nameof(OnInitEntry))]
             [DeferEvents(typeof(E1))]
@@ -79,7 +79,6 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void OnInitEntry()
             {
-                this.Trace("OnInitEntry");
                 this.RaiseGotoStateEvent<Active>();
             }
 
@@ -90,20 +89,20 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
-                this.OnFinalEvent();
+                this.Count--;
             }
 
             private void HandleActiveE1()
             {
-                this.Trace("HandleActiveE1");
-                this.OnFinalEvent();
+                this.Count++;
             }
         }
 
         [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-        private class M4 : TraceableStateMachine
+        private class M4 : StateMachine
         {
+            public int Count;
+
             [Start]
             [OnEventDoAction(typeof(WildCardEvent), nameof(HandleWildCard))]
             private class Init : State
@@ -112,71 +111,57 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private void HandleE1()
             {
-                this.Trace("HandleE1");
-                this.OnFinalEvent();
+                this.Count--;
             }
 
             private void HandleWildCard()
             {
-                this.Trace("HandleWildCard");
-                this.OnFinalEvent();
+                this.Count++;
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestClassEventHandler()
+        public async Task TestClassEventHandler()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M1), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("HandleE1", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M1>(configuration: configuration);
+
+            await test.StartActorAsync();
+            await test.SendEventAsync(new E1());
+            test.Assert(test.ActorInstance.Count == 1, "HandleE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
-        public void TestClassEventHandlerOverride()
+        public async Task TestClassEventHandlerOverride()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M2), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("HandleInitE1", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M2>(configuration: configuration);
+
+            await test.StartActorAsync();
+            await test.SendEventAsync(new E1());
+            test.Assert(test.ActorInstance.Count == 1, "HandleInitE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
-        public void TestClassEventHandlerDeferOverride()
+        public async Task TestClassEventHandlerDeferOverride()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M3), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("OnInitEntry, CurrentState=Active, HandleActiveE1", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M3>(configuration: configuration);
+
+            await test.StartActorAsync();
+            await test.SendEventAsync(new E1());
+            test.Assert(test.ActorInstance.Count == 1, "HandleActiveE1 was not called.");
         }
 
         [Fact(Timeout = 5000)]
-        public void TestClassEventHandlerWildcardOverride()
+        public async Task TestClassEventHandlerWildcardOverride()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M4), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("HandleWildCard", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M3>(configuration: configuration);
+
+            await test.StartActorAsync();
+            await test.SendEventAsync(new E1());
+            test.Assert(test.ActorInstance.Count == 1, "HandleWildCard was not called.");
         }
     }
 }

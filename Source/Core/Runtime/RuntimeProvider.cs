@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/>.
         /// </summary>
-        private static CoyoteRuntime CreateWithConfiguration(Configuration configuration, LogWriter logWriter,
+        internal static CoyoteRuntime CreateWithConfiguration(Configuration configuration, LogWriter logWriter,
             LogManager logManager, IRuntimeExtension extension)
         {
             configuration ??= Configuration.Create();

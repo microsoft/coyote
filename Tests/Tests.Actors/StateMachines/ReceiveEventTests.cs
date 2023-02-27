@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
         {
         }
 
-        private class M1 : TraceableStateMachine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -37,15 +37,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private async Task InitOnEntry()
             {
-                this.Trace("Receiving");
-                Event e = await this.ReceiveEventAsync(typeof(E1));
-                this.Trace("Received:{0}", e.GetType().Name);
-
-                this.OnFinalEvent();
+                await this.ReceiveEventAsync(typeof(E1));
             }
         }
 
-        private class M2 : TraceableStateMachine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -55,19 +51,13 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private async Task InitOnEntry()
             {
-                this.Trace("Receiving");
-                var e = await this.ReceiveEventAsync(typeof(E1));
-                this.Trace("Received:{0}", e.GetType().Name);
-                e = await this.ReceiveEventAsync(typeof(E2));
-                this.Trace("Received:{0}", e.GetType().Name);
-                e = await this.ReceiveEventAsync(typeof(E3));
-                this.Trace("Received:{0}", e.GetType().Name);
-
-                this.OnFinalEvent();
+                await this.ReceiveEventAsync(typeof(E1));
+                await this.ReceiveEventAsync(typeof(E2));
+                await this.ReceiveEventAsync(typeof(E3));
             }
         }
 
-        private class M3 : TraceableStateMachine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -77,15 +67,11 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private async Task InitOnEntry()
             {
-                this.Trace("Receiving");
-                var e = await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
-                this.Trace("Received:{0}", e.GetType().Name);
-
-                this.OnFinalEvent();
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
             }
         }
 
-        private class M4 : TraceableStateMachine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -95,92 +81,100 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
 
             private async Task InitOnEntry()
             {
-                this.Trace("Receiving");
-                var e = await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
-                this.Trace("Received:{0}", e.GetType().Name);
-                e = await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
-                this.Trace("Received:{0}", e.GetType().Name);
-                e = await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
-                this.Trace("Received:{0}", e.GetType().Name);
-
-                this.OnFinalEvent();
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestReceiveEventStatement()
+        public async Task TestReceiveEventStatement()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M1), null, op);
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("Receiving, Received:E1", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M1>(configuration: configuration);
+
+            await test.StartActorAsync();
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E1());
+            test.AssertIsWaitingToReceiveEvent(false);
+            test.AssertInboxSize(0);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMultipleReceiveEventStatements()
+        public async Task TestMultipleReceiveEventStatements()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M2), null, op);
-                runtime.SendEvent(id, new E1());
-                runtime.SendEvent(id, new E2());
-                runtime.SendEvent(id, new E3());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M2>(configuration: configuration);
+
+            await test.StartActorAsync();
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E1());
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E2());
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E3());
+            test.AssertIsWaitingToReceiveEvent(false);
+            test.AssertInboxSize(0);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMultipleReceiveEventStatementsUnordered()
+        public async Task TestMultipleReceiveEventStatementsUnordered()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M2), null, op);
-                runtime.SendEvent(id, new E2());
-                runtime.SendEvent(id, new E3());
-                runtime.SendEvent(id, new E1());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M2>(configuration: configuration);
+
+            await test.StartActorAsync();
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E2());
+            test.AssertIsWaitingToReceiveEvent(true);
+            test.AssertInboxSize(1);
+
+            await test.SendEventAsync(new E3());
+            test.AssertIsWaitingToReceiveEvent(true);
+            test.AssertInboxSize(2);
+
+            await test.SendEventAsync(new E1());
+            test.AssertIsWaitingToReceiveEvent(false);
+            test.AssertInboxSize(0);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestReceiveEventStatementWithMultipleTypes()
+        public async Task TestReceiveEventStatementWithMultipleTypes()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M3), null, op);
-                runtime.SendEvent(id, new E2());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("Receiving, Received:E2", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M3>(configuration: configuration);
+
+            await test.StartActorAsync();
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E1());
+            test.AssertIsWaitingToReceiveEvent(false);
+            test.AssertInboxSize(0);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMultipleReceiveEventStatementsWithMultipleTypes()
+        public async Task TestMultipleReceiveEventStatementsWithMultipleTypes()
         {
-            this.Test(async (IActorRuntime runtime) =>
-            {
-                var op = new EventGroupList();
-                var id = runtime.CreateActor(typeof(M4), null, op);
-                runtime.SendEvent(id, new E1());
-                runtime.SendEvent(id, new E3());
-                runtime.SendEvent(id, new E2());
-                await this.GetResultAsync(op.Task);
-                var actual = op.ToString();
-                Assert.Equal("Receiving, Received:E1, Received:E3, Received:E2", actual);
-            });
+            var configuration = this.GetConfiguration();
+            var test = new ActorTestKit<M4>(configuration: configuration);
+
+            await test.StartActorAsync();
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E1());
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E2());
+            test.AssertIsWaitingToReceiveEvent(true);
+
+            await test.SendEventAsync(new E3());
+            test.AssertIsWaitingToReceiveEvent(false);
+            test.AssertInboxSize(0);
         }
     }
 }

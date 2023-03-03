@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Runtime;
 using SystemThread = System.Threading.Thread;
 using SystemTimeout = System.Threading.Timeout;
@@ -63,7 +64,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 Resource.TryFind(instance, out Resource resource))
             {
-                return resource.WaitOne(millisecondsTimeout);
+                return resource.WaitOne(runtime, millisecondsTimeout);
             }
 
             return instance.WaitOne(millisecondsTimeout, exitContext);
@@ -111,11 +112,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static bool WaitAll(SystemWaitHandle[] waitHandles, int millisecondsTimeout, bool exitContext)
         {
-            // var runtime = CoyoteRuntime.Current;
-            // if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            // {
-            //     return new Wrapper(runtime, initialState);
-            // }
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                return Resource.WaitAll(runtime, waitHandles, millisecondsTimeout);
+            }
 
             return SystemWaitHandle.WaitAll(waitHandles, millisecondsTimeout, exitContext);
         }
@@ -162,11 +163,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static int WaitAny(SystemWaitHandle[] waitHandles, int millisecondsTimeout, bool exitContext)
         {
-            // var runtime = CoyoteRuntime.Current;
-            // if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            // {
-            //     return new Wrapper(runtime, initialState);
-            // }
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                return Resource.WaitAny(runtime, waitHandles, millisecondsTimeout);
+            }
 
             return SystemWaitHandle.WaitAny(waitHandles, millisecondsTimeout, exitContext);
         }
@@ -221,9 +222,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             protected bool IsSignaled;
 
             /// <summary>
-            /// Queue of operations waiting to be released.
+            /// Set of operations waiting to be signaled.
             /// </summary>
-            protected readonly Queue<ControlledOperation> PausedOperations;
+            protected readonly HashSet<ControlledOperation> PausedOperations;
 
             /// <summary>
             /// The debug name of this handle.
@@ -239,7 +240,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.ResourceId = Guid.NewGuid();
                 this.Handle = handle;
                 this.IsSignaled = isSignaled;
-                this.PausedOperations = new Queue<ControlledOperation>();
+                this.PausedOperations = new HashSet<ControlledOperation>();
                 this.DebugName = $"{handle.GetType().Name}({this.ResourceId})";
             }
 
@@ -262,11 +263,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Pauses the current operation until it receives a signal.
             /// </summary>
-            internal bool WaitOne(int millisecondsTimeout)
+            internal bool WaitOne(CoyoteRuntime runtime, int millisecondsTimeout)
             {
-                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
+                    this.CheckRuntime(runtime);
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("WaitHandle.WaitOne");
@@ -276,24 +277,115 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
                     }
 
-                    if (this.IsSignaled)
+                    if (!this.IsSignaled)
                     {
-                        return true;
+                        if (millisecondsTimeout is 0)
+                        {
+                            return false;
+                        }
+
+                        runtime.LogWriter.LogDebug(
+                            "[coyote::debug] Operation {0} is waiting for '{1}' to get signaled on thread '{2}'.",
+                            current.DebugInfo, this.DebugName, SystemThread.CurrentThread.ManagedThreadId);
+                        // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
+                        current.PauseWithResource(this.ResourceId);
+                        this.PausedOperations.Add(current);
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
                     }
 
-                    if (millisecondsTimeout is 0)
-                    {
-                        return false;
-                    }
-
-                    runtime.LogWriter.LogDebug(
-                        "[coyote::debug] Operation {0} is waiting for '{1}' to get signaled on thread '{2}'.",
-                        current.DebugInfo, this.DebugName, SystemThread.CurrentThread.ManagedThreadId);
-                    // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
-                    current.Status = OperationStatus.PausedOnResource;
-                    this.PausedOperations.Enqueue(current);
-                    runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
                     return true;
+                }
+            }
+
+            /// <summary>
+            /// Pauses the current operation until it receives a signal from all the specified handles.
+            /// </summary>
+            internal static bool WaitAll(CoyoteRuntime runtime, SystemWaitHandle[] waitHandles, int millisecondsTimeout)
+            {
+                using (runtime.EnterSynchronizedSection())
+                {
+                    if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
+                    {
+                        runtime.NotifyUncontrolledSynchronizationInvocation("WaitHandle.WaitAll");
+                    }
+                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                    {
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
+                    }
+
+                    Resource[] resources = GetResources(runtime, waitHandles);
+                    if (resources.Any(r => !r.IsSignaled))
+                    {
+                        if (millisecondsTimeout is 0)
+                        {
+                            return false;
+                        }
+
+                        runtime.LogWriter.LogDebug(
+                            "[coyote::debug] Operation {0} is waiting for all 'WaitHandles' to get signaled on thread '{1}'.",
+                            current.DebugInfo, SystemThread.CurrentThread.ManagedThreadId);
+
+                        // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
+                        var nonSignaled = resources.Where(r => !r.IsSignaled);
+                        current.PauseWithResources(nonSignaled.Select(r => r.ResourceId), true);
+                        foreach (Resource resource in nonSignaled)
+                        {
+                            resource.PausedOperations.Add(current);
+                        }
+
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
+                    }
+
+                    return true;
+                }
+            }
+
+            /// <summary>
+            /// Pauses the current operation until it receives a signal from any of the specified handles.
+            /// </summary>
+            internal static int WaitAny(CoyoteRuntime runtime, SystemWaitHandle[] waitHandles, int millisecondsTimeout)
+            {
+                using (runtime.EnterSynchronizedSection())
+                {
+                    if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
+                    {
+                        runtime.NotifyUncontrolledSynchronizationInvocation("WaitHandle.WaitAny");
+                    }
+                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                    {
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
+                    }
+
+                    int result = millisecondsTimeout;
+                    Resource[] resources = GetResources(runtime, waitHandles);
+                    if (!resources.All(r => r.IsSignaled))
+                    {
+                        if (millisecondsTimeout is 0)
+                        {
+                            return result;
+                        }
+
+                        runtime.LogWriter.LogDebug(
+                            "[coyote::debug] Operation {0} is waiting for any 'WaitHandle' to get signaled on thread '{1}'.",
+                            current.DebugInfo, SystemThread.CurrentThread.ManagedThreadId);
+
+                        // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
+                        Resource[] nonSignaled = resources.Where(r => !r.IsSignaled).ToArray();
+                        current.PauseWithResources(nonSignaled.Select(r => r.ResourceId), false);
+                        foreach (Resource resource in nonSignaled)
+                        {
+                            resource.PausedOperations.Add(current);
+                        }
+
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
+                        result = Array.FindIndex(nonSignaled, r => r.IsSignaled);
+                    }
+                    else
+                    {
+                        result = Array.FindIndex(resources, r => r.IsSignaled);
+                    }
+
+                    return result;
                 }
             }
 
@@ -305,27 +397,48 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </remarks>
             protected void Signal()
             {
-                while (this.PausedOperations.Count > 0)
+                foreach (ControlledOperation operation in this.PausedOperations)
                 {
-                    // Release the next operation awaiting a signal.
-                    ControlledOperation operation = this.PausedOperations.Dequeue();
-                    operation.Status = OperationStatus.Enabled;
+                    operation.Signal(this.ResourceId);
                 }
+
+                this.PausedOperations.Clear();
             }
 
             /// <summary>
-            /// Returns the current runtime, asserting that it is the same runtime that created this resource.
+            /// Return the resources associated with the specified handles.
             /// </summary>
-            protected CoyoteRuntime GetRuntime()
+            /// <remarks>
+            /// It is assumed that this method runs in the scope of the runtime <see cref="SynchronizedSection"/>.
+            /// </remarks>
+            private static Resource[] GetResources(CoyoteRuntime runtime, SystemWaitHandle[] waitHandles)
             {
-                var runtime = CoyoteRuntime.Current;
+                var resources = new Resource[waitHandles.Length];
+                for (int idx = 0; idx < waitHandles.Length; idx++)
+                {
+                    if (!TryFind(waitHandles[idx], out Resource resource))
+                    {
+                        runtime.NotifyAssertionFailure($"Accessing 'WaitHandle' that is not intercepted and controlled " +
+                            "during testing, so it can interfere with the ability to reproduce bug traces.");
+                    }
+
+                    resource.CheckRuntime(runtime);
+                    resources[idx] = resource;
+                }
+
+                return resources;
+            }
+
+            /// <summary>
+            /// Checks that the current runtime is the same runtime that created this resource.
+            /// </summary>
+            protected void CheckRuntime(CoyoteRuntime runtime)
+            {
                 if (runtime.Id != this.RuntimeId)
                 {
                     runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
                         $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
                 }
-
-                return runtime;
             }
 
             /// <summary>

@@ -1921,7 +1921,9 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var pausedOperations = ops.Where(op => op.Status is OperationStatus.Paused).ToList();
-            var pausedOnResources = ops.Where(op => op.Status is OperationStatus.PausedOnResource).ToList();
+            var pausedOnResources = ops.Where(op =>
+                op.Status is OperationStatus.PausedOnAnyResource ||
+                op.Status is OperationStatus.PausedOnAllResources).ToList();
             var pausedOnReceiveOperations = ops.Where(op => op.Status is OperationStatus.PausedOnReceive).ToList();
 
             var totalCount = pausedOperations.Count + pausedOnResources.Count + pausedOnReceiveOperations.Count;

@@ -65,6 +65,11 @@ namespace Microsoft.Coyote.Runtime
         internal readonly List<string> VisitedCallSites;
 
         /// <summary>
+        /// Resources that must be signaled before this operation can resume executing.
+        /// </summary>
+        private readonly HashSet<Guid> AwaitedResources;
+
+        /// <summary>
         /// Dependency that must get resolved before this operation can resume executing.
         /// </summary>
         private Func<bool> Dependency;
@@ -134,7 +139,8 @@ namespace Microsoft.Coyote.Runtime
         internal bool IsPaused =>
             this.Status is OperationStatus.Paused ||
             this.Status is OperationStatus.PausedOnDelay ||
-            this.Status is OperationStatus.PausedOnResource ||
+            this.Status is OperationStatus.PausedOnAnyResource ||
+            this.Status is OperationStatus.PausedOnAllResources ||
             this.Status is OperationStatus.PausedOnReceive;
 
         /// <summary>
@@ -154,6 +160,7 @@ namespace Microsoft.Coyote.Runtime
             this.Group = group ?? OperationGroup.Create(this);
             this.Continuations = new Queue<Action>();
             this.VisitedCallSites = new List<string>();
+            this.AwaitedResources = new HashSet<Guid>();
             this.SyncEvent = new ManualResetEventSlim(false);
             this.LastSchedulingPoint = SchedulingPointType.Start;
             this.LastHashedProgramState = 0;
@@ -188,6 +195,79 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Tries to enable this operation if the reason it has paused has been resolved.
+        /// </summary>
+        internal bool TryEnable()
+        {
+            if (this.Status is OperationStatus.Paused && (this.Dependency?.Invoke() ?? true))
+            {
+                this.Dependency = null;
+                this.IsDependencyUncontrolled = false;
+                this.Status = OperationStatus.Enabled;
+            }
+
+            return this.Status is OperationStatus.Enabled;
+        }
+
+        /// <summary>
+        /// Pauses this operation and sets a callback that returns true when the
+        /// dependency causing the pause has been resolved.
+        /// </summary>
+        internal void PauseWithDependency(Func<bool> callback, bool isControlled)
+        {
+            this.Status = OperationStatus.Paused;
+            this.Dependency = callback;
+            this.IsDependencyUncontrolled = !isControlled;
+        }
+
+        /// <summary>
+        /// Pauses this operation and sets a delay counter that decrements in each scheduling step.
+        /// When the counter reaches 0, the operation can become enabled again.
+        /// </summary>
+        internal void PauseWithDelay(uint delay)
+        {
+            this.Status = OperationStatus.PausedOnDelay;
+            this.DelayedStepsCount = delay > int.MaxValue ? int.MaxValue : (int)delay;
+        }
+
+        /// <summary>
+        /// Pauses this operation until the specified resource is released.
+        /// </summary>
+        internal void PauseWithResource(Guid resourceId)
+        {
+            this.Status = OperationStatus.PausedOnAllResources;
+            this.AwaitedResources.Add(resourceId);
+        }
+
+        /// <summary>
+        /// Pauses this operation until any or all of the specified resources are released.
+        /// </summary>
+        internal void PauseWithResources(IEnumerable<Guid> resourceIds, bool waitForAll)
+        {
+            this.Status = waitForAll ? OperationStatus.PausedOnAllResources : OperationStatus.PausedOnAnyResource;
+            this.AwaitedResources.UnionWith(resourceIds);
+        }
+
+        /// <summary>
+        /// Sets a callback that executes the next continuation of this operation.
+        /// </summary>
+        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
+
+        /// <summary>
+        /// Executes all continuations of this operation in order, if there are any.
+        /// </summary>
+        internal void ExecuteContinuations()
+        {
+            // New continuations can be added while executing a continuation,
+            // so keep executing them until the queue is drained.
+            while (this.Continuations.Count > 0)
+            {
+                var nextContinuation = this.Continuations.Dequeue();
+                nextContinuation();
+            }
+        }
+
+        /// <summary>
         /// Pauses the execution of this operation until it receives a signal.
         /// </summary>
         /// <remarks>
@@ -212,57 +292,25 @@ namespace Microsoft.Coyote.Runtime
         internal void Signal() => this.SyncEvent.Set();
 
         /// <summary>
-        /// Pauses this operation and sets a callback that returns true when the
-        /// dependency causing the pause has been resolved.
+        /// Signals this operation from the specified resource.
         /// </summary>
-        internal void PauseWithDependency(Func<bool> callback, bool isControlled)
+        internal void Signal(Guid resourceId)
         {
-            this.Status = OperationStatus.Paused;
-            this.Dependency = callback;
-            this.IsDependencyUncontrolled = !isControlled;
-        }
-
-        /// <summary>
-        /// Pauses this operation and sets a delay counter that decrements in each scheduling step.
-        /// When the counter reaches 0, the operation can become enabled again.
-        /// </summary>
-        internal void PauseWithDelay(uint delay)
-        {
-            this.Status = OperationStatus.PausedOnDelay;
-            this.DelayedStepsCount = delay > int.MaxValue ? int.MaxValue : (int)delay;
-        }
-
-        /// <summary>
-        /// Tries to enable this operation if its dependency has been resolved.
-        /// </summary>
-        internal bool TryEnable()
-        {
-            if (this.Status is OperationStatus.Paused && (this.Dependency?.Invoke() ?? true))
+            if (this.AwaitedResources.Contains(resourceId))
             {
-                this.Dependency = null;
-                this.IsDependencyUncontrolled = false;
-                this.Status = OperationStatus.Enabled;
-            }
-
-            return this.Status is OperationStatus.Enabled;
-        }
-
-        /// <summary>
-        /// Sets a callback that executes the next continuation of this operation.
-        /// </summary>
-        internal void SetContinuationCallback(Action callback) => this.Continuations.Enqueue(callback);
-
-        /// <summary>
-        /// Executes all continuations of this operation in order, if there are any.
-        /// </summary>
-        internal void ExecuteContinuations()
-        {
-            // New continuations can be added while executing a continuation,
-            // so keep executing them until the queue is drained.
-            while (this.Continuations.Count > 0)
-            {
-                var nextContinuation = this.Continuations.Dequeue();
-                nextContinuation();
+                if (this.Status is OperationStatus.PausedOnAnyResource)
+                {
+                    this.AwaitedResources.Clear();
+                    this.Status = OperationStatus.Enabled;
+                }
+                else if (this.Status is OperationStatus.PausedOnAllResources)
+                {
+                    this.AwaitedResources.Remove(resourceId);
+                    if (this.AwaitedResources.Count is 0)
+                    {
+                        this.Status = OperationStatus.Enabled;
+                    }
+                }
             }
         }
 

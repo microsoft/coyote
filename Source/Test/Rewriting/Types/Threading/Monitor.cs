@@ -355,6 +355,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             private readonly Guid RuntimeId;
 
             /// <summary>
+            /// The resource id of this handle.
+            /// </summary>
+            protected readonly Guid ResourceId;
+
+            /// <summary>
             /// The object used for synchronization.
             /// </summary>
             private readonly object SyncObject;
@@ -409,6 +414,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.RuntimeId = runtime.Id;
+                this.ResourceId = Guid.NewGuid();
                 this.SyncObject = syncObject;
                 this.WaitQueue = new List<ControlledOperation>();
                 this.ReadyQueue = new List<ControlledOperation>();
@@ -479,7 +485,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         }
 
                         // Pause this operation and schedule the next enabled operation.
-                        op.Status = OperationStatus.PausedOnResource;
+                        op.PauseWithResource(this.ResourceId);
                         runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
 
                         // This operation can finally take the lock.
@@ -599,7 +605,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.UnlockNextReady();
 
                 // Pause this operation and schedule the next enabled operation.
-                op.Status = OperationStatus.PausedOnResource;
+                op.PauseWithResource(this.ResourceId);
                 runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting on thread '{1}'.",
                     op.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                 runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
@@ -653,7 +659,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // If there is a operation waiting in the ready queue, then awake it.
                     ControlledOperation op = this.ReadyQueue[0];
-                    op.Status = OperationStatus.Enabled;
+                    op.Signal(this.ResourceId);
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
                 }

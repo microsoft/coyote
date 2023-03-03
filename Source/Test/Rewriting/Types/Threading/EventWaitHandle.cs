@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 Resource.TryFind(instance, out WaitHandle.Resource baseResource) &&
                 baseResource is Resource resource)
             {
-                return resource.Set();
+                return resource.Set(runtime);
             }
 
             return instance.Set();
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 Resource.TryFind(instance, out WaitHandle.Resource baseResource) &&
                 baseResource is Resource resource)
             {
-                return resource.Reset();
+                return resource.Reset(runtime);
             }
 
             return instance.Reset();
@@ -109,11 +109,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Sets the state of this resource to signaled, allowing any paused operation to resume executing.
             /// </summary>
-            internal bool Set()
+            internal bool Set(CoyoteRuntime runtime)
             {
-                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
+                    this.CheckRuntime(runtime);
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("EventWaitHandle.Set");
@@ -128,11 +128,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Resets the state of this resource to non-signaled.
             /// </summary>
-            internal bool Reset()
+            internal bool Reset(CoyoteRuntime runtime)
             {
-                CoyoteRuntime runtime = this.GetRuntime();
                 using (runtime.EnterSynchronizedSection())
                 {
+                    this.CheckRuntime(runtime);
                     if (!runtime.TryGetExecutingOperation(out ControlledOperation current))
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("EventWaitHandle.Reset");

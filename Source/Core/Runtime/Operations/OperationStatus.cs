@@ -29,9 +29,14 @@ namespace Microsoft.Coyote.Runtime
         PausedOnDelay,
 
         /// <summary>
-        /// The operation is paused until it acquires a resource.
+        /// The operation is paused until it gets signaled by any awaited resource.
         /// </summary>
-        PausedOnResource,
+        PausedOnAnyResource,
+
+        /// <summary>
+        /// The operation is paused until it gets signaled by all awaited resources.
+        /// </summary>
+        PausedOnAllResources,
 
         /// <summary>
         /// The operation is paused until receives an event.

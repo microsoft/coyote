@@ -276,8 +276,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Acquire);
                     }
 
-                    // TODO: check what is returned if the handle is signaled already.
-                    if (millisecondsTimeout is 0 || this.IsSignaled)
+                    if (this.IsSignaled)
+                    {
+                        return true;
+                    }
+
+                    if (millisecondsTimeout is 0)
                     {
                         return false;
                     }

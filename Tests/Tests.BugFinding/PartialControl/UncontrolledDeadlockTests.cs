@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Tests.Common.Threads;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(async () =>
             {
-                var handle = new ManualResetEvent(true);
+                var handle = new ManualResetEventStub(true);
                 Task task = Task.Run(async () =>
                 {
                     handle.WaitOne();
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                var handle = new ManualResetEvent(true);
+                var handle = new ManualResetEventStub(true);
                 Task task = Task.Run(async () =>
                 {
                     handle.WaitOne();

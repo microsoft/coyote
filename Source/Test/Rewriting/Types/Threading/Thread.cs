@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                Thread.Sleep(millisecondsTimeout);
+                SystemThread.Sleep(millisecondsTimeout);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                Thread.Sleep(timeout);
+                SystemThread.Sleep(timeout);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
             else
             {
-                Thread.SpinWait(iterations);
+                SystemThread.SpinWait(iterations);
             }
         }
 

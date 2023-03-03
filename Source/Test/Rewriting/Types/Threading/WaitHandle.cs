@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 foreach (ControlledOperation operation in this.PausedOperations)
                 {
                     OperationStatus status = operation.Status;
-                    if (operation.Signal(this.ResourceId) && status is OperationStatus.PausedOnAnyResource)
+                    if (operation.TryEnable(this.ResourceId) && status is OperationStatus.PausedOnAnyResource)
                     {
                         // This signal successfully enabled the operation.
                         SignalCache.TryAdd(operation.Id, this.ResourceId);

@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         // Release the next operation awaiting synchronously, but do not decrement any counts,
                         // as it is not guaranteed that it will be able to acquire the semaphore immediately.
                         ControlledOperation operation = this.PausedOperations.Dequeue();
-                        operation.Signal(this.ResourceId);
+                        operation.TryEnable(this.ResourceId);
                     }
 
                     // Release the next asynchronous awaiters, if there are any.

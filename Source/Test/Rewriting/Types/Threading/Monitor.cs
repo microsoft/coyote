@@ -659,7 +659,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // If there is a operation waiting in the ready queue, then awake it.
                     ControlledOperation op = this.ReadyQueue[0];
-                    op.Signal(this.ResourceId);
+                    op.TryEnable(this.ResourceId);
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
                 }

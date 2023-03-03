@@ -195,21 +195,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Tries to enable this operation if the reason it has paused has been resolved.
-        /// </summary>
-        internal bool TryEnable()
-        {
-            if (this.Status is OperationStatus.Paused && (this.Dependency?.Invoke() ?? true))
-            {
-                this.Dependency = null;
-                this.IsDependencyUncontrolled = false;
-                this.Status = OperationStatus.Enabled;
-            }
-
-            return this.Status is OperationStatus.Enabled;
-        }
-
-        /// <summary>
         /// Pauses this operation and sets a callback that returns true when the
         /// dependency causing the pause has been resolved.
         /// </summary>
@@ -246,6 +231,49 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Status = waitForAll ? OperationStatus.PausedOnAllResources : OperationStatus.PausedOnAnyResource;
             this.AwaitedResources.UnionWith(resourceIds);
+        }
+
+        /// <summary>
+        /// Tries to enable this operation if its dependency has been resolved.
+        /// </summary>
+        internal bool TryEnable()
+        {
+            if (this.Status is OperationStatus.Paused && (this.Dependency?.Invoke() ?? true))
+            {
+                this.Dependency = null;
+                this.IsDependencyUncontrolled = false;
+                this.Status = OperationStatus.Enabled;
+            }
+
+            return this.Status is OperationStatus.Enabled;
+        }
+
+        /// <summary>
+        /// Tries to enable this operation if all the resources it is waiting for have been signaled.
+        /// </summary>
+        internal bool TryEnable(Guid resourceId)
+        {
+            bool enabled = false;
+            if (this.AwaitedResources.Contains(resourceId))
+            {
+                if (this.Status is OperationStatus.PausedOnAnyResource)
+                {
+                    this.AwaitedResources.Clear();
+                    this.Status = OperationStatus.Enabled;
+                    enabled = true;
+                }
+                else if (this.Status is OperationStatus.PausedOnAllResources)
+                {
+                    this.AwaitedResources.Remove(resourceId);
+                    if (this.AwaitedResources.Count is 0)
+                    {
+                        this.Status = OperationStatus.Enabled;
+                        enabled = true;
+                    }
+                }
+            }
+
+            return enabled;
         }
 
         /// <summary>
@@ -290,34 +318,6 @@ namespace Microsoft.Coyote.Runtime
         /// Signals this operation to resume its execution.
         /// </summary>
         internal void Signal() => this.SyncEvent.Set();
-
-        /// <summary>
-        /// Signals this operation from the specified resource.
-        /// </summary>
-        internal bool Signal(Guid resourceId)
-        {
-            bool enabled = false;
-            if (this.AwaitedResources.Contains(resourceId))
-            {
-                if (this.Status is OperationStatus.PausedOnAnyResource)
-                {
-                    this.AwaitedResources.Clear();
-                    this.Status = OperationStatus.Enabled;
-                    enabled = true;
-                }
-                else if (this.Status is OperationStatus.PausedOnAllResources)
-                {
-                    this.AwaitedResources.Remove(resourceId);
-                    if (this.AwaitedResources.Count is 0)
-                    {
-                        this.Status = OperationStatus.Enabled;
-                        enabled = true;
-                    }
-                }
-            }
-
-            return enabled;
-        }
 
         /// <summary>
         /// Registers the specified call site as visited.

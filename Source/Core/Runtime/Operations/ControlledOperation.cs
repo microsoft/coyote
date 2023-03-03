@@ -294,14 +294,16 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Signals this operation from the specified resource.
         /// </summary>
-        internal void Signal(Guid resourceId)
+        internal bool Signal(Guid resourceId)
         {
+            bool enabled = false;
             if (this.AwaitedResources.Contains(resourceId))
             {
                 if (this.Status is OperationStatus.PausedOnAnyResource)
                 {
                     this.AwaitedResources.Clear();
                     this.Status = OperationStatus.Enabled;
+                    enabled = true;
                 }
                 else if (this.Status is OperationStatus.PausedOnAllResources)
                 {
@@ -309,9 +311,12 @@ namespace Microsoft.Coyote.Runtime
                     if (this.AwaitedResources.Count is 0)
                     {
                         this.Status = OperationStatus.Enabled;
+                        enabled = true;
                     }
                 }
             }
+
+            return enabled;
         }
 
         /// <summary>

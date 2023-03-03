@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -95,7 +96,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTestMultiThreadedWaitDeadlock()
+        public void TestMultiThreadedWaitDeadlock()
         {
             this.TestWithError(() =>
             {
@@ -129,6 +130,44 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAll()
+        {
+            this.Test(() =>
+            {
+                ManualResetEvent[] handles = new ManualResetEvent[10];
+                for (int i = 0; i < handles.Length; i++)
+                {
+                    handles[i] = new ManualResetEvent(false);
+                }
+
+                try
+                {
+                    Task t = Task.Run(() =>
+                    {
+                        WaitHandle.WaitAll(handles);
+                    });
+
+                    foreach (var handle in handles)
+                    {
+                        Specification.Assert(!t.IsCompleted, "Task is not blocked.");
+                        handle.Set();
+                    }
+
+                    t.Wait();
+                    Specification.Assert(t.IsCompleted, "Task is not completed.");
+                }
+                finally
+                {
+                    foreach (var handle in handles)
+                    {
+                        handle.Dispose();
+                    }
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]

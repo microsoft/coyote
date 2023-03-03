@@ -196,10 +196,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         internal abstract class Resource : IDisposable
         {
             /// <summary>
-            /// Cache from synchronized objects to synchronized block instances.
+            /// Cache from handles to resources.
             /// </summary>
             private static readonly ConcurrentDictionary<SystemWaitHandle, Resource> Cache =
                 new ConcurrentDictionary<SystemWaitHandle, Resource>();
+
+            /// <summary>
+            /// Cache from controlled operation ids to resource ids.
+            /// </summary>
+            private static readonly ConcurrentDictionary<ulong, Guid> SignalCache = new ConcurrentDictionary<ulong, Guid>();
 
             /// <summary>
             /// The id of the <see cref="CoyoteRuntime"/> that created this handle.
@@ -369,16 +374,27 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                             "[coyote::debug] Operation {0} is waiting for any 'WaitHandle' to get signaled on thread '{1}'.",
                             current.DebugInfo, SystemThread.CurrentThread.ManagedThreadId);
 
-                        // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
                         Resource[] nonSignaled = resources.Where(r => !r.IsSignaled).ToArray();
-                        current.PauseWithResources(nonSignaled.Select(r => r.ResourceId), false);
-                        foreach (Resource resource in nonSignaled)
+                        try
                         {
-                            resource.PausedOperations.Add(current);
-                        }
+                            // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
+                            current.PauseWithResources(nonSignaled.Select(r => r.ResourceId), false);
+                            foreach (Resource resource in nonSignaled)
+                            {
+                                resource.PausedOperations.Add(current);
+                            }
 
-                        runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
-                        result = Array.FindIndex(nonSignaled, r => r.IsSignaled);
+                            runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
+                        }
+                        finally
+                        {
+                            // Find the index of the signaling resource and clean up the cache.
+                            SignalCache.TryGetValue(current.Id, out Guid signalingResource);
+                            result = signalingResource == Guid.Empty ?
+                                Array.FindIndex(resources, r => r.IsSignaled) :
+                                Array.FindIndex(nonSignaled, r => r.ResourceId == signalingResource);
+                            SignalCache.TryRemove(current.Id, out _);
+                        }
                     }
                     else
                     {
@@ -399,7 +415,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 foreach (ControlledOperation operation in this.PausedOperations)
                 {
-                    operation.Signal(this.ResourceId);
+                    OperationStatus status = operation.Status;
+                    if (operation.Signal(this.ResourceId) && status is OperationStatus.PausedOnAnyResource)
+                    {
+                        // This signal successfully enabled the operation.
+                        SignalCache.TryAdd(operation.Id, this.ResourceId);
+                    }
                 }
 
                 this.PausedOperations.Clear();

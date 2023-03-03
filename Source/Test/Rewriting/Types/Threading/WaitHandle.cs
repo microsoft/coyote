@@ -364,7 +364,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
 
                     int result = millisecondsTimeout;
                     Resource[] resources = GetResources(runtime, waitHandles);
-                    if (!resources.All(r => r.IsSignaled))
+                    if (resources.All(r => !r.IsSignaled))
                     {
                         if (millisecondsTimeout is 0)
                         {

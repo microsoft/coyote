@@ -82,6 +82,9 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.Monitor] = typeof(Types.Threading.Monitor);
             this.KnownTypes[NameCache.SemaphoreSlim] = typeof(Types.Threading.SemaphoreSlim);
             this.KnownTypes[NameCache.Interlocked] = typeof(Types.Threading.Interlocked);
+            this.KnownTypes[NameCache.ManualResetEvent] = typeof(Types.Threading.ManualResetEvent);
+            this.KnownTypes[NameCache.EventWaitHandle] = typeof(Types.Threading.EventWaitHandle);
+            this.KnownTypes[NameCache.WaitHandle] = typeof(Types.Threading.WaitHandle);
 
 #if NET || NETCOREAPP3_1
             // Populate the map with the known HTTP and web-related types.

@@ -357,7 +357,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// The object used for synchronization.
             /// </summary>
-            protected readonly object SyncObject;
+            private readonly object SyncObject;
 
             /// <summary>
             /// True if the lock was taken, else false.

@@ -145,11 +145,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                 try
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        WaitHandle.WaitAll(handles);
-                    });
-
+                    Task t = Task.Run(() => WaitHandle.WaitAll(handles));
                     foreach (var handle in handles)
                     {
                         Specification.Assert(!t.IsCompleted, "Task is not blocked.");
@@ -158,6 +154,37 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
                     t.Wait();
                     Specification.Assert(t.IsCompleted, "Task is not completed.");
+                }
+                finally
+                {
+                    foreach (var handle in handles)
+                    {
+                        handle.Dispose();
+                    }
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAny()
+        {
+            this.Test(() =>
+            {
+                ManualResetEvent[] handles = new ManualResetEvent[10];
+                for (int i = 0; i < handles.Length; i++)
+                {
+                    handles[i] = new ManualResetEvent(false);
+                }
+
+                try
+                {
+                    Task<int> t = Task.Run(() => WaitHandle.WaitAny(handles));
+                    Specification.Assert(!t.IsCompleted, "Task is not blocked.");
+                    handles[5].Set();
+                    t.Wait();
+                    Specification.Assert(t.IsCompleted, "Task is not completed.");
+                    Specification.Assert(t.Result is 5, "Task result is not expected.");
                 }
                 finally
                 {

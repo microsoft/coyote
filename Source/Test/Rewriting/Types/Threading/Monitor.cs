@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Coyote.Rewriting.Types.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemInterlocked = System.Threading.Interlocked;
 using SystemSynchronizationLockException = System.Threading.SynchronizationLockException;
-using SystemTask = System.Threading.Tasks.Task;
 using SystemThreading = System.Threading;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading
@@ -404,6 +404,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             private int UseCount;
 
             /// <summary>
+            /// The debug name of this semaphore.
+            /// </summary>
+            private readonly string DebugName;
+
+            /// <summary>
             /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
             /// </summary>
             private SynchronizedBlock(CoyoteRuntime runtime, object syncObject)
@@ -421,6 +426,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.PulseQueue = new Queue<PulseOperation>();
                 this.LockCountMap = new Dictionary<ControlledOperation, int>();
                 this.UseCount = 0;
+                this.DebugName = $"lock({this.ResourceId})";
             }
 
             /// <summary>
@@ -696,8 +702,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 var runtime = CoyoteRuntime.Current;
                 if (runtime.Id != this.RuntimeId)
                 {
-                    runtime.NotifyAssertionFailure($"Accessing 'lock' that was created in a previous " +
-                        $"test iteration with runtime id '{this.RuntimeId}'.");
+                    var trace = new StackTrace();
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created in a " +
+                        $"previous test iteration with runtime id '{this.RuntimeId}':\n{trace}");
                 }
 
                 return runtime;

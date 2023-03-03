@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
 using SystemThread = System.Threading.Thread;
@@ -457,8 +458,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 if (runtime.Id != this.RuntimeId)
                 {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
+                    var trace = new StackTrace();
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created in a " +
+                        $"previous test iteration with runtime id '{this.RuntimeId}':\n{trace}");
                 }
             }
 

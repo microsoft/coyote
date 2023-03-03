@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCancellationToken = System.Threading.CancellationToken;
@@ -407,8 +408,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 var runtime = CoyoteRuntime.Current;
                 if (runtime.Id != this.RuntimeId)
                 {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
+                    var trace = new StackTrace();
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created in a " +
+                        $"previous test iteration with runtime id '{this.RuntimeId}':\n{trace}");
                 }
 
                 return runtime;

@@ -440,8 +440,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     if (!TryFind(waitHandles[idx], out Resource resource))
                     {
-                        runtime.NotifyAssertionFailure($"Accessing 'WaitHandle' that is not intercepted and controlled " +
-                            "during testing, so it can interfere with the ability to reproduce bug traces.");
+                        var trace = new StackTrace();
+                        runtime.NotifyAssertionFailure("Accessing 'WaitHandle' that is not intercepted and controlled " +
+                            $"during testing, so it can interfere with the ability to reproduce bug traces:\n{trace}");
                     }
 
                     resource.CheckRuntime(runtime);

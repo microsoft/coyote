@@ -11,7 +11,9 @@ def plots_with_error_bars(width, height, title, data_frame, color='#4080A0'):
         ('name', '@ids'),
         ('mean', '@ys ± @error')
     ])
-    p = figure(plot_height=height, plot_width=width, title=title, tools=[hover])
+    p = figure(title=title, tools=[hover])
+    p.height = height
+    p.width = width
 
     ys = data_frame["mean"].values
     xs = list(range(len(ys)))

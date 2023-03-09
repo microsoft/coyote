@@ -1,3 +1,10 @@
+## v1.7.5
+- Added support for controlling user-created `Thread` instances during testing.
+- Added support for controlling `WaitHandle` and related APIs during testing.
+- Added the `ActorTestKit` class for unit-testing actors and state machines in isolation.
+- Disabled the automated fallback to randomized fuzzing during testing, if systematic testing fails.
+- Fixed a bug in bug trace reporting.
+
 ## v1.7.4
 - Added support for visualizing traces from testing task-based programs in DGML format.
 - Implemented various runtime optimizations for more efficient coverage during testing.

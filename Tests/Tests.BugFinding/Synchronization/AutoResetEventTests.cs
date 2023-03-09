@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BugFinding.Tests
 {
-    public class ManualResetEventTests : BaseBugFindingTest
+    public class AutoResetEventTests : BaseBugFindingTest
     {
-        public ManualResetEventTests(ITestOutputHelper output)
+        public AutoResetEventTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                using ManualResetEvent evt = new ManualResetEvent(false);
+                using AutoResetEvent evt = new AutoResetEvent(false);
                 bool result = evt.WaitOne(0);
                 Specification.Assert(!result, "1st assertion failed.");
                 result = evt.Set();
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 result = evt.WaitOne(0);
                 Specification.Assert(result, "3rd assertion failed.");
                 result = evt.WaitOne(0);
-                Specification.Assert(result, "4rd assertion failed.");
+                Specification.Assert(!result, "4rd assertion failed.");
                 result = evt.Reset();
                 Specification.Assert(result, "5th assertion failed.");
                 result = evt.WaitOne(0);
@@ -46,11 +46,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                using ManualResetEvent evt = new ManualResetEvent(true);
+                using AutoResetEvent evt = new AutoResetEvent(true);
                 bool result = evt.WaitOne();
                 Specification.Assert(result, "1st assertion failed.");
-                result = evt.WaitOne();
-                Specification.Assert(result, "2nd assertion failed.");
+                result = evt.WaitOne(0);
+                Specification.Assert(!result, "2nd assertion failed.");
             });
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(() =>
             {
-                using ManualResetEvent evt = new ManualResetEvent(false);
+                using AutoResetEvent evt = new AutoResetEvent(false);
                 evt.WaitOne();
             },
             errorChecker: (e) =>
@@ -74,23 +74,53 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                ManualResetEvent[] handles = new ManualResetEvent[4];
+                AutoResetEvent[] handles = new AutoResetEvent[4];
                 for (int i = 0; i < handles.Length; i++)
                 {
-                    handles[i] = new ManualResetEvent(true);
+                    handles[i] = new AutoResetEvent(true);
                 }
 
                 try
                 {
                     Specification.Assert(WaitHandle.WaitAny(handles, 0) is 0, "1st assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAny(handles) is 0, "2nd assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAny(handles) is 0, "3rd assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAll(handles, 0), "4th assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAll(handles), "5th assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAll(handles), "6th assertion failed.");
                     for (int i = 0; i < handles.Length; ++i)
                     {
-                        Specification.Assert(handles[i].WaitOne(0), "7th assertion failed.");
+                        Specification.Assert(handles[i].WaitOne(0) == i > 0, "2nd assertion failed.");
+                        handles[i].Set();
+                    }
+
+                    Specification.Assert(WaitHandle.WaitAny(handles) is 0, "3rd assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        Specification.Assert(handles[i].WaitOne(0) == i > 0, "4th assertion failed.");
+                        handles[i].Set();
+                    }
+
+                    Specification.Assert(WaitHandle.WaitAny(handles) is 0, "5th assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        Specification.Assert(handles[i].WaitOne(0) == i > 0, "6th assertion failed.");
+                        handles[i].Set();
+                    }
+
+                    Specification.Assert(WaitHandle.WaitAll(handles, 0), "7th assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        Specification.Assert(!handles[i].WaitOne(0), "8th assertion failed.");
+                        handles[i].Set();
+                    }
+
+                    Specification.Assert(WaitHandle.WaitAll(handles), "9th assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        Specification.Assert(!handles[i].WaitOne(0), "10th assertion failed.");
+                        handles[i].Set();
+                    }
+
+                    Specification.Assert(WaitHandle.WaitAll(handles), "11th assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        Specification.Assert(!handles[i].WaitOne(0), "12th assertion failed.");
                     }
                 }
                 finally
@@ -109,22 +139,40 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                ManualResetEvent[] handles = new ManualResetEvent[4];
-                handles[0] = new ManualResetEvent(false);
-                handles[1] = new ManualResetEvent(true);
-                handles[2] = new ManualResetEvent(true);
-                handles[3] = new ManualResetEvent(false);
+                AutoResetEvent[] handles = new AutoResetEvent[4];
+                handles[0] = new AutoResetEvent(false);
+                handles[1] = new AutoResetEvent(true);
+                handles[2] = new AutoResetEvent(true);
+                handles[3] = new AutoResetEvent(false);
 
                 try
                 {
                     Specification.Assert(WaitHandle.WaitAny(handles, 0) is 1, "1st assertion failed.");
-                    Specification.Assert(WaitHandle.WaitAny(handles) is 1, "2nd assertion failed.");
-                    Specification.Assert(!WaitHandle.WaitAll(handles, 0), "3rd assertion failed.");
-                    // Specification.Assert(!WaitHandle.WaitAll(handles), "4th assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        bool expected = i == 2;
+                        Specification.Assert(handles[i].WaitOne(0) == expected, "2nd assertion failed.");
+                    }
+
+                    handles[1].Set();
+                    handles[2].Set();
+
+                    Specification.Assert(WaitHandle.WaitAny(handles) is 1, "3rd assertion failed.");
+                    for (int i = 0; i < handles.Length; ++i)
+                    {
+                        bool expected = i == 2;
+                        Specification.Assert(handles[i].WaitOne(0) == expected, "4th assertion failed.");
+                    }
+
+                    handles[1].Set();
+                    handles[2].Set();
+
+                    Specification.Assert(!WaitHandle.WaitAll(handles, 0), "5th assertion failed.");
+                    // Specification.Assert(!WaitHandle.WaitAll(handles), "11th assertion failed.");
                     for (int i = 0; i < handles.Length; ++i)
                     {
                         bool expected = i == 1 || i == 2;
-                        Specification.Assert(handles[i].WaitOne(0) == expected, "5th assertion failed.");
+                        Specification.Assert(handles[i].WaitOne(0) == expected, "6th assertion failed.");
                     }
                 }
                 finally
@@ -143,11 +191,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                ManualResetEvent[] handles = new ManualResetEvent[4];
-                handles[0] = new ManualResetEvent(false);
-                handles[1] = new ManualResetEvent(false);
-                handles[2] = new ManualResetEvent(false);
-                handles[3] = new ManualResetEvent(false);
+                AutoResetEvent[] handles = new AutoResetEvent[4];
+                handles[0] = new AutoResetEvent(false);
+                handles[1] = new AutoResetEvent(false);
+                handles[2] = new AutoResetEvent(false);
+                handles[3] = new AutoResetEvent(false);
 
                 try
                 {
@@ -177,7 +225,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                using ManualResetEvent evt = new ManualResetEvent(false);
+                using AutoResetEvent evt = new AutoResetEvent(false);
                 Thread t1 = new Thread(() =>
                 {
                     evt.Set();
@@ -205,7 +253,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.TestWithError(() =>
             {
-                using ManualResetEvent evt = new ManualResetEvent(false);
+                using AutoResetEvent evt = new AutoResetEvent(false);
                 Thread t1 = new Thread(() =>
                 {
                     for (int i = 0; i < 2; i++)
@@ -219,7 +267,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     for (int i = 0; i < 2; i++)
                     {
                         evt.WaitOne();
-                        evt.Reset();
                     }
                 });
 
@@ -242,10 +289,10 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                ManualResetEvent[] handles = new ManualResetEvent[10];
+                AutoResetEvent[] handles = new AutoResetEvent[10];
                 for (int i = 0; i < handles.Length; i++)
                 {
-                    handles[i] = new ManualResetEvent(false);
+                    handles[i] = new AutoResetEvent(false);
                 }
 
                 try
@@ -276,10 +323,10 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                ManualResetEvent[] handles = new ManualResetEvent[10];
+                AutoResetEvent[] handles = new AutoResetEvent[10];
                 for (int i = 0; i < handles.Length; i++)
                 {
-                    handles[i] = new ManualResetEvent(false);
+                    handles[i] = new AutoResetEvent(false);
                 }
 
                 try
@@ -307,15 +354,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(() =>
             {
-                using ManualResetEvent evt1 = new ManualResetEvent(true);
-                using ManualResetEvent evt2 = new ManualResetEvent(false);
+                using AutoResetEvent evt1 = new AutoResetEvent(true);
+                using AutoResetEvent evt2 = new AutoResetEvent(false);
 
                 Thread t1 = new Thread(() =>
                 {
                     for (int i = 0; i < 10; i++)
                     {
                         evt1.WaitOne();
-                        evt1.Reset();
                         evt2.Set();
                     }
                 });
@@ -325,7 +371,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     for (int i = 0; i < 10; i++)
                     {
                         evt2.WaitOne();
-                        evt2.Reset();
                         evt1.Set();
                     }
                 });

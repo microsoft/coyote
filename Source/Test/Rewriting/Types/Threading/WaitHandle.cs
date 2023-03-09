@@ -223,6 +223,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             protected readonly SystemWaitHandle Handle;
 
             /// <summary>
+            /// The signal mode of this handle.
+            /// </summary>
+            private readonly SignalMode Mode;
+
+            /// <summary>
             /// True if the handle is signaled, else false.
             /// </summary>
             protected bool IsSignaled;
@@ -240,11 +245,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// <summary>
             /// Initializes a new instance of the <see cref="Resource"/> class.
             /// </summary>
-            internal Resource(CoyoteRuntime runtime, SystemWaitHandle handle, bool isSignaled)
+            internal Resource(CoyoteRuntime runtime, SystemWaitHandle handle, SignalMode mode, bool isSignaled)
             {
                 this.RuntimeId = runtime.Id;
                 this.ResourceId = Guid.NewGuid();
                 this.Handle = handle;
+                this.Mode = mode;
                 this.IsSignaled = isSignaled;
                 this.PausedOperations = new HashSet<ControlledOperation>();
                 this.DebugName = $"{handle.GetType().Name}({this.ResourceId})";
@@ -298,6 +304,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         this.PausedOperations.Add(current);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
                     }
+                    else if (this.Mode is SignalMode.AutoResetSignal)
+                    {
+                        this.IsSignaled = false;
+                    }
 
                     return true;
                 }
@@ -322,6 +332,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     Resource[] resources = GetResources(runtime, waitHandles);
                     if (resources.Any(r => !r.IsSignaled))
                     {
+                        // At least one of the handles is not signaled.
                         if (millisecondsTimeout is 0)
                         {
                             return false;
@@ -339,7 +350,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                             resource.PausedOperations.Add(current);
                         }
 
+                        TryResetSignal(resources, true);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
+                    }
+                    else
+                    {
+                        // All handles are signaled.
+                        TryResetSignal(resources, true);
                     }
 
                     return true;
@@ -366,6 +383,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     Resource[] resources = GetResources(runtime, waitHandles);
                     if (resources.All(r => !r.IsSignaled))
                     {
+                        // All handles are non-signaled.
                         if (millisecondsTimeout is 0)
                         {
                             return result;
@@ -375,12 +393,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                             "[coyote::debug] Operation {0} is waiting for any 'WaitHandle' to get signaled on thread '{1}'.",
                             current.DebugInfo, SystemThread.CurrentThread.ManagedThreadId);
 
-                        Resource[] nonSignaled = resources.Where(r => !r.IsSignaled).ToArray();
                         try
                         {
                             // TODO: consider introducing the notion of a PausedOnResourceOrDelay to model timeouts!
-                            current.PauseWithResources(nonSignaled.Select(r => r.ResourceId), false);
-                            foreach (Resource resource in nonSignaled)
+                            current.PauseWithResources(resources.Select(r => r.ResourceId), false);
+                            foreach (Resource resource in resources)
                             {
                                 resource.PausedOperations.Add(current);
                             }
@@ -393,13 +410,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                             SignalCache.TryGetValue(current.Id, out Guid signalingResource);
                             result = signalingResource == Guid.Empty ?
                                 Array.FindIndex(resources, r => r.IsSignaled) :
-                                Array.FindIndex(nonSignaled, r => r.ResourceId == signalingResource);
+                                Array.FindIndex(resources, r => r.ResourceId == signalingResource);
                             SignalCache.TryRemove(current.Id, out _);
                         }
                     }
                     else
                     {
+                        // At least one of the handles is signaled.
                         result = Array.FindIndex(resources, r => r.IsSignaled);
+                        TryResetSignal(resources, false);
                     }
 
                     return result;
@@ -407,12 +426,35 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
 
             /// <summary>
-            /// Sends a signal to any waiting operations.
+            /// Sends a signal to the next waiting operation.
             /// </summary>
             /// <remarks>
             /// It is assumed that this method runs in the scope of the runtime <see cref="SynchronizedSection"/>.
             /// </remarks>
-            protected void Signal()
+            protected void SignalNext()
+            {
+                // TODO: figure out if threads are released in FIFO or random order.
+                ControlledOperation operation = this.PausedOperations.FirstOrDefault();
+                if (operation != null)
+                {
+                    OperationStatus status = operation.Status;
+                    if (operation.TryEnable(this.ResourceId) && status is OperationStatus.PausedOnAnyResource)
+                    {
+                        // This signal successfully enabled the operation.
+                        SignalCache.TryAdd(operation.Id, this.ResourceId);
+                    }
+
+                    this.PausedOperations.Remove(operation);
+                }
+            }
+
+            /// <summary>
+            /// Sends a signal to all waiting operations.
+            /// </summary>
+            /// <remarks>
+            /// It is assumed that this method runs in the scope of the runtime <see cref="SynchronizedSection"/>.
+            /// </remarks>
+            protected void SignalAll()
             {
                 foreach (ControlledOperation operation in this.PausedOperations)
                 {
@@ -425,6 +467,24 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.PausedOperations.Clear();
+            }
+
+            /// <summary>
+            /// Tries to reset the signal of all or any of the specified resources, as appropriate based on their mode.
+            /// </summary>
+            private static void TryResetSignal(IEnumerable<Resource> resources, bool resetAll)
+            {
+                foreach (Resource resource in resources)
+                {
+                    if (resource.IsSignaled && resource.Mode is SignalMode.AutoResetSignal)
+                    {
+                        resource.IsSignaled = false;
+                        if (!resetAll)
+                        {
+                            break;
+                        }
+                    }
+                }
             }
 
             /// <summary>
@@ -483,6 +543,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 this.Dispose(true);
                 GC.SuppressFinalize(this);
+            }
+
+            /// <summary>
+            /// The mode of this resource.
+            /// </summary>
+            internal enum SignalMode
+            {
+                None,
+                AutoResetSignal
             }
         }
     }

@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
 
         /// <summary>
-        /// Resource that is used to control a <see cref="EventWaitHandle"/> during testing.
+        /// Resource that is used to control an <see cref="EventWaitHandle"/> during testing.
         /// </summary>
         internal class Resource : WaitHandle.Resource
         {
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// Initializes a new instance of the <see cref="Resource"/> class.
             /// </summary>
             internal Resource(CoyoteRuntime runtime, SystemWaitHandle handle, bool initialState, SystemEventResetMode mode)
-                : base(runtime, handle, initialState)
+                : base(runtime, handle, GetReleaseMode(mode), initialState)
             {
                 this.InitialState = initialState;
                 this.Mode = mode;
@@ -120,7 +120,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     }
 
                     this.IsSignaled = true;
-                    this.Signal();
+                    if (this.Mode is SystemEventResetMode.AutoReset)
+                    {
+                        this.SignalNext();
+                    }
+                    else
+                    {
+                        this.SignalAll();
+                    }
+
                     return true;
                 }
             }
@@ -142,6 +150,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     return true;
                 }
             }
+
+            /// <summary>
+            /// Get the signal mode of this resource based on the specified <see cref="SystemEventResetMode"/>.
+            /// </summary>
+            private static WaitHandle.Resource.SignalMode GetReleaseMode(SystemEventResetMode mode) =>
+                mode is SystemEventResetMode.AutoReset ?
+                    WaitHandle.Resource.SignalMode.AutoResetSignal :
+                    WaitHandle.Resource.SignalMode.None;
         }
     }
 }

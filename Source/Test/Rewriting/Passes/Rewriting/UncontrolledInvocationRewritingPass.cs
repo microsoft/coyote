@@ -144,9 +144,18 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     return true;
                 }
-                else if (type.Name is nameof(System.Threading.EventWaitHandle) ||
-                    type.Name is nameof(System.Threading.ExecutionContext) ||
-                    type.Name is nameof(System.Threading.ManualResetEvent) ||
+                else if (type.Name is nameof(System.Threading.EventWaitHandle) && member != null &&
+                    (member.Name is nameof(System.Threading.EventWaitHandle.OpenExisting) ||
+                    member.Name is nameof(System.Threading.EventWaitHandle.TryOpenExisting)))
+                {
+                    return true;
+                }
+                else if (type.Name is nameof(System.Threading.WaitHandle) && member != null &&
+                    (member.Name is nameof(System.Threading.WaitHandle.SignalAndWait)))
+                {
+                    return true;
+                }
+                else if (type.Name is nameof(System.Threading.ExecutionContext) ||
                     type.Name is nameof(System.Threading.ManualResetEventSlim) ||
                     type.Name is nameof(System.Threading.Mutex) ||
                     type.Name is nameof(System.Threading.ReaderWriterLock) ||
@@ -156,8 +165,7 @@ namespace Microsoft.Coyote.Rewriting
                     type.Name is nameof(System.Threading.SpinLock) ||
                     type.Name is nameof(System.Threading.SpinWait) ||
                     type.Name is nameof(System.Threading.SynchronizationContext) ||
-                    type.Name is nameof(System.Threading.Timer) ||
-                    type.Name is nameof(System.Threading.WaitHandle))
+                    type.Name is nameof(System.Threading.Timer))
                 {
                     return true;
                 }

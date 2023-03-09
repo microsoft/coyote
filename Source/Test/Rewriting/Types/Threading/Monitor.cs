@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Coyote.Rewriting.Types.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using SystemInterlocked = System.Threading.Interlocked;
 using SystemSynchronizationLockException = System.Threading.SynchronizationLockException;
-using SystemTask = System.Threading.Tasks.Task;
 using SystemThreading = System.Threading;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading
@@ -355,9 +355,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             private readonly Guid RuntimeId;
 
             /// <summary>
+            /// The resource id of this handle.
+            /// </summary>
+            protected readonly Guid ResourceId;
+
+            /// <summary>
             /// The object used for synchronization.
             /// </summary>
-            protected readonly object SyncObject;
+            private readonly object SyncObject;
 
             /// <summary>
             /// True if the lock was taken, else false.
@@ -399,6 +404,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             private int UseCount;
 
             /// <summary>
+            /// The debug name of this semaphore.
+            /// </summary>
+            private readonly string DebugName;
+
+            /// <summary>
             /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
             /// </summary>
             private SynchronizedBlock(CoyoteRuntime runtime, object syncObject)
@@ -409,12 +419,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 }
 
                 this.RuntimeId = runtime.Id;
+                this.ResourceId = Guid.NewGuid();
                 this.SyncObject = syncObject;
                 this.WaitQueue = new List<ControlledOperation>();
                 this.ReadyQueue = new List<ControlledOperation>();
                 this.PulseQueue = new Queue<PulseOperation>();
                 this.LockCountMap = new Dictionary<ControlledOperation, int>();
                 this.UseCount = 0;
+                this.DebugName = $"lock({this.ResourceId})";
             }
 
             /// <summary>
@@ -479,7 +491,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         }
 
                         // Pause this operation and schedule the next enabled operation.
-                        op.Status = OperationStatus.PausedOnResource;
+                        op.PauseWithResource(this.ResourceId);
                         runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
 
                         // This operation can finally take the lock.
@@ -599,7 +611,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.UnlockNextReady();
 
                 // Pause this operation and schedule the next enabled operation.
-                op.Status = OperationStatus.PausedOnResource;
+                op.PauseWithResource(this.ResourceId);
                 runtime.LogWriter.LogDebug("[coyote::debug] Operation '{0}' is waiting on thread '{1}'.",
                     op.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
                 runtime.ScheduleNextOperation(op, SchedulingPointType.Pause);
@@ -653,7 +665,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 {
                     // If there is a operation waiting in the ready queue, then awake it.
                     ControlledOperation op = this.ReadyQueue[0];
-                    op.Status = OperationStatus.Enabled;
+                    op.TryEnable(this.ResourceId);
                     this.ReadyQueue.RemoveAt(0);
                     this.Owner = op;
                 }
@@ -690,8 +702,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 var runtime = CoyoteRuntime.Current;
                 if (runtime.Id != this.RuntimeId)
                 {
-                    runtime.NotifyAssertionFailure($"Accessing 'lock' that was created in a previous " +
-                        $"test iteration with runtime id '{this.RuntimeId}'.");
+                    var trace = new StackTrace();
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created in a " +
+                        $"previous test iteration with runtime id '{this.RuntimeId}':\n{trace}");
                 }
 
                 return runtime;

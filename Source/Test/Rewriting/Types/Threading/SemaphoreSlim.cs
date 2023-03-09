@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCancellationToken = System.Threading.CancellationToken;
@@ -305,7 +306,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         runtime.LogWriter.LogDebug(
                             "[coyote::debug] Operation {0} is waiting for '{1}' to get released on thread '{2}'.",
                             current.DebugInfo, this.DebugName, SystemThread.CurrentThread.ManagedThreadId);
-                        current.Status = OperationStatus.PausedOnResource;
+                        current.PauseWithResource(this.ResourceId);
                         this.PausedOperations.Enqueue(current);
                         runtime.ScheduleNextOperation(current, SchedulingPointType.Pause);
                     }
@@ -379,7 +380,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                         // Release the next operation awaiting synchronously, but do not decrement any counts,
                         // as it is not guaranteed that it will be able to acquire the semaphore immediately.
                         ControlledOperation operation = this.PausedOperations.Dequeue();
-                        operation.Status = OperationStatus.Enabled;
+                        operation.TryEnable(this.ResourceId);
                     }
 
                     // Release the next asynchronous awaiters, if there are any.
@@ -407,8 +408,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 var runtime = CoyoteRuntime.Current;
                 if (runtime.Id != this.RuntimeId)
                 {
-                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created " +
-                        $"in a previous test iteration with runtime id '{this.RuntimeId}'.");
+                    var trace = new StackTrace();
+                    runtime.NotifyAssertionFailure($"Accessing '{this.DebugName}' that was created in a " +
+                        $"previous test iteration with runtime id '{this.RuntimeId}':\n{trace}");
                 }
 
                 return runtime;

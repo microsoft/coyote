@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Deligiannis"
+  given-names: "Pantazis"
+  orcid: "https://orcid.org/0000-0001-7582-4520"
+- family-names: "Lovett"
+  given-names: "Chris"
+- family-names: "Lal"
+  given-names: "Akash"
+title: "Coyote"
+version: 1.7.5
+date-released: 2020-02-28
+url: "https://github.com/microsoft/coyote"

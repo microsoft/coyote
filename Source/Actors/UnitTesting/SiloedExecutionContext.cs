@@ -79,40 +79,27 @@ namespace Microsoft.Coyote.Actors.UnitTesting
 
         /// <inheritdoc/>
         public override ActorId CreateActor(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+            this.CreateActor(null, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         public override ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+            this.CreateActor(null, type, name, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+            this.CreateActor(id, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
-
-        /// <inheritdoc/>
-        public override void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default, SendOptions options = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
-
-        /// <inheritdoc/>
-        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent, EventGroup eventGroup = null,
-            SendOptions options = null) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
-
-        /// <inheritdoc/>
-        public override EventGroup GetCurrentEventGroup(ActorId currentActorId) =>
-            this.Instance.Id == currentActorId ? this.Instance.CurrentEventGroup : EventGroup.Null;
+            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, eventGroup);
 
         /// <inheritdoc/>
         internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, EventGroup eventGroup)
@@ -120,11 +107,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             id ??= this.CreateActorId(type, null);
             if (typeof(StateMachine).IsAssignableFrom(type))
             {
-                this.LogManager.LogCreateStateMachine(this.Instance.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
             }
             else
             {
-                this.LogManager.LogCreateActor(this.Instance.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
             }
 
             return id;
@@ -137,15 +124,24 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             id ??= this.CreateActorId(type, null);
             if (typeof(StateMachine).IsAssignableFrom(type))
             {
-                this.LogManager.LogCreateStateMachine(this.Instance.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
             }
             else
             {
-                this.LogManager.LogCreateActor(this.Instance.Id, creator?.Id.Name, creator?.Id.Type);
+                this.LogManager.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
             }
 
             return Task.FromResult(id);
         }
+
+        /// <inheritdoc/>
+        public override void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default, SendOptions options = null) =>
+            this.SendEvent(targetId, initialEvent, null, eventGroup, options);
+
+        /// <inheritdoc/>
+        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent, EventGroup eventGroup = null,
+            SendOptions options = null) =>
+            this.SendEventAndExecuteAsync(targetId, initialEvent, null, eventGroup, options);
 
         /// <inheritdoc/>
         internal override void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup eventGroup, SendOptions options)
@@ -239,5 +235,9 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             this.IsActorWaitingToReceiveEvent = true;
             this.ActorCompletionSource.SetResult(true);
         }
+
+        /// <inheritdoc/>
+        public override EventGroup GetCurrentEventGroup(ActorId currentActorId) =>
+            this.Instance.Id == currentActorId ? this.Instance.CurrentEventGroup : EventGroup.Null;
     }
 }

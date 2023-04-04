@@ -217,8 +217,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         }
 
         /// <inheritdoc/>
-        internal override IActorTimer CreateActorTimer(TimerInfo info, Actor owner) =>
-            throw new NotSupportedException("Invoking this method is not supported when unit testing an actor.");
+        internal override IActorTimer CreateActorTimer(TimerInfo info, Actor owner) => null;
 
         /// <inheritdoc/>
         internal override void LogReceivedEvent(Actor actor, Event e)

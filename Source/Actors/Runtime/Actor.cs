@@ -807,7 +807,7 @@ namespace Microsoft.Coyote.Actors
             this.Timers.Remove(info);
             using (timer)
             {
-                // sometimes timer can be null.
+                // Guard against timer being null.
             }
         }
 

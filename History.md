@@ -1,3 +1,9 @@
+## vNext
+- Exposed the `ConsoleLogger` as public so that users can conveniently use it to write runtime logs
+  to the console.
+- Implemented more fake methods in the `ActorTestKit` class.
+- Added a method for setting a custom logger when using the `ActorTestKit` class.
+
 ## v1.7.5
 - Added support for controlling user-created `Thread` instances during testing.
 - Added support for controlling `WaitHandle` and related APIs during testing.

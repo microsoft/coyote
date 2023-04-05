@@ -66,6 +66,11 @@ namespace Microsoft.Coyote.Coverage
         public HashSet<int> VisitedStates { get; private set; }
 
         /// <summary>
+        /// Synchronizes access to the coverage data.
+        /// </summary>
+        protected readonly object Lock;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
@@ -76,27 +81,43 @@ namespace Microsoft.Coyote.Coverage
             this.SchedulingPointStackTraces = new Dictionary<string, Dictionary<string, long>>();
             this.ExploredPaths = new HashSet<string>();
             this.VisitedStates = new HashSet<int>();
+            this.Lock = new object();
         }
 
         /// <summary>
         /// Checks if the specification monitor type has already been registered for coverage.
         /// </summary>
-        internal bool IsMonitorDeclared(string monitorName) => this.MonitorsToStates.ContainsKey(monitorName);
+        internal bool IsMonitorDeclared(string monitorName)
+        {
+            lock (this.Lock)
+            {
+                return this.MonitorsToStates.ContainsKey(monitorName);
+            }
+        }
 
         /// <summary>
         /// Declares a specification monitor state.
         /// </summary>
-        internal void DeclareMonitorState(string monitor, string state) => this.AddMonitorState(monitor, state);
+        internal void DeclareMonitorState(string monitor, string state)
+        {
+            lock (this.Lock)
+            {
+                this.AddMonitorState(monitor, state);
+            }
+        }
 
         /// <summary>
         /// Declares a registered specification monitor state-event pair.
         /// </summary>
         internal void DeclareMonitorStateEventPair(string monitor, string state, string eventName)
         {
-            this.AddMonitorState(monitor, state);
+            lock (this.Lock)
+            {
+                this.AddMonitorState(monitor, state);
 
-            string key = monitor + "." + state;
-            this.AddMonitorEvent(key, eventName);
+                string key = monitor + "." + state;
+                this.AddMonitorEvent(key, eventName);
+            }
         }
 
         /// <summary>
@@ -104,13 +125,16 @@ namespace Microsoft.Coyote.Coverage
         /// </summary>
         private void AddMonitorState(string monitorName, string stateName)
         {
-            this.Monitors.Add(monitorName);
-            if (!this.MonitorsToStates.ContainsKey(monitorName))
+            lock (this.Lock)
             {
-                this.MonitorsToStates.Add(monitorName, new HashSet<string>());
-            }
+                this.Monitors.Add(monitorName);
+                if (!this.MonitorsToStates.ContainsKey(monitorName))
+                {
+                    this.MonitorsToStates.Add(monitorName, new HashSet<string>());
+                }
 
-            this.MonitorsToStates[monitorName].Add(stateName);
+                this.MonitorsToStates[monitorName].Add(stateName);
+            }
         }
 
         /// <summary>
@@ -118,12 +142,15 @@ namespace Microsoft.Coyote.Coverage
         /// </summary>
         private void AddMonitorEvent(string key, string eventName)
         {
-            if (!this.RegisteredMonitorEvents.ContainsKey(key))
+            lock (this.Lock)
             {
-                this.RegisteredMonitorEvents.Add(key, new HashSet<string>());
-            }
+                if (!this.RegisteredMonitorEvents.ContainsKey(key))
+                {
+                    this.RegisteredMonitorEvents.Add(key, new HashSet<string>());
+                }
 
-            this.RegisteredMonitorEvents[key].Add(eventName);
+                this.RegisteredMonitorEvents[key].Add(eventName);
+            }
         }
 
         /// <summary>
@@ -131,32 +158,47 @@ namespace Microsoft.Coyote.Coverage
         /// </summary>
         internal void DeclareSchedulingPoint(string type, string trace)
         {
-            if (this.SchedulingPointStackTraces.TryGetValue(type, out Dictionary<string, long> traces))
+            lock (this.Lock)
             {
-                if (traces.TryGetValue(trace, out long count))
+                if (this.SchedulingPointStackTraces.TryGetValue(type, out Dictionary<string, long> traces))
                 {
-                    traces[trace] = count + 1;
+                    if (traces.TryGetValue(trace, out long count))
+                    {
+                        traces[trace] = count + 1;
+                    }
+                    else
+                    {
+                        traces.Add(trace, 1);
+                    }
                 }
                 else
                 {
-                    traces.Add(trace, 1);
+                    this.SchedulingPointStackTraces.Add(type, new Dictionary<string, long> { { trace, 1 } });
                 }
-            }
-            else
-            {
-                this.SchedulingPointStackTraces.Add(type, new Dictionary<string, long> { { trace, 1 } });
             }
         }
 
         /// <summary>
         /// Declares a new explored execution path.
         /// </summary>
-        internal void DeclareExploredExecutionPath(string path) => this.ExploredPaths.Add(path);
+        internal void DeclareExploredExecutionPath(string path)
+        {
+            lock (this.Lock)
+            {
+                this.ExploredPaths.Add(path);
+            }
+        }
 
         /// <summary>
         /// Declares a new visited state.
         /// </summary>
-        internal void DeclareVisitedState(int state) => this.VisitedStates.Add(state);
+        internal void DeclareVisitedState(int state)
+        {
+            lock (this.Lock)
+            {
+                this.VisitedStates.Add(state);
+            }
+        }
 
         /// <summary>
         /// Loads the coverage info XML file into a <see cref="CoverageInfo"/> object of the specified type.
@@ -183,83 +225,90 @@ namespace Microsoft.Coyote.Coverage
         /// <param name="serFilePath">The path to the file to create.</param>
         public void Save(string serFilePath)
         {
-            using var fs = new FileStream(serFilePath, FileMode.Create);
-            DataContractSerializerSettings settings = new DataContractSerializerSettings
+            lock (this.Lock)
             {
-                PreserveObjectReferences = true
-            };
+                using var fs = new FileStream(serFilePath, FileMode.Create);
+                DataContractSerializerSettings settings = new DataContractSerializerSettings
+                {
+                    PreserveObjectReferences = true
+                };
 
-            var ser = new DataContractSerializer(this.GetType(), settings);
-            ser.WriteObject(fs, this);
+                var ser = new DataContractSerializer(this.GetType(), settings);
+                ser.WriteObject(fs, this);
+            }
         }
 
         /// <summary>
-        /// Merges the information from the specified coverage info. This is not thread-safe.
+        /// Merges the information from the specified coverage info.
         /// </summary>
         public virtual void Merge(CoverageInfo coverageInfo)
         {
-            foreach (var monitor in coverageInfo.Monitors)
+            lock (coverageInfo.Lock)
+            lock (this.Lock)
             {
-                this.Monitors.Add(monitor);
-            }
-
-            foreach (var monitor in coverageInfo.MonitorsToStates)
-            {
-                foreach (var state in monitor.Value)
+                foreach (var monitor in coverageInfo.Monitors)
                 {
-                    this.DeclareMonitorState(monitor.Key, state);
-                }
-            }
-
-            foreach (var tup in coverageInfo.RegisteredMonitorEvents)
-            {
-                foreach (var e in tup.Value)
-                {
-                    this.AddMonitorEvent(tup.Key, e);
-                }
-            }
-
-            if (this.CoverageGraph is null)
-            {
-                this.CoverageGraph = coverageInfo.CoverageGraph;
-            }
-            else if (coverageInfo.CoverageGraph != null && this.CoverageGraph != coverageInfo.CoverageGraph)
-            {
-                this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
-            }
-
-            if (this.MonitorEventInfo is null)
-            {
-                this.MonitorEventInfo = coverageInfo.MonitorEventInfo;
-            }
-            else if (coverageInfo.MonitorEventInfo != null && this.MonitorEventInfo != coverageInfo.MonitorEventInfo)
-            {
-                this.MonitorEventInfo.Merge(coverageInfo.MonitorEventInfo);
-            }
-
-            foreach (var kvp in coverageInfo.SchedulingPointStackTraces)
-            {
-                if (!this.SchedulingPointStackTraces.TryGetValue(kvp.Key, out Dictionary<string, long> traces))
-                {
-                    traces = new Dictionary<string, long>();
-                    this.SchedulingPointStackTraces.Add(kvp.Key, traces);
+                    this.Monitors.Add(monitor);
                 }
 
-                foreach (var trace in kvp.Value)
+                foreach (var monitor in coverageInfo.MonitorsToStates)
                 {
-                    if (traces.TryGetValue(trace.Key, out long count))
+                    foreach (var state in monitor.Value)
                     {
-                        traces[trace.Key] = count + trace.Value;
-                    }
-                    else
-                    {
-                        traces.Add(trace.Key, trace.Value);
+                        this.DeclareMonitorState(monitor.Key, state);
                     }
                 }
-            }
 
-            this.ExploredPaths.UnionWith(coverageInfo.ExploredPaths);
-            this.VisitedStates.UnionWith(coverageInfo.VisitedStates);
+                foreach (var tup in coverageInfo.RegisteredMonitorEvents)
+                {
+                    foreach (var e in tup.Value)
+                    {
+                        this.AddMonitorEvent(tup.Key, e);
+                    }
+                }
+
+                if (this.CoverageGraph is null)
+                {
+                    this.CoverageGraph = coverageInfo.CoverageGraph;
+                }
+                else if (coverageInfo.CoverageGraph != null && this.CoverageGraph != coverageInfo.CoverageGraph)
+                {
+                    this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
+                }
+
+                if (this.MonitorEventInfo is null)
+                {
+                    this.MonitorEventInfo = coverageInfo.MonitorEventInfo;
+                }
+                else if (coverageInfo.MonitorEventInfo != null && this.MonitorEventInfo != coverageInfo.MonitorEventInfo)
+                {
+                    this.MonitorEventInfo.Merge(coverageInfo.MonitorEventInfo);
+                }
+
+                foreach (var kvp in coverageInfo.SchedulingPointStackTraces)
+                {
+                    if (!this.SchedulingPointStackTraces.TryGetValue(kvp.Key, out Dictionary<string, long> traces))
+                    {
+                        traces = new Dictionary<string, long>();
+                        this.SchedulingPointStackTraces.Add(kvp.Key, traces);
+                    }
+
+                    foreach (var trace in kvp.Value)
+                    {
+                        if (traces.TryGetValue(trace.Key, out long count))
+                        {
+                            traces[trace.Key] = count + trace.Value;
+                        }
+                        else
+                        {
+                            traces.Add(trace.Key, trace.Value);
+                        }
+                    }
+                }
+
+                this.ExploredPaths.UnionWith(coverageInfo.ExploredPaths);
+                this.VisitedStates.UnionWith(coverageInfo.VisitedStates);
+            }
         }
     }
 }

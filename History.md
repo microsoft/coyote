@@ -3,7 +3,7 @@
   to the console.
 - Implemented more fake methods in the `ActorTestKit` class.
 - Added a method for setting a custom logger when using the `ActorTestKit` class.
-- Added rewriting support for `Volatile` methods.
+- Added rewriting support for `System.Threading.Volatile` methods.
 - Fixed a bug where merging coverage info could result in a rare race condition.
 
 ## v1.7.5

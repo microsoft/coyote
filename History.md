@@ -1,4 +1,4 @@
-## vNext
+## v1.7.6
 - Exposed the `ConsoleLogger` as public so that users can conveniently use it to write runtime logs
   to the console.
 - Implemented more fake methods in the `ActorTestKit` class.

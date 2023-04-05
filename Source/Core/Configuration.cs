@@ -141,6 +141,12 @@ namespace Microsoft.Coyote
         internal bool IsAtomicOperationRaceCheckingEnabled;
 
         /// <summary>
+        /// If enabled, checking races at volatile operations is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsVolatileOperationRaceCheckingEnabled;
+
+        /// <summary>
         /// If enabled, execution trace cycle reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -342,6 +348,7 @@ namespace Microsoft.Coyote
             this.IsCollectionAccessRaceCheckingEnabled = true;
             this.IsLockAccessRaceCheckingEnabled = true;
             this.IsAtomicOperationRaceCheckingEnabled = true;
+            this.IsVolatileOperationRaceCheckingEnabled = true;
             this.IsExecutionTraceCycleReductionEnabled = false;
             this.IsPartialOrderSamplingEnabled = false;
             this.RunTestIterationsToCompletion = false;
@@ -645,6 +652,18 @@ namespace Microsoft.Coyote
         public Configuration WithAtomicOperationRaceCheckingEnabled(bool isEnabled = true)
         {
             this.IsAtomicOperationRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking for volatile operations enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings
+        /// when invoking volatile operations, such as <see cref="Volatile"/> methods.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at volatile operations is enabled.</param>
+        public Configuration WithVolatileOperationRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsVolatileOperationRaceCheckingEnabled = isEnabled;
             return this;
         }
 

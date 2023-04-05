@@ -448,6 +448,13 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var skipVolatileRacesOption = new Option<bool>(
+                name: "--skip-volatile-races",
+                description: "Disable exploration of race conditions when performing volatile operations.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var fuzzingFallbackOption = new Option<bool>(
                 name: "--fuzzing-fallback",
                 description: "Enable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency.")
@@ -576,6 +583,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, skipCollectionRacesOption);
             this.AddOption(command, skipLockRacesOption);
             this.AddOption(command, skipAtomicRacesOption);
+            this.AddOption(command, skipVolatileRacesOption);
             this.AddOption(command, fuzzingFallbackOption);
             this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
@@ -1045,6 +1053,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "skip-atomic-races":
                         this.Configuration.IsAtomicOperationRaceCheckingEnabled = false;
+                        break;
+                    case "skip-volatile-races":
+                        this.Configuration.IsVolatileOperationRaceCheckingEnabled = false;
                         break;
                     case "fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;

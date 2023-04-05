@@ -3,6 +3,7 @@
   to the console.
 - Implemented more fake methods in the `ActorTestKit` class.
 - Added a method for setting a custom logger when using the `ActorTestKit` class.
+- Added rewriting support for `Volatile` methods.
 
 ## v1.7.5
 - Added support for controlling user-created `Thread` instances during testing.

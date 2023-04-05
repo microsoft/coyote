@@ -73,6 +73,7 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string Monitor { get; } = typeof(SystemThreading.Monitor).FullName;
         internal static string SemaphoreSlim { get; } = typeof(SystemThreading.SemaphoreSlim).FullName;
         internal static string Interlocked { get; } = typeof(SystemThreading.Interlocked).FullName;
+        internal static string Volatile { get; } = typeof(SystemThreading.Volatile).FullName;
         internal static string AutoResetEvent { get; } = typeof(SystemThreading.AutoResetEvent).FullName;
         internal static string ManualResetEvent { get; } = typeof(SystemThreading.ManualResetEvent).FullName;
         internal static string EventWaitHandle { get; } = typeof(SystemThreading.EventWaitHandle).FullName;

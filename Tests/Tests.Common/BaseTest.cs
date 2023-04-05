@@ -849,6 +849,7 @@ namespace Microsoft.Coyote.Tests.Common
             .WithVerbosityEnabled(VerbosityLevel.Debug)
             .WithTelemetryEnabled(false)
             .WithAtomicOperationRaceCheckingEnabled(false)
+            .WithVolatileOperationRaceCheckingEnabled(false)
             .WithLockAccessRaceCheckingEnabled(false)
             .WithPartiallyControlledConcurrencyAllowed(false);
 

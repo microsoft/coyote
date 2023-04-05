@@ -52,22 +52,37 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// <summary>
         /// Checks if the machine type has already been registered for coverage.
         /// </summary>
-        public bool IsMachineDeclared(string machineName) => this.MachinesToStates.ContainsKey(machineName);
+        public bool IsMachineDeclared(string machineName)
+        {
+            lock (this.Lock)
+            {
+                return this.MachinesToStates.ContainsKey(machineName);
+            }
+        }
 
         /// <summary>
         /// Declares a machine state.
         /// </summary>
-        public void DeclareMachineState(string machine, string state) => this.AddMachineState(machine, state);
+        public void DeclareMachineState(string machine, string state)
+        {
+            lock (this.Lock)
+            {
+                this.AddMachineState(machine, state);
+            }
+        }
 
         /// <summary>
         /// Declares a registered machine state-event pair.
         /// </summary>
         public void DeclareMachineStateEventPair(string machine, string state, string eventName)
         {
-            this.AddMachineState(machine, state);
+            lock (this.Lock)
+            {
+                this.AddMachineState(machine, state);
 
-            string key = machine + "." + state;
-            this.AddActorEvent(key, eventName);
+                string key = machine + "." + state;
+                this.AddActorEvent(key, eventName);
+            }
         }
 
         /// <summary>
@@ -75,13 +90,16 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         private void AddMachineState(string machineName, string stateName)
         {
-            this.Machines.Add(machineName);
-            if (!this.MachinesToStates.ContainsKey(machineName))
+            lock (this.Lock)
             {
-                this.MachinesToStates.Add(machineName, new HashSet<string>());
-            }
+                this.Machines.Add(machineName);
+                if (!this.MachinesToStates.ContainsKey(machineName))
+                {
+                    this.MachinesToStates.Add(machineName, new HashSet<string>());
+                }
 
-            this.MachinesToStates[machineName].Add(stateName);
+                this.MachinesToStates[machineName].Add(stateName);
+            }
         }
 
         /// <summary>
@@ -89,12 +107,15 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         private void AddActorEvent(string key, string eventName)
         {
-            if (!this.RegisteredActorEvents.ContainsKey(key))
+            lock (this.Lock)
             {
-                this.RegisteredActorEvents.Add(key, new HashSet<string>());
-            }
+                if (!this.RegisteredActorEvents.ContainsKey(key))
+                {
+                    this.RegisteredActorEvents.Add(key, new HashSet<string>());
+                }
 
-            this.RegisteredActorEvents[key].Add(eventName);
+                this.RegisteredActorEvents[key].Add(eventName);
+            }
         }
 
         /// <inheritdoc/>
@@ -102,34 +123,38 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             if (coverageInfo is ActorCoverageInfo actorCoverageInfo)
             {
-                foreach (var machine in actorCoverageInfo.Machines)
+                lock (actorCoverageInfo.Lock)
+                lock (this.Lock)
                 {
-                    this.Machines.Add(machine);
-                }
-
-                foreach (var machine in actorCoverageInfo.MachinesToStates)
-                {
-                    foreach (var state in machine.Value)
+                    foreach (var machine in actorCoverageInfo.Machines)
                     {
-                        this.DeclareMachineState(machine.Key, state);
+                        this.Machines.Add(machine);
                     }
-                }
 
-                foreach (var tup in actorCoverageInfo.RegisteredActorEvents)
-                {
-                    foreach (var e in tup.Value)
+                    foreach (var machine in actorCoverageInfo.MachinesToStates)
                     {
-                        this.AddActorEvent(tup.Key, e);
+                        foreach (var state in machine.Value)
+                        {
+                            this.DeclareMachineState(machine.Key, state);
+                        }
                     }
-                }
 
-                if (this.ActorEventInfo is null)
-                {
-                    this.ActorEventInfo = actorCoverageInfo.ActorEventInfo;
-                }
-                else if (actorCoverageInfo.ActorEventInfo != null && this.ActorEventInfo != actorCoverageInfo.ActorEventInfo)
-                {
-                    this.ActorEventInfo.Merge(actorCoverageInfo.ActorEventInfo);
+                    foreach (var tup in actorCoverageInfo.RegisteredActorEvents)
+                    {
+                        foreach (var e in tup.Value)
+                        {
+                            this.AddActorEvent(tup.Key, e);
+                        }
+                    }
+
+                    if (this.ActorEventInfo is null)
+                    {
+                        this.ActorEventInfo = actorCoverageInfo.ActorEventInfo;
+                    }
+                    else if (actorCoverageInfo.ActorEventInfo != null && this.ActorEventInfo != actorCoverageInfo.ActorEventInfo)
+                    {
+                        this.ActorEventInfo.Merge(actorCoverageInfo.ActorEventInfo);
+                    }
                 }
             }
 

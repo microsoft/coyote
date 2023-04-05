@@ -3,6 +3,7 @@
   to the console.
 - Implemented more fake methods in the `ActorTestKit` class.
 - Added a method for setting a custom logger when using the `ActorTestKit` class.
+- Fixed a bug where merging coverage info could result in a rare race condition.
 
 ## v1.7.5
 - Added support for controlling user-created `Thread` instances during testing.

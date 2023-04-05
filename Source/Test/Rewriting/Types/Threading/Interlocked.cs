@@ -241,6 +241,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
+#if NET7_0_OR_GREATER
+        /// <summary>
+        /// Sets a platform-specific handle or pointer to a specified value and returns the
+        /// original value, as an atomic operation.
+        /// </summary>
+        public static UIntPtr Exchange(ref UIntPtr location1, UIntPtr value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+#endif
+
         /// <summary>
         /// Compares two 32-bit signed integers for equality and, if they are equal, replaces
         /// the first value.
@@ -333,6 +345,18 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
+
+#if NET7_0_OR_GREATER
+        /// <summary>
+        /// Compares two platform-specific handles or pointers for equality and, if they
+        /// are equal, replaces the first one.
+        /// </summary>
+        public static UIntPtr CompareExchange(ref UIntPtr location1, UIntPtr value, UIntPtr comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+#endif
 
 #if NET
         /// <summary>

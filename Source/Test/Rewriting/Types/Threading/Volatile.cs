@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Runtime;
 using SystemVolatile = System.Threading.Volatile;
 
@@ -27,7 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Reads the value of the specified field. On systems that require it, inserts a
         /// memory barrier that prevents the processor from reordering memory operations.
         /// </summary>
-        public static nuint Read(ref nuint location)
+        public static UIntPtr Read(ref UIntPtr location)
         {
             ExploreInterleaving();
             return SystemVolatile.Read(ref location);
@@ -148,7 +149,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Reads the value of the specified field. On systems that require it, inserts a
         /// memory barrier that prevents the processor from reordering memory operations.
         /// </summary>
-        public static nint Read(ref nint location)
+        public static IntPtr Read(ref IntPtr location)
         {
             ExploreInterleaving();
             return SystemVolatile.Read(ref location);
@@ -208,7 +209,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Writes the specified value to the specified field. On systems that require it, inserts
         /// a memory barrier that prevents the processor from reordering memory operations.
         /// </summary>
-        public static void Write(ref nint location, nint value)
+        public static void Write(ref IntPtr location, IntPtr value)
         {
             ExploreInterleaving();
             SystemVolatile.Write(ref location, value);
@@ -268,7 +269,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Writes the specified value to the specified field. On systems that require it, inserts
         /// a memory barrier that prevents the processor from reordering memory operations.
         /// </summary>
-        public static void Write(ref nuint location, nuint value)
+        public static void Write(ref UIntPtr location, UIntPtr value)
         {
             ExploreInterleaving();
             SystemVolatile.Write(ref location, value);

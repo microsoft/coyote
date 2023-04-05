@@ -32,6 +32,18 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         private bool IsRunning;
 
         /// <summary>
+        /// Gets or sets an <see cref="ILogger"/> for logging runtime messages.
+        /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/concepts/actors/logging">Logging</see> for more information.
+        /// </remarks>
+        public ILogger Logger
+        {
+            get => this.Context.LogWriter;
+            set => this.Context.LogWriter.SetLogger(value);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActorTestKit{T}"/> class.
         /// </summary>
         /// <param name="configuration">The runtime configuration to use.</param>

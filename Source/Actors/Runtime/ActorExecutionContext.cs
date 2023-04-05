@@ -929,7 +929,7 @@ namespace Microsoft.Coyote.Actors
             /// unbound actor id, and passes the specified optional <see cref="Event"/>. This event
             /// can only be used to access its payload, and cannot be handled.
             /// </summary>
-            internal ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup eventGroup = null)
+            private ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup eventGroup = null)
             {
                 var creatorOp = this.Runtime.GetExecutingOperation<ActorOperation>();
                 return this.CreateActor(id, type, name, initialEvent, creatorOp?.Actor, eventGroup);
@@ -953,7 +953,7 @@ namespace Microsoft.Coyote.Actors
             /// can only be used to access its payload, and cannot be handled. The method returns only
             /// when the actor is initialized and the <see cref="Event"/> (if any) is handled.
             /// </summary>
-            internal Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent = null,
+            private Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent = null,
                 EventGroup eventGroup = null)
             {
                 var creatorOp = this.Runtime.GetExecutingOperation<ActorOperation>();

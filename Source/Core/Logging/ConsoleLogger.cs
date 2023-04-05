@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Logging
     /// <summary>
     /// Logger that writes text to the console.
     /// </summary>
-    internal sealed class ConsoleLogger : ILogger
+    public sealed class ConsoleLogger : ILogger
     {
         /// <summary>
         /// The level of verbosity used during logging.

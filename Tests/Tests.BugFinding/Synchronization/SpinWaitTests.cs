@@ -17,6 +17,37 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestSpinCount()
+        {
+            this.Test(() =>
+            {
+                SpinWait spinner = new SpinWait();
+                Assert.Equal(0, spinner.Count);
+
+                spinner.SpinOnce(sleep1Threshold: -1);
+                Assert.Equal(1, spinner.Count);
+                spinner.SpinOnce(sleep1Threshold: 0);
+                Assert.Equal(2, spinner.Count);
+                spinner.SpinOnce(sleep1Threshold: 1);
+                Assert.Equal(3, spinner.Count);
+                spinner.SpinOnce(sleep1Threshold: int.MaxValue);
+                Assert.Equal(4, spinner.Count);
+                int i = 5;
+                for (; i < 10; ++i)
+                {
+                    spinner.SpinOnce(sleep1Threshold: -1);
+                    Assert.Equal(i, spinner.Count);
+                }
+
+                for (; i < 20; ++i)
+                {
+                    spinner.SpinOnce(sleep1Threshold: 15);
+                    Assert.Equal(i, spinner.Count);
+                }
+            }, configuration: this.GetConfiguration());
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestSpinUntil()
         {
             this.Test(() =>
@@ -24,6 +55,37 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 SpinWait.SpinUntil(() => true);
                 Assert.True(SpinWait.SpinUntil(() => true, 0), "Assertion failed.");
             }, configuration: this.GetConfiguration());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSpinUntilMultithreaded()
+        {
+            this.Test(() =>
+            {
+                int counter = 0;
+                Thread t1 = new Thread(() =>
+                {
+                    SpinWait spin = default(SpinWait);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        counter++;
+                        spin.SpinOnce();
+                    }
+                });
+
+                Thread t2 = new Thread(() =>
+                {
+                    SpinWait.SpinUntil(() => counter == 5);
+                    counter = 0;
+                });
+
+                t1.Start();
+                t2.Start();
+                t1.Join();
+                t2.Join();
+
+                Assert.Equal(counter, 0);
+            }, configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -95,6 +157,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
         [Fact(Timeout = 5000)]
         public void TestSpinWaitStack()
         {
+            var configuration = this.GetConfiguration().WithTestingIterations(100)
+                .WithAtomicOperationRaceCheckingEnabled(true);
             this.Test(() =>
             {
                 var stack = new LockFreeStack<int>();
@@ -128,7 +192,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 t2.Join();
 
                 Assert.False(stack.TryPop(out int _), "Stack is not empty.");
-            }, configuration: this.GetConfiguration().WithAtomicOperationRaceCheckingEnabled(true));
+            }, configuration: configuration);
         }
     }
 }

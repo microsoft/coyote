@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Reflection;
 using Microsoft.Coyote.Runtime;
 using SystemSpinWait = System.Threading.SpinWait;
 using SystemThread = System.Threading.Thread;
@@ -16,33 +17,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
     public static class SpinWait
     {
         /// <summary>
-        /// Gets the number of times <see cref="SystemSpinWait.SpinOnce()"/> has been called on this instance.
+        /// Used to invoke methods of the specified struct instance without boxing it.
         /// </summary>
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-#pragma warning disable SA1300 // Element should begin with upper-case letter
-#pragma warning disable IDE1006 // Naming Styles
-        public static int get_Count(ref SystemSpinWait instance)
-#pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore SA1300 // Element should begin with upper-case letter
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-        {
-            return instance.Count;
-        }
-
-        /// <summary>
-        /// Gets whether the next call to <see cref="SystemSpinWait.SpinOnce()"/> will yield the
-        /// processor, triggering a forced context switch.
-        /// </summary>
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-#pragma warning disable SA1300 // Element should begin with upper-case letter
-#pragma warning disable IDE1006 // Naming Styles
-        public static bool get_NextSpinWillYield(ref SystemSpinWait instance)
-#pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore SA1300 // Element should begin with upper-case letter
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-        {
-            return instance.NextSpinWillYield;
-        }
+        private delegate void StructInvoker(ref SystemSpinWait instance, int count);
 
         /// <summary>
         /// Performs a single spin.
@@ -55,6 +32,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 // We model 'SpinOnce' by yielding the current operation.
                 runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
+                IncrementCounter(ref instance);
             }
             else
             {
@@ -74,6 +52,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 // We model 'SpinOnce' by yielding the current operation.
                 runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
+                IncrementCounter(ref instance);
             }
             else
             {
@@ -135,6 +114,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 return SystemSpinWait.SpinUntil(condition, timeout);
             }
+        }
+
+        /// <summary>
+        /// Increments the spin count for the specified instance.
+        /// </summary>
+        private static void IncrementCounter(ref SystemSpinWait instance)
+        {
+            int currentCount = instance.Count;
+            int newCount = currentCount == int.MaxValue ? 10 : currentCount + 1;
+
+            // Use reflection to increment the count, as this is a private property.
+            PropertyInfo property = instance.GetType().GetProperty("Count");
+            StructInvoker propertySetter = (StructInvoker)Delegate.CreateDelegate(typeof(StructInvoker), property.GetSetMethod(true));
+            propertySetter(ref instance, newCount);
         }
 
         /// <summary>

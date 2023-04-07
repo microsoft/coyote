@@ -83,6 +83,7 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.SemaphoreSlim] = typeof(Types.Threading.SemaphoreSlim);
             this.KnownTypes[NameCache.Interlocked] = typeof(Types.Threading.Interlocked);
             this.KnownTypes[NameCache.Volatile] = typeof(Types.Threading.Volatile);
+            this.KnownTypes[NameCache.SpinWait] = typeof(Types.Threading.SpinWait);
             this.KnownTypes[NameCache.AutoResetEvent] = typeof(Types.Threading.AutoResetEvent);
             this.KnownTypes[NameCache.ManualResetEvent] = typeof(Types.Threading.ManualResetEvent);
             this.KnownTypes[NameCache.EventWaitHandle] = typeof(Types.Threading.EventWaitHandle);

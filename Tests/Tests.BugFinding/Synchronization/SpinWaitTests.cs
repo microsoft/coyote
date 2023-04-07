@@ -34,14 +34,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 spinner.SpinOnce(sleep1Threshold: int.MaxValue);
                 Assert.Equal(4, spinner.Count);
 
-                int i;
-                for (i = 5; i < 10; ++i)
+                int i = 5;
+                for (; i < 10; ++i)
                 {
                     spinner.SpinOnce(sleep1Threshold: -1);
                     Assert.Equal(i, spinner.Count);
                 }
 
-                for (i = 5; i < 20; ++i)
+                for (; i < 20; ++i)
                 {
                     spinner.SpinOnce(sleep1Threshold: 15);
                     Assert.Equal(i, spinner.Count);

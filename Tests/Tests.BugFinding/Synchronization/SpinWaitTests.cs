@@ -16,12 +16,13 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
         }
 
+#if NET
         [Fact(Timeout = 5000)]
         public void TestSpinCount()
         {
             this.Test(() =>
             {
-                SpinWait spinner = new SpinWait();
+                SpinWait spinner = default(SpinWait);
                 Assert.Equal(0, spinner.Count);
 
                 spinner.SpinOnce(sleep1Threshold: -1);
@@ -32,20 +33,22 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.Equal(3, spinner.Count);
                 spinner.SpinOnce(sleep1Threshold: int.MaxValue);
                 Assert.Equal(4, spinner.Count);
-                int i = 5;
-                for (; i < 10; ++i)
+
+                int i;
+                for (i = 5; i < 10; ++i)
                 {
                     spinner.SpinOnce(sleep1Threshold: -1);
                     Assert.Equal(i, spinner.Count);
                 }
 
-                for (; i < 20; ++i)
+                for (i = 5; i < 20; ++i)
                 {
                     spinner.SpinOnce(sleep1Threshold: 15);
                     Assert.Equal(i, spinner.Count);
                 }
             }, configuration: this.GetConfiguration());
         }
+#endif
 
         [Fact(Timeout = 5000)]
         public void TestSpinUntil()
@@ -84,7 +87,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 t1.Join();
                 t2.Join();
 
-                Assert.Equal(counter, 0);
+                Assert.Equal(0, counter);
             }, configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 

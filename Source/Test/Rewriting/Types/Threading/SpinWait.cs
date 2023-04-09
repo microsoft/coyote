@@ -30,9 +30,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                // We model 'SpinOnce' by yielding the current operation.
-                runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
-                IncrementCounter(ref instance);
+                if (System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework"))
+                {
+                    // The .NET Framework runtime does not implement a 'Count' property, and we cannot use reflection
+                    // to modify the private field, because 'Reflection.Emit' is not supported in .NET Standard. To
+                    // work around this, we invoke the uncontrolled 'SpinOnce' method.
+                    runtime.NotifyUncontrolledInvocation(nameof(SystemSpinWait.SpinOnce));
+                    instance.SpinOnce();
+                }
+                else
+                {
+                    // We model 'SpinOnce' by yielding the current operation.
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
+                    IncrementCounter(ref instance);
+                }
             }
             else
             {
@@ -50,9 +61,20 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
-                // We model 'SpinOnce' by yielding the current operation.
-                runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
-                IncrementCounter(ref instance);
+                if (System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework"))
+                {
+                    // The .NET Framework runtime does not implement a 'Count' property, and we cannot use reflection
+                    // to modify the private field, because 'Reflection.Emit' is not supported in .NET Standard. To
+                    // work around this, we invoke the uncontrolled 'SpinOnce' method.
+                    runtime.NotifyUncontrolledInvocation(nameof(SystemSpinWait.SpinOnce));
+                    instance.SpinOnce();
+                }
+                else
+                {
+                    // We model 'SpinOnce' by yielding the current operation.
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Yield, isYielding: true);
+                    IncrementCounter(ref instance);
+                }
             }
             else
             {
@@ -125,9 +147,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             int newCount = currentCount == int.MaxValue ? 10 : currentCount + 1;
 
             // Use reflection to increment the count, as this is a private property.
-            PropertyInfo property = instance.GetType().GetProperty("Count");
-            StructInvoker propertySetter = (StructInvoker)Delegate.CreateDelegate(typeof(StructInvoker), property.GetSetMethod(true));
-            propertySetter(ref instance, newCount);
+            PropertyInfo countPropertyInfo = typeof(SystemSpinWait).GetProperty("Count");
+            MethodInfo countSetterInfo = countPropertyInfo.GetSetMethod(true);
+            StructInvoker countSetter = (StructInvoker)Delegate.CreateDelegate(typeof(StructInvoker), countSetterInfo);
+            countSetter(ref instance, newCount);
         }
 
         /// <summary>

@@ -60,6 +60,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             }, configuration: this.GetConfiguration());
         }
 
+#if NET
         [Fact(Timeout = 5000)]
         public void TestSpinUntilMultithreaded()
         {
@@ -90,6 +91,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.Equal(0, counter);
             }, configuration: this.GetConfiguration().WithTestingIterations(100));
         }
+#endif
 
         [Fact(Timeout = 5000)]
         public void TestSpinUntilDeadlock()
@@ -105,6 +107,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+#if NET
         public class LockFreeStack<T>
         {
             private class Node
@@ -197,5 +200,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.False(stack.TryPop(out int _), "Stack is not empty.");
             }, configuration: configuration);
         }
+#endif
     }
 }

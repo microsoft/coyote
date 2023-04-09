@@ -163,7 +163,6 @@ namespace Microsoft.Coyote.Rewriting
                     type.Name is nameof(System.Threading.RegisteredWaitHandle) ||
                     type.Name is nameof(System.Threading.Semaphore) ||
                     type.Name is nameof(System.Threading.SpinLock) ||
-                    type.Name is nameof(System.Threading.SpinWait) ||
                     type.Name is nameof(System.Threading.SynchronizationContext) ||
                     type.Name is nameof(System.Threading.Timer))
                 {

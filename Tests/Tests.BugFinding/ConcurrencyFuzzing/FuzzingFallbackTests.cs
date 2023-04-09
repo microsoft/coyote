@@ -18,9 +18,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
         [Fact(Timeout = 5000)]
         public void TestFuzzingFallbackAfterUncontrolledDelay()
         {
-            var configuration = this.GetConfiguration().
-                WithSystematicFuzzingFallbackEnabled(true).
-                WithTestingIterations(10);
+            var configuration = this.GetConfiguration()
+                .WithSystematicFuzzingFallbackEnabled(true)
+                .WithTestingIterations(10);
             this.Test(async () =>
             {
                 // This would fail during SCT due to uncontrolled concurrency,
@@ -33,9 +33,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
         [Fact(Timeout = 5000)]
         public void TestFuzzingFallbackAfterUncontrolledInvocation()
         {
-            var configuration = this.GetConfiguration().
-                WithSystematicFuzzingFallbackEnabled(true).
-                WithTestingIterations(10);
+            var configuration = this.GetConfiguration()
+                .WithSystematicFuzzingFallbackEnabled(true)
+                .WithTestingIterations(10);
             this.Test(() =>
             {
                 // This would fail during SCT due to uncontrolled concurrency,

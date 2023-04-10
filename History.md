@@ -1,3 +1,6 @@
+## v1.7.7
+- Added rewriting support for `System.Threading.SpinWait` methods.
+
 ## v1.7.6
 - Exposed the `ConsoleLogger` as public so that users can conveniently use it to write runtime logs
   to the console.

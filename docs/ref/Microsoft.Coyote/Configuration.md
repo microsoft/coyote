@@ -55,6 +55,7 @@ public class Configuration
 | [WithUncontrolledConcurrencyResolutionTimeout](Configuration/WithUncontrolledConcurrencyResolutionTimeout.md)(…) | Updates the values that control how much time the runtime should wait for each instance of uncontrolled concurrency to resolve before continuing exploration. The *attempts* parameter controls how many times to check if uncontrolled concurrency has resolved, whereas the *delay* parameter controls how long the runtime waits between each retry. |
 | [WithUncontrolledInvocationStackTraceLoggingEnabled](Configuration/WithUncontrolledInvocationStackTraceLoggingEnabled.md)(…) | Updates the configuration with stack trace logging for uncontrolled invocations enabled or disabled. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled.md)(…) | Updates the configuration to use the specified verbosity level, or Info, if no level is specified. The default verbosity level is Error. |
+| [WithVolatileOperationRaceCheckingEnabled](Configuration/WithVolatileOperationRaceCheckingEnabled.md)(…) | Updates the configuration with race checking for volatile operations enabled or disabled. If this race checking strategy is enabled, then the runtime will explore interleavings when invoking volatile operations, such as Volatile methods. |
 | [WithXmlLogEnabled](Configuration/WithXmlLogEnabled.md)(…) | Updates the configuration with XML log generation enabled or disabled. |
 
 ## Protected Members

@@ -124,6 +124,7 @@ nav:
         - WithCollectionAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithCollectionAccessRaceCheckingEnabled.md
         - WithLockAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled.md
         - WithAtomicOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled.md
+        - WithVolatileOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithVolatileOperationRaceCheckingEnabled.md
         - WithExecutionTraceCycleReductionEnabled: ref/Microsoft.Coyote/Configuration/WithExecutionTraceCycleReductionEnabled.md
         - WithPartialOrderSamplingEnabled: ref/Microsoft.Coyote/Configuration/WithPartialOrderSamplingEnabled.md
         - WithFailureOnMaxStepsBoundEnabled: ref/Microsoft.Coyote/Configuration/WithFailureOnMaxStepsBoundEnabled.md
@@ -180,6 +181,7 @@ nav:
         - SchedulingPointStackTraces: ref/Microsoft.Coyote.Coverage/CoverageInfo/SchedulingPointStackTraces.md
         - ExploredPaths: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths.md
         - VisitedStates: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates.md
+        - Lock: ref/Microsoft.Coyote.Coverage/CoverageInfo/Lock.md
       - MonitorEventCoverage:
         - Overview: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage.md
         - GetEventsProcessed: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage/GetEventsProcessed.md
@@ -210,6 +212,12 @@ nav:
         - Index: ref/Microsoft.Coyote.Coverage/CoverageGraph.Link/Index.md
     - Microsoft.Coyote.Logging:
       - Namespace Overview: ref/Microsoft.Coyote.LoggingNamespace.md
+      - ConsoleLogger:
+        - Overview: ref/Microsoft.Coyote.Logging/ConsoleLogger.md
+        - Write: ref/Microsoft.Coyote.Logging/ConsoleLogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.Logging/ConsoleLogger/WriteLine.md
+        - Dispose: ref/Microsoft.Coyote.Logging/ConsoleLogger/Dispose.md
+        - ConsoleLogger: ref/Microsoft.Coyote.Logging/ConsoleLogger/ConsoleLogger.md
       - ILogger:
         - Overview: ref/Microsoft.Coyote.Logging/ILogger.md
         - Write: ref/Microsoft.Coyote.Logging/ILogger/Write.md
@@ -640,6 +648,21 @@ nav:
         - DueTime: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime.md
         - Period: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period.md
         - CustomEvent: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent.md
+    - Microsoft.Coyote.Actors.UnitTesting:
+      - Namespace Overview: ref/Microsoft.Coyote.Actors.UnitTestingNamespace.md
+      - ActorTestKit<T>:
+        - Overview: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1.md
+        - StartActorAsync: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/StartActorAsync.md
+        - SendEventAsync: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/SendEventAsync.md
+        - Invoke: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Invoke.md
+        - InvokeAsync: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/InvokeAsync.md
+        - Assert: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Assert.md
+        - AssertStateTransition: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertStateTransition.md
+        - AssertIsWaitingToReceiveEvent: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertIsWaitingToReceiveEvent.md
+        - AssertInboxSize: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertInboxSize.md
+        - ActorTestKit: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorTestKit.md
+        - Logger: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Logger.md
+        - ActorInstance: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorInstance.md
   - Microsoft.Coyote.Test:
     - Overview: ref/Microsoft.Coyote.Test.md
     - Microsoft.Coyote.Rewriting:

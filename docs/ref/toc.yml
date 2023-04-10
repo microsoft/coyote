@@ -48,6 +48,8 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled
         - name: WithAtomicOperationRaceCheckingEnabled
           link: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled
+        - name: WithVolatileOperationRaceCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithVolatileOperationRaceCheckingEnabled
         - name: WithExecutionTraceCycleReductionEnabled
           link: ref/Microsoft.Coyote/Configuration/WithExecutionTraceCycleReductionEnabled
         - name: WithPartialOrderSamplingEnabled
@@ -157,6 +159,8 @@ toc:
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/ExploredPaths
         - name: VisitedStates
           link: ref/Microsoft.Coyote.Coverage/CoverageInfo/VisitedStates
+        - name: Lock
+          link: ref/Microsoft.Coyote.Coverage/CoverageInfo/Lock
       - name: MonitorEventCoverage
         link: ref/Microsoft.Coyote.Coverage/MonitorEventCoverage
         subfolderitems:
@@ -212,6 +216,17 @@ toc:
     - name: Microsoft.Coyote.Logging
       link: ref/Microsoft.Coyote.LoggingNamespace
       subfolderitems:
+      - name: ConsoleLogger
+        link: ref/Microsoft.Coyote.Logging/ConsoleLogger
+        subfolderitems:
+        - name: Write
+          link: ref/Microsoft.Coyote.Logging/ConsoleLogger/Write
+        - name: WriteLine
+          link: ref/Microsoft.Coyote.Logging/ConsoleLogger/WriteLine
+        - name: Dispose
+          link: ref/Microsoft.Coyote.Logging/ConsoleLogger/Dispose
+        - name: ConsoleLogger
+          link: ref/Microsoft.Coyote.Logging/ConsoleLogger/ConsoleLogger
       - name: ILogger
         link: ref/Microsoft.Coyote.Logging/ILogger
         subfolderitems:
@@ -1002,6 +1017,34 @@ toc:
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
+    - name: Microsoft.Coyote.Actors.UnitTesting
+      link: ref/Microsoft.Coyote.Actors.UnitTestingNamespace
+      subfolderitems:
+      - name: ActorTestKit<T>
+        link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1
+        subfolderitems:
+        - name: StartActorAsync
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/StartActorAsync
+        - name: SendEventAsync
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/SendEventAsync
+        - name: Invoke
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Invoke
+        - name: InvokeAsync
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/InvokeAsync
+        - name: Assert
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Assert
+        - name: AssertStateTransition
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertStateTransition
+        - name: AssertIsWaitingToReceiveEvent
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertIsWaitingToReceiveEvent
+        - name: AssertInboxSize
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertInboxSize
+        - name: ActorTestKit
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorTestKit
+        - name: Logger
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Logger
+        - name: ActorInstance
+          link: ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorInstance
   - name: Microsoft.Coyote.Test
     link: ref/Microsoft.Coyote.Test
     subfolderitems:

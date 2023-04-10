@@ -18,6 +18,7 @@
 
 | public type | description |
 | --- | --- |
+| class [ConsoleLogger](./Microsoft.Coyote.Logging/ConsoleLogger.md) | Logger that writes text to the console. |
 | interface [ILogger](./Microsoft.Coyote.Logging/ILogger.md) | A logger is used to capture messages, warnings and errors. |
 | enum [LogSeverity](./Microsoft.Coyote.Logging/LogSeverity.md) | The severity of the log message being provided to the [`ILogger`](./Microsoft.Coyote.Logging/ILogger.md). |
 | class [MemoryLogger](./Microsoft.Coyote.Logging/MemoryLogger.md) | Logger that writes all messages to memory. |

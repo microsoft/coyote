@@ -147,6 +147,18 @@ namespace Microsoft.Coyote
         internal bool IsVolatileOperationRaceCheckingEnabled;
 
         /// <summary>
+        /// If enabled, checking races at memory-access locations is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsMemoryAccessRaceCheckingEnabled;
+
+        /// <summary>
+        /// If enabled, checking races at control-flow branching locations is enabled during systematic testing.
+        /// </summary>
+        [DataMember]
+        internal bool IsControlFlowRaceCheckingEnabled;
+
+        /// <summary>
         /// If enabled, execution trace cycle reduction is enabled during systematic testing.
         /// </summary>
         [DataMember]
@@ -349,6 +361,8 @@ namespace Microsoft.Coyote
             this.IsLockAccessRaceCheckingEnabled = true;
             this.IsAtomicOperationRaceCheckingEnabled = true;
             this.IsVolatileOperationRaceCheckingEnabled = true;
+            this.IsMemoryAccessRaceCheckingEnabled = false;
+            this.IsControlFlowRaceCheckingEnabled = false;
             this.IsExecutionTraceCycleReductionEnabled = false;
             this.IsPartialOrderSamplingEnabled = false;
             this.RunTestIterationsToCompletion = false;
@@ -664,6 +678,30 @@ namespace Microsoft.Coyote
         public Configuration WithVolatileOperationRaceCheckingEnabled(bool isEnabled = true)
         {
             this.IsVolatileOperationRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking at memory-access locations enabled or disabled.
+        /// If this race checking strategy is enabled, then the runtime will explore interleavings at
+        /// memory-access locations.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at memory-access locations is enabled.</param>
+        public Configuration WithMemoryAccessRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsMemoryAccessRaceCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with race checking at control-flow branching locations enabled
+        /// or disabled. If this race checking strategy is enabled, then the runtime will explore
+        /// interleavings at control-flow branching locations.
+        /// </summary>
+        /// <param name="isEnabled">If true, then checking races at control-flow branching locations is enabled.</param>
+        public Configuration WithControlFlowRaceCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsControlFlowRaceCheckingEnabled = isEnabled;
             return this;
         }
 

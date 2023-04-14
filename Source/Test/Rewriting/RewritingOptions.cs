@@ -61,6 +61,11 @@ namespace Microsoft.Coyote.Rewriting
         private Regex IgnoredAssembliesPattern { get; set; }
 
         /// <summary>
+        /// True if rewriting for memory locations is enabled, else false.
+        /// </summary>
+        internal bool IsRewritingMemoryLocations { get; set; }
+
+        /// <summary>
         /// True if rewriting for concurrent collections is enabled, else false.
         /// </summary>
         internal bool IsRewritingConcurrentCollections { get; set; }
@@ -79,11 +84,6 @@ namespace Microsoft.Coyote.Rewriting
         /// True if rewriting of unit test methods is enabled, else false.
         /// </summary>
         internal bool IsRewritingUnitTests { get; set; }
-
-        /// <summary>
-        /// True if rewriting threads as controlled tasks.
-        /// </summary>
-        internal bool IsRewritingThreads { get; set; }
 
         /// <summary>
         /// True if the rewriter should log the IL before and after rewriting.
@@ -113,11 +113,11 @@ namespace Microsoft.Coyote.Rewriting
                 AssemblyPaths = new HashSet<string>(),
                 DependencySearchPaths = null,
                 IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(new List<string>()),
+                IsRewritingMemoryLocations = true,
                 IsRewritingConcurrentCollections = true,
                 IsDataRaceCheckingEnabled = false,
                 IsRewritingDependencies = false,
                 IsRewritingUnitTests = false,
-                IsRewritingThreads = false,
                 IsLoggingAssemblyContents = false,
                 IsDiffingAssemblyContents = false,
             };
@@ -167,11 +167,11 @@ namespace Microsoft.Coyote.Rewriting
                 options.DependencySearchPaths = configuration.DependencySearchPaths;
                 options.IgnoredAssembliesPattern = GetDisallowedAssembliesRegex(
                     configuration.IgnoredAssemblies ?? Array.Empty<string>());
+                options.IsRewritingMemoryLocations = configuration.IsRewritingMemoryLocations;
                 options.IsRewritingConcurrentCollections = configuration.IsRewritingConcurrentCollections;
                 options.IsDataRaceCheckingEnabled = configuration.IsDataRaceCheckingEnabled;
                 options.IsRewritingDependencies = configuration.IsRewritingDependencies;
                 options.IsRewritingUnitTests = configuration.IsRewritingUnitTests;
-                options.IsRewritingThreads = configuration.IsRewritingThreads;
             }
             catch (Exception ex)
             {
@@ -360,8 +360,15 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "DependencySearchPaths")]
             public IList<string> DependencySearchPaths { get; set; }
 
-            [DataMember(Name = "IsDataRaceCheckingEnabled")]
-            public bool IsDataRaceCheckingEnabled { get; set; }
+            private bool? isRewritingMemoryLocations;
+
+            [DataMember(Name = "IsRewritingMemoryLocations")]
+            public bool IsRewritingMemoryLocations
+            {
+                // This option defaults to true.
+                get => this.isRewritingMemoryLocations ?? true;
+                set => this.isRewritingMemoryLocations = value;
+            }
 
             private bool? isRewritingConcurrentCollections;
 
@@ -373,14 +380,14 @@ namespace Microsoft.Coyote.Rewriting
                 set => this.isRewritingConcurrentCollections = value;
             }
 
+            [DataMember(Name = "IsDataRaceCheckingEnabled")]
+            public bool IsDataRaceCheckingEnabled { get; set; }
+
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }
 
             [DataMember(Name = "IsRewritingUnitTests")]
             public bool IsRewritingUnitTests { get; set; }
-
-            [DataMember(Name = "IsRewritingThreads")]
-            public bool IsRewritingThreads { get; set; }
         }
     }
 }

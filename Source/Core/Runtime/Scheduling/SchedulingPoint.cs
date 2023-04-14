@@ -37,6 +37,55 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Explores a possible interleaving with another controlled operation
+        /// at the currently executing memory-access location.
+        /// </summary>
+        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static void InterleaveMemoryAccess()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.Configuration.IsMemoryAccessRaceCheckingEnabled &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Interleave, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Explores a possible interleaving with another controlled operation
+        /// at the currently executing control-flow branching location.
+        /// </summary>
+        /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static void InterleaveControlFlow()
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
+                runtime.Configuration.IsControlFlowRaceCheckingEnabled &&
+                !runtime.Configuration.IsMemoryAccessRaceCheckingEnabled &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+                {
+                    runtime.ScheduleNextOperation(current, SchedulingPointType.Interleave, isSuppressible: false);
+                }
+                else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
+                {
+                    runtime.DelayOperation(current);
+                }
+            }
+        }
+
+        /// <summary>
         /// Attempts to yield execution to another controlled operation.
         /// </summary>
         /// <remarks>

@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Cli
             // Create the commands.
             this.TestCommand = this.CreateTestCommand(this.Configuration);
             this.ReplayCommand = this.CreateReplayCommand();
-            this.RewriteCommand = this.CreateRewriteCommand();
+            this.RewriteCommand = this.CreateRewriteCommand(this.RewritingOptions);
 
             // Create the root command.
             var rootCommand = new RootCommand("The Coyote systematic testing tool.\n\n" +
@@ -455,6 +455,20 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var enableMemoryAccessRacesOption = new Option<bool>(
+                name: "--enable-memory-access-races",
+                description: "Enable exploration of race conditions at memory-access locations.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var enableControlFlowRacesOption = new Option<bool>(
+                name: "--enable-control-flow-races",
+                description: "Enable exploration of race conditions at control-flow branching locations.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var fuzzingFallbackOption = new Option<bool>(
                 name: "--fuzzing-fallback",
                 description: "Enable automatic fallback to systematic fuzzing upon detecting uncontrolled concurrency.")
@@ -584,6 +598,8 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, skipLockRacesOption);
             this.AddOption(command, skipAtomicRacesOption);
             this.AddOption(command, skipVolatileRacesOption);
+            this.AddOption(command, enableMemoryAccessRacesOption);
+            this.AddOption(command, enableControlFlowRacesOption);
             this.AddOption(command, fuzzingFallbackOption);
             this.AddOption(command, partialControlOption);
             this.AddOption(command, noReproOption);
@@ -653,25 +669,32 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Creates the rewrite command.
         /// </summary>
-        private Command CreateRewriteCommand()
+        private Command CreateRewriteCommand(RewritingOptions options)
         {
             var pathArg = new Argument<string>("path", "Path to the assembly (*.dll, *.exe) to rewrite or to a JSON rewriting configuration file.")
             {
                 HelpName = "PATH"
             };
 
-            var assertDataRacesOption = new Option<bool>(
-                name: "--assert-data-races",
-                getDefaultValue: () => false,
-                description: "Add assertions for read/write data races.")
+            var rewriteMemoryLocationsOption = new Option<bool>(
+                name: "--rewrite-memory-locations",
+                getDefaultValue: () => options.IsRewritingMemoryLocations,
+                description: "Rewrite memory locations (such as field loads and stores) for race checking.")
             {
-                Arity = ArgumentArity.Zero,
-                IsHidden = true
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var rewriteConcurrentCollectionsOption = new Option<bool>(
+                name: "--rewrite-concurrent-collections",
+                getDefaultValue: () => options.IsRewritingConcurrentCollections,
+                description: "Rewrite concurrent collections for race checking.")
+            {
+                Arity = ArgumentArity.ExactlyOne
             };
 
             var rewriteDependenciesOption = new Option<bool>(
                 name: "--rewrite-dependencies",
-                getDefaultValue: () => false,
+                getDefaultValue: () => options.IsRewritingDependencies,
                 description: "Rewrite all dependent assemblies that are found in the same location as the given path.")
             {
                 Arity = ArgumentArity.Zero,
@@ -680,17 +703,17 @@ namespace Microsoft.Coyote.Cli
 
             var rewriteUnitTestsOption = new Option<bool>(
                 name: "--rewrite-unit-tests",
-                getDefaultValue: () => false,
+                getDefaultValue: () => options.IsRewritingUnitTests,
                 description: "Rewrite unit tests to automatically inject the Coyote testing engine.")
             {
                 Arity = ArgumentArity.Zero,
                 IsHidden = true
             };
 
-            var rewriteThreadsOption = new Option<bool>(
-                name: "--rewrite-threads",
-                getDefaultValue: () => false,
-                description: "Rewrite low-level threading APIs.")
+            var assertDataRacesOption = new Option<bool>(
+                name: "--assert-data-races",
+                getDefaultValue: () => options.IsDataRaceCheckingEnabled,
+                description: "Add assertions for read/write data races.")
             {
                 Arity = ArgumentArity.Zero,
                 IsHidden = true
@@ -698,7 +721,7 @@ namespace Microsoft.Coyote.Cli
 
             var dumpILOption = new Option<bool>(
                 name: "--dump-il",
-                getDefaultValue: () => false,
+                getDefaultValue: () => options.IsLoggingAssemblyContents,
                 description: "Dumps the original and rewritten IL in JSON for debugging purposes.")
             {
                 Arity = ArgumentArity.Zero
@@ -706,7 +729,7 @@ namespace Microsoft.Coyote.Cli
 
             var dumpILDiffOption = new Option<bool>(
                 name: "--dump-il-diff",
-                getDefaultValue: () => false,
+                getDefaultValue: () => options.IsDiffingAssemblyContents,
                 description: "Dumps the IL diff in JSON for debugging purposes.")
             {
                 Arity = ArgumentArity.Zero
@@ -720,10 +743,11 @@ namespace Microsoft.Coyote.Cli
                 "Coyote to take control of the execution during systematic testing.\n" +
                 $"Learn more at {Documentation.LearnAboutRewritingUrl}.");
             this.AddArgument(command, pathArg);
-            this.AddOption(command, assertDataRacesOption);
+            this.AddOption(command, rewriteMemoryLocationsOption);
+            this.AddOption(command, rewriteConcurrentCollectionsOption);
             this.AddOption(command, rewriteDependenciesOption);
             this.AddOption(command, rewriteUnitTestsOption);
-            this.AddOption(command, rewriteThreadsOption);
+            this.AddOption(command, assertDataRacesOption);
             this.AddOption(command, dumpILOption);
             this.AddOption(command, dumpILDiffOption);
             command.TreatUnmatchedTokensAsErrors = true;
@@ -1057,6 +1081,12 @@ namespace Microsoft.Coyote.Cli
                     case "skip-volatile-races":
                         this.Configuration.IsVolatileOperationRaceCheckingEnabled = false;
                         break;
+                    case "enable-memory-access-races":
+                        this.Configuration.IsMemoryAccessRaceCheckingEnabled = true;
+                        break;
+                    case "enable-control-flow-races":
+                        this.Configuration.IsControlFlowRaceCheckingEnabled = true;
+                        break;
                     case "fuzzing-fallback":
                         this.Configuration.IsSystematicFuzzingFallbackEnabled = false;
                         break;
@@ -1095,8 +1125,11 @@ namespace Microsoft.Coyote.Cli
                     case "outdir":
                         this.Configuration.OutputFilePath = result.GetValueOrDefault<string>();
                         break;
-                    case "assert-data-races":
-                        this.RewritingOptions.IsDataRaceCheckingEnabled = true;
+                    case "rewrite-memory-locations":
+                        this.RewritingOptions.IsRewritingMemoryLocations = (bool)result.GetValueOrDefault<bool>();
+                        break;
+                    case "rewrite-concurrent-collections":
+                        this.RewritingOptions.IsRewritingConcurrentCollections = (bool)result.GetValueOrDefault<bool>();
                         break;
                     case "rewrite-dependencies":
                         this.RewritingOptions.IsRewritingDependencies = true;
@@ -1104,8 +1137,8 @@ namespace Microsoft.Coyote.Cli
                     case "rewrite-unit-tests":
                         this.RewritingOptions.IsRewritingUnitTests = true;
                         break;
-                    case "rewrite-threads":
-                        this.RewritingOptions.IsRewritingThreads = true;
+                    case "assert-data-races":
+                        this.RewritingOptions.IsDataRaceCheckingEnabled = true;
                         break;
                     case "dump-il":
                         this.RewritingOptions.IsLoggingAssemblyContents = true;

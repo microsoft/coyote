@@ -37,6 +37,12 @@ namespace Microsoft.Coyote.Rewriting
         internal readonly IList<string> Dependencies;
 
         /// <summary>
+        /// True if rewriting for memory locations is enabled, else false.
+        /// </summary>
+        [DataMember]
+        internal readonly bool IsRewritingMemoryLocations;
+
+        /// <summary>
         /// True if rewriting for concurrent collections is enabled, else false.
         /// </summary>
         [DataMember]
@@ -61,12 +67,6 @@ namespace Microsoft.Coyote.Rewriting
         internal readonly bool IsRewritingUnitTests;
 
         /// <summary>
-        /// True if rewriting threads as controlled tasks.
-        /// </summary>
-        [DataMember]
-        internal readonly bool IsRewritingThreads;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AssemblySignature"/> class.
         /// </summary>
         internal AssemblySignature(AssemblyInfo assembly, HashSet<AssemblyInfo> dependencies,
@@ -75,11 +75,11 @@ namespace Microsoft.Coyote.Rewriting
             this.FullName = assembly.FullName;
             this.Version = rewriterVersion.ToString();
             this.Dependencies = new List<string>(dependencies.Select(dependency => dependency.FullName));
+            this.IsRewritingMemoryLocations = options.IsRewritingMemoryLocations;
             this.IsRewritingConcurrentCollections = options.IsRewritingConcurrentCollections;
             this.IsDataRaceCheckingEnabled = options.IsDataRaceCheckingEnabled;
             this.IsRewritingDependencies = options.IsRewritingDependencies;
             this.IsRewritingUnitTests = options.IsRewritingUnitTests;
-            this.IsRewritingThreads = options.IsRewritingThreads;
         }
 
         /// <summary>

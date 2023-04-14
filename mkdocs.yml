@@ -125,6 +125,8 @@ nav:
         - WithLockAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithLockAccessRaceCheckingEnabled.md
         - WithAtomicOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithAtomicOperationRaceCheckingEnabled.md
         - WithVolatileOperationRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithVolatileOperationRaceCheckingEnabled.md
+        - WithMemoryAccessRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithMemoryAccessRaceCheckingEnabled.md
+        - WithControlFlowRaceCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithControlFlowRaceCheckingEnabled.md
         - WithExecutionTraceCycleReductionEnabled: ref/Microsoft.Coyote/Configuration/WithExecutionTraceCycleReductionEnabled.md
         - WithPartialOrderSamplingEnabled: ref/Microsoft.Coyote/Configuration/WithPartialOrderSamplingEnabled.md
         - WithFailureOnMaxStepsBoundEnabled: ref/Microsoft.Coyote/Configuration/WithFailureOnMaxStepsBoundEnabled.md

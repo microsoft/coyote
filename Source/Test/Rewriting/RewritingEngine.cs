@@ -143,6 +143,12 @@ namespace Microsoft.Coyote.Rewriting
                 this.Passes.AddLast(new MSTestRewritingPass(this.Configuration, assemblies, this.LogWriter));
             }
 
+            if (this.Options.IsRewritingMemoryLocations)
+            {
+                // Add a pass that rewrites memory-access locations for checking fine-grained races.
+                this.Passes.AddLast(new MemoryAccessRewritingPass(assemblies, this.LogWriter));
+            }
+
             this.Passes.AddLast(new InterAssemblyInvocationRewritingPass(assemblies, this.LogWriter));
             this.Passes.AddLast(new UncontrolledInvocationRewritingPass(assemblies, this.LogWriter));
 

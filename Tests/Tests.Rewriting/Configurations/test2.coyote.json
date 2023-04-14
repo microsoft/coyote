@@ -1,6 +1,7 @@
 {
   "AssembliesPath": "../../../bin/$(TargetFramework)/Configurations",
   "OutputPath": "../../../bin/$(TargetFramework)/Configurations",
+  "IsRewritingMemoryLocations": false,
   "IsRewritingConcurrentCollections": false,
   "Assemblies": [
     "Test1.dll",

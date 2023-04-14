@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     this.LogWriter.LogDebug("............. [+] injected uncontrolled '{0}' invocation exception", invocationName);
 
-                    var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                    TypeDefinition providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
                     MethodReference providerMethod = isDataNondeterministic ?
                         providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledDataInvocationException)) :
                         providerType.Methods.FirstOrDefault(m => m.Name is nameof(ExceptionProvider.ThrowUncontrolledInvocationException));

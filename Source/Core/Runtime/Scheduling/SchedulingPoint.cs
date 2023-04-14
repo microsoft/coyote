@@ -71,6 +71,7 @@ namespace Microsoft.Coyote.Runtime
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None &&
                 runtime.Configuration.IsControlFlowRaceCheckingEnabled &&
+                !runtime.Configuration.IsMemoryAccessRaceCheckingEnabled &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)

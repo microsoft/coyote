@@ -1,3 +1,12 @@
+## v1.7.8
+- Added rewriting support for fine-grained race-checking at memory-access and control-flow branching
+  locations. Race-checking at memory-access locations can be enabled during testing by setting the
+  `Configuration.WithMemoryAccessRaceCheckingEnabled` option, whereas race-checking at control-flow
+  branching locations can be enabled during testing by setting the
+  `Configuration.WithControlFlowRaceCheckingEnabled` option. Rewriting is enabled by default to
+  support both features, which adds extra instructions in the rewritten DLLs, but this can be
+  disabled by setting the `IsRewritingMemoryLocations` rewriting option to `false`. 
+
 ## v1.7.7
 - Added rewriting support for `System.Threading.SpinWait` methods.
 

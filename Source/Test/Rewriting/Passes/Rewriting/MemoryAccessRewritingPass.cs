@@ -24,6 +24,19 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
+        protected internal override void VisitMethod(MethodDefinition method)
+        {
+            if (this.IsAsyncStateMachineType ||
+                method is null || method.IsConstructor ||
+                method.IsGetter || method.IsSetter)
+            {
+                return;
+            }
+
+            base.VisitMethod(method);
+        }
+
+        /// <inheritdoc/>
         protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method is null)
@@ -40,7 +53,15 @@ namespace Microsoft.Coyote.Rewriting
                     TypeDefinition providerType = this.Method.Module.ImportReference(typeof(SchedulingPoint)).Resolve();
                     MethodReference providerMethod = providerType.Methods.FirstOrDefault(m => m.Name is nameof(SchedulingPoint.InterleaveMemoryAccess));
                     providerMethod = this.Method.Module.ImportReference(providerMethod);
-                    this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
+
+                    if (instruction.Previous != null && instruction.Previous.OpCode == OpCodes.Volatile)
+                    {
+                        this.Processor.InsertBefore(instruction.Previous, Instruction.Create(OpCodes.Call, providerMethod));
+                    }
+                    else
+                    {
+                        this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
+                    }
 
                     this.IsMethodBodyModified = true;
                 }

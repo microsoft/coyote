@@ -27,7 +27,8 @@ namespace Microsoft.Coyote.Rewriting
         protected override void VisitMethodBody(MethodBody body)
         {
             if (this.IsCompilerGeneratedType || this.IsAsyncStateMachineType ||
-                this.Method is null || this.Method.IsConstructor || this.Method.IsGetter || this.Method.IsSetter)
+                this.Method is null || this.Method.IsConstructor ||
+                this.Method.IsGetter || this.Method.IsSetter)
             {
                 return;
             }

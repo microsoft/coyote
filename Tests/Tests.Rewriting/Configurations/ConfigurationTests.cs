@@ -34,7 +34,8 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
             Assert.Single(options.AssemblyPaths);
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
 
-            // Ensure this option defaults to true.
+            // Ensure these options defaults to true.
+            Assert.True(options.IsRewritingMemoryLocations);
             Assert.True(options.IsRewritingConcurrentCollections);
         }
 
@@ -60,7 +61,8 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test1.dll"),
                 options.AssemblyPaths.First());
 
-            // Ensure this option can be set to false.
+            // Ensure these options can be set to false.
+            Assert.False(options.IsRewritingMemoryLocations);
             Assert.False(options.IsRewritingConcurrentCollections);
         }
 

@@ -126,7 +126,7 @@ can fail due to an unhandled exception (500 error code) and this failure is nond
 issue is that the controller first checks if the account exists and, if it does, it then updates
 it. But after the "does account exists check", the delete request could run, deleting the account!
 The update then tries to run which triggers the bug! Interestingly the non-coyote test run rarely
-finds this bug although it is possible to see it with teh ImageGallery web front end if you use 
+finds this bug although it is possible to see it with the ImageGallery web front end if you use 
 multiple browser windows and do batch upload and delete operations in each.
 
 The `TestConcurrentAccountAndImageRequests` initializes the mocks and injects them into the ASP.NET

@@ -5,6 +5,8 @@ $root_dir = "$PSScriptRoot\.."
 $packages_path = "$root_dir\packages"
 $framework = "net7.0"
 
+Import-Module $PSScriptRoot\common.psm1 -Force
+
 # Build the GenDoc tool.
 $path = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath "Tools", "GenDoc"
 $project = Join-Path -Path $path -ChildPath "GenDoc.csproj"
@@ -70,3 +72,4 @@ Write-Host "Merging $toc..."
 # Now merge the new toc.
 
 & $gendoc merge "$root_dir\mkdocs.yml" "$target\toc.yml"
+& $gendoc merge "$root_dir\mkdocs-local.yml" "$target\toc.yml"

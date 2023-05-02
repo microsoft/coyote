@@ -1,4 +1,3 @@
-
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.models.ranges import FactorRange
@@ -28,11 +27,12 @@ def plots_with_error_bars(width, height, title, data_frame, color='#4080A0'):
         err_xs.append((x, x))
         err_ys.append((y - yerr, y + yerr))
 
-    source = {}
-    source['xs'] = xs
-    source['ys'] = ys
-    source['ids'] = ids  # so we can include it in the hover tooltip.
-    source['error'] = yerrs
+    source = ColumnDataSource(data={
+        'xs': xs,
+        'ys': ys,
+        'ids': ids,  # so we can include it in the hover tooltip.
+        'error': yerrs
+    })
 
     # plot them
     p.multi_line(err_xs, err_ys, color=color, line_width=0.5)
@@ -46,8 +46,3 @@ def plots_with_error_bars(width, height, title, data_frame, color='#4080A0'):
 
     p.hover.renderers = [c]
     show(p)
-
-
-def methods(obj):
-    print('Methods:')
-    print('\n'.join([x for x in dir(obj) if not x.startswith('_')]))

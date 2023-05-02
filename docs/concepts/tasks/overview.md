@@ -142,7 +142,8 @@ not systematically explore thread switching in the middle of these operations, t
 will not always find all data race conditions related to concurrent access on these collections.
 For example, two tasks calling `TryAdd` with the same key, one task will succeed the other will
 not, but Coyote will not systematically explore all possible orderings around this operation. You
-can help Coyote do better by using [ExploreContextSwitch](../../ref/Microsoft.Coyote.Tasks/Task.md).
+can help Coyote do better by using the
+[SchedulingPoint](../../ref/Microsoft.Coyote.Runtime/SchedulingPoint.md) class.
 
 ## Samples
 

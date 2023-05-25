@@ -1,139 +1,185 @@
 code {
-   border: none !important;
-   color: #F6F6F6 !important;
-   background: transparent !important;
-   font-size: 14px !important;
+  border: none !important;
+  color: #F6F6F6 !important;
+  background: transparent !important;
+  font-size: 14px !important;
 }
 
-th, td {
-   padding: 5px;
+th,
+td {
+  padding: 5px;
 }
 
 table {
-   margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 
- /***********************************************************************
+/***********************************************************************
  Top bar
  ***********************************************************************/
 
- .wm-top-brand {
-   color: #F6F6F6 !important;
- }
-
- .wm-top-link, .wm-top-link:hover, .wm-top-link:active, .wm-top-link:visited, .wm-top-link:focus {
-   color: #F6F6F6 !important;
- }
-
- .wm-top-version {
-   color: #F6F6F6 !important;
+.wm-top-brand {
+  color: #F6F6F6 !important;
 }
 
- .wm-top-tool-expanded {
- background-color: #4D4D4D !important;
- }
+.wm-top-link,
+.wm-top-link:hover,
+.wm-top-link:active,
+.wm-top-link:visited,
+.wm-top-link:focus {
+  color: #F6F6F6 !important;
+}
 
- /***********************************************************************
+.wm-top-version {
+  color: #F6F6F6 !important;
+}
+
+.wm-top-tool-expanded {
+  background-color: #4D4D4D !important;
+}
+
+/***********************************************************************
  Table of contents (side pane)
  ***********************************************************************/
 
- .wm-toctree a, .wm-toctree a:visited, .wm-toctree a:hover, .wm-toctree a:focus {
-   color: #F6F6F6 !important;
- }
+.wm-toctree a,
+.wm-toctree a:visited,
+.wm-toctree a:hover,
+.wm-toctree a:focus {
+  color: #F6F6F6 !important;
+}
 
- span.wm-toc-text {
-   color: #F6F6F6 !important;
- }
+span.wm-toc-text {
+  color: #F6F6F6 !important;
+}
 
- .wm-toc-li.wm-current, .wm-toc-li.wm-current:hover {
-   background-color: #4D4D4D;
-   color: #21252B !important;
- }
+.wm-toc-li.wm-current,
+.wm-toc-li.wm-current:hover {
+  background-color: #4D4D4D;
+  color: #21252B !important;
+}
 
- .wm-toc-li-nested.wm-page-toc {
-   border-left: 1px solid #F6F6F6 !important;
- }
- 
- button, .btn, .btn-sm, .btn-xs, .btn-default, #hist-fwd, #hist-back, #wm-toc-button, #wm-search-go {
-   color: #F6F6F6 !important;
- }
+.wm-toc-li-nested.wm-page-toc {
+  border-left: 1px solid #F6F6F6 !important;
+}
 
- button:focus, .btn:focus, .btn-sm:focus, .btn-xs:focus, .btn-default:focus, .btn-link:focus, #hist-fwd:focus, #hist-back:focus, #wm-toc-button:focus, #wm-search-go:focus {
-   color: #F6F6F6 !important;
-   border-color: #F6F6F6 !important;
- }
+button,
+.btn,
+.btn-sm,
+.btn-xs,
+.btn-default,
+#hist-fwd,
+#hist-back,
+#wm-toc-button,
+#wm-search-go {
+  color: #F6F6F6 !important;
+}
 
- button:hover, .btn:hover, .btn-sm:hover, .btn-xs:hover, .btn-default:hover, .btn-link:hover, #hist-fwd:hover, #hist-back:hover, #wm-toc-button:hover, #wm-search-go:hover {
-   color: #F6F6F6 !important;
-   border-color:#F6F6F6 !important;
- }
+button:focus,
+.btn:focus,
+.btn-sm:focus,
+.btn-xs:focus,
+.btn-default:focus,
+.btn-link:focus,
+#hist-fwd:focus,
+#hist-back:focus,
+#wm-toc-button:focus,
+#wm-search-go:focus {
+  color: #F6F6F6 !important;
+  border-color: #F6F6F6 !important;
+}
 
- .wm-article-nav {
-   color: #F6F6F6 !important;
- }
+button:hover,
+.btn:hover,
+.btn-sm:hover,
+.btn-xs:hover,
+.btn-default:hover,
+.btn-link:hover,
+#hist-fwd:hover,
+#hist-back:hover,
+#wm-toc-button:hover,
+#wm-search-go:hover {
+  color: #F6F6F6 !important;
+  border-color: #F6F6F6 !important;
+}
 
- .wm-article-nav > a, .wm-article-nav > a:visited, .wm-article-nav > a:hover, .wm-article-nav > a:focus {
-   color: #F6F6F6 !important;
- }
+.wm-article-nav {
+  color: #F6F6F6 !important;
+}
 
- /***********************************************************************
+.wm-article-nav>a,
+.wm-article-nav>a:visited,
+.wm-article-nav>a:hover,
+.wm-article-nav>a:focus {
+  color: #F6F6F6 !important;
+}
+
+/***********************************************************************
  * Dropdown search results
  ***********************************************************************/
 
- .search-text > b {
-   color: #F6F6F6 !important;
- }
+.search-text>b {
+  color: #F6F6F6 !important;
+}
 
 
- /***********************************************************************
+/***********************************************************************
  * The rest is taken from base.css from mkdocs.
  ***********************************************************************/
 
- h1 {
-   color: #F6F6F6 !important;
- }
-
- h2, h3, h4, h5, h6 {
-   color: #F6F6F6 !important;
- }
-
- hr {
-   border-top: 1px solid #aaa;
- }
-
- /* Custom Additions */
- input#mkdocs-search-query.form-control {
-   color: #F6F6F6 !important;
-   border: 1px solid #F6F6F6 !important;
- }
-
- a, a:visited, a:hover, a:focus {
- color: rgb(152, 198, 255) !important;
- text-decoration: none;
- outline: none;
- }
-
- .wm-top-title::before {
-  content:  url("https://microsoft.github.io/coyote/assets/images/logo_coyote.svg");
+h1 {
+  color: #F6F6F6 !important;
 }
 
-.wm-top-title   {
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #F6F6F6 !important;
+}
+
+hr {
+  border-top: 1px solid #aaa;
+}
+
+/* Custom Additions */
+input#mkdocs-search-query.form-control {
+  color: #F6F6F6 !important;
+  border: 1px solid #F6F6F6 !important;
+}
+
+a,
+a:visited,
+a:hover,
+a:focus {
+  color: #5A8EE2 !important;
+  text-decoration: none;
+  outline: none;
+}
+
+.wm-top-title::before {
+  content: url("https://microsoft.github.io/coyote/assets/images/logo_coyote.svg");
+}
+
+.wm-top-title {
   color: transparent !important;
   overflow: hidden;
 }
 
- .wm-page-content a {
-   color: rgb(152, 198, 255) !important;
-   text-decoration: none;
-   outline: none;
- }
+.wm-page-content a {
+  color: #5A8EE2 !important;
+  text-decoration: none;
+  outline: none;
+}
 
- .search-title {
-   color: #F6F6F6 !important;
- }
+.search-title {
+  color: #F6F6F6 !important;
+}
 
-html, body {
+html,
+body {
   height: 100%;
 }
 

@@ -562,7 +562,7 @@ namespace Microsoft.Coyote.SystematicTesting
         public bool TryEmitCoverageReports(string directory, string fileName, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
-            var coverageReporter = new CoverageReporter(this.TestReport.CoverageInfo);
+            var coverageReporter = new ActorCoverageReporter(this.TestReport.CoverageInfo);
 
             // Emit the coverage visualization, if it exists.
             if (this.Configuration.IsActivityCoverageReported)

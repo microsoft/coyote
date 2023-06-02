@@ -151,6 +151,14 @@ namespace Microsoft.Coyote.Rewriting
                 pass.VisitModule(module);
                 foreach (var type in module.GetTypes())
                 {
+                    if (type.CustomAttributes.Any(
+                        attr => attr.AttributeType.FullName == typeof(SkipRewritingAttribute).FullName))
+                    {
+                        // Skip rewriting this type.
+                        pass.LogWriter.LogDebug("......... Type: {0} [SKIP]", type.FullName);
+                        continue;
+                    }
+
                     pass.LogWriter.LogDebug("......... Type: {0}", type.FullName);
                     pass.VisitType(type);
                     foreach (var field in type.Fields.ToArray())

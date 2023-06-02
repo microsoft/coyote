@@ -109,7 +109,7 @@ table {
  }
 
  a, a:visited, a:hover, a:focus {
- color: rgb(152, 198, 255) !important;
+ color: #6294E4 !important;
  text-decoration: none;
  outline: none;
  }
@@ -124,7 +124,7 @@ table {
 }
 
  .wm-page-content a {
-   color: rgb(152, 198, 255) !important;
+   color: #6294E4 !important;
    text-decoration: none;
    outline: none;
  }

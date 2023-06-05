@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Tests.Common.Threads;
+using Microsoft.Coyote.Rewriting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,6 +15,23 @@ namespace Microsoft.Coyote.BugFinding.Tests
         public UncontrolledDeadlockTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        [SkipRewriting("Must not be rewritten.")]
+        private class ManualResetEventStub : IDisposable
+        {
+            private readonly ManualResetEvent Handle;
+
+            internal ManualResetEventStub(bool initialState)
+            {
+                this.Handle = new ManualResetEvent(initialState);
+            }
+
+            internal void Set() => this.Handle.Set();
+            internal void Reset() => this.Handle.Reset();
+            internal bool WaitOne() => this.Handle.WaitOne();
+
+            public void Dispose() => this.Handle.Dispose();
         }
 
         [Fact(Timeout = 5000)]

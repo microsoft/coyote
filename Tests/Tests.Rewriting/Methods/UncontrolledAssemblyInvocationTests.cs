@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Tests.Common.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,6 +13,91 @@ namespace Microsoft.Coyote.Rewriting.Tests
             : base(output)
         {
         }
+
+#pragma warning disable CA1000 // Do not declare static members on generic types
+        /// <summary>
+        /// Helper class for task rewriting tests.
+        /// </summary>
+        /// <remarks>
+        /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
+        /// </remarks>
+        [SkipRewriting("Must not be rewritten.")]
+        private static class TaskProvider
+        {
+            public static Task GetTask() => Task.CompletedTask;
+
+            public static Task<T> GetGenericTask<T>() => Task.FromResult<T>(default(T));
+
+            public static Task<T[]> GetGenericTaskArray<T>() => Task.FromResult<T[]>(default(T[]));
+
+            public static Task<(int, bool)> GetValueTupleTask() => Task.FromResult((0, true));
+
+            public static Task<(TLeft, TRight)> GetGenericValueTupleTask<TLeft, TRight>() =>
+                Task.FromResult((default(TLeft), default(TRight)));
+
+            public static Task<(T, (TLeft, TRight))> GetGenericNestedValueTupleTask<T, TLeft, TRight>() =>
+                Task.FromResult((default(T), (default(TLeft), default(TRight))));
+        }
+
+        /// <summary>
+        /// Helper class for task rewriting tests.
+        /// </summary>
+        /// <remarks>
+        /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
+        /// </remarks>
+        [SkipRewriting("Must not be rewritten.")]
+        private static class GenericTaskProvider<TLeft, TRight>
+        {
+            public static class Nested<TNested>
+            {
+                public static Task GetTask() => Task.CompletedTask;
+
+                public static Task<T> GetGenericMethodTask<T>() => Task.FromResult<T>(default(T));
+
+                public static Task<TRight> GetGenericTypeTask<T>() => Task.FromResult<TRight>(default(TRight));
+
+                public static Task<(T, TRight, TNested)> GetGenericValueTupleTask<T>() =>
+                    Task.FromResult((default(T), default(TRight), default(TNested)));
+            }
+        }
+
+#if NET
+        /// <summary>
+        /// Helper class for value task rewriting tests.
+        /// </summary>
+        /// <remarks>
+        /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
+        /// </remarks>
+        [SkipRewriting("Must not be rewritten.")]
+        private static class ValueTaskProvider
+        {
+            public static ValueTask GetTask() => ValueTask.CompletedTask;
+
+            public static ValueTask<T> GetGenericTask<T>() => ValueTask.FromResult<T>(default(T));
+
+            public static ValueTask<T[]> GetGenericTaskArray<T>() => ValueTask.FromResult<T[]>(default(T[]));
+        }
+
+        /// <summary>
+        /// Helper class for value task rewriting tests.
+        /// </summary>
+        /// <remarks>
+        /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
+        /// </remarks>
+        [SkipRewriting("Must not be rewritten.")]
+        private static class GenericValueTaskProvider<TLeft, TRight>
+        {
+            public static class Nested<TNested>
+            {
+                public static ValueTask GetTask() => ValueTask.CompletedTask;
+
+                public static ValueTask<T> GetGenericMethodTask<T>() => ValueTask.FromResult<T>(default(T));
+
+                public static ValueTask<TRight> GetGenericTypeTask<T>() => ValueTask.FromResult<TRight>(default(TRight));
+            }
+        }
+#endif
+#pragma warning restore CA1000 // Do not declare static members on generic types
 
         [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsAwaiter()

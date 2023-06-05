@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Rewriting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,6 +18,26 @@ namespace Microsoft.Coyote.Actors.Tests
 
         private const string EventGroup1 = "EventGroup1";
         private const string EventGroup2 = "EventGroup2";
+
+        [SkipRewriting("Must not be rewritten.")]
+        private class EventGroupCounter : AwaitableEventGroup<bool>
+        {
+            public int ExpectedCount;
+
+            public EventGroupCounter(int expected)
+            {
+                this.ExpectedCount = expected;
+            }
+
+            public override void SetResult(bool result)
+            {
+                var count = Interlocked.Decrement(ref this.ExpectedCount);
+                if (count is 0)
+                {
+                    base.SetResult(result);
+                }
+            }
+        }
 
         private class SetupEvent : Event
         {

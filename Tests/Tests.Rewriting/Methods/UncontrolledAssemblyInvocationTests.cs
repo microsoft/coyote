@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
         /// </remarks>
         [SkipRewriting("Must not be rewritten.")]
-        public static class TaskProvider
+        private static class TaskProvider
         {
             public static Task GetTask() => Task.CompletedTask;
 
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
         /// </remarks>
         [SkipRewriting("Must not be rewritten.")]
-        public static class GenericTaskProvider<TLeft, TRight>
+        private static class GenericTaskProvider<TLeft, TRight>
         {
             public static class Nested<TNested>
             {
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
         /// </remarks>
         [SkipRewriting("Must not be rewritten.")]
-        public static class ValueTaskProvider
+        private static class ValueTaskProvider
         {
             public static ValueTask GetTask() => ValueTask.CompletedTask;
 
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         /// We do not rewrite this class in purpose to test scenarios with partially rewritten code.
         /// </remarks>
         [SkipRewriting("Must not be rewritten.")]
-        public static class GenericValueTaskProvider<TLeft, TRight>
+        private static class GenericValueTaskProvider<TLeft, TRight>
         {
             public static class Nested<TNested>
             {

@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Attribute for declaring source code targets that must not be rewritten.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class SkipRewritingAttribute : Attribute
     {
         /// <summary>

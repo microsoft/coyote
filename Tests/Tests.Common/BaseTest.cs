@@ -12,6 +12,7 @@ using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
 using Xunit;
 using Xunit.Abstractions;
 using ActorRuntimeFactory = Microsoft.Coyote.Actors.RuntimeFactory;

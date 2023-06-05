@@ -5,10 +5,10 @@ using System.Text;
 using Microsoft.Coyote.Logging;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Tests.Common
+namespace Microsoft.Coyote.SystematicTesting.Frameworks.XUnit
 {
     /// <summary>
-    /// Logger that writes to the test output.
+    /// Logger that writes to the xUnit test output.
     /// </summary>
     public sealed class TestOutputLogger : ILogger
     {
@@ -63,6 +63,7 @@ namespace Microsoft.Coyote.Tests.Common
         public void Write(string format, params object[] args) =>
             this.Write(LogSeverity.Info, format, args);
 
+        /// <inheritdoc/>
         public void Write(LogSeverity severity, string value)
         {
             lock (this.Lock)

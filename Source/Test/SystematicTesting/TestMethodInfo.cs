@@ -75,6 +75,11 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
 
         /// <summary>
+        /// Responsible for routing all test framework output to the installed <see cref="ILogger"/>.
+        /// </summary>
+        private readonly Frameworks.ITestLog TestFrameworkLog;
+
+        /// <summary>
         /// Responsible for writing to the installed <see cref="ILogger"/>.
         /// </summary>
         private readonly LogWriter LogWriter;
@@ -111,7 +116,8 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
 #endif
 
-            (this.Method, this.Name) = GetTestMethod(this.Assembly, configuration.TestMethodName, logWriter);
+            (this.Method, this.Name, this.TestFrameworkLog) = GetTestMethod(
+                this.Assembly, configuration.TestMethodName, logWriter);
             this.InitMethod = GetTestSetupMethod(this.Assembly, typeof(TestInitAttribute), logWriter);
             this.DisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestDisposeAttribute), logWriter);
             this.IterationDisposeMethod = GetTestSetupMethod(this.Assembly, typeof(TestIterationDisposeAttribute), logWriter);
@@ -146,9 +152,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Returns the test method with the specified name. A test method must
         /// be annotated with the <see cref="TestAttribute"/> attribute.
         /// </summary>
-        private static (Delegate testMethod, string testName) GetTestMethod(Assembly assembly, string methodName, LogWriter logWriter)
+        private static (Delegate testMethod, string testName, Frameworks.ITestLog testLog) GetTestMethod(
+            Assembly assembly, string methodName, LogWriter logWriter)
         {
-            BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
             List<MethodInfo> testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly, logWriter);
 
             if (testMethods.Count > 0)
@@ -218,7 +226,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!((hasVoidReturnType || hasTaskReturnType) &&
                 (hasNoInputParameters || hasActorInputParameters || hasTaskInputParameters) &&
                 !testMethod.IsAbstract && !testMethod.IsVirtual && !testMethod.IsConstructor &&
-                !testMethod.ContainsGenericParameters && testMethod.IsPublic && testMethod.IsStatic))
+                !testMethod.ContainsGenericParameters && testMethod.IsPublic))
             {
                 throw new InvalidOperationException("Incorrect test method declaration. Please " +
                     $"make sure your [{typeof(TestAttribute).FullName}] methods have:\n\n" +
@@ -234,39 +242,75 @@ namespace Microsoft.Coyote.SystematicTesting
                     $"  async {typeof(Task).FullName}<T>\n");
             }
 
+            object testInstance = null;
+            Frameworks.ITestLog testLog = null;
+            if (!testMethod.IsStatic)
+            {
+                flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
+                ConstructorInfo[] constructors = testMethod.DeclaringType.GetConstructors(flags);
+                ConstructorInfo testConstructor = null;
+                if (constructors.Length > 0)
+                {
+                    // TODO: add support for more common unit testing frameworks (MSTest, NUnit).
+                    // If there is a constructor that takes an ITestOutputHelper from xUnit, then use that.
+                    testConstructor = constructors.FirstOrDefault(ctor =>
+                        ctor.GetParameters().Length is 1 &&
+                        ctor.GetParameters()[0].ParameterType == typeof(Xunit.Abstractions.ITestOutputHelper));
+                    // Else, try get the parameterless constructor.
+                    testConstructor ??= constructors.FirstOrDefault(ctor => ctor.GetParameters().Length is 0);
+                    if (testConstructor is null)
+                    {
+                        throw new InvalidOperationException($"Cannot detect a public parameterless constructor for " +
+                            $"type '{testMethod.DeclaringType.FullName}' containing test method '{testMethod.Name}'.");
+                    }
+                }
+
+                // Create an instance of the test class.
+                if (testConstructor.GetParameters().Length is 1 &&
+                    testConstructor.GetParameters()[0].ParameterType == typeof(Xunit.Abstractions.ITestOutputHelper))
+                {
+                    testLog = new Frameworks.XUnit.TestOutput();
+                    testInstance = testConstructor.Invoke(new[] { testLog });
+                }
+                else if (testConstructor.GetParameters().Length is 0)
+                {
+                    testInstance = Activator.CreateInstance(testMethod.DeclaringType);
+                }
+            }
+
             Delegate test;
             if (hasTaskReturnType)
             {
                 if (hasActorInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>));
+                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>), testInstance);
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>));
+                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testInstance);
                 }
                 else
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<Task>));
+                    test = testMethod.CreateDelegate(typeof(Func<Task>), testInstance);
                 }
             }
             else
             {
                 if (hasActorInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Action<IActorRuntime>));
+                    test = testMethod.CreateDelegate(typeof(Action<IActorRuntime>), testInstance);
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>));
+                    test = testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>), testInstance);
                 }
                 else
                 {
-                    test = testMethod.CreateDelegate(typeof(Action));
+                    test = testMethod.CreateDelegate(typeof(Action), testInstance);
                 }
             }
 
-            return (test, $"{testMethod.DeclaringType}.{testMethod.Name}");
+            return (test, $"{testMethod.DeclaringType}.{testMethod.Name}", testLog);
         }
 
         /// <summary>
@@ -403,6 +447,17 @@ namespace Microsoft.Coyote.SystematicTesting
             return null;
         }
 #endif
+
+        /// <summary>
+        /// Sets the test log writer.
+        /// </summary>
+        internal void SetTestLogWriter(LogWriter logWriter)
+        {
+            if (this.TestFrameworkLog != null)
+            {
+                this.TestFrameworkLog.LogWriter = logWriter;
+            }
+        }
 
         /// <summary>
         /// Releases any held resources.

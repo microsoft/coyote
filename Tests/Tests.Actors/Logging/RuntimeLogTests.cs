@@ -3,6 +3,7 @@
 
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;

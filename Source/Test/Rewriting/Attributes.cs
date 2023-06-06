@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Rewriting
     /// If this attribute is applied to an assembly manifest, it denotes that the
     /// assembly has been rewritten.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class RewritingSignatureAttribute : Attribute
     {
         /// <summary>
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Attribute for declaring source code targets that must not be rewritten.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
     public sealed class SkipRewritingAttribute : Attribute
     {
         /// <summary>

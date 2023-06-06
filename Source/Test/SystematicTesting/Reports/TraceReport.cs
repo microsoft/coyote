@@ -63,11 +63,21 @@ namespace Microsoft.Coyote.SystematicTesting
             report.Settings.PortfolioMode = configuration.PortfolioMode.ToString().ToLower();
             report.Settings.IsLivenessCheckingEnabled = configuration.IsLivenessCheckingEnabled;
             report.Settings.LivenessTemperatureThreshold = configuration.LivenessTemperatureThreshold;
+            report.Settings.IsCollectionAccessRaceCheckingEnabled = configuration.IsCollectionAccessRaceCheckingEnabled;
             report.Settings.IsLockAccessRaceCheckingEnabled = configuration.IsLockAccessRaceCheckingEnabled;
-            report.Settings.IsPartiallyControlledConcurrencyAllowed = configuration.IsPartiallyControlledConcurrencyAllowed;
-            report.Settings.IsPartiallyControlledDataNondeterminismAllowed = configuration.IsPartiallyControlledDataNondeterminismAllowed;
-            report.Settings.UncontrolledConcurrencyResolutionAttempts = configuration.UncontrolledConcurrencyResolutionAttempts;
-            report.Settings.UncontrolledConcurrencyResolutionDelay = configuration.UncontrolledConcurrencyResolutionDelay;
+            report.Settings.IsAtomicOperationRaceCheckingEnabled = configuration.IsAtomicOperationRaceCheckingEnabled;
+            report.Settings.IsVolatileOperationRaceCheckingEnabled =
+                configuration.IsVolatileOperationRaceCheckingEnabled;
+            report.Settings.IsMemoryAccessRaceCheckingEnabled = configuration.IsMemoryAccessRaceCheckingEnabled;
+            report.Settings.IsControlFlowRaceCheckingEnabled = configuration.IsControlFlowRaceCheckingEnabled;
+            report.Settings.IsPartiallyControlledConcurrencyAllowed =
+                configuration.IsPartiallyControlledConcurrencyAllowed;
+            report.Settings.IsPartiallyControlledDataNondeterminismAllowed =
+                configuration.IsPartiallyControlledDataNondeterminismAllowed;
+            report.Settings.UncontrolledConcurrencyResolutionAttempts =
+                configuration.UncontrolledConcurrencyResolutionAttempts;
+            report.Settings.UncontrolledConcurrencyResolutionDelay =
+                configuration.UncontrolledConcurrencyResolutionDelay;
 
             report.ReportTrace(scheduler.Trace.Clone());
             return report.ToJson();
@@ -104,11 +114,23 @@ namespace Microsoft.Coyote.SystematicTesting
                 configuration.PortfolioMode = PortfolioModeExtensions.FromString(report.Settings.PortfolioMode);
                 configuration.IsLivenessCheckingEnabled = report.Settings.IsLivenessCheckingEnabled;
                 configuration.LivenessTemperatureThreshold = report.Settings.LivenessTemperatureThreshold;
+                configuration.IsCollectionAccessRaceCheckingEnabled =
+                    report.Settings.IsCollectionAccessRaceCheckingEnabled;
                 configuration.IsLockAccessRaceCheckingEnabled = report.Settings.IsLockAccessRaceCheckingEnabled;
-                configuration.IsPartiallyControlledConcurrencyAllowed = report.Settings.IsPartiallyControlledConcurrencyAllowed;
-                configuration.IsPartiallyControlledDataNondeterminismAllowed = report.Settings.IsPartiallyControlledDataNondeterminismAllowed;
-                configuration.UncontrolledConcurrencyResolutionAttempts = report.Settings.UncontrolledConcurrencyResolutionAttempts;
-                configuration.UncontrolledConcurrencyResolutionDelay = report.Settings.UncontrolledConcurrencyResolutionDelay;
+                configuration.IsAtomicOperationRaceCheckingEnabled =
+                    report.Settings.IsAtomicOperationRaceCheckingEnabled;
+                configuration.IsVolatileOperationRaceCheckingEnabled =
+                    report.Settings.IsVolatileOperationRaceCheckingEnabled;
+                configuration.IsMemoryAccessRaceCheckingEnabled = report.Settings.IsMemoryAccessRaceCheckingEnabled;
+                configuration.IsControlFlowRaceCheckingEnabled = report.Settings.IsControlFlowRaceCheckingEnabled;
+                configuration.IsPartiallyControlledConcurrencyAllowed =
+                    report.Settings.IsPartiallyControlledConcurrencyAllowed;
+                configuration.IsPartiallyControlledDataNondeterminismAllowed =
+                    report.Settings.IsPartiallyControlledDataNondeterminismAllowed;
+                configuration.UncontrolledConcurrencyResolutionAttempts =
+                    report.Settings.UncontrolledConcurrencyResolutionAttempts;
+                configuration.UncontrolledConcurrencyResolutionDelay =
+                    report.Settings.UncontrolledConcurrencyResolutionDelay;
 
                 for (int idx = 0; idx < report.Steps.Count; idx++)
                 {
@@ -237,9 +259,34 @@ namespace Microsoft.Coyote.SystematicTesting
             public int LivenessTemperatureThreshold { get; set; }
 
             /// <summary>
+            /// Value specifying if checking races at collection accesses is enabled or not.
+            /// </summary>
+            public bool IsCollectionAccessRaceCheckingEnabled { get; set; }
+
+            /// <summary>
             /// Value specifying if checking races during lock accesses is enabled or not.
             /// </summary>
             public bool IsLockAccessRaceCheckingEnabled { get; set; }
+
+            /// <summary>
+            /// Value specifying if checking races at atomic operations is enabled or not.
+            /// </summary>
+            public bool IsAtomicOperationRaceCheckingEnabled { get; set; }
+
+            /// <summary>
+            /// Value specifying if checking races at volatile operations is enabled or not.
+            /// </summary>
+            public bool IsVolatileOperationRaceCheckingEnabled { get; set; }
+
+            /// <summary>
+            /// Value specifying if checking races at memory-access locations is enabled or not.
+            /// </summary>
+            public bool IsMemoryAccessRaceCheckingEnabled { get; set; }
+
+            /// <summary>
+            /// Value specifying if checking races at control-flow branching locations is enabled or not.
+            /// </summary>
+            public bool IsControlFlowRaceCheckingEnabled { get; set; }
 
             /// <summary>
             /// Value specifying if partially controlled concurrency is allowed or not.

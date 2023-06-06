@@ -382,16 +382,19 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtime = CoyoteRuntime.Create(this.Configuration, this.Scheduler, iterationLogWriter, logManager, actorRuntimeExtension);
                 actorRuntimeExtension.WithRuntime(runtime);
 
+                // Set the test method iteration logger, if one can be set.
+                methodInfo.SetTestLogWriter(iterationLogWriter);
+
                 this.InitializeCustomActorLogging(actorRuntimeExtension);
 
-                // Runs the test and waits for it to terminate.
+                // Run the test and waits for it to terminate.
                 Task task = runtime.RunTestAsync(methodInfo.Method, methodInfo.Name);
                 task.Wait();
 
                 // Turn off runtime logging for the current iteration.
                 iterationLogWriter.Close();
 
-                // Invokes the user-specified iteration disposal method.
+                // Invoke the user-specified iteration disposal method.
                 methodInfo.DisposeCurrentIteration();
 
                 // Invoke any registered callbacks at the end of this iteration.

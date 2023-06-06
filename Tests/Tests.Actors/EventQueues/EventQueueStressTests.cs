@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using Microsoft.Coyote.Tests.Common;
+using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
 using Xunit;
 using Xunit.Abstractions;
 

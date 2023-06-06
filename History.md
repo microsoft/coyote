@@ -1,3 +1,11 @@
+## v1.7.9
+- Added the `Microsoft.Coyote.Rewriting.SkipRewriting` attribute that allows skipping the rewriting
+  of a user-specified type.
+- The `coyote` command line tool can now invoke non-static xUnit tests that have no parameters and
+  their declaring type has a constructor without parameters or only has the
+  `Xunit.Abstractions.ITestOutputHelper` as parameter.
+- Fixed a bug with not reporting correctly actor coverage.
+
 ## v1.7.8
 - Added rewriting support for fine-grained race-checking at memory-access and control-flow branching
   locations. Race-checking at memory-access locations can be enabled during testing by setting the

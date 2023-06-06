@@ -283,30 +283,42 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (hasActorInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>)) :
+                        testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>), testInstance);
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>)) :
+                        testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testInstance);
                 }
                 else
                 {
-                    test = testMethod.CreateDelegate(typeof(Func<Task>), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Func<Task>)) :
+                        testMethod.CreateDelegate(typeof(Func<Task>), testInstance);
                 }
             }
             else
             {
                 if (hasActorInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Action<IActorRuntime>), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Action<IActorRuntime>)) :
+                        testMethod.CreateDelegate(typeof(Action<IActorRuntime>), testInstance);
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>)) :
+                        testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>), testInstance);
                 }
                 else
                 {
-                    test = testMethod.CreateDelegate(typeof(Action), testInstance);
+                    test = testInstance is null ?
+                        testMethod.CreateDelegate(typeof(Action)) :
+                        testMethod.CreateDelegate(typeof(Action), testInstance);
                 }
             }
 

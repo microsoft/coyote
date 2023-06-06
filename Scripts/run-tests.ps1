@@ -4,7 +4,7 @@
 param(
     [ValidateSet("net7.0", "net6.0", "netcoreapp3.1", "net462")]
     [string]$framework = "net7.0",
-    [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "standalone")]
+    [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "tools")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -23,6 +23,7 @@ $targets = [ordered]@{
     "testing" = "Tests.BugFinding"
     "actors" = "Tests.Actors"
     "actors-testing" = "Tests.Actors.BugFinding"
+    "tools" = "Tests.Tools"
 }
 
 # Find that paths to the installed .NET runtime.

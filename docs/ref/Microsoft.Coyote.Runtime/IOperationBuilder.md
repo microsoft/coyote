@@ -2,8 +2,6 @@
 
 Interface of a controlled operation builder.
 
-Interface of a controlled operation builder.
-
 ```csharp
 public interface IOperationBuilder
 ```

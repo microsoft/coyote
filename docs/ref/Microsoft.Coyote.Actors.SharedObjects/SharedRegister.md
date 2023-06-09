@@ -2,8 +2,6 @@
 
 A thread-safe register that can be shared in-memory by actors.
 
-A thread-safe register that can be shared in-memory by actors.
-
 ```csharp
 public static class SharedRegister
 ```
@@ -15,8 +13,6 @@ public static class SharedRegister
 | static [Create&lt;T&gt;](SharedRegister/Create.md)(…) | Creates a new shared register. |
 
 ## Remarks
-
-See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 
 See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 

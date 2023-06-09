@@ -2,8 +2,6 @@
 
 Engine that can rewrite a set of assemblies for systematic testing.
 
-Engine that can rewrite a set of assemblies for systematic testing.
-
 ```csharp
 public class RewritingEngine
 ```
@@ -15,8 +13,6 @@ public class RewritingEngine
 | static [IsAssemblyRewritten](RewritingEngine/IsAssemblyRewritten.md)(…) | Checks if the specified assembly has been already rewritten with the current version. |
 
 ## Remarks
-
-See [rewriting](/coyote/get-started/rewriting) for more information.
 
 See [rewriting](/coyote/get-started/rewriting) for more information.
 

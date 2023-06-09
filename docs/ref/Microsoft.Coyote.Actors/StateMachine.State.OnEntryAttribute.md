@@ -2,8 +2,6 @@
 
 Attribute for declaring what action to perform when entering a state.
 
-Attribute for declaring what action to perform when entering a state.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class OnEntryAttribute : Attribute

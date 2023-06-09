@@ -2,8 +2,6 @@
 
 A thread-safe register that can be shared in-memory by actors.
 
-A thread-safe register that can be shared in-memory by actors.
-
 ```csharp
 public class SharedRegister<T>
     where T : struct
@@ -11,7 +9,6 @@ public class SharedRegister<T>
 
 | parameter | description |
 | --- | --- |
-| T | The type of the value. |
 | T | The type of the value. |
 
 ## Public Members

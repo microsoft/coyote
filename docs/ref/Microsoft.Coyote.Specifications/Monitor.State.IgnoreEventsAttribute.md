@@ -2,8 +2,6 @@
 
 Attribute for declaring what events should be ignored in a monitor state.
 
-Attribute for declaring what events should be ignored in a monitor state.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class IgnoreEventsAttribute : Attribute

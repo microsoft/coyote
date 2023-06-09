@@ -2,8 +2,6 @@
 
 Logger that writes to the xUnit test output.
 
-Logger that writes to the xUnit test output.
-
 ```csharp
 public sealed class TestOutputLogger : ILogger
 ```

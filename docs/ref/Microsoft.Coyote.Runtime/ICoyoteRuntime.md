@@ -2,8 +2,6 @@
 
 Interface that exposes base runtime methods for Coyote.
 
-Interface that exposes base runtime methods for Coyote.
-
 ```csharp
 public interface ICoyoteRuntime : IDisposable
 ```

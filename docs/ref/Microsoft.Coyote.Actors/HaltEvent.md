@@ -2,8 +2,6 @@
 
 The halt event.
 
-The halt event.
-
 ```csharp
 public sealed class HaltEvent : Event
 ```

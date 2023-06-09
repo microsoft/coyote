@@ -2,8 +2,6 @@
 
 Attribute for declaring which action should be invoked to handle a dequeued event of the specified type.
 
-Attribute for declaring which action should be invoked to handle a dequeued event of the specified type.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 protected sealed class OnEventDoActionAttribute : Attribute

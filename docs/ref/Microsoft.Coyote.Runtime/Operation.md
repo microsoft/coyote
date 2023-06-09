@@ -2,8 +2,6 @@
 
 Provides a set of static methods for instrumenting concurrency primitives that can then be controlled during testing.
 
-Provides a set of static methods for instrumenting concurrency primitives that can then be controlled during testing.
-
 ```csharp
 public static class Operation
 ```
@@ -27,8 +25,6 @@ public static class Operation
 | static [TryReset](Operation/TryReset.md)(…) | Tries to reset the the operation with the specified id so that it can be reused. This is only allowed if the operation is already completed. |
 
 ## Remarks
-
-These methods are thread-safe and no-op unless the test engine is attached.
 
 These methods are thread-safe and no-op unless the test engine is attached.
 

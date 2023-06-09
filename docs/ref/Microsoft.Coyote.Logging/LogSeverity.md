@@ -2,8 +2,6 @@
 
 The severity of the log message being provided to the [`ILogger`](./ILogger.md).
 
-The severity of the log message being provided to the [`ILogger`](./ILogger.md).
-
 ```csharp
 public enum LogSeverity
 ```

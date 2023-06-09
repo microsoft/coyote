@@ -2,8 +2,6 @@
 
 Interface that allows an external module to track what is happening in the [`ICoyoteRuntime`](./ICoyoteRuntime.md).
 
-Interface that allows an external module to track what is happening in the [`ICoyoteRuntime`](./ICoyoteRuntime.md).
-
 ```csharp
 public interface IRuntimeLog
 ```
@@ -23,8 +21,6 @@ public interface IRuntimeLog
 | [OnRandom](IRuntimeLog/OnRandom.md)(…) | Invoked when the specified controlled nondeterministic boolean result has been obtained. (2 methods) |
 
 ## Remarks
-
-See [Logging](/coyote/concepts/actors/logging) for more information.
 
 See [Logging](/coyote/concepts/actors/logging) for more information.
 

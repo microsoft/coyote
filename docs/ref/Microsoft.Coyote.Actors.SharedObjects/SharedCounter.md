@@ -2,8 +2,6 @@
 
 A thread-safe counter that can be shared in-memory by actors.
 
-A thread-safe counter that can be shared in-memory by actors.
-
 ```csharp
 public class SharedCounter
 ```
@@ -21,8 +19,6 @@ public class SharedCounter
 | virtual [Increment](SharedCounter/Increment.md)() | Increments the shared counter. |
 
 ## Remarks
-
-See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 
 See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 

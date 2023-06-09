@@ -2,8 +2,6 @@
 
 Provides methods for creating or accessing a [`ICoyoteRuntime`](./ICoyoteRuntime.md) runtime.
 
-Provides methods for creating or accessing a [`ICoyoteRuntime`](./ICoyoteRuntime.md) runtime.
-
 ```csharp
 public static class RuntimeProvider
 ```

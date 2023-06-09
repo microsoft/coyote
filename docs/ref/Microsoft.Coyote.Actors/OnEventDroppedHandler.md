@@ -2,8 +2,6 @@
 
 Handles the [`OnEventDropped`](./IActorRuntime/OnEventDropped.md) event.
 
-Handles the [`OnEventDropped`](./IActorRuntime/OnEventDropped.md) event.
-
 ```csharp
 public delegate void OnEventDroppedHandler(Event e, ActorId target);
 ```

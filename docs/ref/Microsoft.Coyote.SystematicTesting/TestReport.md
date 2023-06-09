@@ -2,8 +2,6 @@
 
 Report containing information from a test run.
 
-Report containing information from a test run.
-
 ```csharp
 public class TestReport
 ```

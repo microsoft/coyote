@@ -2,8 +2,6 @@
 
 Attribute for declaring that a state of a monitor is the start one.
 
-Attribute for declaring that a state of a monitor is the start one.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class StartAttribute : Attribute

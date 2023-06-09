@@ -2,8 +2,6 @@
 
 Represents a pseudo-random value generator, which is an algorithm that produces a sequence of values that meet certain statistical requirements for randomness. During systematic testing, the generation of random values is controlled, which allows the runtime to explore combinations of choices to find bugs.
 
-Represents a pseudo-random value generator, which is an algorithm that produces a sequence of values that meet certain statistical requirements for randomness. During systematic testing, the generation of random values is controlled, which allows the runtime to explore combinations of choices to find bugs.
-
 ```csharp
 public class Generator
 ```
@@ -17,8 +15,6 @@ public class Generator
 | [NextInteger](Generator/NextInteger.md)(…) | Returns a random integer, that can be controlled during testing. |
 
 ## Remarks
-
-See [Program non-determinism](/coyote/concepts/non-determinism) for more information.
 
 See [Program non-determinism](/coyote/concepts/non-determinism) for more information.
 

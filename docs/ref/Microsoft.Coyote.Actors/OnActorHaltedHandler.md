@@ -2,8 +2,6 @@
 
 Handles the [`OnActorHalted`](./IActorRuntime/OnActorHalted.md) event.
 
-Handles the [`OnActorHalted`](./IActorRuntime/OnActorHalted.md) event.
-
 ```csharp
 public delegate void OnActorHaltedHandler(ActorId id);
 ```

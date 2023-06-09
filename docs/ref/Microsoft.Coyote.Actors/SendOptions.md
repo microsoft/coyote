@@ -2,8 +2,6 @@
 
 Represents a send event configuration that is used during testing.
 
-Represents a send event configuration that is used during testing.
-
 ```csharp
 public class SendOptions
 ```

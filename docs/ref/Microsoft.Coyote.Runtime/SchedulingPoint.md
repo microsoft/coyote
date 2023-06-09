@@ -2,8 +2,6 @@
 
 Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing.
 
-Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing.
-
 ```csharp
 public static class SchedulingPoint
 ```
@@ -21,8 +19,6 @@ public static class SchedulingPoint
 | static [Yield](SchedulingPoint/Yield.md)() | Attempts to yield execution to another controlled operation. |
 
 ## Remarks
-
-These methods are thread-safe and no-op unless the test engine is attached.
 
 These methods are thread-safe and no-op unless the test engine is attached.
 

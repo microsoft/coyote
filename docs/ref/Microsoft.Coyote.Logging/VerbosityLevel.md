@@ -2,8 +2,6 @@
 
 The level of verbosity used during logging.
 
-The level of verbosity used during logging.
-
 ```csharp
 public enum VerbosityLevel
 ```

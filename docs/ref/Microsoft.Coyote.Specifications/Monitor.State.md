@@ -2,8 +2,6 @@
 
 Abstract class representing a state.
 
-Abstract class representing a state.
-
 ```csharp
 public abstract class State
 ```

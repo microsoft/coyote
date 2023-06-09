@@ -2,8 +2,6 @@
 
 Stores information about a timer that can send timeout events to its owner actor.
 
-Stores information about a timer that can send timeout events to its owner actor.
-
 ```csharp
 public class TimerInfo : IEquatable<TimerInfo>
 ```
@@ -22,8 +20,6 @@ public class TimerInfo : IEquatable<TimerInfo>
 | override [ToString](TimerInfo/ToString.md)() | Returns a string that represents the current instance. |
 
 ## Remarks
-
-See [Using timers in actors](/coyote/concepts/actors/timers) for more information.
 
 See [Using timers in actors](/coyote/concepts/actors/timers) for more information.
 

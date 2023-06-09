@@ -2,8 +2,6 @@
 
 Abstract class representing a state.
 
-Abstract class representing a state.
-
 ```csharp
 public abstract class State
 ```
@@ -23,8 +21,6 @@ public abstract class State
 | class [StartAttribute](StateMachine.State.StartAttribute.md) | Attribute for declaring the state that a state machine transitions upon creation. |
 
 ## Remarks
-
-See [State machines](/coyote/concepts/actors/state-machines) for more information.
 
 See [State machines](/coyote/concepts/actors/state-machines) for more information.
 

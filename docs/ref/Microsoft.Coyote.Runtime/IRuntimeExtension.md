@@ -2,8 +2,6 @@
 
 Interface for a Coyote runtime extension.
 
-Interface for a Coyote runtime extension.
-
 ```csharp
 public interface IRuntimeExtension : IDisposable
 ```

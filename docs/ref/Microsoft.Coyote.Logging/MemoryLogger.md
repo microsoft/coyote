@@ -2,8 +2,6 @@
 
 Logger that writes all messages to memory.
 
-Logger that writes all messages to memory.
-
 ```csharp
 public sealed class MemoryLogger : ILogger
 ```
@@ -19,8 +17,6 @@ public sealed class MemoryLogger : ILogger
 | [WriteLine](MemoryLogger/WriteLine.md)(…) | Writes an informational string to the log. (10 methods) |
 
 ## Remarks
-
-This class is thread-safe.
 
 This class is thread-safe.
 

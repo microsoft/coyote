@@ -2,8 +2,6 @@
 
 Attribute for declaring the initialization method to be called before testing starts.
 
-Attribute for declaring the initialization method to be called before testing starts.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class TestInitAttribute : Attribute

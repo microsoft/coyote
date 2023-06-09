@@ -2,8 +2,6 @@
 
 Attribute for declaring source code targets that must not be rewritten.
 
-Attribute for declaring source code targets that must not be rewritten.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public sealed class SkipRewritingAttribute : Attribute

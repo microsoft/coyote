@@ -2,8 +2,6 @@
 
 The wild card event.
 
-The wild card event.
-
 ```csharp
 public sealed class WildCardEvent : Event
 ```

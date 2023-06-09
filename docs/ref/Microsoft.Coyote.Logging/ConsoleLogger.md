@@ -2,8 +2,6 @@
 
 Logger that writes text to the console.
 
-Logger that writes text to the console.
-
 ```csharp
 public sealed class ConsoleLogger : ILogger
 ```

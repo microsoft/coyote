@@ -2,8 +2,6 @@
 
 Abstract class used for representing a group of related states.
 
-Abstract class used for representing a group of related states.
-
 ```csharp
 public abstract class StateGroup
 ```

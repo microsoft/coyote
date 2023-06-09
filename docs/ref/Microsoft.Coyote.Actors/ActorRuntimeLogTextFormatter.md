@@ -2,8 +2,6 @@
 
 This class implements [`IActorRuntimeLog`](./IActorRuntimeLog.md) and generates output in a a human readable text format.
 
-This class implements [`IActorRuntimeLog`](./IActorRuntimeLog.md) and generates output in a a human readable text format.
-
 ```csharp
 public class ActorRuntimeLogTextFormatter : RuntimeLogTextFormatter, IActorRuntimeLog
 ```
@@ -37,8 +35,6 @@ public class ActorRuntimeLogTextFormatter : RuntimeLogTextFormatter, IActorRunti
 | virtual [OnWaitEvent](ActorRuntimeLogTextFormatter/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks
-
-See [Logging](/coyote/concepts/actors/logging) for more information.
 
 See [Logging](/coyote/concepts/actors/logging) for more information.
 

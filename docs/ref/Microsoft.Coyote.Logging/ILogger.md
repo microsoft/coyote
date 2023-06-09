@@ -2,8 +2,6 @@
 
 A logger is used to capture messages, warnings and errors.
 
-A logger is used to capture messages, warnings and errors.
-
 ```csharp
 public interface ILogger : IDisposable
 ```

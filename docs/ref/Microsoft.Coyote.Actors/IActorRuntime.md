@@ -2,8 +2,6 @@
 
 Interface that exposes runtime methods for creating and executing actors.
 
-Interface that exposes runtime methods for creating and executing actors.
-
 ```csharp
 public interface IActorRuntime : ICoyoteRuntime
 ```
@@ -25,8 +23,6 @@ public interface IActorRuntime : ICoyoteRuntime
 | [SendEvent](IActorRuntime/SendEvent.md)(…) | Sends an asynchronous [`Event`](./Event.md) to an actor. |
 
 ## Remarks
-
-See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
 
 See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
 

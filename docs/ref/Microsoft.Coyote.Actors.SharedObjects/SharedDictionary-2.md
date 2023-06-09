@@ -2,16 +2,12 @@
 
 A thread-safe dictionary that can be shared in-memory by actors.
 
-A thread-safe dictionary that can be shared in-memory by actors.
-
 ```csharp
 public class SharedDictionary<TKey, TValue>
 ```
 
 | parameter | description |
 | --- | --- |
-| TKey | The type of the key. |
-| TValue | The type of the value. |
 | TKey | The type of the key. |
 | TValue | The type of the value. |
 

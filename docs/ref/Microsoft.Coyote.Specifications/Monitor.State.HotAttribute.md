@@ -2,8 +2,6 @@
 
 Attribute for declaring a hot monitor state. A monitor that is in a hot state violates a liveness property.
 
-Attribute for declaring a hot monitor state. A monitor that is in a hot state violates a liveness property.
-
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class HotAttribute : Attribute

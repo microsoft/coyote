@@ -2,8 +2,6 @@
 
 This class implements [`IRuntimeLog`](./IRuntimeLog.md) and generates output in a a human readable text format.
 
-This class implements [`IRuntimeLog`](./IRuntimeLog.md) and generates output in a a human readable text format.
-
 ```csharp
 public class RuntimeLogTextFormatter : IRuntimeLog
 ```
@@ -30,8 +28,6 @@ public class RuntimeLogTextFormatter : IRuntimeLog
 | [Logger](RuntimeLogTextFormatter/Logger.md) { get; } | Used for logging runtime messages. |
 
 ## Remarks
-
-See [Logging](/coyote/concepts/actors/logging) for more information.
 
 See [Logging](/coyote/concepts/actors/logging) for more information.
 

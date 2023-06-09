@@ -2,8 +2,6 @@
 
 An exception that is thrown by the Coyote runtime.
 
-An exception that is thrown by the Coyote runtime.
-
 ```csharp
 public class RuntimeException : Exception
 ```

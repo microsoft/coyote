@@ -2,8 +2,6 @@
 
 Handles the [`OnFailure`](./ICoyoteRuntime/OnFailure.md) event.
 
-Handles the [`OnFailure`](./ICoyoteRuntime/OnFailure.md) event.
-
 ```csharp
 public delegate void OnFailureHandler(Exception ex);
 ```

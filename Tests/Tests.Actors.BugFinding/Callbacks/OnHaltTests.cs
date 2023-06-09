@@ -253,5 +253,37 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
                 r.CreateActor(typeof(M4Sender), new E(m));
             });
         }
+
+        public class M5 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            [DeferEvents(typeof(WildCardEvent))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.RaiseEvent(HaltEvent.Instance);
+            }
+
+            protected override Task OnHaltAsync(Event e)
+            {
+                this.Assert(false, "Reached test assertion.");
+                return Task.CompletedTask;
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestOnHaltAsyncWithWildCardInStateMachine()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M5));
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
     }
 }

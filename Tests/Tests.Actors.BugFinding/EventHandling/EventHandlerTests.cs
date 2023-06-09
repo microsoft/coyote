@@ -845,7 +845,13 @@ namespace Microsoft.Coyote.Actors.BugFinding.Tests
 
             private void HandleUnitEvent()
             {
-                this.Assert(this.Test is false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached the Active state.");
+            }
+
+            protected override Task OnHaltAsync(Event e)
+            {
+                this.Assert(false, "Reached test assertion.");
+                return Task.CompletedTask;
             }
         }
 

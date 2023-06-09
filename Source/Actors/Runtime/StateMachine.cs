@@ -122,20 +122,29 @@ namespace Microsoft.Coyote.Actors
         /// Raises the specified <see cref="Event"/> at the end of the current action.
         /// </summary>
         /// <remarks>
-        /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// This event is not handled until the action that calls this method returns control back to the
+        /// Coyote runtime, unless it is a <see cref='HaltEvent'/>, which is handled immediately. It is
+        /// handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="e">The event to raise.</param>
         protected void RaiseEvent(Event e)
         {
-            this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked RaiseEvent while halting.", this.Id);
-            this.Assert(e != null, "{0} is raising a null event.", this.Id);
-            this.CheckDanglingTransition();
-            this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
+            if (e is HaltEvent)
+            {
+                // Special case for the halt event, which is handled immediately.
+                this.RaiseHaltEvent();
+            }
+            else
+            {
+                this.Assert(this.CurrentStatus is ActorExecutionStatus.Active, "{0} invoked RaiseEvent while halting.", this.Id);
+                this.Assert(e != null, "{0} is raising a null event.", this.Id);
+                this.CheckDanglingTransition();
+                this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
+            }
         }
 
         /// <summary>
@@ -150,9 +159,9 @@ namespace Microsoft.Coyote.Actors
         /// this.RaiseEvent(new E());
         /// </code>
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -173,9 +182,9 @@ namespace Microsoft.Coyote.Actors
         /// this.RaiseEvent(new E());
         /// </code>
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -194,7 +203,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <remarks>
         /// Pushing a state does not pop the current <see cref="State"/>, instead it pushes the specified <see cref="State"/> on the active state stack
-        /// so that you can have multiple active states.  In this case events can be handled by all active states on the stack.
+        /// so that you can have multiple active states. In this case events can be handled by all active states on the stack.
         /// This is shorthand for the following code:
         /// <code>
         /// class Event E { }
@@ -202,9 +211,9 @@ namespace Microsoft.Coyote.Actors
         /// this.RaiseEvent(new E());
         /// </code>
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -218,7 +227,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <remarks>
         /// Pushing a state does not pop the current <see cref="State"/>, instead it pushes the specified <see cref="State"/> on the active state stack
-        /// so that you can have multiple active states.  In this case events can be handled by all active states on the stack.
+        /// so that you can have multiple active states. In this case events can be handled by all active states on the stack.
         /// This is shorthand for the following code:
         /// <code>
         /// class Event E { }
@@ -226,9 +235,9 @@ namespace Microsoft.Coyote.Actors
         /// this.RaiseEvent(new E());
         /// </code>
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -249,10 +258,10 @@ namespace Microsoft.Coyote.Actors
         /// Popping a state pops the current <see cref="State"/> that was pushed using <see cref='RaisePushStateEvent'/> or an OnEventPushStateAttribute.
         /// An assert is raised if there are no states left to pop.
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         ///
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -268,10 +277,10 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <remarks>
         /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
         ///
         /// Only one of the following can be called per action:
-        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
@@ -640,7 +649,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void DoStatePush(State state)
         {
-            this.EventHandlerMap = state.EventHandlers;  // non-inheritable handlers.
+            // Non-inheritable handlers.
+            this.EventHandlerMap = state.EventHandlers;
 
             this.StateStack.Push(state);
             this.CurrentState = state.GetType();
@@ -822,7 +832,7 @@ namespace Microsoft.Coyote.Actors
             Type stateMachineType = this.GetType();
 
             // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
-            // for this type.  First make sure we have one and only one lockable object for this type.
+            // for this type. First make sure we have one and only one lockable object for this type.
             object syncObject = ActionCacheLocks.GetOrAdd(stateMachineType, _ => new object());
 
             // Locking this syncObject ensures only one thread enters the initialization code to update
@@ -1062,7 +1072,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Returns the formatted strint to be used with a fair nondeterministic boolean choice.
+        /// Returns the formatted string to be used with a fair nondeterministic boolean choice.
         /// </summary>
         private protected override string FormatFairRandom(string callerMemberName, string callerFilePath, int callerLineNumber) =>
             string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}_{3}_{4}",
@@ -1080,7 +1090,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Defines the <see cref="StateMachine"/> transition that is the
-        /// result of executing an event handler.  Transitions are created by using
+        /// result of executing an event handler. Transitions are created by using
         /// <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaiseEvent"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// The Transition is processed by the Coyote runtime when
@@ -1181,8 +1191,8 @@ namespace Microsoft.Coyote.Actors
             public State State;
 
             /// <summary>
-            /// Records where this State is in the StateStack.  This information is needed to implement WildCardEvent
-            /// semantics.  A specific Handler closest to the top of the stack (higher StackDepth) wins over a
+            /// Records where this State is in the StateStack. This information is needed to implement WildCardEvent
+            /// semantics. A specific Handler closest to the top of the stack (higher StackDepth) wins over a
             /// WildCardEvent further down the stack (lower StackDepth).
             /// </summary>
             public int StackDepth;

@@ -6,6 +6,7 @@
 | --- | --- |
 | class [RewritingEngine](./Microsoft.Coyote.Rewriting/RewritingEngine.md) | Engine that can rewrite a set of assemblies for systematic testing. |
 | class [RewritingSignatureAttribute](./Microsoft.Coyote.Rewriting/RewritingSignatureAttribute.md) | Attribute that contains a signature identifying the parameters used during binary rewriting of an assembly. |
+| class [SkipRewritingAttribute](./Microsoft.Coyote.Rewriting/SkipRewritingAttribute.md) | Attribute for declaring source code targets that must not be rewritten. |
 
 ## Microsoft.Coyote.SystematicTesting namespace
 
@@ -17,6 +18,12 @@
 | class [TestInitAttribute](./Microsoft.Coyote.SystematicTesting/TestInitAttribute.md) | Attribute for declaring the initialization method to be called before testing starts. |
 | class [TestIterationDisposeAttribute](./Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttribute.md) | Attribute for declaring a cleanup method to be called when each test iteration terminates. |
 | class [TestReport](./Microsoft.Coyote.SystematicTesting/TestReport.md) | Report containing information from a test run. |
+
+## Microsoft.Coyote.SystematicTesting.Frameworks.XUnit namespace
+
+| public type | description |
+| --- | --- |
+| class [TestOutputLogger](./Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger.md) | Logger that writes to the xUnit test output. |
 
 ## Microsoft.Coyote.Web namespace
 

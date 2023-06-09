@@ -2,6 +2,8 @@
 
 Attribute for declaring what action to perform when exiting a monitor state.
 
+Attribute for declaring what action to perform when exiting a monitor state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class OnExitAttribute : Attribute

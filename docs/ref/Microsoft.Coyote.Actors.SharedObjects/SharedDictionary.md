@@ -2,6 +2,8 @@
 
 A thread-safe dictionary that can be shared in-memory by actors.
 
+A thread-safe dictionary that can be shared in-memory by actors.
+
 ```csharp
 public static class SharedDictionary
 ```
@@ -13,6 +15,8 @@ public static class SharedDictionary
 | static [Create&lt;TKey,TValue&gt;](SharedDictionary/Create.md)(…) | Creates a new shared dictionary. (2 methods) |
 
 ## Remarks
+
+See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 
 See also [Sharing Objects](/coyote/concepts/actors/sharing-objects).
 

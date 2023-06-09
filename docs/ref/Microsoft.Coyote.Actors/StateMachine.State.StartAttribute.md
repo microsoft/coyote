@@ -2,6 +2,8 @@
 
 Attribute for declaring the state that a state machine transitions upon creation.
 
+Attribute for declaring the state that a state machine transitions upon creation.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class StartAttribute : Attribute

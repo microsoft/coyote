@@ -2,6 +2,8 @@
 
 Unique actor id.
 
+Unique actor id.
+
 ```csharp
 public sealed class ActorId : IComparable<ActorId>, IEquatable<ActorId>
 ```

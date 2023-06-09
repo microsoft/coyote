@@ -2,6 +2,8 @@
 
 Middleware for controlling an ASP.NET web application during testing.
 
+Middleware for controlling an ASP.NET web application during testing.
+
 ```csharp
 public static class RequestControllerMiddlewareExtensions
 ```

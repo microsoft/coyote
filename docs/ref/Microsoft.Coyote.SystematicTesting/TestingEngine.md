@@ -2,6 +2,8 @@
 
 Testing engine that can run a controlled concurrency test using a specified configuration.
 
+Testing engine that can run a controlled concurrency test using a specified configuration.
+
 ```csharp
 public sealed class TestingEngine : IDisposable
 ```

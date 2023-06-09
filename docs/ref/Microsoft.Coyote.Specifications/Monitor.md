@@ -2,6 +2,8 @@
 
 Abstract class representing a specification monitor.
 
+Abstract class representing a specification monitor.
+
 ```csharp
 public abstract class Monitor
 ```
@@ -30,6 +32,8 @@ public abstract class Monitor
 | [RaiseGotoStateEvent&lt;TState&gt;](Monitor/RaiseGotoStateEvent.md)() | Raise a special event that performs a goto state operation at the end of the current action. |
 
 ## Remarks
+
+See [Specifications Overview](/coyote/concepts/specifications) for more information.
 
 See [Specifications Overview](/coyote/concepts/specifications) for more information.
 

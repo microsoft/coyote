@@ -2,6 +2,8 @@
 
 Attribute for declaring what action a monitor should perform when it receives an event in a given state.
 
+Attribute for declaring what action a monitor should perform when it receives an event in a given state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 protected sealed class OnEventDoActionAttribute : Attribute

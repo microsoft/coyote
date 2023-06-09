@@ -2,6 +2,8 @@
 
 Attribute for declaring a goto state transition when the state machine is in the specified state and dequeues an event of the specified type.
 
+Attribute for declaring a goto state transition when the state machine is in the specified state and dequeues an event of the specified type.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 protected sealed class OnEventGotoStateAttribute : Attribute

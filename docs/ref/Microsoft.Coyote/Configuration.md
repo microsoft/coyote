@@ -2,6 +2,8 @@
 
 The Coyote runtime and testing configuration.
 
+The Coyote runtime and testing configuration.
+
 ```csharp
 public class Configuration
 ```

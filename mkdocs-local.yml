@@ -674,6 +674,10 @@ nav:
         - RewritingSignatureAttribute: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/RewritingSignatureAttribute.md
         - Version: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Version.md
         - Signature: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Signature.md
+      - SkipRewritingAttribute:
+        - Overview: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute.md
+        - SkipRewritingAttribute: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute/SkipRewritingAttribute.md
+        - Reason: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute/Reason.md
       - RewritingEngine:
         - Overview: ref/Microsoft.Coyote.Rewriting/RewritingEngine.md
         - IsAssemblyRewritten: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten.md
@@ -742,6 +746,14 @@ nav:
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport.md
         - ReadableTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace.md
         - ReproducibleTrace: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace.md
+    - Microsoft.Coyote.SystematicTesting.Frameworks.XUnit:
+      - Namespace Overview: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnitNamespace.md
+      - TestOutputLogger:
+        - Overview: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger.md
+        - Write: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/Write.md
+        - WriteLine: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/WriteLine.md
+        - Dispose: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/Dispose.md
+        - TestOutputLogger: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/TestOutputLogger.md
     - Microsoft.Coyote.Web:
       - Namespace Overview: ref/Microsoft.Coyote.WebNamespace.md
       - RequestControllerMiddlewareExtensions:

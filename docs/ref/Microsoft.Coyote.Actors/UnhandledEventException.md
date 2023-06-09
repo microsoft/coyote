@@ -2,6 +2,8 @@
 
 Signals that an [`Actor`](./Actor.md) received an unhandled event.
 
+Signals that an [`Actor`](./Actor.md) received an unhandled event.
+
 ```csharp
 public sealed class UnhandledEventException : RuntimeException
 ```

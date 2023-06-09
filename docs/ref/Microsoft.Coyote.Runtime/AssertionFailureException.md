@@ -2,6 +2,8 @@
 
 The exception that is thrown by the Coyote runtime upon assertion failure.
 
+The exception that is thrown by the Coyote runtime upon assertion failure.
+
 ```csharp
 public sealed class AssertionFailureException : RuntimeException
 ```

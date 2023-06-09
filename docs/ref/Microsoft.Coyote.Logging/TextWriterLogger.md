@@ -2,6 +2,8 @@
 
 Logger that writes to the specified TextWriter.
 
+Logger that writes to the specified TextWriter.
+
 ```csharp
 public sealed class TextWriterLogger : ILogger
 ```

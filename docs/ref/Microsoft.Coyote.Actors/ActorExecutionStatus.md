@@ -2,6 +2,8 @@
 
 The execution status of an actor.
 
+The execution status of an actor.
+
 ```csharp
 public enum ActorExecutionStatus
 ```

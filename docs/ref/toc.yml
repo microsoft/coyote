@@ -1064,6 +1064,13 @@ toc:
           link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Version
         - name: Signature
           link: ref/Microsoft.Coyote.Rewriting/RewritingSignatureAttribute/Signature
+      - name: SkipRewritingAttribute
+        link: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute
+        subfolderitems:
+        - name: SkipRewritingAttribute
+          link: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute/SkipRewritingAttribute
+        - name: Reason
+          link: ref/Microsoft.Coyote.Rewriting/SkipRewritingAttribute/Reason
       - name: RewritingEngine
         link: ref/Microsoft.Coyote.Rewriting/RewritingEngine
         subfolderitems:
@@ -1192,6 +1199,20 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
         - name: ReproducibleTrace
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace
+    - name: Microsoft.Coyote.SystematicTesting.Frameworks.XUnit
+      link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnitNamespace
+      subfolderitems:
+      - name: TestOutputLogger
+        link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger
+        subfolderitems:
+        - name: Write
+          link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/Write
+        - name: WriteLine
+          link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/WriteLine
+        - name: Dispose
+          link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/Dispose
+        - name: TestOutputLogger
+          link: ref/Microsoft.Coyote.SystematicTesting.Frameworks.XUnit/TestOutputLogger/TestOutputLogger
     - name: Microsoft.Coyote.Web
       link: ref/Microsoft.Coyote.WebNamespace
       subfolderitems:

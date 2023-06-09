@@ -2,6 +2,8 @@
 
 Defines a timer elapsed event that is sent from a timer to the actor that owns the timer.
 
+Defines a timer elapsed event that is sent from a timer to the actor that owns the timer.
+
 ```csharp
 public class TimerElapsedEvent : Event
 ```
@@ -14,6 +16,8 @@ public class TimerElapsedEvent : Event
 | [Info](TimerElapsedEvent/Info.md) { get; } | Stores information about the timer. |
 
 ## Remarks
+
+See [Using timers in actors](/coyote/concepts/actors/timers) for more information.
 
 See [Using timers in actors](/coyote/concepts/actors/timers) for more information.
 

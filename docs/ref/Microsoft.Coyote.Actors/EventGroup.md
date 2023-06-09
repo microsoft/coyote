@@ -2,6 +2,8 @@
 
 An object representing a long running context involving one or more actors. An `EventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `EventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](./Actor/CurrentEventGroup.md)). In this way an `EventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `EventGroup` using their [`CurrentEventGroup`](./Actor/CurrentEventGroup.md) property.
 
+An object representing a long running context involving one or more actors. An `EventGroup` can be provided as an optional argument in CreateActor and SendEvent. If a null `EventGroup` is passed then the `EventGroup` is inherited from the sender or target actors (based on which ever one has a [`CurrentEventGroup`](./Actor/CurrentEventGroup.md)). In this way an `EventGroup` is automatically communicated to all actors involved in completing some larger operation. Each actor involved can find the `EventGroup` using their [`CurrentEventGroup`](./Actor/CurrentEventGroup.md) property.
+
 ```csharp
 public class EventGroup
 ```

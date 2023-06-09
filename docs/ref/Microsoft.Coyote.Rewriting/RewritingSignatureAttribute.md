@@ -2,6 +2,8 @@
 
 Attribute that contains a signature identifying the parameters used during binary rewriting of an assembly.
 
+Attribute that contains a signature identifying the parameters used during binary rewriting of an assembly.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Assembly)]
 public sealed class RewritingSignatureAttribute : Attribute
@@ -16,6 +18,8 @@ public sealed class RewritingSignatureAttribute : Attribute
 | readonly [Version](RewritingSignatureAttribute/Version.md) | The version of Coyote used for the rewriting. |
 
 ## Remarks
+
+If this attribute is applied to an assembly manifest, it denotes that the assembly has been rewritten.
 
 If this attribute is applied to an assembly manifest, it denotes that the assembly has been rewritten.
 

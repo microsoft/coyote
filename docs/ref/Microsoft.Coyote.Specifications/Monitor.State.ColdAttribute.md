@@ -2,6 +2,8 @@
 
 Attribute for declaring a cold monitor state. A monitor that is in a cold state satisfies a liveness property.
 
+Attribute for declaring a cold monitor state. A monitor that is in a cold state satisfies a liveness property.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class ColdAttribute : Attribute

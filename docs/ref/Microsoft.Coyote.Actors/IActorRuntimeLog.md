@@ -2,6 +2,8 @@
 
 Interface that allows an external module to track what is happening in the [`IActorRuntime`](./IActorRuntime.md).
 
+Interface that allows an external module to track what is happening in the [`IActorRuntime`](./IActorRuntime.md).
+
 ```csharp
 public interface IActorRuntimeLog : IRuntimeLog
 ```
@@ -34,6 +36,8 @@ public interface IActorRuntimeLog : IRuntimeLog
 | [OnWaitEvent](IActorRuntimeLog/OnWaitEvent.md)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
 ## Remarks
+
+See [Logging](/coyote/concepts/actors/logging) for more information.
 
 See [Logging](/coyote/concepts/actors/logging) for more information.
 

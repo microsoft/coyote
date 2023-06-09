@@ -2,6 +2,8 @@
 
 Attribute for declaring what events should be deferred in a state.
 
+Attribute for declaring what events should be deferred in a state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class DeferEventsAttribute : Attribute

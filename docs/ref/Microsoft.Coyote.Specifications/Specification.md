@@ -2,6 +2,8 @@
 
 Provides static methods that are useful for writing specifications and interacting with the systematic testing engine.
 
+Provides static methods that are useful for writing specifications and interacting with the systematic testing engine.
+
 ```csharp
 public static class Specification
 ```
@@ -17,6 +19,8 @@ public static class Specification
 | static [RegisterStateHashingFunction](Specification/RegisterStateHashingFunction.md)(…) | Registers a new state hashing function that contributes to computing a representation of the program state in each scheduling step. |
 
 ## Remarks
+
+See [Specifications Overview](/coyote/concepts/specifications) for more information.
 
 See [Specifications Overview](/coyote/concepts/specifications) for more information.
 

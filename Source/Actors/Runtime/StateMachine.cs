@@ -122,8 +122,9 @@ namespace Microsoft.Coyote.Actors
         /// Raises the specified <see cref="Event"/> at the end of the current action.
         /// </summary>
         /// <remarks>
-        /// This event is not handled until the action that calls this method returns control back
-        /// to the Coyote runtime. It is handled before any other events are dequeued from the inbox.
+        /// This event is not handled until the action that calls this method returns control back to the
+        /// Coyote runtime, unless it is a <see cref='HaltEvent'/>, which is handled immediately. It is
+        /// handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
         /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaisePushStateEvent{T}"/> or
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.

@@ -2,6 +2,8 @@
 
 Type that implements a state machine actor. Inherit from this class to declare a custom actor with states, state transitions and event handlers.
 
+Type that implements a state machine actor. Inherit from this class to declare a custom actor with states, state transitions and event handlers.
+
 ```csharp
 public abstract class StateMachine : Actor
 ```
@@ -29,6 +31,8 @@ public abstract class StateMachine : Actor
 | [RaisePushStateEvent&lt;TState&gt;](StateMachine/RaisePushStateEvent.md)() | Raise a special event that performs a push state operation at the end of the current action. |
 
 ## Remarks
+
+See [State machines](/coyote/concepts/actors/state-machines) for more information.
 
 See [State machines](/coyote/concepts/actors/state-machines) for more information.
 

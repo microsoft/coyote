@@ -2,6 +2,8 @@
 
 Attribute for declaring what events should be ignored in a state.
 
+Attribute for declaring what events should be ignored in a state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class IgnoreEventsAttribute : Attribute

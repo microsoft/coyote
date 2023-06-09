@@ -2,6 +2,8 @@
 
 Type that implements an actor. Inherit from this class to declare a custom actor.
 
+Type that implements an actor. Inherit from this class to declare a custom actor.
+
 ```csharp
 public abstract class Actor
 ```
@@ -47,6 +49,8 @@ public abstract class Actor
 | class [OnEventDoActionAttribute](Actor.OnEventDoActionAttribute.md) | Attribute for declaring which action should be invoked to handle a dequeued event of the specified type. |
 
 ## Remarks
+
+See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
 
 See [Programming model: asynchronous actors](/coyote/concepts/actors/overview) for more information.
 

@@ -2,6 +2,8 @@
 
 Attribute for declaring what action to perform when exiting a state.
 
+Attribute for declaring what action to perform when exiting a state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class)]
 protected sealed class OnExitAttribute : Attribute

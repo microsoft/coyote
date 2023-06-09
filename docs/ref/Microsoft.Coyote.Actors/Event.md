@@ -2,6 +2,8 @@
 
 Abstract class representing an event that can be send to an [`Actor`](./Actor.md) or [`StateMachine`](./StateMachine.md).
 
+Abstract class representing an event that can be send to an [`Actor`](./Actor.md) or [`StateMachine`](./StateMachine.md).
+
 ```csharp
 public abstract class Event
 ```

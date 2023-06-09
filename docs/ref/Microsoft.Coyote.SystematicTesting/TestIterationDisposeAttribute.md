@@ -2,6 +2,8 @@
 
 Attribute for declaring a cleanup method to be called when each test iteration terminates.
 
+Attribute for declaring a cleanup method to be called when each test iteration terminates.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class TestIterationDisposeAttribute : Attribute

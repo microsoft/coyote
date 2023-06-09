@@ -2,6 +2,8 @@
 
 Attribute for declaring which state a monitor should transition to when it receives an event in a given state.
 
+Attribute for declaring which state a monitor should transition to when it receives an event in a given state.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 protected sealed class OnEventGotoStateAttribute : Attribute

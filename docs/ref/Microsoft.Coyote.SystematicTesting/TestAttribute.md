@@ -2,6 +2,8 @@
 
 Attribute for declaring the entry point to a Coyote test.
 
+Attribute for declaring the entry point to a Coyote test.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class TestAttribute : Attribute

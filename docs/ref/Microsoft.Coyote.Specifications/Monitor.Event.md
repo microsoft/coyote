@@ -2,6 +2,8 @@
 
 Abstract class representing an event that can be send to a [`Monitor`](./Monitor.md).
 
+Abstract class representing an event that can be send to a [`Monitor`](./Monitor.md).
+
 ```csharp
 public abstract class Event
 ```

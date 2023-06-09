@@ -2,6 +2,8 @@
 
 Attribute for declaring which action should be invoked when the state machine is in the specified state to handle a dequeued event of the specified type.
 
+Attribute for declaring which action should be invoked when the state machine is in the specified state to handle a dequeued event of the specified type.
+
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 protected sealed class OnEventDoActionAttribute : Attribute

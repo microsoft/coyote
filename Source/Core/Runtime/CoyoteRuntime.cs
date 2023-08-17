@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Map from unique controlled thread names to their corresponding operations.
         /// </summary>
-        private readonly ConcurrentDictionary<string, ControlledOperation> ControlledThreads;
+        private readonly ConcurrentDictionary<int, ControlledOperation> ControlledThreads;
 
         /// <summary>
         /// Map from controlled tasks to their corresponding operations.
@@ -321,7 +321,7 @@ namespace Microsoft.Coyote.Runtime
             this.ThreadPool = new ConcurrentDictionary<ulong, Thread>();
             this.OperationMap = new Dictionary<ulong, ControlledOperation>();
             this.PendingStartOperationMap = new Dictionary<ControlledOperation, ManualResetEventSlim>();
-            this.ControlledThreads = new ConcurrentDictionary<string, ControlledOperation>();
+            this.ControlledThreads = new ConcurrentDictionary<int, ControlledOperation>();
             this.ControlledTasks = new ConcurrentDictionary<Task, ControlledOperation>();
             this.UncontrolledTasks = new ConcurrentDictionary<Task, string>();
             this.UncontrolledInvocations = new HashSet<string>();
@@ -584,7 +584,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // TODO: optimize by reusing threads instead of creating a new thread each time?
                 this.ThreadPool.AddOrUpdate(op.Id, thread, (id, oldThread) => thread);
-                this.ControlledThreads.AddOrUpdate(thread.Name, op, (threadName, oldOp) => op);
+                this.ControlledThreads.AddOrUpdate(thread.ManagedThreadId, op, (threadName, oldOp) => op);
                 return thread;
             }
         }
@@ -1529,13 +1529,7 @@ namespace Microsoft.Coyote.Runtime
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
-                ControlledOperation op = null;
-                string name = thread?.Name;
-                if (!string.IsNullOrEmpty(name))
-                {
-                    this.ControlledThreads.TryGetValue(name, out op);
-                }
-
+                this.ControlledThreads.TryGetValue(thread.ManagedThreadId, out var op);
                 return op;
             }
         }
@@ -1833,8 +1827,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private bool IsThreadControlled(Thread thread)
         {
-            string name = thread?.Name;
-            return name != null && this.ControlledThreads.ContainsKey(name);
+            return this.ControlledThreads.ContainsKey(thread.ManagedThreadId);
         }
 
         /// <summary>

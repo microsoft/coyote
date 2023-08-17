@@ -98,5 +98,23 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestThreadRenamed()
+        {
+            this.Test(() =>
+                {
+                    bool isDone = false;
+                    Thread t = new Thread(() => { isDone = true; });
+                    t.Name = "CustomName";
+                    t.Start();
+                    t.Join();
+
+                    Specification.Assert(isDone, "The expected condition was not satisfied.");
+                    Specification.Assert(t.ThreadState is ThreadState.Stopped, "State of thread '{0}' is {1} instead of Stopped.",
+                        t.ManagedThreadId, t.ThreadState);
+                },
+                configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
     }
 }

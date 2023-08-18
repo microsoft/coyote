@@ -9,6 +9,26 @@ authors:
 - family-names: "Lal"
   given-names: "Akash"
 title: "Coyote"
-version: 1.7.9
+version: 1.7.10
 date-released: 2020-02-28
 url: "https://github.com/microsoft/coyote"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Deligiannis"
+    given-names: "Pantazis"
+    orcid: "https://orcid.org/0000-0001-7582-4520"
+  - family-names: "Senthilnathan"
+    given-names: "Aditya"
+  - family-names: "Nayyar"
+    given-names: "Fahad"
+  - family-names: "Lovett"
+    given-names: "Chris"
+  - family-names: "Lal"
+    given-names: "Akash"
+  doi: "10.1007/978-3-031-30820-8_26"
+  journal: "International Conference on Tools and Algorithms for the Construction and Analysis of Systems"
+  start: 433
+  end: 452
+  title: "Industrial-Strength Controlled Concurrency Testing for Programs With Coyote"
+  year: 2023

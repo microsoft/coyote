@@ -1,3 +1,7 @@
+## v1.7.10
+- Fixed an issue with `Actor` not halting as expected in certain scenarios after explicitly raising
+  a `HaltEvent` event.
+
 ## v1.7.9
 - Added the `Microsoft.Coyote.Rewriting.SkipRewriting` attribute that allows skipping the rewriting
   of a user-specified type.

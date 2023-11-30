@@ -33,8 +33,8 @@ file, which looks like this example:
 
 ```json
 {
-  "AssembliesPath": "bin/net7.0",
-  "OutputPath": "bin/net7.0/rewritten",
+  "AssembliesPath": "bin/net8.0",
+  "OutputPath": "bin/net8.0/rewritten",
   "Assemblies": [
     "BoundedBuffer.dll",
     "MyOtherLibrary.dll",

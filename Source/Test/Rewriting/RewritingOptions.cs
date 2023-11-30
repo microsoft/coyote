@@ -308,7 +308,9 @@ namespace Microsoft.Coyote.Rewriting
             {
                 if (tokens[0] == ".NETCoreApp")
                 {
-                    resolvedTargetFramework = tokens[1] is "v7.0" ? "net7.0" :
+                    resolvedTargetFramework = 
+                        tokens[1] is "v8.0" ? "net8.0" :
+                        tokens[1] is "v7.0" ? "net7.0" :
                         tokens[1] is "v6.0" ? "net6.0" :
                         tokens[1] is "v3.1" ? "netcoreapp3.1" :
                         resolvedTargetFramework;
@@ -331,10 +333,10 @@ namespace Microsoft.Coyote.Rewriting
         /// {
         ///     // The directory with the assemblies to rewrite. This path is relative
         ///     // to this configuration file.
-        ///     "AssembliesPath": "./bin/net7.0",
+        ///     "AssembliesPath": "./bin/net8.0",
         ///     // The output directory where rewritten assemblies are placed. This path
         ///     // is relative to this configuration file.
-        ///     "OutputPath": "./bin/net7.0/RewrittenBinaries",
+        ///     "OutputPath": "./bin/net8.0/RewrittenBinaries",
         ///     // The assemblies to rewrite. The paths are relative to 'AssembliesPath'.
         ///     "Assemblies": [
         ///         "Example.exe"

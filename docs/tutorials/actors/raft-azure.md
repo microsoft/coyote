@@ -64,7 +64,7 @@ You can build the sample by following the instructions
 Now you can run the Raft.Azure application:
 
 ```plain
-"./Samples/bin/net7.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+"./Samples/bin/net8.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
 Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you

@@ -16,6 +16,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'>
+    <LangVersion>12.0</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net6.0'">
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
@@ -48,10 +51,15 @@
     <Net6Installed>false</Net6Installed>
     <Net6Installed Condition="$(GlobalVersion.StartsWith('6.0'))">true</Net6Installed>
     <Net6Installed Condition="'$(BUILD_NET6)'=='yes'">true</Net6Installed>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <Net7Supported Condition="'$(Net6Supported)'==''">true</Net6Supported>
+    <Net7Installed>false</Net7Installed>
+    <Net7Installed Condition="$(GlobalVersion.StartsWith('7.0'))">true</Net7Installed>
+    <Net7Installed Condition="'$(BUILD_NET7)'=='yes'">true</Net7Installed>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetStandard2Supported)'">$(TargetFrameworks);netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetCore31Installed)' and '$(NetCore31Supported)'">$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(Net6Installed)' and '$(Net6Supported)'">$(TargetFrameworks);net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(Net7Installed)' and '$(Net7Supported)'">$(TargetFrameworks);net7.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>

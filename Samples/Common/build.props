@@ -4,8 +4,8 @@
     <Product>CoyoteSamples</Product>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation.</Copyright>
-    <LangVersion>10.0</LangVersion>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <LangVersion>12.0</LangVersion>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <UseLocalCoyote>False</UseLocalCoyote>
     <UseLocalNugetPackages>False</UseLocalNugetPackages>
     <UseNugetPackages>True</UseNugetPackages>

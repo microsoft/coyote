@@ -617,7 +617,7 @@
     <Alias n="93" Id="(@1 @21 @44 Member=(Name=Create OverloadingParameters=[@43]))" />
     <Alias n="94" Id="(@1 @21 @44 Member=(Name=Update OverloadingParameters=[@43]))" />
     <Alias n="95" Id="(@1 @21 @67 Member=(Name=Store OverloadingParameters=[@76]))" />
-    <Alias n="96" Uri="Assembly=file:///C:/Program Files/dotnet/packs/Microsoft.NETCore.App.Ref/7.0.100/ref/net7.0/System.Runtime.dll" />
+    <Alias n="96" Uri="Assembly=file:///C:/Program Files/dotnet/packs/Microsoft.NETCore.App.Ref/7.0.100/ref/net8.0/System.Runtime.dll" />
     <Alias n="97" Id="(@96 Namespace=System Type=String)" />
     <Alias n="98" Id="OverloadingParameters=[@97]" />
     <Alias n="99" Id="(@1 @21 @44 Member=(Name=Get @98))" />
@@ -869,13 +869,13 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryClient.dll" />
-    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryClient.dll" />
-    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryTests.dll" />
-    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryTests.dll" />
-    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\ImageGallery\bin\Debug\net7.0\ImageGallery.dll" />
-    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/ImageGallery/bin/Debug/net7.0/ImageGallery.dll" />
-    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net7.0\ImageGalleryService.dll" />
-    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net7.0/ImageGalleryService.dll" />
+    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net8.0\ImageGalleryClient.dll" />
+    <Path Id="a5b18c87-5523-45ca-ad7c-ba9f9cd970f0.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net8.0/ImageGalleryClient.dll" />
+    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net8.0\ImageGalleryTests.dll" />
+    <Path Id="b61697f0-7146-4c6a-8b6f-22f47731b799.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net8.0/ImageGalleryTests.dll" />
+    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\ImageGallery\bin\Debug\net8.0\ImageGallery.dll" />
+    <Path Id="c1ca4fb9-7c59-425f-b437-04cc48ba1988.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/ImageGallery/bin/Debug/net8.0/ImageGallery.dll" />
+    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPath" Value="C:\git\microsoft\CoyoteSamples\ImageGalleryAspNet\bin\net8.0\ImageGalleryService.dll" />
+    <Path Id="e140c75e-8fc0-4c25-a744-2172d419a56a.OutputPathUri" Value="file:///C:/git/microsoft/CoyoteSamples/ImageGalleryAspNet/bin/net8.0/ImageGalleryService.dll" />
   </Paths>
 </DirectedGraph>

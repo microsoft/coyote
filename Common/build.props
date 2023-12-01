@@ -16,13 +16,13 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <LangVersion>12.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net6.0'">
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net7.0' and '$(TargetFramework)' != 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net8.0' and '$(TargetFramework)' != 'net7.0' and '$(TargetFramework)' != 'net6.0'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -51,7 +51,7 @@
     <Net6Installed>false</Net6Installed>
     <Net6Installed Condition="$(GlobalVersion.StartsWith('6.0'))">true</Net6Installed>
     <Net6Installed Condition="'$(BUILD_NET6)'=='yes'">true</Net6Installed>
-    <Net7Supported Condition="'$(Net6Supported)'==''">true</Net6Supported>
+    <Net7Supported Condition="'$(Net7Supported)'==''">true</Net7Supported>
     <Net7Installed>false</Net7Installed>
     <Net7Installed Condition="$(GlobalVersion.StartsWith('7.0'))">true</Net7Installed>
     <Net7Installed Condition="'$(BUILD_NET7)'=='yes'">true</Net7Installed>

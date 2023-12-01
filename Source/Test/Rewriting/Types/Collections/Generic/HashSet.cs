@@ -183,6 +183,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed to
         /// serialize a hash set object.
         /// </summary>
+#if NET8_0_OR_GREATER
+        [Obsolete("This method is obsolete due to BinaryFormatter obsoleted", DiagnosticId = "SYSLIB0051")]
+#endif
         public static void GetObjectData(SystemGenerics.HashSet<T> instance, SerializationInfo info,
             StreamingContext context)
         {
@@ -376,6 +379,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             /// <summary>
             /// Initializes a new instance of the <see cref="Wrapper"/> class.
             /// </summary>
+#if NET8_0_OR_GREATER
+            [Obsolete("This method is obsolete due to BinaryFormatter obsoleted", DiagnosticId = "SYSLIB0051")]
+#endif
             internal Wrapper(SerializationInfo info, StreamingContext context)
                 : base(info, context) => this.Setup();
 

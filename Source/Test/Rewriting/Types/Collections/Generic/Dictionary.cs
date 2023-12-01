@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Runtime;
 using SystemGenerics = System.Collections.Generic;
@@ -246,6 +247,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
         /// Implements the <see cref="ISerializable"/> interface and returns the data needed
         /// to serialize the dictionary instance.
         /// </summary>
+#if NET8_0_OR_GREATER
+        [Obsolete("This method is obsolete due to BinaryFormatter obsoleted", DiagnosticId = "SYSLIB0051")]
+#endif
         public static void GetObjectData(SystemGenerics.Dictionary<TKey, TValue> instance,
             SerializationInfo info, StreamingContext context)
         {

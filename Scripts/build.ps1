@@ -28,6 +28,7 @@ $dotnet_sdk_path = FindDotNetSdkPath -dotnet $dotnet
 $version_net4 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
 $version_netcore31 = FindMatchingVersion -path $dotnet_sdk_path -version "3.1.0"
 $version_net6 = FindMatchingVersion -path $dotnet_sdk_path -version "6.0.0"
+$version_net7 = FindMatchingVersion -path $dotnet_sdk_path -version "7.0.0"
 $sdk_version = FindDotNetSdkVersion -dotnet_sdk_path $dotnet_sdk_path
 
 if ($null -eq $sdk_version) {
@@ -52,6 +53,11 @@ if ($ci.IsPresent) {
     if ($null -ne $version_net6 -and $version_net6 -ne $sdk_version) {
         # Build .NET 6.0 as well as the latest version.
         $extra_frameworks = $extra_frameworks + " /p:BUILD_NET6=yes"
+    }
+
+    if ($null -ne $version_net7 -and $version_net7 -ne $sdk_version) {
+        # Build .NET 6.0 as well as the latest version.
+        $extra_frameworks = $extra_frameworks + " /p:BUILD_NET7=yes"
     }
 }
 

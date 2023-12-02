@@ -56,7 +56,7 @@ if ($ci.IsPresent) {
     }
 
     if ($null -ne $version_net7 -and $version_net7 -ne $sdk_version) {
-        # Build .NET 6.0 as well as the latest version.
+        # Build .NET 7.0 as well as the latest version.
         $extra_frameworks = $extra_frameworks + " /p:BUILD_NET7=yes"
     }
 }

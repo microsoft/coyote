@@ -7,6 +7,8 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <RepositoryUrl>https://github.com/microsoft/coyote</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <!-- Add this since netcoreapp3.1 is out of support https://learn.microsoft.com/en-us/dotnet/core/tools/sdk-errors/netsdk1138 -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://microsoft.github.io/coyote/</PackageProjectUrl>

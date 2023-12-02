@@ -25,7 +25,7 @@ jobs:
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup NuGet.exe
         uses: NuGet/setup-nuget@v1
         with:
@@ -76,11 +76,15 @@ jobs:
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v1
+      - uses: actions/checkout@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            3.1.x
+            6.0.x
+            7.0.x
+            8.0.x
       - name: Download Coyote binaries
         uses: actions/download-artifact@v3
         with:

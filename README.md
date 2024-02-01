@@ -5,8 +5,6 @@
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
 ![CodeQL](https://github.com/microsoft/coyote/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 
-*- Note that Coyote is an open-source project that is provided "as-is". We are not able to provide any formal support. -*
-
 Coyote is a cross-platform library and tool for testing concurrent C# code and deterministically reproducing bugs.
 
 Using Coyote, you can easily test the *concurrency* and other *nondeterminism* in your C# code, by
@@ -82,15 +80,14 @@ command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/)
 to check out the Coyote [website](https://microsoft.github.io/coyote/) for tutorials, documentation,
 how-tos, samples and more information about the project. Enjoy!
 
-Note that Coyote is an open-source project that is provided "as-is". We are not able to provide
-any formal support.
-For Microsoft employees we have the [Friends of Coyote Teams
-channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47), which is an internal community that can help answer questions and
-learn from each other. Otherwise, please feel free to start a [discussion](https://github.com/microsoft/coyote/discussions)
-with us, open an [issue](https://github.com/microsoft/coyote/issues) on GitHub or provide a [PR](https://github.com/microsoft/coyote/pulls)
-contribution, thank you!
-
 Upgrading your `coyote` dependencies? Check the changelog [here](History.md).
+
+## Support
+
+Note that Coyote is an open-source project that is provided "as-is". We are not able to provide
+any formal support. For Microsoft employees we have the [Friends of Coyote Teams
+channel](https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47), which is an internal community that can help answer questions and
+learn from each other.
 
 ## Contributing
 

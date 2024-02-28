@@ -145,6 +145,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     {
                         runtime.NotifyUncontrolledSynchronizationInvocation("EventWaitHandle.Reset");
                     }
+                    else if (runtime.Configuration.IsLockAccessRaceCheckingEnabled)
+                    {
+                        runtime.ScheduleNextOperation(current, SchedulingPointType.Interleave);
+                    }
 
                     this.IsSignaled = false;
                     return true;

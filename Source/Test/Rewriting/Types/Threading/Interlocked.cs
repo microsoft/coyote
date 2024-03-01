@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
         /// <summary>
         /// Sets a platform-specific handle or pointer to a specified value and returns the
         /// original value, as an atomic operation.
@@ -346,7 +346,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
         /// <summary>
         /// Compares two platform-specific handles or pointers for equality and, if they
         /// are equal, replaces the first one.

@@ -29,7 +29,7 @@ the [coyote tool](../get-started/using-coyote.md) as follows, setting N steps as
 From the [samples](https://github.com/microsoft/coyote/tree/main/Samples) directory:
 
 ```plain
-coyote test ./Samples/bin/net7.0/CoffeeMachineActors.dll -i 10 -ms 200 -s portfolio
+coyote test ./Samples/bin/net8.0/CoffeeMachineActors.dll -i 10 -ms 200 -s portfolio
 ```
 
 The `coyote test` tool will produce output, ending with something like the following:
@@ -52,7 +52,7 @@ averaging 457 steps. Going by this output, let's decide to increase the bound to
 `coyote test`.
 
 ```plain
-coyote test ./Samples/bin/net7.0/CoffeeMachineActors.dll -i 10 -ms 1000 -s portfolio
+coyote test ./Samples/bin/net8.0/CoffeeMachineActors.dll -i 10 -ms 1000 -s portfolio
 ```
 
 This time the output will be something like:

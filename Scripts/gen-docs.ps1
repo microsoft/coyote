@@ -3,7 +3,7 @@
 
 $root_dir = "$PSScriptRoot\.."
 $packages_path = "$root_dir\packages"
-$framework = "net7.0"
+$framework = "net8.0"
 
 Import-Module $PSScriptRoot\common.psm1 -Force
 

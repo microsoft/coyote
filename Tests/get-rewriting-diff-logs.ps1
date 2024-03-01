@@ -3,7 +3,7 @@
 
 Import-Module $PSScriptRoot/../Scripts/common.psm1 -Force
 
-$framework = "net7.0"
+$framework = "net8.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
     "rewriting-helpers" = "Tests.Rewriting.Helpers"

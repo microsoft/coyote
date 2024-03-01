@@ -34,6 +34,7 @@ $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime
 
 # Restore the local ilverify tool.
 &dotnet tool restore
+&dotnet tool list
 $ilverify = "dotnet ilverify"
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')

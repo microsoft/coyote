@@ -34,6 +34,7 @@ $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime
 
 # NOTE: we do some hacks to get around a known issue with dotnet tool
 # command being available after locally being restored.
+# Example: https://github.com/dotnet/sdk/issues/11820
 # Restore the local ilverify tool.
 &dotnet nuget locals all --clear
 &dotnet tool restore

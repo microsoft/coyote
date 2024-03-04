@@ -1,5 +1,5 @@
 {
-  "AssembliesPath": "./bin/net7.0",
+  "AssembliesPath": "./bin/net8.0",
   "OutputPath": "./bin/coyote",
   "Assemblies": [
       "ImageGalleryService.dll",

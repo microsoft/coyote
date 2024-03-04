@@ -1,3 +1,6 @@
+## vNext
+- Added support for the `net8.0` target framework.
+
 ## v1.7.10
 - Fixed an issue with `Actor` not halting as expected in certain scenarios after explicitly raising
   a `HaltEvent` event.

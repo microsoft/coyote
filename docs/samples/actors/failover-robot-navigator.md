@@ -110,7 +110,7 @@ before coding and pushing to production.
 To run the `DrinksServingRobotActors` example, you will need to:
 
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 7.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
@@ -124,7 +124,7 @@ You can build the sample by following the instructions
 Now you can run the `DrinksServingRobotActors` application:
 
 ```plain
-./Samples/bin/net7.0/DrinksServingRobotActors.exe
+./Samples/bin/net8.0/DrinksServingRobotActors.exe
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -238,13 +238,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```plain
-coyote test ./Samples/bin/net7.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
+coyote test ./Samples/bin/net8.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```plain
-. Testing .\Samples\bin\net7.0\DrinksServingRobotActors.exe
+. Testing .\Samples\bin\net8.0\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'prioritization' strategy (seed:324932188).
@@ -275,7 +275,7 @@ Starting TestingProcessScheduler in process 26236
 ```
 
 Notice that a log file is produced
-`.bin\net7.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
+`.bin\net8.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
 pretty big, it contains the test iteration that failed, and towards the end of this file you will
 see something like this:
 
@@ -471,7 +471,7 @@ liveness bug in hot state 'Busy' at the end of program execution.
 If you add to the coyote test command line `--actor-graph`, and test again:
 
 ```plain
-coyote test .\Samples\bin\net7.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --actor-graph
+coyote test .\Samples\bin\net8.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --actor-graph
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -640,7 +640,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```plain
-coyote test ./Samples/bin/net7.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
+coyote test ./Samples/bin/net8.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

@@ -31,7 +31,7 @@ is called the `Azure CLI`.
 You will also need to:
 
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET 7.0 version of the coyote tool](../../get-started/install.md).
+- Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
 - Clone the [Coyote git repo](http://github.com/microsoft/coyote).
 
@@ -64,7 +64,7 @@ You can build the sample by following the instructions
 Now you can run the Raft.Azure application:
 
 ```plain
-"./Samples/bin/net7.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+"./Samples/bin/net8.0/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
 Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you

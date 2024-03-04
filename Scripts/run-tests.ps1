@@ -32,8 +32,12 @@ $dotnet_runtime_path = FindDotNetRuntimePath -dotnet $dotnet -runtime "NETCore"
 $aspnet_runtime_path = FindDotNetRuntimePath -dotnet $dotnet -runtime "AspNetCore"
 $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime_path
 
+# NOTE: we do some hacks to get around a known issue with dotnet tool
+# command being available after locally being restored.
 # Restore the local ilverify tool.
+&dotnet nuget locals all --clear
 &dotnet tool restore
+&dotnet tool install dotnet-ilverify --version 8.0.0
 &dotnet tool list
 $ilverify = "dotnet ilverify"
 

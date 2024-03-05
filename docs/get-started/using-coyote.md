@@ -216,7 +216,7 @@ explore Coyote further!
 **Format of the executable (.exe) or library (.dll) is invalid.**
 
 If you are using a .NET Core target platform then on Windows you will get executable program with
-`.exe` file extension, like `coyote\Samples\bin\net7.0\BoundedBuffer.exe` These are not
+`.exe` file extension, like `coyote\Samples\bin\net8.0\BoundedBuffer.exe` These are not
 rewritable assemblies. You must instead rewrite and test the associated library, in this case
 `BoundedBuffer.dll`.
 

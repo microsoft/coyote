@@ -432,9 +432,9 @@
     </Style>
   </Styles>
   <Paths>
-    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net7.0\Raft.dll" />
-    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net7.0/Raft.dll" />
-    <Path Id="adc6f234-56dd-47d9-8e55-e4aa8a71170d.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net7.0\Raft.Mocking.dll" />
-    <Path Id="adc6f234-56dd-47d9-8e55-e4aa8a71170d.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net7.0/Raft.Mocking.dll" />
+    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net8.0\Raft.dll" />
+    <Path Id="64ea33e6-a1c1-4e8b-9ce0-e581e344ee49.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net8.0/Raft.dll" />
+    <Path Id="adc6f234-56dd-47d9-8e55-e4aa8a71170d.OutputPath" Value="D:\git\microsoft\CoyoteSamples\bin\net8.0\Raft.Mocking.dll" />
+    <Path Id="adc6f234-56dd-47d9-8e55-e4aa8a71170d.OutputPathUri" Value="file:///D:/git/microsoft/CoyoteSamples/bin/net8.0/Raft.Mocking.dll" />
   </Paths>
 </DirectedGraph>

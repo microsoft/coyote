@@ -7,7 +7,7 @@ CheckPSVersion
 
 Write-Comment -prefix "." -text "Testing the Coyote samples" -color "yellow"
 
-$framework = "net7.0"
+$framework = "net8.0"
 $tests = "$PSScriptRoot/../Common/bin/$framework/TestDriver.dll"
 if (-not (Test-Path $tests)) {
     Write-Error "tests for the Coyote samples not found."

@@ -70,6 +70,30 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestResetDeadlock()
+        {
+            this.TestWithError(() =>
+            {
+                var threadReady = new AutoResetEvent(false);
+                var autoResetEvent1 = new AutoResetEvent(false);
+                var task = Task.Run(() =>
+                {
+                    threadReady.WaitOne();
+                    autoResetEvent1.Set();
+                });
+
+                threadReady.Set();
+                autoResetEvent1.Reset();
+                autoResetEvent1.WaitOne();
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith("Deadlock detected.", e);
+            },
+            configuration: this.GetConfiguration().WithLockAccessRaceCheckingEnabled().WithTestingIterations(20));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestWaitWithAllIndexesSet()
         {
             this.Test(() =>

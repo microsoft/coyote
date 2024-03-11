@@ -6,12 +6,15 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{secrets.PAT}}
       - name: Install pip
         run: python3 -m pip install --upgrade pip setuptools wheel
       - name: Install MkDocs

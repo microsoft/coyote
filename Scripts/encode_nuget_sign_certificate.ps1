@@ -22,7 +22,7 @@ az keyvault secret download --file $result_file --encoding base64 --id $url
 
 $file_content_bytes = Get-Content $result_file -AsByteStream
 $base64_value = [System.Convert]::ToBase64String($file_content_bytes)
-$base64_value | clip
+Set-Clipboard $base64_value
 
 Remove-Item $result_file
 

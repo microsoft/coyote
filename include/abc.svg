@@ -1,0 +1,34 @@
+﻿<svg stroke-linecap="round" font-size="12" font-family="Segoe UI"
+      videbox="0,0,213,137" width="100%" style="max-width:400" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="212.99999999999994" height="137.95999999999998" fill="#FFFFFF" />
+  <g transform="translate(220,23)">
+    <g id="A-&gt;C">
+      <path d="M -150,12.3702435377168 L -85.9973242166037,10.8092029031469" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -77.0000000000001,10.5897560045196 L -87.094558862283,6.83477512894833 C -86.0298348682522,9.47626598216861 -85.9648135649552,12.1421398241253 -86.899494952392,14.8323966548183 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-124.42076141910792" y="4.5797230435936633" fill="#A0A0A0">e1</text>
+    </g>
+    <g id="A-&gt;B">
+      <path d="M -159.950724737522,25.9599995422363 L -116.864511918851,63.1218583448817" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -110.049275262478,69 L -115.00925303395,59.4397374248141 C -115.993676118092,62.1121936550487 -117.735347719609,64.1315230347146 -120.2342678385,65.4977255638118 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-137.10136462704884" y="40.016431908809565" fill="#A0A0A0">e2</text>
+    </g>
+    <g id="B-&gt;C">
+      <path d="M -87.24805550627,68.9999995422363 L -64.3666145865901,30.686889408686" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -59.75194449373,22.96 L -68.313528778546,29.4944681906021 C -65.5113389434324,30.0032345801141 -63.2218902297477,31.3705442372578 -61.4451826374919,33.5963971620333 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-90.271088248360286" y="45.807962232603359" fill="#A0A0A0">e2</text>
+    </g>
+    <g id="A">
+      <rect x="-200" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-179" y="17.950000000000003" fill="#3D3D3D">A</text>
+    </g>
+    <g id="C">
+      <rect x="-77.000000000000057" y="-2.9999999999999858" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-56.000000000000057" y="14.950000000000015" fill="#3D3D3D">C</text>
+    </g>
+    <g id="B">
+      <rect x="-120.00000000000003" y="69.000000000000014" rx="3" ry="3" width="50" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-99.000000000000028" y="86.950000000000017" fill="#3D3D3D">B</text>
+    </g>
+  </g>
+</svg>

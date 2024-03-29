@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/samples/overview/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Overview of Coyote samples", url: "#_top", children: [
+              {title: "Building the samples", url: "#building-the-samples" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../tasks/bounded-buffer/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../tasks/bounded-buffer/" class="btn btn-xs btn-link">
+        Deadlock in bounded-buffer
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../how-to/coverage/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../how-to/coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="overview-of-coyote-samples">Overview of Coyote samples</h2>
+<p>All Coyote samples are available on <a href="https://github.com/microsoft/coyote/tree/main/Samples">GitHub</a>.
+They are organized in two sets of samples.</p>
+<p>The first set shows how you can use Coyote to systematically test unmodified C# task-based programs:</p>
+<ul>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/AccountManager">AccountManager</a>:
+  demonstrates how to write a simple task-based C# application to create, get and delete account
+  records in a backend NoSQL database and then systematically test this application using Coyote to
+  find a race condition. Read the accompanying two-parts tutorial available
+  <a href="../../tutorials/first-concurrency-unit-test/">here</a> and
+  <a href="../../tutorials/test-concurrent-operations/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/WebApps/ImageGalleryAspNet">ImageGalleryAspNet</a>:
+  demonstrates how to use Coyote to test an ASP.NET Core service. Read the accompanying tutorial
+  available <a href="../../tutorials/testing-aspnet-service/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/CoffeeMachineTasks">Coffee Machine Failover</a>: demonstrates
+  how to systematically test the failover logic in your task-based applications. Read the
+  accompanying tutorial available <a href="../../tutorials/test-failover/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/BoundedBuffer">BoundedBuffer</a>: demonstrates
+  how to use <code>coyote rewrite</code> to find deadlocks in unmodified C# code. Read more about this sample
+  <a href="../tasks/bounded-buffer/">here</a>.</li>
+</ul>
+<p>The second set shows how you can use the more advanced
+<a href="https://microsoft.github.io/coyote/concepts/actors/overview/">actor</a> programming model of
+Coyote to build reliable applications and services:</p>
+<ul>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/HelloWorldActors">HelloWorldActors</a>:
+  demonstrates how to write a simple Coyote application using actors, and then run and
+  systematically test it. Read the accompanying tutorial available
+  <a href="../../tutorials/actors/hello-world/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/CloudMessaging">CloudMessaging</a>:
+  demonstrates how to write a Coyote application that contains components that communicate with each
+  other using the <a href="https://azure.microsoft.com/en-us/services/service-bus/">Azure Service Bus</a> cloud
+  messaging queue. ead the accompanying two-parts tutorial available
+  <a href="../../tutorials/actors/raft-azure/">here</a> and <a href="../../tutorials/actors/raft-mocking/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/Timers">Timers in Actors</a>: demonstrates how
+  to use the timer API of the Coyote actor programming model.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/CoffeeMachineActors">Coffee Machine Failover</a>: demonstrates
+  how to systematically test the failover logic in your Coyote actor applications. Read the
+  accompanying tutorial available <a href="../../tutorials/actors/test-failover/">here</a>.</li>
+<li><a href="https://github.com/microsoft/coyote/tree/main/Samples/DrinksServingRobotActors">Robot Navigator Failover</a>:
+  demonstrates how to systematically test the failover logic in your Coyote actors applications.
+  Read more about this sample <a href="../actors/failover-robot-navigator/">here</a>.</li>
+</ul>
+<h3 id="building-the-samples">Building the samples</h3>
+<p>Follow the instructions <a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../tasks/bounded-buffer/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../tasks/bounded-buffer/" class="btn btn-xs btn-link">
+        Deadlock in bounded-buffer
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../how-to/coverage/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../how-to/coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

@@ -7,7 +7,6 @@
     <OutputPath>.\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <Framework462Supported>false</Framework462Supported>
-    <NetCore31Supported>false</NetCore31Supported>
     <Net6Supported>false</Net6Supported>
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);</NoWarn>

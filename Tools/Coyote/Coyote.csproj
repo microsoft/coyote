@@ -36,13 +36,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <FrameworkReference Include="Microsoft.NETCore.App" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" >
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net462'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -55,12 +48,6 @@
       <PrivateAssets>all</PrivateAssets>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="update-runtime-config.ps1" />
-  </ItemGroup>
-  <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/update-runtime-config.ps1 -outputPath $(OutputPath)" />
-  </Target>
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);ToolDependenciesTarget</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);LibDependenciesTarget</TargetsForTfmSpecificContentInPackage>

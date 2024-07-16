@@ -12,7 +12,6 @@ frameworks supported by Coyote:
 | :-------------------: | :-------------------: |
 | .NET 8.0              | Linux, macOS, Windows |
 | .NET 6.0              | Linux, macOS, Windows |
-| .NET Core 3.1         | Linux, macOS, Windows |
 | .NET Standard 2.0     | Linux, macOS, Windows |
 | .NET Framework 4.6.2  | Windows               |
 

@@ -210,7 +210,7 @@ namespace Microsoft.Coyote.Testing.Interleaving
         /// </summary>
         private string FormatReplayError(int step, string reason)
         {
-#if NET || NETCOREAPP3_1
+#if NET
             string[] traceTokens = new StackTrace().ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 #else
             string[] traceTokens = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);

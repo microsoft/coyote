@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.ConcurrentCollections
                 Assert.Equal(1, count);
                 Assert.Single(concurrentBag);
 
-#if NET || NETCOREAPP3_1
+#if NET
                 concurrentBag.Clear();
                 Assert.Empty(concurrentBag);
 #endif

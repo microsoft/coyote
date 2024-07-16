@@ -8,7 +8,7 @@ using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-#if NET || NETCOREAPP3_1
+#if NET
 using HttpClient = Microsoft.Coyote.Rewriting.Types.Net.Http.HttpClient;
 #endif
 using NameCache = Microsoft.Coyote.Rewriting.Types.NameCache;
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Rewriting
                     this.Processor.InsertAfter(instruction, newInstruction);
                     this.IsMethodBodyModified = true;
                 }
-#if NET || NETCOREAPP3_1
+#if NET
                 else if (IsSystemType(resolvedReturnType) && resolvedReturnType.FullName == NameCache.HttpClient)
                 {
                     MethodReference interceptionMethod = this.CreateInterceptionMethod(

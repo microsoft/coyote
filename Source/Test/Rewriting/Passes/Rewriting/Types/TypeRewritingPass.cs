@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.EventWaitHandle] = typeof(Types.Threading.EventWaitHandle);
             this.KnownTypes[NameCache.WaitHandle] = typeof(Types.Threading.WaitHandle);
 
-#if NET || NETCOREAPP3_1
+#if NET
             // Populate the map with the known HTTP and web-related types.
             this.KnownTypes[NameCache.HttpClient] = typeof(Types.Net.Http.HttpClient);
             this.KnownTypes[NameCache.HttpRequestMessage] = typeof(Types.Net.Http.HttpRequestMessage);

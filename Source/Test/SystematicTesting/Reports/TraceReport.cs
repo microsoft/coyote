@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     string decisionToken = tokens[1];
                     if (decisionToken.StartsWith("sp("))
                     {
-#if NET || NETCOREAPP3_1
+#if NET
                         SchedulingPointType sp = Enum.Parse<SchedulingPointType>(decisionToken.Substring(
                             3, decisionToken.Length - 4));
 #else

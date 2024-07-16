@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET || NETCOREAPP3_1
+#if NET
 namespace Microsoft.Coyote.Rewriting.Types.Net.Http
 {
     /// <summary>

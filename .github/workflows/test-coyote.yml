@@ -38,10 +38,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Setup .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
       - name: Setup debugging tools
         if: ${{ matrix.platform == 'windows-latest' }}
         run: |

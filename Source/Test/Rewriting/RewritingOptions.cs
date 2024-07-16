@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             var targetFramework = assembly?.GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
                 .SingleOrDefault() as TargetFrameworkAttribute;
-#if NET || NETCOREAPP3_1
+#if NET
             var tokens = targetFramework?.FrameworkName.Split(",Version=", StringSplitOptions.None);
 #else
             var tokens = targetFramework?.FrameworkName.Split(new[] { ",Version=" }, StringSplitOptions.None);
@@ -310,7 +310,6 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     resolvedTargetFramework = tokens[1] is "v8.0" ? "net8.0" :
                         tokens[1] is "v6.0" ? "net6.0" :
-                        tokens[1] is "v3.1" ? "netcoreapp3.1" :
                         resolvedTargetFramework;
                 }
                 else if (tokens[0] == ".NETFramework")

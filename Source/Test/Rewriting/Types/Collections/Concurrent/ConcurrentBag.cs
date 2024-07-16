@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             instance.Add(item);
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Removes all objects from the concurrent bag.
         /// </summary>

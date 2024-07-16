@@ -28,10 +28,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="..\..\Source\Test\Test.csproj" />
@@ -40,7 +36,4 @@
     <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\*.cs"/>
     <Compile Include="$(MSBuildProjectDirectory)\..\Coyote\Cli\*.cs"/>
   </ItemGroup>
-  <Target Name="CoyoteRewritingNet3_1" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <Exec Command="pwsh -c $(MSBuildProjectDirectory)/../Coyote/update-runtime-config.ps1 -outputPath $(OutputPath)" />
-  </Target>
 </Project>

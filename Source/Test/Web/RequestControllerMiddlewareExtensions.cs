@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET || NETCOREAPP3_1
+#if NET
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Coyote.Rewriting.Types.Web;
 

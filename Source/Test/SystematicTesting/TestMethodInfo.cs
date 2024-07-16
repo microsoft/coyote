@@ -3,19 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-#if NET || NETCOREAPP3_1
+#if NET
 using System.IO;
 #endif
 using System.Linq;
 using System.Reflection;
-#if NET || NETCOREAPP3_1
+#if NET
 using System.Runtime.Loader;
 #endif
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
-#if NET || NETCOREAPP3_1
+#if NET
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
 #endif
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private readonly MethodInfo IterationDisposeMethod;
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// The assembly load context, if there is one.
         /// </summary>
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private TestMethodInfo(Configuration configuration, LogWriter logWriter)
         {
             this.LogWriter = logWriter;
-#if NET || NETCOREAPP3_1
+#if NET
             this.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(configuration.AssemblyToBeAnalyzed);
             this.LoadContext = AssemblyLoadContext.GetLoadContext(this.Assembly);
             this.DependencyContext = DependencyContext.Load(this.Assembly);
@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return testMethods;
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Invoked when the resolution of an assembly fails.
         /// </summary>
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Dispose()
         {
-#if NET || NETCOREAPP3_1
+#if NET
             if (this.LoadContext != null)
             {
                 this.LoadContext.Resolving -= this.OnResolving;

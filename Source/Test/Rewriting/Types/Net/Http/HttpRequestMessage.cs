@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET || NETCOREAPP3_1
+#if NET
 using System;
 using Microsoft.Coyote.Runtime;
 using SystemHttpMethod = System.Net.Http.HttpMethod;

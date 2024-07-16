@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             new Wrapper(capacity, comparer) :
             new SystemGenerics.Dictionary<TKey, TValue>(capacity, comparer);
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Initializes a new dictionary instance class that contains elements copied
         /// from the specified enumerable.
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             instance.OnDeserialization(sender);
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Ensures that the dictionary can hold up to a specified number of entries without
         /// any further expansion of its backing storage.
@@ -365,7 +365,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             internal Wrapper(SystemGenerics.IEqualityComparer<TKey> comparer)
                 : base(comparer) => this.Setup();
 
-#if NET || NETCOREAPP3_1
+#if NET
             /// <summary>
             /// Initializes a new instance of the <see cref="Wrapper"/> class.
             /// </summary>

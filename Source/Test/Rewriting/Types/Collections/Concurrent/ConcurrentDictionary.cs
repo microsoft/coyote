@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             return instance.AddOrUpdate(key, addValue, updateValueFactory);
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Adds a key/value pair to the concurrent dictionary if the key does not
         /// already exist, or updates a key/value pair in the concurrent dictionary
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             return instance.GetOrAdd(key, value);
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Adds a key/value pair to the concurrent dictionary if the key does not already exist.
         /// Returns the new value, or the existing value if the key already exists.

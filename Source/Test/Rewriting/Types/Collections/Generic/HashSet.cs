@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             new Wrapper(collection, comparer) :
             new SystemGenerics.HashSet<T>(collection, comparer);
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Initializes a hash set instance class that is empty, but has reserved
         /// space for 'capacity' items and and uses the default equality comparer for the set type.
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             instance.UnionWith(other);
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Ensures that this hash set object can hold the specified number of elements without growing.
         /// </summary>
@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Generic
             internal Wrapper(SerializationInfo info, StreamingContext context)
                 : base(info, context) => this.Setup();
 
-#if NET || NETCOREAPP3_1
+#if NET
             /// <summary>
             /// Initializes a new instance of the <see cref="Wrapper"/> class.
             /// </summary>

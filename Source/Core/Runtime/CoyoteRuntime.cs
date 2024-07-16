@@ -2494,7 +2494,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private static string FormatExceptionStackTrace(Exception exception)
         {
-#if NET || NETCOREAPP3_1
+#if NET
             string[] lines = exception.ToString().Split(Environment.NewLine, StringSplitOptions.None);
 #else
             string[] lines = exception.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -2516,7 +2516,7 @@ namespace Microsoft.Coyote.Runtime
         private static string FormatUncontrolledStackTrace(StackTrace trace)
         {
             StringBuilder sb = new StringBuilder();
-#if NET || NETCOREAPP3_1
+#if NET
             string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
 #else
             string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -2535,7 +2535,7 @@ namespace Microsoft.Coyote.Runtime
         private static string FormatSpecificationMonitorStackTrace(StackTrace trace)
         {
             StringBuilder sb = new StringBuilder();
-#if NET || NETCOREAPP3_1
+#if NET
             string[] lines = trace.ToString().Split(Environment.NewLine, StringSplitOptions.None);
 #else
             string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);

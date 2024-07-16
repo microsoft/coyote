@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET || NETCOREAPP3_1
+#if NET
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemDelegatingHandler = System.Net.Http.DelegatingHandler;
 using SystemHttpClientHandler = System.Net.Http.HttpClientHandler;

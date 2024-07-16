@@ -1,3 +1,9 @@
+## vNext
+- Upgraded the `System.Text.Json` package to `v8.0.4` for the `netstandard2.0`
+  target framework, due to a vulnerability.
+- Dropped support for the `netcoreapp3.1` target framework, which reached end of
+  life.
+
 ## v1.7.11
 - Added support for the `net8.0` target framework.
 - Added support to optionally explore a race condition when using the

@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Collections.Concurrent
             return instance.IsEmpty;
         }
 
-#if NET || NETCOREAPP3_1
+#if NET
         /// <summary>
         /// Removes all objects from the concurrent queue.
         /// </summary>

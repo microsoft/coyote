@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 #endif
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Runtime;
@@ -444,9 +445,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     runtimeLibrary.Dependencies,
                     runtimeLibrary.Serviceable);
                 if (this.AssemblyResolver.TryResolveAssemblyPaths(compilationLibrary, assemblies) &&
-                    assemblies.Count > 0)
+                    assemblies.Any(a => string.Equals(Path.GetFileNameWithoutExtension(a), assemblyName.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    return this.LoadContext.LoadFromAssemblyPath(assemblies[0]);
+                    return this.LoadContext.LoadFromAssemblyPath(assemblies.First(a => string.Equals(Path.GetFileNameWithoutExtension(a), assemblyName.Name, StringComparison.OrdinalIgnoreCase)));
                 }
                 else
                 {

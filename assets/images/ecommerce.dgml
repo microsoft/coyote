@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="CartService" Bounds="360.713333333333,57.6475,79.0733333333334,25.96" />
+    <Node Id="MockCheckoutService" Category="Mock" Bounds="0,115.295,136.5,25.96" />
+    <Node Id="MockFrontEnd" Category="Mock" Bounds="351.67,0,97.16,25.96" />
+    <Node Id="MockInventoryService" Category="Mock" Bounds="167.008333333333,115.295,136.483333333333,25.96" />
+    <Node Id="MockPaymentService" Category="Mock" Bounds="334.098333333334,115.295,132.303333333333,25.96" />
+    <Node Id="MockRecommendationService" Category="Mock" Bounds="497.253333333334,115.295,179.993333333333,25.96" />
+    <Node Id="MockShippingService1" Category="Mock" Bounds="707.475,115.295,133.55,25.96" Label="MockShippingService" />
+  </Nodes>
+  <Links>
+    <Link Source="CartService" Target="MockCheckoutService" Bounds="138.751708984375,76.4715805053711,221.961639404297,36.9716949462891" />
+    <Link Source="CartService" Target="MockInventoryService" Bounds="282.970397949219,83.6074981689453,82.1543884277344,28.8538589477539" />
+    <Link Source="CartService" Target="MockPaymentService" Bounds="417.812591552734,83.6074981689453,11.6874084472656,25.9268569946289" />
+    <Link Source="CartService" Target="MockRecommendationService" Bounds="439.786651611328,77.9325942993164,126.368011474609,31.8772048950195" />
+    <Link Source="CartService" Target="MockShippingService1" Bounds="439.786651611328,74.8018417358398,280.318328857422,38.0511932373047" />
+    <Link Source="MockCheckoutService" Target="CartService" Bounds="94.8190612792969,75.7468185424805,256.944030761719,39.5481796264648" />
+    <Link Source="MockFrontEnd" Target="CartService" Bounds="400.25,25.9599990844727,0,22.6875" />
+    <Link Source="MockInventoryService" Target="CartService" Bounds="239.30290222168,79.5678253173828,112.56022644043,35.7271728515625" />
+    <Link Source="MockPaymentService" Target="CartService" Bounds="371,89.3681488037109,11.6874084472656,25.9268493652344" />
+    <Link Source="MockRecommendationService" Target="CartService" Bounds="443.823486328125,86.7101898193359,94.34130859375,28.5848083496094" />
+    <Link Source="MockShippingService1" Target="CartService" Bounds="448.68994140625,77.7876052856445,258.882141113281,39.7504730224609" />
+  </Links>
+  <Categories>
+    <Category Id="Mock" Label="Mock" IsTag="True" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Mock" ValueLabel="True">
+      <Condition Expression="HasCategory('Mock')" />
+      <Setter Property="Background" Value="#FF55BF6F" />
+    </Style>
+  </Styles>
+</DirectedGraph>

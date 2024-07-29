@@ -361,7 +361,15 @@ namespace Microsoft.Coyote.Runtime
             Action runTest = () =>
             {
                 Task task = Task.CompletedTask;
-                if (this.Extension.RunTest(testMethod, out Task extensionTask))
+                if (testMethod is Action<ICoyoteRuntime> actionWithRuntime)
+                {
+                    actionWithRuntime(this);
+                }
+                else if (testMethod is Func<ICoyoteRuntime, Task> functionWithRuntime)
+                {
+                    task = functionWithRuntime(this);
+                }
+                else if (this.Extension.RunTest(testMethod, out Task extensionTask))
                 {
                     task = extensionTask;
                 }

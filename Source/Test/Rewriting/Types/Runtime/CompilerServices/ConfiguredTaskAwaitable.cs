@@ -11,7 +11,7 @@ using SystemTasks = System.Threading.Tasks;
 namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
 {
     /// <summary>
-    /// Provides an awaitable object that is the outcome of invoking <see cref="SystemTask.ConfigureAwait"/>.
+    /// Provides an awaitable object that is the outcome of invoking <see cref="SystemTask.ConfigureAwait(bool)"/>.
     /// </summary>
     /// <remarks>This type is intended for compiler use only.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

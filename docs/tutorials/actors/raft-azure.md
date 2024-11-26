@@ -33,7 +33,7 @@ You will also need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 
 ## Setup Azure
 
@@ -50,7 +50,7 @@ set CONNECTION_STRING=...
 ```
 
 If you need to find this connection string again later you can get it from your [Azure
-Portal](http://portal.azure.com), find the message bus resource you created above, click on `Shared
+Portal](https://portal.azure.com), find the message bus resource you created above, click on `Shared
 access policies` and select the `RootManageSharedAccessKey` and wait for the keys to load, then copy
 the contents of the field named `Primary Connection String`.
 
@@ -200,7 +200,7 @@ protocol begins and any queued messages can be processed.
 This tutorial does not go into the gory details of the entire `Server` protocol implementation, but
 there is a great animation of how the Raft Protocol works on [this
 website](https://raft.github.io/). Please check that out, as it will make the `Server` code easier
-to understand. This [more detailed walkthrough](http://thesecretlivesofdata.com/raft/) of the
+to understand. This [more detailed walkthrough](https://thesecretlivesofdata.com/raft/) of the
 protocol can also help make things even more clear.
 
 The overall `Server` state machine flow looks like this:

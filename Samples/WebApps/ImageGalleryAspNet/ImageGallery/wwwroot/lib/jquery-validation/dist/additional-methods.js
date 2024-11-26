@@ -1,7 +1,7 @@
 /*!
  * jQuery Validation Plugin v1.14.0
  *
- * http://jqueryvalidation.org/
+ * https://jqueryvalidation.org/
  *
  * Copyright (c) 2015 Jörn Zaefferer
  * Released under the MIT license
@@ -128,7 +128,7 @@ $.validator.addMethod("bic", function(value, element) {
 
 /*
  * Código de identificación fiscal ( CIF ) is the tax identification code for Spanish legal entities
- * Further rules can be found in Spanish on http://es.wikipedia.org/wiki/C%C3%B3digo_de_identificaci%C3%B3n_fiscal
+ * Further rules can be found in Spanish on https://es.wikipedia.org/wiki/C%C3%B3digo_de_identificaci%C3%B3n_fiscal
  */
 $.validator.addMethod( "cifES", function( value ) {
 	"use strict";
@@ -406,7 +406,7 @@ $.validator.addMethod("dateNL", function(value, element) {
 	return this.optional(element) || /^(0?[1-9]|[12]\d|3[01])[\.\/\-](0?[1-9]|1[012])[\.\/\-]([12]\d)?(\d\d)$/.test(value);
 }, $.validator.messages.date);
 
-// Older "accept" file extension method. Old docs: http://docs.jquery.com/Plugins/Validation/Methods/accept
+// Older "accept" file extension method. Old docs: https://docs.jquery.com/Plugins/Validation/Methods/accept
 $.validator.addMethod("extension", function(value, element, param) {
 	param = typeof param === "string" ? param.replace(/,/g, "|") : "png|jpe?g|gif";
 	return this.optional(element) || value.match(new RegExp("\\.(" + param + ")$", "i"));

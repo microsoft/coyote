@@ -150,7 +150,7 @@ class AnimateTrace {
         }
     }
 
-    // see: http://owl3d.com/svg/vsw/articles/vsw_article.html
+    // see: https://owl3d.com/svg/vsw/articles/vsw_article.html
     start_trace(events) {
         this.position = 0;
         this.animate_events = events;

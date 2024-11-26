@@ -6,7 +6,7 @@ Coyote (which is the evolution of the P# project, and is often published under t
 
 - [Building reliable cloud services using P# (experience report)](https://arxiv.org/abs/2002.04903). Pantazis Deligiannis, Narayanan Ganapathy, Akash Lal and Shaz Qadeer. ArXiv abs/2002.04903, 2020.
 
-- [Reliable State Machines: a framework for programming reliable cloud services](http://drops.dagstuhl.de/opus/volltexte/2019/10810/pdf/LIPIcs-ECOOP-2019-18.pdf). Suvam Mukherjee, Nitin John Raj, Krishnan Govindraj, Pantazis Deligiannis, Chandramouleswaran Ravichandran, Akash Lal, Aseem Rastogi and Raja Krishnaswamy. In the *33rd European Conference on Object-Oriented Programming* (ECOOP), 2019.
+- [Reliable State Machines: a framework for programming reliable cloud services](https://drops.dagstuhl.de/opus/volltexte/2019/10810/pdf/LIPIcs-ECOOP-2019-18.pdf). Suvam Mukherjee, Nitin John Raj, Krishnan Govindraj, Pantazis Deligiannis, Chandramouleswaran Ravichandran, Akash Lal, Aseem Rastogi and Raja Krishnaswamy. In the *33rd European Conference on Object-Oriented Programming* (ECOOP), 2019.
 
 - [Lasso detection using partial-state caching](https://www.microsoft.com/en-us/research/publication/lasso-detection-using-partial-state-caching-2/). Rashmi Mudduluru, Pantazis Deligiannis, Ankush Desai, Akash Lal and Shaz Qadeer. In the *17th International Conference on Formal Methods in Computer-Aided Design* (FMCAD), 2017.
 

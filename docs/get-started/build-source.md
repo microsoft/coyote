@@ -3,7 +3,7 @@
 If you plan to contribute a Pull Request to Coyote then you need to be able to build the source code
 and run the tests.
 
-<a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Clone
+<a href="https://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Clone
 the github repo</a>
 
 ### Prerequisites
@@ -18,7 +18,7 @@ on Windows.
 
 ### Building the Coyote project
 
-Clone the [Coyote repo](http://github.com/microsoft/coyote), then open `Coyote.sln` and build.
+Clone the [Coyote repo](https://github.com/microsoft/coyote), then open `Coyote.sln` and build.
 
 You can also use the following `PowerShell` command line from a Visual Studio 2022 Developer
 Command Prompt:

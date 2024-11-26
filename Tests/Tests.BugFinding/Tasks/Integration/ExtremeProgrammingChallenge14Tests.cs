@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
     /// This is an implementation of the concurrency bug described in
     /// Extreme Programming Challenge 14:
     ///
-    /// http://wiki.c2.com/?ExtremeProgrammingChallengeFourteenTheBug.
+    /// https://wiki.c2.com/?ExtremeProgrammingChallengeFourteenTheBug.
     /// </summary>
     public class ExtremeProgrammingChallenge14Tests : BaseBugFindingTest
     {

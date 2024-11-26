@@ -13,7 +13,7 @@ You will also need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 
 ## Build the sample
 
@@ -59,9 +59,9 @@ Finding a hard to find bug is one thing, but if you can't reproduce this bug whi
 is no point. So the `*.trace` can be used with the `coyote replay` command as follows:
 
 ```plain
-coyote replay ./Samples/bin/net8.0/Monitors.dll 
+coyote replay ./Samples/bin/net8.0/Monitors.dll
     .\Samples\bin\net8.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
-    
+
 . Reproducing trace in ./Samples/bin/net8.0/Monitors.exe
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.

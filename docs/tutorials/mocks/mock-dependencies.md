@@ -26,7 +26,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 - Go through the [write your first concurrency unit test](../first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
@@ -340,7 +340,7 @@ tests for the `AccountManager` using a `ConcurrentDictionary`:
 public class InMemoryDbCollection : IDbCollection
 {
   private readonly ConcurrentDictionary<string, string> Collection;
-  
+
   public InMemoryDbCollection()
   {
     this.Collection = new ConcurrentDictionary<string, string>();
@@ -434,7 +434,7 @@ test a scenario that is fairly hard to hit in production but can lead to data lo
 ## Get the sample source code
 
 To get the complete source code for the `AccountManager` tutorial, first clone the [Coyote git
-repo](http://github.com/microsoft/coyote).
+repo](https://github.com/microsoft/coyote).
 
 You can then build the sample by following the instructions
 [here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).

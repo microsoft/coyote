@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="481.91666666666697" height="189.96000000000004" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="481.91666666666697" height="189.96000000000004" fill="#1E1E1E" />
+  <g transform="translate(-211,51)">
+    <g id="FailoverDriver-&gt;Navigator">
+      <path d="M 323.286666666667,105.819366423951 L 516.076721200157,105.148228176031" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 525.076666666667,105.11689768211 L 515.062802595469,101.15173357913 C 516.072079645502,103.814902921734 516.081362754812,106.481553430329 515.090651923399,109.151685104916 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="394.1747316014293" y="98.4737972999176" fill="#A0A0A0">terminate</text>
+    </g>
+    <g id="FailoverDriver-&gt;Navigator1">
+      <path d="M 290.114086827957,93 L 381.722553419618,1.32622816765229" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 388.084246505376,-5.04000000000002 L 378.186263891132,-0.79383229627909 C 380.779408505891,0.383755117910262 382.665698333344,2.26870121739432 383.84513337349,4.8610060021731 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="302.06026941986454" y="42.739404509213095" fill="#A0A0A0">create</text>
+    </g>
+    <g id="Navigator-&gt;MockStorage">
+      <path d="M 571.103251219513,92 L 617.076211108495,2.95702596102912" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 621.205082113822,-5.04 L 613.063213903001,2.0105306209984 C 615.891466521676,2.34534136764742 618.260955695314,3.56871055441082 620.171681423916,5.6806381812886 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="565.67261428377492" y="43.550986090442" fill="#A0A0A0">store</text>
+    </g>
+    <g id="Navigator1-&gt;MockStorage">
+      <path d="M 440.38,-18.02 L 573.896666666667,-18.02" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 582.896666666667,-18.02 L 572.896666666667,-22.02 C 573.896666666667,-19.3533333333333 573.896666666667,-16.6866666666667 572.896666666667,-14.02 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="460.95833333333343" y="-25.029999999999987" fill="#A0A0A0">pending request?</text>
+    </g>
+    <g id="Navigator1-&gt;Robot">
+      <path d="M 402.495835470086,-5.04 L 407.279558148252,38.0549415472909" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 408.272497863248,47 L 411.14481304779,36.6197396236582 C 408.604751993097,37.9078393672914 405.954364303406,38.2020437272903 403.193649978715,37.5023527036548 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="408.88777179963853" y="21.256817503646268" fill="#A0A0A0">completed request</text>
+    </g>
+    <g id="Robot-&gt;Navigator">
+      <path d="M 435.716666666667,67.5445653087391 L 516.763149880669,91.1215970475909" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 525.404911182522,93.6355504285831 L 516.920266794238,87.0014860933239 C 517.135587418594,89.8413361139831 516.390712342744,92.4018579811987 514.685641566689,94.6830516949708 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="469.638527271949" y="72.319781054488615" fill="#A0A0A0">get drink</text>
+    </g>
+    <g id="FailoverDriver">
+      <rect x="231" y="93" rx="3" ry="3" width="92.2866666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="241" y="110.95" fill="#3D3D3D">FailoverDriver</text>
+    </g>
+    <g id="MockStorage">
+      <rect x="582.896666666667" y="-31" rx="3" ry="3" width="90.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="592.896666666667" y="-13.049999999999999" fill="#3D3D3D">MockStorage</text>
+    </g>
+    <g id="Navigator">
+      <rect x="525.076666666667" y="92" rx="3" ry="3" width="78.65" height="25.96" fill="#E51400" stroke="#A5A6A9" stroke-width="1" />
+      <text x="535.076666666667" y="109.95" fill="#FFFFFF">Navigator1</text>
+    </g>
+    <g id="Navigator1">
+      <rect x="361.73" y="-31" rx="3" ry="3" width="78.65" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="371.73" y="-13.049999999999999" fill="#3D3D3D">Navigator2</text>
+    </g>
+    <g id="Robot">
+      <rect x="383.71" y="47" rx="3" ry="3" width="52.0066666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="393.71" y="64.95" fill="#3D3D3D">Robot</text>
+    </g>
+  </g>
+</svg>

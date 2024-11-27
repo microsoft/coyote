@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/mocks/optimistic-concurrency-control/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulating optimistic concurrency control - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Simulating optimistic concurrency control using ETags", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Walkthrough", url: "#walkthrough", children: [
+          ]},
+          {title: "Get the sample source code", url: "#get-the-sample-source-code", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../testing-aspnet-service/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../testing-aspnet-service/" class="btn btn-xs btn-link">
+        Testing an ASP.NET Core service
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../mock-dependencies/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../mock-dependencies/" class="btn btn-xs btn-link">
+        Mocking dependencies for testing
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="simulating-optimistic-concurrency-control-using-etags">Simulating optimistic concurrency control using ETags</h2>
+<p>Concurrency unit testing with Coyote often involves writing mocks that <em>simulate</em> (a subset of) the
+behavior of an external service or library. This is a &ldquo;pay-as-you-go&rdquo; effort, it is up to you to
+decide how simple or complex you want your mocks to be depending on what kind of logic you want to
+test! You can start with writing some very simple mocks and incrementally add behavior if you want
+to test more advanced scenarios. The only requirement is that the mocks must work in a concurrent
+setting, as Coyote <a href="../../../concepts/non-determinism/">explores interleavings and other sources of
+nondeterminism</a>.</p>
+<p>For example, the simple <code>InMemoryDbCollection</code> mock described in the
+<a href="../mock-dependencies/">previous tutorial</a> simulates asynchronous row manipulation in a backend NoSQL database
+to <a href="../../first-concurrency-unit-test/">test the logic</a> of an <code>AccountManager</code>. A great benefit of
+designing such a mock is that it can be reused across <a href="../../test-concurrent-operations/">many different concurrency unit
+tests</a>, comparing to the more traditional approach of writing very
+simple mock methods that return fixed results (like in the <a href="../mock-dependencies/">first version</a> of
+the <code>InMemoryDbCollection</code> mock).</p>
+<p>In this tutorial, you will see that it is very easy to take the <code>InMemoryDbCollection</code> mock and
+extend it with <a href="https://en.wikipedia.org/wiki/HTTP_ETag">ETags</a> to simulate <a href="https://en.wikipedia.org/wiki/Optimistic_concurrency_control">optimistic concurrency
+control</a>. While the implementation of
+an actual NoSQL database can be really complex, enhancing your mock with ETag semantics can be fairly
+trivial.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>To run the code in this tutorial, you will need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+<li>Go through the <a href="../mock-dependencies/">mocking dependencies for testing</a> tutorial.</li>
+</ul>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>Let&rsquo;s motivate the problem by extending the <code>AccountManager</code> to support updating existing accounts.
+An account can only be updated if the version of the new instance is greater than that of the
+existing instance. To deal with this design requirement, the <code>AccountManager</code> must now maintain a
+version per account (besides its name and payload) as follows:</p>
+<pre><code class="language-csharp">public class Account
+{
+  public string Name { get; set; }
+
+  public string Payload { get; set; }
+
+  public int Version { get; set; }
+}
+</code></pre>
+<p>Recall that accounts are stored in a backend NoSQL database, which the <code>AccountManager</code> accesses via
+the <code>IDbCollection</code> interface. To be able to update stored accounts, extend <code>IDbCollection</code> with an
+<code>UpdateRow</code> method.</p>
+<pre><code class="language-csharp">public interface IDbCollection
+{
+    Task&lt;bool&gt; CreateRow(string key, string value);
+
+    Task&lt;bool&gt; DoesRowExist(string key);
+
+    Task&lt;string&gt; GetRow(string key);
+
+    Task&lt;bool&gt; UpdateRow(string key, string value);
+
+    Task&lt;bool&gt; DeleteRow(string key);
+}
+</code></pre>
+<p>You will also need to extend the <code>InMemoryDbCollection</code> mock with <code>UpdateRow</code>. Let&rsquo;s write a very
+simple mock implementation for this method.</p>
+<pre><code class="language-csharp">public Task&lt;bool&gt; UpdateRow(string key, string value)
+{
+  return Task.Run(() =&gt;
+  {
+    lock (this.Collection)
+    {
+      bool success = this.Collection.ContainsKey(key);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      this.Collection[key] = value;
+    }
+
+    return true;
+  });
+}
+</code></pre>
+<p>The <code>lock</code> statement ensures that checking if the key exists in the dictionary (via
+<code>this.Collection.ContainsKey(key)</code>) and updating its value (via <code>this.Collection[key] = value</code>) is
+done atomically (without interference from other concurrent operations to the database). One
+interesting observation is that the lock is inside the <code>InMemoryDbCollection</code> mock but not inside
+the <code>AccountManager</code> code. You might be wondering why it is not okay to use a lock in
+<code>AccountManager</code>, but it is fine to use it in <code>InMemoryDbCollection</code>? The reason behind this choice
+is that <code>AccountManager</code> instances can run in across different processes or machines in production,
+and locks do not work in such an intra-process setting because usually intra-process calls are done
+asynchronously and it is not safe to do async code inside a lock statement.  With Coyote, however,
+you run the entire concurrency unit test in a single process, so it is perfectly fine for the mock
+itself to take a lock, which makes it a lot easier to simulate the ETag functionality.</p>
+<p>You can see how the rest of the <code>InMemoryDbCollection</code> methods are implemented in the
+<code>AccountManager.ETags</code> sample, which is available in the <a href="https://github.com/microsoft/coyote/tree/main/Samples/AccountManager/AccountManager.ETags">Coyote git
+repo</a>.</p>
+<p>Next, let&rsquo;s implement the <code>AccountManager</code> logic.</p>
+<pre><code class="language-csharp">public class AccountManager
+{
+  private readonly IDbCollection AccountCollection;
+
+  public AccountManager(IDbCollection dbCollection)
+  {
+    this.AccountCollection = dbCollection;
+  }
+
+  // Returns true if the account is created, else false.
+  public async Task&lt;bool&gt; CreateAccount(string accountName, string accountPayload, int accountVersion)
+  {
+    var account = new Account()
+    {
+      Name = accountName,
+      Payload = accountPayload,
+      Version = accountVersion
+    };
+
+    try
+    {
+      return await this.AccountCollection.CreateRow(accountName, JsonSerializer.Serialize(account));
+    }
+    catch (RowAlreadyExistsException)
+    {
+      return false;
+    }
+  }
+
+  // Returns true if the account is updated, else false.
+  public async Task&lt;bool&gt; UpdateAccount(string accountName, string accountPayload, int accountVersion)
+  {
+    Account existingAccount;
+
+    try
+    {
+      string value = await this.AccountCollection.GetRow(accountName);
+      existingAccount = JsonSerializer.Deserialize&lt;Account&gt;(value);
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+
+    if (accountVersion &lt;= existingAccount.Version)
+    {
+      return false;
+    }
+
+    var updatedAccount = new Account()
+    {
+      Name = accountName,
+      Payload = accountPayload,
+      Version = accountVersion
+    };
+
+    try
+    {
+      return await this.AccountCollection.UpdateRow(accountName, JsonSerializer.Serialize(updatedAccount));
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+  }
+
+  // Returns the account if found, else null.
+  public async Task&lt;Account&gt; GetAccount(string accountName)
+  {
+    try
+    {
+      string value = await this.AccountCollection.GetRow(accountName);
+      return JsonSerializer.Deserialize&lt;Account&gt;(value);
+    }
+    catch (RowNotFoundException)
+    {
+      return null;
+    }
+  }
+
+  // Returns true if the account is deleted, else false.
+  public async Task&lt;bool&gt; DeleteAccount(string accountName)
+  {
+    try
+    {
+      return await this.AccountCollection.DeleteRow(accountName);
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+  }
+}
+</code></pre>
+<p>This was a lot of code!</p>
+<p>The <code>CreateAccount</code> is similar to the <a href="../../first-concurrency-unit-test/">previous tutorial</a>, but
+with a few differences. It creates an <code>Account</code> instance using the input account data, then uses
+<code>System.Text.Json</code> to serialize it to a <code>string</code> and tries to add it to the database by invoking
+<code>CreateRow</code>. If this operation fails with a <code>RowAlreadyExistsException</code>, the <code>AccountManager</code>
+catches the exception and returns <code>false</code>, else it returns <code>true</code>.</p>
+<p>The <code>UpdateAccount</code> method is a bit more involved. The method first invokes the <code>GetRow</code> database
+method to get the value of the account with the name that we want to update (if such an account
+already exists), and uses <code>System.Text.Json</code> to deserialize the returned value to an <code>Account</code>
+instance. Next, the <code>AccountManager</code> checks if the version of the existing account is greater or
+equal than the new account, and if yes, the method fails with <code>false</code>. Else, it creates a new
+<code>Account</code> instance, serializes it and tries to update the corresponding database entry by invoking
+<code>UpdateRow</code>.</p>
+<p>The <code>GetAccount</code> and <code>DeleteAccount</code> methods are also similar to the <a href="../../first-concurrency-unit-test/">previous
+tutorial</a>, but now use a <code>try { ... } catch { ... }</code> block to
+return <code>false</code> if the call to <code>IDbCollection</code> failed with a <code>RowNotFoundException</code>.</p>
+<p>Let&rsquo;s first write a sequential unit test to exercise the above <code>UpdateAccount</code> logic.</p>
+<pre><code class="language-csharp">[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestAccountUpdate()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  string accountName = &quot;MyAccount&quot;;
+
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, &quot;first_version&quot;, 1);
+  Assert.True(result);
+
+  result = await accountManager.UpdateAccount(accountName, &quot;second_version&quot;, 2);
+  Assert.True(result);
+
+  result = await accountManager.UpdateAccount(accountName, &quot;second_version_alt&quot;, 2);
+  Assert.False(result);
+}
+</code></pre>
+<p>Build the code, rewrite the assembly and run the test using Coyote for <code>10</code> iterations:</p>
+<pre><code class="language-plain">coyote rewrite .\AccountManager.ETags.dll
+coyote test .\AccountManager.ETags.dll -m TestAccountUpdate -i 10
+</code></pre>
+<p>The test succeeds.</p>
+<pre><code class="language-plain">. Testing .\AccountManager.ETags.dll
+... Method TestAccountUpdate
+... Started the testing task scheduler (process:37236).
+... Created '1' testing task (process:37236).
+... Task 0 is using 'random' strategy (seed:2049239085).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+... Testing statistics:
+..... Found 0 bugs.
+... Exploration statistics:
+..... Explored 10 schedules: 10 fair and 0 unfair.
+..... Number of scheduling decisions in fair terminating schedules: 15 (min), 17 (avg), 25 (max).
+... Elapsed 0.2354834 sec.
+</code></pre>
+<p>This is cool, but will a test that exercises concurrent account updates also succeed? Let&rsquo;s find out
+by writing the following concurrency unit test.</p>
+<pre><code class="language-csharp">[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestConcurrentAccountUpdate()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  string accountName = &quot;MyAccount&quot;;
+
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, &quot;first_version&quot;, 1);
+  Assert.True(result);
+
+  // Call UpdateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.UpdateAccount(accountName, &quot;second_version&quot;, 2);
+  var task2 = accountManager.UpdateAccount(accountName, &quot;second_version_alt&quot;, 2);
+
+  // Then wait both requests to complete.
+  await Task.WhenAll(task1, task2);
+
+  // Finally, assert that only one of the two requests succeeded and the other
+  // failed. Note that we do not know which one of the two succeeded as the
+  // requests ran concurrently (this is why we use an exclusive OR).
+  Assert.True(task1.Result ^ task2.Result);
+}
+</code></pre>
+<p>Build the code, rewrite the assembly and run the test using Coyote for <code>10</code> iterations.  You&rsquo;ll
+realize it will fail quite fast as Coyote will find an execution in which <em>both</em> <code>UpdateAccount</code>
+requests succeed.</p>
+<p>This is a bug because only one of the two requests should succeed. This race condition happens when
+the two concurrently executing <code>UpdateAccount</code> methods both read the first <code>Version</code> of the row,
+independently think their account <code>Version</code> is greater than what is currently stored in the database
+and update the entry.</p>
+<p>In fact, the problem is worse than that. Consider the following test that first updates the accounts
+concurrently using two different versions, <code>2</code> and <code>3</code>, and then getting the account and asserting
+that the account version should always be the latest, which is <code>3</code>.</p>
+<pre><code class="language-csharp">[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task TestGetAccountAfterConcurrentUpdate()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  string accountName = &quot;MyAccount&quot;;
+
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, &quot;first_version&quot;, 1);
+  Assert.True(result);
+
+  // Call UpdateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.UpdateAccount(accountName, &quot;second_version&quot;, 2);
+  var task2 = accountManager.UpdateAccount(accountName, &quot;third_version&quot;, 3);
+
+  // Then wait both requests to complete.
+  await Task.WhenAll(task1, task2);
+
+  // Finally, get the account and assert that the version is always 3,
+  // which is the latest updated version.
+  var account = await accountManager.GetAccount(accountName);
+  Assert.True(account.Version == 3);
+}
+</code></pre>
+<p>Build the code, rewrite the assembly and run the test using Coyote for <code>10</code> iterations. This test
+will fail in some iterations with account version <code>2</code> overwriting version <code>3</code>.</p>
+<p>You can see that this is not just a benign failure! The code doesn&rsquo;t respect the <code>UpdateAccount</code>
+semantics in the presence of concurrency, which is a serious issue.</p>
+<p>A database system like <a href="https://azure.microsoft.com/services/cosmos-db/">Cosmos DB</a> provides
+<a href="https://en.wikipedia.org/wiki/HTTP_ETag">ETags</a> which you can use to only update the row if the
+ETags match. This ensures that <code>UpdateAccount</code> will fail if another concurrent request updates the
+row after <code>UpdateAccount</code> has read it, which indicates that <code>UpdateAccount</code> operated on stale data.</p>
+<p>Let&rsquo;s take a look at a correct implementation of <code>UpdateAccount</code> that uses ETags.</p>
+<pre><code class="language-csharp">// Returns true if the account is updated, else false.
+public async Task&lt;bool&gt; UpdateAccount(string accountName, string accountPayload, int accountVersion)
+{
+  Account existingAccount;
+  Guid existingAccountETag;
+
+  // Naive retry if ETags mismatch. In production, you would either use a proper retry
+  // policy with delays or return a response to the caller requesting them to retry.
+  while (true)
+  {
+    try
+    {
+      (string value, Guid etag) = await this.AccountCollection.GetRow(accountName);
+      existingAccount = JsonSerializer.Deserialize&lt;Account&gt;(value);
+      existingAccountETag = etag;
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+
+    if (accountVersion &lt;= existingAccount.Version)
+    {
+      return false;
+    }
+
+    var updatedAccount = new Account()
+    {
+      Name = accountName,
+      Payload = accountPayload,
+      Version = accountVersion
+    };
+
+    try
+    {
+      return await this.AccountCollection.UpdateRow(
+        accountName,
+        JsonSerializer.Serialize(updatedAccount),
+        existingAccountETag);
+    }
+    catch (MismatchedETagException)
+    {
+      continue;
+    }
+    catch (RowNotFoundException)
+    {
+      return false;
+    }
+  }
+}
+</code></pre>
+<p>Let&rsquo;s extend the <code>IDbCollection</code> interface and <code>InMemoryDbCollection</code> mock to support ETags so that
+you can run the above test. You can also define a helper <code>DbRow</code> class in your mock to store the
+database row value with its associated ETag.</p>
+<pre><code class="language-csharp">public class DbRow
+{
+    public string Value { get; set; }
+
+    public Guid ETag { get; set; }
+}
+
+public interface IDbCollection
+{
+  Task&lt;bool&gt; CreateRow(string key, string value);
+
+  Task&lt;bool&gt; DoesRowExist(string key);
+
+  Task&lt;(string value, Guid etag)&gt; GetRow(string key);
+
+  Task&lt;bool&gt; UpdateRow(string key, string value, Guid etag);
+
+  Task&lt;bool&gt; DeleteRow(string key);
+}
+
+public class InMemoryDbCollection : IDbCollection
+{
+  private readonly ConcurrentDictionary&lt;string, DbRow&gt; Collection;
+
+  public InMemoryDbCollection()
+  {
+    this.Collection = new ConcurrentDictionary&lt;string, DbRow&gt;();
+  }
+
+  public Task&lt;bool&gt; CreateRow(string key, string value)
+  {
+    return Task.Run(() =&gt;
+    {
+      // Generate a new ETag when creating a brand new row.
+      var dbRow = new DbRow()
+      {
+        Value = value,
+        ETag = Guid.NewGuid()
+      };
+
+      bool success = this.Collection.TryAdd(key, dbRow);
+      if (!success)
+      {
+        throw new RowAlreadyExistsException();
+      }
+
+      return true;
+    });
+  }
+
+  public Task&lt;(string value, Guid etag)&gt; GetRow(string key)
+  {
+    return Task.Run(() =&gt;
+    {
+      bool success = this.Collection.TryGetValue(key, out DbRow dbRow);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return (dbRow.Value, dbRow.ETag);
+    });
+  }
+
+  public Task&lt;bool&gt; UpdateRow(string key, string value, Guid etag)
+  {
+    return Task.Run(() =&gt;
+    {
+      lock (this.Collection)
+      {
+        bool success = this.Collection.TryGetValue(key, out DbRow existingDbRow);
+        if (!success)
+        {
+          throw new RowNotFoundException();
+        }
+        else if (etag != existingDbRow.ETag)
+        {
+          throw new MismatchedETagException();
+        }
+
+        // Update the Etag value when updating the row.
+        var dbRow = new DbRow()
+        {
+          Value = value,
+          ETag = Guid.NewGuid()
+        };
+
+        this.Collection[key] = dbRow;
+        return true;
+      }
+    });
+  }
+
+  /* Rest of the methods not shown for simplicity */
+}
+</code></pre>
+<p>The above <code>InMemoryDbCollection</code> mock simulates the ETag semantics of Cosmos DB. You can see how the
+rest of the <code>InMemoryDbCollection</code> methods are implemented in the <code>AccountManager.ETags</code> sample,
+which is available in the <a href="https://github.com/microsoft/coyote/tree/main/Samples/AccountManager/AccountManager.ETags">Coyote git
+repo</a></p>
+<p>Build the code one last time, rewrite the assembly and run the test using Coyote for <code>10</code>
+iterations.  This time the test succeeds! If you try to remove the ETag check, it will fail as expected.</p>
+<p>As you can see, it didn&rsquo;t take much effort to simulate ETags in the mock, as you just simulated the
+semantics <em>in-memory</em>. This is significantly easier than if you had to implement the <em>real</em> ETags
+functionality in a production distributed system, where you would have to worry about arbitrary
+failures, coordination across machines and network delays. Mocks are often fairly easy to write and
+help ensure that <em>your</em> distributed service works correctly in the presence of arbitrary concurrency
+across a fleet of machines.</p>
+<h2 id="get-the-sample-source-code">Get the sample source code</h2>
+<p>To get the complete source code for the <code>AccountManager.ETags</code> tutorial, first clone the <a href="https://github.com/microsoft/coyote">Coyote git
+repo</a>.</p>
+<p>You can then build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../testing-aspnet-service/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../testing-aspnet-service/" class="btn btn-xs btn-link">
+        Testing an ASP.NET Core service
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../mock-dependencies/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../mock-dependencies/" class="btn btn-xs btn-link">
+        Mocking dependencies for testing
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

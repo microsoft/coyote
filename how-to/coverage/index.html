@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/how-to/coverage/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Track code and actor activity coverage - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Track code and actor activity coverage", url: "#_top", children: [
+              {title: "Coyote coverage options", url: "#coyote-coverage-options" },
+              {title: "Output file locations", url: "#output-file-locations" },
+              {title: "Actor activity coverage", url: "#actor-activity-coverage" },
+              {title: "Definition of event coverage", url: "#definition-of-event-coverage" },
+              {title: "Activity coverage output files", url: "#activity-coverage-output-files" },
+              {title: "Activity coverage visualization example", url: "#activity-coverage-visualization-example" },
+              {title: "Coyote test examples", url: "#coyote-test-examples" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../samples/overview/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../samples/overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../liveness-checking/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../liveness-checking/" class="btn btn-xs btn-link">
+        Find liveness bugs effectively
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="track-code-and-actor-activity-coverage">Track code and actor activity coverage</h2>
+<p>Standard code coverage tools record the percentage of code lines that are actually executed by test
+cases. Coyote additionally defines the higher-level metric <em>Actor Activity Coverage</em> that reports
+state transitions and the percentage of possible events that are actually executed during a run of
+<code>coyote</code> tester.</p>
+<h3 id="coyote-coverage-options">Coyote coverage options</h3>
+<p>Running <code>coyote /?</code> displays a summary of command-line options. Here is the section describing
+options to report activity coverage:</p>
+<pre><code class="language-plain">Coverage options:
+-----------------------------------
+  -c, --coverage string       
+        : Generate coverage reports if supported for the programming model used by the test.
+</code></pre>
+<p>Detailed descriptions are provided in subsequent sections. The following provides a quick overview.</p>
+<ul>
+<li>If <code>--coverage</code> is specified, Coyote will collect the history of all events and state transitions
+  for reporting the coverage of the actors and state machines being tested.</li>
+<li>Coverage is not currently available for programming models other than actors.</li>
+</ul>
+<h3 id="output-file-locations">Output file locations</h3>
+<p>By default, at the end of testing the report files are written to a directory named
+<code>Output/[assemblyToTest]/CoyoteOutput</code> in the directory specified by the <code>path</code> argument. If
+<code>--outdir outputDirectory</code> is specified, then the files are written to the directory
+<code>[outputDirectory]/CoyoteOutput</code>.</p>
+<p>Details of the report files that are created for the separate coverage types are provided in
+subsequent sections.</p>
+<h3 id="actor-activity-coverage">Actor activity coverage</h3>
+<p>Actor activity coverage includes event coverage, which is defined in the following section, as well
+as a summary of states that were entered and exited and which state transitions occurred.</p>
+<h3 id="definition-of-event-coverage">Definition of event coverage</h3>
+<p>A tuple <code>(M, S, E)</code> is said to be <em>defined</em> if state S of machine M is prepared to receive an event
+of type E, i.e., it has an action defined for the event.</p>
+<p>A tuple <code>(M, S, E)</code> is said to be <em>covered</em> by a test run if state S of machine M actually dequeues
+an event of type E during an execution.</p>
+<p>Event coverage is the number of tuples covered divided by the number of tuples defined in the
+program. The higher this metric, the better testing exercised all these combinations in the
+program. As with other coverage metrics, obtaining 100% coverage may be unrealistic as it depends
+on the particular test harness being used.</p>
+<h3 id="activity-coverage-output-files">Activity coverage output files</h3>
+<p>If the option <code>--coverage</code>, <code>--coverage activity</code>, or <code>--coverage activity-debug</code> is passed to
+<code>coyote</code>, the following files will be written to the <a href="#output-file-locations">output directory</a> (for
+example, given <code>path</code> equal to <code>PingPong.exe</code>):
+* <code>PingPong.coverage.txt</code>. This file contains the Event Coverage metric along with a breakdown per
+  machine and per state. It also summarizes other useful coverage information.
+* <code>PingPong.dgml</code>. This file contains the Event Coverage visualization as described below.
+* <code>PingPong.coverage.ser</code>. This is the serialized <code>CoverageInfo</code> object for the test run. Such
+  <code>.coverage.ser</code> files from multiple runs can be passed to <code>CoyoteCoverageReportMerger.exe</code> to
+  create a merged report.
+* If <code>--coverage activity-debug</code> was specified, then there will also be a Debug directory containing
+  the same files as above for each process, with the filename qualified by a sequential process id,
+  e.g: <code>PingPong.coverage_0.txt</code></p>
+<p>Note that while <code>--coverage</code> is a shortcut for specifying both <code>--coverage code</code> and <code>--coverage
+activity</code>, you must specify <code>--coverage activity-debug</code> explicitly.</p>
+<h3 id="activity-coverage-visualization-example">Activity coverage visualization example</h3>
+<p>The activity coverage can additionally be displayed in <a href="https://en.wikipedia.org/wiki/DGML">DGML</a>
+format. Run <code>coyote</code> as described in the <a href="#coyote-test-examples"><code>coyote</code> examples</a> section below.
+This produces a file in the DGML format as described in the <a href="#activity-coverage-output-files">activity coverage output
+files</a> section. Open the file using Visual Studio. It captures
+machines, states and transitions witnessed during the testing of the program. The file also contains
+inter-machine transitions. These transitions are usually auto-hidden when opened in Visual Studio,
+but visible when you click on a state.</p>
+<h3 id="coyote-test-examples">Coyote test examples</h3>
+<p>First build the Coyote samples by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<p>Then run <code>coyote</code> with one of the coverage flags, as well as the other options you want. Here are
+some minimal examples:</p>
+<pre><code class="language-plain">coyote test ./bin/net8.0/Monitors.exe -i 10 --coverage
+</code></pre>
+<p>This will create the directory <code>./bin/net8.0/Output/Monitors.exe/CoyoteOutput/</code>, then it
+generates coverage files for code coverage which you can load into Visual Studio to see the results.</p>
+<pre><code class="language-plain">coyote test ./bin/net8.0/Monitors.exe -i 10 -coverage activity  -o &quot;/Coyote_Coverage/Monitors&quot;
+</code></pre>
+<p>This will create the directory <code>/Coyote_Coverage/Monitors/CoyoteOutput</code>, then it generates only
+activity coverage.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../samples/overview/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../samples/overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../liveness-checking/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../liveness-checking/" class="btn btn-xs btn-link">
+        Find liveness bugs effectively
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

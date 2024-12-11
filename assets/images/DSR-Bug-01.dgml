@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" Bounds="199.193795522921,427.941671480191,373.24,229.800303149193" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Bounds="359.673655712208,539.861857910156,52.28,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init" Bounds="360.813670970997,467.941798706055,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Bounds="318.455337637663,611.781901855469,134.716666666667,25.96" Label="TerminatingNavigator" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" Category="Monitor" Bounds="537.230944225235,1113.43757113627,373.85,157.882074999743" Group="Expanded" Label="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Bounds="692.018537687857,1153.43736970147,69.6966666666667,25.96" Label="Busy[hot]" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle" Bounds="692.251871021191,1225.35924470147,69.23,25.96" Label="Idle[cold]" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" Bounds="952.134334153005,979.23769490907,417.783333333333,229.801417041015" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Bounds="1134.88611174385,1091.15779477676,52.2799999999997,25.96" Label="Active" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Halt" Bounds="1136.02611174385,1163.07905942519,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Init" Bounds="1136.02611174385,1019.2378118666,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" Bounds="1007.56471823865,642.343546131225,401.02,157.879656895705" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active" Bounds="1181.93471823866,682.343852539063,52.28,25.96" Label="Active" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Halt" Bounds="1183.0745961656,754.263103026931,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" Category="Actor" Bounds="536.44047284316,986.128182338135,370.973333333333,85.9602" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Bounds="676.917160189541,1026.12824472708,90.02,25.96" Label="MockStorage" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" Bounds="213.629872698545,694.833744133572,359.603333333333,229.800226855469" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Active" Bounds="367.291518554688,878.673922064762,52.28,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Init" Bounds="368.433013916016,734.833834174137,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Bounds="364.609882405599,806.75387811945,57.6433333333334,25.96" Label="Paused" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" Bounds="624.431163469121,627.753250223585,353.133333333333,301.720392871094" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="774.857860653365,811.593560184523,52.28,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Halt" Bounds="775.997830135787,883.513543094679,50,25.96" Label="Halt" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Init" Bounds="775.997830135787,667.753350223585,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Bounds="772.176163469121,739.673546756788,57.6433333333334,25.96" Label="Paused" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Bounds="143.52,974.030000000001,332.96,373.64" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Bounds="361.819166666667,1085.95,52.28,25.96" Label="Active" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Bounds="255.0825,1157.87,101.753333333333,25.96" Label="ExecutingOrder" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Init" Bounds="362.959166666667,1014.03,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Bounds="334.3875,1301.71,107.143333333333,25.96" Label="MovingOnRoute" />
+    <Node Id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ReachingClient" Bounds="258.6175,1229.79,98.6833333333333,25.96" Label="ReachingClient" />
+  </Nodes>
+  <Links>
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Bounds="382.939147949219,565.821838378906,0.17327880859375,36.9605712890625" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="353.89421202047,574.324395568986,25.1933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Bounds="385.813649072527,493.901798706055,7.84156401323344E-06,36.9600592041019" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="389.813652993309,504.401828732432,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Bounds="348.87601271338,471.860966186523,429.565304671768,263.11175055932" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" Label="WakeUpEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Bounds="388.968078613281,574.821411132813,0.144317626953125,36.9605102539063" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="393.111522868538,584.502037555738,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Bounds="331.616924946122,615.70119140625,55.2726015097347,182.439317918545" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" Label="WakeUpEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="355.745944537956,615.70119140625,417.872192223614,193.289089002728" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+TerminateEvent" Label="TerminateEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle" Bounds="742.245910644531,1179.39855957031,16.5758666992188,40.1444091796875" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+IdleEvent" Label="IdleEvent" LabelBounds="776.760580346125,1115.34273661705,48.3933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Bounds="694.616760253906,1185.18225097656,16.7288818359375,40.1763916015625" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" Label="BusyEvent" LabelBounds="658.035580346125,1115.34273661705,53.52,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Halt" Bounds="1161.02600097656,1117.11840820313,0,36.9599609375" Label="halt" LabelBounds="1149.29410529222,1151.88237143435,19.8700000000001,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="831.767255066394,842.961768226621,303.854988016193,228.432011070254" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.DrinksClientDetailsEvent" Label="DrinksClientDetailsEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Bounds="1161.02600097656,1045.19836425781,0,36.9600830078125" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="1143.97077195889,1079.96237143435,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Halt" Bounds="1208.07470703125,708.303344726563,0,36.9600830078125" Label="halt" LabelBounds="1689.27943647731,366.388910593729,19.8699999999999,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="709.697448730469,843.810180664063,81.0439453125,195.447509765625" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" Label="DrivingInstructionsEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Bounds="418.997602835069,577.753071289063,314.363577206592,223.781476586527" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" Label="KeyValueEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="754.378689673199,577.753071289063,48.2584560818611,225.040569189035" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.ConfirmedEvent" Label="ConfirmedEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Bounds="755.444192257423,577.753071289063,45.4558488402661,153.291862885635" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" Label="KeyValueEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Bounds="393.431996753661,760.793834174137,0.000752789993100578,36.9600439471797" EventIds="Microsoft.Coyote.Actors.PushStateEvent" Label="push(push)" LabelBounds="397.432373148658,771.293896883067,58.6933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Bounds="411.665583874354,582.972410132223,314.363577206592,223.781476586527" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" Label="ReadKeyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Active" Bounds="393.431527881384,832.71387811945,1.56831246158617E-05,36.9600439453128" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="397.431535722946,843.213900940759,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Bounds="388.202178020669,832.71388671875,5.0858603004034,459.996663318611" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" Label="RegisterNavigatorEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Bounds="363.914415108374,619.479562555333,417.872192223614,193.289089002728" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+HaltedEvent" Label="HaltedEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active" Bounds="824.573405110772,837.553577880859,303.854988016193,228.432011070254" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.RecognizeDrinksClientEvent,Microsoft.Coyote.Actors.HaltEvent" Label="*" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active" Bounds="715.319274902344,837.553588867188,85.8397827148438,193.129760742188" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.GetRouteEvent,Microsoft.Coyote.Actors.HaltEvent" Label="*" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Bounds="756.265777828924,586.553008691824,48.2584560818611,225.040569189035" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent,Microsoft.Coyote.Samples.DrinksServingRobot.DeleteKeyEvent" Label="*" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Halt" Bounds="800.997812061079,837.553577880859,1.56831123376833E-05,36.959982910157" Label="halt" LabelBounds="804.997819902635,848.053570184591,19.87,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Bounds="415.330200880105,837.553577880859,372.137826200514,243.469077123097" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderConfirmedEvent,Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderProducedEvent" Label="*" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Bounds="332.157299937398,837.553577880859,456.357607270782,315.201633576087" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" Label="DrivingInstructionsEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Bounds="800.997802734375,693.713367919922,0,36.960166015625" EventIds="Microsoft.Coyote.Actors.PushStateEvent" Label="push(push)" LabelBounds="804.997802734375,704.213450927734,58.6933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage" Bounds="758.002851968717,586.38170156749,45.4558488402661,153.291862885635" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" Label="ReadKeyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="800.997808242133,765.633533935547,1.56831247295486E-05,36.9600439453134" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="804.997816083695,776.13355505955,25.1933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Init" Bounds="415.330198190523,765.633564453125,372.137800787333,243.469090130856" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" Label="RegisterNavigatorEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ReachingClient" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active" Bounds="330.011037073034,552.730797867303,56.5710372815457,533.219202132697" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+RobotReadyEvent" Label="RobotReadyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle" Bounds="407.059047556701,1111.91,275.825276770376,187.446828233763" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="407.798848326283,842.480922876903,372.137826200514,243.469077123097" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrinkOrderEvent" Label="GetDrinkOrderEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Bounds="327.524627685547,1111.91003417969,45.6353149414063,40.0255126953125" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderProducedEvent" Label="DrinkOrderProducedEvent" LabelBounds="208.359166666667,1126.91,138.6,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Bounds="356.835833333333,1180.2598858946,308.893909039052,57.1314244432883" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active" Bounds="324.751968198721,842.668366423913,456.357607270782,315.201633576087" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrivingInstructionsEvent" Label="GetDrivingInstructionsEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ReachingClient" Bounds="306.320129394531,1183.82995605469,1.02789306640625,36.9635009765625" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" Label="DrivingInstructionsEvent" LabelBounds="178.469166666667,1198.83,128.49,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Init" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Bounds="387.959167480469,1039.98999023438,0,36.9599609375" EventIds="Microsoft.Coyote.Actors.PushStateEvent" Label="push(push)" LabelBounds="329.265833333333,1054.99,58.6933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator" Bounds="329.542541859809,624.669111425998,57.3177482329038,677.040888574002" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" Label="NavigatorResetEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Target="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy" Bounds="441.145082845199,1254.87122254087,224.636197052583,48.3671458850927" EventIds="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+IdleEvent" Label="IdleEvent" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active" Bounds="387.959167480469,1120.91003417969,0,180.799926757813" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="362.765833333333,1198.83,25.1933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ReachingClient" Target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute" Bounds="322.397430419922,1255.75,44.4305114746094,39.9429931640625" EventIds="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="322.765833333333,1270.75,25.1933333333334,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Actor" Label="Actor" IsTag="True" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+    <Category Id="Monitor" Label="Monitor" IsTag="True" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventIds" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Error" ValueLabel="True">
+      <Condition Expression="HasCategory('Error')" />
+      <Setter Property="Background" Value="#FFC15656" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Actor" ValueLabel="True">
+      <Condition Expression="HasCategory('Actor')" />
+      <Setter Property="Background" Value="#FF57AC56" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Monitor" ValueLabel="True">
+      <Condition Expression="HasCategory('Monitor')" />
+      <Setter Property="Background" Value="#FF558FDA" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="halt" ValueLabel="True">
+      <Condition Expression="HasCategory('halt')" />
+      <Setter Property="Stroke" Value="#FFFF6C6C" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="push" ValueLabel="True">
+      <Condition Expression="HasCategory('push')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="pop" ValueLabel="True">
+      <Condition Expression="HasCategory('pop')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+  </Styles>
+</DirectedGraph>

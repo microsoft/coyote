@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/how-to/liveness-checking/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find liveness bugs effectively - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Find liveness bugs effectively", url: "#_top", children: [
+          ]},
+          {title: "Fair and unfair scheduling", url: "#fair-and-unfair-scheduling", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../coverage/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../unit-testing/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../unit-testing/" class="btn btn-xs btn-link">
+        Integrate with a unit testing framework
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="find-liveness-bugs-effectively">Find liveness bugs effectively</h2>
+<p>Now that you learned <a href="../../concepts/specifications/">how to write liveness specifications</a> in
+Coyote, let&rsquo;s see how to effectively test for liveness bugs.</p>
+<p>The presence of monitors that have <code>Hot</code> and <code>Cold</code> states implicitly specifies two assertions.
+Monitor states that are marked neither <code>Hot</code> nor <code>Cold</code> are called <em>warm</em> states. First, any
+terminated execution of the program must not have a monitor in a hot state. Second, the program
+should not have infinite executions that remain in hot (or warm) states infinitely without
+transitioning to a cold state.</p>
+<p>While the former is a safety property and easily checked, the latter requires generation of infinite
+executions, which is not really possible in practice and we must resort to heuristics. Coyote
+maintains a <em>temperature</em> for each monitor. The temperature goes up by a unit if the monitor
+transitions to a hot state, it goes to zero on a transition to a cold state and stays the same on
+transition to a warm state. The Coyote tester looks for executions where the temperature of a
+monitor exceeds a particular large threshold because it indicates a long suffix stuck in hot/warm
+states without transitioning to a cold state. The definition of what is <em>large</em> is where you can
+help the tester.</p>
+<p>The tester accepts a flag <code>--max-steps N</code>. Using this flag, you can say that the program is expected
+to execute around N steps per test iteration. Executions substantially longer than N are treated as
+potential infinite executions. But what is a step and how does one estimate N? This can be done
+using a few iterations of the tester. For example, consider the <a href="../../tutorials/actors/test-failover/">failover coffee machine using
+actors</a> sample program. Assuming you have
+<a href="../../get-started/install/#building-the-samples">built the samples</a> you can test it with
+the <a href="../../get-started/using-coyote/">coyote tool</a> as follows, setting N steps as 200.</p>
+<p>From the <a href="https://github.com/microsoft/coyote/tree/main/Samples">samples</a> directory:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/CoffeeMachineActors.dll -i 10 -ms 200 -s portfolio
+</code></pre>
+<p>The <code>coyote test</code> tool will produce output, ending with something like the following:</p>
+<pre><code class="language-plain">... Testing statistics:
+..... Found 0 bugs.
+... Exploration statistics:
+..... Explored 40 schedules: 40 fair and 0 unfair.
+..... Number of scheduling decisions in fair terminating schedules: 153 (min), 457 (avg), 1066 (max).
+..... Exceeded the max-steps bound of '200' in 95.00% of the fair schedules.
+... Elapsed 1.4882005 sec.
+. Done
+</code></pre>
+<p>Note the line that reads <code>Exceeded the max-steps bound of '200' in 95.00% of the fair schedules</code>. It
+means that the program execution exceeded 200 steps several times (95% of the times) to reach
+termination. The line above it indicates that execution lengths ranged from 153 steps to 1066 steps,
+averaging 457 steps. Going by this output, let&rsquo;s decide to increase the bound to 1000 and re-run
+<code>coyote test</code>.</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/CoffeeMachineActors.dll -i 10 -ms 1000 -s portfolio
+</code></pre>
+<p>This time the output will be something like:</p>
+<pre><code class="language-plain">... Testing statistics:
+..... Found 0 bugs.
+... Exploration statistics:
+..... Explored 40 schedules: 40 fair and 0 unfair.
+..... Number of scheduling decisions in fair terminating schedules: 88 (min), 657 (avg), 2411 (max).
+..... Exceeded the max-steps bound of '1000' in 27.50% of the fair schedules.
+... Elapsed 3.3885497 sec.
+. Done
+</code></pre>
+<p>The testing is a little bit slower: taking a bit more than 3 seconds for the same number of
+iterations. But the tester hit the bound much fewer times, making the testing much more effective as
+it more often covers the entire length of program execution. In general, it is <em>not</em> necessary to
+make this percentage go to zero. Often times, programs can exceed their expected length of
+execution, either because of bugs, or because of corner-case scheduling that delays important events
+more than usual. You could pick a max-steps bound that is very large. However, this will slow down
+the tester (when using unfair schedulers; see the next section for details). Thus, it is recommended
+that you do a few iterations with the tester before settling down on the desired max-steps bound.</p>
+<p>To understand the details behind <em>fair</em> and <em>unfair</em> scheduling that is mentioned in the output
+above, let&rsquo;s move on to next section targeted towards more advanced usage of Coyote.</p>
+<h2 id="fair-and-unfair-scheduling">Fair and unfair scheduling</h2>
+<p>See the following technical paper that explains the concept behind fair and unfair scheduling:</p>
+<p><a href="https://www.microsoft.com/en-us/research/publication/fair-stateless-model-checking/">Fair stateless model checking. Madan Musuvathi and Shaz Qadeer. PLDI
+2008.</a></p>
+<p>Consider a program with two actors A and B. The actor A continuously sends an event to itself until
+it receives a message from B. The actor B is ready to send the message to A immediately upon
+creation. (Contrast this example to Figure 3 of the paper.) This program has an infinite execution:
+where A is continuously scheduled without giving B a chance. Such an infinite execution is called
+<em>unfair</em> because B is starved over an infinitely long period of time, which is unrealistic in modern
+systems.</p>
+<p>The <code>coyote test</code> tool works by taking over the scheduling of the Coyote program. It uses one of
+several <em>schedulers</em>: algorithms that decide which actor to schedule next. A scheduler is called
+<em>fair</em> if it is not expected to generate unfair executions. For example, the random scheduler, which
+makes decisions on the next actor to schedule randomly, is fair. In the program described above, it
+is very likely that B will be given a chance to execute. Some schedulers don&rsquo;t have this property
+and are called <em>unfair</em> schedulers. Unfair schedulers have a role to play in finding violations of
+safety properties, but not in finding violations of liveness properties. The <code>prioritization</code>
+scheduler of Coyote (enabled with the <code>--strategy prioritization</code> option) is unfair.</p>
+<p>Because of their nature, unfair schedulers are expected to generate longer than usual executions.
+The unfairness in scheduling can lead to starvation of certain actors, which may stall progress. The
+expected length of a program&rsquo;s execution is best determined by looking at lengths of &ldquo;fair
+terminating executions&rdquo;, i.e., executions that terminate under a fair scheduler. For this reason, we
+provide the <code>fair-prioritization</code> scheduler (enabled with the <code>--strategy fair-prioritization</code>
+option) which uses the <code>prioritization</code> scheduler for a prefix of each execution and then switches
+to the default fair <code>random</code> scheduler for the remaining of the execution.</p>
+<p>When a user supplies the flag <code>--max-steps N</code>, executions under an unfair scheduler are forced to
+stop after N steps. Whereas, an execution under a fair scheduler can go to up 10N steps. Further, if
+the execution stays in a hot state for more than 5N steps, a liveness bug is flagged. Alternatively,
+you can supply the flag <code>--max-fair-steps M</code> to limit fair schedulers to explore only up to M steps
+(instead of 10N). If you decide to use the <code>--max-fair-steps M</code> flag, you can optionally set the
+unfair steps using the <code>--max-unfair-steps N</code> flag.</p>
+<p>There are other smarter heuristics available in the tester as well that do away with the need for
+such bounds by looking for <em>lasso</em> shaped executions. If interested, read more about it in the
+following paper from Microsoft Research.</p>
+<p><a href="https://www.microsoft.com/en-us/research/publication/lasso-detection-using-partial-state-caching-2/">Lasso Detection using Partial-State Caching. FMCAD
+2017.</a></p>
+<p>To avoid having to think which scheduler works best for which situation, we recommend running
+<code>coyote test</code> using the portfolio scheduler (enabled with the <code>--strategy portfolio</code> option) which
+consists of a carefully tuned selection of fair schedulers (including <code>random</code>, <code>prioritization</code> and
+<code>fair-prioritization</code>).</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../coverage/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../unit-testing/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../unit-testing/" class="btn btn-xs btn-link">
+        Integrate with a unit testing framework
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

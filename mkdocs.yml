@@ -144,6 +144,9 @@ nav:
         - WithCoverageInfoSerialized: ref/Microsoft.Coyote/Configuration/WithCoverageInfoSerialized.md
         - WithActorTraceVisualizationEnabled: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled.md
         - WithXmlLogEnabled: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled.md
+        - WithStrictExplorationEnabled: ref/Microsoft.Coyote/Configuration/WithStrictExplorationEnabled.md
+        - WithStrictBoundCheckingEnabled: ref/Microsoft.Coyote/Configuration/WithStrictBoundCheckingEnabled.md
+        - WithJsonReportEnabled: ref/Microsoft.Coyote/Configuration/WithJsonReportEnabled.md
         - WithTelemetryEnabled: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled.md
         - Configuration: ref/Microsoft.Coyote/Configuration/Configuration.md
         - TestingIterations: ref/Microsoft.Coyote/Configuration/TestingIterations.md
@@ -683,9 +686,19 @@ nav:
         - IsAssemblyRewritten: ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten.md
     - Microsoft.Coyote.SystematicTesting:
       - Namespace Overview: ref/Microsoft.Coyote.SystematicTestingNamespace.md
+      - ExplorationVerdict:
+        - Overview: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict.md
+        - ToString: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/ToString.md
+        - Status: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Status.md
+        - Reasons: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Reasons.md
+        - Warnings: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Warnings.md
+      - ExplorationStatus: ref/Microsoft.Coyote.SystematicTesting/ExplorationStatus.md
+      - IncompleteExplorationReason: ref/Microsoft.Coyote.SystematicTesting/IncompleteExplorationReason.md
+      - ExplorationWarning: ref/Microsoft.Coyote.SystematicTesting/ExplorationWarning.md
       - TestReport:
         - Overview: ref/Microsoft.Coyote.SystematicTesting/TestReport.md
         - Merge: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge.md
+        - GetVerdict: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetVerdict.md
         - GetText: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText.md
         - Clone: ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone.md
         - TestReport: ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport.md
@@ -714,6 +727,7 @@ nav:
         - MaxFairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests.md
         - MaxUnfairStepsHitInFairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests.md
         - MaxUnfairStepsHitInUnfairTests: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests.md
+        - NumOfTruncatedPaths: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfTruncatedPaths.md
         - InternalErrors: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors.md
       - TestAttribute:
         - Overview: ref/Microsoft.Coyote.SystematicTesting/TestAttribute.md
@@ -733,6 +747,7 @@ nav:
         - Run: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Run.md
         - Stop: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop.md
         - GetReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport.md
+        - GetJsonReport: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetJsonReport.md
         - ThrowIfBugFound: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound.md
         - TryEmitReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitReports.md
         - TryEmitCoverageReports: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitCoverageReports.md

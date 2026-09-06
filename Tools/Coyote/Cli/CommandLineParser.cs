@@ -334,6 +334,22 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var strictOption = new Option<bool>(
+                name: "--strict",
+                description: "Exit with code 4 when no bugs were found but the exploration was incomplete, " +
+                    "for example due to uncontrolled invocations, truncated execution paths or no scheduling decisions.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
+            var strictBoundsOption = new Option<bool>(
+                name: "--strict-bounds",
+                description: "Same as '--strict', but also treats fair execution paths that exceeded the unfair " +
+                    "max-steps bound as incomplete exploration.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var reduceExecutionTraceCyclesOption = new Option<bool>(
                 name: "--reduce-execution-trace-cycles",
                 description: "Enable execution trace cycle detection and reduction heuristics.")
@@ -583,6 +599,8 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
+            this.AddOption(command, strictOption);
+            this.AddOption(command, strictBoundsOption);
             this.AddOption(command, reduceExecutionTraceCyclesOption);
             this.AddOption(command, samplePartialOrdersOption);
             this.AddOption(command, seedOption);
@@ -1034,6 +1052,13 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
+                        break;
+                    case "strict":
+                        this.Configuration.IsStrictExplorationEnabled = true;
+                        break;
+                    case "strict-bounds":
+                        this.Configuration.IsStrictExplorationEnabled = true;
+                        this.Configuration.IsStrictBoundCheckingEnabled = true;
                         break;
                     case "reduce-execution-trace-cycles":
                         this.Configuration.IsExecutionTraceCycleReductionEnabled = true;

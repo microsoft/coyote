@@ -167,6 +167,11 @@ namespace Microsoft.Coyote.SystematicTesting
         public int MaxUnfairStepsHitInUnfairTests { get; internal set; }
 
         /// <summary>
+        /// Number of explored execution paths that were truncated because they reached the max-steps bound.
+        /// </summary>
+        public int NumOfTruncatedPaths => this.MaxFairStepsHitInFairTests + this.MaxUnfairStepsHitInUnfairTests;
+
+        /// <summary>
         /// Set of internal errors. If no internal errors occurred, then this set is empty.
         /// </summary>
         [DataMember]
@@ -391,6 +396,57 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Returns a verdict that summarizes whether the exploration was complete, based on
+        /// the statistics gathered in this report and the configuration used during testing.
+        /// </summary>
+        public ExplorationVerdict GetVerdict()
+        {
+            var reasons = new List<IncompleteExplorationReason>();
+            var warnings = new List<ExplorationWarning>();
+
+            int totalExploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+            if (this.UncontrolledInvocations.Count > 0)
+            {
+                reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);
+            }
+
+            if (this.NumOfTruncatedPaths > 0)
+            {
+                reasons.Add(IncompleteExplorationReason.TruncatedExecutionPaths);
+            }
+
+            if (this.MaxUnfairStepsHitInFairTests > 0)
+            {
+                if (this.Configuration.IsStrictBoundCheckingEnabled)
+                {
+                    reasons.Add(IncompleteExplorationReason.ExceededUnfairStepsBound);
+                }
+                else
+                {
+                    warnings.Add(ExplorationWarning.ExceededUnfairStepsBound);
+                }
+            }
+
+            if (this.NumOfFoundBugs is 0 && this.Configuration.TestingTimeout is 0 &&
+                totalExploredPaths < this.Configuration.TestingIterations)
+            {
+                reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
+            }
+
+            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 &&
+                this.MaxExploredFairSteps <= 0 && this.MaxExploredUnfairSteps <= 0)
+            {
+                reasons.Add(IncompleteExplorationReason.NoSchedulingDecisions);
+            }
+
+            ExplorationStatus status = this.InternalErrors.Count > 0 ? ExplorationStatus.InternalError :
+                this.NumOfFoundBugs > 0 ? ExplorationStatus.BugFound :
+                reasons.Count > 0 ? ExplorationStatus.Incomplete :
+                ExplorationStatus.Complete;
+            return new ExplorationVerdict(status, reasons, warnings);
+        }
+
+        /// <summary>
         /// Returns the testing report as a string, given a configuration and an optional prefix.
         /// </summary>
         public string GetText(Configuration configuration, string prefix = "")
@@ -415,6 +471,21 @@ namespace Microsoft.Coyote.SystematicTesting
                     prefix.Equals("...") ? "....." : prefix,
                     numUncontrolledInvocations,
                     numUncontrolledInvocations is 1 ? string.Empty : "s");
+            }
+
+            ExplorationVerdict verdict = this.GetVerdict();
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Exploration verdict: {1}.",
+                prefix.Equals("...") ? "....." : prefix,
+                verdict);
+            if (verdict.Warnings.Count > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Exploration warnings: {1}.",
+                    prefix.Equals("...") ? "....." : prefix,
+                    string.Join(", ", verdict.Warnings));
             }
 
             report.AppendLine();

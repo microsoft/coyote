@@ -334,6 +334,14 @@ namespace Microsoft.Coyote.Cli
                 Arity = ArgumentArity.Zero
             };
 
+            var jsonReportOption = new Option<bool>(
+                name: "--json-report",
+                description: "Output a '.report.json' file containing a machine-readable report of the test run, " +
+                    "including the exploration verdict, statistics, bug reports and uncontrolled invocations.")
+            {
+                Arity = ArgumentArity.Zero
+            };
+
             var strictOption = new Option<bool>(
                 name: "--strict",
                 description: "Exit with code 4 when no bugs were found but the exploration was incomplete, " +
@@ -599,6 +607,7 @@ namespace Microsoft.Coyote.Cli
             this.AddOption(command, serializeCoverageInfoOption);
             this.AddOption(command, graphOption);
             this.AddOption(command, xmlLogOption);
+            this.AddOption(command, jsonReportOption);
             this.AddOption(command, strictOption);
             this.AddOption(command, strictBoundsOption);
             this.AddOption(command, reduceExecutionTraceCyclesOption);
@@ -1052,6 +1061,9 @@ namespace Microsoft.Coyote.Cli
                         break;
                     case "xml-trace":
                         this.Configuration.IsXmlLogEnabled = true;
+                        break;
+                    case "json-report":
+                        this.Configuration.IsJsonReportEnabled = true;
                         break;
                     case "strict":
                         this.Configuration.IsStrictExplorationEnabled = true;

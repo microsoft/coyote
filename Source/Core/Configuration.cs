@@ -342,6 +342,12 @@ namespace Microsoft.Coyote
         internal bool IsStrictBoundCheckingEnabled;
 
         /// <summary>
+        /// Produce a JSON formatted test report file.
+        /// </summary>
+        [DataMember]
+        internal bool IsJsonReportEnabled;
+
+        /// <summary>
         /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
         internal bool IsTelemetryEnabled;
@@ -405,6 +411,7 @@ namespace Microsoft.Coyote
             this.IsXmlLogEnabled = false;
             this.IsStrictExplorationEnabled = false;
             this.IsStrictBoundCheckingEnabled = false;
+            this.IsJsonReportEnabled = false;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -986,6 +993,17 @@ namespace Microsoft.Coyote
         public Configuration WithStrictBoundCheckingEnabled(bool isEnabled = true)
         {
             this.IsStrictBoundCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with JSON report generation enabled or disabled. If enabled,
+        /// the testing engine emits a machine-readable report of the test run.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables JSON report generation.</param>
+        public Configuration WithJsonReportEnabled(bool isEnabled = true)
+        {
+            this.IsJsonReportEnabled = isEnabled;
             return this;
         }
 

@@ -280,6 +280,71 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
 
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestWaitAsyncWithAsynchronousSourceContinuations(bool isGeneric)
+        {
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var source = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                if (isGeneric)
+                {
+                    Task<int> wait = source.Task.WaitAsync(cancellation.Token);
+                    source.SetResult(WaitAsyncProvider.ExpectedResult);
+                    Assert.Equal(WaitAsyncProvider.ExpectedResult, wait.Result);
+                }
+                else
+                {
+                    Task task = source.Task;
+                    Task wait = task.WaitAsync(cancellation.Token);
+                    source.SetResult(WaitAsyncProvider.ExpectedResult);
+                    wait.GetAwaiter().GetResult();
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(200)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void TestWaitAsyncPropagatesAsynchronousSourceFailure(bool isGeneric, bool isCanceled)
+        {
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                using var sourceCancellation = new CancellationTokenSource();
+                var source = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                Task wait = isGeneric ?
+                    source.Task.WaitAsync(cancellation.Token) :
+                    ((Task)source.Task).WaitAsync(cancellation.Token);
+                if (isCanceled)
+                {
+                    sourceCancellation.Cancel();
+                    Assert.True(source.TrySetCanceled(sourceCancellation.Token));
+                    var error = Assert.ThrowsAny<OperationCanceledException>(() => wait.GetAwaiter().GetResult());
+                    Assert.Equal(sourceCancellation.Token, error.CancellationToken);
+                    Assert.True(wait.IsCanceled);
+                }
+                else
+                {
+                    var error = new InvalidOperationException(WaitAsyncProvider.ExpectedFaultMessage);
+                    source.SetException(new Exception[] { error, new ApplicationException("second fault") });
+                    Assert.Same(error, Assert.Throws<InvalidOperationException>(() => wait.GetAwaiter().GetResult()));
+                    Assert.True(wait.IsFaulted);
+                    Assert.Equal(2, wait.Exception.InnerExceptions.Count);
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
         [Fact(Timeout = 5000)]
         public void TestWaitAsyncWithLongTimeoutAndControlledCompletion()
         {

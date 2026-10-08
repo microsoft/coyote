@@ -3,11 +3,11 @@
 
 #if NET10_0_OR_GREATER
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
 using SystemLock = System.Threading.Lock;
 using SystemSynchronizationLockException = System.Threading.SynchronizationLockException;
 
-#pragma warning disable CS9216 // The conversion preserves Lock identity for controlled synchronization.
 namespace Microsoft.Coyote.Rewriting.Types.Threading
 {
     /// <summary>
@@ -17,6 +17,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class Lock
     {
+        /// <summary>
+        /// Maps each lock to a synchronization identity distinct from its object monitor.
+        /// </summary>
+        private static readonly ConditionalWeakTable<SystemLock, object> SyncObjects =
+            new ConditionalWeakTable<SystemLock, object>();
+
         /// <summary>
         /// Scope that releases a controlled lock when disposed.
         /// </summary>
@@ -57,7 +63,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                var block = Monitor.SynchronizedBlock.Find(instance);
+                var block = Monitor.SynchronizedBlock.Find(GetSyncObject(instance));
                 return block != null && block.IsEntered();
             }
 
@@ -72,7 +78,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                Monitor.SynchronizedBlock.Lock(instance);
+                Monitor.SynchronizedBlock.Lock(GetSyncObject(instance));
             }
             else
             {
@@ -108,7 +114,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                if (Monitor.SynchronizedBlock.TryLock(instance))
+                if (Monitor.SynchronizedBlock.TryLock(GetSyncObject(instance)))
                 {
                     return true;
                 }
@@ -125,7 +131,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     return false;
                 }
 
-                Monitor.SynchronizedBlock.Lock(instance);
+                Monitor.SynchronizedBlock.Lock(GetSyncObject(instance));
                 return true;
             }
 
@@ -155,7 +161,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                var block = Monitor.SynchronizedBlock.Find(instance);
+                var block = Monitor.SynchronizedBlock.Find(GetSyncObject(instance));
                 if (block is null || !block.IsEntered())
                 {
                     throw new SystemSynchronizationLockException();
@@ -169,6 +175,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
         }
 
+        private static object GetSyncObject(SystemLock instance) =>
+            SyncObjects.GetValue(instance, _ => new object());
+
         private static void DelayOperation(CoyoteRuntime runtime)
         {
             if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
@@ -179,5 +188,4 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
     }
 }
-#pragma warning restore CS9216 // The conversion preserves Lock identity for controlled synchronization.
 #endif

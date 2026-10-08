@@ -10,6 +10,8 @@ using Microsoft.Coyote.Runtime.CompilerServices;
 using SystemCancellationToken = System.Threading.CancellationToken;
 using SystemEnumeratorCancellation = System.Runtime.CompilerServices.EnumeratorCancellationAttribute;
 using SystemTask = System.Threading.Tasks.Task;
+using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;
+using SystemTaskScheduler = System.Threading.Tasks.TaskScheduler;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 {
@@ -21,8 +23,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
     /// The uncontrolled <see cref="SystemTask.WhenEach(SystemTask[])"/> methods signal the
     /// enumeration from an uncontrolled thread pool thread, which the runtime is unable to
     /// observe, so awaiting the enumeration can result in a false deadlock. The enumeration
-    /// is instead performed using controlled operations that pause until the next task
-    /// completes, which preserves the completion order of the enumerated tasks.
+    /// records completions synchronously and uses controlled operations to pause until
+    /// the next completed task is available.
     /// </remarks>
     internal sealed class WhenEachState
     {
@@ -37,9 +39,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         private readonly object SyncObject;
 
         /// <summary>
-        /// The tasks that have not completed yet, in the order that they were specified.
+        /// The number of tasks that have not completed yet.
         /// </summary>
-        private readonly List<SystemTask> Pending;
+        private int PendingCount;
 
         /// <summary>
         /// The tasks that have completed, but have not been yielded yet, in completion order.
@@ -60,7 +62,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             {
                 lock (this.SyncObject)
                 {
-                    return this.Pending.Count is 0 && this.Completed.Count is 0;
+                    return this.PendingCount is 0 && this.Completed.Count is 0;
                 }
             }
         }
@@ -68,13 +70,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="WhenEachState"/> class.
         /// </summary>
-        private WhenEachState(CoyoteRuntime runtime)
+        private WhenEachState(CoyoteRuntime runtime, IReadOnlyCollection<SystemTask> tasks)
         {
             this.Runtime = runtime;
             this.SyncObject = new object();
-            this.Pending = new List<SystemTask>();
+            this.PendingCount = tasks.Count;
             this.Completed = new Queue<SystemTask>();
             this.Enumerated = 0;
+            var scheduler = new CompletionTaskScheduler();
+            foreach (SystemTask task in tasks)
+            {
+                _ = task.ContinueWith(this.EnqueueCompletedTask, SystemCancellationToken.None,
+                    SystemTaskContinuationOptions.ExecuteSynchronously, scheduler);
+            }
         }
 
         /// <summary>
@@ -83,22 +91,23 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         internal static WhenEachState Create<TTask>(CoyoteRuntime runtime, ReadOnlySpan<TTask> tasks)
             where TTask : SystemTask
         {
-            WhenEachState state = null;
-            if (tasks.Length != 0)
+            if (tasks.Length is 0)
             {
-                state = new WhenEachState(runtime);
-                foreach (TTask task in tasks)
-                {
-                    if (task is null)
-                    {
-                        throw new ArgumentException("The tasks argument included a null value.", nameof(tasks));
-                    }
-
-                    state.Pending.Add(task);
-                }
+                return null;
             }
 
-            return state;
+            var pending = new List<SystemTask>(tasks.Length);
+            foreach (TTask task in tasks)
+            {
+                if (task is null)
+                {
+                    throw new ArgumentException("The tasks argument included a null value.", nameof(tasks));
+                }
+
+                pending.Add(task);
+            }
+
+            return new WhenEachState(runtime, pending);
         }
 
         /// <summary>
@@ -109,7 +118,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         {
             ArgumentNullException.ThrowIfNull(tasks);
 
-            WhenEachState state = null;
+            var pending = new List<SystemTask>();
             foreach (TTask task in tasks)
             {
                 if (task is null)
@@ -117,11 +126,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
                     throw new ArgumentException("The tasks argument included a null value.", nameof(tasks));
                 }
 
-                state ??= new WhenEachState(runtime);
-                state.Pending.Add(task);
+                pending.Add(task);
             }
 
-            return state;
+            return pending.Count is 0 ? null : new WhenEachState(runtime, pending);
         }
 
         /// <summary>
@@ -175,7 +183,6 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         {
             lock (this.SyncObject)
             {
-                this.CheckCompletedTasks();
                 if (this.Completed.Count > 0)
                 {
                     task = this.Completed.Dequeue();
@@ -190,34 +197,41 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Returns true if there is at least one task that completed, but has not been yielded yet.
         /// </summary>
-        /// <remarks>
-        /// The runtime invokes this each time that it checks if the paused enumeration can resume,
-        /// which captures the tasks in the order that they complete.
-        /// </remarks>
         private bool HasCompletedTask()
         {
             lock (this.SyncObject)
             {
-                this.CheckCompletedTasks();
                 return this.Completed.Count > 0;
             }
         }
 
         /// <summary>
-        /// Moves any tasks that completed since the previous check to the completed tasks.
+        /// Records a task at the point that it completes.
         /// </summary>
-        private void CheckCompletedTasks()
+        private void EnqueueCompletedTask(SystemTask task)
         {
-            for (int idx = 0; idx < this.Pending.Count; idx++)
+            lock (this.SyncObject)
             {
-                SystemTask task = this.Pending[idx];
-                if (task.IsCompleted)
-                {
-                    this.Completed.Enqueue(task);
-                    this.Pending.RemoveAt(idx);
-                    idx--;
-                }
+                this.Completed.Enqueue(task);
+                this.PendingCount--;
             }
+        }
+
+        /// <summary>
+        /// Runs only internal completion bookkeeping synchronously, even when the source
+        /// task requests asynchronous continuations.
+        /// </summary>
+        private sealed class CompletionTaskScheduler : SystemTaskScheduler
+        {
+            /// <inheritdoc/>
+            protected override void QueueTask(SystemTask task) => this.TryExecuteTask(task);
+
+            /// <inheritdoc/>
+            protected override bool TryExecuteTaskInline(SystemTask task, bool taskWasPreviouslyQueued) =>
+                this.TryExecuteTask(task);
+
+            /// <inheritdoc/>
+            protected override IEnumerable<SystemTask> GetScheduledTasks() => Array.Empty<SystemTask>();
         }
     }
 }

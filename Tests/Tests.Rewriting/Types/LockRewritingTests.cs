@@ -11,7 +11,9 @@ using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
+using Monitor = System.Threading.Monitor;
 
+#pragma warning disable CS9216 // Intentionally exercise the object's monitor independently of Lock.
 namespace Microsoft.Coyote.Rewriting.Tests
 {
     public class LockRewritingTests : BaseRewritingTest
@@ -31,6 +33,99 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 Task first = Task.Run(() => Enter(gate, ref entered));
                 Task second = Task.Run(() => Enter(gate, ref entered));
                 Task.WaitAll(first, second);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingLockAndMonitorOwnershipIsIndependent(bool monitorHeld)
+        {
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                object monitor = gate;
+                if (monitorHeld)
+                {
+                    Monitor.Enter(monitor);
+                    try
+                    {
+                        Assert.False(gate.IsHeldByCurrentThread);
+                        Assert.Throws<SynchronizationLockException>(() => gate.Exit());
+                        Assert.True(gate.TryEnter());
+                        gate.Exit();
+                        Assert.False(gate.IsHeldByCurrentThread);
+                        Assert.True(Monitor.IsEntered(monitor));
+                    }
+                    finally
+                    {
+                        Monitor.Exit(monitor);
+                    }
+                }
+                else
+                {
+                    gate.Enter();
+                    try
+                    {
+                        Assert.False(Monitor.IsEntered(monitor));
+                        Assert.Throws<SynchronizationLockException>(() => Monitor.Exit(monitor));
+                        Monitor.Enter(monitor);
+                        Monitor.Exit(monitor);
+                        Assert.False(Monitor.IsEntered(monitor));
+                        Assert.True(gate.IsHeldByCurrentThread);
+                    }
+                    finally
+                    {
+                        gate.Exit();
+                    }
+                }
+            });
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingLockAndMonitorCanBeHeldByDifferentOperations(bool monitorHeld)
+        {
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                object monitor = gate;
+                if (monitorHeld)
+                {
+                    Monitor.Enter(monitor);
+                    try
+                    {
+                        Task other = Task.Run(() =>
+                        {
+                            gate.Enter();
+                            gate.Exit();
+                        });
+                        other.GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        Monitor.Exit(monitor);
+                    }
+                }
+                else
+                {
+                    gate.Enter();
+                    try
+                    {
+                        Task other = Task.Run(() =>
+                        {
+                            Monitor.Enter(monitor);
+                            Monitor.Exit(monitor);
+                        });
+                        other.GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        gate.Exit();
+                    }
+                }
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
@@ -298,4 +393,5 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
     }
 }
+#pragma warning restore CS9216 // Intentionally exercise the object's monitor independently of Lock.
 #endif

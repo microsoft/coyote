@@ -90,9 +90,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                var block = SynchronizedBlock.Find(obj) ??
-                    throw new SystemThreading.SynchronizationLockException();
-                return block.IsEntered();
+                var block = SynchronizedBlock.Find(obj);
+                return block != null && block.IsEntered();
             }
 
             return SystemThreading.Monitor.IsEntered(obj);

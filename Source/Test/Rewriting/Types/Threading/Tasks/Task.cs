@@ -9,6 +9,7 @@ using Microsoft.Coyote.Runtime.CompilerServices;
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
 using SystemCancellationToken = System.Threading.CancellationToken;
+using SystemCancellationTokenRegistration = System.Threading.CancellationTokenRegistration;
 using SystemTask = System.Threading.Tasks.Task;
 using SystemTaskContinuationOptions = System.Threading.Tasks.TaskContinuationOptions;
 using SystemTaskCreationOptions = System.Threading.Tasks.TaskCreationOptions;
@@ -249,9 +250,30 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// </summary>
         public static SystemTask WaitAsync(SystemTask task, SystemCancellationToken cancellationToken)
         {
-            SystemTask result = task.WaitAsync(cancellationToken);
-            CoyoteRuntime.Current.RegisterKnownControlledTask(result);
-            return result;
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.Interleaving)
+            {
+                SystemTask result = task.WaitAsync(cancellationToken);
+                runtime.RegisterKnownControlledTask(result);
+                return result;
+            }
+
+            if (task.IsCompleted || !cancellationToken.CanBeCanceled)
+            {
+                runtime.RegisterKnownControlledTask(task);
+                return task;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return FromCanceled(cancellationToken);
+            }
+
+            var cancellation = new SystemTasks.TaskCompletionSource();
+            runtime.RegisterKnownControlledTask(cancellation.Task);
+            SystemCancellationTokenRegistration registration = cancellationToken.Register(
+                () => cancellation.TrySetCanceled(cancellationToken));
+            return runtime.UnwrapTask(CreateWaitAsyncTask(task, cancellation.Task, runtime, registration));
         }
 
         /// <summary>
@@ -359,6 +381,34 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             SystemTask result = task.WaitAsync(timeout, cancellationToken);
             runtime.RegisterKnownControlledTask(result);
             return result;
+        }
+
+        /// <summary>
+        /// Observes completion or cancellation using a controlled operation.
+        /// </summary>
+        internal static SystemTasks.Task<TTask> CreateWaitAsyncTask<TTask>(TTask task, TTask cancellationTask,
+            CoyoteRuntime runtime, SystemCancellationTokenRegistration registration)
+            where TTask : SystemTask
+        {
+            return Run<TTask>(() =>
+            {
+                try
+                {
+                    if (!cancellationTask.IsCompleted)
+                    {
+                        TaskServices.WaitUntilAnyTaskCompletes(runtime, new SystemTask[] { task, cancellationTask });
+                    }
+
+                    // Only unwrap completed tasks, so asynchronous source continuations cannot
+                    // move completion of the wait onto the uncontrolled thread pool.
+                    return cancellationTask.IsCanceled ? cancellationTask : task;
+                }
+                finally
+                {
+                    // Do not block a controlled operation waiting for an in-flight cancellation callback.
+                    registration.Unregister();
+                }
+            });
         }
 
         private static void ValidateTimeout(TimeSpan timeout)
@@ -956,9 +1006,30 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static SystemTasks.Task<TResult> WaitAsync(SystemTasks.Task<TResult> task,
             SystemCancellationToken cancellationToken)
         {
-            SystemTasks.Task<TResult> result = task.WaitAsync(cancellationToken);
-            CoyoteRuntime.Current.RegisterKnownControlledTask(result);
-            return result;
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy != SchedulingPolicy.Interleaving)
+            {
+                SystemTasks.Task<TResult> result = task.WaitAsync(cancellationToken);
+                runtime.RegisterKnownControlledTask(result);
+                return result;
+            }
+
+            if (task.IsCompleted || !cancellationToken.CanBeCanceled)
+            {
+                runtime.RegisterKnownControlledTask(task);
+                return task;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<TResult>(cancellationToken);
+            }
+
+            var cancellation = new SystemTasks.TaskCompletionSource<TResult>();
+            runtime.RegisterKnownControlledTask(cancellation.Task);
+            SystemCancellationTokenRegistration registration = cancellationToken.Register(
+                () => cancellation.TrySetCanceled(cancellationToken));
+            return runtime.UnwrapTask(Task.CreateWaitAsyncTask(task, cancellation.Task, runtime, registration));
         }
 
         /// <summary>

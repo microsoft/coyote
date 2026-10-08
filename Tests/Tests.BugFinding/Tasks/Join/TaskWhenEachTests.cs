@@ -79,6 +79,72 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [Theory(Timeout = 5000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void TestWhenEachYieldsBatchedCompletionsInOrder(bool isGeneric, bool runContinuationsAsynchronously)
+        {
+            this.Test(async () =>
+            {
+                TaskCreationOptions options = runContinuationsAsynchronously ?
+                    TaskCreationOptions.RunContinuationsAsynchronously : TaskCreationOptions.None;
+                var first = new TaskCompletionSource<int>(options);
+                var second = new TaskCompletionSource<int>(options);
+                IAsyncEnumerable<Task> tasks = isGeneric ?
+                    Task.WhenEach(first.Task, second.Task) :
+                    Task.WhenEach((Task)first.Task, (Task)second.Task);
+
+                second.SetResult(2);
+                first.SetResult(1);
+
+                var yielded = new List<Task>();
+                await foreach (Task task in tasks)
+                {
+                    yielded.Add(task);
+                }
+
+                Specification.Assert(yielded.Count is 2, "Yielded {0} tasks instead of 2.", yielded.Count);
+                Specification.Assert(ReferenceEquals(yielded[0], second.Task),
+                    "Yielded a task that is not the first task to complete.");
+                Specification.Assert(ReferenceEquals(yielded[1], first.Task),
+                    "Yielded a task that is not the second task to complete.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestWhenEachCapturesBatchedCompletionsBetweenMoves(bool runContinuationsAsynchronously)
+        {
+            this.Test(async () =>
+            {
+                TaskCreationOptions options = runContinuationsAsynchronously ?
+                    TaskCreationOptions.RunContinuationsAsynchronously : TaskCreationOptions.None;
+                var first = new TaskCompletionSource<bool>(options);
+                var second = new TaskCompletionSource<bool>(options);
+                var third = new TaskCompletionSource<bool>(options);
+                IEnumerable<Task> tasks = new Task[] { first.Task, second.Task, third.Task };
+                await using IAsyncEnumerator<Task> enumerator = Task.WhenEach(tasks).GetAsyncEnumerator();
+
+                first.SetResult(true);
+                Specification.Assert(await enumerator.MoveNextAsync(), "The enumeration completed early.");
+                Specification.Assert(ReferenceEquals(enumerator.Current, first.Task), "Yielded an unexpected task.");
+
+                third.SetResult(true);
+                second.SetResult(true);
+                Specification.Assert(await enumerator.MoveNextAsync(), "The enumeration completed early.");
+                Specification.Assert(ReferenceEquals(enumerator.Current, third.Task),
+                    "Lost the completion order while enumeration was inactive.");
+                Specification.Assert(await enumerator.MoveNextAsync(), "The enumeration completed early.");
+                Specification.Assert(ReferenceEquals(enumerator.Current, second.Task), "Yielded an unexpected task.");
+                Specification.Assert(!await enumerator.MoveNextAsync(), "The enumeration did not complete.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
         [Fact(Timeout = 5000)]
         public void TestWhenEachWithGenericTasksCompletedByOtherOperations()
         {
